@@ -1,0 +1,68 @@
+/* components/Header/Header.css */
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5vw;
+    padding: 1vw 2vw;
+    background: var(--transparent-dark-purple);
+}
+
+.question-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header .question-text {
+    font-size: 1.3vw !important;
+    font-weight: 500;
+    color: white;
+    text-align: left;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.header-tabs {
+    display: flex;
+    gap: 0;
+    justify-content: center;
+    border-radius: 1vw;
+    padding: 0.5vw;
+}
+
+.header-tab {
+    padding: 0.6vw 1.2vw;
+    margin: 0.2vw;
+    border-radius: 1vw;
+    font-size: 1.25vw;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: #a0a0b0;
+    border: none;
+    height: fit-content;
+}
+
+.header-tab:hover:not(.disabled):not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.header-tab.active {
+    background: #9B59B6;
+    color: white;
+    font-weight: bold;
+}
+
+.header-tab.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.highlight {
+    font-weight: 600;
+}
+

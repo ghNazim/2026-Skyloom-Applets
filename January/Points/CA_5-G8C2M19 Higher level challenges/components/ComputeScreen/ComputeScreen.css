@@ -1,0 +1,458 @@
+/* components/ComputeScreen/ComputeScreen.css */
+.compute-screen {
+  display: flex;
+  gap: 1.5vw;
+  padding: 1vw;
+  height: 100%;
+  width: 100%;
+}
+
+.compute-screen .left-section {
+  flex: 1.25;
+  max-width: 52vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+}
+
+.compute-screen .right-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1vw;
+}
+
+.compute-screen .right-section.split {
+  justify-content: flex-start;
+}
+
+.solve-box {
+  background: rgba(22, 22, 46, 0.5);
+  border-radius: 1.5vw;
+  padding: 1vw;
+  width: 100%;
+  color: white;
+  border: 0.1vw solid #3c3c6e;
+}
+
+.solve-box-content {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  height: 100%;
+  width: 100%;
+}
+
+.question-text-container {
+  width: 60%;
+  display: flex;
+  align-items: center;
+  padding: 0 1vw;
+}
+
+.question-text {
+  font-size: 1.7vw;
+  font-weight: 500;
+  color: white;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.numpad-container {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.right-section.split .solve-box {
+  height: 50%;
+  flex-shrink: 0;
+}
+
+.right-section.split .solve-box-mcq {
+  height: 35%;
+  flex-shrink: 0;
+}
+
+.right-section.split .solve-box-mcq + .steps-box {
+  height: 65%;
+  flex-shrink: 0;
+}
+
+.right-section:not(.split) .solve-box {
+  height: 100%;
+}
+
+.solve-box h3 {
+  margin: 0 0 1.5vw 0;
+  font-size: 1.8vw;
+  font-weight: 600;
+}
+
+.hint-border {
+  flex: 1;
+  border: 0.1vw dashed #9393f9;
+  border-radius: 1vw;
+  padding: 1vw;
+  font-size: 1.25vw;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(22, 22, 46, 0.5);
+}
+
+.equation-container {
+  font-size: 1.8vw;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5vw;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw;
+  min-height: 80px;
+}
+
+.equation-part {
+  display: inline-block;
+}
+
+.equation-part.highlight {
+  background: rgba(255, 165, 0, 0.3);
+  border: 2px solid #ffa500;
+  border-radius: 0.5vw;
+  padding: 0.3vw 0.8vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: pulse-shadow 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse-shadow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 15px 6px rgba(255, 165, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.6);
+  }
+}
+
+.equation-part.highlight:hover {
+  background: rgba(255, 165, 0, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
+}
+
+.summary-box {
+  background: rgba(22, 22, 46, 0.5);
+  border-radius: 1.5vw;
+  padding: 2vw;
+  color: white;
+  width: 100%;
+  height: 100%;
+  border: 0.1vw solid #3c3c6e;
+}
+
+.summary-box h3 {
+  margin: 0 0 1.5vw 0;
+  font-size: 1.8vw;
+  font-weight: 600;
+}
+
+.summary-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-box li {
+  font-size: 1.8vw;
+  line-height: 2;
+  padding: 0.5vw 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-box li:last-child {
+  border-bottom: none;
+}
+
+.steps-box {
+  background: rgba(22, 22, 46, 0.5);
+  border-radius: 1.5vw;
+  padding: 1vw;
+  width: 100%;
+  height: 50%;
+  color: white;
+  border: 0.1vw solid #3c3c6e;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.steps-box h3 {
+  margin: 0 0 1vw 0;
+  font-size: 1.8vw;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.steps-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5vw;
+}
+
+.steps-list::-webkit-scrollbar {
+  width: 0.5vw;
+}
+
+.steps-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25vw;
+}
+
+.steps-list::-webkit-scrollbar-thumb {
+  background: rgba(147, 147, 249, 0.5);
+  border-radius: 0.25vw;
+}
+
+.steps-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 147, 249, 0.7);
+}
+
+.no-steps {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.4vw;
+  padding: 2vw;
+  font-style: italic;
+}
+
+.step-item {
+  margin-bottom: 1vw;
+  padding: 0.5vw 1vw;
+  background: rgba(147, 147, 249, 0.1);
+  border-radius: 0.8vw;
+  border-left: 0.3vw solid #9393f9;
+}
+
+.step-number {
+  font-size: 1.4vw;
+  font-weight: 600;
+  color: #9393f9;
+  margin-bottom: 0.5vw;
+}
+
+.step-equation {
+  font-size: 1.6vw;
+  font-weight: 500;
+  color: white;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3vw;
+  align-items: center;
+}
+
+.step-part {
+  display: inline-block;
+}
+
+.step-fraction-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 0 0.3vw;
+}
+
+.step-fraction-num {
+  padding: 0.2vw 0.5vw;
+  text-align: center;
+}
+
+.step-fraction-line {
+  width: 100%;
+  height: 0.15vw;
+  background: white;
+  margin: 0.1vw 0;
+}
+
+.step-fraction-den {
+  padding: 0.2vw 0.5vw;
+  text-align: center;
+}
+
+/* MCQ styles for compute screen */
+.mcq-container {
+  width: 100%;
+  padding: 1vw;
+}
+
+.mcq-container h4 {
+  font-size: 1.6vw;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 1.5vw;
+}
+
+.mcq-options-row {
+  display: flex;
+  gap: 1vw;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.mcq-option {
+  background: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 1vw;
+  padding: 1vw 1.5vw;
+  font-size: 1.4vw;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.4s ease, box-shadow 0.4s ease,
+    transform 0.3s ease, opacity 0.3s ease;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  transform: translateY(0);
+  flex: 1;
+  z-index: 1;
+  /* min-width: 120px; */
+}
+
+.mcq-option::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  border-radius: 1vw;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.mcq-option:hover:not(.correct):not(.wrong) {
+  background: #f39c12;
+  transform: translateY(-2px);
+}
+
+.mcq-option.correct {
+  background: #2ecc71;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+  transform: translateY(0);
+}
+
+.mcq-option.correct::before {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  opacity: 1;
+}
+
+.mcq-option.wrong {
+  background: #e74c3c;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+  transform: translateY(0);
+  animation: shake 0.3s ease-in-out;
+}
+
+.mcq-option.wrong::before {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  opacity: 1;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.equation-part.clickable {
+  cursor: pointer;
+}
+
+.equation-part.clickable:hover {
+  background: rgba(255, 165, 0, 0.5);
+  transform: scale(1.05);
+}
+
+.empty-box {
+  background: rgba(255, 255, 255, 0.1);
+  min-width: 60px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.empty-box.filled {
+  background: rgba(46, 204, 113, 0.2);
+  border-color: #2ecc71;
+}
+
+.empty-box-yellow {
+  display: inline-block;
+  min-width: 40px;
+  padding: 5px 10px;
+  border: 2px solid #ffd700;
+  border-radius: 3px;
+  text-align: center;
+  background: rgba(255, 215, 0, 0.1);
+  color: #ffd700;
+  font-weight: bold;
+  margin: 0 2px;
+}
+
+.result-box {
+  background: #03003e;
+  border: 0.1vw solid #3c3c6e;
+  border-radius: 1.5vw;
+  padding: 2.5vw;
+  color: white;
+  width: 100%;
+  text-align: center;
+  font-size: 2vw;
+}
+.result-box p {
+  font-size: 2vw;
+}
+/* Pulsating arrow label */
+.table-arrow-label-box.pulsating {
+  animation: pulsate-border 1.5s ease-in-out infinite;
+}
+
+@keyframes pulsate-border {
+  0%,
+  100% {
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    border-color: #ffa500;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+}

@@ -1,0 +1,616 @@
+/* src/styles/Applet.css */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-self: center;
+}
+
+body {
+  font-family: "Roboto", "Segoe UI", sans-serif;
+  background-color: var(--background-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("../assets/DarkBG2.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  max-height: 100vh;
+  box-shadow: 0 1vh 3vw var(--transparent-black-15);
+  display: flex;
+  flex-direction: column;
+  /* background: #16162e87; */
+  border: 0.1vw solid var(--transparent-purple-border-50);
+  -webkit-backdrop-filter: blur(1vw);
+  backdrop-filter: blur(1vw);
+  border-radius: 1vw;
+}
+
+.title-bar {
+  font-size: 2.25vw;
+  font-weight: 600;
+  padding: 1vh 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  text-align: center;
+  height: 10%;
+}
+
+.title-bar span {
+  margin: 0 0.5vw;
+}
+
+.main-title {
+  font-size: 2.25vw;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  padding: 1vw;
+  gap: 2vw;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  height: 75%;
+}
+
+.activity-area-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 1vw;
+  position: relative;
+}
+
+.inline-hammer-wrapper {
+  display: inline-block;
+  position: relative;
+  width: 7.5vw;
+  height: 5vw;
+  vertical-align: middle;
+  margin: 0;
+}
+
+.inline-hammer {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.inline-hammer-number {
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  transform: translate(-50%, -55%);
+  font-size: 2.25vw;
+  font-weight: bold;
+  color: #d738ff;
+  text-shadow: -0.04vw -0.04vw 0.02vw #d3abf8;
+  filter: drop-shadow(0.04vw 0.04vw 0.02vw #03153f);
+}
+
+.strike-gif {
+  position: absolute;
+  width: 10vw;
+  height: 10vw;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.multiplier-content {
+  width: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--transparent-dark-purple);
+  border-radius: 1vw;
+  padding: 2vw;
+}
+
+.multiplier-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  font-size: 5vw;
+  color: white;
+}
+
+.math-symbol {
+  font-size: 5vw;
+}
+
+.input-box {
+  display: inline-block;
+  width: 6vw;
+  min-height: 5vh;
+  text-align: center;
+  border: 2px solid white;
+  border-radius: 0.5vw;
+  color: yellow;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.input-box.incorrect {
+  border-color: var(--incorrect-answer-border);
+  color: var(--input-incorrect-border);
+}
+
+.input-box.correct {
+  border-color: var(--correct-answer-border);
+  color: var(--correct-answer-background-start);
+}
+
+.final-screen {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  width: 80%;
+  height: 100%;
+  color: white;
+
+  text-align: center;
+
+  position: relative;
+
+  flex-direction: column;
+}
+
+.fraction-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+}
+
+.fraction-pair {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+}
+
+.fraction-group-label {
+  font-size: 2vw;
+  font-weight: bold;
+}
+
+.comma {
+  font-size: 5vw;
+}
+
+.arrow-right {
+  font-size: 5vw;
+  color: white;
+}
+#hand-ftue {
+  position: fixed;
+  width: 6vw;
+  height: auto;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+  transform: translate(-30%, -20%);
+  transition: top 0.3s ease, left 0.3s ease;
+}
+#hand-ftue img {
+  width: 100%;
+  height: auto;
+}
+.hand-animating {
+  display: block !important;
+  animation: hand-tap-animation 1.5s ease-in-out infinite;
+}
+@keyframes hand-tap-animation {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(-30%, -20%) scale(1.1);
+  }
+  20%,
+  80% {
+    opacity: 1;
+    transform: translate(-30%, -20%) scale(1.1);
+  }
+  50% {
+    transform: translate(-30%, -20%) scale(0.95);
+  }
+}
+
+.strike-gif {
+  position: absolute;
+  width: 7vw;
+  height: 7vw;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.multiplier-content.column {
+  flex-direction: column;
+  gap: 2vh;
+}
+
+.comparison-content {
+  width: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+  background: var(--transparent-dark-purple);
+  border-radius: 1vw;
+  padding: 2vw;
+  font-size: 5vw;
+  color: white;
+}
+.comparison-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 6vw;
+  height: 6vw;
+  border: 2px dashed var(--primary-color);
+  border-radius: 0.5vw;
+  color: var(--primary-color);
+  font-size: 3.5vw;
+}
+.comparison-box.correct {
+  border-style: solid;
+  border-color: var(--correct-answer-border);
+  color: var(--correct-answer-background-start);
+}
+.comparison-box.incorrect {
+  border-style: solid;
+  border-color: var(--incorrect-answer-border);
+  color: var(--input-incorrect-border);
+}
+
+/* Ensure McqContainer can handle non-numeric options cleanly */
+.mcq-option-button {
+  font-size: 3vw !important;
+}
+
+.math-problem-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8vh;
+  padding: 2vh 2vw;
+  width: 100%;
+}
+
+.math-problem-container.column {
+  flex-direction: column;
+}
+
+.math-problem-container .row {
+  display: flex;
+  width: 80%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4vw;
+}
+.hint-icon {
+  position: absolute;
+  top: 1vh;
+  right: 1vw;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.hint-icon img {
+  width: 2.5vw;
+  height: auto;
+  display: block;
+}
+
+.fade-out {
+  opacity: 0.2;
+}
+.start-over-button {
+  position: absolute;
+  bottom: 4vw;
+}
+
+/* Final Explanation Standalone Screen */
+.final-explanation-standalone {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 3vw;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh;
+}
+
+.final-explanation-left {
+  width: 45%;
+  height: 100%;
+  background: var(--transparent-dark-purple);
+  border: 0.2vh solid var(--transparent-purple-border-50);
+  border-radius: 1vw;
+  padding: 2vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.final-explanation-right {
+  width: 45%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.final-explanation-box-standalone {
+  width: 100%;
+  padding: 3vh 2vw;
+  border-radius: 1.5vw;
+  border: 0.3vh dashed #fff;
+  background: rgba(76, 175, 80, 0.2);
+  -webkit-backdrop-filter: blur(5vw);
+  backdrop-filter: blur(5vw);
+  text-align: center;
+}
+
+.final-explanation-box-standalone p {
+  margin: 0;
+  color: white;
+  font-size: 2vw;
+}
+
+.fraction-display {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 0.5vw;
+  line-height: 1;
+}
+
+.frac-num {
+  padding-bottom: 0.4vh;
+  font-size: 2vw;
+}
+
+.frac-den {
+  padding-top: 0.2vh;
+  font-size: 2vw;
+  border-top: 0.15vh solid white;
+  /* min-width: 6vw; */
+}
+
+/* Progress indicator styles */
+.lower-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+  width: 100%;
+}
+
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  font-size: 1.8vw;
+  color: #e6d5b8;
+}
+
+.progress-dot {
+  width: 1vw;
+  height: 1vw;
+  border-radius: 50%;
+  border: 0.15vw solid var(--dark-gray-color);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background: #ffa726;
+  border-color: #ffa726;
+  box-shadow: 0 0 1vh rgba(255, 167, 38, 0.5);
+}
+
+.progress-dot.completed {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.progress-text {
+  margin-left: 0.5vw;
+}
+/* ADD THESE STYLES TO THE END OF THE FILE */
+
+/* Styles for inline vertical fractions */
+.formula-as-text,
+.tan-formula-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5vw;
+  width: 100%;
+}
+
+.inline-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.8vw;
+  line-height: 1;
+  vertical-align: middle;
+  margin: 0 0.3vw;
+}
+
+.inline-num {
+  padding-bottom: 0.2vh;
+  line-height: 1.2;
+}
+
+.inline-den {
+  padding-top: 0.2vh;
+  line-height: 1.2;
+  border-top: 0.15vw solid #ffffff;
+}
+
+/* Common component styles */
+.trig-values-overlay {
+  position: absolute;
+  top: 1.5vw;
+  left: 1.5vw;
+  background: var(--transparent-dark-purple);
+  border-radius: 1vw;
+  padding: 0.5vw 1vw;
+  line-height: 1.6;
+  color: white;
+  z-index: 10;
+
+  border: 0.1vw solid var(--transparent-purple-border-50);
+}
+
+.trig-values-overlay p {
+  margin: 0.3vw 0;
+  font-size: 1.5vw !important;
+  font-weight: 500 !important;
+}
+
+.feedback-box {
+  background: rgba(22, 22, 46, 0.5);
+  border: 0.2vh dashed var(--numpad-border-color);
+  border-radius: 1.5vw;
+  padding: 1.2vw;
+  color: white;
+  font-size: 1.5vw !important;
+}
+
+.feedback-box.success {
+  background: rgba(22, 22, 46, 0.5);
+  border-color: #2ecc71;
+}
+
+.triangle-box {
+  flex: 1;
+  background: #03003e;
+  border-radius: 1.5vw;
+  padding: 1vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  position: relative;
+  border: 0.1vw solid #3c3c6e;
+}
+
+.fraction,
+.fraction-vertical {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  vertical-align: middle;
+  margin: 0 0.2vw;
+}
+
+.fraction .num,
+.fraction .den {
+  line-height: 1.2;
+}
+
+.fraction .num {
+  padding-bottom: 0.1vw;
+}
+
+.fraction .den {
+  padding-top: 0.1vw;
+  border-top: 0.15vw solid white;
+  min-width: 2vw;
+  text-align: center;
+}
+
+.fraction-line-small {
+  width: 80px;
+  height: 3px;
+  background: white;
+}
+
+.inline-fraction {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 0.5vw;
+}
+
+.draggable-sides {
+  display: flex;
+  gap: 1.5vw;
+}
+
+.draggable-side {
+  padding: 1vw 2vw;
+  color: white;
+  border-radius: 1vw;
+  font-size: 1.5vw;
+  font-weight: bold;
+  cursor: grab;
+  transition: all 0.3s ease;
+}
+
+.draggable-side:active {
+  cursor: grabbing;
+}
+
+.draggable-side:hover {
+  transform: translateY(-2px);
+}
+
+.hint-section {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  margin-bottom: 2vw;
+}
+
+.hint-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5vw;
+  transition: all 0.3s ease;
+}
+
+.hint-button:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.hint-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

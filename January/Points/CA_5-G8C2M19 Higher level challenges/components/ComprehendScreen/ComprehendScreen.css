@@ -1,0 +1,95 @@
+/* components/ComprehendScreen/ComprehendScreen.css */
+.comprehend-screen {
+  display: flex;
+  gap: 1.5vw;
+  padding: 1vw;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+}
+
+.comprehend-screen .left-panel {
+  flex: 1.25;
+  max-width: 52vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  height: 100%;
+}
+
+.comprehend-screen .visualization-box {
+  flex: 1;
+  width: 100%;
+  background: #03003e;
+  border-radius: 1.5vw;
+  padding: 1vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  position: relative;
+  border: 0.1vw solid #3c3c6e;
+}
+
+.comprehend-screen .right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+}
+
+.action-button {
+  background: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 1.5vw;
+  padding: 1.5vw 3vw;
+  font-size: 1.4vw;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  background: #f39c12;
+  transform: translateY(-2px);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+.action-button.completed {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-button.completed:hover {
+  transform: none;
+  background: #e67e22;
+}
+
+.comprehend-text {
+  width: 100%;
+  text-align: left;
+  font-size: 2vw;
+  background-color: #03003e;
+  border-radius: 1.5vw;
+  padding: 1.5vw;
+  border: 0.1vw solid var(--transparent-purple-border-50);
+}
+
+.comprehend-text p {
+  margin: 0;
+  font-size: 2vw;
+  font-weight: 500;
+}
+
+.comprehend-text p:last-child {
+  color: rgb(255, 247, 0);
+  font-weight: 600;
+}

@@ -1,0 +1,167 @@
+:root {
+  --primary-color: #b266ff;
+  --primary-hover-color: #9933ff;
+  --background-color: #120c1c;
+  --text-color: #f0e6ff;
+  --text-shadow-color: rgba(224, 199, 255, 0.6);
+  --button-background-color: #1e1233;
+  --light-text-color: rgba(255, 255, 255, 0.87);
+  --start-button-gradient-start: #ff9800;
+  --start-button-gradient-end: #f57c00;
+  --start-button-shadow: rgb(198, 82, 0);
+  --restart-button-gradient-start: #00c6ff;
+  --restart-button-gradient-end: #0072ff;
+  --restart-button-shadow: rgb(0, 96, 198);
+  --white-color: #ffffff;
+  --dark-gray-color: #555;
+  --medium-gray-color: #666;
+  --button-border-color: #6c757d;
+  --button-hover-border-color: #ffc107;
+  --selected-answer-background-start: #007bff;
+  --selected-answer-background-end: #0056b3;
+  --selected-answer-border: #007bff;
+  --incorrect-answer-background-start: #dc3545;
+  --incorrect-answer-background-end: #a71d2a;
+  --incorrect-answer-border: #dc3545;
+  --correct-answer-background-start: #28a745;
+  --correct-answer-background-end: #218838;
+  --correct-answer-border: #28a745;
+  --focused-input-border: #ffb300;
+  --focused-input-shadow: #ffa600;
+  --input-correct-background: #28a745;
+  --input-correct-border: #208637;
+  --input-incorrect-background: #dc3545;
+  --input-incorrect-border: #b02a37;
+  --disabled-button-opacity: 0.6;
+  --transparent-black-15: rgba(0, 0, 0, 0.15);
+  --transparent-black-20: rgba(0,0,0,0.2);
+  --transparent-black-30: rgba(0, 0, 0, 0.3);
+  --transparent-purple-55: rgba(30, 20, 50, 0.55);
+  --transparent-purple-border: #c9a4ff90;
+  --transparent-dark-purple: rgba(45, 30, 75, 0.5);
+  --transparent-darker-purple: rgba(15, 10, 25, 0.65);
+  --transparent-purple-border-10: #c8a4ff7b;
+  --transparent-purple-border-50: #c9a4ff90;
+  --numpad-background-start: #002b4e8d;
+  --numpad-background-end: #02294e96;
+  --numpad-border-color: #0080ff;
+  --numpad-shadow-color: #00b3ff;
+  --numpad-active-background-start: #333333;
+  --numpad-active-background-end: #565656;
+  --hint-button-background-start: #ffac07;
+  --hint-button-background-end: #f59300;
+  --check-button-background-start: #772aa3;
+  --check-button-background-end: #511ac1;
+  --check-button-shadow: rgb(42, 5, 154);
+  --hint-area-background: rgba(255, 193, 7, 0.1);
+  --hint-area-border: rgba(255, 193, 7, 0.3);
+  --mcq-hint-area-background: rgba(220, 53, 69, 0.1);
+  --mcq-hint-area-border: rgba(220, 53, 69, 0.3);
+  --mcq-hint-text-color: #f8d7da;
+  --numbox-correct-background: #d4edda;
+  --numbox-correct-text: #155724;
+  --numbox-incorrect-background: #f8d7da;
+  --numbox-incorrect-text: #721c24;
+  --black-color: black;
+  --numbox-border-color: #ddd;
+  --visual-area-border: #af5e00;
+
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--light-text-color);
+  background-color: var(--background-color);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+:root { background: transparent !important; }
+a {
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--primary-hover-color);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 2vw !important;
+  font-weight: 600;
+}
+h2,h3,p{
+  font-size: 1.6vw;
+  font-weight: 600;
+}
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 1vh 1vw;
+  font-size: 2vw;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--button-background-color);
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: var(--text-color);
+    background-color: var(--background-color);
+  }
+  a:hover {
+    color: var(--primary-hover-color);
+  }
+  button {
+    background-color: var(--button-background-color);
+  }
+}
+
+/* Highlighting styles for question and summary */
+.highlight-yellow {
+  background-color: #FFD700;
+  padding: 0.1em 0.3em;
+  border-radius: 0.3em;
+  color: #000;
+  font-weight: 500;
+}
+
+.highlight-orange {
+  color: #FF6B35;
+  font-weight: 500;
+}
+
+.highlight-primary {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.highlight-blue {
+  background-color: #4a90e2;
+  padding: 0.1em 0.3em;
+  border-radius: 0.3em;
+  color: #fff;
+  font-weight: 500;
+}
+
+
+.katex {
+  font-size: 1em;
+  font-weight: inherit;
+}
+.katex .mord {
+  font-family: "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif;
+  font-style: none !important;
+}
