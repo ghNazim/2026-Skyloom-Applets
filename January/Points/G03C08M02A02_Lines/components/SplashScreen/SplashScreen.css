@@ -25,10 +25,11 @@
   overflow-y: auto;
   justify-content: center;
   align-items: center;
+  padding-right: 2vw;
 }
 
 .splash-content-text {
-  font-size: 2.5vw;
+  font-size: 2.4vw;
   color: white;
   line-height: 1.6;
   text-align: left;

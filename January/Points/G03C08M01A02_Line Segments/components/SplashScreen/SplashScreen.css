@@ -25,6 +25,7 @@
   overflow-y: auto;
   justify-content: center;
   align-items: center;
+  padding-right: 2vw;
 }
 
 .splash-content-text {
@@ -33,7 +34,7 @@
   line-height: 1.6;
   text-align: left;
   white-space: pre-line;
-  padding-right: 1vw;
+  
 }
 
 .splash-content-box {

@@ -137,6 +137,10 @@ const VisualPanel = ({
   // Step 0: Point dragging handlers
   const handlePointMouseDown = (e, pointId) => {
     if (step !== 0 || step0SubStep !== "initial") return;
+    // For touch events, prevent default to stopping scrolling while dragging
+    if (e.type === 'touchstart') {
+      // e.preventDefault(); // Optional, depending on if we want to stop scroll entirely
+    }
     e.stopPropagation();
     setDraggedPointLocal(pointId);
     onDragStart && onDragStart(pointId);
@@ -320,12 +324,11 @@ const VisualPanel = ({
         (step0SubStep === "extended" || step0SubStep === "slider")) ||
       (step >= 1 && sliderValue > 1)
     ) {
-      // When slider = 1, B is at original position
-      // When slider = 2, B is halfway between A and original B
-      const currentSliderValue = step === 0 ? sliderValue : sliderValue;
-      const t = (currentSliderValue - 1) / 1; // 0 to 1
-      const newX = pointAPos.x + (pointBPos.x - pointAPos.x) * (1 - t * 0.5);
-      const newY = pointAPos.y + (pointBPos.y - pointAPos.y) * (1 - t * 0.5);
+      // Scale distance from A by 1/sliderValue to match grid scaling (which is 5/sliderValue)
+      // This ensures that relative to grid units, the distance remains constant.
+      const scale = 1 / sliderValue;
+      const newX = pointAPos.x + (pointBPos.x - pointAPos.x) * scale;
+      const newY = pointAPos.y + (pointBPos.y - pointAPos.y) * scale;
       return { x: newX, y: newY };
     }
     return pointBPos;
@@ -706,6 +709,7 @@ const VisualPanel = ({
           fill: "transparent",
           style: { cursor: "move" },
           onMouseDown: (e) => handlePointMouseDown(e, pointId),
+          onTouchStart: (e) => handlePointMouseDown(e, pointId),
         }),
       // Point circles
       React.createElement("circle", {
@@ -725,6 +729,14 @@ const VisualPanel = ({
               onCircleClick(pointId);
             }
           : null,
+        onTouchStart: isDraggable
+          ? (e) => handlePointMouseDown(e, pointId)
+          : showCircle && onCircleClick
+          ? (e) => {
+              e.stopPropagation();
+              onCircleClick(pointId);
+            }
+          : null,
       }),
       React.createElement("circle", {
         cx: x,
@@ -733,6 +745,9 @@ const VisualPanel = ({
         fill: "white",
         style: { cursor: isDraggable ? "move" : "default" },
         onMouseDown: isDraggable
+          ? (e) => handlePointMouseDown(e, pointId)
+          : null,
+        onTouchStart: isDraggable
           ? (e) => handlePointMouseDown(e, pointId)
           : null,
       }),
@@ -790,24 +805,28 @@ const VisualPanel = ({
     );
   };
 
-  // Render grid lines
+  // Render grid lines - Anchored to Point A
   const renderGrid = () => {
     // Show grid throughout the applet
     if (step < 0) return null;
     const gridLines = [];
     const gridColor = "rgba(173, 216, 230, 0.2)"; // Light blue, very subtle
 
-    // Calculate grid bounds
     const minX = 0;
     const maxX = 100;
     const minY = 0;
     const maxY = 70;
 
-    // Vertical lines
-    for (let x = minX; x <= maxX; x += gridSpacing) {
+    // Vertical lines aligned with pointAPos.x
+    // We want lines at pointAPos.x + k * gridSpacing
+    const startKX = Math.ceil((minX - pointAPos.x) / gridSpacing);
+    const endKX = Math.floor((maxX - pointAPos.x) / gridSpacing);
+
+    for (let k = startKX; k <= endKX; k++) {
+      const x = pointAPos.x + k * gridSpacing;
       gridLines.push(
         React.createElement("line", {
-          key: `v-${x}`,
+          key: `v-${k}`,
           x1: x,
           y1: minY,
           x2: x,
@@ -818,11 +837,15 @@ const VisualPanel = ({
       );
     }
 
-    // Horizontal lines
-    for (let y = minY; y <= maxY; y += gridSpacing) {
+    // Horizontal lines aligned with pointAPos.y
+    const startKY = Math.ceil((minY - pointAPos.y) / gridSpacing);
+    const endKY = Math.floor((maxY - pointAPos.y) / gridSpacing);
+
+    for (let k = startKY; k <= endKY; k++) {
+      const y = pointAPos.y + k * gridSpacing;
       gridLines.push(
         React.createElement("line", {
-          key: `h-${y}`,
+          key: `h-${k}`,
           x1: minX,
           y1: y,
           x2: maxX,

@@ -421,15 +421,15 @@ const VisualPanel = ({
       (step === 1 &&
         (step1SubStep === "extended" || step1SubStep === "slider")) ||
       (step >= 2 && sliderValue && sliderValue > 1);
+    
     if (shouldZoom) {
-      // When slider = 1, A is at original position
-      // When slider = 2, A moves towards midpoint
       const currentSliderValue = sliderValue || 1;
-      const t = (currentSliderValue - 1) / 1; // 0 to 1
       const midpointX = (pointAPos.x + pointBPos.x) / 2;
       const midpointY = (pointAPos.y + pointBPos.y) / 2;
-      const newX = pointAPos.x + (midpointX - pointAPos.x) * t * 0.5;
-      const newY = pointAPos.y + (midpointY - pointAPos.y) * t * 0.5;
+      
+      // Scale distance from midpoint by 1/sliderValue
+      const newX = midpointX + (pointAPos.x - midpointX) / currentSliderValue;
+      const newY = midpointY + (pointAPos.y - midpointY) / currentSliderValue;
       return { x: newX, y: newY };
     }
     return pointAPos;
@@ -441,15 +441,15 @@ const VisualPanel = ({
       (step === 1 &&
         (step1SubStep === "extended" || step1SubStep === "slider")) ||
       (step >= 2 && sliderValue && sliderValue > 1);
+    
     if (shouldZoom) {
-      // When slider = 1, B is at original position
-      // When slider = 2, B moves towards midpoint
       const currentSliderValue = sliderValue || 1;
-      const t = (currentSliderValue - 1) / 1; // 0 to 1
       const midpointX = (pointAPos.x + pointBPos.x) / 2;
       const midpointY = (pointAPos.y + pointBPos.y) / 2;
-      const newX = pointBPos.x + (midpointX - pointBPos.x) * t * 0.5;
-      const newY = pointBPos.y + (midpointY - pointBPos.y) * t * 0.5;
+      
+      // Scale distance from midpoint by 1/sliderValue
+      const newX = midpointX + (pointBPos.x - midpointX) / currentSliderValue;
+      const newY = midpointY + (pointBPos.y - midpointY) / currentSliderValue;
       return { x: newX, y: newY };
     }
     return pointBPos;
@@ -1215,11 +1215,28 @@ const VisualPanel = ({
     const minY = 0;
     const maxY = 70;
 
+    // Calculate midpoint to center grid scaling
+    const midpointX = (pointAPos.x + pointBPos.x) / 2;
+    const midpointY = (pointAPos.y + pointBPos.y) / 2;
+
     // Vertical lines
-    for (let x = minX; x <= maxX; x += gridSpacing) {
+    // Calculate start position so one line always passes through midpointX
+    // Use modulo to find the first line position >= minX
+    // We want midpointX to be a grid line (specifically line 0 relative to center)
+    // So lines are at: midpointX + n * gridSpacing
+    
+    // Find first line coordinate:
+    // lowest n such that midpointX + n * gridSpacing >= minX
+    // n * gridSpacing >= minX - midpointX
+    // n >= (minX - midpointX) / gridSpacing
+    const startN_X = Math.ceil((minX - midpointX) / gridSpacing);
+    const endN_X = Math.floor((maxX - midpointX) / gridSpacing);
+
+    for (let n = startN_X; n <= endN_X; n++) {
+      const x = midpointX + n * gridSpacing;
       gridLines.push(
         React.createElement("line", {
-          key: `v-${x}`,
+          key: `v-${n}`,
           x1: x,
           y1: minY,
           x2: x,
@@ -1231,10 +1248,14 @@ const VisualPanel = ({
     }
 
     // Horizontal lines
-    for (let y = minY; y <= maxY; y += gridSpacing) {
+    const startN_Y = Math.ceil((minY - midpointY) / gridSpacing);
+    const endN_Y = Math.floor((maxY - midpointY) / gridSpacing);
+
+    for (let n = startN_Y; n <= endN_Y; n++) {
+      const y = midpointY + n * gridSpacing;
       gridLines.push(
         React.createElement("line", {
-          key: `h-${y}`,
+          key: `h-${n}`,
           x1: minX,
           y1: y,
           x2: maxX,

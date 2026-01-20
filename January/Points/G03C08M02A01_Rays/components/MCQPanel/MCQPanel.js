@@ -150,7 +150,6 @@ const MCQPanel = ({
           { className: "mcq-wrapper" },
           // MCQ Title (only if not null and feedback not shown)
           mcqData.title &&
-            !showFeedback &&
             React.createElement("div", {
               className: "mcq-title",
               dangerouslySetInnerHTML: { __html: mcqData.title },

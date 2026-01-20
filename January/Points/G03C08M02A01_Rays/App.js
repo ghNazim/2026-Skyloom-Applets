@@ -288,8 +288,6 @@ const App = () => {
     } else if (step === 4) {
       return true; // Enabled in step 4
     } else if (step === 5) {
-      return labelBAnimationComplete; // Wait for animation to complete in step 5
-    } else if (step === 5) {
       return showArrowSymbol;
     } else if (step === 6) {
       return isCorrect;

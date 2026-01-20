@@ -19,7 +19,7 @@ const appData = {
       question: `In between <y>the Endpoints</y>`,
       navText: "Move the points around, then tap the button",
       navTextAfterConnect: "Tap the 'Extend' Button",
-      navTextAfterExtend: "Move the slider all the way to the left",
+      navTextAfterExtend: "Move the slider all the way to the right",
       navTextAfterSlider: "Tap » to continue",
       infoText:
         "We know that all the points between 2 endpoints make a line segment. <br><br>Let's visualise connecting the two end points A and B shown here…",
@@ -116,79 +116,100 @@ const appData = {
 
     // Step -1 - Intro splash screen
     stepIntro: {
-      question: "Titik, Sinar, Garis, Ruas Garis",
+      question: "<y>Sinar</y>",
       navText: "",
       contentText:
-        "Segala sesuatu dalam Geometri terbuat dari titik….  Mari kita letakkan titik-titik bersebelahan dan lihat apa yang muncul…",
+        "Ketika kita memiliki 2 TITIK UJUNG \nyang dihubungkan dengan koneksi lurus, \nitu membuat ruas garis.\n\n Mari kita jelajahi bangun\n geometri yang kita dapatkan ketika kita melampaui\n salah satu titik.",
     },
-    // Step 0 - Scribble drawing
+    // Step 0 - Draggable points and connect button
     step0: {
-      question: "<y>Menghubungkan Titik</y> dalam Ruang",
-      navText: "Seret dari salah satu titik ke titik lainnya",
+      question: `Di antara <y>Titik-titik Ujung</y>`,
+      navText: "Pindahkan titik-titik di sekitar, lalu ketuk tombol",
+      navTextAfterConnect: "Ketuk Tombol 'Perpanjang'",
+      navTextAfterExtend: "Gerakkan penggeser sepenuhnya ke kanan",
+      navTextAfterSlider: "Ketuk » untuk melanjutkan",
       infoText:
-        "Hubungkan Titik A ke Titik B dengan menggambar coretan di antara keduanya…",
+        "Kita tahu bahwa semua titik di antara 2 titik ujung membuat ruas garis. <br><br>Mari kita visualisasikan menghubungkan dua titik ujung A dan B yang ditunjukkan di sini…",
+      infoTextAfterConnect:
+        "<div>Perhatikan bahwa ruas garis <ol>AB</ol> berakhir di titik A dan B.<br><br> Tapi, bagaimana jika kita tidak berhenti di B?</div>",
+      infoTextAfterExtend:
+        "<div>Gambar ini <y>dimulai</y> di titik A, tetapi <y>tidak berakhir</y> di titik B… <br><br>Gunakan penggeser untuk memperbesar gambar untuk melihat di mana ia berakhir…</div>",
+      actionButtonText: "Hubungkan A ke B",
+      actionButtonTextExtend: "Perpanjang melampaui Titik B",
+      lineName: "RUAS GARIS <ol>AB</ol> atau <ol>BA</ol>",
     },
-    // Step 1 - MCQ about straight line
+    // Step 1 - Ray introduction
     step1: {
-      question: "Apakah ini Jarak Lurus antara Titik-titik?",
-      navText: "Ketuk tombol yang benar sesuai pertanyaan",
-      navTextAfter: "Ketuk » untuk membuat koneksi lurus",
+      question: "Gambar ini adalah sebuah <y>Sinar</y>",
+      navText: "Ketuk » untuk memahami cara merepresentasikan sinar",
+      infoText:
+        "<div>Ini <y>dimulai</y> di titik A, tetapi <y>tidak berakhir</y> sama sekali… Ia <y>meluas selamanya</y>… Ini disebut SINAR.</div>",
+    },
+    // Step 2 - Arrow representation
+    step2: {
+      question: "Merepresentasikan <y>Sinar</y> dengan <y>panah-tunggal</y>",
+      navText: "Ketuk » untuk memberi nama sinar",
+      infoText:
+        "Kita menunjukkan bagian yang memanjang dengan panah, menunjukkan bahwa ia memanjang selamanya ke arah itu. \n\nSebuah Sinar memiliki titik awal dan memanjang selamanya ke arah tertentu.",
+    },
+    // Step 3 - Naming ray - starting point
+    step3: {
+      question: "<y>Memberi Nama</y> Sinar",
+      navText: "Ketuk titik yang benar sesuai pertanyaan",
+      navTextAfter: "Ketuk » untuk melanjutkan",
+      infoText: "Manakah titik awal dari Sinar ini?",
+      feedbackWrong:
+        "Ups… Sinar memanjang di kedua sisi B. Cari titik yang memiliki sinar di satu sisi saja…",
+      feedbackCorrect:
+        "Itu Benar! Sinar dimulai di A. Ini adalah huruf pertama dalam penamaan Sinar.",
+    },
+    // Step 4 - Naming ray - direction point
+    step4: {
+      question: "<y>Memberi Nama</y> Sinar",
+      navText: "Baca apa yang diberikan, lalu ketuk » untuk melanjutkan",
+      infoText: `<div class="info-box"><y>Huruf Pertama</y> - Titik Awal</div><div class='info-box'>Ke arah mana sinar memanjang dari A? Kita membutuhkan titik lain di suatu tempat sepanjang sinar.</div>`,
+    },
+    // Step 5 - Naming ray - arrow symbol
+    step5: {
+      question: "<y>Memberi Nama</y> Sinar",
+      navText: "Ketuk Tanda Panah",
+      navTextAfter: "Ketuk » untuk melanjutkan",
+      infoText:
+        '<div class="info-box"><y>Huruf Pertama</y> - Titik Awal</div><div class="info-box"><y>Huruf Kedua</y> - Titik lain pada Sinar, untuk arah</div><div class="info-box">Ketuk tanda panah untuk simbol sinar.</div>',
+      infoTextAfter: `<div class="info-box"><y>Huruf Pertama</y> - Titik Awal</div><div class="info-box"><y>Huruf Kedua</y> - Titik lain pada Sinar, untuk arah</div><div class="info-box"><y>Simbol Panah</y> - Panah ke kanan, di atas huruf.</div><div class="info-box">Sinar ${arrow(
+        "AB"
+      )} dimulai di A dan memanjang selamanya ke arah dari A ke B.</div>`,
+    },
+    // Step 6 - MCQ about order of letters
+    step6: {
+      question: "<y>Urutan huruf</y> saat memberi nama Sinar",
+      navText: "Baca apa yang diberikan, lalu ketuk » untuk melanjutkan",
+      navTextAfter: "Ketuk » untuk merangkum",
+      infoText: `<div class="info-box">Huruf Pertama - Titik Awal</div><div class="info-box">Huruf Kedua - Titik lain pada Sinar, untuk arah</div><div class="info-box">Simbol Panah - Panah ke kanan, di atas huruf.</div><div class="info-box">Sinar ${arrow(
+        "AB"
+      )} dimulai di A dan memanjang selamanya ke arah dari A ke B. Sinar ${arrow(
+        "BA"
+      )} dimulai di B dan memanjang selamanya menuju A.</div>`,
       mcq: {
-        title:
-          "Bagus. Anda telah membuat koneksi kontinu antara titik A dan B. Apakah coretan ini LURUS?",
+        title: `Apakah menurut Anda kita dapat menamai Sinar ini sebagai ${arrow(
+          "BA"
+        )} alih-alih ${arrow("AB")}?`,
         options: ["Ya", "Tidak"],
         feedbacks: {
-          wrong:
-            "Ups! Kami melihat bahwa coretan yang ditunjukkan di sini memiliki bagian melengkung, dan tidak menghubungkan A dan B dengan lurus!",
-          correct:
-            "Benar! Kami melihat bahwa coretan yang ditunjukkan di sini memiliki bagian melengkung, dan tidak menghubungkan A dan B dengan lurus!",
+          wrong: `Ups… Huruf pertama harus selalu menjadi titik awal… ${arrow(
+            "BA"
+          )} adalah sinar yang dimulai di B`,
+          correct: "Benar!",
         },
-        correctAnswer: 1, // Index 1 = "Tidak"
+        correctAnswer: 1, // Index 1 = "No"
       },
     },
-    // Step 2 - Animation showing points forming line
-    step2: {
-      question: "<y>Jarak Lurus</y> antara 2 Titik",
-      navText: "Ketuk » untuk melanjutkan",
-      infoText:
-        "Koneksi lurus antara dua titik A dan B seperti menggambar banyak titik bersebelahan di antara A dan B.",
-    },
-    // Step 3 - Draggable points
-    step3: {
-      question: "<y>Jarak Lurus</y> antara 2 Titik - <y>Ruas Garis</y>",
-      navText: "Pindahkan salah satu titik dan perhatikan ruas garisnya",
-      navTextAfter: "Ketuk » untuk memberi nama ruas garis ini",
-      infoText:
-        "Ini disebut ruas garis.    Ruas garis tidak memiliki bagian melengkung.",
-      infoTextAfter:
-        "Ruas garis antara 2 titik tidak akan memiliki bagian melengkung.",
-    },
-    // Step 4 - Naming line segment
-    step4: {
-      question: "<y>Memberi Nama</y> Ruas Garis",
-      navText: "Ketuk setiap nama titik untuk menyatukannya",
-      navTextAfter: "Ketuk ruas garis untuk menambahkan simbol",
-      navTextFinal: "Ketuk » untuk melanjutkan",
-      infoText:
-        "Untuk memberi nama ruas garis, kita menulis nama  titik-titik bersebelahan.",
-      infoTextAfter:
-        "Huruf - <y>Titik Ujung</y>   Simbol garis kecil menunjukkan bahwa ini adalah RUAS GARIS..",
-      infoTextFinal:
-        '<div class="info-box">Huruf - <y>Titik Ujung</y></div><div class="info-box">Simbol - <y>garis</y></div>',
-    },
-    // Step 5 - Summary
-    step5: {
-      question: "Memberi Nama Ruas Garis",
-      navText: "Ketuk » untuk merangkum",
-      infoText:
-        '<div class="info-box">Huruf - <y>Titik Ujung</y></div><div class="info-box">Simbol - <y>garis</y></div><div class="info-box">Urutan titik tidak penting karena kedua titik A dan B adalah titik ujung.</div>',
-    },
-    // Step 6 - Final splash screen
-    step6: {
-      question: "Ruas Garis",
+    // Step 7 - Final splash screen
+    step7: {
+      question: "<y>Sinar</y>",
       navText: "Aktivitas Selesai!",
       contentText:
-        "Koneksi lurus antara dua titik disebut ruas garis.   Ruas garis diberi nama dengan menulis nama titik ujungnya bersebelahan di bawah simbol garis.",
+        "Sinar adalah koneksi lurus <yellow>dimulai dari sebuah titik</yellow> dan memanjang selamanya menuju <blue>titik lain</blue>.\n\n Simbol Panah Kanan menunjukkan Sinar",
     },
     // Common strings
     rayLabel: "SINAR",

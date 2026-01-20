@@ -25,6 +25,7 @@
   overflow-y: auto;
   justify-content: center;
   align-items: center;
+  padding-right: 2vw;
 }
 
 .splash-content-text {
