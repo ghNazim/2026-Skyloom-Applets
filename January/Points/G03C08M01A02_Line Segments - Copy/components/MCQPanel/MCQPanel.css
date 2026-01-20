@@ -51,13 +51,6 @@
   white-space: pre-line;
 }
 
-.mcq-panel-text.final-info {
-  background: rgba(76, 175, 80, 0.15);
-  border: 2px solid #66bb6a;
-  border-radius: 0.5vw;
-  padding: 1.5vw;
-}
-
 .mcq-panel-content {
   display: flex;
   flex-direction: column;
@@ -109,38 +102,6 @@
   color: white;
   margin-bottom: 1vw;
   text-align: left;
-  
-}
-
-.mcq-title-box {
-  width: 100%;
-  padding: 1.5vw;
-  border-radius: 0.5vw;
-  margin-bottom: 1.5vw;
-  font-size: 2vw;
-  line-height: 1.8;
-  white-space: pre-line;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 8vw;
-}
-
-.mcq-title-box-neutral {
-  background: linear-gradient(
-    145deg,
-    rgba(107, 107, 107, 0.5),
-    rgba(76, 76, 76, 0.3)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.mcq-title-box-correct {
-  background-color: rgba(76, 175, 80, 0.15);
-  border: 2px solid #66bb6a;
-  color: #fff;
 }
 
 .mcq-options-container {
@@ -211,36 +172,6 @@
   animation: shake 0.5s ease-in-out;
 }
 
-.compare-button {
-  margin-top: 1.5vw;
-  padding: 1vw 2vw;
-  font-size: 2vw;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  background: linear-gradient(145deg, #ffeb3b, #ff9800);
-  color: black;
-  border-radius: 0.8vw;
-  transition: all 0.3s ease;
-  text-align: center;
-  box-shadow: 0 0.4vh 0.8vh rgba(0, 0, 0, 0.2);
-  position: relative;
-}
-.compare-button.disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.compare-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-}
-
-.compare-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
 @keyframes shake {
   0%,
   100% {
@@ -259,18 +190,4 @@
   80% {
     transform: translateX(5px);
   }
-}
-
-.inline-box{
-  display: inline-block;
-  width: 5vw;
-  height: 4vw;
-  border: .1vw solid rgba(255, 166, 0, 1);
-  border-radius: .5vw;
-  background: rgba(255, 255, 255, 0.2);
-  /* margin-top: 1vw; */
-  vertical-align: middle;
-  font-size: 1 em;
-  text-align: center;
-  /* padding-bottom: 1vw; */
 }

@@ -28,6 +28,7 @@ const App = () => {
   // Store timeout IDs to clear them when starting a new line
   const stabilizationTimeoutRef = useRef(null);
   const feedbackTimeoutRef = useRef(null);
+  const animationTimeoutRef = useRef(null);
 
   // Step 1 states - Comparison animation and MCQ
   const [showCompareButton, setShowCompareButton] = useState(true);
@@ -41,6 +42,7 @@ const App = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showFinalInfo, setShowFinalInfo] = useState(false);
+  const [isReversing, setIsReversing] = useState(false);
 
   // Step data structure for determining splash screens
   const stepData = [
@@ -61,6 +63,10 @@ const App = () => {
     if (feedbackTimeoutRef.current) {
       clearTimeout(feedbackTimeoutRef.current);
       feedbackTimeoutRef.current = null;
+    }
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
     }
 
     if (newStep === 0 || newStep === 2) {
@@ -89,6 +95,7 @@ const App = () => {
       setSelectedOption(null);
       setIsCorrect(false);
       setShowFinalInfo(false);
+      setIsReversing(false);
     }
   };
 
@@ -170,7 +177,7 @@ const App = () => {
       setDrawStartPoint(startPoint);
       const startPos = getPointPos(startPoint);
       if (startPos) {
-        setDrawCurrentPath(`M ${startPos.x} ${startPos.y}`);
+
         playSound("click");
       }
     },
@@ -383,10 +390,11 @@ const App = () => {
     setComparisonAnimationStarted(true);
 
     // Mark animation complete after duration
-    setTimeout(() => {
+    animationTimeoutRef.current = setTimeout(() => {
       setComparisonAnimationComplete(true);
       setMcqPhase(1); // Show first MCQ
-    }, 2000);
+      animationTimeoutRef.current = null;
+    }, 1300);
   }, [step, comparisonAnimationStarted, drawnLines]);
 
   // Handle MCQ option click (Step 1 and Step 3)
@@ -410,14 +418,17 @@ const App = () => {
       if (correct) {
         playSound("correct");
         if (mcqPhase === 1) {
-          // After first MCQ is correct, instantly restore visual state and show second MCQ
-          setTimeout(() => {
-            // Instantly restore to state before animation - stop all animation
-            // Clear animated lines FIRST to prevent reverse animation from running
-            setAnimatedLines([]);
+          // After first MCQ is correct, trigger reverse animation
+          
+          setIsReversing(true);
+          setComparisonAnimationComplete(false); // Stop showing static graph lines, switch to animated lines
+
+          animationTimeoutRef.current = setTimeout(() => {
+            // After animation completes
+            setIsReversing(false);
             setComparisonAnimationStarted(false);
-            setComparisonAnimationComplete(false);
             setShowGraphLine(false);
+            setAnimatedLines([]);
 
             // Change all lines to white for MCQ2
             const updatedLines = drawnLines.map((line) => ({
@@ -438,7 +449,8 @@ const App = () => {
             setMcqPhase(2);
             setSelectedOption(null);
             setIsCorrect(false);
-          }, 1000);
+            animationTimeoutRef.current = null;
+          }, 1300);
         } else if (mcqPhase === 2) {
           // After second MCQ is correct, immediately show green points and lines
           // For step 1: Make AM green and points A and M green
@@ -469,7 +481,7 @@ const App = () => {
           // After delay, show final info
           setTimeout(() => {
             setShowFinalInfo(true);
-          }, 2000);
+          }, 1300);
         }
       } else {
         playSound("wrong");
@@ -879,6 +891,7 @@ const App = () => {
         showGraphLine: step === 1 || step === 3 ? showGraphLine : false,
         animatedLines: step === 1 || step === 3 ? animatedLines : [],
         setAnimatedLines: step === 1 || step === 3 ? setAnimatedLines : null,
+        isReversing: step === 1 || step === 3 ? isReversing : false,
       });
     }
   };
@@ -1038,15 +1051,17 @@ const App = () => {
               showCompareButton:
                 step === 1 || step === 3 ? showCompareButton : false,
               compareButtonText:
-                step === 1
+                step === 1 || step === 0
                   ? APP_DATA.step1.compareButtonText
-                  : step === 3
+                  : step === 3 || step === 2
                   ? APP_DATA.step3.compareButtonText
                   : null,
               onCompareClick:
                 step === 1 || step === 3 ? handleCompareClick : null,
               showFinalInfo: step === 1 || step === 3 ? showFinalInfo : false,
               mcqPhase: step === 1 || step === 3 ? mcqPhase : 0,
+              step: step,
+              compareShown: step === 0 || step === 2 || (step ===1 && !mcqPhase) || (step === 3 && !mcqPhase)
             })
           )
         ),

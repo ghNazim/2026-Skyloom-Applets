@@ -1,0 +1,126 @@
+.final-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: white;
+  padding: 2vw;
+  box-sizing: border-box;
+  gap: 3vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  backdrop-filter: blur(5px);
+}
+
+.final-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 3vw;
+  padding: 2vw;
+}
+
+.final-text {
+  font-size: 3vw;
+  color: white;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.final-left-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.final-right-column {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.final-subtractions {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1vw;
+  backdrop-filter: blur(5px);
+  padding: 1vw 3.5vw;
+  width: 100%;
+  max-width: 30vw;
+}
+
+.final-subtraction-item {
+  font-size: 2vw;
+  color: white;
+  text-align: left;
+  padding: 0.5vw;
+  margin: 0.3vw 0;
+  /* background-color: rgba(144, 238, 144, 0.3); */
+  border-radius: 0.3vw;
+  /* text-align: center; */
+}
+
+.final-explanation {
+  text-align: left;
+  width: 100%;
+
+  margin-bottom: 2vw;
+  font-size: 2.2vw;
+  line-height: 1.6;
+  color: white;
+  padding: 1vw;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.final-formula-container {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5vw;
+  flex-wrap: wrap;
+  margin-top: 2vw;
+  padding-bottom: 3vw;
+}
+
+.final-formula-part {
+  position: relative;
+  color: var(--accent-color);
+  font-size: 2.2vw;
+  display: inline-block;
+}
+
+.final-formula-operator {
+  padding: 0 0.5vw;
+}
+
+.final-formula-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--accent-color);
+  font-size: 2.2vw;
+  white-space: nowrap;
+  margin-top: 2vw;
+}
+
+.final-button {
+  margin-top: 2vw;
+}

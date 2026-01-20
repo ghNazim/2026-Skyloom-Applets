@@ -21,6 +21,7 @@ const VisualPanel = ({
   showGraphLine,
   animatedLines,
   setAnimatedLines,
+  isReversing,
 }) => {
   const { useRef, useEffect, useState } = React;
   const svgRef = useRef(null);
@@ -65,6 +66,9 @@ const VisualPanel = ({
     if (event.touches && event.touches[0]) {
       pt.x = event.touches[0].clientX;
       pt.y = event.touches[0].clientY;
+    } else if (event.changedTouches && event.changedTouches[0]) {
+      pt.x = event.changedTouches[0].clientX;
+      pt.y = event.changedTouches[0].clientY;
     } else {
       pt.x = event.clientX;
       pt.y = event.clientY;
@@ -144,21 +148,9 @@ const VisualPanel = ({
   // Step 1 and Step 3: Reverse animation (when lines need to go back)
   // NOTE: This reverse animation is currently disabled - we instantly restore instead
   // Keeping this code in case we need reverse animation in the future
+  // Step 1 and Step 3: Reverse animation (when lines need to go back)
   useEffect(() => {
-    // Don't run reverse animation - we instantly restore the state instead
-    // This prevents issues when lines are drawn in different directions
-    return;
-
-    // Trigger reverse animation when comparisonAnimationComplete becomes false after being true
-    if (
-      (step !== 1 && step !== 3) ||
-      !comparisonAnimationStarted ||
-      comparisonAnimationComplete ||
-      !showGraphLine ||
-      animatedLines.length === 0
-    ) {
-      return;
-    }
+    if (!isReversing) return;
 
     // Reverse animation: animate lines back to original positions
     const validLines = drawnLines.filter((line) => line.isValid);
@@ -180,7 +172,7 @@ const VisualPanel = ({
       return line;
     });
 
-    const duration = 2000; // 2 seconds
+    const duration = 1300; // 1.3 seconds
     const startTime = Date.now();
     const graphLineX = 10;
 
@@ -189,10 +181,24 @@ const VisualPanel = ({
       const progress = Math.min(elapsed / duration, 1);
 
       const animated = normalizedLines.map((line, index) => {
-        const startPos = line.startPos;
-        const endPos = line.endPos;
-        const dx = endPos.x - startPos.x;
-        const dy = endPos.y - startPos.y;
+        let startPos = line.startPos;
+        let endPos = line.endPos;
+
+        // Calculate line length and direction
+        let dx = endPos.x - startPos.x;
+        let dy = endPos.y - startPos.y;
+
+        // If dx is negative, the line is pointing left. Swap positions to ensure
+        // the line always animates from left to right (avoiding flip)
+        if (dx < 0) {
+          // Swap positions so line goes from left to right
+          const temp = startPos;
+          startPos = endPos;
+          endPos = temp;
+          dx = -dx;
+          dy = -dy;
+        }
+
         const length = Math.sqrt(dx * dx + dy * dy);
         const targetY = 30 + index * 10;
 
@@ -205,12 +211,21 @@ const VisualPanel = ({
           graphLineX + length + (endPos.x - (graphLineX + length)) * progress;
         const currentEndY = targetY + (endPos.y - targetY) * progress;
 
+        const currentAngle = 0 + (Math.atan2(dy, dx) * (180 / Math.PI) - 0) * progress;
+
+        // If dx is negative (pointing left), we swapped in forward animation.
+        // We need to respect that?
+        // Actually, let's just use the calculated pos.
+        // Wait, forward animation does a swap if dx < 0.
+        // Let's replicate forward animation interpolation logic inverted.
+
         return {
           ...line,
           animatedStartX: currentStartX,
           animatedStartY: currentStartY,
           animatedEndX: currentEndX,
           animatedEndY: currentEndY,
+          animatedAngle: currentAngle,
         };
       });
 
@@ -218,9 +233,6 @@ const VisualPanel = ({
 
       if (progress < 1) {
         requestAnimationFrame(animateReverse);
-      } else {
-        // Animation back complete - lines are at original positions
-        // Don't clear animatedLines here, let App.js handle cleanup
       }
     };
 
@@ -232,10 +244,7 @@ const VisualPanel = ({
     };
   }, [
     step,
-    comparisonAnimationStarted,
-    comparisonAnimationComplete,
-    showGraphLine,
-    animatedLines.length,
+    isReversing,
     drawnLines,
     setAnimatedLines,
   ]);
@@ -246,7 +255,7 @@ const VisualPanel = ({
       (step !== 1 && step !== 3) ||
       !comparisonAnimationStarted ||
       !showGraphLine ||
-      !comparisonAnimationComplete
+      (!comparisonAnimationComplete && !isReversing)
     ) {
       setBackgroundOpacity(1);
     }
@@ -263,7 +272,8 @@ const VisualPanel = ({
       (step !== 1 && step !== 3) ||
       !comparisonAnimationStarted ||
       comparisonAnimationComplete ||
-      !showGraphLine
+      !showGraphLine ||
+      isReversing
     ) {
       return;
     }
@@ -291,7 +301,7 @@ const VisualPanel = ({
     // Start reducing background opacity gradually (0.3s transition)
     setBackgroundOpacity(0.1);
 
-    const duration = 2000; // 2 seconds
+    const duration = 1300; // 1.3 seconds
     const startTime = Date.now();
 
     const animate = () => {
@@ -515,7 +525,7 @@ const VisualPanel = ({
       // Step 1 and Step 3: Graph line (vertical dotted line at x=10) - only show during forward animation, thinner
       (step === 1 || step === 3) &&
         showGraphLine &&
-        comparisonAnimationComplete &&
+        (comparisonAnimationComplete || isReversing) &&
         React.createElement("line", {
           x1: 10,
           y1: 0,
@@ -529,7 +539,7 @@ const VisualPanel = ({
       (step === 1 || step === 3) &&
         comparisonAnimationStarted &&
         showGraphLine &&
-        comparisonAnimationComplete &&
+        (comparisonAnimationComplete || isReversing) &&
         animatedLines.length > 0 &&
         drawnLines
           .filter((line) => line.isValid)
@@ -676,7 +686,7 @@ const VisualPanel = ({
       (step === 1 || step === 3) &&
         comparisonAnimationStarted &&
         showGraphLine &&
-        comparisonAnimationComplete &&
+        (comparisonAnimationComplete || isReversing) &&
         animatedLines.length > 0 &&
         drawnLines
           .filter((line) => line.isValid)
@@ -735,7 +745,7 @@ const VisualPanel = ({
             (step === 1 || step === 3) &&
             comparisonAnimationStarted &&
             showGraphLine &&
-            comparisonAnimationComplete &&
+            (comparisonAnimationComplete || isReversing) &&
             animatedLines.length > 0
               ? backgroundOpacity
               : 1,
@@ -752,7 +762,7 @@ const VisualPanel = ({
       (step === 1 || step === 3) &&
         comparisonAnimationStarted &&
         showGraphLine &&
-        comparisonAnimationComplete &&
+        (comparisonAnimationComplete || isReversing) &&
         animatedLines.length > 0 &&
         React.createElement(
           "g",

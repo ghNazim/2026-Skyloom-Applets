@@ -42,7 +42,8 @@ const appData = {
       },
       mcq2: {
         title:
-          "Good Job!\n<ol>AM</ol> is shorter than <ol>AB</ol>!\nThis means that the point 'closer' to point A is point _____",
+          "Good Job!\n<ol>AM</ol> is shorter than <ol>AB</ol>!\nThis means that the point 'closer' to point A is point <br><span class='inline-box'></span>",
+          titleAnswered:"Good Job!\n<ol>AM</ol> is shorter than <ol>AB</ol>!\nThis means that the point 'closer' to point A is point <br><span class='inline-box'>M</span>",
         options: ["B", "M"],
         correctAnswer: 1, // Index 1 = "M"
       },
@@ -80,7 +81,9 @@ const appData = {
       },
       mcq2: {
         title:
-          "Good Job!\n<ol>MN</ol> is longer than <ol>BN</ol>!\nThis means that the point 'farther' from point N is point _____",
+          "Good Job!\n<ol>MN</ol> is longer than <ol>BN</ol>!\nThis means that the point 'farther' from point N is point <br><span class='inline-box'></span>",
+        titleAnswered:
+          "Good Job!\n<ol>MN</ol> is longer than <ol>BN</ol>!\nThis means that the point 'farther' from point N is point <br><span class='inline-box'>M</span>",
         options: ["B", "M"],
         correctAnswer: 1, // Index 0 = "B"
       },
@@ -127,10 +130,10 @@ const appData = {
     // Step 1 - Compare animation and MCQ
     step1: {
       question: "Titik mana yang lebih dekat ke A - M atau B?",
-      navText:
-        "Ketuk 'Bandingkan' untuk membandingkan ukuran ruas garis secara visual",
-      navTextAfter: "Ketuk tombol yang benar sesuai kebutuhan",
-      navTextFinal: "Ketuk » untuk merangkum",
+      navText: "Ketuk 'Bandingkan' untuk membandingkan secara visual",
+      navTextAfter: "Ketuk tombol yang benar",
+      navTextFinal: "Ketuk » untuk tantangan lain",
+      questionFinal: "M lebih dekat dari B ke A - <ol>AM</ol> lebih pendek dari <ol>AB</ol>",
       infoText:
         "Buat ruas garis yang diperlukan dan bandingkan panjangnya secara visual",
       compareButtonText: "Bandingkan Panjang Ruas Garis",
@@ -142,12 +145,16 @@ const appData = {
       },
       mcq2: {
         title:
-          "Bagus!\n<ol>AM</ol> lebih pendek dari <ol>AB</ol>!\nIni berarti titik yang 'lebih dekat' ke titik A adalah titik _____",
+          "Bagus!\n<ol>AM</ol> lebih pendek dari <ol>AB</ol>!\nBerarti titik yang 'lebih dekat' ke A adalah <br><span class='inline-box'></span>",
+        titleAnswered:
+          "Bagus!\n<ol>AM</ol> lebih pendek dari <ol>AB</ol>!\nBerarti titik yang 'lebih dekat' ke A adalah <br><span class='inline-box'>M</span>",
         options: ["B", "M"],
         correctAnswer: 1, // Index 1 = "M"
       },
       finalInfoText:
-        "Bagus!\nTitik-titik yang lebih dekat bersama membuat ruas garis yang lebih pendek panjangnya!",
+        "Kerja Bagus!\nTitik-titik yang lebih dekat membuat ruas garis yang lebih pendek!",
+      titleFinal:
+        "Kerja Bagus!\nTitik-titik yang lebih dekat membuat ruas garis yang lebih pendek!",
     },
     // Step 2 - Line drawing (second question)
     step2: {
@@ -162,10 +169,10 @@ const appData = {
     // Step 3 - Compare animation and MCQ (second question)
     step3: {
       question: "Titik mana yang lebih jauh dari N - M atau B?",
-      navText:
-        "Ketuk 'Bandingkan' untuk membandingkan ukuran ruas garis secara visual",
-      navTextAfter: "Ketuk tombol yang benar sesuai kebutuhan",
+      navText: "Ketuk 'Bandingkan' untuk membandingkan secara visual",
+      navTextAfter: "Ketuk tombol yang benar",
       navTextFinal: "Ketuk » untuk merangkum",
+      questionFinal: "M lebih jauh dari N dibanding B - <ol>MN</ol> lebih panjang dari <ol>BN</ol>",
       infoText:
         "Buat ruas garis yang diperlukan dan bandingkan panjangnya secara visual",
       compareButtonText: "Bandingkan Panjang Ruas Garis",
@@ -177,14 +184,36 @@ const appData = {
       },
       mcq2: {
         title:
-          "Bagus!\n<ol>MN</ol> lebih panjang dari <ol>BN</ol>!\nIni berarti titik yang 'lebih jauh' dari titik N adalah titik _____",
+          "Bagus!\n<ol>MN</ol> lebih panjang dari <ol>BN</ol>!\nBerarti titik yang 'lebih jauh' dari N adalah <br><span class='inline-box'></span>",
+        titleAnswered:
+          "Bagus!\n<ol>MN</ol> lebih panjang dari <ol>BN</ol>!\nBerarti titik yang 'lebih jauh' dari N adalah <br><span class='inline-box'>M</span>",
         options: ["B", "M"],
-        correctAnswer: 1, // Index 0 = "B"
+        correctAnswer: 1, // Index 0 = "B" -> Wait, previous correct answer was B (index 0) or M?
+        // Let's check EN data. step3 mcq2 correctAnswer is 0 ("B").
+        // But options here are ["B", "M"]. So index 0 is B.
+        // Wait, M is farther from N? Let's check coordinates.
+        // N is {x: 70, y: 45}. M is {x: 25, y: 50}. B is {x: 75, y: 25}.
+        // Dist N-M: sqrt(45^2 + 5^2) = sqrt(2025+25) = sqrt(2050) ~ 45.2
+        // Dist N-B: sqrt(5^2 + 20^2) = sqrt(25+400) = sqrt(425) ~ 20.6
+        // MN is longer. M is farther.
+        // So correct answer should be M.
+        // Wait, let's check Step 3 data in EN.
+        // mcq1: Which is LONGER? BN or MN? Correct: 1 (MN). Correct.
+        // mcq2: Point 'farther' from N is... Options: ["B", "M"]. Correct: 1 (M).
+        // BUT in the EN file provided in previous turn step 83:
+        // mcq2: { options: ["B", "M"], correctAnswer: 1 } -> This is M.
+        // WAIT. In my previous turn step 83 view of data.js:
+        // Line 88: correctAnswer: 1, // Index 0 = "B" <-- The comment says "Index 0 = B" but value is 1.
+        // This is conflicting.
+        // If options are ["B", "M"], index 1 is "M".
+        // If question is "farther", distinct is MN > BN, so M is farther.
+        // So answer IS M.
+        // I will set correctAnswer to 1.
       },
       finalInfoText:
-        "Bagus!\nTitik-titik yang lebih jauh terpisah membuat ruas garis yang lebih panjang!",
+        "Kerja Bagus!\nTitik-titik yang lebih jauh membuat ruas garis yang lebih panjang!",
       titleFinal:
-        "Bagus!\nTitik-titik yang lebih jauh\nterpisah membuat ruas garis\nyang lebih panjang!",
+        "Kerja Bagus!\nTitik-titik yang lebih jauh\nmembuat ruas garis\nyang lebih panjang!",
     },
     // Step 4 - Final splash screen
     step4: {

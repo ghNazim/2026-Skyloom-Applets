@@ -80,22 +80,13 @@ const VisualPanel = ({
     const svg = svgRef.current;
     if (!svg) return { x: 0, y: 0 };
     const pt = svg.createSVGPoint();
-    
-    // Check for touch events first
-    // Use touches[0] if available (touchstart, touchmove)
-    // Use changedTouches[0] if touches is empty (touchend)
-    const touch = 
-      (event.touches && event.touches[0]) || 
-      (event.changedTouches && event.changedTouches[0]);
-
-    if (touch) {
-      pt.x = touch.clientX;
-      pt.y = touch.clientY;
+    if (event.touches && event.touches[0]) {
+      pt.x = event.touches[0].clientX;
+      pt.y = event.touches[0].clientY;
     } else {
       pt.x = event.clientX;
       pt.y = event.clientY;
     }
-
     const ctm = svg.getScreenCTM();
     if (ctm) {
       return pt.matrixTransform(ctm.inverse());
@@ -179,12 +170,6 @@ const VisualPanel = ({
   // Step 3: Wipe animation
   useEffect(() => {
     if (step === 3) {
-      // If points have already moved (returning to step), skip animation
-      if (pointMoved) {
-        setWipeProgress(1);
-        return;
-      }
-      
       const duration = 1500; // 1.5s
       const start = Date.now();
       const animateWipe = () => {
@@ -197,25 +182,10 @@ const VisualPanel = ({
     } else {
       setWipeProgress(0);
     }
-  }, [step, pointMoved]);
+  }, [step]);
 
   // Step 2: Animation effect
   useEffect(() => {
-    // If step 2 is already complete, show final state immediately
-    if (step === 2 && animationComplete) {
-      setAnimationProgress(1);
-      const numPoints = 11;
-      const points = [];
-      for (let i = 1; i < numPoints; i++) {
-        const t = i / numPoints;
-        const x = pointAPos.x + (pointBPos.x - pointAPos.x) * t;
-        const y = pointAPos.y + (pointBPos.y - pointAPos.y) * t;
-        points.push({ x, y, id: `line-point-${i}` });
-      }
-      setPointsOnLine(points);
-      return;
-    }
-
     // Only start animation if we're on step 2, haven't completed, and haven't started
     if (step !== 2 || animationComplete || animationStarted) {
       return;
@@ -398,7 +368,6 @@ const VisualPanel = ({
             cursor: "move",
           },
           onMouseDown: (e) => handlePointMouseDown(e, pointId),
-          onTouchStart: (e) => handlePointMouseDown(e, pointId),
         }),
       // Point circles - make entire point draggable in step 3
       React.createElement("circle", {
@@ -413,9 +382,6 @@ const VisualPanel = ({
         onMouseDown: isDraggable
           ? (e) => handlePointMouseDown(e, pointId)
           : null,
-        onTouchStart: isDraggable
-          ? (e) => handlePointMouseDown(e, pointId)
-          : null,
       }),
       React.createElement("circle", {
         cx: x,
@@ -426,9 +392,6 @@ const VisualPanel = ({
           cursor: isDraggable ? "move" : "default",
         },
         onMouseDown: isDraggable
-          ? (e) => handlePointMouseDown(e, pointId)
-          : null,
-        onTouchStart: isDraggable
           ? (e) => handlePointMouseDown(e, pointId)
           : null,
       }),
@@ -578,8 +541,6 @@ const VisualPanel = ({
                 e.preventDefault();
                 handleMouseMove(e);
               }
-            : step === 3
-            ? handlePointMouseMove
             : null,
         onTouchEnd:
           step === 0
@@ -587,8 +548,6 @@ const VisualPanel = ({
                 e.preventDefault();
                 handleMouseUp(e);
               }
-            : step === 3
-            ? handlePointMouseUp
             : null,
         onMouseLeave:
           step === 0 && !scribbleComplete && !isDrawing
@@ -600,7 +559,7 @@ const VisualPanel = ({
                 setLineHovered(false);
               }
             : null,
-        style: { ...getCursorStyle(), touchAction: "none" },
+        style: getCursorStyle(),
       },
       // Dotted line extending beyond canvas (steps 2, 3, 4, 5)
       dottedLineCoords &&

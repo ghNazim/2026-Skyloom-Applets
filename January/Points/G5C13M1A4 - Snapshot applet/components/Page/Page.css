@@ -1,0 +1,69 @@
+/* Main container for the Page2 component */
+.page2-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  padding: 2vw;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  backdrop-filter: blur(5px);
+}
+
+/* Left panel that holds the two triangle cards */
+.page2-left-panel {
+  display: flex;
+  gap: 2vw;
+  width: 60%;
+  height: 100%;
+}
+
+/* Styling for the individual cards */
+.page2-card {
+  background-color: rgba(30, 20, 50, 0.75);
+  border-radius: 1vw;
+  padding: 1.5vw;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid var(--panel-border-color);
+  color: var(--text-color);
+}
+
+/* Ensure images within cards are responsive */
+.page2-card img {
+  height: 78%;
+  width: auto;
+  /* margin-bottom: 1vw; */
+  position: relative;
+  bottom: 1vw;
+}
+
+.small-image{
+    height: 55% !important;
+}
+
+/* Styling for the text inside the cards */
+.page2-card p {
+  /* margin: 0.2vw 0; */
+  font-size: 2vw;
+  line-height: 1.1;
+}
+
+/* Right panel for the explanatory text */
+.page2-right-panel {
+  width: 40%;
+  font-size: 2.5vw;
+  line-height: 1.4;
+  color: var(--text-color);
+  padding: 0 2vw;
+}
+
+
+

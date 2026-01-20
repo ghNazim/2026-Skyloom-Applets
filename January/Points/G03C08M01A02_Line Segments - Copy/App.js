@@ -80,7 +80,9 @@ const App = () => {
     }
   };
 
-
+  useEffect(() => {
+    resetStepStates(step);
+  }, [step]);
 
   // Handle scribble drawing start
   const handleScribbleStart = useCallback(
@@ -165,7 +167,7 @@ const App = () => {
 
   // Handle animation start
   const handleAnimationStart = useCallback(() => {
-    // setAnimationStarted(true); // Removing this to prevent re-render which cancels the animation timeout in VisualPanel
+    setAnimationStarted(true);
   }, []);
 
   // Handle animation complete
@@ -229,9 +231,9 @@ const App = () => {
       playSound("click");
       if (step === -1) {
         // From intro splash, go to step 0
-        resetStepStates(0);
         setStep(0);
         setKey(Date.now());
+        resetStepStates(0);
       } else if (step === 6) {
         // Start Over - reset to step -1 and reset all states
         // Reset all states first
@@ -261,9 +263,7 @@ const App = () => {
         setStep(-1);
         setKey(Date.now());
       } else if (step < stepData.length) {
-        const nextStep = step + 1;
-        resetStepStates(nextStep);
-        setStep(nextStep);
+        setStep(step + 1);
         setKey(Date.now());
       } else {
         // Loop back to step -1 (intro splash)
@@ -273,55 +273,10 @@ const App = () => {
     } else {
       // Previous
       playSound("click");
-      
-      if (step === 1) {
-        // Step 1 -> Step 0: Reset Step 0
-        resetStepStates(0);
-        // Also reset Step 1 states to ensure fresh start if they come back
-        setSelectedOption(null);
-        setIsCorrect(false);
-        setShowFeedback(false);
-        setScribbleColor("white");
-        setShowStraightLine(false);
-        setStep(0);
-      } else if (step === 2) {
-        // Step 2 -> Step 1: Final state (MCQ Answered)
-        setStep(1);
-        // Set Step 1 Final State
-        setSelectedOption(APP_DATA.step1.mcq.options[APP_DATA.step1.mcq.correctAnswer]);
-        setIsCorrect(true);
-        setShowFeedback(true);
-        setScribbleColor("#4CAF50"); // Green
-        setShowStraightLine(true);
-      } else if (step === 3) {
-        // Step 3 -> Step 2: Final state (Animation ended)
-        setStep(2);
-        // Set Step 2 Final State
-        setAnimationComplete(true);
-        setShowDottedLine(true);
-        setAnimationStarted(false);
-        // Reset points to initial positions for Step 2
-        setPointAPos({ x: 30, y: 35 });
-        setPointBPos({ x: 70, y: 35 });
-      } else if (step === 4) {
-        // Step 4 -> Step 3: Final state (Points moved)
-        setStep(3);
-        // Set Step 3 Final State
-        setPointMoved(true);
-        setIsDragging(false);
-        setDraggedPoint(null);
-      } else if (step === 5) {
-        // Step 5 -> Step 4: Final state (Line named)
-        setStep(4);
-        // Set Step 4 Final State
-        setClickedLabels({ A: true, B: true });
-        setLineSegmentName("AB");
-        setShowDashSymbol(true);
-        setShowLineClickHint(false);
-      } else if (step > -1) {
+      if (step > -1) {
         setStep(step - 1);
+        setKey(Date.now());
       }
-      setKey(Date.now());
     }
   };
 
@@ -679,7 +634,7 @@ const App = () => {
       React.createElement(Navigation, {
         onNav: handleNav,
         isNextDisabled: !isNextEnabled(),
-        isPrevDisabled: step <= 0,
+        isPrevDisabled: step === -1,
         nextButtonText:
           step === -1
             ? APP_DATA.navButtonStart

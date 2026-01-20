@@ -11,6 +11,8 @@ const MCQPanel = ({
   onCompareClick,
   showFinalInfo,
   mcqPhase,
+  step,
+  compareShown
 }) => {
   const { useState, useEffect } = React;
 
@@ -45,8 +47,7 @@ const MCQPanel = ({
         dangerouslySetInnerHTML: { __html: content },
       }),
     // Show compare button if provided
-    showCompareButton &&
-      compareButtonText &&
+    compareShown &&
       React.createElement(
         "div",
         {
@@ -61,7 +62,7 @@ const MCQPanel = ({
           "button",
           {
             id: "compare-button",
-            className: "compare-button",
+            className: "compare-button" + (showCompareButton ? "" : " disabled"),
             onClick: onCompareClick,
             style: {
               padding: "1vw 2vw",
@@ -80,7 +81,7 @@ const MCQPanel = ({
           },
           compareButtonText
         ),
-        React.createElement("img", {
+       showCompareButton && React.createElement("img", {
           src: "assets/tap.gif",
           alt: "Tap hint",
           className: "compare-tap-gif",
@@ -114,7 +115,7 @@ const MCQPanel = ({
                   : "mcq-title-box-neutral"
               }`,
               dangerouslySetInnerHTML: {
-                __html: `<div>${mcqData.title}</div>`,
+                __html: `<div>${ ((isAnswered && isCorrect && mcqData.titleAnswered) ? mcqData.titleAnswered : mcqData.title)}</div>`,
               },
             }),
           // MCQ Options (only show if not final info)
