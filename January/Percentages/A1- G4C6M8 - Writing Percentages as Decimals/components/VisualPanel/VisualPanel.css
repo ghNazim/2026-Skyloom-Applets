@@ -1,0 +1,109 @@
+.visual-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.visual-grid {
+  width: 30vw;
+  height: 30vw;
+}
+
+.hundredth-square {
+  background-color: rgba(33, 150, 243, 0.2);
+  position: relative;
+  /* transition: opacity 0.3s ease, box-shadow 0.3s ease; */
+}
+
+.hundredth-square.filled {
+  background-color: #4fc3f7; /* Bluish filled color */
+  opacity: 1;
+}
+
+.hundredth-square.glowing {
+  animation: glowPulse 2s ease-in-out infinite;
+  /* will-change: box-shadow; */
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 0 0.2vw rgba(255, 255, 0, 0);
+    z-index: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 0.2vw rgba(255, 255, 0, 1);
+    z-index: 2;
+  }
+  100% {
+    box-shadow: 0 0 0 0.2vw rgba(255, 255, 0, 0);
+    z-index: 1;
+  }
+}
+
+.square-label {
+  position: absolute;
+  font-size: 1.5vw;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.filled-label {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.total-label {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orange-bordered {
+  /* border: 0.3vw solid orange !important; */
+  /* background-color: orange !important; */
+  /* background-color: #0b97d7 !important; */
+  box-sizing: border-box;
+  animation: wiggle 0.3s ease-in-out infinite alternate !important; /* Force override */
+  z-index: 10; /* Ensure it stays on top */
+  transform-style: preserve-3d;
+}
+
+/* Ensure animation works even if glowing is present by combining or overriding */
+.hundredth-square.glowing.orange-bordered {
+  animation:  wiggle 0.3s ease-in-out infinite alternate !important;
+}
+
+@keyframes wiggle {
+  from {
+    transform: rotate(5deg) ;
+  }
+  to {
+    transform: rotate(-5deg);
+  }
+}
+
+/* Step 5 Column Animation logic */
+@keyframes blinkCol {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.blink-column {
+  animation: blinkCol 0.5s ease-in-out 3;
+}
+
+.outline-solid {
+  box-shadow: 0 0.25vw 0 0 #4fc3f7; /* Slightly larger than 0.2vw gap to ensure overlap */
+  z-index: 5;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Ensure top radius is removed for solid connection if needed, but border-radius is small (0.1vw) 
+   Actually, allowing radius might be fine, but removing bottom radius helps merge.
+*/

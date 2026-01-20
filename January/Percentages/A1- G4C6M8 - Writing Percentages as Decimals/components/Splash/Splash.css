@@ -1,0 +1,116 @@
+.splash-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: white;
+  padding: 2rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.splash-content {
+  /* width: 50%; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4vw;
+  width: 100%;
+  max-width: 90vw;
+  height: 60%;
+}
+
+.splash-equation-box {
+  width: 50%; /* Left Panel 50% */
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  /* gap: 1.5vw; */ /* Remove gap as we handle margins in spans */
+  padding: 2vw 3vw;
+  border: 3px solid #f97315;
+  border-radius: 1.5vw;
+  background: rgb(44, 44, 44);
+}
+
+.splash-percent-display {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.splash-percent-number {
+  font-size: 6vw;
+  font-weight: bold;
+  color: #4fc3f7; /* Bluish color */
+  font-style: italic;
+}
+
+.splash-percent-symbol {
+  font-size: 6vw;
+  font-weight: bold;
+  color: white;
+  margin-left: 0.3vw;
+}
+
+.splash-equals {
+  font-size: 6vw;
+  font-weight: bold;
+  color: #4caf50; /* Green color */
+  margin: 0 0.5vw;
+}
+
+.splash-fraction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-numerator {
+  font-size: 6vw;
+  font-weight: bold;
+  color: #4fc3f7; /* Bluish color */
+  font-style: italic;
+}
+
+.splash-fraction-line {
+  width: 100%;
+  height: 4px;
+  background: #4caf50; /* Green line */
+  margin: 0.3vw 0;
+  min-width: 4vw;
+  /* width: 50%; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-denominator {
+  font-size: 6vw;
+  font-weight: bold;
+  color: white;
+  font-style: italic;
+}
+
+.splash-right-text {
+  width: 50%; /* Right Text 50% */
+  font-size: 2.5vw;
+  font-weight: bold;
+  color: white;
+  text-align: left;
+  white-space: pre-line;
+  line-height: 1.5;
+  padding-left: 2vw; /* Add some spacing */
+}
+
+.splash-button {
+  position: absolute;
+  bottom: 3vw;
+}

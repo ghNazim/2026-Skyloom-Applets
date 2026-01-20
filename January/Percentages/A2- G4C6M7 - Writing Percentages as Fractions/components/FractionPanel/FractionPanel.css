@@ -1,0 +1,178 @@
+.fraction-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  font-size: 6vw;
+  position: relative;
+}
+
+.fraction-panel-wide {
+  width: 70%;
+  font-size: 8vw !important;
+  margin: 0 auto;
+}
+
+
+
+.fraction-equation-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+}
+
+.decimal-box {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  padding: 1vw 2vw;
+  border: 3px solid #f97315;
+  border-radius: 1vw;
+  background: rgba(0, 20, 50, 0.5);
+}
+
+/* Percent Number */
+.percent-number {
+  /* font-size: 5vw; */
+  font-weight: bold;
+  font-style: italic;
+  min-width: 5vw; /* Ensure empty state has width */
+  text-align: right; /* Align numbers to right near symbol */
+  display: inline-block;
+}
+
+.percent-symbol {
+  /* font-size: 3.5vw; */
+  font-weight: bold;
+  margin-left: 0.2vw;
+}
+
+.fraction-equals-sign {
+  /* font-size: 4vw; */
+  font-weight: bold;
+  color: #4caf50; /* Green */
+}
+
+.fraction-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw 2vw;
+  
+  border-radius: 1vw;
+  
+  /* transition: opacity 0.3s ease; */
+  width: 15vw;
+}
+
+.fraction-panel-wide .fraction-box{
+border: 3px solid #f97315;
+background: rgba(0, 20, 50, 0.5);
+width: auto;
+}
+.fraction-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fraction-numerator {
+     /* font-size: 4vw; */
+  font-weight: bold;
+  font-style: italic;
+  min-height: 4vw;
+}
+
+.fraction-line-green {
+  width: 100%;
+  min-width: 4vw;
+  height: 4px;
+  background: #4caf50; /* Green line */
+  margin: 0.3vw 0;
+}
+
+.fraction-denominator {
+     /* font-size: 4vw; */
+  font-weight: bold;
+  font-style: italic;
+  color: white;
+}
+
+/* Highlight box - orange border */
+.highlight-box {
+  padding: 0.3vw 0.8vw;
+  border: 3px solid #f97315;
+  border-radius: 0.5vw;
+}
+
+/* Pulsate animation */
+.pulsate {
+  animation: pulsateY 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes pulsateY {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0.3vw);
+  }
+}
+
+/* Arrows Container */
+.arrows-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Arrow SVGs */
+/* We make them full size to coordinate easily */
+.arrow-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Annotation Boxes */
+.annotation-box {
+  position: absolute;
+  padding: 0.5vw 1vw;
+  border-radius: 0.5vw;
+  color: white;
+  font-size: 2vw;
+  white-space: nowrap;
+  font-weight: bold;
+  z-index: 20;
+}
+
+.top-annotation {
+  top: 10%;
+  left: 48%;
+  transform: translateX(-50%);
+  background-color: rgba(79, 195, 247, 0.9); /* More opaque */
+  border: 2px solid #4fc3f7;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  color: black;
+}
+
+.bottom-annotation {
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(128, 128, 128, 0.9); /* More opaque */
+  border: 2px solid gray;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
