@@ -806,11 +806,11 @@ const App = () => {
         ? APP_DATA.step0.question
         : APP_DATA.step0.questionAfterDraw;
     } else if (step === 1) {
-      if (step1Phase === 2) return APP_DATA.step1.questionCompare;
+      if (step1Phase === 2 || step1Phase === 1.5) return APP_DATA.step1.questionCompare;
       if (step1Phase === 3) return APP_DATA.step1.questionFinal;
       return APP_DATA.step1.question;
     } else if (step === 2) {
-      if (step2Phase === 2) return APP_DATA.step2.questionCompare;
+      if (step2Phase === 2 || step2Phase === 1.5) return APP_DATA.step2.questionCompare;
       if (step2Phase === 3) return APP_DATA.step2.questionFinal;
       return APP_DATA.step2.question;
     } else if (step === 3) {
@@ -820,6 +820,9 @@ const App = () => {
   };
 
   const getNavText = () => {
+    if (isStraightening || isReversing) return "";
+    if ((step === 1 && step1Phase === 1.5) || (step === 2 && step2Phase === 1.5)) return "";
+
     if (step === -1) {
       return APP_DATA.stepIntro.navText;
     } else if (step === 0) {

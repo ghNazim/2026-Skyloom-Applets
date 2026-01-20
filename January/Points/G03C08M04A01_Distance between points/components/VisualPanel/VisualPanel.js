@@ -68,13 +68,18 @@ const VisualPanel = ({
     const svg = svgRef.current;
     if (!svg) return { x: 0, y: 0 };
     const pt = svg.createSVGPoint();
-    if (event.touches && event.touches[0]) {
+    
+    if (event.touches && event.touches.length > 0) {
       pt.x = event.touches[0].clientX;
       pt.y = event.touches[0].clientY;
+    } else if (event.changedTouches && event.changedTouches.length > 0) {
+      pt.x = event.changedTouches[0].clientX;
+      pt.y = event.changedTouches[0].clientY;
     } else {
       pt.x = event.clientX;
       pt.y = event.clientY;
     }
+    
     const ctm = svg.getScreenCTM();
     if (ctm) {
       return pt.matrixTransform(ctm.inverse());
@@ -316,6 +321,11 @@ const VisualPanel = ({
         key: `clickable-${lineType}`,
         onClick: (e) => {
           e.stopPropagation();
+          handleLineElementClick(lineType);
+        },
+        onTouchEnd: (e) => {
+          e.stopPropagation();
+          e.preventDefault();
           handleLineElementClick(lineType);
         },
         style: { cursor: "pointer" },
