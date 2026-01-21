@@ -880,14 +880,14 @@ const VisualPanel = ({
         onTouchMove:
           step === 0 && step0SubStep === "initial"
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handlePointMouseMove(e);
               }
             : null,
         onTouchEnd:
           step === 0
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handlePointMouseUp();
               }
             : null,

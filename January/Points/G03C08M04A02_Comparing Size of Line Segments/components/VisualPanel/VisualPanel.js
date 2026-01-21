@@ -496,21 +496,21 @@ const VisualPanel = ({
         onTouchStart:
           step === 0 || step === 2
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handleMouseDown(e);
               }
             : null,
         onTouchMove:
           step === 0 || step === 2
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handleMouseMove(e);
               }
             : null,
         onTouchEnd:
           step === 0 || step === 2
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handleMouseUp(e);
               }
             : null,

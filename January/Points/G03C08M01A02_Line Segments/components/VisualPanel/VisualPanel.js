@@ -568,14 +568,14 @@ const VisualPanel = ({
         onTouchStart:
           step === 0
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handleMouseDown(e);
               }
             : null,
         onTouchMove:
           step === 0
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handleMouseMove(e);
               }
             : step === 3
@@ -584,7 +584,7 @@ const VisualPanel = ({
         onTouchEnd:
           step === 0
             ? (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 handleMouseUp(e);
               }
             : step === 3

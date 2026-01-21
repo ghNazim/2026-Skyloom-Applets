@@ -325,7 +325,7 @@ const VisualPanel = ({
         },
         onTouchEnd: (e) => {
           e.stopPropagation();
-          e.preventDefault();
+          // e.preventDefault();
           handleLineElementClick(lineType);
         },
         style: { cursor: "pointer" },
@@ -406,15 +406,15 @@ const VisualPanel = ({
         onMouseMove: handleMouseMove,
         onMouseUp: handleMouseUp,
         onTouchStart: (e) => {
-          e.preventDefault();
+          // e.preventDefault();
           handleMouseDown(e);
         },
         onTouchMove: (e) => {
-          e.preventDefault();
+          // e.preventDefault();
           handleMouseMove(e);
         },
         onTouchEnd: (e) => {
-          e.preventDefault();
+          // e.preventDefault();
           handleMouseUp(e);
         },
         onMouseLeave: () => setCursorNearPoint(false),
