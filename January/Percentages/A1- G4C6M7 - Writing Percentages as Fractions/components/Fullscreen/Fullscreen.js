@@ -8,13 +8,13 @@ const Button = ({ onClick, text, className }) => {
     text
   );
 };
-const Fullscreen = ({ text, buttonText, onButtonClick, heading }) => {
+const Fullscreen = ({ text, buttonText, onButtonClick, heading, left = false }) => {
   return React.createElement(
     "div",
     { className: "fullscreen-panel" },
     React.createElement("p", { className: "heading" }, heading),
     React.createElement("p", {
-      className: "fullscreen-content",
+      className: "fullscreen-content " + (left ? "left" : "center"),
       dangerouslySetInnerHTML: { __html: text },
     }),
     React.createElement(Button, {

@@ -110,10 +110,10 @@ const MainCanvas = ({
         setShowFractionBox(true);
       }
 
-      // Update nav text to correct version
-      if (stepData.navTextCorrect) {
-        onUpdateTexts(null, null, stepData.navTextCorrect);
-      }
+      // Update question text and nav text to correct version
+      const questionTextCorrect = stepData.questionTextCorrect || null;
+      const navTextCorrect = stepData.navTextCorrect || null;
+      onUpdateTexts(questionTextCorrect, null, navTextCorrect);
 
       setTimeout(() => {
         onEnableNext();
@@ -181,6 +181,7 @@ const MainCanvas = ({
 
   // Fraction Panel Props
   const fractionProps = {
+    step: step,
     percentNumber: percentNumber,
     showPercent: showFractionBox || step === 2 || step === 3 || step === 5,
     showEquals: (showFractionBox || step === 2 || step === 3 || step === 5) && step !== 1,

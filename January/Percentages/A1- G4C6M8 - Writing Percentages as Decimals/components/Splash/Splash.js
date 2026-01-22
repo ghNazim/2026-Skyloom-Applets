@@ -29,8 +29,8 @@ const Splash = ({ onButtonClick }) => {
         }, "0"),
         // . (violet)
         React.createElement("span", { 
-          style: { color: "#d500f9", fontSize: '6vw', fontWeight: 'bold' } 
-        }, "."),
+          style: { color: "#ff6b9d", fontSize: '6vw', fontWeight: 'bold', fontFamily: 'Georgia, sans-serif' } 
+        }, decimalSymbol),
         // 24 (bluish)
         React.createElement("span", { 
           style: { color: "#4fc3f7", fontSize: '6vw', fontWeight: 'bold' } 

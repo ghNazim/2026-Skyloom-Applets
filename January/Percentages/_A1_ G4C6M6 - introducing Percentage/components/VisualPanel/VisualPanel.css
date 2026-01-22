@@ -7,12 +7,21 @@
   align-items: center;
 }
 
-.hundredth-square.blinking {
-  cursor: pointer;
+/* Grid blinking animation on the entire grid in step 1 phase 1 */
+/* Uses outline to fill gaps between squares, creating the effect of one big square */
+.hundredth-grid.grid-blinking {
+  
+  animation: grid-square-blink 1s ease-in-out infinite;
 }
 
-.hundredth-square.blinking:hover {
-  opacity: 0.6 !important;
+@keyframes grid-square-blink {
+  0%, 50% {
+    
+    background-color: rgba(33, 150, 243, 1);
+  }
+  51%, 100% {
+      background-color: transparent;
+  }
 }
 
 /* Row/Column labels for the grid */
@@ -66,3 +75,10 @@
   justify-content: center;
   align-items: center;
 }
+
+.grid-blinking .hundredth-square:hover {
+  background-color: rgb(0, 75, 136) !important;
+}
+/* .hundredth-grid{
+  background-color: rgba(33, 150, 243, 1);
+} */

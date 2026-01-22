@@ -79,9 +79,19 @@ const App = () => {
       setDynamicFeedbackText("");
       setDynamicNavText("");
       
-      // Skip splash screen when going back
+      // Handle Step 5: go to previous question if any, otherwise go to previous step
       if (currentStep === 5) {
-        setCurrentStep(3);
+        if (step5QuestionIndex > 0) {
+          // Go to previous question within Step 5
+          setIsAnswered(false);
+          setStep5QuestionIndex(prev => prev - 1);
+          const step5Data = APP_DATA.steps[5];
+          setDynamicNavText(step5Data.navText);
+        } else {
+          // First question - skip splash screen and go to step 3
+          setStep5QuestionIndex(0);
+          setCurrentStep(3);
+        }
       } else {
         setCurrentStep(prev => prev - 1);
       }
@@ -168,6 +178,7 @@ const App = () => {
           text: APP_DATA.final.text,
           buttonText: APP_DATA.final.buttonText,
           onButtonClick: handleRestart,
+          left: true,
         })
       )
     );

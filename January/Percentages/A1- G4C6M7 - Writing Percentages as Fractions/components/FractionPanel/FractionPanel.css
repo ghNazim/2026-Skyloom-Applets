@@ -15,8 +15,6 @@
   margin: 0 auto;
 }
 
-
-
 .fraction-equation-row {
   display: flex;
   flex-direction: row;
@@ -30,15 +28,17 @@
   flex-direction: row;
   align-items: baseline;
   padding: 1vw 2vw;
-  border: 3px solid #f97315;
-  border-radius: 1vw;
+
+  border-radius: 2vw;
   background: rgba(0, 20, 50, 0.5);
 }
-
+.decimal-box.bordered {
+  border: 0.3vw solid #eeb702;
+}
 .percent-number {
   /* font-size: 5vw; */
   font-weight: bold;
-  font-style: italic;
+  /* font-style: italic; */
 }
 
 .percent-symbol {
@@ -73,9 +73,9 @@
 }
 
 .fraction-numerator {
-     /* font-size: 4vw; */
+  /* font-size: 4vw; */
   font-weight: bold;
-  font-style: italic;
+  /* font-style: italic; */
   min-height: 4vw;
 }
 
@@ -88,31 +88,43 @@
 }
 
 .fraction-denominator {
-     /* font-size: 4vw; */
+  /* font-size: 4vw; */
   font-weight: bold;
-  font-style: italic;
+  /* font-style: italic; */
   color: white;
 }
 
 /* Highlight box - orange border */
 .highlight-box {
   padding: 0.3vw 0.8vw;
-  border: 3px solid #f97315;
-  border-radius: 0.5vw;
+  border: 0.3vw solid #eeb702;
+  border-radius: 2vw;
 }
 
 /* Pulsate animation */
 .pulsate {
+  display: inline-block;
   animation: pulsateY 0.6s ease-in-out infinite alternate;
 }
 
 @keyframes pulsateY {
   0% {
-    transform: translateY(0);
+    transform: scale(0.9);
   }
   100% {
-    transform: translateY(0.3vw);
+    transform: scale(1.08);
   }
+}
+
+/* Fraction numerator/denominator text pulsate */
+.fraction-numerator-text,
+.fraction-denominator-text {
+  display: inline-block;
+}
+
+.fraction-numerator-text.pulsate,
+.fraction-denominator-text.pulsate {
+  animation: pulsateY 0.6s ease-in-out infinite alternate;
 }
 
 /* Arrows Container */

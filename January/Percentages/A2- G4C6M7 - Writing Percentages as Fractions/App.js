@@ -70,22 +70,32 @@ const App = () => {
 
   const handlePrev = () => {
     playSound("click");
-    if (currentStep > 1) {
+    if (currentStep === 5) {
+      // Step 5: go to previous question if available, otherwise go to previous step
+      if (step5QuestionIndex > 0) {
+        // More questions before - go to previous question
+        setIsAnswered(false);
+        setStep5QuestionIndex(prev => prev - 1);
+        setIsNextDisabled(true);
+        const step5Data = APP_DATA.steps[5];
+        setDynamicNavText(step5Data.navText);
+        setDynamicQuestionText("");
+        setDynamicFeedbackText("");
+      } else {
+        // No more questions before - go to previous step
+        setIsNextDisabled(true);
+        setDynamicQuestionText("");
+        setDynamicFeedbackText("");
+        setDynamicNavText("");
+        setCurrentStep(prev => prev - 1);
+      }
+    } else if (currentStep > 1) {
+      // Not step 5 - go to previous step
       setIsNextDisabled(true);
       setDynamicQuestionText("");
       setDynamicFeedbackText("");
       setDynamicNavText("");
-      
-      // Step specific back logic if needed
-      if (currentStep === 5 && step5QuestionIndex > 0) {
-         // Should we support going back in questions? 
-         // User didn't ask, but standard prev button behavior implies going to previous step 4.
-         // If inside step 5 questions, maybe just go back to step 4? 
-         // Let's keep it simple: Prev button goes to previous STEP.
-         setCurrentStep(prev => prev - 1);
-      } else {
-         setCurrentStep(prev => prev - 1);
-      }
+      setCurrentStep(prev => prev - 1);
     }
   };
 
@@ -151,6 +161,7 @@ const App = () => {
           text: APP_DATA.final.text,
           buttonText: APP_DATA.final.buttonText,
           onButtonClick: handleRestart,
+          left:true
         })
       )
     );
@@ -183,7 +194,7 @@ const App = () => {
       React.createElement(Navigation, {
         onNav: (dir) => dir === 'next' ? handleNext() : handlePrev(),
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: currentStep <= 1,
+        isPrevDisabled: currentStep <= 1 ,
         navText: getNavText(),
         nextSymbol: "»"
       })

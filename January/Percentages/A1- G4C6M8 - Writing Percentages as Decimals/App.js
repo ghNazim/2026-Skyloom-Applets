@@ -96,11 +96,17 @@ const App = () => {
       setDynamicNavText("");
       
       const stepData = APP_DATA.steps[currentStep];
-      // If inside a question loop and not at start, maybe go back in questions?
-      // For simplicity, Previous button goes to Previous Step.
-      setCurrentStep(prev => prev - 1);
-      setQuestionIndex(0); // Reset loop index when going back to previous step? 
-                           // Or keep it? Simpler to reset.
+      
+      // Special handling for step 8: go back to previous question if any, otherwise go back to previous step
+      if (currentStep === 8 && stepData && stepData.questions && questionIndex > 0) {
+        // Go back to previous question
+        setQuestionIndex(prev => prev - 1);
+        setIsAnswered(false);
+      } else {
+        // Go back to previous step
+        setCurrentStep(prev => prev - 1);
+        setQuestionIndex(0); // Reset loop index when going back to previous step
+      }
     }
   };
 
@@ -183,6 +189,7 @@ const App = () => {
           text: APP_DATA.final.text,
           buttonText: APP_DATA.final.buttonText,
           onButtonClick: handleRestart,
+          left: true
         })
       )
     );

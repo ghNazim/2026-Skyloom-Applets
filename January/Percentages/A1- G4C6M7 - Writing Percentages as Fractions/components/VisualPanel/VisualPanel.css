@@ -29,19 +29,16 @@
 
 @keyframes glowPulse {
   0% {
-    box-shadow: 0 0 0vw 0vw rgba(255, 235, 59, 0.5);
-  }
-  25% {
-    box-shadow: 0 0 0.1vw 0.1vw rgba(255, 235, 59, 0.7);
+    outline: .3vw solid rgba(255, 235, 59, 0);
+    /* outline-offset: -2px; */
   }
   50% {
-    box-shadow: 0 0 0.2vw 0.2vw rgba(255, 235, 59, 0.9);
-  }
-  75% {
-    box-shadow: 0 0 0.1vw 0.1vw rgba(255, 235, 59, 0.7);
+    outline: .3vw solid rgba(255, 235, 59, 1);
+    /* outline-offset: -2px; */
   }
   100% {
-    box-shadow: 0 0 0vw 0vw rgba(255, 235, 59, 0.5);
+    outline: .3vw solid rgba(255, 235, 59, 0);
+    /* outline-offset: -2px; */
   }
 }
 

@@ -24,6 +24,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
   const [showTapNudge, setShowTapNudge] = useState(false);
   const [showSliderHNudge, setShowSliderHNudge] = useState(false);
   const [showSliderVNudge, setShowSliderVNudge] = useState(false);
+  const [showTapGifOnSquares, setShowTapGifOnSquares] = useState(false);
 
   // Action button - now in MCQ panel
   const [showActionButton, setShowActionButton] = useState(false);
@@ -78,6 +79,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
     setShowTapNudge(false);
     setShowSliderHNudge(false);
     setShowSliderVNudge(false);
+    setShowTapGifOnSquares(false);
     setShowActionButton(false);
     setActionButtonText("");
     setShowPercentBox(false);
@@ -174,6 +176,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
     setGridBlinking(true);
     setShowActionButton(false);
     setShowTapNudge(false);
+    setShowTapGifOnSquares(true); // Show tap.gif on squares in phase 1
     setSubStep(1);
   };
 
@@ -184,6 +187,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
     playSound("click");
     setSelectedSquareIndex(index);
     setGridBlinking(false);
+    setShowTapGifOnSquares(false); // Remove tap.gif after click
     setSubStep(2);
     
     // Show percent box
@@ -390,7 +394,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
                   onClick: handleCheckClick,
                   disabled: checkDisabled,
                 },
-                "Check"
+                APP_DATA.check
               )
             )
           )
@@ -458,6 +462,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
         onSquareClick: handleSquareClick,
         showSliderHNudge: showSliderHNudge,
         showSliderVNudge: showSliderVNudge,
+        showTapGifOnSquares: showTapGifOnSquares,
       })
     ),
     // Fractions Column

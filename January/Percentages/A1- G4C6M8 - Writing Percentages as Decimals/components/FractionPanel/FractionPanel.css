@@ -30,8 +30,12 @@
   flex-direction: row;
   align-items: baseline;
   padding: 1vw 2vw;
-  border: 3px solid #f97315;
-  border-radius: 1vw;
+  /* border: 3px solid #f97315; */
+  border-radius: 2vw;
+  /* background: rgba(0, 20, 50, 0.5); */
+}
+.decimal-box.bordered{
+  border: .3vw solid #f97315;
   background: rgba(0, 20, 50, 0.5);
 }
 
@@ -156,6 +160,7 @@ width: auto;
   white-space: nowrap;
   font-weight: bold;
   z-index: 20;
+  border: .3vw dashed white;
 }
 
 
@@ -164,8 +169,8 @@ width: auto;
   align-items: center;
   justify-content: center;
   padding: 1vw 2vw;
-  border: 3px solid #f97315;
-  border-radius: 1vw;
+  border: .3vw solid #f97315;
+  border-radius: 2vw;
   background: rgba(0, 20, 50, 0.5);
   min-width: 15vw;
 }
@@ -208,7 +213,7 @@ width: auto;
   left: 57%;
   transform: translateX(-50%);
   background-color: rgba(79, 195, 247, 0.9); /* More opaque */
-  border: 2px solid #4fc3f7;
+  /* border: 2px solid #4fc3f7; */
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   color: black;
 }
@@ -218,7 +223,7 @@ width: auto;
   left: 65%;
   transform: translateX(-50%);
   background-color: rgba(128, 128, 128, 0.9); /* More opaque */
-  border: 2px solid gray;
+  /* border: 2px solid gray; */
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
 }
 
@@ -304,6 +309,21 @@ width: auto;
   border-radius: 50%;
   margin-top: 4vw; /* Center vertically with numbers roughly */
   box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decimal-point-4 img {
+  width: 150%;
+  height: 150%;
+  object-fit: contain;
+}
+
+.decimal-point-4:has(img) {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .group-col-wrapper {
@@ -317,7 +337,7 @@ width: auto;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1vw;
+  gap: 2vw;
   padding: 0.5vw 1vw; /* Top/Bottom 0.5, Left/Right 1 */
   border: 3px dashed #4fc3f7;
   border-radius: 1vw;
@@ -328,7 +348,7 @@ width: auto;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 1vw; /* Matches dashed box gap */
+  gap: 2vw; /* Matches dashed box gap */
   padding: 0 1vw; /* Matches dashed box horizontal padding to align */
 }
 
@@ -349,8 +369,15 @@ width: auto;
 }
 
 .box-label-4.active {
-  background-color: #2196f3;
+  background-color: #034e8b;
   color: white;
   padding: 0.2vw 0.5vw;
   border-radius: 0.3vw;
+}
+
+.ones-box{
+  margin-top: 1vw;
+}
+.ones-label{
+  margin-top: 0.5vw;
 }

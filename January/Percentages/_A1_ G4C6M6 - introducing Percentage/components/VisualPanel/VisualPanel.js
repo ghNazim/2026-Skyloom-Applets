@@ -15,22 +15,9 @@ const VisualPanel = ({
   onSquareClick,
   showSliderHNudge,
   showSliderVNudge,
+  showTapGifOnSquares,
 }) => {
   const { useState, useEffect } = React;
-  
-  // Blinking animation state
-  const [blinkOpacity, setBlinkOpacity] = useState(1);
-  
-  useEffect(() => {
-    if (gridBlinking) {
-      const interval = setInterval(() => {
-        setBlinkOpacity(prev => prev === 1 ? 0.2 : 1);
-      }, 500);
-      return () => clearInterval(interval);
-    } else {
-      setBlinkOpacity(1);
-    }
-  }, [gridBlinking]);
   
   const handleSquareClick = (index) => {
     if (!gridBlinking) return;
@@ -107,7 +94,7 @@ const VisualPanel = ({
           // Show "1 Percent" label in the clicked cell
           if (index === selectedSquareIndex) {
             showLabel = true;
-            labelText = "1 Percent";
+            labelText = "1 " + APP_DATA.labels.percent;
           }
         }
         
@@ -129,10 +116,17 @@ const VisualPanel = ({
           }
         }
         
-        // Apply blinking opacity if in blink mode
-        let opacity = filled ? 1 : 0.2;
-        if (gridBlinking) {
-          opacity = blinkOpacity;
+        // Apply opacity: 
+        // When grid is blinking (step 1 phase 1, before click), all squares are full opacity
+        // When a square is clicked in step 1, only the selected square is filled (opacity 1), others are 0.2
+        // Otherwise, filled squares are full opacity, others are reduced
+        let opacity;
+        if (gridBlinking && selectedSquareIndex === null) {
+          // Grid is blinking - all squares at full opacity
+          opacity = 1;
+        } else {
+          // Normal behavior: filled squares full opacity, others reduced
+          opacity = filled ? 1 : 0.2;
         }
         
         const style = {
@@ -146,7 +140,7 @@ const VisualPanel = ({
             "div",
             {
               key: `${c}-${r}`,
-              className: `hundredth-square ${filled ? "filled" : ""} ${gridBlinking ? "blinking" : ""}`,
+              className: `hundredth-square ${filled ? "filled" : ""}`,
               style: style,
               onClick: () => handleSquareClick(index),
             },
@@ -155,14 +149,25 @@ const VisualPanel = ({
               "span",
               { className: "cell-label " + (step === 1 ? "cell-label1":"") },
               labelText
+            ),
+            // Show tap.gif on one square in the middle of the grid (step 1 phase 1)
+            // Middle position: column 5, row 5 (index 55)
+            showTapGifOnSquares && gridBlinking && index === 55 && React.createElement(
+              "img",
+              {
+                src: "assets/tap.gif",
+                className: "nudge-gif nudge-tap-square",
+              }
             )
           )
         );
       }
     }
     
+    // Add grid-blinking class when blinking and no square is selected yet
     // Add interactive class to grid when blinking (clickable)
-    const gridClass = `hundredth-grid ${gridBlinking ? "interactive" : ""}`;
+    const shouldBlinkGrid = gridBlinking && selectedSquareIndex === null;
+    const gridClass = `hundredth-grid ${shouldBlinkGrid ? "grid-blinking" : ""} ${gridBlinking ? "interactive" : ""}`;
     return React.createElement("div", { className: gridClass }, squares);
   };
   

@@ -41,7 +41,7 @@ const QuestionPanel = ({ text, step }) => {
     "div",
     { className: "question-panel" },
     React.createElement("h2", {
-      dangerouslySetInnerHTML: { __html: highlightedText },
+      dangerouslySetInnerHTML: { __html: handleComma(highlightedText) },
     })
   );
 };

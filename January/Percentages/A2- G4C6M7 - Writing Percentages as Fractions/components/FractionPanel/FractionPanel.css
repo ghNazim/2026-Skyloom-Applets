@@ -30,16 +30,20 @@
   flex-direction: row;
   align-items: baseline;
   padding: 1vw 2vw;
-  border: 3px solid #f97315;
-  border-radius: 1vw;
+  
+  border-radius: 2vw;
   background: rgba(0, 20, 50, 0.5);
+}
+
+.decimal-box.bordered{
+  border: 0.3vw solid #eeb702;
 }
 
 /* Percent Number */
 .percent-number {
   /* font-size: 5vw; */
   font-weight: bold;
-  font-style: italic;
+  /* font-style: italic; */
   min-width: 5vw; /* Ensure empty state has width */
   text-align: right; /* Align numbers to right near symbol */
   display: inline-block;
@@ -64,14 +68,14 @@
   justify-content: center;
   padding: 1vw 2vw;
   
-  border-radius: 1vw;
+  border-radius: 2vw;
   
   /* transition: opacity 0.3s ease; */
   width: 15vw;
 }
 
 .fraction-panel-wide .fraction-box{
-border: 3px solid #f97315;
+border: 0.3vw solid #eeb702;
 background: rgba(0, 20, 50, 0.5);
 width: auto;
 }
@@ -84,7 +88,7 @@ width: auto;
 .fraction-numerator {
      /* font-size: 4vw; */
   font-weight: bold;
-  font-style: italic;
+  /* font-style: italic; */
   min-height: 4vw;
 }
 
@@ -99,15 +103,15 @@ width: auto;
 .fraction-denominator {
      /* font-size: 4vw; */
   font-weight: bold;
-  font-style: italic;
+  /* font-style: italic; */
   color: white;
 }
 
 /* Highlight box - orange border */
 .highlight-box {
   padding: 0.3vw 0.8vw;
-  border: 3px solid #f97315;
-  border-radius: 0.5vw;
+  border: .3vw solid #eeb702;
+  border-radius: 2vw;
 }
 
 /* Pulsate animation */
@@ -137,7 +141,16 @@ width: auto;
 
 /* Arrow SVGs */
 /* We make them full size to coordinate easily */
-.arrow-svg {
+.arrow-to-denominator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.arrow-to-numerator {
   position: absolute;
   top: 0;
   left: 0;
@@ -163,7 +176,7 @@ width: auto;
   left: 48%;
   transform: translateX(-50%);
   background-color: rgba(79, 195, 247, 0.9); /* More opaque */
-  border: 2px solid #4fc3f7;
+  border: .3vw dashed #ffffff;
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   color: black;
 }
@@ -173,6 +186,6 @@ width: auto;
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(128, 128, 128, 0.9); /* More opaque */
-  border: 2px solid gray;
+  border: .3vw dashed rgb(255, 255, 255);
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
 }

@@ -30,9 +30,12 @@
   flex-direction: row;
   align-items: baseline;
   padding: 1vw 2vw;
-  border: 3px solid #f97315;
-  border-radius: 1vw;
+  border: .3vw solid #f97315;
+  border-radius: 2vw;
   background: rgba(0, 20, 50, 0.5);
+}
+.decimal-box.non-bordered{
+  border: none;
 }
 
 /* Percent Number */
@@ -64,14 +67,14 @@
   justify-content: center;
   padding: 1vw 2vw;
   
-  border-radius: 1vw;
+  border-radius: 2vw;
   
   /* transition: opacity 0.3s ease; */
   width: 15vw;
 }
 
 .fraction-panel-wide .fraction-box{
-border: 3px solid #f97315;
+border: .3vw solid #f97315;
 background: rgba(0, 20, 50, 0.5);
 width: auto;
 }
@@ -106,8 +109,8 @@ width: auto;
 /* Highlight box - orange border */
 .highlight-box {
   padding: 0.3vw 0.8vw;
-  border: 3px solid #f97315;
-  border-radius: 0.5vw;
+  border: .3vw solid #f97315;
+  border-radius: 2vw;
 }
 
 /* Pulsate animation */
@@ -156,6 +159,7 @@ width: auto;
   white-space: nowrap;
   font-weight: bold;
   z-index: 20;
+  border: .3vw dotted white;
 }
 
 
@@ -164,8 +168,8 @@ width: auto;
   align-items: center;
   justify-content: center;
   padding: 1vw 2vw;
-  border: 3px solid #f97315;
-  border-radius: 1vw;
+  border: .3vw solid #f97315;
+  border-radius: 2vw;
   background: rgba(0, 20, 50, 0.5);
   min-width: 15vw;
 }
@@ -208,7 +212,7 @@ width: auto;
   left: 57%;
   transform: translateX(-50%);
   background-color: rgba(79, 195, 247, 0.9); /* More opaque */
-  border: 2px solid #4fc3f7;
+  /* border: 2px solid #4fc3f7; */
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   color: black;
 }
@@ -218,14 +222,14 @@ width: auto;
   left: 65%;
   transform: translateX(-50%);
   background-color: rgba(128, 128, 128, 0.9); /* More opaque */
-  border: 2px solid gray;
+  /* border: 2px solid gray; */
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
 }
 
 .blue-border-box {
   display: flex;
   align-items: center;
-  border: 3px solid #4fc3f7;
+  border: .2vw solid #4fc3f7;
   padding: 0 0.5vw;
   border-radius: 0.5vw;
   color: #4fc3f7; /* Bluish numbers inside */
@@ -291,6 +295,16 @@ width: auto;
   margin-top: 4vw; /* Center vertically with numbers roughly */
   box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
 }
+.decimal-point-4-comma{
+  width: 2vw;
+  height: 2vw;
+  /* background-color: #ff6b9d; Pinkish dot */
+  border-radius: 50%;
+  margin-top: 2vw; /* Center vertically with numbers roughly */
+  /* box-shadow: 0 0 10px rgba(255, 107, 157, 0.5); */
+  position: relative;
+  left: -1vw;
+}
 
 .group-col-wrapper {
   display: flex;
@@ -314,7 +328,7 @@ width: auto;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 1vw; /* Matches dashed box gap */
+  gap: 2vw; /* Matches dashed box gap */
   padding: 0 1vw; /* Matches dashed box horizontal padding to align */
 }
 

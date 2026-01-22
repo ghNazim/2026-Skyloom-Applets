@@ -32,6 +32,7 @@ const FractionPanel = ({
   highlightHundredths = false,
   activeLabels = false,
   equalsHidden = false,
+  step = 0,
   groupedBreakdown = false, // Toggle for grouped vs individual layout
 }) => {
   const numberClass = "";
@@ -46,12 +47,12 @@ const FractionPanel = ({
     { className: "arrow-svg", viewBox: "0 0 100 100", preserveAspectRatio: "none" },
     React.createElement("defs", null,
       React.createElement("marker", {
-        id: "arrow-decimal-head", markerWidth: "4", markerHeight: "3", refX: "0.5", refY: "1.5", orient: "auto"
-      }, React.createElement("polygon", { points: "0 0, 4 1.5, 0 3", fill: "#4fc3f7" }))
+        id: "arrow-decimal-head", markerWidth: "5", markerHeight: "6", refX: "0", refY: "3", orient: "auto"
+      }, React.createElement("polygon", { points: "0 0, 5 3, 0 6", fill: "#4fc3f7" }))
     ),
     React.createElement("path", {
       d: "M 35 35 L 35 15 L 80 15 L 80 40", 
-      stroke: "#4fc3f7", strokeWidth: "1", fill: "none", markerEnd: "url(#arrow-decimal-head)"
+      stroke: "#4fc3f7", strokeWidth: "2", fill: "none", markerEnd: "url(#arrow-decimal-head)", vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -61,12 +62,12 @@ const FractionPanel = ({
     { className: "arrow-svg", viewBox: "0 0 100 100", preserveAspectRatio: "none" },
     React.createElement("defs", null,
       React.createElement("marker", {
-        id: "arrow-percent-head", markerWidth: "4", markerHeight: "3", refX: "0.5", refY: "1.5", orient: "auto"
-      }, React.createElement("polygon", { points: "0 0, 4 1.5, 0 3", fill: "white" }))
+        id: "arrow-percent-head", markerWidth: "5", markerHeight: "6", refX: "0", refY: "3", orient: "auto"
+      }, React.createElement("polygon", { points: "0 0, 5 3, 0 6", fill: "white" }))
     ),
     React.createElement("path", {
       d: "M 44 75 L 44 85 L 85 85 L 85 63",
-      stroke: "white", strokeWidth: "1", fill: "none", markerEnd: "url(#arrow-percent-head)"
+      stroke: "white", strokeWidth: "2", fill: "none", markerEnd: "url(#arrow-percent-head)", vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -76,12 +77,12 @@ const FractionPanel = ({
     { className: "arrow-svg", viewBox: "0 0 100 100", preserveAspectRatio: "none" },
     React.createElement("defs", null,
       React.createElement("marker", {
-        id: "arrow-rev-upper-head", markerWidth: "4", markerHeight: "3", refX: "0.5", refY: "1.5", orient: "auto"
-      }, React.createElement("polygon", { points: "0 0, 4 1.5, 0 3", fill: "#4fc3f7" }))
+        id: "arrow-rev-upper-head", markerWidth: "5", markerHeight: "6", refX: "0", refY: "3", orient: "auto"
+      }, React.createElement("polygon", { points: "0 0, 5 3, 0 6", fill: "#4fc3f7" }))
     ),
     React.createElement("path", {
       d: "M 72 35 L 72 15 L 17 15 L 17 39", // Up from right, left, down to left
-      stroke: "#4fc3f7", strokeWidth: "1", fill: "none", markerEnd: "url(#arrow-rev-upper-head)"
+      stroke: "#4fc3f7", strokeWidth: "2", fill: "none", markerEnd: "url(#arrow-rev-upper-head)", vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -91,12 +92,12 @@ const FractionPanel = ({
     { className: "arrow-svg", viewBox: "0 0 100 100", preserveAspectRatio: "none" },
     React.createElement("defs", null,
       React.createElement("marker", {
-        id: "arrow-rev-lower-head", markerWidth: "4", markerHeight: "3", refX: "0.5", refY: "1.5", orient: "auto"
-      }, React.createElement("polygon", { points: "0 0, 4 1.5, 0 3", fill: "white" }))
+        id: "arrow-rev-lower-head", markerWidth: "5", markerHeight: "6", refX: "0", refY: "3", orient: "auto"
+      }, React.createElement("polygon", { points: "0 0, 5 3, 0 6", fill: "white" }))
     ),
     React.createElement("path", {
       d: "M 88 75 L 88 85 L 24 85 L 24 62", // Down from right, left, up to left
-      stroke: "white", strokeWidth: "1", fill: "none", markerEnd: "url(#arrow-rev-lower-head)"
+      stroke: "white", strokeWidth: "2", fill: "none", markerEnd: "url(#arrow-rev-lower-head)", vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -110,11 +111,11 @@ const FractionPanel = ({
     if (leftSideType === "decimal-highlight" && decimalPart) {
       return React.createElement("span", { className: "decimal-text" },
         integerPart,
-        ".",
+        decimalSymbol,
         React.createElement("span", { style: { color: "#4fc3f7" } }, decimalPart)
       );
     }
-    return React.createElement("span", { className: "decimal-text" }, decimalValue);
+    return React.createElement("span", { className: "decimal-text" , dangerouslySetInnerHTML: { __html: handleComma(decimalValue) } },);
   };
 
   const renderBreakdown = () => {
@@ -135,12 +136,19 @@ const FractionPanel = ({
 
     // Grouped Layout (Step 6)
     if (groupedBreakdown) {
+       // Render decimal point or comma based on language
+       const decimalPointElement = decimalSymbol === "," 
+         ? React.createElement("div", { className: "decimal-point-4" },
+             React.createElement("img", { src: "assets/comma.svg", alt: "," })
+           )
+         : React.createElement("div", { className: "decimal-point-4" });
+       
        return React.createElement("div", { className: "breakdown-container-4" },
-          React.createElement("div", { className: "decimal-box-4-wrapper" },
+          React.createElement("div", { className: "decimal-box-4-wrapper ones-box" },
              React.createElement("div", { className: "decimal-box-4" }, integerPart),
-             React.createElement("div", { className: "box-label-4" }, "Ones")
+             React.createElement("div", { className: "box-label-4 ones-label" }, APP_DATA.labels.ones)
           ),
-          React.createElement("div", { className: "decimal-point-4" }),
+          decimalPointElement,
           React.createElement("div", { className: "group-col-wrapper" },
               React.createElement("div", { className: "dashed-blue-box" },
                   React.createElement("div", { className: tenthsClass }, tenths),
@@ -148,10 +156,10 @@ const FractionPanel = ({
               ),
               React.createElement("div", { className: "group-labels-row" },
                   React.createElement("div", { className: "label-wrapper" }, 
-                      React.createElement("div", { className: labelTenthsClass }, "Tenths")
+                      React.createElement("div", { className: labelTenthsClass }, APP_DATA.labels.tenths)
                   ),
                   React.createElement("div", { className: "label-wrapper" }, 
-                      React.createElement("div", { className: labelHundredthsClass, id: "label-hundredths" }, "Hundredths")
+                      React.createElement("div", { className: labelHundredthsClass, id: "label-hundredths" }, APP_DATA.labels.hundredths)
                   )
               )
           )
@@ -159,24 +167,31 @@ const FractionPanel = ({
     }
     
     // Ungrouped Layout (Steps 2-5, Individual Boxes)
+    // Render decimal point or comma based on language
+    const decimalPointElement = decimalSymbol === "," 
+      ? React.createElement("div", { className: "decimal-point-4" },
+          React.createElement("img", { src: "assets/comma.svg", alt: "," })
+        )
+      : React.createElement("div", { className: "decimal-point-4" });
+    
     return React.createElement("div", { className: "breakdown-container-4" },
        // Ones
        React.createElement("div", { className: "decimal-box-4-wrapper" },
           React.createElement("div", { 
             className: onesClass,
           }, integerPart),
-          React.createElement("div", { className: labelOnesClass }, "Ones")
+          React.createElement("div", { className: labelOnesClass }, APP_DATA.labels.ones)
        ),
        
-       // Dot
-       React.createElement("div", { className: "decimal-point-4" }),
+       // Dot or Comma
+       decimalPointElement,
        
        // Tenths
        React.createElement("div", { className: "decimal-box-4-wrapper" },
           React.createElement("div", { 
             className: tenthsClass, 
           }, tenths), 
-          React.createElement("div", { className: labelTenthsClass }, "Tenths")
+          React.createElement("div", { className: labelTenthsClass }, APP_DATA.labels.tenths)
        ),
        
        // Hundredths
@@ -184,7 +199,7 @@ const FractionPanel = ({
           React.createElement("div", { 
             className: hundredthsClass, 
           }, hundredths), 
-          React.createElement("div", { className: labelHundredthsClass }, "Hundredths")
+          React.createElement("div", { className: labelHundredthsClass }, APP_DATA.labels.hundredths)
        )
     );
   };
@@ -225,7 +240,7 @@ const FractionPanel = ({
     return React.createElement(
         "div",
         { 
-          className: "decimal-box", 
+          className: "decimal-box" + (step === 8 ? " bordered" : ""), 
           style: { opacity: decimalHidden ? 0 : 1 }
         },
         React.createElement(
@@ -255,8 +270,8 @@ const FractionPanel = ({
     (showArrowToDecimal || showArrowToPercent) && React.createElement(
       "div",
       { className: "arrows-container" },
-      showArrowToDecimal && React.createElement("div", { className: "annotation-box top-annotation" }, "Number of Hundredths = Number"),
-      showArrowToPercent && React.createElement("div", { className: "annotation-box bottom-annotation" }, "Hundredths = out of 100"),
+      showArrowToDecimal && React.createElement("div", { className: "annotation-box top-annotation" }, APP_DATA.arrowAnnotations.numberOfHundredthsEqualsNumber),
+      showArrowToPercent && React.createElement("div", { className: "annotation-box bottom-annotation" }, APP_DATA.arrowAnnotations.hundredthsEqualsOutOf100),
       arrowToDecimalVisual,
       arrowToPercentVisual
     ),
@@ -268,8 +283,8 @@ const FractionPanel = ({
        // Note: Annotations positions might need tuning for reversed layout. 
        // I'll reuse the class names but we might need new CSS classes if they overlap.
        // For now assuming existing classes might just work or need minor CSS tweak.
-      React.createElement("div", { className: "annotation-box top-annotation" }, "Number = Number of Hundredths"),
-      React.createElement("div", { className: "annotation-box bottom-annotation" }, "% (out of 100) = Hundredths"),
+      React.createElement("div", { className: "annotation-box top-annotation" }, APP_DATA.arrowAnnotations.numberEqualsNumberOfHundredths),
+      React.createElement("div", { className: "annotation-box bottom-annotation" }, APP_DATA.arrowAnnotations.percentOutOf100EqualsHundredths),
       arrowRightToLeftUpper,
       arrowRightToLeftLower
     ),

@@ -18,7 +18,10 @@ const FractionPanel = ({
   decimalHidden = false, // Control opacity of decimal/equals part
   showArrowToDenominator = false,
   showArrowToNumerator = false,
+  arrowAnnotationTop = "",
+  arrowAnnotationBottom = "",
   wide = false,
+  step =0,
 }) => {
   // Classes for pulsate animation
   const numberClass = "";
@@ -35,32 +38,33 @@ const FractionPanel = ({
   const arrowToDenominator = showArrowToDenominator && React.createElement(
     "svg",
     { 
-      className: "arrow-svg",
+      className: "arrow-to-denominator",
       viewBox: "0 0 100 100",
       preserveAspectRatio: "none"
     },
     React.createElement("defs", null,
       React.createElement("marker", {
         id: "arrowhead-denom",
-        markerWidth: "4", // Smaller marker
-        markerHeight: "3",
-        refX: ".5",
-        refY: "1.5",
+        markerWidth: "5",
+        markerHeight: "6",
+        refX: "0",
+        refY: "3",
         orient: "auto"
       },
         React.createElement("polygon", {
-          points: "0 0, 4 1.5, 0 3", // Slicker triangle
-          fill: "white"
+          points: "0 0, 5 3, 0 6",
+          fill: "#ffffff"
         })
       )
     ),
     React.createElement("path", {
       // M 28,68 (Bottom of Denom) -> Down to 90 -> Right to 90 -> Up to 68 (Bottom of %)
       d: "M 28 72 L 28 78 L 76 78 L 76 62", 
-      stroke: "white",
-      strokeWidth: "1", // Slick thinner stroke
+      stroke: "#ffffff",
+      strokeWidth: "2",
       fill: "none",
-      markerEnd: "url(#arrowhead-denom)"
+      markerEnd: "url(#arrowhead-denom)",
+      vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -69,21 +73,21 @@ const FractionPanel = ({
   const arrowToNumerator = showArrowToNumerator && React.createElement(
     "svg",
     { 
-      className: "arrow-svg",
+      className: "arrow-to-numerator",
       viewBox: "0 0 100 100",
       preserveAspectRatio: "none"
     },
     React.createElement("defs", null,
       React.createElement("marker", {
         id: "arrowhead-numer",
-        markerWidth: "4",
-        markerHeight: "3",
-        refX: ".5",
-        refY: "1.5",
+        markerWidth: "5",
+        markerHeight: "6",
+        refX: "0",
+        refY: "3",
         orient: "auto"
       },
         React.createElement("polygon", {
-          points: "0 0, 4 1.5, 0 3",
+          points: "0 0, 5 3, 0 6",
           fill: "#4fc3f7"
         })
       )
@@ -92,9 +96,10 @@ const FractionPanel = ({
       // M 28,32 (Top of Num) -> Up to 15 -> Right to 75 -> Down to 27 (Top of Number)
       d: "M 30 32 L 30 25 L 65 25 L 65 40",
       stroke: "#4fc3f7",
-      strokeWidth: "1", // Slick thinner stroke
+      strokeWidth: "2",
       fill: "none",
-      markerEnd: "url(#arrowhead-numer)"
+      markerEnd: "url(#arrowhead-numer)",
+      vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -106,8 +111,8 @@ const FractionPanel = ({
       "div",
       { className: "arrows-container" },
       // Text annotations
-      showArrowToNumerator && React.createElement("div", { className: "annotation-box top-annotation" }, "Number = Numerator"),
-      showArrowToDenominator && React.createElement("div", { className: "annotation-box bottom-annotation" }, "Denominator 100 = %"),
+      showArrowToNumerator && arrowAnnotationTop && React.createElement("div", { className: "annotation-box top-annotation" }, arrowAnnotationTop),
+      showArrowToDenominator && arrowAnnotationBottom && React.createElement("div", { className: "annotation-box bottom-annotation" }, arrowAnnotationBottom),
       arrowToNumerator,
       arrowToDenominator
     ),
@@ -153,7 +158,7 @@ const FractionPanel = ({
       showPercent && React.createElement(
         "div",
         { 
-          className: "decimal-box",
+          className: "decimal-box" + (step !=4 ? " bordered" : ""),
           style: { opacity: decimalHidden ? 0 : 1 }
         },
         React.createElement(

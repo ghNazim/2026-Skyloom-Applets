@@ -19,8 +19,10 @@ const DATA = {
         buttonText: "Start Over",
       },
       nav: {
-        next: "Tap ≫ to continue.",
+        next: "Tap » to continue.",
       },
+      percent: "Percent",
+      check: "Check",
       steps: {
         1: {
           phases: [
@@ -35,7 +37,7 @@ const DATA = {
             },
             {
               q: "One part out of 100 is called 1 percent.",
-              n: "Tap ≫ continue.",
+              n: "Tap » continue.",
             },
           ],
           mcqText: "A Percent shows how many parts out of 100 are shaded.",
@@ -43,16 +45,18 @@ const DATA = {
         2: {
           q: "Explore different <y>Percents</y> using the <y>100 grid</y>.",
           n: "Use the slider to shade parts.",
-          nAfterSlider: "Tap ≫ to represent given Percent.",
+          nAfterSlider: "Tap » to represent given Percent.",
         },
         3: {
           targetValue: 7,
           q: "Represent 7%.",
           n: "Use the sliders to shade parts, then tap Check.",
           qCorrect: "7 shaded parts out of 100 represents 7 percent (7%).",
-          nCorrect: "Tap ≫ to check its fraction form.",
-          wrongFeedback: "Not quite!\nPercent means\nper hundred.\nCheck the\nshaded parts and\ntry again.",
-          correctFeedback: "Awesome!\nThe shaded parts\ncorrectly show 7\nper hundred,\nwhich is 7%.",
+          nCorrect: "Tap » to check its fraction form.",
+          wrongFeedback:
+            "Not quite!\nPercent means\nper hundred.\nCheck the\nshaded parts and\ntry again.",
+          correctFeedback:
+            "Awesome!\nThe shaded parts\ncorrectly show 7\nper hundred,\nwhich is 7%.",
         },
         4: {
           q: "Can this shaded part be written as a fraction?",
@@ -81,19 +85,21 @@ const DATA = {
               n: "Tap the correct answer.",
               options: ["0.71", "0.70", "0.07", "0.7"],
               answer: "0.07",
-              wrongFeedback: "Not quite!\n7% means 7 out of\n100. Look for the\ndecimal that shows\nseven hundredths.",
+              wrongFeedback:
+                "Not quite!\n7% means 7 out of\n100. Look for the\ndecimal that shows\nseven hundredths.",
               correctFeedback: "Great job!",
             },
           ],
-          qFinal: "The same shaded squares <y>out of 100</y> can be written as a <y>Percent</y>, a <y>fraction</y>, and a <y>decimal</y>.",
-          nFinal: "Tap ≫ to start over.",
+          qFinal:
+            "The same shaded squares <y>out of 100</y> can be written as a <y>Percent</y>, a <y>fraction</y>, and a <y>decimal</y>.",
+          nFinal: "Tap » to start over.",
         },
       },
       labels: {
         percent: "Percent",
         fraction: "Fraction",
         decimal: "Decimal",
-        partsOutOf100: (num) => `${num} part${num !== 1 ? 's' : ''} out of 100`,
+        partsOutOf100: (num) => `${num} part${num !== 1 ? "s" : ""} out of 100`,
       },
     },
   },
@@ -110,8 +116,10 @@ const DATA = {
         buttonText: "Mulai Lagi",
       },
       nav: {
-        next: "Ketuk ≫ untuk melanjutkan.",
+        next: "Ketuk » untuk melanjutkan.",
       },
+      percent: "Persen",
+      check: "Periksa",
       steps: {
         1: {
           phases: [
@@ -126,24 +134,28 @@ const DATA = {
             },
             {
               q: "Satu bagian dari 100 disebut 1 persen.",
-              n: "Ketuk ≫ lanjutkan.",
+              n: "Ketuk » lanjutkan.",
             },
           ],
-          mcqText: "Persen\nmenunjukkan\nberapa banyak\nbagian dari 100\nyang diarsir.",
+          mcqText:
+            "Persen\nmenunjukkan\nberapa banyak\nbagian dari 100\nyang diarsir.",
         },
         2: {
           q: "Jelajahi berbagai Persen menggunakan grid 100.",
           n: "Gunakan penggeser untuk mengarsir bagian.",
-          nAfterSlider: "Ketuk ≫ untuk merepresentasi Persen yang diberikan.",
+          nAfterSlider: "Ketuk » untuk merepresentasi Persen yang diberikan.",
         },
         3: {
           targetValue: 7,
           q: "Representasikan 7%.",
           n: "Gunakan penggeser untuk mengarsir bagian, lalu ketuk Periksa.",
-          qCorrect: "7 bagian yang diarsir dari 100 merepresentasikan 7 persen (7%).",
-          nCorrect: "Ketuk ≫ untuk memeriksa bentuk pecahannya.",
-          wrongFeedback: "Tidak tepat!\nPersen berarti\nper seratus.\nPeriksa bagian\nyang diarsir dan\ncoba lagi.",
-          correctFeedback: "Hebat!\nBagian yang diarsir\ndengan benar menunjukkan 7\nper seratus,\nyaitu 7%.",
+          qCorrect:
+            "7 bagian yang diarsir dari 100 merepresentasikan 7 persen (7%).",
+          nCorrect: "Ketuk » untuk memeriksa bentuk pecahannya.",
+          wrongFeedback:
+            "Tidak tepat!\nPersen berarti\nper seratus.\nPeriksa bagian\nyang diarsir dan\ncoba lagi.",
+          correctFeedback:
+            "Hebat!\nBagian yang diarsir\ndengan benar menunjukkan 7\nper seratus,\nyaitu 7%.",
         },
         4: {
           q: "Bisakah bagian yang diarsir ini ditulis sebagai pecahan?",
@@ -172,12 +184,14 @@ const DATA = {
               n: "Ketuk jawaban yang benar.",
               options: ["0,71", "0,70", "0,07", "0,7"],
               answer: "0,07",
-              wrongFeedback: "Tidak tepat!\n7% berarti 7 dari\n100. Cari desimal\nyang menunjukkan\ntujuh perseratus.",
+              wrongFeedback:
+                "Tidak tepat!\n7% berarti 7 dari\n100. Cari desimal\nyang menunjukkan\ntujuh perseratus.",
               correctFeedback: "Bagus sekali!",
             },
           ],
-          qFinal: "Persegi yang diarsir dari 100 dapat ditulis sebagai Persen, pecahan, dan desimal.",
-          nFinal: "Ketuk ≫ untuk memulai lagi.",
+          qFinal:
+            "Persegi yang diarsir dari 100 dapat ditulis sebagai Persen, pecahan, dan desimal.",
+          nFinal: "Ketuk » untuk memulai lagi.",
         },
       },
       labels: {

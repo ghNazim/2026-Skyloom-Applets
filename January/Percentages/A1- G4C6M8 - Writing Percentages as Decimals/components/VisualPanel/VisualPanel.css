@@ -75,17 +75,20 @@
 
 /* Ensure animation works even if glowing is present by combining or overriding */
 .hundredth-square.glowing.orange-bordered {
-  animation:  wiggle 0.3s ease-in-out infinite alternate !important;
+  border: 0.3vw solid orange !important;
+  /* animation:  wiggle 0.3s ease-in-out infinite alternate !important; */
 }
 
-@keyframes wiggle {
+/* @keyframes wiggle {
   from {
-    transform: rotate(5deg) ;
+    transform: scale(.99) ;
   }
   to {
-    transform: rotate(-5deg);
+    transform: scale(1.05);
   }
-}
+} */
+
+
 
 /* Step 5 Column Animation logic */
 @keyframes blinkCol {

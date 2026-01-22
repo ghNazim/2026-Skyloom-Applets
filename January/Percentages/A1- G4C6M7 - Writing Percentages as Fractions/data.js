@@ -24,27 +24,30 @@ const DATA = {
       },
       final: {
         heading: "Percent as Fraction",
-        text: "Awesome!<br><br>While writing a <y>Percent</y>, as a <y>fraction</y>.<br>●Number before % → numerator<br>●% sign → denominator is 100",
+        text: "Awesome!<br><br>While writing a <y>Percent</y>, as a <y>fraction</y>.<br>● Number before % → numerator<br>● % sign → denominator is 100",
         buttonText: "Start Over",
       },
       steps: {
         1: {
           questionText: "What percent of the square is shaded?",
           navText: "Tap the correct answer.",
-          navTextCorrect: "Tap ≫ connect with fraction.",
+          questionTextCorrect:
+            "Out of 100 squares, 12 are shaded. This represents 12%.",
+          navTextCorrect: "Tap » connect with fraction.",
           filledSquares: 12,
           mcq: {
             options: ["15%", "21%", "12%", "13%"],
             answer: "12%",
             feedbacks: {
               correct: "Great job!\n12 out of 100\nmeans 12%.",
-              wrong: "Not quite!\nCount how many\nsquares are\nshaded out of\n100.",
+              wrong:
+                "Not quite!\nCount how many\nsquares are\nshaded out of\n100.",
             },
           },
         },
         2: {
           questionText: `The <y>%</y> means "<y>out of 100</y>". That is why the <y>denominator</y> of the <y>fraction is 100</y>.`,
-          navText: "Tap ≫ to find out the numerator of the fraction",
+          navText: "Tap » to find out the numerator of the fraction",
           filledSquares: 12,
           glowAllSquares: true,
           percentNumber: "12",
@@ -57,8 +60,9 @@ const DATA = {
           pulsateDenominator: true,
         },
         3: {
-          questionText: "The <y>number 12</y> represents the <y>shaded parts</y> and becomes the <y>numerator</y>.",
-          navText: "Tap ≫ to summarise",
+          questionText:
+            "The <y>number 12</y> represents the <y>shaded parts</y> and becomes the <y>numerator</y>.",
+          navText: "Tap » to summarise",
           filledSquares: 12,
           glowFilledSquares: true,
           percentNumber: "12",
@@ -73,12 +77,18 @@ const DATA = {
         5: {
           questionText: "Choose the correct fraction for the given Percent.",
           navText: "Tap the correct answer.",
-          navTextCorrect: "Tap ≫ to try another Percent.",
-          navTextLast: "Tap ≫ to summarise.",
+          navTextCorrect: "Tap » to try another Percent.",
+          navTextLast: "Tap » to summarise.",
           hideVisualColumn: true,
           showFraction: true,
           denominator: "100",
           questions: [
+            {
+              percentNumber: "36",
+              numerator: "36",
+              options: ["36/100", "36/10", "360/100", "6/10"],
+              answer: "36/100",
+            },
             {
               percentNumber: "9",
               numerator: "9",
@@ -117,8 +127,10 @@ const DATA = {
             },
           ],
           feedbacks: {
-            correct: "Well done!\nThe number in the\nPercent is the\nnumerator,\nand the % sign means\nthe denominator is 100.",
-            wrong: "Not quite!\nThe number in the\nPercent is the\nnumerator,\nand the % means the\ndenominator is 100.",
+            correct:
+              "Well done!\nThe number in the\nPercent is the\nnumerator,\nand the % sign means\nthe denominator is 100.",
+            wrong:
+              "Not quite!\nThe number in the\nPercent is the\nnumerator,\nand the % means the\ndenominator is 100.",
           },
         },
       },
@@ -153,20 +165,22 @@ const DATA = {
         1: {
           questionText: "Berapa persen kotak yang diarsir?",
           navText: "Ketuk jawaban yang benar.",
-          navTextCorrect: "Ketuk ≫ hubungkan dengan pecahan.",
+          questionTextCorrect: "Dari 100 kotak, 12 diarsir. Ini mewakili 12%.",
+          navTextCorrect: "Ketuk » hubungkan dengan pecahan.",
           filledSquares: 12,
           mcq: {
             options: ["15%", "21%", "12%", "13%"],
             answer: "12%",
             feedbacks: {
               correct: "Kerja bagus!\n12 dari 100\nberarti 12%.",
-              wrong: "Belum tepat!\nHitung berapa\nkotak yang\ndiarsir dari\n100.",
+              wrong:
+                "Belum tepat!\nHitung berapa\nkotak yang\ndiarsir dari\n100.",
             },
           },
         },
         2: {
           questionText: `Tanda <y>%</y> berarti "<y>dari 100</y>". Itulah mengapa <y>penyebut</y> <y>pecahannya adalah 100</y>.`,
-          navText: "Ketuk ≫ untuk mengetahui pembilang pecahan",
+          navText: "Ketuk » untuk mengetahui pembilang pecahan",
           filledSquares: 12,
           glowAllSquares: true,
           percentNumber: "12",
@@ -179,8 +193,9 @@ const DATA = {
           pulsateDenominator: true,
         },
         3: {
-          questionText: "<y>Angka 12</y> mewakili <y>bagian yang diarsir</y> dan menjadi <y>pembilang</y>.",
-          navText: "Ketuk ≫ untuk merangkum",
+          questionText:
+            "<y>Angka 12</y> mewakili <y>bagian yang diarsir</y> dan menjadi <y>pembilang</y>.",
+          navText: "Ketuk » untuk merangkum",
           filledSquares: 12,
           glowFilledSquares: true,
           percentNumber: "12",
@@ -195,12 +210,18 @@ const DATA = {
         5: {
           questionText: "Pilih pecahan yang benar untuk Persen yang diberikan.",
           navText: "Ketuk jawaban yang benar.",
-          navTextCorrect: "Ketuk ≫ untuk mencoba Persen lain.",
-          navTextLast: "Ketuk ≫ untuk merangkum.",
+          navTextCorrect: "Ketuk » untuk mencoba Persen lain.",
+          navTextLast: "Ketuk » untuk merangkum.",
           hideVisualColumn: true,
           showFraction: true,
           denominator: "100",
           questions: [
+            {
+              percentNumber: "36",
+              numerator: "36",
+              options: ["36/100", "36/10", "360/100", "6/10"],
+              answer: "36/100",
+            },
             {
               percentNumber: "9",
               numerator: "9",
@@ -239,8 +260,10 @@ const DATA = {
             },
           ],
           feedbacks: {
-            correct: "Bagus sekali!\nAngka dalam\nPersen adalah\npembilang,\ndan tanda % berarti\npenyebut adalah 100.",
-            wrong: "Belum tepat!\nAngka dalam\nPersen adalah\npembilang,\ndan % berarti\npenyebut adalah 100.",
+            correct:
+              "Bagus sekali!\nAngka dalam\nPersen adalah\npembilang,\ndan tanda % berarti\npenyebut adalah 100.",
+            wrong:
+              "Belum tepat!\nAngka dalam\nPersen adalah\npembilang,\ndan % berarti\npenyebut adalah 100.",
           },
         },
       },

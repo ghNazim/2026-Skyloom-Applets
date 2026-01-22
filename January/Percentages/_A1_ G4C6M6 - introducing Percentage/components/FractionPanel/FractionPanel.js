@@ -30,9 +30,15 @@ const FractionPanel = ({
   
   // Render the decimal text above boxes
   const renderDecimalText = () => {
+    // Add color class based on boxState in step 3
+    let textClass = "decimal-text";
+    if (step === 3) {
+      if (boxState === 'correct') textClass += ' decimal-text-correct';
+      if (boxState === 'wrong') textClass += ' decimal-text-wrong';
+    }
     return React.createElement(
       "div",
-      { className: "decimal-text" },
+      { className: textClass },
       partsText
     );
   };
@@ -98,8 +104,10 @@ const FractionPanel = ({
       ),
       React.createElement(
         "div",
-        { className: "box decimal-box" },
-        decimalValue
+        { className: getBoxClass("box decimal-box"), 
+          dangerouslySetInnerHTML: { __html: handleComma(decimalValue) }
+         },
+        // decimalValue
       )
     );
   };

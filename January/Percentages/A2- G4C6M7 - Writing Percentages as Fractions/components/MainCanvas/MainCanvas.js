@@ -205,6 +205,7 @@ const MainCanvas = ({
 
   // Fraction Panel Props
   const fractionProps = {
+    step: step,
     percentNumber: percentNumber,
     // Show Percent (Decimal Box):
     // Always render for steps 2-5 to prevent layout shift.
@@ -248,6 +249,8 @@ const MainCanvas = ({
     // Arrow props - Step 4 shows arrows
     showArrowToDenominator: step === 4,
     showArrowToNumerator: step === 4,
+    arrowAnnotationTop: stepData.arrowAnnotationTop || "",
+    arrowAnnotationBottom: stepData.arrowAnnotationBottom || "",
   };
 
   // MCQ data - handle both regular mcq and step 5 questions array

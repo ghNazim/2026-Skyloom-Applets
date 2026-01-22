@@ -243,6 +243,7 @@ const MainCanvas = ({
 
   // Fraction Panel Props
   const fractionProps = {
+    step: step,
     percentNumber: percentNumber,
     showPercent: stepData.showPercent, 
     showEquals: stepData.showPercent, // Usually goes with percent box

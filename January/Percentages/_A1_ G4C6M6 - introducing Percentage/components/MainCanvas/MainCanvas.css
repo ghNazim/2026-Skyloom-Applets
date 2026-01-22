@@ -331,6 +331,16 @@ input[type="range"][orient="vertical"] {
   /* transform: rotate(90deg); */
 }
 
+.nudge-tap-square {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4vw;
+  height: 4vw;
+  z-index: 10;
+}
+
 .text-box.bottom {
   position: absolute;
   bottom: -7vw;

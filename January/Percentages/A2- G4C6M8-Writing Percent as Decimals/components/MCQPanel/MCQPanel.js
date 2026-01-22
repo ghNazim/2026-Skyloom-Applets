@@ -75,7 +75,7 @@ const MCQPanel = ({
             className: `mcq-feedback ${
               !isAnswered ? "" : isCorrect ? "correct" : "incorrect"
             }`,
-            dangerouslySetInnerHTML: { __html: feedbackText },
+            dangerouslySetInnerHTML: { __html: handleComma(feedbackText) },
           },
           
         ),

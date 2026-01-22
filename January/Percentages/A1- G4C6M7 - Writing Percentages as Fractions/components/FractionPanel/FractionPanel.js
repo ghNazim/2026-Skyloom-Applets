@@ -18,12 +18,13 @@ const FractionPanel = ({
   showArrowToDenominator = false,
   showArrowToNumerator = false,
   wide = false,
+  step = 0,
 }) => {
   // Classes for pulsate animation
   const numberClass = pulsateNumber ? "pulsate" : "";
   const percentClass = pulsatePercent ? "pulsate" : "";
-  const numeratorClass = `${highlightNumerator ? "highlight-box" : ""} ${pulsateNumerator ? "pulsate" : ""}`;
-  const denominatorClass = `${highlightDenominator ? "highlight-box" : ""} ${pulsateDenominator ? "pulsate" : ""}`;
+  const numeratorClass = `${highlightNumerator ? "highlight-box" : ""} `;
+  const denominatorClass = `${highlightDenominator ? "highlight-box" : ""} `;
 
   // Panel class based on width mode
   const panelClass = `fraction-panel ${wide ? "fraction-panel-wide" : ""}`;
@@ -39,24 +40,25 @@ const FractionPanel = ({
     React.createElement("defs", null,
       React.createElement("marker", {
         id: "arrowhead-denom",
-        markerWidth: "6",
-        markerHeight: "4",
-        refX: "1",
-        refY: "2",
+        markerWidth: "5",
+        markerHeight: "6",
+        refX: "0",
+        refY: "3",
         orient: "auto"
       },
         React.createElement("polygon", {
-          points: "0 0, 6 2, 0 4",
-          fill: "rgba(255, 255, 255, 1)"
+          points: "0 0, 5 3, 0 6",
+          fill: "#ffffff"
         })
       )
     ),
     React.createElement("path", {
       d: "M 5 5 L 5 50 L 90 50",
       stroke: "#ffffff",
-      strokeWidth: "3",
+      strokeWidth: "2",
       fill: "none",
-      markerEnd: "url(#arrowhead-denom)"
+      markerEnd: "url(#arrowhead-denom)",
+      vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -71,24 +73,25 @@ const FractionPanel = ({
     React.createElement("defs", null,
       React.createElement("marker", {
         id: "arrowhead-numer",
-        markerWidth: "6",
-        markerHeight: "4",
-        refX: "1",
-        refY: "2",
+        markerWidth: "5",
+        markerHeight: "6",
+        refX: "0",
+        refY: "3",
         orient: "auto"
       },
         React.createElement("polygon", {
-          points: "0 0, 6 2, 0 4",
-          fill: "rgba(79, 195, 247, 1)"
+          points: "0 0, 5 3, 0 6",
+          fill: "#4fc3f7"
         })
       )
     ),
     React.createElement("path", {
       d: "M 5 55 L 5 10 L 90 10",
       stroke: "#4fc3f7",
-      strokeWidth: "3",
+      strokeWidth: "2",
       fill: "none",
-      markerEnd: "url(#arrowhead-numer)"
+      markerEnd: "url(#arrowhead-numer)",
+      vectorEffect: "non-scaling-stroke"
     })
   );
 
@@ -108,7 +111,7 @@ const FractionPanel = ({
       // Decimal/Percent Box
       showPercent && React.createElement(
         "div",
-        { className: "decimal-box" },
+        { className: "decimal-box" + (step===1 ? " bordered" : "") },
         React.createElement(
           "span",
           { 
@@ -148,13 +151,14 @@ const FractionPanel = ({
               className: `fraction-numerator ${numeratorClass}`,
               style: { color: highlightNumerator ? numberColor : "white" }
             },
-            numerator
+            React.createElement("span", { className: "fraction-numerator-text" + (pulsateNumerator ? " pulsate" : "") }, numerator),
+            
           ),
           React.createElement("div", { className: "fraction-line-green" }),
           React.createElement(
             "span",
             { className: `fraction-denominator ${denominatorClass}` },
-            denominator
+            React.createElement("span", { className: "fraction-denominator-text" + (pulsateDenominator ? " pulsate" : "") }, denominator),
           )
         )
       )

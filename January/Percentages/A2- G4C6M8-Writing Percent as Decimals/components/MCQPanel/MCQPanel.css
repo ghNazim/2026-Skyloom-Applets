@@ -37,7 +37,7 @@
   white-space: pre-line;
   visibility: hidden;
   min-height: 8vw;
-  display: flex;
+  /* display: flex; */
   align-items: center;
   justify-content: center;
   text-align: center;
@@ -129,9 +129,11 @@
 
 .mcq-option-button:disabled {
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.5;
 }
-
+.mcq-option-button.correct:disabled {
+  opacity: 1 !important;
+}
 .mcq-option-button.disabled:not(.correct):not(.incorrect) {
   pointer-events: none;
 }
