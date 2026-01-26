@@ -1,0 +1,326 @@
+/* ===== PLACE VALUE PANEL ===== */
+:root {
+  --bg-dark: #0f2e3d;
+  --green-border: #3da37a;
+  --green-pill: #4caf50;
+  --pink-border: #914660;
+  --pink-pill: #e91e63;
+  --purple-border: #4d4982;
+  --purple-pill: #7e57c2;
+  --cyan: #00bcd4;
+  --gray-border: #526b77;
+  --yellow: #ffd54f;
+  --orange: #ffb74d;
+  --white: #ffffff;
+  --white-dim: rgba(255, 255, 255, 0.25);
+}
+
+.place-value-panel {
+  width: 90%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2%;
+  padding: 1.5vw;
+  user-select: none;
+}
+
+/* Box styling */
+.place-value-panel .box {
+  position: relative;
+  background: rgba(0, 0, 0, 0.25);
+  border: 0.2vw solid transparent;
+  border-radius: 1.2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.place-value-panel .box-label {
+  position: absolute;
+  top: -0.5vw;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.4vw 1.5vw;
+  border-radius: 0.6vw;
+  color: var(--white);
+  font-size: 1.5vw;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 20;
+}
+
+/* Place Value Box (Top) */
+.place-value-box {
+  flex: 1.2;
+  border-color: var(--green-border);
+  padding: 4% 2% 2% 2%;
+}
+
+.place-value-box .box-label {
+  background: var(--green-pill);
+}
+
+/* Chart Grid */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 9vw) 4% repeat(2, 9vw);
+  gap: 2vw;
+  width: 85%;
+  height: 90%;
+  position: relative;
+   justify-content: center; /* horizontal centering */
+  /* align-content: center; */
+  
+}
+
+.cell {
+  border: 0.2vw solid var(--gray-border);
+  border-radius: 0.8vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5vw;
+  color: var(--white);
+  height: 80%;
+  position: relative;
+}
+
+.header-cell {
+  font-size: 2.5vw;
+  font-weight: 500;
+}
+
+.digit-cell {
+  font-size: 3.5vw;
+  font-weight: 600;
+}
+
+.active-cell {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  z-index: 5;
+}
+
+.header-active {
+  border-color: var(--cyan);
+  background: rgba(0, 188, 212, 0.15);
+}
+
+/* Decimal point marker */
+.dot-marker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dot-circle {
+  width: 1vw;
+  height: 1vw;
+  background: var(--cyan);
+  border-radius: 50%;
+}
+
+/* Arrow container */
+.arrow-container {
+  position: absolute;
+  bottom: -3vw;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.8vw;
+  z-index: 30;
+}
+
+.nav-btn {
+  background: var(--cyan);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  width: 2.5vw;
+  height: 2.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0.3vw 0.8vw rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.nav-btn:hover:not(.disabled) {
+  transform: scale(1.1);
+}
+
+.nav-btn.disabled {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}
+
+.nav-btn.pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0.3vw 0.8vw rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0.3vw 1.2vw rgba(0, 188, 212, 0.5);
+  }
+}
+
+.arrow-icon {
+  font-size: 2vw;
+  font-weight: bold;
+  line-height: 1;
+  margin-top: -0.1vw;
+}
+
+/* Bottom row */
+.bottom-row {
+  flex: 1;
+  display: flex;
+  gap: 2%;
+}
+
+/* Standard Form Box (Left) */
+.standard-form-box {
+  flex: 1;
+  border-color: var(--pink-border);
+  padding: 4% 2% 2% 2%;
+}
+
+.standard-form-box .box-label {
+  background: var(--pink-pill);
+}
+
+.standard-display {
+  font-size: 5.5vw;
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 100%;
+}
+
+.char-slot {
+  width: 4.5vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.decimal-point {
+  position: absolute;
+  background: var(--cyan);
+  width: 0.9vw;
+  height: 0.9vw;
+  border-radius: 50%;
+  top: 65%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
+}
+
+/* Expanded Form Box (Right) */
+.expanded-form-box {
+  flex: 1;
+  border-color: var(--purple-border);
+  padding: 4% 2% 2% 2%;
+}
+
+.expanded-form-box .box-label {
+  background: var(--purple-pill);
+}
+
+.expanded-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.expanded-content.fraction-mode {
+  flex-direction: row;
+  gap: 2vw;
+}
+
+.equation {
+  font-size: 5vw;
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  color: var(--white);
+}
+
+.multiply-sign {
+  font-size: 3.5vw;
+  padding-bottom: 0.5vw;
+  color: var(--white);
+}
+
+.value-text {
+  color: var(--white); /* Default white, zeros will be yellow via inline styles */
+}
+
+/* Fraction display */
+.fraction-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.frac-num {
+  font-size: 4.5vw;
+  line-height: 1;
+  border-bottom: 0.25vw solid var(--white);
+  padding: 0 1vw;
+  color: var(--white);
+}
+
+.frac-den {
+  font-size: 4.5vw;
+  line-height: 1;
+  color: var(--white); /* Default white, zeros will be yellow via inline styles */
+  padding-top: 0.2vw;
+}
+
+/* Label text below equation/fraction */
+.ex-text {
+  color: var(--yellow); /* Changed from orange to yellow */
+  font-size: 2.2vw;
+  font-weight: 500;
+  margin-top: 1vw;
+}
+
+.fraction-mode .ex-text {
+  margin-top: 0;
+  margin-left: 1vw;
+}
+
+/* Strikethrough animation helper */
+.zero-strike {
+  position: relative;
+}
+
+.zero-strike::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0.3vw;
+  background: #ff4444;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.zero-strike.striking::after {
+  transform: scaleX(1);
+}

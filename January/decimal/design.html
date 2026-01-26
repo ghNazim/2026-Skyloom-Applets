@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Value Chart</title>
+    <style>
+        :root {
+            --bg-dark: #0f2e3d;
+            --green-border: #3da37a;
+            --green-bg: #4caf50;
+            --pink-border: #914660;
+            --pink-bg: #e91e63;
+            --purple-border: #4d4982;
+            --purple-bg: #7e57c2;
+            --cyan-active: #00bcd4;
+            --digit-border: #526b77;
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.2);
+            --yellow: #ffd54f;
+            --orange: #ffb74d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Ctext x='20' y='50' fill='rgba(255,255,255,0.03)' font-size='40' font-family='cursive'%3E76 39 12%3C/text%3E%3Ctext x='300' y='120' fill='rgba(255,255,255,0.03)' font-size='50' font-family='cursive'%3E910%3C/text%3E%3Ctext x='100' y='300' fill='rgba(255,255,255,0.03)' font-size='60' font-family='cursive'%3E59%3C/text%3E%3Cpath d='M10 10 Q 50 100 10 200' stroke='rgba(255,255,255,0.02)' fill='none'/%3E%3C/svg%3E");
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2vw;
+            overflow: hidden;
+        }
+
+        .main-container {
+            width: 100%;
+            /* Aspect ratio 2:1 */
+            aspect-ratio: 2 / 1;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5%;
+        }
+
+        /* Generic Box Styles */
+        .section-box {
+            position: relative;
+            background-color: rgba(0, 0, 0, 0.15);
+            border: 0.2vw solid transparent;
+            border-radius: 1.2vw;
+            padding: 4% 2% 2% 2%;
+        }
+
+        .pill-label {
+            position: absolute;
+            top: -1.2vw;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5vw 2vw;
+            border-radius: 0.8vw;
+            font-weight: 500;
+            font-size: 1.5vw;
+            white-space: nowrap;
+        }
+
+        /* Top Section specific */
+        .top-section {
+            flex: 1.1;
+            border-color: var(--green-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .top-section .pill-label {
+            background-color: var(--green-bg);
+        }
+
+        .place-value-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr) 4% repeat(2, 1fr);
+            gap: 1.5vw;
+            width: 80%;
+            height: 80%;
+        }
+
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vw;
+        }
+
+        .header-cell, .digit-cell {
+            border: 0.2vw solid var(--digit-border);
+            border-radius: 1vw;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4vw;
+            font-weight: 400;
+        }
+
+        .header-cell {
+            font-size: 3.5vw;
+        }
+
+        .digit-cell.active {
+            background-color: var(--cyan-active);
+            border-color: var(--cyan-active);
+        }
+
+        .decimal-separator {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .dot {
+            width: 1.2vw;
+            height: 1.2vw;
+            background-color: var(--cyan-active);
+            border-radius: 50%;
+        }
+
+        /* Bottom Row */
+        .bottom-row {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2.5%;
+        }
+
+        /* Standard Form Box */
+        .standard-box {
+            border-color: var(--pink-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .standard-box .pill-label {
+            background-color: var(--pink-bg);
+        }
+
+        .standard-value {
+            font-size: 7vw;
+            text-align: center;
+            letter-spacing: 0.2vw;
+            font-weight: 400;
+        }
+
+        .dim { color: var(--text-dim); }
+        .pink-dot { color: #f48fb1; margin: 0 -0.5vw; }
+
+        /* Expanded Form Box */
+        .expanded-box {
+            border-color: var(--purple-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .expanded-box .pill-label {
+            background-color: var(--purple-bg);
+        }
+
+        .expanded-equation {
+            font-size: 6vw;
+            display: flex;
+            align-items: center;
+            gap: 1.5vw;
+        }
+
+        .multiply-symbol {
+            font-size: 4vw;
+            padding-bottom: 0.8vw;
+        }
+
+        .highlight-yellow { color: var(--yellow); }
+        .subtitle-orange {
+            color: var(--orange);
+            font-size: 2.5vw;
+            margin-top: 1%;
+        }
+
+        /* Mobile Adjustments for Portrait */
+        @media (max-width: 600px) or (orientation: portrait) {
+            .main-container {
+                aspect-ratio: auto;
+                height: auto;
+                max-height: none;
+            }
+            .pill-label { font-size: 3.5vw; padding: 1vw 4vw; top: -2.5vw; border-radius: 2vw;}
+            .header-cell, .digit-cell { font-size: 8vw; height: 12vw; border-radius: 2vw; }
+            .header-cell { font-size: 7vw; height: 10vw; }
+            .standard-value { font-size: 12vw; }
+            .expanded-equation { font-size: 10vw; }
+            .subtitle-orange { font-size: 5vw; }
+            .bottom-row { grid-template-columns: 1fr; }
+            .dot { width: 3vw; height: 3vw; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- Top Section: Place Value Chart -->
+        <div class="section-box top-section">
+            <div class="pill-label">Place value chart</div>
+            <div class="place-value-grid">
+                <!-- Headers -->
+                <div class="header-cell">H</div>
+                <div class="header-cell">T</div>
+                <div class="header-cell">O</div>
+                <div class="decimal-separator">
+                    <div class="dot"></div>
+                </div>
+                <div class="header-cell">t</div>
+                <div class="header-cell">h</div>
+
+                <!-- Digits -->
+                <div class="digit-cell active">3</div>
+                <div class="digit-cell">0</div>
+                <div class="digit-cell">0</div>
+                <div class="decimal-separator">
+                    <div class="dot"></div>
+                </div>
+                <div class="digit-cell">0</div>
+                <div class="digit-cell">0</div>
+            </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="bottom-row">
+            <!-- Standard Form Box -->
+            <div class="section-box standard-box">
+                <div class="pill-label">Value of the number in standard form</div>
+                <div class="standard-value">
+                    <span class="dim">00</span>300<span class="pink-dot">.</span>00
+                </div>
+            </div>
+
+            <!-- Expanded Form Box -->
+            <div class="section-box expanded-box">
+                <div class="pill-label">Expanded form of the number</div>
+                <div class="expanded-equation">
+                    <span>3</span>
+                    <span class="multiply-symbol">×</span>
+                    <span class="highlight-yellow">100</span>
+                </div>
+                <div class="subtitle-orange">3 hundreds</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

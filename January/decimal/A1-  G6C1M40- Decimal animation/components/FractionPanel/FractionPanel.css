@@ -1,0 +1,160 @@
+/* Fraction Panel Styles */
+.fractions-panel-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 5vw;
+}
+
+.decimal-text {
+  font-size: 2.5vw;
+  color: white;
+  font-weight: 500;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.decimal-text-correct {
+  color: #4CAF50;
+}
+
+.decimal-text-wrong {
+  color: #f44336;
+}
+
+.equation-row {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 1vw;
+  padding-bottom: 5vw; /* Space for labels below */
+}
+
+.fraction-block-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.box {
+  border: 3px solid orange;
+  border-radius: 1vw;
+  padding: 0.6vw 1vw;
+  font-size: 5vw;
+  color: white;
+  /* background-color: rgba(74, 156, 93, 0.2); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.percent-box {
+  min-width: 8vw;
+}
+
+.percent-number {
+  min-width: 3vw;
+  display: inline-block;
+  text-align: right;
+}
+
+.percent-symbol {
+  margin-left: 0.3vw;
+}
+
+.fraction-box {
+  padding: 0.5vw 1.5vw;
+  border-color: orange;
+  /* border-style: dashed; */
+}
+
+.decimal-box {
+  min-width: 8vw;
+  border-color: orange;
+  /* background-color: rgba(212, 118, 138, 0.2); */
+}
+
+/* Box states */
+.box.box-correct {
+  border-color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.3);
+}
+
+.box.box-wrong {
+  border-color: #f44336;
+  background-color: rgba(244, 67, 54, 0.3);
+}
+
+/* Equal sign between boxes */
+.equal-sign {
+  font-size: 5vw;
+  color: white;
+  margin: 0 0.5vw;
+  padding-top: 1vw; /* Align with box centers */
+}
+
+/* Labels BELOW boxes */
+.label-box {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 3vw;
+  padding: 0.4vw 1vw;
+  border-radius: 0.5vw;
+  font-size: 2vw;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.label-percent {
+  background-color:#006d19;
+  border: 2px dashed white;
+  color: white;
+}
+
+.label-fraction {
+  background-color: rgb(3, 82, 124);
+  border: 2px dashed white;
+  color: white;
+}
+
+.label-decimal {
+  background-color: rgb(151, 2, 77);
+  border: 2px dashed white;
+  color: white;
+}
+
+/* Blinking cursor animation */
+.blinking-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 4vw;
+  background-color: white;
+  animation: blink 1s infinite;
+  margin-right: 2vw;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Fraction display in fraction box */
+.fraction-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.fraction-display .fraction-line {
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  margin: 0.3vw 0;
+}
