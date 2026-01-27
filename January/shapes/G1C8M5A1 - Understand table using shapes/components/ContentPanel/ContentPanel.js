@@ -15,7 +15,7 @@ const ContentPanel = ({ mainVisualLeft, mainVisualRight, buttonText, onButtonCli
           { className: "main-visual-left" },
           mainVisualLeft
         ),
-        React.createElement(
+        mainVisualRight && React.createElement(
           "div",
           { className: "main-visual-right" },
           mainVisualRight

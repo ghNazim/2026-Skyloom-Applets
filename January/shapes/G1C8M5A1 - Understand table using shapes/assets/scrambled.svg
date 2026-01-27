@@ -18,8 +18,8 @@
 <path class="square" d="M206.5 162.5V201.5H167.5V162.5H206.5Z" fill="#00FFFF" stroke="white"/>
 <path class="square" d="M263.5 22.5V61.5H224.5V22.5H263.5Z" fill="#00FFFF" stroke="white"/>
 <rect class="rectangle" x="221.5" y="211.5" width="49" height="103" fill="#CC0000" stroke="white"/>
-<rect class="rectangle" x="199.5" y="128.5" width="49" height="103" transform="rotate(-90 199.5 128.5)" fill="#FF7ED1" stroke="white"/>
-<rect class="rectangle" x="188.183" y="481.618" width="49" height="103" transform="rotate(-120 188.183 481.618)" fill="#00FF00" stroke="white"/>
+<rect class="rectangle" x="194.5" y="79.5" width="103" height="49" fill="#FF7ED1" stroke="white"/>
+<rect class="rectangle" x="163.5" y="423.5" width="103" height="49" fill="#00FF00" stroke="white"/>
 </g>
 <defs>
 <clipPath id="clip0_1_117">

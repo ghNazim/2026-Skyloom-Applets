@@ -65,14 +65,7 @@
   overflow: hidden;
 }
 
-.instruction-row {
-  height: 15%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5vw;
-  opacity: 0;
-}
+
 
 .buttons-row {
   height: 15%;
@@ -109,4 +102,125 @@
   color: #666666;
   border-color: #999999;
   box-shadow: none;
+}
+
+/* Shape Selection Styles */
+/* Shape Selection Styles */
+.scrambled-svg-container .square,
+.scrambled-svg-container .rectangle,
+.scrambled-svg-container .circle,
+.scrambled-svg-container .triangle {
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.5s ease;
+  /* Removed transform-origin/box from here to avoid breaking SVG layout */
+}
+
+.scrambled-svg-container .shape-selected {
+  stroke: #ffffff !important;
+  stroke-width: 4px !important;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+}
+
+.scrambled-svg-container .shape-disappear {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* Jiggle Animation (Rotation) - Safe for shapes without transform attribute */
+@keyframes jiggle-rotate {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  10% {
+    transform: rotate(-5deg) scale(1.05);
+  }
+  20% {
+    transform: rotate(5deg) scale(1.05);
+  }
+  30% {
+    transform: rotate(-5deg) scale(1);
+  }
+  40% {
+    transform: rotate(5deg) scale(1);
+  }
+  50% {
+    transform: rotate(0deg) scale(1.05);
+  }
+  60% {
+    transform: rotate(-3deg) scale(1);
+  }
+  70% {
+    transform: rotate(3deg) scale(1.05);
+  }
+  80% {
+    transform: rotate(-3deg) scale(1);
+  }
+  90% {
+    transform: rotate(3deg) scale(1);
+  }
+}
+
+/* Pulse Animation (Opacity/Scale-simulated) - Safe for Rectangles */
+@keyframes jiggle-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 5px rgba(255,255,255,0.5));
+  }
+}
+
+/* Apply Jiggle Rotate to safe shapes */
+.scrambled-svg-container .square.shape-jiggle,
+.scrambled-svg-container .triangle.shape-jiggle,
+.scrambled-svg-container .circle.shape-jiggle,
+.scrambled-svg-container .rectangle.shape-jiggle {
+  animation: jiggle-rotate 0.5s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* Apply Safe Jiggle to Rectangles */
+/* .scrambled-svg-container .rectangle.shape-jiggle {
+  animation: jiggle-pulse 0.5s ease-in-out infinite;
+} */
+
+/* Feedback Styles */
+.instruction-row {
+  height: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5vw;
+  opacity: 1;
+}
+
+.feedback-box {
+  padding: 0.8vw 1.5vw;
+  border-radius: 0.5vw;
+  font-size: 1.8vw;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.feedback-correct {
+  background: linear-gradient(145deg, rgba(39, 174, 96, 0.9), rgba(46, 204, 113, 0.9));
+  color: white;
+  border: 2px solid #27ae60;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+}
+
+.feedback-wrong {
+  background: linear-gradient(145deg, rgba(192, 57, 43, 0.9), rgba(231, 76, 60, 0.9));
+  color: white;
+  border: 2px solid #c0392b;
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+}
+
+/* House SVG Fill Transition */
+.svg-left .square,
+.svg-left .rectangle,
+.svg-left .circle,
+.svg-left .triangle {
+  transition: fill 0.5s ease, fill-opacity 0.5s ease;
 }

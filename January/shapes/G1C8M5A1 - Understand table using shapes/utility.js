@@ -45,15 +45,16 @@ const scrambled_svg = `<svg width="314" height="506" viewBox="0 0 314 506" fill=
 <path class="square" d="M206.5 162.5V201.5H167.5V162.5H206.5Z" fill="#00FFFF" stroke="white"/>
 <path class="square" d="M263.5 22.5V61.5H224.5V22.5H263.5Z" fill="#00FFFF" stroke="white"/>
 <rect class="rectangle" x="221.5" y="211.5" width="49" height="103" fill="#CC0000" stroke="white"/>
-<rect class="rectangle" x="199.5" y="128.5" width="49" height="103" transform="rotate(-90 199.5 128.5)" fill="#FF7ED1" stroke="white"/>
-<rect class="rectangle" x="188.183" y="481.618" width="49" height="103" transform="rotate(-120 188.183 481.618)" fill="#00FF00" stroke="white"/>
+<rect class="rectangle" x="194.5" y="79.5" width="103" height="49" fill="#FF7ED1" stroke="white"/>
+<rect class="rectangle" x="163.5" y="423.5" width="103" height="49" fill="#00FF00" stroke="white"/>
 </g>
 <defs>
 <clipPath id="clip0_1_117">
 <rect width="314" height="506" fill="white"/>
 </clipPath>
 </defs>
-</svg>`
+</svg>
+`
 
 const house_svg = `<svg width="332" height="313" viewBox="0 0 332 313" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect class="rectangle" x="29.5" y="144.5" width="273" height="152" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>

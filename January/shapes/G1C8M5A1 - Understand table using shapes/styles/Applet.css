@@ -53,3 +53,108 @@
   min-height: 0;
   overflow: hidden;
 }
+
+/* Color Counting Layout (Step 9) */
+.color-counting-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.color-counting-main {
+  display: flex;
+  flex: 1;
+  gap: 1vw;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.color-counting-left {
+  width: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+  padding: 1vw;
+}
+
+.color-counting-left svg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.color-counting-right {
+  width: 60%;
+  display: flex;
+  gap: 1vw;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.color-counting-table-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.color-counting-numpad-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1vw;
+  padding: 1vw;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+}
+
+.color-feedback-box {
+  width: 100%;
+  padding: 1vw;
+  border-radius: 1vw;
+  text-align: center;
+  font-size: 2vw;
+  color: white;
+  transition: opacity 0.3s ease;
+  height: 10vw;
+  min-height: 10vw;
+  max-height: 10vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-feedback-box.show.correct {
+  background-color: rgba(46, 204, 112, 0.119);
+  border: 2px solid rgba(46, 204, 113, 0.8);
+  color: #2ecc71;
+}
+
+.color-feedback-box.show.wrong {
+ background-color: rgba(231, 77, 60, 0.103);
+  border: 2px solid rgba(231, 76, 60, 0.8);
+  color: white;
+}
+
+.color-counting-next-button {
+  margin-top: auto;
+}
+
+.color-counting-next-button:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  background: #d3d3d3;
+  color: #666666;
+  border-color: #999999;
+  box-shadow: none;
+}

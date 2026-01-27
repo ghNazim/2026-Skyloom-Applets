@@ -42,6 +42,12 @@
 .fullscreen-content.left{
     text-align: left ;
 }
+.fullscreen-content.right{
+    text-align: left;
+    width: 50%;
+    margin-left: auto;
+    margin-right: 0;
+}
 .heading{
     font-weight: bold;
     font-size: 2.7vw;
@@ -52,6 +58,18 @@
 .fullscreen-button{
     position: absolute;
     bottom: 3vw;
+}
+
+.fullscreen-panel.with-character {
+    position: relative;
+}
+
+.fullscreen-character-image {
+    position: absolute;
+    bottom: 0;
+    height: 70%;
+    left: 0;
+    z-index: 1;
 }
 
 
