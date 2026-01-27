@@ -28,12 +28,13 @@
 /* Box styling */
 .place-value-panel .box {
   position: relative;
-  background: rgba(0, 0, 0, 0.25);
-  border: 0.2vw solid transparent;
+  /* background: rgba(0, 0, 0, 0.25); */
+  /* border: 0.2vw solid transparent; */
   border-radius: 1.2vw;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible; /* Allow arrows to extend outside without affecting box size */
 }
 
 .place-value-panel .box-label {
@@ -52,9 +53,13 @@
 
 /* Place Value Box (Top) */
 .place-value-box {
-  flex: 1.2;
+  flex: 0 0 55%; /* don't grow, don't shrink, fixed 45% basis */
+  width: 55%;
   border-color: var(--green-border);
+  background: #3da37a4a;
   padding: 4% 2% 2% 2%;
+  margin: 0 auto;
+  overflow: visible; /* Allow arrows to extend outside without affecting box size */
 }
 
 .place-value-box .box-label {
@@ -64,14 +69,13 @@
 /* Chart Grid */
 .chart-grid {
   display: grid;
-  grid-template-columns: repeat(3, 9vw) 4% repeat(2, 9vw);
+  grid-template-columns: repeat(3, 5vw) 4% repeat(2, 5vw);
   gap: 2vw;
   width: 85%;
   height: 90%;
   position: relative;
-   justify-content: center; /* horizontal centering */
-  /* align-content: center; */
-  
+  justify-content: center; /* horizontal centering */
+  overflow: visible; /* Allow arrows to extend outside */
 }
 
 .cell {
@@ -82,7 +86,7 @@
   align-items: center;
   font-size: 2.5vw;
   color: var(--white);
-  height: 80%;
+  height: 90%;
   position: relative;
 }
 
@@ -92,7 +96,7 @@
 }
 
 .digit-cell {
-  font-size: 3.5vw;
+  font-size: 2.5vw;
   font-weight: 600;
 }
 
@@ -105,6 +109,37 @@
 .header-active {
   border-color: var(--cyan);
   background: rgba(0, 188, 212, 0.15);
+}
+
+.header-active-yellow {
+  border-color: var(--yellow);
+  background: rgba(255, 213, 79, 0.15);
+}
+
+.active-cell-yellow {
+  /* background: var(--yellow); */
+  border-color: var(--yellow);
+  z-index: 5;
+  color: var(--yellow);
+}
+
+/* Wrong answer feedback (red border) */
+.cell-wrong {
+  border-color: #e74c3c;
+  border-width: 0.3vw;
+  background: rgba(231, 76, 60, 0.15);
+}
+
+/* Correct answer feedback (green highlight) */
+.header-active-green {
+  border-color: #2ecc71;
+  background: rgba(46, 204, 113, 0.15);
+}
+
+.active-cell-green {
+  background: #2ecc71;
+  border-color: #2ecc71;
+  z-index: 5;
 }
 
 /* Decimal point marker */
@@ -181,7 +216,7 @@
 
 /* Bottom row */
 .bottom-row {
-  flex: 1;
+  flex: 0 0 45%; /* Fixed height - don't grow, don't shrink */
   display: flex;
   gap: 2%;
 }
@@ -190,6 +225,7 @@
 .standard-form-box {
   flex: 1;
   border-color: var(--pink-border);
+  background: #9146604a;
   padding: 4% 2% 2% 2%;
 }
 
@@ -229,6 +265,7 @@
 .expanded-form-box {
   flex: 1;
   border-color: var(--purple-border);
+  background: #4d49825b;
   padding: 4% 2% 2% 2%;
 }
 
@@ -323,4 +360,56 @@
 
 .zero-strike.striking::after {
   transform: scaleX(1);
+}
+
+/* ===== ARROW ANIMATIONS ===== */
+
+/* Arrow wrapper for blinking */
+.arrow-wrapper {
+  pointer-events: none;
+}
+
+/* Blinking animation for arrows */
+.blink-arrow {
+  animation: blink-glow 1s ease-in-out infinite;
+}
+
+@keyframes blink-glow {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 0.5vw rgba(255, 215, 0, 0.8));
+  }
+  50% {
+    opacity: 0.5;
+    filter: drop-shadow(0 0 1vw rgba(255, 215, 0, 0.4));
+  }
+}
+
+/* Arrow animations are now handled by GSAP for smoother path length calculation */
+
+/* Arrow label styling */
+.arrow-label-text {
+  text-shadow: 0 0 0.5vw rgba(255, 215, 0, 0.8);
+}
+
+/* Numbered label circle */
+.arrow-label-circle {
+  filter: drop-shadow(0 0 0.3vw rgba(255, 215, 0, 0.5));
+}
+
+/* Pulsate animation for fraction zeros */
+@keyframes pulsate-zero {
+  0%, 100% {
+    /* transform: scale(1); */
+    text-shadow: 0 0 0 transparent;
+  }
+  50% {
+    /* transform: scale(1.1); */
+    text-shadow: 0 0 1vw var(--yellow), 0 0 2vw var(--yellow);
+  }
+}
+
+.pulsate-zero {
+  animation: pulsate-zero 1s ease-in-out infinite;
+  display: inline-block;
 }

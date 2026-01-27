@@ -17,7 +17,7 @@ const appData = {
     // Step 0 - Draggable points and connect button
     step0: {
       question: `In between <y>the Endpoints</y>`,
-      navText: "Move the points around, then tap the button",
+      navText: "Tap on the 'Connect' button.",
       navTextAfterConnect: "Tap the 'Extend' Button",
       navTextAfterExtend: "Move the slider all the way to the right",
       navTextAfterSlider: "Tap » to continue",
@@ -124,7 +124,7 @@ const appData = {
     // Step 0 - Draggable points and connect button
     step0: {
       question: `Di antara <y>Titik-titik Ujung</y>`,
-      navText: "Pindahkan titik-titik di sekitar, lalu ketuk tombol",
+      navText: "Ketuk tombol 'Hubungkan'.",
       navTextAfterConnect: "Ketuk Tombol 'Perpanjang'",
       navTextAfterExtend: "Gerakkan penggeser sepenuhnya ke kanan",
       navTextAfterSlider: "Ketuk » untuk melanjutkan",

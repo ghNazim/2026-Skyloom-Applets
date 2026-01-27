@@ -1136,7 +1136,7 @@ const VisualPanel = ({
         pointAPos.x,
         pointAPos.y,
         step >= 0 ? "A" : null, // Show label from step 0
-        step === 0 && step0SubStep === "initial",
+        false, // Disallow dragging in step 0
         false, // Remove hint circles in step 0
         step === 3 ? pointAColor : "#FFEB3B",
         step === 3 ? pointALabelColor : "white", // Use label color for step 3
@@ -1150,7 +1150,7 @@ const VisualPanel = ({
         zoomedBPos.x,
         zoomedBPos.y,
         step >= 0 ? "B" : null, // Show label from step 0
-        step === 0 && step0SubStep === "initial",
+        false, // Disallow dragging in step 0
         false, // Remove hint circles in step 0
         step === 3 ? pointBColor : "#FFEB3B",
         step === 3 ? pointBLabelColor : "white", // Use label color for step 3

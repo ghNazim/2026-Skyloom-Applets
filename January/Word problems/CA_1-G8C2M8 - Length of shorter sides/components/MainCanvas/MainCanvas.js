@@ -95,7 +95,7 @@ const MainCanvas = ({
   // Determine image source
   const getImageSrc = () => {
     if (currentImage) return currentImage;
-    if (stepData.image) return `assets/${stepData.image}`;
+    if (stepData.image) return `${stepData.image}`;
     return "";
   };
 

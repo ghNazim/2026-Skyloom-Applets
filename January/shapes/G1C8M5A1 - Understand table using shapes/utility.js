@@ -1,0 +1,74 @@
+
+
+const audioCache = {};
+const sounds = ["correct", "wrong", "click", "congrats","tick"];
+sounds.forEach((name) => {
+  const audio = new Audio(`sound/${name}.mp3`);
+  audio.load(); // Preloads the audio
+  audioCache[name] = audio;
+});
+function playSound(filename) {
+  if (!audioCache[filename]) {
+    const audio = new Audio(`sound/${filename}.mp3`);
+    audioCache[filename] = audio;
+  }
+  const sound = audioCache[filename].cloneNode(); // Clone so it can overlap itself
+  sound.play();
+}
+
+
+function handleComma(sentence) {
+  if (current_language !== "id" || !sentence) {
+    return sentence;
+  }
+  
+  return sentence.replace(/,/g, "<cm>,</cm>");
+}
+
+const scrambled_svg = `<svg width="314" height="506" viewBox="0 0 314 506" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1_117)">
+<path class="triangle" d="M100.353 129.5H12.6475L56.5 23.3086L100.353 129.5Z" fill="#FF7ED1" stroke="white"/>
+<path class="triangle" d="M106.353 374.5H18.6475L62.5 268.309L106.353 374.5Z" fill="#CC0000" stroke="white"/>
+<path class="triangle" d="M218.353 374.5H130.647L174.5 268.309L218.353 374.5Z" fill="#00FF00" stroke="white"/>
+<path class="triangle" d="M79.6475 21.5L167.353 21.5L123.5 127.691L79.6475 21.5Z" fill="#FF9900" stroke="white"/>
+<path class="triangle" d="M107.921 146.873L151.774 222.828L37.8833 237.946L107.921 146.873Z" fill="#FF9900" stroke="white"/>
+<circle class="circle" cx="170.5" cy="112.5" r="16" fill="#FFFF00" stroke="white"/>
+<circle class="circle" cx="42.5" cy="406.5" r="16" fill="#CC0000" stroke="white"/>
+<circle class="circle" cx="106.5" cy="410.5" r="16" fill="#FFFF00" stroke="white"/>
+<circle class="circle" cx="45.5" cy="165.5" r="16" fill="#FFFF00" stroke="white"/>
+<circle class="circle" cx="260.5" cy="355.5" r="16" fill="#00FF00" stroke="white"/>
+<circle class="circle" cx="191.5" cy="47.5" r="16" fill="#FFFF00" stroke="white"/>
+<path class="square" d="M61.5 441.5V480.5H22.5V441.5H61.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M127.5 441.5V480.5H88.5V441.5H127.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M162.5 238.5V277.5H123.5V238.5H162.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M263.5 150.5V189.5H224.5V150.5H263.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M206.5 162.5V201.5H167.5V162.5H206.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M263.5 22.5V61.5H224.5V22.5H263.5Z" fill="#00FFFF" stroke="white"/>
+<rect class="rectangle" x="221.5" y="211.5" width="49" height="103" fill="#CC0000" stroke="white"/>
+<rect class="rectangle" x="199.5" y="128.5" width="49" height="103" transform="rotate(-90 199.5 128.5)" fill="#FF7ED1" stroke="white"/>
+<rect class="rectangle" x="188.183" y="481.618" width="49" height="103" transform="rotate(-120 188.183 481.618)" fill="#00FF00" stroke="white"/>
+</g>
+<defs>
+<clipPath id="clip0_1_117">
+<rect width="314" height="506" fill="white"/>
+</clipPath>
+</defs>
+</svg>`
+
+const house_svg = `<svg width="332" height="313" viewBox="0 0 332 313" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect class="rectangle" x="29.5" y="144.5" width="273" height="152" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<rect class="rectangle" x="58.5" y="183.5" width="49" height="113" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="square" d="M226.5 190.5V229.5H187.5V190.5H226.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="square" d="M226.5 233.5V272.5H187.5V233.5H226.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="square" d="M269.5 190.5V229.5H230.5V190.5H269.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="square" d="M269.5 233.5V272.5H230.5V233.5H269.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="triangle" d="M118.353 143.5H30.6475L74.5 37.3086L118.353 143.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="triangle" d="M76.6475 36.5L164.353 36.5L120.5 142.691L76.6475 36.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="triangle" d="M168.647 36.5L256.353 36.5L212.5 142.691L168.647 36.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="triangle" d="M210.353 143.5H122.647L166.5 37.3086L210.353 143.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<path class="triangle" d="M302.353 143.5H214.647L258.5 37.3086L302.353 143.5Z" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<circle class="circle" cx="74.5" cy="108.5" r="16" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<circle class="circle" cx="166.5" cy="108.5" r="16" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+<circle class="circle" cx="258.5" cy="108.5" r="16" fill="#D9D9D9" fill-opacity="0.01" stroke="white"/>
+</svg>
+`

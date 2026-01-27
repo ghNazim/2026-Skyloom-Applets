@@ -6,11 +6,15 @@ const MCQPanel = ({
   onOptionClick,
   showFeedback,
   feedbackOverride,
-  shake, // New prop
+  shake,
+  noFeedback = false, // New prop for no feedback mode
 }) => {
   const { useState, useEffect } = React;
 
   const getFeedbackText = () => {
+    // No feedback in noFeedback mode
+    if (noFeedback) return null;
+    
     // Use feedback override if provided
     if (feedbackOverride) return feedbackOverride;
 
@@ -37,6 +41,12 @@ const MCQPanel = ({
   // Determine grid layout based on number of options
   const getOptionsClassName = () => {
     if (!mcqData || !mcqData.options) return "mcq-options-container";
+    
+    // For noFeedback mode, always use column layout
+    if (noFeedback) {
+      return "mcq-options-container column compact";
+    }
+    
     return mcqData.options.length === 4
       ? "mcq-options-container grid-2x2"
       : "mcq-options-container column";
@@ -57,9 +67,12 @@ const MCQPanel = ({
     );
   };
 
+  // Panel class based on mode
+  const panelClass = noFeedback ? "mcq-panel mcq-panel-compact" : "mcq-panel";
+
   return React.createElement(
     "div",
-    { className: "mcq-panel" },
+    { className: panelClass },
     // Show text content if provided
     content &&
       React.createElement("div", { className: "mcq-panel-text" }, content),
@@ -68,8 +81,8 @@ const MCQPanel = ({
       React.createElement(
         "div",
         { className: "mcq-panel-content" },
-        // Feedback area (only visible when answered)
-        React.createElement(
+        // Feedback area (only visible when answered and not in noFeedback mode)
+        !noFeedback && React.createElement(
           "div",
           {
             className: `mcq-feedback ${
@@ -82,8 +95,8 @@ const MCQPanel = ({
         React.createElement(
           "div",
           { className: "mcq-wrapper" },
-          // MCQ Title (only if not null)
-          mcqData.title &&
+          // MCQ Title (only if not null and not in noFeedback mode)
+          mcqData.title && !noFeedback &&
             React.createElement(
               "div",
               { className: "mcq-title" },
@@ -94,7 +107,7 @@ const MCQPanel = ({
             "div",
             { className: getOptionsClassName() },
             mcqData.options.map((option, index) => {
-              let buttonClass = "mcq-option-button";
+              let buttonClass = noFeedback ? "mcq-option-button compact-btn" : "mcq-option-button";
               const optionStr = String(option);
               const selectedStr = String(selectedOption);
 

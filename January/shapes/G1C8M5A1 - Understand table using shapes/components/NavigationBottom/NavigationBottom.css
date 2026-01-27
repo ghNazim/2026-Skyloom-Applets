@@ -1,0 +1,17 @@
+.navigation-bottom {
+  width: 100%;
+  padding: 1vw;
+  color: white;
+  text-align: center;
+  font-size: 2vw;
+  flex-shrink: 0;
+  min-height: fit-content;
+}
+
+.navigation-bottom .nav-text-container {
+  flex: 1;
+  text-align: center;
+  font-size: 2.5vw;
+  color: var(--white-color);
+  padding: 0 2vw;
+}

@@ -5,6 +5,9 @@ const App = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   
+  // DnD Question state
+  const [dndQuestionIndex, setDndQuestionIndex] = useState(0);
+  
   // Dynamic text state
   const [dynamicQuestionText, setDynamicQuestionText] = useState("");
   const [dynamicFeedbackText, setDynamicFeedbackText] = useState("");
@@ -12,14 +15,15 @@ const App = () => {
 
   const handleStart = () => {
     playSound("click");
-    // Jump directly to step 5
-    setCurrentStep(5);
+    setCurrentStep(1);
+    setDndQuestionIndex(0);
   };
 
   const handleRestart = () => {
     playSound("click");
     setCurrentStep(0);
     setIsNextDisabled(true);
+    setDndQuestionIndex(0);
   };
   
   // Reset next button on step change
@@ -32,12 +36,24 @@ const App = () => {
 
   const handleNext = () => {
     playSound("click");
-    if (currentStep === 5) {
-      // Move from step 5 to step 6
-      setCurrentStep(6);
-    } else if (currentStep === 6) {
-      // Final step - could show completion or restart
-      // For now, let's show a final screen or restart
+    if (currentStep >= 1 && currentStep <= 15) {
+      // Move to next step
+      setCurrentStep(prev => prev + 1);
+    } else if (currentStep === 16) {
+      // DnD Question step - check if more questions
+      const stepData = APP_DATA.steps[16];
+      const totalQuestions = stepData.questions.length;
+      
+      if (dndQuestionIndex < totalQuestions - 1) {
+        // Go to next question
+        setDndQuestionIndex(prev => prev + 1);
+        setIsNextDisabled(true);
+      } else {
+        // All questions done, go to final step
+        setCurrentStep(17);
+      }
+    } else if (currentStep === 17) {
+      // Final step - restart
       handleRestart();
     } else {
       setCurrentStep(prev => prev + 1);
@@ -46,10 +62,7 @@ const App = () => {
 
   const handlePrev = () => {
     playSound("click");
-    if (currentStep === 6) {
-      setIsNextDisabled(true);
-      setCurrentStep(5);
-    } else if (currentStep > 0) {
+    if (currentStep > 1) {
       setIsNextDisabled(true);
       setCurrentStep(prev => prev - 1);
     }
@@ -115,7 +128,90 @@ const App = () => {
     );
   }
 
-  // Main steps (5, 6, etc.)
+  // Get current step data
+  const stepData = APP_DATA.steps[currentStep];
+
+  // Splash steps (11, 12, 14, 15)
+  if (stepData && stepData.type === "splash") {
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(Splash, {
+          heading: stepData.heading,
+          type: stepData.splashType,
+          equationData: stepData.equation,
+          feedbackText: stepData.feedbackText,
+          buttonText: stepData.buttonText,
+          onButtonClick: handleNext,
+        })
+      )
+    );
+  }
+
+  // Fullscreen steps (step 13, 17)
+  if (stepData && stepData.type === "fullscreen") {
+    const buttonHandler = currentStep === 17 ? handleRestart : handleNext;
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(Fullscreen, {
+          heading: stepData.heading,
+          text: stepData.text,
+          buttonText: stepData.buttonText,
+          onButtonClick: buttonHandler,
+        })
+      )
+    );
+  }
+
+  // DnD Question step (step 16)
+  if (stepData && stepData.type === "dndQuestion") {
+    const currentQuestion = stepData.questions[dndQuestionIndex];
+    const totalQuestions = stepData.questions.length;
+    
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(QuestionPanel, {
+        text: stepData.questionText,
+        step: currentStep,
+      }),
+      React.createElement(
+        "div",
+        { className: "app-main-content" },
+        React.createElement(DndQuestion, {
+          questionData: currentQuestion,
+          questionIndex: dndQuestionIndex,
+          totalQuestions: totalQuestions,
+          onCorrectAnswer: enableNext,
+          feedbacks: stepData.feedbacks,
+          navText: stepData.navText,
+          navTextAfterCorrect: stepData.navTextAfterCorrect,
+          navTextComplete: stepData.navTextComplete,
+          onUpdateNav: (text) => setDynamicNavText(text),
+        })
+      ),
+      React.createElement(
+        "div",
+        { className: "lower-panel" },
+        React.createElement(Navigation, {
+          onNav: (dir) => dir === 'next' ? handleNext() : handlePrev(),
+          isNextDisabled: isNextDisabled,
+          isPrevDisabled: true,
+          navText: dynamicNavText || stepData.navText,
+          nextSymbol: "»"
+        })
+      )
+    );
+  }
+
+  // Main steps (1-10)
   return React.createElement(
     "div",
     { className: "applet-container" },
@@ -140,7 +236,7 @@ const App = () => {
       React.createElement(Navigation, {
         onNav: (dir) => dir === 'next' ? handleNext() : handlePrev(),
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: currentStep <= 5,
+        isPrevDisabled: currentStep <= 1,
         navText: getNavText(),
         nextSymbol: "»"
       })

@@ -127,7 +127,14 @@ const VisualPanel = ({
     if (step !== 0 || !isDrawing || scribbleComplete) return;
     const coords = getSVGCoordinates(e);
     setCurrentPath(
-      (prev) => `${prev} L ${coords.x.toFixed(2)} ${coords.y.toFixed(2)}`
+      (prev) => {
+        // Only append if path already starts with M (moveto command)
+        if (prev && prev.trim().startsWith('M')) {
+          return `${prev} L ${coords.x.toFixed(2)} ${coords.y.toFixed(2)}`;
+        }
+        // If path is empty or invalid, don't append
+        return prev;
+      }
     );
     onScribbleDraw && onScribbleDraw(coords);
   };
@@ -721,34 +728,35 @@ const VisualPanel = ({
         }),
       // Scribble path (step 0, step 1, and step 2 - with wipe animation)
       (step === 0 || step === 1 || (step === 2 && animationProgress < 1)) &&
-        (step === 0
-          ? currentPath
-          : step === 1
-          ? scribblePath
-          : scribblePathForAnimation) &&
-        React.createElement("path", {
-          d:
-            step === 0
-              ? currentPath
-              : step === 1
-              ? scribblePath
-              : scribblePathForAnimation,
-          fill: "none",
-          stroke: step === 1 ? scribbleColor : "white",
-          strokeWidth: 0.8, // 3px equivalent in viewBox units
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          opacity: step === 2 ? 1 : 1,
-          style:
-            step === 2
-              ? {
-                  // Clip from left: hide the left portion that matches the progress
-                  // When progress is 0.25, hide left 25%, show right 75%
-                  // When progress is 1.0, hide left 100% (entire line)
-                  clipPath: `inset(0 0 0 ${animationProgress * 100}%)`,
-                }
-              : {},
-        }),
+        (() => {
+          const pathToRender = step === 0
+            ? currentPath
+            : step === 1
+            ? scribblePath
+            : scribblePathForAnimation;
+          // Only render if path exists, is not empty, and starts with M command
+          if (pathToRender && pathToRender.trim() && pathToRender.trim().startsWith('M')) {
+            return React.createElement("path", {
+              d: pathToRender,
+              fill: "none",
+              stroke: step === 1 ? scribbleColor : "white",
+              strokeWidth: 0.8, // 3px equivalent in viewBox units
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              opacity: step === 2 ? 1 : 1,
+              style:
+                step === 2
+                  ? {
+                      // Clip from left: hide the left portion that matches the progress
+                      // When progress is 0.25, hide left 25%, show right 75%
+                      // When progress is 1.0, hide left 100% (entire line)
+                      clipPath: `inset(0 0 0 ${animationProgress * 100}%)`,
+                    }
+                  : {},
+            });
+          }
+          return null;
+        })(),
       // Points A and B (show in steps 0, 1, 2, 3, 4, 5)
       createPoint(
         pointAPos.x,

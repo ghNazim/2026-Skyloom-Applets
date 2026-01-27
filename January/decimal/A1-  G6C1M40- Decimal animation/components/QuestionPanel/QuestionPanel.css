@@ -14,11 +14,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 10%;
 }
 
 .question-panel h2 {
   margin: 0;
-  font-size: 2.3vw;
+  font-size: 2.2vw;
   font-weight: 400;
 }
 
