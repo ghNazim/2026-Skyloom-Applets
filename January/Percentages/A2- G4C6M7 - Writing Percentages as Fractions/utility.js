@@ -17,6 +17,25 @@ function playSound(filename) {
   sound.play();
 }
 
+function confettiBurst() {
+  const duration = 1 * 500;
+  const end = Date.now() + duration;
+
+  (function frame() {
+    confetti({
+      particleCount: 5,
+      angle: 60,
+      spread: 360,
+      origin: { x: 0.5, y: 0.5 },
+    });
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  })();
+}
+
+// Make confettiBurst available globally
+window.confettiBurst = confettiBurst;
 
 function handleComma(sentence) {
   if (current_language !== "id" || !sentence) {

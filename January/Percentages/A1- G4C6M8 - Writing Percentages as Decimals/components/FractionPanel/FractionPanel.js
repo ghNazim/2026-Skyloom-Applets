@@ -96,7 +96,7 @@ const FractionPanel = ({
       }, React.createElement("polygon", { points: "0 0, 5 3, 0 6", fill: "white" }))
     ),
     React.createElement("path", {
-      d: "M 88 75 L 88 85 L 24 85 L 24 62", // Down from right, left, up to left
+      d: "M 88 70 L 88 85 L 24 85 L 24 62", // Down from right, left, up to left
       stroke: "white", strokeWidth: "2", fill: "none", markerEnd: "url(#arrow-rev-lower-head)", vectorEffect: "non-scaling-stroke"
     })
   );

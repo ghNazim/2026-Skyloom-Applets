@@ -10,7 +10,7 @@ const DATA = {
     app: {
       start: {
         heading: "Decimal as Percent",
-        text: "Let’s see how a <y>decimal</y> can be shown as a <y>Percent</y>.",
+        text: "Let’s see how a <y>Decimal</y> can be shown as a <y>Percent</y>.",
         buttonText: "Start",
       },
       splash: {
@@ -20,8 +20,9 @@ const DATA = {
       },
       final: {
         heading: "Decimal as percent",
-        text: "Awesome!<br>When writing a <y>decimal</y> as a <y>Percent</y>.<br>● Number of hundredths → number before %<br>● Hundredths place in the decimal→ out of 100",
+        text: "Awesome!<br>When writing a <y>Decimal</y> as a <y>Percent</y>.<br>● Number of hundredths → number before %<br>● Hundredths place in the decimal→ out of 100",
         buttonText: "Start Over",
+        buttonTextPrevious: "Previous",
       },
       steps: {
         1: {
@@ -173,7 +174,7 @@ const DATA = {
     app: {
       start: {
         heading: "Desimal sebagai Persen",
-        text: "Mari kita lihat bagaimana <y>desimal</y> <br>bisa ditampilkan sebagai <y>Persen</y>.",
+        text: "Mari kita lihat bagaimana <y>Desimal</y> <br>bisa ditampilkan sebagai <y>Persen</y>.",
         buttonText: "Mulai",
       },
       splash: {
@@ -182,8 +183,9 @@ const DATA = {
       },
       final: {
         heading: "Desimal sebagai Persen",
-        text: "Luar biasa!<br>Saat menulis <y>desimal</y> sebagai <y>Persen</y>.<br>●Jumlah perseratus → angka sebelum %<br>●Tempat perseratus dalam desimal → dari 100",
+        text: "Luar biasa!<br>Saat menulis <y>Desimal</y> sebagai <y>Persen</y>.<br>●Jumlah perseratus → angka sebelum %<br>●Tempat perseratus dalam desimal → dari 100",
         buttonText: "Mulai Lagi",
+        buttonTextPrevious: "Sebelumnya",
       },
       steps: {
         1: {

@@ -114,11 +114,13 @@ const App = () => {
       React.createElement(
         "div",
         { className: "app-main-content", style: { position: "relative" } },
-        React.createElement(Fullscreen, {
+        React.createElement(FinalScreen, {
           heading: APP_DATA.final.heading,
           text: APP_DATA.final.text,
-          buttonText: APP_DATA.final.buttonText,
-          onButtonClick: handleRestart,
+          buttonTextPrevious: "«",
+          buttonTextStartOver: APP_DATA.final.buttonText,
+          onPrevious: handlePrev,
+          onStartOver: handleRestart,
         })
       )
     );

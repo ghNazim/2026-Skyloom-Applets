@@ -7,6 +7,7 @@ const FractionPanel = ({
   showBlinkingCursor,
   boxState,  // 'default', 'correct', 'wrong'
   showLabels,
+  percentBoxVisible = true, // Controls visibility in step 3
 }) => {
   const { useState, useEffect } = React;
   
@@ -45,9 +46,17 @@ const FractionPanel = ({
   
   // Render percent box: "7%"
   const renderPercentBox = () => {
+    // In step 3, control visibility with opacity/visibility
+    const wrapperStyle = step === 3 && !percentBoxVisible 
+      ? { opacity: 0, visibility: 'hidden' } 
+      : { opacity: 1, visibility: 'visible' };
+    
     return React.createElement(
       "div",
-      { className: "fraction-block-wrapper" },
+      { 
+        className: "fraction-block-wrapper",
+        style: wrapperStyle
+      },
       showLabels && React.createElement(
         "div",
         { className: "label-box label-percent" },

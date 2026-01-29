@@ -92,7 +92,7 @@ const DATA = {
           ],
           qFinal:
             "The same shaded squares <y>out of 100</y> can be written as a <y>Percent</y>, a <y>fraction</y>, and a <y>decimal</y>.",
-          nFinal: "Tap » to start over.",
+          nFinal: "Tap »",
         },
       },
       labels: {
@@ -191,7 +191,7 @@ const DATA = {
           ],
           qFinal:
             "Persegi yang diarsir dari 100 dapat ditulis sebagai Persen, pecahan, dan desimal.",
-          nFinal: "Ketuk » untuk memulai lagi.",
+          nFinal: "Ketuk »",
         },
       },
       labels: {

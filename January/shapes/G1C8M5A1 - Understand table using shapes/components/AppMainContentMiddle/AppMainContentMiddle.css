@@ -49,6 +49,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  /* gap: 1vw; */
   min-width: 0;
   background-color: var(--panel-background-color);
   border-radius: 1vw;
@@ -195,26 +196,30 @@
 }
 
 .feedback-box {
-  padding: 0.8vw 1.5vw;
+  padding: 0.2vw 1vw;
   border-radius: 0.5vw;
   font-size: 1.8vw;
   font-weight: 600;
   text-align: center;
   transition: all 0.3s ease;
+  min-height: 6vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+
+
 .feedback-correct {
-  background: linear-gradient(145deg, rgba(39, 174, 96, 0.9), rgba(46, 204, 113, 0.9));
-  color: white;
-  border: 2px solid #27ae60;
-  box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+  background-color: rgba(46, 204, 112, 0.119);
+  border: 2px solid rgba(46, 204, 113, 0.8);
+  color: #2ecc71;
 }
 
 .feedback-wrong {
-  background: linear-gradient(145deg, rgba(192, 57, 43, 0.9), rgba(231, 76, 60, 0.9));
+ background-color: rgba(231, 77, 60, 0.103);
+  border: 2px solid rgba(231, 76, 60, 0.8);
   color: white;
-  border: 2px solid #c0392b;
-  box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
 }
 
 /* House SVG Fill Transition */

@@ -179,6 +179,7 @@ width: auto;
   border: .3vw dashed #ffffff;
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   color: black;
+  /* display: none; */
 }
 
 .bottom-annotation {
@@ -188,4 +189,5 @@ width: auto;
   background-color: rgba(128, 128, 128, 0.9); /* More opaque */
   border: .3vw dashed rgb(255, 255, 255);
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  /* display: none; */
 }

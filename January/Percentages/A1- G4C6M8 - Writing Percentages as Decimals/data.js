@@ -10,7 +10,7 @@ const DATA = {
     app: {
       start: {
         heading: "Percent as Decimal",
-        text: "Let’s see how a <y>Percent</y> can be written as <y>decimal</y> .",
+        text: "Let’s see how a <y>Percent</y> can be written as <y>Decimal</y> .",
         buttonText: "Start",
       },
       splash: {
@@ -22,12 +22,13 @@ const DATA = {
         equals: "=",
         numerator: "0",
         denominator: "24", // Used as second part of decimal in splash component logic if customized
-        rightText: "Let’s practice writing Percent as a decimal.",
+        rightText: "Let’s practice writing Percent as a Decimal.",
       },
       final: {
         heading: "Percent as Decimal",
-        text: "Awesome!<br>While writing a <y>Percent</y>, as a <y>decimal</y>.<br>● Number before % → Number of hundredths<br>● % sign → means ‘out of 100’",
+        text: "Awesome!<br>While writing a <y>Percent</y>, as a <y>Decimal</y>.<br>● Number before % → Number of hundredths<br>● % sign → means ‘out of 100’",
         buttonText: "Start Over",
+        buttonTextPrevious: "Previous",
       },
       steps: {
         1: {
@@ -120,7 +121,7 @@ const DATA = {
         6: {
           questionText:
             "The <y>number before the %</y> tells how many <y>hundredths</y>.<br>The <y>% sign</y> means out of 100.",
-          navText: "Tap » to represent more Percents as decimals.",
+          navText: "Tap » to represent more Percents as Decimals.",
           filledSquares: 24,
           leftSideType: "decimal-breakdown",
           reversedLayout: true,
@@ -216,7 +217,7 @@ const DATA = {
     app: {
       start: {
         heading: "Desimal sebagai Persen",
-        text: "Mari kita lihat bagaimana <y>desimal</y> <br>bisa ditampilkan sebagai <y>Persen</y>.",
+        text: "Mari kita lihat bagaimana <y>Desimal</y> <br>bisa ditampilkan sebagai <y>Persen</y>.",
         buttonText: "Mulai",
       },
       splash: {
@@ -228,12 +229,13 @@ const DATA = {
         equals: "=",
         numerator: "0",
         denominator: "24", // Used as second part of decimal in splash component logic if customized
-        rightText: "Mari kita berlatih menulis Persen sebagai desimal.",
+        rightText: "Mari kita berlatih menulis Persen sebagai Desimal.",
       },
       final: {
         heading: "Desimal sebagai Persen",
-        text: "Luar biasa!<br>Saat menulis <y>desimal</y> sebagai <y>Persen</y>.<br>● Jumlah perseratus → angka sebelum %<br>● Tempat perseratus dalam desimal → dari 100",
+        text: "Luar biasa!<br>Saat menulis <y>Desimal</y> sebagai <y>Persen</y>.<br>● Jumlah perseratus → angka sebelum %<br>● Tempat perseratus dalam desimal → dari 100",
         buttonText: "Mulai Lagi",
+        buttonTextPrevious: "Sebelumnya",
       },
       steps: {
         1: {
@@ -322,7 +324,7 @@ const DATA = {
           questionText:
             "Angka <y>sebelum %</y> memberitahu berapa banyak <y>perseratus</y>.<br>Tanda <y>%</y> berarti dari 100.",
           navText:
-            "Ketuk » untuk mewakili lebih banyak Persen sebagai desimal.",
+            "Ketuk » untuk mewakili lebih banyak Persen sebagai Desimal.",
           filledSquares: 24,
           leftSideType: "decimal-breakdown",
           reversedLayout: true,

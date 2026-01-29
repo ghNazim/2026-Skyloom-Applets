@@ -1,0 +1,310 @@
+.calc-panel-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 1vw;
+}
+
+/* Left Panel - Calculation */
+.calc-left-panel {
+  width: 57%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(1vw);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  padding: 2vw;
+  position: relative;
+}
+
+.calc-left-panel.final {
+  padding-bottom: 8vw;
+}
+
+/* Left panel with image */
+.calc-left-panel.with-image {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.calc-left-panel.with-image.final {
+  padding-bottom: 0;
+}
+
+.calc-image-row {
+  height: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+}
+
+.calc-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.calc-equation-row {
+  height: 55%;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  /* align-items: center; */
+  padding: 1.5vw;
+  background-color: rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  position: relative;
+}
+
+.calc-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  width: 100%;
+}
+
+.calc-row {
+  font-size: 2vw;
+  color: white;
+  line-height: 1.8;
+  /* animation: fadeInUp 0.3s ease-out; */
+}
+
+/* Interactive boxes (Step 4, 7) */
+.calc-interactive-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3vw;
+  padding: 0.3vw 0.8vw;
+  border-radius: 0.5vw;
+  font-size: 1.8vw;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.calc-interactive-box.clickable {
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.6), 0 0 30px rgba(255, 193, 7, 0.3);
+  border: 2px solid rgba(255, 193, 7, 0.8);
+  animation: glowPulse 1.5s ease-in-out infinite;
+}
+
+.calc-interactive-box.clickable:hover {
+  transform: scale(1.05);
+}
+
+.calc-interactive-box.revealed {
+  background-color: transparent;
+  border: none;
+  color: white;
+}
+
+/* Input box for numpad */
+.calc-input-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 7vw;
+  height: 3.5vw;
+  padding: 0.3vw 0.8vw;
+  border-radius: 0.5vw;
+  font-size: 2vw;
+  background-color: white;
+  color: #1a1a2e;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  vertical-align: middle;
+  margin-right: 0.5vw;
+  font-weight: bold;
+}
+
+.calc-input-box.error {
+  background-color: rgba(244, 67, 54, 0.3);
+  border-color: #f44336;
+  color: white;
+}
+
+.calc-input-box.correct {
+  background-color: rgba(76, 175, 80, 0.5);
+  border-color: #4caf50;
+  color: white;
+}
+
+.calc-input-box.shake {
+  animation: shakeBox 0.3s ease;
+}
+
+@keyframes shakeBox {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+/* Final answer div */
+.final-answer-div {
+  margin-top: 1vw;
+  padding: 1.5vw 2vw;
+  background: linear-gradient(145deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.2));
+  border: 2px solid #4caf50;
+  border-radius: 1vw;
+  font-size: 2vw;
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Right Panel */
+.calc-right-panel {
+  width: 43%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(1vw);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  overflow: hidden;
+}
+
+/* Comprehend panel in Step 4 (not used in new applet) */
+.calc-comprehend-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 2vw;
+  gap: 1.5vw;
+  overflow-y: auto;
+}
+
+/* Input panel for calculation steps */
+.calc-input-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.calc-findings-div {
+  padding: 1.5vw 2vw;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.findings-title {
+  font-size: 1.8vw;
+  font-weight: 600;
+  color: #4fc3f7;
+  margin-bottom: 0.5vw;
+}
+
+.findings-list {
+  list-style: disc;
+  padding-left: 2vw;
+  margin: 0;
+}
+
+.findings-list li {
+  font-size: 1.5vw;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.8;
+}
+
+.calc-input-div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+}
+
+/* MCQ in calculation panel */
+.calc-mcq {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  padding: 1vw;
+}
+
+.calc-mcq-title {
+  font-size: 1.8vw;
+  color: white;
+  text-align: center;
+  margin-bottom: 1vw;
+}
+
+.calc-mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+}
+
+.calc-mcq-option {
+  padding: 0.8vw 1.5vw;
+  font-size: 2vw;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(145deg, #ffc107, #ff9800);
+  color: #1a1a2e;
+  border-radius: 0.6vw;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.calc-mcq-option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+}
+
+.calc-mcq-option.correct {
+  background: linear-gradient(145deg, #2ecc71, #27ae60);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+}
+
+.calc-mcq-option.incorrect {
+  background: linear-gradient(145deg, #e74c3c, #c0392b);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+}
+
+.calc-mcq-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.calc-mcq-option:disabled {
+  cursor: not-allowed;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.6), 0 0 30px rgba(255, 193, 7, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 193, 7, 0.8), 0 0 50px rgba(255, 193, 7, 0.5);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

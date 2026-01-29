@@ -57,6 +57,9 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
   // Track if slider moved
   const [hasSliderMoved, setHasSliderMoved] = useState(false);
 
+  // Track if percent box should be visible in step 3 (hidden initially, shown after check)
+  const [percentBoxVisible, setPercentBoxVisible] = useState(false);
+
   // Play sound helper
   const playSound = (name) => {
     if (window.playSound) window.playSound(name);
@@ -120,6 +123,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
       setShowPercentBox(true);
       setShowBlinkingCursor(true);
       setShowCheckButton(true);
+      setPercentBoxVisible(false); // Initially hidden in step 3
     } else if (step === 4) {
       setShowGrid(true);
       setSliderH(0);
@@ -218,6 +222,10 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
     if (boxState === "wrong") {
       setBoxState("default");
       setShowFeedback(false);
+      // Hide percent box again when slider moves after wrong answer (step 3)
+      if (step === 3) {
+        setPercentBoxVisible(false);
+      }
     }
 
     if (type === "h") {
@@ -252,6 +260,9 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
   const handleCheckClick = () => {
     const target = APP_DATA.steps[3].targetValue;
     const current = sliderH * 10 + sliderV;
+
+    // Show percent box when check is clicked
+    setPercentBoxVisible(true);
 
     if (current === target) {
       playSound("correct");
@@ -481,6 +492,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
         showBlinkingCursor: showBlinkingCursor,
         boxState: boxState,
         showLabels: showLabels,
+        percentBoxVisible: step === 3 ? percentBoxVisible : true, // Only control visibility in step 3
       })
     ),
     // MCQ Column

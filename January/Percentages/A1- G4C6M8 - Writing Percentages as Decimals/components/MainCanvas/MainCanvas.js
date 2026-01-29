@@ -85,17 +85,26 @@ const MainCanvas = ({
         // Check if this is the last question
         const isLastQuestion = questionIndex === stepData.questions.length - 1;
         
-        // Update nav text based on whether it's the last question
-        if (isLastQuestion && stepData.navTextLast) {
-          onUpdateTexts(null, null, stepData.navTextLast);
-        } else if (stepData.navTextCorrect) {
-          onUpdateTexts(null, null, stepData.navTextCorrect);
+        // Play confetti burst for step 8
+        if (step === 8 && window.confettiBurst) {
+          window.confettiBurst();
         }
         
-        setTimeout(() => {
-          onEnableNext();
+        // For last question, enable next button with navTextLast
+        if (isLastQuestion && stepData.navTextLast) {
+          onUpdateTexts(null, null, stepData.navTextLast);
+          setTimeout(() => {
+            onEnableNext();
+            if (setIsAnswered) setIsAnswered(true);
+          }, 500);
+        } else {
+          // For non-last questions, auto-advance after 2.5 seconds
+          // Don't change nav text, don't enable next button
           if (setIsAnswered) setIsAnswered(true);
-        }, 500);
+          setTimeout(() => {
+            onAdvanceStep();
+          }, 2500);
+        }
       } else {
         setIsCorrect(false);
         playSound("wrong");
@@ -186,8 +195,8 @@ const MainCanvas = ({
     step: step, // Pass step for specific animations
   };
   
-  // Logic for Step 1 showFilledLabelCorrect
-  if (step === 1 && isCorrect) {
+  // Step 1: Show filled label from the start
+  if (step === 1) {
      visualProps.showFilledLabel = true;
   }
 

@@ -161,6 +161,7 @@ width: auto;
   font-weight: bold;
   z-index: 20;
   border: .3vw dashed white;
+  /* display: none; */
 }
 
 
@@ -296,6 +297,11 @@ width: auto;
   white-space: nowrap;
   font-weight: bold;
 }
+
+/* .box-label-4.grey {
+  color: black;
+  background-color: #757575;
+} */
 
 .box-label-4.label-highlight {
   background-color: yellow;

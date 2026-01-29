@@ -27,6 +27,7 @@ const DATA = {
         heading: "Percent as Fraction",
         text: "Awesome!<br>When writing a <y>fraction</y>, as a <y>percent</y>.<br>● Numerator → number before %<br>● Denominator 100 → % sign (Per 100)",
         buttonText: "Start Over",
+        buttonTextPrevious: "Previous",
       },
       steps: {
         1: {
@@ -190,6 +191,7 @@ const DATA = {
         heading: "Persen sebagai Pecahan",
         text: "Luar biasa!<br>Saat menulis <y>pecahan</y> sebagai <y>persen</y>.<br>● Pembilang → angka sebelum %<br>● Penyebut 100 → tanda % (Per 100)",
         buttonText: "Mulai Lagi",
+        buttonTextPrevious: "Sebelumnya",
       },
       steps: {
         1: {

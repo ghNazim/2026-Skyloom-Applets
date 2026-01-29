@@ -115,11 +115,40 @@ const App = () => {
     setIsNextDisabled(false);
   }, []);
 
-  // Callback from MainCanvas to auto-advance step
+  // Callback from MainCanvas to auto-advance step (without sound for auto-advance)
   const advanceStep = useCallback(() => {
-    playSound("click");
-    handleNext(); // Reuse handleNext logic
-  }, [currentStep, questionIndex]); // Dependency on currentStep needed for handleNext logic
+    // Don't play sound on auto-advance, handleNext will handle it if needed
+    // For auto-advance, we skip the sound
+    const stepData = APP_DATA.steps[currentStep];
+    
+    // Check for Final Step (Step 9)
+    if (currentStep === 9) {
+      handleRestart();
+      return;
+    }
+
+    // Check for Question Loop Step
+    if (stepData && stepData.questions) {
+      const totalQuestions = stepData.questions.length;
+      
+      if (questionIndex < totalQuestions - 1) {
+        // More questions remaining
+        setIsAnswered(false);
+        setQuestionIndex(prev => prev + 1);
+        setIsNextDisabled(true);
+        setDynamicNavText(stepData.navText);
+        setDynamicQuestionText(""); 
+        setDynamicFeedbackText("");
+      } else {
+        // All questions done
+        setCurrentStep(prev => prev + 1);
+        setQuestionIndex(0); // Reset for future or just cleanup
+      }
+    } else {
+      // Normal Step Advance
+      setCurrentStep(prev => prev + 1);
+    }
+  }, [currentStep, questionIndex]);
 
   // Handlers for dynamic text updates from MainCanvas
   const updateTexts = useCallback((question, feedback, nav) => {
@@ -184,12 +213,13 @@ const App = () => {
       React.createElement(
         "div",
         { className: "app-main-content", style: { position: "relative" } },
-        React.createElement(Fullscreen, {
+        React.createElement(FinalScreen, {
           heading: APP_DATA.final.heading,
           text: APP_DATA.final.text,
-          buttonText: APP_DATA.final.buttonText,
-          onButtonClick: handleRestart,
-          left: true
+          buttonTextStartOver: APP_DATA.final.buttonText,
+          buttonTextPrevious: "«",
+          onStartOver: handleRestart,
+          onPrevious: handlePrev
         })
       )
     );

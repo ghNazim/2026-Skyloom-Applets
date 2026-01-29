@@ -111,6 +111,20 @@ const App = () => {
     setCurrentStep(prev => prev + 1);
   }, []);
 
+  // Callback from MainCanvas to advance to next question in step 5
+  const handleStep5NextQuestion = useCallback(() => {
+    const step5Data = APP_DATA.steps[5];
+    const totalQuestions = step5Data.questions ? step5Data.questions.length : 0;
+    
+    if (step5QuestionIndex < totalQuestions - 1) {
+      // More questions remaining - go to next question
+      setIsAnswered(false);
+      setStep5QuestionIndex(prev => prev + 1);
+      setIsNextDisabled(true);
+      setDynamicNavText(step5Data.navText);
+    }
+  }, [step5QuestionIndex]);
+
   // Handlers for dynamic text updates from MainCanvas
   const updateTexts = useCallback((question, feedback, nav) => {
     if (question !== undefined && question !== null) setDynamicQuestionText(question);
@@ -149,7 +163,7 @@ const App = () => {
     );
   }
 
-  // Step 6: Final Fullscreen
+  // Step 6: Final Screen
   if (currentStep === 6) {
     return React.createElement(
       "div",
@@ -157,12 +171,21 @@ const App = () => {
       React.createElement(
         "div",
         { className: "app-main-content", style: { position: "relative" } },
-        React.createElement(Fullscreen, {
+        React.createElement(FinalScreen, {
           heading: APP_DATA.final.heading,
           text: APP_DATA.final.text,
-          buttonText: APP_DATA.final.buttonText,
-          onButtonClick: handleRestart,
-          left:true
+          buttonTextStartOver: APP_DATA.final.buttonText,
+          buttonTextPrevious: "«",
+          onStartOver: handleRestart,
+          onPrevious: () => {
+            playSound("click");
+            setCurrentStep(5);
+            const step5Data = APP_DATA.steps[5];
+            const totalQuestions = step5Data.questions ? step5Data.questions.length : 0;
+            setStep5QuestionIndex(totalQuestions - 1);
+            setIsNextDisabled(false);
+            setDynamicNavText(step5Data.navTextLast);
+          }
         })
       )
     );
@@ -187,6 +210,7 @@ const App = () => {
         isAnswered: isAnswered,
         setIsAnswered: setIsAnswered,
         step5QuestionIndex: step5QuestionIndex,
+        onStep5NextQuestion: handleStep5NextQuestion,
       })
     ),
     React.createElement(

@@ -5,7 +5,8 @@ const MainCanvas = ({
   onUpdateTexts,
   isAnswered,
   setIsAnswered,
-  step5QuestionIndex = 0
+  step5QuestionIndex = 0,
+  onStep5NextQuestion = null
 }) => {
   const { useState, useEffect, useRef } = React;
 
@@ -83,20 +84,33 @@ const MainCanvas = ({
         playSound("correct");
         setShowFractionBox(true);
         
+        // Play confetti burst
+        if (window.confettiBurst) {
+          window.confettiBurst();
+        }
+        
         // Check if this is the last question
         const isLastQuestion = step5QuestionIndex === stepData.questions.length - 1;
         
-        // Update nav text based on whether it's the last question
-        if (isLastQuestion && stepData.navTextLast) {
-          onUpdateTexts(null, null, stepData.navTextLast);
-        } else if (stepData.navTextCorrect) {
-          onUpdateTexts(null, null, stepData.navTextCorrect);
-        }
-        
-        setTimeout(() => {
-          onEnableNext();
+        if (isLastQuestion) {
+          // Last question: enable next button with navTextLast
+          if (stepData.navTextLast) {
+            onUpdateTexts(null, null, stepData.navTextLast);
+          }
+          setTimeout(() => {
+            onEnableNext();
+            if (setIsAnswered) setIsAnswered(true);
+          }, 500);
+        } else {
+          // Not last question: auto-advance after 2.5 seconds
+          // Don't change nav text, don't enable next button
           if (setIsAnswered) setIsAnswered(true);
-        }, 500);
+          setTimeout(() => {
+            if (onStep5NextQuestion) {
+              onStep5NextQuestion();
+            }
+          }, 2500);
+        }
       } else {
         setIsCorrect(false);
         playSound("wrong");

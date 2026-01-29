@@ -10,7 +10,7 @@ const DATA = {
     app: {
       start: {
         heading: "Percent as Fraction",
-        text: "Let's see how a <y>Percent</y> can be written as a <y>fraction</y>.",
+        text: "Let's see how a <y>Percent</y> can be written as a <y>Fraction</y>.",
         buttonText: "Start",
       },
       splash: {
@@ -24,8 +24,9 @@ const DATA = {
       },
       final: {
         heading: "Percent as Fraction",
-        text: "Awesome!<br><br>While writing a <y>Percent</y>, as a <y>fraction</y>.<br>● Number before % → numerator<br>● % sign → denominator is 100",
+        text: "Awesome!<br><br>While writing a <y>Percent</y>, as a <y>Fraction</y>.<br>● Number before % → numerator<br>● % sign → denominator is 100",
         buttonText: "Start Over",
+        buttonTextPrevious: "Previous",
       },
       steps: {
         1: {
@@ -144,7 +145,7 @@ const DATA = {
     app: {
       start: {
         heading: "Persen sebagai Pecahan",
-        text: "Mari kita lihat bagaimana <y>Persen</y> dapat ditulis sebagai <y>pecahan</y>.",
+        text: "Mari kita lihat bagaimana <y>Persen</y> dapat ditulis sebagai <y>Pecahan</y>.",
         buttonText: "Mulai",
       },
       splash: {
@@ -158,8 +159,9 @@ const DATA = {
       },
       final: {
         heading: "Persen sebagai Pecahan",
-        text: "Luar biasa!<br><br>Saat menulis <y>Persen</y>, sebagai <y>pecahan</y>.<br>●Angka sebelum % → pembilang<br>●Tanda % → penyebut adalah 100",
+        text: "Luar biasa!<br><br>Saat menulis <y>Persen</y>, sebagai <y>Pecahan</y>.<br>●Angka sebelum % → pembilang<br>●Tanda % → penyebut adalah 100",
         buttonText: "Mulai Lagi",
+        buttonTextPrevious: "Sebelumnya",
       },
       steps: {
         1: {

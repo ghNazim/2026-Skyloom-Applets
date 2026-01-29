@@ -160,6 +160,7 @@ width: auto;
   font-weight: bold;
   z-index: 20;
   border: .3vw dotted white;
+  /* display: none; */
 }
 
 
