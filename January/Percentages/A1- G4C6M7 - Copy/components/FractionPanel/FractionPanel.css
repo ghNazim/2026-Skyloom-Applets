@@ -1,0 +1,162 @@
+.fraction-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  font-size: 6vw;
+  position: relative;
+}
+
+.fraction-panel-wide {
+  width: 70%;
+  font-size: 8vw !important;
+  margin: 0 auto;
+}
+
+.fraction-equation-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+}
+
+.decimal-box {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  padding: 1vw 2vw;
+
+  border-radius: 2vw;
+  background: rgba(0, 20, 50, 0.5);
+}
+.decimal-box.bordered {
+  border: 0.3vw solid #eeb702;
+}
+.percent-number {
+  /* font-size: 5vw; */
+  font-weight: bold;
+  /* font-style: italic; */
+}
+
+.percent-symbol {
+  /* font-size: 3.5vw; */
+  font-weight: bold;
+  margin-left: 0.2vw;
+}
+
+.fraction-equals-sign {
+  /* font-size: 4vw; */
+  font-weight: bold;
+  color: #4caf50; /* Green */
+}
+
+.fraction-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw 2vw;
+  /* border: 3px solid #f97315; */
+  border-radius: 1vw;
+  background: rgba(0, 20, 50, 0.5);
+  /* transition: opacity 0.3s ease; */
+  width: 15vw;
+}
+
+.fraction-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fraction-numerator {
+  /* font-size: 4vw; */
+  font-weight: bold;
+  /* font-style: italic; */
+  min-height: 4vw;
+}
+
+.fraction-line-green {
+  width: 100%;
+  min-width: 4vw;
+  height: 4px;
+  background: #4caf50; /* Green line */
+  margin: 0.3vw 0;
+}
+
+.fraction-denominator {
+  /* font-size: 4vw; */
+  font-weight: bold;
+  /* font-style: italic; */
+  color: white;
+}
+
+/* Highlight box - orange border */
+/* .highlight-box {
+  padding: 0.3vw 0.8vw;
+  border: 0.3vw solid #eeb702;
+  border-radius: 2vw;
+} */
+
+/* Pulsate animation */
+/* .pulsate {
+  display: inline-block;
+  animation: pulsateY 0.6s ease-in-out infinite alternate;
+} */
+
+@keyframes pulsateY {
+  0% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+
+/* Fraction numerator/denominator text pulsate */
+.fraction-numerator-text,
+.fraction-denominator-text {
+  display: inline-block;
+}
+
+/* .fraction-numerator-text.pulsate,
+.fraction-denominator-text.pulsate {
+  animation: pulsateY 0.6s ease-in-out infinite alternate;
+} */
+
+/* Arrows Container */
+.arrows-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Arrow to Denominator - from % going down then right */
+.arrow-to-denominator {
+  position: absolute;
+  width: 15vw;
+  height: 5vw;
+  left: 49%;
+  top: 55%;
+  transform: translate(-58%, 10%);
+  overflow: visible;
+}
+
+/* Arrow to Numerator - from number going up then right */
+.arrow-to-numerator {
+  position: absolute;
+  width: 23vw;
+  height: 6vw;
+  left: 50%;
+  top: 45%;
+  transform: translate(-72%, -110%);
+  overflow: visible;
+}

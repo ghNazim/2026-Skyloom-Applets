@@ -1,0 +1,82 @@
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 99vw;
+  height: calc(99vw * 9 / 16);
+  max-width: 99vw;
+  max-height: 99vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: .5vw;
+  position: relative;
+}
+
+.app-main-content {
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    overflow: hidden;
+    gap: 1rem;
+    border-radius: 1vw;
+}
+
+.lower-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--white-color);
+  font-size: calc(0.25rem + 1.75vw);
+  gap: 2vh;
+  flex-direction: column;
+  height: 7vw;
+  max-height: 7vw;
+  min-height: 7vw;
+}
+
+/* Full width content column for Step 0 */
+.full-width-content-column {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(1vw);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  padding: 3vw;
+}
+
+.full-width-content-column .comprehend-question-text {
+  font-size: 2.8vw;
+  color: white;
+  line-height: 1.8;
+  white-space: pre-line;
+  text-align: center;
+}
+
+/* Final Step Container */
+.final-step-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(1vw);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  padding: 3vw;
+}
+
+.final-answer-display {
+  padding: 3vw 5vw;
+  background: linear-gradient(145deg, rgba(76, 175, 80, 0.2), rgba(46, 125, 50, 0.3));
+  border: 3px solid #4caf50;
+  border-radius: 1.5vw;
+  font-size: 3vw;
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
+}

@@ -1,0 +1,64 @@
+.visual-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.visual-grid {
+  width: 30vw;
+  height: 30vw;
+}
+
+.hundredth-square {
+  background-color: rgba(33, 150, 243, 0.2);
+  position: relative;
+  /* transition: opacity 0.3s ease, box-shadow 0.3s ease; */
+}
+
+.hundredth-square.filled {
+  background-color: #4fc3f7; /* Bluish filled color */
+  opacity: 1;
+}
+
+.hundredth-square.glowing {
+  animation: glowPulse 2s ease-in-out infinite;
+  /* will-change: box-shadow; */
+}
+
+@keyframes glowPulse {
+  0% {
+    outline: .3vw solid rgba(255, 235, 59, 0);
+    /* outline-offset: -2px; */
+  }
+  50% {
+    outline: .3vw solid rgba(255, 235, 59, 1);
+    /* outline-offset: -2px; */
+  }
+  100% {
+    outline: .3vw solid rgba(255, 235, 59, 0);
+    /* outline-offset: -2px; */
+  }
+}
+
+.square-label {
+  position: absolute;
+  font-size: 1.5vw;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.filled-label {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.total-label {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

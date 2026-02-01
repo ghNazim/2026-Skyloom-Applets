@@ -91,7 +91,7 @@ const DATA = {
         },
         4: {
           questionText:
-            "The whole square is divided into 100 equal parts. Since 24 parts are shaded, there are <y>24 hundredths and 0 ones</y>...",
+            "The whole square is divided into 100 equal parts. Since 24 parts are shaded,<br> there are <y>24 hundredths</y>.",
           navText: "Tap » to continue.",
           filledSquares: 24,
           glowAllSquares: true,
@@ -293,7 +293,7 @@ const DATA = {
         },
         4: {
           questionText:
-            "Persegi utuh dibagi menjadi 100 bagian yang sama. Karena 24 bagian diarsir, ada <y>24 perseratus dan 0 satuan</y>...",
+            "Persegi utuh dibagi menjadi 100 bagian yang sama. Karena 24 bagian diarsir, ada <y>24 perseratus</y>.",
           navText: "Ketuk » untuk melanjutkan.",
           filledSquares: 24,
           glowAllSquares: true,

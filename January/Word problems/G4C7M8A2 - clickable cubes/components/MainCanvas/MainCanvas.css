@@ -1,0 +1,156 @@
+/* ===== MAIN CANVAS CONTAINER ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+.main-canvas-volume .volume-canvas-column {
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.main-canvas-volume .volume-canvas-column .volume-canvas-3d {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== COLUMN STYLES ===== */
+.column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+  position: relative;
+}
+
+.visual-column {
+  /* Visual column base styling */
+}
+
+.fractions-column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mcq-column {
+  height: 100%;
+}
+
+/* ===== VISUAL CONTENT ===== */
+.visual-content {
+  height: 85%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.visual-flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.grid-wrapper {
+  position: relative;
+}
+
+.visual-grid-wrapper {
+  width: 28vw;
+  height: 28vw;
+  position: relative;
+}
+
+/* ===== HUNDREDTHS GRID ===== */
+.hundredth-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 0.2vw;
+  width: 100%;
+  height: 100%;
+}
+
+.hundredth-square {
+  background-color: rgba(33, 150, 243, 0.25);
+  position: relative;
+  border-radius: 0.1vw;
+}
+
+.hundredth-square.filled {
+  background-color: #4fc3f7; 
+  opacity: 1;
+}
+
+
+
+.square-label {
+  position: absolute;
+  font-size: 1.2vw;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ===== SHAKE ANIMATION ===== */
+@keyframes shake {
+  0% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+  10% {
+    transform: translate(-1px, -2px) rotate(-1deg);
+  }
+  20% {
+    transform: translate(-3px, 0px) rotate(1deg);
+  }
+  30% {
+    transform: translate(3px, 2px) rotate(0deg);
+  }
+  40% {
+    transform: translate(1px, -1px) rotate(1deg);
+  }
+  50% {
+    transform: translate(-1px, 2px) rotate(-1deg);
+  }
+  60% {
+    transform: translate(-3px, 1px) rotate(0deg);
+  }
+  70% {
+    transform: translate(3px, 1px) rotate(-1deg);
+  }
+  80% {
+    transform: translate(-1px, -1px) rotate(1deg);
+  }
+  90% {
+    transform: translate(1px, 2px) rotate(0deg);
+  }
+  100% {
+    transform: translate(1px, -2px) rotate(-1deg);
+  }
+}
+
+.shake {
+  animation: shake 0.3s;
+  animation-iteration-count: 1;
+}
+
+/* ===== MCQ CONTAINER ===== */
+.mcq-container-style {
+  width: 100%;
+  height: 100%;
+}
