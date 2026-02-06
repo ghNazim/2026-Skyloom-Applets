@@ -16,13 +16,15 @@
 }
 
 .place-value-panel {
-  width: 90%;
+  width: 85%;
   height: 100%;
   display: flex;
   flex-direction: column;
   gap: 2%;
   padding: 1.5vw;
   user-select: none;
+  position: relative;
+  left: -8%;
 }
 
 /* Box styling */
@@ -223,7 +225,7 @@
 
 /* Standard Form Box (Left) */
 .standard-form-box {
-  flex: 1;
+  width: 50%;
   border-color: var(--pink-border);
   background: #9146604a;
   padding: 4% 2% 2% 2%;
@@ -263,7 +265,7 @@
 
 /* Expanded Form Box (Right) */
 .expanded-form-box {
-  flex: 1;
+  width: 44%;
   border-color: var(--purple-border);
   background: #4d49825b;
   padding: 4% 2% 2% 2%;
@@ -413,3 +415,27 @@
   animation: pulsate-zero 1s ease-in-out infinite;
   display: inline-block;
 }
+
+/* ===== SEQUENTIAL ANIMATION HIGHLIGHT STATES ===== */
+
+/* Highlighted box - yellow outline, full opacity */
+.box.box-highlighted {
+  border-color: var(--yellow);
+  opacity: 1 !important;
+  transition: outline 0.3s ease, opacity 0.3s ease;
+}
+
+/* Dehighlighted box - reduced opacity */
+.box.box-dehighlighted {
+  opacity: 0.5 !important;
+  transition: opacity 0.3s ease;
+}
+
+
+.decimal-comma {
+  width: 2vw !important;
+  height: 2vw !important;
+  background: none;
+  box-shadow: none;
+}
+

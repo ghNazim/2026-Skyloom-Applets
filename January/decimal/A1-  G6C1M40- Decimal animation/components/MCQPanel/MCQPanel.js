@@ -127,7 +127,7 @@ const MCQPanel = ({
                   className: buttonClass,
                   onClick: () => onOptionClick && onOptionClick(option),
                   disabled: isCorrect,
-                  dangerouslySetInnerHTML:!isFraction(option) ? { __html: handleComma(option) }: null,
+                  dangerouslySetInnerHTML:!isFraction(option) ? { __html: handleComma(String(option)) }: null,
                 },
                 isFraction(option) ? renderFraction(option) : null
               );

@@ -16,6 +16,10 @@ const PlaceValuePanel = ({
 
   // Position of digit 3 (0=H, 1=T, 2=O, 3=t, 4=h)
   const [pos, setPos] = useState(0);
+  // Separate position states for each box to update colors independently
+  const [placeValuePos, setPlaceValuePos] = useState(0);
+  const [standardFormPos, setStandardFormPos] = useState(0);
+  const [expandedFormPos, setExpandedFormPos] = useState(0);
   const [isMoving, setIsMoving] = useState(false);
   const [gsapLoaded, setGsapLoaded] = useState(false);
   
@@ -61,6 +65,12 @@ const PlaceValuePanel = ({
   
   // Track which arrows have been animated (to prevent re-animation on state changes)
   const animatedArrowsRef = useRef(new Set());
+  
+  // Box highlighting state for sequential animation
+  const [highlightedBox, setHighlightedBox] = useState(null); // 'placeValue', 'standardForm', 'expanded', or null
+  
+  // Ref for expanded form box
+  const expandedFormBoxRef = useRef(null);
   
   // State for expanded form transition animation
   const [expandedFormTransition, setExpandedFormTransition] = useState(null); // 'toFraction' or 'toMultiply' or null
@@ -133,6 +143,22 @@ const PlaceValuePanel = ({
     const prevStep = prevStepRef.current;
     prevStepRef.current = step;
     
+    // Kill any ongoing GSAP animations when step changes
+    if (window.gsap) {
+      // Kill all animations on digit and decimal refs
+      if (digit3Ref.current) window.gsap.killTweensOf(digit3Ref.current);
+      digit0Refs.current.forEach(ref => {
+        if (ref) window.gsap.killTweensOf(ref);
+      });
+      if (decimalRef.current) window.gsap.killTweensOf(decimalRef.current);
+      // Clear any transforms
+      if (digit3Ref.current) window.gsap.set(digit3Ref.current, { clearProps: "transform,x,y" });
+      digit0Refs.current.forEach(ref => {
+        if (ref) window.gsap.set(ref, { clearProps: "transform,x,y" });
+      });
+      if (decimalRef.current) window.gsap.set(decimalRef.current, { clearProps: "transform,x,y" });
+    }
+    
     // Reset single arrow visibility (persistent arrows kept separately)
     setIsMoving(false);
     setShowDigitSwapArrow(false);
@@ -140,9 +166,11 @@ const PlaceValuePanel = ({
     setDigitSwapArrowData(null);
     setDecimalArrowData(null);
     setHasInteractedStep10(false);
+    setHighlightedBox(null); // Reset box highlighting on step change
     
     // Clear animated arrows tracking on step change, EXCEPT when going from step 8 to step 9
     // (to keep the step 8 arrows from re-animating)
+    // When going back (step 9 to step 8), we want to reset everything
     if (!(prevStep === 8 && step === 9)) {
       animatedArrowsRef.current = new Set();
     }
@@ -150,11 +178,17 @@ const PlaceValuePanel = ({
     // Setup for specific steps
     if (step < 6) {
       setPos(0);
+      setPlaceValuePos(0);
+      setStandardFormPos(0);
+      setExpandedFormPos(0);
       setPersistentDigitArrows([]);
       setPersistentDecimalArrows([]);
       setShouldBlinkArrows(false);
     } else if (step === 6) {
       setPos(0);
+      setPlaceValuePos(0);
+      setStandardFormPos(0);
+      setExpandedFormPos(0);
       setShowNavButtons(true);
       setLeftNavDisabled(true);
       setRightNavDisabled(false);
@@ -165,6 +199,9 @@ const PlaceValuePanel = ({
     } else if (step === 7) {
       // Position at 2 (from step 6 substep 3)
       setPos(2);
+      setPlaceValuePos(2);
+      setStandardFormPos(2);
+      setExpandedFormPos(2);
       setShowNavButtons(false);
       setShouldBlinkArrows(true);
       // Clear persistent (will use combined arrows instead)
@@ -173,6 +210,9 @@ const PlaceValuePanel = ({
     } else if (step === 8) {
       // Start at position 2
       setPos(2);
+      setPlaceValuePos(2);
+      setStandardFormPos(2);
+      setExpandedFormPos(2);
       setShowNavButtons(true);
       setLeftNavDisabled(true);
       setRightNavDisabled(false);
@@ -182,6 +222,9 @@ const PlaceValuePanel = ({
     } else if (step === 9) {
       // Position 3 from step 8, keep arrows from step 8
       setPos(3);
+      setPlaceValuePos(3);
+      setStandardFormPos(3);
+      setExpandedFormPos(3);
       setShowNavButtons(true);
       setLeftNavDisabled(true);
       setRightNavDisabled(false);
@@ -190,6 +233,9 @@ const PlaceValuePanel = ({
     } else if (step === 10) {
       // Start fresh at position 0 for explore mode
       setPos(0);
+      setPlaceValuePos(0);
+      setStandardFormPos(0);
+      setExpandedFormPos(0);
       setShowNavButtons(true);
       setLeftNavDisabled(true); // Can't go left from position 0
       setRightNavDisabled(false);
@@ -209,12 +255,17 @@ const PlaceValuePanel = ({
 
   // Clear single arrows when moving to step 6 substep 3 (show combined arrows instead)
   useEffect(() => {
-    if (step === 6 && currentSubstep === 3) {
-      setShowDigitSwapArrow(false);
-      setShowDecimalArrow(false);
-      setDigitSwapArrowData(null);
-      setDecimalArrowData(null);
-      setShowNavButtons(false); // Hide nav buttons in substep 3
+    if (step === 6) {
+      if (currentSubstep === 3) {
+        setShowDigitSwapArrow(false);
+        setShowDecimalArrow(false);
+        setDigitSwapArrowData(null);
+        setDecimalArrowData(null);
+        setShowNavButtons(false); // Hide nav buttons in substep 3
+      } else {
+        // Ensure nav buttons are shown for substeps 1 and 2
+        setShowNavButtons(true);
+      }
     }
   }, [step, currentSubstep]);
 
@@ -236,13 +287,13 @@ const PlaceValuePanel = ({
         setRightNavDisabled(true);
       } else {
         setLeftNavDisabled(true);
-        setRightNavDisabled(pos === 4);
+        setRightNavDisabled(placeValuePos === 4);
       }
     } else if (step === 10) {
-      setLeftNavDisabled(pos === 0);
-      setRightNavDisabled(pos === 4);
+      setLeftNavDisabled(true);
+      setRightNavDisabled(placeValuePos === 4);
     }
-  }, [mcqActive, mcqIsCorrect, step, currentSubstep, pos]);
+  }, [mcqActive, mcqIsCorrect, step, currentSubstep, placeValuePos]);
 
   // Handle fraction fade-in animation when transitioning from multiply to fraction form
   useEffect(() => {
@@ -447,6 +498,9 @@ const PlaceValuePanel = ({
       opacity: 1
     });
     
+    // Play swoosh sound when arrow starts animating
+    if (window.playSound) window.playSound("swoosh");
+    
     // Animate the path drawing
     window.gsap.to(pathElement, {
       strokeDashoffset: 0,
@@ -550,7 +604,7 @@ const PlaceValuePanel = ({
     };
   };
 
-  // Animation: Move digit 3 to new position
+  // Animation: Move digit 3 to new position (SEQUENTIAL - one box at a time)
   const triggerTransition = (newPos) => {
     if (!window.gsap || isMoving) return;
     setIsMoving(true);
@@ -586,97 +640,179 @@ const PlaceValuePanel = ({
       // No label for positions 0, 1, 2
     }
 
-    // 1. Swap Animation Logic (Place Value Chart)
     const activeBox = digit3Ref.current;
     const targetBox = digit0Refs.current[newPos];
 
-    if (activeBox && targetBox) {
-      const activeRect = activeBox.getBoundingClientRect();
-      const targetRect = targetBox.getBoundingClientRect();
-      const deltaX = targetRect.left - activeRect.left;
+    // ========== PHASE 1: Highlight Place Value Box, dehighlight others ==========
+    setHighlightedBox('placeValue');
+    // Play click sound when box is highlighted
+    if (window.playSound) window.playSound("click");
 
-      gsap.to(activeBox, { x: deltaX, duration, ease });
-      gsap.to(targetBox, { x: -deltaX, duration, ease });
-    }
+    // Calculate arrow data BEFORE animation starts (to ensure correct direction)
+    const digitArrowData = calculateDigitSwapArrowData(oldPos, newPos, arrowLabel);
 
-    // 2. Decimal Arc Animation (Standard Form Box)
-    const dot = decimalRef.current;
-    if (dot) {
-      const currentSlot = slotsRef.current[dotIndices[pos]];
-      const nextSlot = slotsRef.current[dotIndices[newPos]];
-      if (currentSlot && nextSlot) {
-        const startRect = currentSlot.getBoundingClientRect();
-        const endRect = nextSlot.getBoundingClientRect();
-        const totalShift = endRect.left - startRect.left;
+    // Wait 1 second after highlighting so user can see the highlighted box before animation starts
+    setTimeout(() => {
+      // 1. Swap Animation Logic (Place Value Chart)
+      if (activeBox && targetBox) {
+        const activeRect = activeBox.getBoundingClientRect();
+        const targetRect = targetBox.getBoundingClientRect();
+        const deltaX = targetRect.left - activeRect.left;
 
-        gsap.set(dot, { x: 0, y: 0 });
-        const tl = gsap.timeline();
-        tl.to(dot, {
-          x: totalShift,
-          y: "2.5vw",
-          duration: duration / 2,
-          ease: "power1.out",
-        }).to(dot, {
-          y: 0,
-          duration: duration / 2,
-          ease: "power1.in",
+        gsap.to(activeBox, { x: deltaX, duration, ease });
+        gsap.to(targetBox, { 
+          x: -deltaX, 
+          duration, 
+          ease,
           onComplete: () => {
-            setPos(newPos);
-            setIsMoving(false);
-            gsap.set([activeBox, targetBox, dot], {
+            // Clear transforms immediately so visual position matches logical position
+            gsap.set([activeBox, targetBox], {
               clearProps: "transform,x,y",
             });
             
-            // Handle post-animation logic
-            handlePostAnimation(oldPos, newPos, arrowLabel);
-          },
+            // Update place value position immediately after place value animation completes and transforms are cleared
+            setPlaceValuePos(newPos);
+            
+            // Show digit swap arrow after swap animation completes
+            if (digitArrowData) {
+              setDigitSwapArrowData(digitArrowData);
+              setShowDigitSwapArrow(true);
+            }
+            
+            // ========== PHASE 2: Wait 2 seconds after animation completes, then highlight Standard Form Box ==========
+            setTimeout(() => {
+              setHighlightedBox('standardForm');
+              // Play click sound when box is highlighted
+              if (window.playSound) window.playSound("click");
+              
+              // Wait 1 second after highlighting so user can see the highlighted box before animation starts
+              setTimeout(() => {
+                // 2. Decimal Arc Animation (Standard Form Box)
+                const dot = decimalRef.current;
+                if (dot) {
+                  // Calculate shift based on slot indices and SLOT_WIDTH (matching initial positioning)
+                  // This ensures exact alignment without pixel rounding issues
+                  const vwInPx = window.innerWidth / 100;
+                  const currentDotIndex = dotIndices[pos];
+                  const nextDotIndex = dotIndices[newPos];
+                  const totalShift = (nextDotIndex - currentDotIndex) * SLOT_WIDTH * vwInPx;
+
+                  gsap.set(dot, { x: 0, y: 0 });
+                  const tl = gsap.timeline();
+                  tl.to(dot, {
+                    x: totalShift,
+                    y: "2.5vw",
+                    duration: duration / 2,
+                    ease: "power1.out",
+                  }).to(dot, {
+                    y: 0,
+                    duration: duration / 2,
+                    ease: "power1.in",
+                    onComplete: () => {
+                      // Update standard form position immediately after standard form animation completes
+                      setStandardFormPos(newPos);
+                      
+                      // Update the left style to match the new position (before clearing transforms)
+                      // This ensures the decimal point ends up exactly in the center between digits
+                      const newLeftValue = dotIndices[newPos] * SLOT_WIDTH;
+                      gsap.set(dot, { left: `${newLeftValue}vw` });
+                      
+                      // Clear transforms so the decimal point uses the new left position
+                      gsap.set(dot, { clearProps: "transform,x,y" });
+                      
+                      // Calculate and show decimal arrow
+                      const decimalArrowDat = calculateDecimalArrowData(oldPos, newPos, arrowLabel);
+                      if (decimalArrowDat) {
+                        setDecimalArrowData(decimalArrowDat);
+                        setShowDecimalArrow(true);
+                      }
+                      
+                      // ========== PHASE 3: Wait 2 seconds after animation completes, then highlight Expanded Form Box ==========
+                      setTimeout(() => {
+                        setHighlightedBox('expanded');
+                        // Play click sound when box is highlighted
+                        if (window.playSound) window.playSound("click");
+                        
+                        // Wait 1 second after highlighting so user can see the highlighted box before animation starts
+                        setTimeout(() => {
+                          // 3. Expanded Form Animation (with strikethrough effects)
+                          handleExpandedFormAnimation(oldPos, newPos);
+                          
+                          // Calculate expanded animation duration based on the type
+                          let expandedAnimDuration = 600; // default
+                          if (oldPos === 2 && newPos === 3) {
+                            expandedAnimDuration = 1000; // toFraction is longer
+                          } else if (oldPos < 2 && newPos > oldPos) {
+                            expandedAnimDuration = 700; // strikethrough + fade
+                          }
+                          
+                          // Update expanded form position immediately after expanded form animation completes
+                          setTimeout(() => {
+                            setExpandedFormPos(newPos);
+                          }, expandedAnimDuration);
+                          
+                          // ========== PHASE 4: Animation complete - clear highlights and finalize ==========
+                          setTimeout(() => {
+                            // Update position (placeValuePos and standardFormPos already updated, now update pos)
+                            setPos(newPos);
+                            // Transforms already cleared after each animation phase, no need to clear again
+                            
+                            // Remove all highlights
+                            setHighlightedBox(null);
+                            setIsMoving(false);
+                            
+                            // NOW trigger post-animation tasks (MCQ, nav button, nav text changes)
+                            handlePostAnimationSequential(oldPos, newPos, arrowLabel);
+                          }, expandedAnimDuration);
+                        }, 1000); // Wait 1 second after highlighting before starting expanded animation
+                      }, 2000); // Wait 2 seconds after decimal animation completes
+                    }
+                  });
+                } else {
+                  // Fallback if dot not found
+                  handleFallbackSequential(oldPos, newPos, arrowLabel, activeBox, targetBox);
+                }
+              }, 1000); // Wait 1 second after highlighting before starting decimal animation
+            }, 2000); // Wait 2 seconds after place value animation completes
+          }
         });
       } else {
-        handlePostAnimationFallback(oldPos, newPos, arrowLabel, activeBox, targetBox);
+        // Fallback if boxes not found
+        handleFallbackSequential(oldPos, newPos, arrowLabel, activeBox, targetBox);
       }
-    } else {
-      handlePostAnimationFallback(oldPos, newPos, arrowLabel, activeBox, targetBox);
-    }
-
-    // 3. Expanded Form Animation (with strikethrough effects)
-    handleExpandedFormAnimation(oldPos, newPos);
+    }, 1000); // Wait 1 second after highlighting before starting place value animation
   };
-
-  // Handle post-animation logic
-  const handlePostAnimation = (oldPos, newPos, arrowLabel) => {
+  
+  // Handle post-animation tasks after sequential animations complete
+  const handlePostAnimationSequential = (oldPos, newPos, arrowLabel) => {
     setTimeout(() => {
-      // Calculate arrow data
-      const digitArrowData = calculateDigitSwapArrowData(oldPos, newPos, arrowLabel);
-      const decimalArrowDat = calculateDecimalArrowData(oldPos, newPos, arrowLabel);
-      
       if (step === 6) {
         if (currentSubstep < 3) {
-          // Show arrows and trigger MCQ
-          setDigitSwapArrowData(digitArrowData);
-          setDecimalArrowData(decimalArrowDat);
-          setShowDigitSwapArrow(true);
-          setShowDecimalArrow(true);
-          
           // Trigger MCQ callback
           setTimeout(() => {
             if (onAnimationComplete) {
               onAnimationComplete(currentSubstep);
             }
-          }, 300);
+          }, 100);
         }
       } else if (step === 8) {
-        // Add arrows with "1" label to persistent storage
+        // Store arrows persistently and trigger callback
+        const digitArrowData = calculateDigitSwapArrowData(oldPos, newPos, "1");
+        const decimalArrowDat = calculateDecimalArrowData(oldPos, newPos, "1");
         if (digitArrowData) setPersistentDigitArrows([digitArrowData]);
         if (decimalArrowDat) setPersistentDecimalArrows([decimalArrowDat]);
         setShouldBlinkArrows(true);
+        // Hide single arrows when using persistent
+        setShowDigitSwapArrow(false);
+        setShowDecimalArrow(false);
         
         setTimeout(() => {
           if (onAnimationComplete) {
             onAnimationComplete(step);
           }
-        }, 300);
+        }, 100);
       } else if (step === 9) {
-        // Add arrows with "2" label to persistent storage (keep "1" arrows)
+        // Add second arrow to persistent storage
         const newDigitArrow = calculateDigitSwapArrowData(oldPos, newPos, "2");
         const newDecimalArrow = calculateDecimalArrowData(oldPos, newPos, "2");
         
@@ -687,18 +823,44 @@ const PlaceValuePanel = ({
           setPersistentDecimalArrows(prev => [...prev, newDecimalArrow]);
         }
         setShouldBlinkArrows(true);
+        // Hide single arrows when using persistent
+        setShowDigitSwapArrow(false);
+        setShowDecimalArrow(false);
         
         setTimeout(() => {
           if (onAnimationComplete) {
             onAnimationComplete(step);
           }
-        }, 300);
+        }, 100);
       } else if (step === 10) {
-        // Show arrows with appropriate labels (no persistence)
-        setDigitSwapArrowData(digitArrowData);
-        setDecimalArrowData(decimalArrowDat);
-        setShowDigitSwapArrow(true);
-        setShowDecimalArrow(true);
+        // Handle step 10 arrows
+        if (newPos === 3) {
+          const digitArrowData = calculateDigitSwapArrowData(oldPos, newPos, "1");
+          const decimalArrowDat = calculateDecimalArrowData(oldPos, newPos, "1");
+          if (digitArrowData) setPersistentDigitArrows([digitArrowData]);
+          if (decimalArrowDat) setPersistentDecimalArrows([decimalArrowDat]);
+          setShowDigitSwapArrow(false);
+          setShowDecimalArrow(false);
+          setShouldBlinkArrows(true);
+        } else if (newPos === 4) {
+          const newDigitArrow = calculateDigitSwapArrowData(oldPos, newPos, "2");
+          const newDecimalArrow = calculateDecimalArrowData(oldPos, newPos, "2");
+          
+          if (newDigitArrow) {
+            setPersistentDigitArrows(prev => [...prev, newDigitArrow]);
+          }
+          if (newDecimalArrow) {
+            setPersistentDecimalArrows(prev => [...prev, newDecimalArrow]);
+          }
+          setShowDigitSwapArrow(false);
+          setShowDecimalArrow(false);
+          setShouldBlinkArrows(true);
+        } else {
+          // For other positions, clear persistent and keep single arrows
+          setPersistentDigitArrows([]);
+          setPersistentDecimalArrows([]);
+          setShouldBlinkArrows(false);
+        }
         
         // Update interaction state for step 10
         if (!hasInteractedStep10) {
@@ -708,17 +870,34 @@ const PlaceValuePanel = ({
             onUpdateTexts(stepData.questionText, null, stepData.navTextAfterInteraction);
           }
         }
-      } else {
-        // Default: show single arrows
-        setDigitSwapArrowData(digitArrowData);
-        setDecimalArrowData(decimalArrowDat);
-        setShowDigitSwapArrow(true);
-        setShowDecimalArrow(true);
       }
       
       // Handle zero count animation
       handleZeroFadeIn(oldPos, newPos);
-    }, 250);
+    }, 100);
+  };
+  
+  // Fallback handler for sequential animations
+  const handleFallbackSequential = (oldPos, newPos, arrowLabel, activeBox, targetBox) => {
+    // Update all positions immediately in fallback
+    setPlaceValuePos(newPos);
+    setStandardFormPos(newPos);
+    
+    // Run expanded animation
+    handleExpandedFormAnimation(oldPos, newPos);
+    
+    setTimeout(() => {
+      setExpandedFormPos(newPos);
+      setPos(newPos);
+      setIsMoving(false);
+      setHighlightedBox(null);
+      if (window.gsap) {
+        window.gsap.set([activeBox, targetBox], {
+          clearProps: "transform,x,y",
+        });
+      }
+      handlePostAnimationSequential(oldPos, newPos, arrowLabel);
+    }, 800);
   };
 
   // Handle zero fade in after position update
@@ -752,34 +931,6 @@ const PlaceValuePanel = ({
         }
       }, 50);
     }
-  };
-
-  // Fallback handler for post-animation
-  const handlePostAnimationFallback = (oldPos, newPos, arrowLabel, activeBox, targetBox) => {
-    const getZeroCount = (position) => {
-      if (position <= 2) {
-        const value = Math.pow(10, 2 - position);
-        return value.toString().slice(1).length;
-      } else {
-        const value = Math.pow(10, position - 2);
-        return value.toString().length - 1;
-      }
-    };
-    const oldZeroCount = getZeroCount(oldPos);
-    const newZeroCount = getZeroCount(newPos);
-    const hasFadeOut = oldZeroCount > newZeroCount;
-    const updateDelay = hasFadeOut ? 350 : 0;
-    
-    setTimeout(() => {
-      setPos(newPos);
-      setIsMoving(false);
-      if (window.gsap) {
-        window.gsap.set([activeBox, targetBox], {
-          clearProps: "transform,x,y",
-        });
-      }
-      handlePostAnimation(oldPos, newPos, arrowLabel);
-    }, updateDelay);
   };
 
   // Handle expanded form animation with strikethrough effects
@@ -831,6 +982,9 @@ const PlaceValuePanel = ({
             strike: strike
           }
         };
+        
+        // Play swoosh sound when strikethrough starts
+        if (window.playSound) window.playSound("swoosh");
         
         // Animate strikethrough on "1"
         gsap.to(strike, {
@@ -888,6 +1042,9 @@ const PlaceValuePanel = ({
           strike.style.cssText = 'position:absolute;left:0;right:0;top:50%;height:0.25vw;background:#ff4444;transform:scaleX(0);transform-origin:left;';
           zeroRef.style.position = 'relative';
           zeroRef.appendChild(strike);
+          
+          // Play swoosh sound when strikethrough starts
+          if (window.playSound) window.playSound("swoosh");
           
           // Animate strikethrough then fade
           gsap.to(strike, {
@@ -955,38 +1112,40 @@ const PlaceValuePanel = ({
     
     const next = direction === "right" ? pos + 1 : pos - 1;
     if (next >= 0 && next <= 4) {
-      playSound && playSound("click");
+      // playSound && playSound("click");
       triggerTransition(next);
     }
   };
 
   // Get digit color for standard form display
   const getDigitColor = (idx) => {
-    const dotIdx = dotIndices[pos];
+    // Use standardFormPos for standard form box colors
+    const currentPos = standardFormPos;
+    const dotIdx = dotIndices[currentPos];
     const isThree = idx === 2;
     
     if (isThree) return "var(--white)";
     
-    if (pos === 0) {
+    if (currentPos === 0) {
       if (idx < 2) return "var(--white-dim)";
       if (idx > 2 && idx < dotIdx) return "var(--yellow)";
       if (idx >= dotIdx && idx < dotIdx + 2) return "var(--white)";
       return "var(--white-dim)";
-    } else if (pos === 1) {
+    } else if (currentPos === 1) {
       if (idx < 2) return "var(--white-dim)";
       if (idx === 3) return "var(--yellow)";
       if (idx >= dotIdx && idx < dotIdx + 2) return "var(--white)";
       return "var(--white-dim)";
-    } else if (pos === 2) {
+    } else if (currentPos === 2) {
       if (idx < 2) return "var(--white-dim)";
       if (idx >= dotIdx && idx < dotIdx + 2) return "var(--white)";
       return "var(--white-dim)";
-    } else if (pos === 3) {
+    } else if (currentPos === 3) {
       if (idx === 0) return "var(--white-dim)";
       if (idx === 1) return "var(--yellow)";
       if (idx > 2) return "var(--white-dim)";
       return "var(--white-dim)";
-    } else if (pos === 4) {
+    } else if (currentPos === 4) {
       if (idx === 0) return "var(--yellow)";
       if (idx === 1) return "var(--yellow)";
       if (idx > 2) return "var(--white-dim)";
@@ -1016,7 +1175,8 @@ const PlaceValuePanel = ({
     } else if (step === 5) {
       return index === 0;
     } else if (step >= 6 && step <= 10) {
-      return index === pos;
+      // Use placeValuePos for place value box header colors
+      return index === placeValuePos;
     }
     return false;
   };
@@ -1034,7 +1194,8 @@ const PlaceValuePanel = ({
     } else if (step === 5) {
       return index === 0;
     } else if (step >= 6 && step <= 10) {
-      return index === pos;
+      // Use placeValuePos for place value box digit colors
+      return index === placeValuePos;
     }
     return false;
   };
@@ -1056,7 +1217,8 @@ const PlaceValuePanel = ({
     } else if (step === 5) {
       if (index === 0) return "cell header-cell header-active";
     } else if (step >= 6 && step <= 10) {
-      if (index === pos) return "cell header-cell header-active";
+      // Use placeValuePos for place value box header colors
+      if (index === placeValuePos) return "cell header-cell header-active";
     }
     return "cell header-cell";
   };
@@ -1079,7 +1241,8 @@ const PlaceValuePanel = ({
     } else if (step === 5) {
       if (index === 0) return "cell digit-cell active-cell";
     } else if (step >= 6 && step <= 10) {
-      if (index === pos) return "cell digit-cell active-cell";
+      // Use placeValuePos for place value box digit colors
+      if (index === placeValuePos) return "cell digit-cell active-cell";
     }
     return "cell digit-cell";
   };
@@ -1282,21 +1445,25 @@ const PlaceValuePanel = ({
     return renderCurvedArrow(decimalArrowData, 'decimal', false, true, step < 10);
   };
 
-  // Render persistent digit arrows (for steps 8-9)
+  // Render persistent digit arrows (for steps 8-9 and step 10)
   const renderPersistentDigitArrows = () => {
     if (persistentDigitArrows.length === 0) return null;
     // Persistent arrows animate on first render, tracking prevents re-animation
+    // For step 10, also enable blinking
+    const enableBlink = step < 10 || step === 10;
     return persistentDigitArrows.map((arrowData, index) => 
-      renderCurvedArrow(arrowData, `persistent-digit-${index}`, true, true, step < 10)
+      renderCurvedArrow(arrowData, `persistent-digit-${index}`, true, true, enableBlink)
     );
   };
 
-  // Render persistent decimal arrows (for steps 8-9)
+  // Render persistent decimal arrows (for steps 8-9 and step 10)
   const renderPersistentDecimalArrows = () => {
     if (persistentDecimalArrows.length === 0) return null;
     // Persistent arrows animate on first render, tracking prevents re-animation
+    // For step 10, also enable blinking
+    const enableBlink = step < 10 || step === 10;
     return persistentDecimalArrows.map((arrowData, index) => 
-      renderCurvedArrow(arrowData, `persistent-decimal-${index}`, false, true, step < 10)
+      renderCurvedArrow(arrowData, `persistent-decimal-${index}`, false, true, enableBlink)
     );
   };
 
@@ -1380,7 +1547,7 @@ const PlaceValuePanel = ({
     // ARROW VERTICAL POSITION: Adjust this multiplier to move arrows up/down
     // - Decrease (e.g., 0.5) to move arrows UP
     // - Increase (e.g., 2) to move arrows DOWN
-    const arrowY = slotBottom + .3 * vwInPx;
+    const arrowY = slotBottom - .8 * vwInPx;
     
     // Decimal arrow 1: pos 0 -> 1
     const decArrow1Data = {
@@ -1524,7 +1691,7 @@ const PlaceValuePanel = ({
   // Get right nav button classes
   const getRightNavClass = () => {
     let className = "nav-btn";
-    if (rightNavDisabled || pos === 4 || mcqActive) {
+    if (rightNavDisabled || placeValuePos === 4 || mcqActive) {
       className += " disabled";
     } else if (!leftNavDisabled || step === 10) {
       // No pulse if both buttons enabled
@@ -1543,7 +1710,7 @@ const PlaceValuePanel = ({
       "div",
       { 
         ref: placeValueBoxRef,
-        className: "box place-value-box",
+        className: `box place-value-box ${highlightedBox === 'placeValue' ? 'box-highlighted' : ''} ${highlightedBox && highlightedBox !== 'placeValue' ? 'box-dehighlighted' : ''}`,
         style: { position: "relative" },
       },
       React.createElement("div", { className: "box-label" }, APP_DATA.labels.placeValueChart),
@@ -1559,7 +1726,14 @@ const PlaceValuePanel = ({
               React.createElement(
                 "div",
                 { className: "dot-marker" },
-                React.createElement("div", { className: "dot-circle" })
+                current_language === "id" 
+                  ? React.createElement("img", { 
+                      src: "assets/blueComma.svg", 
+                      alt: ",", 
+                      style: { width: "1vw", height: "1vw" },
+                      className: "decimal-comma"
+                    })
+                  : React.createElement("div", { className: "dot-circle" })
               ),
             React.createElement(
               "div",
@@ -1577,20 +1751,27 @@ const PlaceValuePanel = ({
               React.createElement(
                 "div",
                 { className: "dot-marker" },
-                React.createElement("div", { className: "dot-circle" })
+                current_language === "id" 
+                  ? React.createElement("img", { 
+                      src: "assets/blueComma.svg", 
+                      alt: ",", 
+                      style: { width: "1vw", height: "1vw" },
+                      className: "decimal-comma"
+                    })
+                  : React.createElement("div", { className: "dot-circle" })
               ),
             React.createElement(
               "div",
               {
                 ref: (el) =>
-                  i === pos
+                  i === placeValuePos
                     ? (digit3Ref.current = el)
                     : (digit0Refs.current[i] = el),
                 className: getDigitCellClass(i),
               },
-              i === pos ? "3" : "0",
+              i === placeValuePos ? "3" : "0",
               // Nav buttons below active digit
-              i === pos && shouldShowNavButtons() && !isMoving && gsapLoaded &&
+              i === placeValuePos && shouldShowNavButtons() && !isMoving && gsapLoaded &&
                 React.createElement(
                   "div",
                   { className: "arrow-container" },
@@ -1598,8 +1779,8 @@ const PlaceValuePanel = ({
                     "button",
                     {
                       onClick: () => move("left"),
-                      className: `nav-btn ${leftNavDisabled || pos === 0 || mcqActive ? "disabled" : ""}`,
-                      disabled: leftNavDisabled || pos === 0 || mcqActive,
+                      className: `nav-btn ${leftNavDisabled || placeValuePos === 0 || mcqActive ? "disabled" : ""}`,
+                      disabled: leftNavDisabled || placeValuePos === 0 || mcqActive,
                     },
                     React.createElement("span", { className: "arrow-icon" }, "‹")
                   ),
@@ -1608,7 +1789,7 @@ const PlaceValuePanel = ({
                     {
                       onClick: () => move("right"),
                       className: getRightNavClass(),
-                      disabled: rightNavDisabled || pos === 4 || mcqActive,
+                      disabled: rightNavDisabled || placeValuePos === 4 || mcqActive,
                     },
                     React.createElement("span", { className: "arrow-icon" }, "›")
                   )
@@ -1633,10 +1814,10 @@ const PlaceValuePanel = ({
         "div",
         { 
           ref: standardFormBoxRef,
-          className: "box standard-form-box",
+          className: `box standard-form-box ${highlightedBox === 'standardForm' ? 'box-highlighted' : ''} ${highlightedBox && highlightedBox !== 'standardForm' ? 'box-dehighlighted' : ''}`,
           style: { 
             position: "relative",
-            opacity: getStandardFormOpacity(),
+            opacity: highlightedBox ? undefined : getStandardFormOpacity(),
             transition: "opacity 0.4s"
           },
         },
@@ -1664,11 +1845,27 @@ const PlaceValuePanel = ({
               )
             )
           ),
-          React.createElement("div", {
-            ref: decimalRef,
-            className: "decimal-point",
-            style: { left: `${dotIndices[pos] * SLOT_WIDTH}vw` },
-          })
+          current_language === "id"
+            ? React.createElement("img", {
+                ref: decimalRef,
+                src: "assets/blueComma.svg",
+                alt: ",",
+                className: "decimal-point decimal-comma",
+                style: { 
+                  left: `${dotIndices[standardFormPos] * SLOT_WIDTH}vw`,
+                  width: "0.9vw",
+                  height: "0.9vw",
+                  position: "absolute",
+                  top: "65%",
+                  transform: "translate(-50%, -50%)",
+                  zIndex: 20
+                }
+              })
+            : React.createElement("div", {
+                ref: decimalRef,
+                className: "decimal-point",
+                style: { left: `${dotIndices[standardFormPos] * SLOT_WIDTH}vw` },
+              })
         ),
         // Decimal arrows
         renderDecimalArrow(),
@@ -1680,8 +1877,9 @@ const PlaceValuePanel = ({
       React.createElement(
         "div",
         { 
-          className: "box expanded-form-box",
-          style: { opacity: getExpandedFormOpacity(), transition: "opacity 0.4s" }
+          ref: expandedFormBoxRef,
+          className: `box expanded-form-box ${highlightedBox === 'expanded' ? 'box-highlighted' : ''} ${highlightedBox && highlightedBox !== 'expanded' ? 'box-dehighlighted' : ''}`,
+          style: { opacity: highlightedBox ? undefined : getExpandedFormOpacity(), transition: "opacity 0.4s" }
         },
         React.createElement("div", { className: "box-label" }, APP_DATA.labels.expandedForm),
         renderExpandedForm()

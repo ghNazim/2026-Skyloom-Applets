@@ -15,6 +15,14 @@ const DigitBox = ({ digit, isHighlighted, isDecimalDigit }) => {
 
 // Decimal Point Component
 const DecimalPoint = () => {
+  if (current_language === "id") {
+    return React.createElement("img", { 
+      src: "assets/pinkComma.svg", 
+      alt: ",", 
+      className: "splash-decimal-point decimal-comma",
+      style: { width: "2vw", height: "2vw" }
+    });
+  }
   return React.createElement("div", { className: "splash-decimal-point" });
 };
 
@@ -49,66 +57,85 @@ const SplashFraction = ({ numerator, denominator, pulsateZeros, className }) => 
   );
 };
 
+// Single U-shaped bracket SVG (wraps one digit box from below)
+const BracketUnderDigit = () =>
+  React.createElement(
+    "svg",
+    {
+      className: "bracket-svg",
+      viewBox: "0 0 100 25",
+      preserveAspectRatio: "none"
+    },
+    React.createElement("path", {
+      d: "M 2 2 L 2 20 L 98 20 L 98 2",
+      fill: "none",
+      stroke: "yellow",
+      strokeWidth: "4",
+      strokeLinecap: "round",
+      strokeLinejoin: "round"
+    })
+  );
+
 // Type 1 Equation Row (for steps 11-12)
 const Type1EquationRow = ({ digits, decimalPosition, numerator, denominator, pulsateZeros, bracketCount }) => {
   const elements = [];
   
-  // Build digit boxes with decimal point
+  // Which digit indices get a bracket: first bracketCount digits after decimal (indices decimalPosition .. decimalPosition+bracketCount-1)
+  const hasBracket = (index) =>
+    bracketCount > 0 &&
+    index >= decimalPosition &&
+    index < decimalPosition + bracketCount;
+  const bracketLabel = (index) => index - decimalPosition + 1;
+
+  // Build digit boxes with decimal point; one bracket per digit box where needed
   digits.forEach((digit, index) => {
     if (index === decimalPosition) {
-      elements.push(React.createElement(DecimalPoint, { key: `dec-${index}` }));
+      elements.push(
+        React.createElement(
+          "div",
+          { key: `dec-${index}`, className: "splash-decimal-point-wrap" },
+          React.createElement(DecimalPoint, {})
+        )
+      );
     }
     const isDecimalDigit = index >= decimalPosition;
     const isHighlighted = digit !== '0' && isDecimalDigit;
-    elements.push(
-      React.createElement(DigitBox, { 
-        key: `digit-${index}`, 
-        digit, 
+    const showBracket = hasBracket(index);
+
+    const slotContent = [
+      React.createElement(DigitBox, {
+        key: "box",
+        digit,
         isHighlighted,
         isDecimalDigit
       })
+    ];
+    if (showBracket) {
+      slotContent.push(
+        React.createElement(
+          "div",
+          { key: "bracket", className: "bracket-container" },
+          React.createElement(BracketUnderDigit),
+          React.createElement("div", { className: "bracket-numbers" },
+            React.createElement("span", { className: "bracket-num" }, bracketLabel(index))
+          )
+        )
+      );
+    }
+
+    elements.push(
+      React.createElement(
+        "div",
+        { key: `digit-${index}`, className: "digit-slot" },
+        slotContent
+      )
     );
   });
-  
-  // Calculate bracket width based on bracketCount
-  const bracketWidth = bracketCount * 5.3 + 0.3 * (bracketCount - 1);
-  
+
   return React.createElement(
     "div",
     { className: "splash-equation-row" },
-    React.createElement("div", { className: "splash-digits-container" },
-      elements,
-      // Bracket under decimal digits
-      bracketCount > 0 && React.createElement(
-        "div",
-        { 
-          className: "bracket-container",
-          style: { width: `${bracketWidth}vw` }
-        },
-        // SVG Bracket - U shape
-        React.createElement(
-          "svg",
-          { 
-            className: "bracket-svg",
-            viewBox: "0 0 100 25",
-            preserveAspectRatio: "none"
-          },
-          React.createElement("path", {
-            d: "M 2 2 L 2 20 L 98 20 L 98 2",
-            fill: "none",
-            stroke: "yellow",
-            strokeWidth: "4",
-            strokeLinecap: "round",
-            strokeLinejoin: "round"
-          })
-        ),
-        React.createElement("div", { className: "bracket-numbers" },
-          Array.from({ length: bracketCount }, (_, i) => 
-            React.createElement("span", { key: i, className: "bracket-num" }, i + 1)
-          )
-        )
-      )
-    ),
+    React.createElement("div", { className: "splash-digits-container" }, elements),
     React.createElement("span", { className: "splash-equals" }, "="),
     React.createElement(SplashFraction, { numerator, denominator, pulsateZeros })
   );
@@ -350,7 +377,7 @@ const Type2EquationRow = ({
     const svgStartX = startX - minX;
     const svgStartY = startY - minY;
     const svgEndX = endX - minX;
-    const svgEndY = endY - minY;
+    const svgEndY = endY - minY + 1.4*vwInPx;
     const svgTopY = topY - minY;
     
     return React.createElement(
@@ -418,7 +445,7 @@ const Type2EquationRow = ({
     
     const svgStartX = startX - minX;
     const svgStartY = startY - minY;
-    const svgEndX = endX - minX;
+    const svgEndX = endX - minX -8;
     const svgEndY = endY - minY;
     const svgBottomY = bottomY - minY;
     
@@ -451,14 +478,14 @@ const Type2EquationRow = ({
           },
             React.createElement("polygon", {
               points: "0 0, 5 3, 0 6",
-              fill: "white"
+              fill: "#ffd54f"
             })
           )
         ),
         // Path: down, then right - solid white 2px
         React.createElement("path", {
           d: `M ${svgStartX} ${svgStartY} L ${svgStartX} ${svgBottomY} L ${svgEndX} ${svgEndY}`,
-          stroke: "white",
+          stroke: "#ffd54f",
           strokeWidth: 2,
           fill: "none",
           markerEnd: "url(#arrow-den-head)"
@@ -475,6 +502,25 @@ const Type2EquationRow = ({
       if (item.type === 'dot') {
         const thisIndex = currentDotIndex;
         currentDotIndex++;
+        if (current_language === "id") {
+          return React.createElement("span", { 
+            key: idx, 
+            className: `type2-dot ${item.active ? 'active' : 'inactive'}`,
+            ref: (el) => { dotRefs.current[thisIndex] = el; },
+            style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: "1.5vw", height: "4vw", margin: "0 0.2vw" }
+          },
+            React.createElement("img", {
+              src: "assets/pinkComma.svg",
+              alt: ",",
+              style: { 
+                width: "2vw", 
+                height: "2vw",
+                opacity: item.active ? 1 : 0.4
+              },
+              className: "decimal-comma"
+            })
+          );
+        }
         return React.createElement("span", { 
           key: idx, 
           className: `type2-dot ${item.active ? 'active' : 'inactive'}`,

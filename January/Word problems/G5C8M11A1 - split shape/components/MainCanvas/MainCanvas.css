@@ -1,0 +1,334 @@
+/* ===== MAIN CANVAS CONTAINER ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== PERIMETER APPLET LAYOUT ===== */
+.main-canvas-perimeter {
+  flex-direction: column;
+}
+
+/* Diagram row - 70% */
+.diagram-row {
+  flex: 0 0 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 1vw;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.canvas-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+}
+
+/* Canvas: internal buffer 500x500; display fits container height, width maintains aspect ratio */
+.shape-canvas {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 1vw;
+  display: block;
+}
+
+.shape-canvas.clickable {
+  cursor: pointer;
+}
+
+/* Math row - 30% */
+.math-row {
+  flex: 0 0 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw 2vw;
+  gap: 1vw;
+}
+
+/* ===== MATH BUTTON ===== */
+.math-button {
+  padding: 1vw 3vw;
+  font-size: 2.5vw;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(145deg, #ffc107, #ff9800);
+  color: #1a1a2e;
+  border-radius: 0.8vw;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.math-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.math-button:active {
+  transform: translateY(0);
+}
+
+/* ===== FEEDBACK BOX ===== */
+.feedback-box {
+  width: 90%;
+  padding: 1vw 1.5vw;
+  border-radius: 0.5vw;
+  font-size: 2vw;
+  line-height: 1.5;
+  white-space: pre-line;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.feedback-box.neutral {
+  background-color: transparent;
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+}
+
+.feedback-box.correct {
+  background-color: rgba(76, 175, 80, 0.15);
+  border: 2px solid #66bb6a;
+  color: #fff;
+}
+
+.feedback-box.incorrect {
+  background-color: rgba(255, 0, 0, 0.15);
+  border: 2px solid #ff6b6b;
+  color: #fff;
+}
+
+/* ===== EQUATION CONTAINER ===== */
+.equation-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5vw;
+  width: 100%;
+}
+
+.equation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5vw;
+  font-size: 2.2vw;
+  color: #ffffff;
+  transition: opacity 0.3s ease;
+}
+
+.equation-row-final {
+  /* font-weight: bold; */
+  /* color: #66bb6a; */
+  font-size: 2.5vw;
+}
+
+.equation-text {
+  font-weight: 400;
+}
+
+/* ===== INTERACTIVE BOX ===== */
+.interactive-box {
+  padding: 0.4vw 0.8vw;
+  border-radius: 0.4vw;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transition: all 0.3s ease;
+  min-width: 2vw;
+  text-align: center;
+}
+
+.interactive-box.active {
+  background-color: rgba(255, 193, 7, 0.3);
+  border: 2px solid #ffc107;
+  color: #ffc107;
+  cursor: pointer;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.interactive-box.active:hover {
+  background-color: rgba(255, 193, 7, 0.5);
+  transform: scale(1.01);
+}
+
+.interactive-box.substituted {
+  background-color: transparent;
+  border: none;
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 0.5vw rgba(255, 193, 7, 0);
+  }
+}
+
+/* ===== VOLUME CANVAS LAYOUT (LEGACY) ===== */
+.main-canvas-volume .volume-canvas-column {
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.main-canvas-volume .volume-canvas-column .volume-canvas-3d {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== COLUMN STYLES ===== */
+.column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+  position: relative;
+}
+
+.visual-column {
+  /* Visual column base styling */
+}
+
+.fractions-column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mcq-column {
+  height: 100%;
+}
+
+/* ===== VISUAL CONTENT ===== */
+.visual-content {
+  height: 85%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.visual-flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.grid-wrapper {
+  position: relative;
+}
+
+.visual-grid-wrapper {
+  width: 28vw;
+  height: 28vw;
+  position: relative;
+}
+
+/* ===== HUNDREDTHS GRID ===== */
+.hundredth-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 0.2vw;
+  width: 100%;
+  height: 100%;
+}
+
+.hundredth-square {
+  background-color: rgba(33, 150, 243, 0.25);
+  position: relative;
+  border-radius: 0.1vw;
+}
+
+.hundredth-square.filled {
+  background-color: #4fc3f7;
+  opacity: 1;
+}
+
+.square-label {
+  position: absolute;
+  font-size: 1.2vw;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ===== SHAKE ANIMATION ===== */
+@keyframes shake {
+  0% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+  10% {
+    transform: translate(-1px, -2px) rotate(-1deg);
+  }
+  20% {
+    transform: translate(-3px, 0px) rotate(1deg);
+  }
+  30% {
+    transform: translate(3px, 2px) rotate(0deg);
+  }
+  40% {
+    transform: translate(1px, -1px) rotate(1deg);
+  }
+  50% {
+    transform: translate(-1px, 2px) rotate(-1deg);
+  }
+  60% {
+    transform: translate(-3px, 1px) rotate(0deg);
+  }
+  70% {
+    transform: translate(3px, 1px) rotate(-1deg);
+  }
+  80% {
+    transform: translate(-1px, -1px) rotate(1deg);
+  }
+  90% {
+    transform: translate(1px, 2px) rotate(0deg);
+  }
+  100% {
+    transform: translate(1px, -2px) rotate(-1deg);
+  }
+}
+
+.shake {
+  animation: shake 0.3s;
+  animation-iteration-count: 1;
+}
+
+/* ===== MCQ CONTAINER ===== */
+.mcq-container-style {
+  width: 100%;
+  height: 100%;
+}

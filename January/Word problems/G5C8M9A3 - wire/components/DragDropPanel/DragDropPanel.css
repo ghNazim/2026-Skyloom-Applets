@@ -1,0 +1,233 @@
+.drag-drop-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 1vw;
+}
+
+/* Left Column */
+.dd-left-column {
+  width: 57%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(1vw);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  overflow: hidden;
+}
+
+.dd-image-row {
+  height: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+}
+
+.dd-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.dd-equation-row {
+  height: 55%;
+  display: flex;
+  flex-direction: column;
+  padding: 1vw;
+  background-color: rgba(0, 0, 0, 0.3);
+  gap: 1vw;
+}
+
+.dd-equation-label {
+  font-size: 2vw;
+  color: white;
+  margin-bottom: 1vw;
+  text-align: left;
+  line-height: 1.8;
+}
+
+.dd-equation-line {
+  font-size: 1.8vw;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  flex-wrap: wrap;
+  line-height: 1.8;
+}
+
+/* Drop Zones */
+.dd-drop-zone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3vw;
+  padding: 0.5vw 1vw;
+  border: 0.2vw dotted rgba(255, 255, 255, 0.5);
+  border-radius: 0.5vw;
+  color: transparent;
+  font-size: 1.6vw;
+  transition: all 0.3s ease;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Statement zones (larger) */
+.dd-drop-zone.statement-zone {
+  min-width: 9vw !important;
+  /* padding: 0.6vw 1.2vw; */
+  /* font-size: 1.6vw; */
+}
+
+/* Operator zones (smaller) */
+.dd-drop-zone.operator-zone {
+  min-width: 1.5vw;
+  /* padding: 0.4vw 0.6vw; */
+  /* font-size: 1.4vw; */
+}
+
+.dd-drop-zone.correct {
+  border: 0.2vw solid #4caf50;
+  background-color: rgba(76, 175, 80, 0.3);
+  color: white;
+}
+
+.dd-drop-zone.wrong {
+  border: 0.2vw solid #f44336;
+  background-color: rgba(244, 67, 54, 0.3);
+}
+
+.dd-drop-zone.shake {
+  animation: shakeZone 0.3s ease;
+}
+
+.dd-drop-zone.final {
+  border: none;
+  background-color: transparent;
+  color: white;
+  padding: 0.5vw 0;
+  font-size: 1.8vw;
+}
+
+.dd-drop-zone.hovered {
+  transform: scale(1.1);
+  background-color: rgba(128, 128, 128, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes shakeZone {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+/* Right Column */
+.dd-right-column {
+  width: 43%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(1vw);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  overflow: hidden;
+}
+
+/* Findings div on top */
+.dd-findings-div {
+  padding: 1vw;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dd-findings-title {
+  font-size: 1.8vw;
+  font-weight: 600;
+  color: #4fc3f7;
+}
+
+.dd-findings-list {
+  list-style: disc;
+  padding-left: 2vw;
+  margin: 0;
+}
+
+.dd-findings-list li {
+  font-size: 1.6vw;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6; 
+}
+
+.dd-draggables-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vw;
+  justify-content: center;
+  padding: 2vw;
+}
+
+/* Full height container when no findings div */
+.dd-draggables-container.full-height {
+  height: 100%;
+}
+
+.dd-draggables-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1vw;
+  justify-content: center;
+}
+
+.dd-draggables-row.operators {
+  gap: 2vw;
+}
+
+/* Draggable Items */
+.dd-draggable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8vw 1.2vw;
+  font-size: 1.6vw;
+  font-weight: 600;
+  cursor: grab;
+  border: none;
+  background: linear-gradient(145deg, #ffc107, #ff9800);
+  color: #1a1a2e;
+  border-radius: 0.8vw;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  user-select: none;
+  touch-action: none;
+}
+
+.dd-draggable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dd-draggable:active {
+  cursor: grabbing;
+}
+
+.dd-draggable.dragging {
+  opacity: 0;
+}
+
+/* Drag Ghost */
+.dd-drag-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8vw 1.2vw;
+  font-size: 1.6vw;
+  font-weight: 600;
+  background: linear-gradient(145deg, #ffc107, #ff9800);
+  color: #1a1a2e;
+  border-radius: 0.8vw;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  opacity: 0.95;
+}

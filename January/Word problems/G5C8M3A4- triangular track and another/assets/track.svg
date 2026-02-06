@@ -1,0 +1,52 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .triangle { fill: none; stroke: white; stroke-width: 6; }
+    .arrow polygon { fill: #ffd400; }
+
+    .num {
+      font-size: 120px;
+      fill: white;
+      dominant-baseline: middle;
+      text-anchor: middle;
+      font-weight: bold;
+      opacity: 0;
+    }
+
+    /* Each number has its own animation with delay */
+    .n1 { animation: showTemp 4s linear 4s 1 forwards; }
+    .n2 { animation: showTemp 4s linear 8s 1 forwards; }
+    .n3 { animation: showTemp 4s linear 12s 1 forwards; }
+    .n4 { animation: showTemp 4s linear 16s 1 forwards; }
+    .n5 { animation: showFinal 0.1s linear 20s 1 forwards; }
+
+    /* Shows then hides */
+    @keyframes showTemp {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Final number stays */
+    @keyframes showFinal {
+      to { opacity: 1; }
+    }
+  </style>
+
+  <polygon class="triangle" points="250,60 60,440 440,440" />
+  <path id="motionPath" d="M250 60 L60 440 L440 440 Z" fill="none" />
+
+  <g class="arrow">
+    <polygon points="0,-10 20,0 0,10">
+      <animateMotion dur="4s" repeatCount="5" rotate="auto" fill="freeze">
+        <mpath href="#motionPath" />
+      </animateMotion>
+    </polygon>
+  </g>
+
+  <text x="250" y="250" class="num n1">1</text>
+  <text x="250" y="250" class="num n2">2</text>
+  <text x="250" y="250" class="num n3">3</text>
+  <text x="250" y="250" class="num n4">4</text>
+  <text x="250" y="250" class="num n5">5</text>
+</svg>

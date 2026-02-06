@@ -66,7 +66,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
         // When MCQ is active, use MCQ-specific question and nav text
         if (mcqActive) {
           q = substepData.mcqQuestionText || q;
-          n = "Tap the correct answer.";
+          n = APP_DATA.nav.tapCorrectAnswer || "Tap the correct answer.";
         }
       }
     }
@@ -80,7 +80,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
       } else if (mcqActive) {
         // When MCQ is active, show MCQ-specific question text
         if (stepData.mcqQuestionText) q = stepData.mcqQuestionText;
-        n = "Tap the correct answer.";
+        n = APP_DATA.nav.tapCorrectAnswer || "Tap the correct answer.";
       }
     }
 
@@ -217,7 +217,7 @@ const MainCanvas = ({ step, onEnableNext, onAdvanceStep, onUpdateTexts, onDisabl
     return React.createElement(
       "div",
       { className: "step-feedback-box" },
-      React.createElement("p", null, feedbackText)
+      React.createElement("p", { dangerouslySetInnerHTML: { __html: feedbackText } })
     );
   };
 

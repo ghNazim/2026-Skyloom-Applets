@@ -198,7 +198,7 @@ const DragDropPanel = ({ onComplete, onEnableNext, onUpdateNavText, imageSrc, dr
   
   // Touch event handlers
   const handleTouchStart = (e, draggableId) => {
-    e.preventDefault();
+    // e.preventDefault();
     const touch = e.touches[0];
     setDraggedItem(draggableId);
     setIsDragging(true);
@@ -210,7 +210,7 @@ const DragDropPanel = ({ onComplete, onEnableNext, onUpdateNavText, imageSrc, dr
   
   const handleTouchMove = (e) => {
     if (!isDragging || !draggedItem) return;
-    e.preventDefault();
+    // e.preventDefault();
     const touch = e.touches[0];
     setDragPosition({
       x: touch.clientX,
@@ -239,7 +239,7 @@ const DragDropPanel = ({ onComplete, onEnableNext, onUpdateNavText, imageSrc, dr
   
   const handleTouchEnd = (e) => {
     if (!isDragging || !draggedItem) return;
-    e.preventDefault();
+    // e.preventDefault();
     
     // Find which drop zone we're over
     const dropZones = document.querySelectorAll('.dd-drop-zone');
@@ -368,7 +368,7 @@ const DragDropPanel = ({ onComplete, onEnableNext, onUpdateNavText, imageSrc, dr
         { className: "dd-image-row" },
         React.createElement("img", {
           src: imageSrc || "assets/compute1.png",
-          alt: "Milk bottles",
+          alt: APP_DATA.calculation.altTexts.milkBottles,
           className: "dd-image"
         })
       ),

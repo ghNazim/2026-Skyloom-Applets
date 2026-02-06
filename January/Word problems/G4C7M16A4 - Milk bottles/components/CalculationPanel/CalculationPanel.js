@@ -18,6 +18,7 @@ const CalculationPanel = ({
   const calc2Data = APP_DATA.calculation2;
   const mcqData = APP_DATA.conversionMcq;
   const comprehendData = APP_DATA.comprehend;
+  const calcDisplayData = APP_DATA.calculation;
   
   // Local state for numpad input
   const [numpadValue, setNumpadValue] = useState("");
@@ -96,9 +97,9 @@ const CalculationPanel = ({
           ...prev, 
           mcqAnswered: true,
           findings: [
-            "Total volume of milk in the small bottles = 8500 mL",
-            "Volume of milk in each big bottle = 1700 mL",
-            "1000 mL = 1 L"
+            calc1Data.findings.totalVolume,
+            calc2Data.findings.volumePerBottle,
+            mcqData.conversionFinding
           ]
         }));
         if (onEnableNext) onEnableNext();
@@ -141,7 +142,7 @@ const CalculationPanel = ({
             ...prev, 
             calc1NumpadAnswered: true,
             calc1NumpadValue: numpadValue,
-            findings: ["Total volume of milk in the small bottles = 8500 mL"]
+            findings: [calc1Data.findings.totalVolume]
           }));
         } else {
           setCalcState(prev => ({ 
@@ -149,8 +150,8 @@ const CalculationPanel = ({
             calc2NumpadAnswered: true,
             calc2NumpadValue: numpadValue,
             findings: [
-              "Total volume of milk in the small bottles = 8500 mL",
-              "Volume of milk in each big bottle = 1700 mL"
+              calc1Data.findings.totalVolume,
+              calc2Data.findings.volumePerBottle
             ]
           }));
         }
@@ -182,14 +183,14 @@ const CalculationPanel = ({
     } else if (step === 6 || step === 7 || step === 8) {
       return {
         title: APP_DATA.labels.findings,
-        list: ["Total volume of milk in the small bottles = 8500 mL"]
+        list: [calc1Data.findings.totalVolume]
       };
     } else if (step === 9 || step === 10) {
       return {
         title: APP_DATA.labels.findings,
         list: calcState.findings || [
-          "Total volume of milk in the small bottles = 8500 mL",
-          "Volume of milk in each big bottle = 1700 mL"
+          calc1Data.findings.totalVolume,
+          calc2Data.findings.volumePerBottle
         ]
       };
     }
@@ -203,14 +204,14 @@ const CalculationPanel = ({
     // Label row
     rows.push(
       React.createElement("div", { key: "row-label", className: "calc-row" }, 
-        "Total volume of milk in the small bottles"
+        calcDisplayData.rows.calc1Label
       )
     );
     
     // Equation row
     rows.push(
       React.createElement("div", { key: "row-eq1", className: "calc-row" }, 
-        "= Number of small bottles × Volume of milk in each bottle"
+        calcDisplayData.rows.calc1Equation
       )
     );
     
@@ -225,7 +226,7 @@ const CalculationPanel = ({
               className: `calc-interactive-box ${interactiveBoxState1[0] ? 'revealed' : 'clickable'}`,
               onClick: () => !interactiveBoxState1[0] && handleInteractiveBoxClick1(0)
             },
-            interactiveBoxState1[0] ? calc1Data.values.smallBottleCount : "?"
+            interactiveBoxState1[0] ? calc1Data.values.smallBottleCount : calc1Data.values.initialBox1
           ),
           " × ",
           React.createElement(
@@ -234,7 +235,7 @@ const CalculationPanel = ({
               className: `calc-interactive-box ${interactiveBoxState1[1] ? 'revealed' : (interactiveBoxState1[0] ? 'clickable' : '')}`,
               onClick: () => interactiveBoxState1[0] && !interactiveBoxState1[1] && handleInteractiveBoxClick1(1)
             },
-            interactiveBoxState1[1] ? calc1Data.values.eachVolume : "?"
+            interactiveBoxState1[1] ? calc1Data.values.eachVolume : calc1Data.values.initialBox2
           )
         )
       );
@@ -257,13 +258,13 @@ const CalculationPanel = ({
               { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
               numpadValue || ""
             ),
-            " mL"
+            " " + calcDisplayData.units.mL
           )
         );
       } else {
         rows.push(
           React.createElement("div", { key: "row-result", className: "calc-row" },
-            `= ${calcState.calc1NumpadValue} mL`
+            `= ${calcState.calc1NumpadValue} ${calcDisplayData.units.mL}`
           )
         );
       }
@@ -279,14 +280,14 @@ const CalculationPanel = ({
     // Label row
     rows.push(
       React.createElement("div", { key: "row-label", className: "calc-row" }, 
-        "Volume of milk in each big bottle"
+        calcDisplayData.rows.calc2Label
       )
     );
     
     // Equation row
     rows.push(
       React.createElement("div", { key: "row-eq1", className: "calc-row" }, 
-        "= Total volume of milk ÷ Number of big bottles"
+        calcDisplayData.rows.calc2Equation
       )
     );
     
@@ -301,7 +302,7 @@ const CalculationPanel = ({
               className: `calc-interactive-box ${interactiveBoxState2[0] ? 'revealed' : 'clickable'}`,
               onClick: () => !interactiveBoxState2[0] && handleInteractiveBoxClick2(0)
             },
-            interactiveBoxState2[0] ? calc2Data.values.totalVolume : "?"
+            interactiveBoxState2[0] ? calc2Data.values.totalVolume : calc2Data.values.initialBox1
           ),
           " ÷ ",
           React.createElement(
@@ -310,7 +311,7 @@ const CalculationPanel = ({
               className: `calc-interactive-box ${interactiveBoxState2[1] ? 'revealed' : (interactiveBoxState2[0] ? 'clickable' : '')}`,
               onClick: () => interactiveBoxState2[0] && !interactiveBoxState2[1] && handleInteractiveBoxClick2(1)
             },
-            interactiveBoxState2[1] ? calc2Data.values.bigBottleCount : "?"
+            interactiveBoxState2[1] ? calc2Data.values.bigBottleCount : calc2Data.values.initialBox2
           )
         )
       );
@@ -333,13 +334,13 @@ const CalculationPanel = ({
               { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
               numpadValue || ""
             ),
-            " mL"
+            " " + calcDisplayData.units.mL
           )
         );
       } else {
         rows.push(
           React.createElement("div", { key: "row-result", className: "calc-row" },
-            `= ${calcState.calc2NumpadValue} mL`
+            `= ${calcState.calc2NumpadValue} ${calcDisplayData.units.mL}`
           )
         );
       }
@@ -355,7 +356,7 @@ const CalculationPanel = ({
     // Summary of previous calculation
     rows.push(
       React.createElement("div", { key: "row-summary", className: "calc-row" }, 
-        "Volume of milk in each big bottle = 1700 mL"
+        calcDisplayData.rows.summaryRow
       )
     );
     
@@ -363,7 +364,7 @@ const CalculationPanel = ({
     if (calcState.mcqAnswered) {
       rows.push(
         React.createElement("div", { key: "row-conv", className: "calc-row" },
-          "= (1700 ÷ 1000) L"
+          calcDisplayData.rows.conversionRow
         )
       );
     }
@@ -378,21 +379,21 @@ const CalculationPanel = ({
     // Label
     rows.push(
       React.createElement("div", { key: "row-label", className: "calc-row" }, 
-        "Volume of milk (in L) in each big bottle"
+        calcDisplayData.rows.calc2FinalLabel
       )
     );
     
     // Conversion row
     rows.push(
       React.createElement("div", { key: "row-conv", className: "calc-row" },
-        "= (1700 ÷ 1000) L"
+        calcDisplayData.rows.conversionRow
       )
     );
     
     // Final result
     rows.push(
       React.createElement("div", { key: "row-final", className: "calc-row" },
-        "= 1.7 L"
+        calcDisplayData.rows.finalResult
       )
     );
     
@@ -508,7 +509,7 @@ const CalculationPanel = ({
           { className: "calc-image-row" },
           React.createElement("img", {
             src: imageSrc,
-            alt: "Milk bottles",
+            alt: calcDisplayData.altTexts.milkBottles,
             className: "calc-image"
           })
         ),
@@ -550,7 +551,7 @@ const CalculationPanel = ({
           { className: "calc-image-row" },
           React.createElement("img", {
             src: imageSrc,
-            alt: "Milk bottles",
+            alt: calcDisplayData.altTexts.milkBottles,
             className: "calc-image"
           })
         ),
@@ -656,7 +657,7 @@ const CalculationPanel = ({
       React.createElement(
         "div",
         { className: "calc-rows-container" },
-        React.createElement("div", { className: "calc-row" }, "Calculation Panel")
+        React.createElement("div", { className: "calc-row" }, "")
       )
     ),
     React.createElement(

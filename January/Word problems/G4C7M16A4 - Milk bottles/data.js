@@ -108,12 +108,17 @@ const DATA = {
           "= Number of small bottles × Volume of milk in each bottle"
         ],
         values: {
+          initialBox1: "Number of small bottles",
+          initialBox2: "Volume of milk in each bottle",
           smallBottleCount: "17",
           eachVolume: "500 mL"
         },
         numpad: {
           answer: "8500",
           maxLength: 5
+        },
+        findings: {
+          totalVolume: "Total volume of milk in the small bottles = 8500 mL"
         }
       },
       
@@ -124,12 +129,17 @@ const DATA = {
           "= Total volume of milk ÷ Number of big bottles"
         ],
         values: {
+          initialBox1: "Total volume of milk",
+          initialBox2: "Number of big bottles",
           totalVolume: "8500 mL",
           bigBottleCount: "5"
         },
         numpad: {
           answer: "1700",
           maxLength: 4
+        },
+        findings: {
+          volumePerBottle: "Volume of milk in each big bottle = 1700 mL"
         }
       },
       
@@ -142,7 +152,29 @@ const DATA = {
           "c. Divide the value in mL by 100",
           "d. Divide the value in mL by 1000"
         ],
-        answerIndex: 3
+        answerIndex: 3,
+        conversionFinding: "1000 mL = 1 L"
+      },
+      
+      // Calculation display strings
+      calculation: {
+        units: {
+          mL: "mL",
+          L: "L"
+        },
+        rows: {
+          calc1Label: "Total volume of milk in the small bottles",
+          calc1Equation: "= Number of small bottles × Volume of milk in each bottle",
+          calc2Label: "Volume of milk in each big bottle",
+          calc2Equation: "= Total volume of milk ÷ Number of big bottles",
+          calc2FinalLabel: "Volume of milk (in L) in each big bottle",
+          summaryRow: "Volume of milk in each big bottle = 1700 mL",
+          conversionRow: "= (1700 ÷ 1000) L",
+          finalResult: "= 1.7 L"
+        },
+        altTexts: {
+          milkBottles: "Milk bottles"
+        }
       },
       
       // Final answer
@@ -161,7 +193,8 @@ const DATA = {
         // Step 1: Comprehend with substeps (Given/To Find)
         1: {
           questionText: "In the refrigerator, there are 17 bottles of milk of 500 mL each. The milk will be poured evenly into 5 big bottles for a party. How many liters of milk will be in each big bottle?",
-          navText: "Tap » to continue.",
+          navText: "Tap » to identify 'given' information.",
+          navToFind:"Tap » to identify what we need 'to find'.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/compre0.png",
           isComprehend: true,
@@ -357,12 +390,17 @@ const DATA = {
           "= Jumlah botol kecil × Volume susu di setiap botol"
         ],
         values: {
+          initialBox1: "Jumlah botol kecil",
+          initialBox2: "Volume susu di setiap botol",
           smallBottleCount: "17",
           eachVolume: "500 mL"
         },
         numpad: {
           answer: "8500",
           maxLength: 5
+        },
+        findings: {
+          totalVolume: "Total volume susu dalam botol kecil = 8500 mL"
         }
       },
       
@@ -372,12 +410,17 @@ const DATA = {
           "= Total volume susu ÷ Jumlah botol besar"
         ],
         values: {
+          initialBox1: "Total volume susu",
+          initialBox2: "Jumlah botol besar",
           totalVolume: "8500 mL",
           bigBottleCount: "5"
         },
         numpad: {
           answer: "1700",
           maxLength: 4
+        },
+        findings: {
+          volumePerBottle: "Volume susu di setiap botol besar = 1700 mL"
         }
       },
       
@@ -389,7 +432,29 @@ const DATA = {
           "c. Bagi nilai dalam mL dengan 100",
           "d. Bagi nilai dalam mL dengan 1000"
         ],
-        answerIndex: 3
+        answerIndex: 3,
+        conversionFinding: "1000 mL = 1 L"
+      },
+      
+      // Calculation display strings
+      calculation: {
+        units: {
+          mL: "mL",
+          L: "L"
+        },
+        rows: {
+          calc1Label: "Total volume susu dalam botol kecil",
+          calc1Equation: "= Jumlah botol kecil × Volume susu di setiap botol",
+          calc2Label: "Volume susu di setiap botol besar",
+          calc2Equation: "= Total volume susu ÷ Jumlah botol besar",
+          calc2FinalLabel: "Volume susu (dalam L) di setiap botol besar",
+          summaryRow: "Volume susu di setiap botol besar = 1700 mL",
+          conversionRow: "= (1700 ÷ 1000) L",
+          finalResult: "= 1,7 L"
+        },
+        altTexts: {
+          milkBottles: "Botol susu"
+        }
       },
       
       finalAnswer: "Jadi, setiap botol besar akan memiliki 1,7 liter susu.",

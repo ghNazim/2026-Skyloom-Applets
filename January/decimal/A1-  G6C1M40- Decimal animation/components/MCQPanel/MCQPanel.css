@@ -168,11 +168,10 @@
 }
 
 .mcq-panel-compact .mcq-panel-content {
-  gap: 0.5vw;
-  justify-content: flex-start;
-  height: auto;
-  margin-top: 3vw;
-  /* margin-right: 2vw; */
+  /* gap: 0.5vw; */
+  justify-content: flex-end;
+  height: 100%;
+  
 }
 
 .mcq-panel-compact .mcq-wrapper {

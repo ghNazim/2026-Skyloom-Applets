@@ -38,8 +38,9 @@
 
 /* ===== TYPE 1 STYLES (Steps 11-12) ===== */
 .splash-panel.type1 .splash-content-box {
-  gap: 3vw;
-  padding-bottom: 5vw;
+  gap: 5vw;
+  padding-bottom: 1vw;
+  height: 70%;
 }
 
 /* Equation Row */
@@ -51,25 +52,41 @@
   position: relative;
 }
 
-/* Digits Container */
+/* Digits Container - align digit boxes at top so brackets sit below */
 .splash-digits-container {
   display: flex;
-  align-items: center;
-  gap: 0.3vw;
+  align-items: flex-start;
+  gap: 1vw;
   position: relative;
-  padding-bottom: 4vw;
+  top: 3vw;
+}
+
+/* Wrapper so decimal point aligns with bottom of digit boxes (same baseline) */
+.splash-decimal-point-wrap {
+  height: 8vw;
+  display: flex;
+  align-items: flex-end;
+  margin: 0 0.3vw;
+  padding-bottom: 1vw;
+}
+
+/* One digit box (and optional bracket) per slot */
+.digit-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Digit Box */
 .splash-digit-box {
-  width: 5vw;
-  height: 6vw;
+  width: 8vw;
+  height: 8vw;
   border: 0.2vw solid #526b77;
   border-radius: 0.8vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.5vw;
+  font-size: 6vw;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
   background: rgba(0, 0, 0, 0.2);
@@ -87,9 +104,6 @@
   height: 1vw;
   background: #e91e63;
   border-radius: 50%;
-  margin: 0 0.3vw;
-  align-self: flex-end;
-  margin-bottom: 1.2vw;
 }
 
 /* Equals Sign */
@@ -107,7 +121,7 @@
 }
 
 .splash-frac-num {
-  font-size: 4.5vw;
+  font-size: 6vw;
   color: white;
   font-weight: 500;
   line-height: 1;
@@ -122,7 +136,7 @@
 }
 
 .splash-frac-den {
-  font-size: 4.5vw;
+  font-size: 6vw;
   color: white;
   font-weight: 500;
   line-height: 1;
@@ -145,15 +159,13 @@
   }
 }
 
-/* Bracket Container - positioned under decimal digits */
+/* Bracket Container - one per digit box, wraps that box from below */
 .bracket-container {
-  /* margin-top: 1vw; */
-  position: absolute;
-  bottom: -1vw;
-  right: -.2vw;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 8vw; /* same as .splash-digit-box */
+  margin-top: 0.2vw;
 }
 
 .bracket-svg {
@@ -163,16 +175,15 @@
 
 .bracket-numbers {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   width: 100%;
-  /* margin-top: 0.3vw; */
+  margin-top: 0.2vw;
 }
 
 .bracket-num {
   font-size: 2vw;
-  color: yellow;
+  color: #ffd54f;
   text-align: center;
-  flex: 1;
 }
 
 /* Feedback Box */
@@ -186,7 +197,7 @@
 
 .splash-feedback-box p {
   color: white;
-  font-size: 2vw;
+  font-size: 2.5vw;
   text-align: center;
   margin: 0;
   line-height: 1.5;
@@ -208,7 +219,7 @@
   flex-direction: row;
   padding: 2vw 2vw;
   width: 90%;
-  height: 65%;
+  height: 70%;
   position: relative;
 }
 
@@ -228,14 +239,14 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding-top: 4vw;
+  /* padding-top: 4vw; */
 }
 
 /* Top Annotation for Numerator */
 .type2-numerator-annotation {
   position: absolute;
-  top: 5vw;
-  left: 6vw;
+  top: 0vw;
+  left: 3vw;
 }
 
 .annotation-box {
@@ -244,7 +255,7 @@
   border-radius: 0.5vw;
   padding: 0.5vw 0.8vw;
   color: white;
-  font-size: 1.8vw;
+  font-size: 2.2vw;
   white-space: nowrap;
 }
 
@@ -254,7 +265,7 @@
   align-items: center;
   gap: 1.5vw;
   position: relative;
-  margin-top: 3vw;
+  margin-top: 0vw;
 }
 
 /* Fraction wrapper */
@@ -270,11 +281,11 @@
 }
 
 .type2-frac .splash-frac-num {
-  font-size: 5vw;
+  font-size: 8vw;
 }
 
 .type2-frac .splash-frac-den {
-  font-size: 5vw;
+  font-size: 8vw;
 }
 
 .type2-frac .splash-frac-den .den-zero {
@@ -284,8 +295,8 @@
 /* Denominator annotation */
 .type2-denominator-annotation {
   position: absolute;
-  bottom: -6.5vw;
-  left: 4vw;
+  bottom: -7vw;
+  left: 7vw;
   display: flex;
   align-items: center;
 }
@@ -296,7 +307,7 @@
 }
 
 .annotation-box.denom-box {
-  font-size: 1.8vw;
+  font-size: 2.2vw;
   padding: 0.3vw 0.6vw;
   background-color: rgba(255, 255, 0, 0.405);
 }
@@ -319,7 +330,7 @@
 .type2-decimal-display {
   display: flex;
   align-items: flex-end;
-  font-size: 4.5vw;
+  font-size: 8vw;
   /* font-style: italic; */
   font-weight: 400;
   gap: 0.3vw;
@@ -383,13 +394,13 @@
   border: 0.25vw dashed rgba(255, 215, 79, 0.7);
   border-radius: 1vw;
   background: rgba(255, 215, 79, 0.1);
-  padding: 1.5vw;
+  padding: 1vw;
   max-width: 100%;
 }
 
 .type2-feedback-box p {
   color: white;
-  font-size: 2vw;
+  font-size: 2.2vw;
   line-height: 1.6;
   margin: 0;
   text-align: center;

@@ -10,11 +10,6 @@
   backdrop-filter: blur(1vw);
 }
 
-/* Cursor when dragging */
-.dnd-question-container.is-dragging {
-  cursor: grabbing;
-}
-
 /* Left Column - 75% */
 .dnd-left-column {
   flex: 0 0 75%;
@@ -39,6 +34,16 @@
   align-items: center;
   gap: 2vw;
   position: relative;
+}
+
+/* Hand icon hint - positioned absolutely within equation row */
+.dnd-hand-hint {
+  position: absolute;
+  width: 7vw;
+  height: 7vw;
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0;
 }
 
 /* Curved arrow wrapper */
@@ -139,15 +144,6 @@
   transition: all 0.15s ease;
 }
 
-/* Hover target - bigger pink dotted circle when dragging over */
-.dnd-decimal-slot.placeholder.hover-target::before {
-  width: 1.8vw;
-  height: 1.8vw;
-  border: 0.3vw dashed rgba(233, 30, 99, 0.9);
-  bottom: 0.8vw;
-  background: rgba(233, 30, 99, 0.2);
-}
-
 /* Active decimal dot */
 .dnd-decimal-dot {
   width: 1.2vw;
@@ -155,17 +151,19 @@
   background: #e91e63;
   border-radius: 50%;
   box-shadow: 0 0 1vw rgba(233, 30, 99, 0.8);
-  cursor: grab;
   transition: transform 0.1s ease, opacity 0.1s ease;
   z-index: 10;
 }
+.dnd-decimal-dot.decimal-comma {
+  width: 2vw;
+  height: 2vw;
+  background: none;
+  box-shadow: none;
+}
 
-/* Dragging state - show ghost effect */
-.dnd-decimal-dot.dragging {
-  cursor: grabbing;
-  transform: scale(1.5);
-  box-shadow: 0 0 2vw rgba(233, 30, 99, 1);
-  opacity: 0.7;
+/* Flying clone dot (same look as active dot) */
+.dnd-flying-clone-dot {
+  box-shadow: 0 0 1vw rgba(233, 30, 99, 0.8);
 }
 
 /* Feedback Box - styled like MCQ feedback */

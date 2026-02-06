@@ -2,7 +2,7 @@
 
 
 const audioCache = {};
-const sounds = ["correct", "wrong", "click", "congrats","tick"];
+const sounds = ["correct", "wrong", "click", "congrats","tick", "swoosh"];
 sounds.forEach((name) => {
   const audio = new Audio(`sound/${name}.mp3`);
   audio.load(); // Preloads the audio

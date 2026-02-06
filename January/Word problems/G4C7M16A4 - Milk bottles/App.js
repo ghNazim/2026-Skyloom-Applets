@@ -62,6 +62,176 @@ const App = () => {
       findings: []
     });
   };
+
+  // Reset all state so that targetStep appears as if reached for the first time.
+  // Clears any state that was set during or after targetStep.
+  const resetStateForStep = (targetStep) => {
+    setDynamicQuestionText("");
+    setDynamicNavText("");
+    setCurrentHighlights(null);
+    setHighlightColor(null);
+
+    if (targetStep <= 0) {
+      setComprehendSubstep(0);
+      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        calc1BoxesDone: false,
+        calc1NumpadAnswered: false,
+        calc1NumpadValue: "",
+        calc2BoxesDone: false,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: []
+      });
+      return;
+    }
+
+    if (targetStep === 1) {
+      setComprehendSubstep(0);
+      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        calc1BoxesDone: false,
+        calc1NumpadAnswered: false,
+        calc1NumpadValue: "",
+        calc2BoxesDone: false,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: []
+      });
+      return;
+    }
+
+    if (targetStep <= 3) {
+      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        calc1BoxesDone: false,
+        calc1NumpadAnswered: false,
+        calc1NumpadValue: "",
+        calc2BoxesDone: false,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: []
+      });
+      return;
+    }
+
+    if (targetStep === 4) {
+      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        calc1BoxesDone: false,
+        calc1NumpadAnswered: false,
+        calc1NumpadValue: "",
+        calc2BoxesDone: false,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: []
+      });
+      return;
+    }
+
+    if (targetStep === 5) {
+      setInteractiveBoxState1({ 0: true, 1: true });
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: false,
+        calc1NumpadValue: "",
+        calc2BoxesDone: false,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: []
+      });
+      return;
+    }
+
+    if (targetStep === 6) {
+      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
+        calc2BoxesDone: false,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: [calc1Finding]
+      });
+      return;
+    }
+
+    if (targetStep === 7) {
+      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
+        calc2BoxesDone: false,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: [calc1Finding]
+      });
+      return;
+    }
+
+    if (targetStep === 8) {
+      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
+      setInteractiveBoxState2({ 0: true, 1: true });
+      setCalcState({
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
+        calc2BoxesDone: true,
+        calc2NumpadAnswered: false,
+        calc2NumpadValue: "",
+        mcqAnswered: false,
+        findings: [calc1Finding]
+      });
+      return;
+    }
+
+    if (targetStep === 9) {
+      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
+      const calc2Finding = APP_DATA.calculation2.findings.volumePerBottle;
+      setCalcState({
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
+        calc2BoxesDone: true,
+        calc2NumpadAnswered: true,
+        calc2NumpadValue: APP_DATA.calculation2.numpad.answer,
+        mcqAnswered: false,
+        findings: [calc1Finding, calc2Finding]
+      });
+      return;
+    }
+
+    if (targetStep === 10) {
+      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
+      const calc2Finding = APP_DATA.calculation2.findings.volumePerBottle;
+      setCalcState({
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
+        calc2BoxesDone: true,
+        calc2NumpadAnswered: true,
+        calc2NumpadValue: APP_DATA.calculation2.numpad.answer,
+        mcqAnswered: true,
+        findings: [calc1Finding, calc2Finding, APP_DATA.conversionMcq.conversionFinding]
+      });
+    }
+  };
   
   // Calculate total comprehend substeps
   const getTotalComprehendSubsteps = () => {
@@ -138,12 +308,23 @@ const App = () => {
       // Enable next button for comprehend substeps
       setIsNextDisabled(false);
       
-      // If last substep, update nav text
-      if (comprehendSubstep === total - 1) {
+      // Update nav text based on substep
+      const isLastSubstep = comprehendSubstep === total - 1;
+      const isFirstToFindStep = comprehendSubstep === givenCount;
+      const isLastGivenStep = comprehendSubstep === givenCount - 1;
+      
+      if (isLastSubstep) {
+        // Last substep - show navTextCorrect (takes priority)
         if (stepData.navTextCorrect) {
           setDynamicNavText(stepData.navTextCorrect);
         }
+      } else if (isLastGivenStep) {
+        // First toFind step (but not last) - show navToFind
+        if (stepData.navToFind) {
+          setDynamicNavText(stepData.navToFind);
+        }
       } else {
+        // Given steps (including last given step) - show navText
         if (stepData.navText) {
           setDynamicNavText(stepData.navText);
         }
@@ -182,7 +363,7 @@ const App = () => {
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
     
-    // Handle step 1 - comprehend with substeps
+    // Handle step 1 - comprehend with substeps (stay on step 1, just go back one substep)
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
@@ -190,14 +371,14 @@ const App = () => {
       }
     }
     
-    if (currentStep > 0) {
-      setIsNextDisabled(true);
-      setDynamicQuestionText("");
-      setDynamicNavText("");
-      setCurrentHighlights(null);
-      setHighlightColor(null);
-      setCurrentStep(prev => prev - 1);
-    }
+    if (currentStep <= 0) return;
+    
+    const targetStep = currentStep - 1;
+    // Reset all state so the previous step appears as if reached for the first time
+    resetStateForStep(targetStep);
+    setCurrentStep(targetStep);
+    // Next button: previous step typically requires completion, so disable until they complete it
+    setIsNextDisabled(true);
   };
 
   // Callback from components to enable Next button

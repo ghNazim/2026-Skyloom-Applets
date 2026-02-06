@@ -1,6 +1,6 @@
 /**
  * DndQuestion Component
- * Drag and drop decimal point placement question
+ * Tap-to-place decimal point: tap an inactive slot and a copy of the decimal flies in an arc to fill it.
  */
 
 const DndQuestion = ({
@@ -13,6 +13,8 @@ const DndQuestion = ({
   navText,
   navTextAfterCorrect,
   navTextComplete,
+  checkButton = "Check",
+  places = { one: "one", two: "two" },
   onUpdateNav
 }) => {
   const { useState, useEffect, useRef } = React;
@@ -24,16 +26,19 @@ const DndQuestion = ({
   const [isChecked, setIsChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
-  const [hoverPosition, setHoverPosition] = useState(null);
   const [showArrows, setShowArrows] = useState(false);
   const [arrowsData, setArrowsData] = useState([]);
+  const [hideArrowsAndPlaceholders, setHideArrowsAndPlaceholders] = useState(false);
+  // Flying clone: when user taps an inactive slot, a clone flies in an arc to that slot
+  const [flyingToPosition, setFlyingToPosition] = useState(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   
-  // Refs for decimal positions
+  // Refs for decimal positions and flying clone
   const decimalRefs = useRef([null, null, null]);
   const activeDotRef = useRef(null);
   const containerRef = useRef(null);
   const equationRef = useRef(null);
+  const flyingCloneRef = useRef(null);
   
   // Digits from rightNum: "0080" => ['0', '0', '8', '0']
   const digits = rightNum.split('');
@@ -62,15 +67,70 @@ const DndQuestion = ({
     }
   };
   
+  // Get which digits should be visible when cleaning up display
+  const getVisibleDigits = () => {
+    if (!hideArrowsAndPlaceholders) {
+      // Show all digits normally
+      return { showDigit: [true, true, true, true], decimalPosition: activePosition };
+    }
+    
+    // Determine which digit indices are before and after decimal based on activePosition
+    let beforeDecimalIndices = [];
+    let afterDecimalIndices = [];
+    
+    if (activePosition === 0) {
+      // Format: d[0] . d[1] d[2] d[3]
+      beforeDecimalIndices = [0];
+      afterDecimalIndices = [1, 2, 3];
+    } else if (activePosition === 1) {
+      // Format: d[0] d[1] . d[2] d[3]
+      beforeDecimalIndices = [0, 1];
+      afterDecimalIndices = [2, 3];
+    } else {
+      // Format: d[0] d[1] d[2] . d[3]
+      beforeDecimalIndices = [0, 1, 2];
+      afterDecimalIndices = [3];
+    }
+    
+    // Remove trailing zeros from after decimal (remove from right)
+    const cleanedAfterIndices = [...afterDecimalIndices];
+    while (cleanedAfterIndices.length > 0 && digits[cleanedAfterIndices[cleanedAfterIndices.length - 1]] === '0') {
+      cleanedAfterIndices.pop();
+    }
+    
+    // Remove leading zeros from before decimal (remove from left)
+    // But if all digits before decimal are zero, keep one 0 (the leftmost one)
+    const hasNonZeroBeforeDecimal = beforeDecimalIndices.some(i => digits[i] !== '0');
+    const cleanedBeforeIndices = [...beforeDecimalIndices];
+    if (hasNonZeroBeforeDecimal) {
+      // Remove all leading zeros
+      while (cleanedBeforeIndices.length > 1 && digits[cleanedBeforeIndices[0]] === '0') {
+        cleanedBeforeIndices.shift();
+      }
+    } else {
+      // All zeros before decimal, keep the leftmost one (first index)
+      cleanedBeforeIndices.splice(1);
+    }
+    
+    // Build the showDigit array
+    const showDigit = [false, false, false, false];
+    cleanedBeforeIndices.forEach(idx => { showDigit[idx] = true; });
+    cleanedAfterIndices.forEach(idx => { showDigit[idx] = true; });
+    
+    return { showDigit, decimalPosition: activePosition };
+  };
+  
   // Reset state when question changes (only depends on questionIndex)
   useEffect(() => {
     setActivePosition(2);
     setIsChecked(false);
     setIsCorrect(false);
     setFeedbackText("");
-    setHoverPosition(null);
     setShowArrows(false);
     setArrowsData([]);
+    setHideArrowsAndPlaceholders(false);
+    setFlyingToPosition(null);
+    setIsAnimating(false);
     if (onUpdateNav) {
       onUpdateNav(navText);
     }
@@ -137,10 +197,10 @@ const DndQuestion = ({
     
     if (correct) {
       playSound("correct");
-      const places = den === 10 ? "one" : "two";
+      const placesText = den === 10 ? places.one : places.two;
       const result = getDecimalResult(correctPosition);
       let correctFeedback = feedbacks.correct
-        .replace("{places}", places)
+        .replace("{places}", placesText)
         .replace("{result}", result);
       setFeedbackText(correctFeedback);
       
@@ -149,90 +209,96 @@ const DndQuestion = ({
         onUpdateNav(isLastQuestion ? navTextComplete : navTextAfterCorrect);
       }
       
-      if (onCorrectAnswer) {
-        onCorrectAnswer();
-      }
+      // After 1 second, hide arrows and placeholder decimal points (show cleaned result)
+      // Only enable next button after the result is shown
+      setTimeout(() => {
+        setHideArrowsAndPlaceholders(true);
+        setShowArrows(false);
+        setArrowsData([]);
+        // Enable next button only after the result is displayed
+        if (onCorrectAnswer) {
+          onCorrectAnswer();
+        }
+      }, 1000);
     } else {
       playSound("wrong");
       setFeedbackText(feedbacks.wrong);
     }
   };
   
-  // Handle decimal drag start
-  const handleDragStart = (e) => {
-    // Don't allow dragging after correct answer
+  // Tap on an inactive decimal slot: fly a clone in an arc to that slot, then make it active
+  const handleSlotTap = (targetIndex) => {
     if (isChecked && isCorrect) return;
-    
-    e.preventDefault();
-    setIsDragging(true);
+    if (isAnimating) return;
+    if (activePosition === targetIndex) return;
+    setIsAnimating(true);
+    setFlyingToPosition(targetIndex);
+    if (isChecked && !isCorrect) {
+      setIsChecked(false);
+      setFeedbackText("");
+      setShowArrows(false);
+      setArrowsData([]);
+    }
   };
-  
-  // Handle decimal drag move
-  const handleDragMove = (e) => {
-    if (!isDragging || !containerRef.current) return;
-    // Don't allow dragging after correct answer
-    if (isChecked && isCorrect) return;
-    
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    
-    // Find which position the drag is closest to
-    let closestPos = activePosition;
-    let minDistance = Infinity;
-    
-    decimalRefs.current.forEach((ref, index) => {
-      if (ref) {
-        const rect = ref.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const distance = Math.abs(clientX - centerX);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestPos = index;
-        }
+
+  // Arc animation: flying clone from active slot to clicked slot (decimal "leaves" old slot and moves to new one)
+  useEffect(() => {
+    if (flyingToPosition == null || !equationRef.current || !flyingCloneRef.current || !window.gsap) {
+      return;
+    }
+    const gsap = window.gsap;
+    const cloneEl = flyingCloneRef.current;
+    const equationEl = equationRef.current;
+    const containerRect = equationEl.getBoundingClientRect();
+    const vwInPx = window.innerWidth / 100;
+
+    // Start from the currently active slot (decimal "leaves" from there)
+    const fromSlot = decimalRefs.current[activePosition];
+    const targetSlot = decimalRefs.current[flyingToPosition];
+    if (!fromSlot || !targetSlot) {
+      setActivePosition(flyingToPosition);
+      setFlyingToPosition(null);
+      setIsAnimating(false);
+      playSound("tick");
+      return;
+    }
+
+    const fromRect = fromSlot.getBoundingClientRect();
+    const startX = fromRect.left - containerRect.left + fromRect.width / 2;
+    const startY = fromRect.bottom - containerRect.top - 1.2 * vwInPx;
+
+    const toRect = targetSlot.getBoundingClientRect();
+    const endX = toRect.left - containerRect.left + toRect.width / 2;
+    const endY = toRect.bottom - containerRect.top - 1.2 * vwInPx;
+
+    gsap.set(cloneEl, { x: startX, y: startY, opacity: 1 });
+    const duration = 0.4;
+    const easeOut = "power1.out";
+    const easeIn = "power1.in";
+    const arcPeak = 2.5 * vwInPx;
+    const midX = (startX + endX) / 2;
+    const midY = Math.max(startY, endY) + arcPeak;
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setActivePosition(flyingToPosition);
+        setFlyingToPosition(null);
+        setIsAnimating(false);
+        playSound("tick");
       }
     });
-    
-    // Update hover position for visual feedback
-    setHoverPosition(closestPos);
-    
-    if (closestPos !== activePosition) {
-      setActivePosition(closestPos);
-      // Reset checked state and arrows if position changes after wrong answer
-      if (isChecked && !isCorrect) {
-        setIsChecked(false);
-        setFeedbackText("");
-        setShowArrows(false);
-        setArrowsData([]);
-      }
-    }
-  };
-  
-  // Handle decimal drag end
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    setHoverPosition(null);
-    // Play tick sound on drop
-    playSound("tick");
-  };
-  
-  // Add global mouse/touch event listeners for drag
-  useEffect(() => {
-    if (isDragging) {
-      const moveHandler = (e) => handleDragMove(e);
-      const endHandler = () => handleDragEnd();
-      
-      window.addEventListener('mousemove', moveHandler);
-      window.addEventListener('mouseup', endHandler);
-      window.addEventListener('touchmove', moveHandler);
-      window.addEventListener('touchend', endHandler);
-      
-      return () => {
-        window.removeEventListener('mousemove', moveHandler);
-        window.removeEventListener('mouseup', endHandler);
-        window.removeEventListener('touchmove', moveHandler);
-        window.removeEventListener('touchend', endHandler);
-      };
-    }
-  }, [isDragging, activePosition, isChecked, isCorrect]);
+    tl.to(cloneEl, {
+      x: midX,
+      y: midY,
+      duration: duration / 2,
+      ease: easeOut
+    }).to(cloneEl, {
+      x: endX,
+      y: endY,
+      duration: duration / 2,
+      ease: easeIn
+    });
+  }, [flyingToPosition, activePosition]);
   
   // Render curved arrow SVG
   const renderCurvedArrow = (arrowData, index) => {
@@ -334,62 +400,70 @@ const DndQuestion = ({
   // Render decimal display with draggable dot
   const renderDecimalDisplay = () => {
     const elements = [];
+    const { showDigit } = getVisibleDigits();
     
     for (let i = 0; i < 4; i++) {
-      // Digit - always white
+      // Digit - hide if not in showDigit array when cleaning up
+      const shouldShowDigit = !hideArrowsAndPlaceholders || showDigit[i];
       elements.push(
         React.createElement("span", {
           key: `digit-${i}`,
-          className: "dnd-digit white"
+          className: "dnd-digit white",
+          style: shouldShowDigit ? {} : { display: 'none' }
         }, digits[i])
       );
       
       // Decimal placeholder (after first 3 digits)
       if (i < 3) {
-        const isActive = activePosition === i;
-        const isHovered = isDragging && hoverPosition === i && !isActive;
+        // Show dot only when this slot is active AND we're not flying (so it feels like the dot left and is moving)
+        const isActive = activePosition === i && flyingToPosition == null;
         
-        const handleSlotClick = () => {
-          // Don't allow click after correct answer
-          if (isChecked && isCorrect) return;
-          if (!isActive) {
-            // Play tick sound on click to move
-            playSound("tick");
-            setActivePosition(i);
-            if (isChecked && !isCorrect) {
-              setIsChecked(false);
-              setFeedbackText("");
-              setShowArrows(false);
-              setArrowsData([]);
-            }
-          }
-        };
-        
-        let slotClass = "dnd-decimal-slot";
-        if (isActive) {
-          slotClass += " active";
-        } else {
-          slotClass += " placeholder";
-          if (isHovered) {
-            slotClass += " hover-target";
-          }
-        }
-        
-        elements.push(
-          React.createElement("span", {
-            key: `decimal-${i}`,
-            className: slotClass,
-            ref: (el) => { decimalRefs.current[i] = el; },
-            onMouseDown: isActive ? handleDragStart : handleSlotClick,
-            onTouchStart: isActive ? handleDragStart : handleSlotClick,
-            onClick: !isDragging ? handleSlotClick : undefined
-          },
-            isActive && React.createElement("span", {
-              className: `dnd-decimal-dot ${isDragging ? 'dragging' : ''}`,
-              ref: activeDotRef
+        // Hide placeholder decimals when hideArrowsAndPlaceholders is true
+        if (hideArrowsAndPlaceholders && !isActive) {
+          // Still create the slot for ref purposes, but make it invisible
+          elements.push(
+            React.createElement("span", {
+              key: `decimal-${i}`,
+              className: "dnd-decimal-slot",
+              ref: (el) => { decimalRefs.current[i] = el; },
+              style: { display: 'none' }
             })
-          )
-        );
+          );
+        } else {
+          let slotClass = "dnd-decimal-slot";
+          if (isActive) {
+            slotClass += " active";
+          } else {
+            slotClass += " placeholder";
+          }
+          
+          elements.push(
+            React.createElement("span", {
+              key: `decimal-${i}`,
+              className: slotClass,
+              ref: (el) => { decimalRefs.current[i] = el; },
+              onClick: () => handleSlotTap(i)
+            },
+              isActive && (current_language === "id"
+                ? React.createElement("img", {
+                    src: "assets/pinkComma.svg",
+                    alt: ",",
+                    className: "dnd-decimal-dot decimal-comma",
+                    ref: activeDotRef,
+                    style: { 
+                      width: "1.2vw", 
+                      height: "1.2vw",
+                      transition: "transform 0.1s ease, opacity 0.1s ease",
+                      zIndex: 10
+                    }
+                  })
+                : React.createElement("span", {
+                    className: "dnd-decimal-dot",
+                    ref: activeDotRef
+                  }))
+            )
+          );
+        }
       }
     }
     
@@ -414,17 +488,58 @@ const DndQuestion = ({
   
   return React.createElement(
     "div",
-    { className: `dnd-question-container ${isDragging ? 'is-dragging' : ''}`, ref: containerRef },
+    { className: "dnd-question-container", ref: containerRef },
     
     // Left Column (75%)
     React.createElement(
       "div",
       { className: "dnd-left-column" },
       
-      // Equation row with relative positioning for arrows
+      // Equation row with relative positioning for arrows and flying clone
       React.createElement(
         "div",
         { className: "dnd-equation-row", ref: equationRef },
+        // Flying clone: decimal dot that arcs from below to the tapped slot
+        flyingToPosition != null && React.createElement(
+          "div",
+          {
+            ref: flyingCloneRef,
+            className: "dnd-flying-clone",
+            style: {
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: 0,
+              height: 0,
+              pointerEvents: "none",
+              zIndex: 150,
+              opacity: 0
+            }
+          },
+          current_language === "id"
+            ? React.createElement("img", {
+                src: "assets/pinkComma.svg",
+                alt: "",
+                className: "dnd-decimal-dot decimal-comma dnd-flying-clone-dot",
+                style: {
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "1.2vw",
+                  height: "1.2vw"
+                }
+              })
+            : React.createElement("span", {
+                className: "dnd-decimal-dot dnd-flying-clone-dot",
+                style: {
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)"
+                }
+              })
+        ),
         // Boxed fraction
         React.createElement(
           "div",
@@ -448,8 +563,8 @@ const DndQuestion = ({
           renderDecimalDisplay()
         ),
         
-        // Render curved arrows when checked
-        showArrows && arrowsData.map((arrow, i) => renderCurvedArrow(arrow, i))
+        // Render curved arrows when checked and not hidden
+        showArrows && !hideArrowsAndPlaceholders && arrowsData.map((arrow, i) => renderCurvedArrow(arrow, i))
       )
     ),
     
@@ -475,7 +590,7 @@ const DndQuestion = ({
           onClick: handleCheck,
           disabled: isChecked && isCorrect
         },
-        "Check"
+        checkButton
       )
     )
   );

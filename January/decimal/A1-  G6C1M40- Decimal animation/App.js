@@ -64,6 +64,14 @@ const App = () => {
     playSound("click");
     if (currentStep > 1) {
       setIsNextDisabled(true);
+      // Reset dynamic texts when going back
+      setDynamicQuestionText("");
+      setDynamicFeedbackText("");
+      setDynamicNavText("");
+      // Reset DnD question index if going back from step 16
+      if (currentStep === 16) {
+        setDndQuestionIndex(0);
+      }
       setCurrentStep(prev => prev - 1);
     }
   };
@@ -165,6 +173,7 @@ const App = () => {
           text: stepData.text,
           buttonText: stepData.buttonText,
           onButtonClick: buttonHandler,
+          left: currentStep === 17
         })
       )
     );
@@ -194,6 +203,8 @@ const App = () => {
           navText: stepData.navText,
           navTextAfterCorrect: stepData.navTextAfterCorrect,
           navTextComplete: stepData.navTextComplete,
+          checkButton: stepData.checkButton,
+          places: stepData.places,
           onUpdateNav: (text) => setDynamicNavText(text),
         })
       ),
