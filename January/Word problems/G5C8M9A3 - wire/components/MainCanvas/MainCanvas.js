@@ -63,10 +63,11 @@ const MainCanvas = ({
       );
     }
     
-    // Step 4: Drag and Drop
+    // Step 4: Drag and Drop (key by step so going back remounts and resets state)
     if (stepData.isDragDrop) {
       const dragDropKey = stepData.dragDropKey || "dragDrop1";
       return React.createElement(DragDropPanel, {
+        key: step,
         onComplete: () => {},
         onEnableNext: onEnableNext,
         onUpdateNavText: (navText) => onUpdateTexts(null, navText),

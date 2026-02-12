@@ -15,6 +15,9 @@ const MainCanvas = ({
   formula2Visible,
   showTap1,
   showTap2,
+  highlightTrigger,
+  showFoldedLabelsVisible,
+  onHighlightAnimationComplete,
   onBtn1Click,
   onBtn2Click,
   greenColor,
@@ -102,7 +105,10 @@ const MainCanvas = ({
         skipCameraAnimation: false,
         labelMode: labelMode,
         showFoldedStateLabels: true,
+        showFoldedLabelsVisible: showFoldedLabelsVisible,
         baseFillTransparent: baseFillTransparent,
+        highlightAnimationTrigger: highlightTrigger,
+        onHighlightAnimationComplete: onHighlightAnimationComplete,
       })
     ),
 

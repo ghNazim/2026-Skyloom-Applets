@@ -54,8 +54,45 @@
   display: flex;
   align-items: center;
   gap: 0.5vw;
-  flex-wrap: wrap;
   line-height: 1.8;
+}
+
+/* 3-cell layout: LHS, =, RHS. = aligned; RHS wraps on right only; top-align when RHS is taller */
+.dd-equation-line.dd-equation-three-cell {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0.5vw;
+}
+
+.dd-eq-cell {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.3vw;
+}
+
+.dd-eq-cell.dd-eq-lhs {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.dd-eq-cell.dd-eq-equal {
+  flex: 0 0 auto;
+  padding: 0 0.5vw;
+  font-size: 1.8vw;
+  color: white;
+}
+
+.dd-eq-cell.dd-eq-rhs {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.dd-eq-cell.dd-eq-rhs .dd-drop-zone {
+  flex-shrink: 0;
 }
 
 /* Drop Zones */
@@ -215,6 +252,14 @@
 
 .dd-draggable.dragging {
   opacity: 0;
+  pointer-events: none;
+}
+
+.drag-drop-panel,
+.dd-draggable,
+.dd-drop-zone {
+  touch-action: none;
+  user-select: none;
 }
 
 /* Drag Ghost */
@@ -230,4 +275,6 @@
   border-radius: 0.8vw;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   opacity: 0.95;
+  pointer-events: none;
+  white-space: nowrap;
 }

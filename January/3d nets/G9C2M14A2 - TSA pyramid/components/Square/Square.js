@@ -18,6 +18,7 @@ const DEEP_BLUE = 0x1e3a8a;
 const MEDIUM_BLUE = 0x3b82f6;
 const FACE_COLOR = 0x1a9cb0; // Teal/cyan for all faces
 const BASE_COLOR = 0x1a9cb0; // Same teal for base
+const HIGHLIGHT_COLOR = 0xffdd00; // Yellow for highlight animation
 
 const faceDefinitions = [
   {
@@ -137,11 +138,16 @@ const SquarePyramid = ({
   showFoldedStateLabels = false, // step 1 folded: show "a", "l" and line on right
   pulsateLabels = null,
   baseHighlight = false,
+  runHighlightAnimation = false,
+  onHighlightAnimationComplete,
 }) => {
   const mountRef = React.useRef(null);
   const svgRef = React.useRef(null);
   const stateRef = React.useRef({}).current;
   const pulsateAnimationRef = React.useRef(null);
+  const highlightAnimationRunRef = React.useRef(false);
+  const onHighlightAnimationCompleteRef = React.useRef(onHighlightAnimationComplete);
+  onHighlightAnimationCompleteRef.current = onHighlightAnimationComplete;
 
   // ---- Update face rotations ----
   const updateFaceRotations = React.useCallback((facePivots, t) => {
@@ -190,6 +196,10 @@ const SquarePyramid = ({
     directionalLight.position.set(-2, 4, 5);
     scene.add(directionalLight);
 
+    // ---- Pyramid group (for Y-rotation in highlight animation) ----
+    const pyramidGroup = new THREE.Group();
+    scene.add(pyramidGroup);
+
     // ---- Base square ----
     const baseGeometry = new THREE.PlaneGeometry(
       SQUARE_BASE_LENGTH,
@@ -201,7 +211,7 @@ const SquarePyramid = ({
     });
     const baseMesh = new THREE.Mesh(baseGeometry, baseMaterial);
     baseMesh.rotation.x = -Math.PI / 2;
-    scene.add(baseMesh);
+    pyramidGroup.add(baseMesh);
 
     const edgeMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
@@ -228,7 +238,7 @@ const SquarePyramid = ({
       const pivot = new THREE.Group();
       pivot.position.copy(def.pivot);
       pivot.add(mesh);
-      scene.add(pivot);
+      pyramidGroup.add(pivot);
 
       return {
         pivot,
@@ -245,6 +255,7 @@ const SquarePyramid = ({
     stateRef.renderer = renderer;
     stateRef.scene = scene;
     stateRef.camera = camera;
+    stateRef.pyramidGroup = pyramidGroup;
     stateRef.isCameraTop = unfoldValue >= 0.999;
     stateRef.cameraTween = null;
     stateRef.frustumSize = frustumSize;
@@ -757,6 +768,72 @@ const SquarePyramid = ({
       }
     }
   }, [blinkFace]);
+
+  // =====================================================================
+  // HIGHLIGHT ANIMATION (step 1: rotate pyramid, highlight each face then base)
+  // =====================================================================
+  React.useEffect(() => {
+    if (!runHighlightAnimation || !stateRef.facePivots || !stateRef.pyramidGroup) return;
+    if (highlightAnimationRunRef.current) return;
+
+    const delayId = setTimeout(() => {
+      if (stateRef.cancelled || !stateRef.facePivots || !stateRef.pyramidGroup) return;
+      highlightAnimationRunRef.current = true;
+
+      const highlightFace = (name) => {
+        const fp = stateRef.facePivots.find((f) => f.name === name);
+        if (fp) fp.material.color.setHex(HIGHLIGHT_COLOR);
+      };
+      const dehighlightFace = (name) => {
+        const fp = stateRef.facePivots.find((f) => f.name === name);
+        if (fp) fp.material.color.setHex(FACE_COLOR);
+      };
+      const highlightBase = () => {
+        if (stateRef.baseMaterial) stateRef.baseMaterial.color.setHex(HIGHLIGHT_COLOR);
+      };
+      const dehighlightBase = () => {
+        if (stateRef.baseMaterial) stateRef.baseMaterial.color.setHex(BASE_COLOR);
+      };
+
+      const rot = stateRef.pyramidGroup.rotation;
+      const D = 0.5;
+      const HOLD = 1;
+      const faceOrder = ["right", "back", "left", "front"];
+      // Four 90° clockwise Y rotations (no reverse 270°); last angle -2π brings front to front
+      const angles = [-Math.PI / 2, -Math.PI, (-3 * Math.PI) / 2, -2 * Math.PI];
+
+      if (typeof gsap === "undefined") {
+        const done = onHighlightAnimationCompleteRef.current;
+        if (done) done();
+        return;
+      }
+
+      const done = onHighlightAnimationCompleteRef.current;
+      const tl = gsap.timeline({
+        onComplete: () => {
+          dehighlightBase();
+          if (done) done();
+        },
+      });
+
+      tl.set(rot, { y: 0, x: 0 });
+      // Rotate Y: right → back → left → front (each 90° clockwise)
+      for (let i = 0; i < faceOrder.length; i++) {
+        tl.to(rot, { y: angles[i], duration: D, ease: "power2.inOut" });
+        tl.call(() => highlightFace(faceOrder[i]));
+        tl.to({}, { duration: HOLD });
+        tl.call(() => dehighlightFace(faceOrder[i]));
+      }
+      // Tilt 90° around X to bring base to front, highlight, then tilt back
+      tl.to(rot, { x: -Math.PI / 2, duration: D, ease: "power2.inOut" });
+      tl.call(highlightBase);
+      tl.to({}, { duration: HOLD });
+      tl.call(dehighlightBase);
+      tl.to(rot, { x: 0, duration: D, ease: "power2.inOut" });
+    }, 500);
+
+    return () => clearTimeout(delayId);
+  }, [runHighlightAnimation]);
 
   // =====================================================================
   // PULSATE LABELS EFFECT

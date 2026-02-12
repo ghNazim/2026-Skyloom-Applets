@@ -410,321 +410,182 @@ const CalculationPanel = ({
     );
   };
   
+  // Helper: one calc row as 3 cells (LHS, =, RHS) for aligned equals
+  const makeCalcRow = (key, lhs, rhs) =>
+    React.createElement("div", { key, className: "calc-row" },
+      React.createElement("div", { className: "calc-cell-lhs" }, lhs),
+      React.createElement("div", { className: "calc-cell-eq" }, "="),
+      React.createElement("div", { className: "calc-cell-rhs" }, rhs)
+    );
+
   // Render calculation rows for Step 5
   const renderStep5Rows = () => {
-    const rows = [];
-    
-    // Equation row with highlighted "Perimeter of A"
     const step5Row = calcData.rows.step5Row;
     const highlightText = calcData.rows.step5HighlightText;
-    
-    const parts = step5Row.split(highlightText);
-    
-    rows.push(
-      React.createElement("div", { key: "row-eq", className: "calc-row" },
-        parts[0],
-        React.createElement("span", { className: "calc-highlight-cyan" }, highlightText),
-        parts[1]
-      )
-    );
-    
-    return rows;
+    const [lhs, rhsWithHighlight] = step5Row.split(" = ");
+    const parts = (rhsWithHighlight || "").split(highlightText);
+    const rhs = [
+      parts[0],
+      React.createElement("span", { key: "h", className: "calc-highlight-cyan" }, highlightText),
+      parts[1]
+    ];
+    return [makeCalcRow("row-eq", lhs, rhs)];
   };
   
   // Render calculation rows for Step 6
   const renderStep6Rows = () => {
     const rows = [];
-    
-    if (!calcState.mcqStep6Answered) {
-      // MCQ not answered yet - show nothing in calc rows
-      return rows;
-    }
-    
-    // MCQ answered - show calculation row
+    if (!calcState.mcqStep6Answered) return rows;
+
+    const [step6Lhs, step6RhsPrefix] = calcData.rows.step6CalcRow.split(" = ");
+    const rhsPrefix = step6RhsPrefix || "3 × ";
+
     if (!calcState.step6BoxClicked) {
-      // Box not clicked yet
-      rows.push(
-        React.createElement("div", { key: "row-calc", className: "calc-row" },
-          calcData.rows.step6CalcRow,
+      rows.push(makeCalcRow("row-calc",
+        step6Lhs,
+        React.createElement(React.Fragment, {},
+          rhsPrefix,
           React.createElement(
             "span",
-            {
-              className: "calc-interactive-box clickable",
-              onClick: handleStep6BoxClick
-            },
+            { className: "calc-interactive-box clickable", onClick: handleStep6BoxClick },
             calcData.rows.step6SideLengthBox
           )
         )
-      );
+      ));
     } else if (!calcState.step6NumpadAnswered) {
-      // Box clicked, show value and numpad input
-      rows.push(
-        React.createElement("div", { key: "row-calc", className: "calc-row" },
-          calcData.rows.step6CalcRow + "18"
-        )
-      );
-      rows.push(
-        React.createElement("div", { key: "row-numpad", className: "calc-row" },
-          calcData.rows.step6ResultRow,
+      rows.push(makeCalcRow("row-calc", step6Lhs, rhsPrefix + "18"));
+      rows.push(makeCalcRow("row-numpad", "",
+        React.createElement(React.Fragment, {},
           React.createElement(
             "span",
-            { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
+            { className: `calc-input-box ${inputError ? "error shake" : ""} ${inputCorrect ? "correct" : ""}` },
             numpadValue || ""
           ),
           " " + calcData.units.cm
         )
-      );
+      ));
     } else {
-      // All done
-      rows.push(
-        React.createElement("div", { key: "row-calc", className: "calc-row" },
-          calcData.rows.step6CalcRow + "18"
-        )
-      );
-      rows.push(
-        React.createElement("div", { key: "row-result", className: "calc-row" },
-          calcData.rows.step6ResultRow + calcState.step6NumpadValue + " " + calcData.units.cm
-        )
-      );
+      rows.push(makeCalcRow("row-calc", step6Lhs, rhsPrefix + "18"));
+      rows.push(makeCalcRow("row-result", "", calcState.step6NumpadValue + " " + calcData.units.cm));
     }
-    
     return rows;
   };
   
   // Render calculation rows for Step 7
   const renderStep7Rows = () => {
-    const rows = [];
     const values = calcData.rows.step7Values;
     const perimeterBText = calcData.rows.step7PerimeterBText || "Perimeter of B";
-    
-    // Build the equation row with interactive boxes
     const boxStates = [
-      calcState.step7BoxIndex > 0, // box 0 clicked
-      calcState.step7BoxIndex > 1, // box 1 clicked
-      calcState.step7BoxIndex > 2  // box 2 clicked
+      calcState.step7BoxIndex > 0,
+      calcState.step7BoxIndex > 1,
+      calcState.step7BoxIndex > 2
     ];
-    
-    rows.push(
-      React.createElement("div", { key: "row-eq", className: "calc-row" },
-        React.createElement(
-          "span",
-          {
-            className: `calc-interactive-box ${boxStates[0] ? 'revealed' : (calcState.step7BoxIndex === 0 ? 'clickable' : '')}`,
-            onClick: () => calcState.step7BoxIndex === 0 && handleStep7BoxClick(0)
-          },
-          boxStates[0] ? values.totalWire : calcData.rows.step7Box1Text
-        ),
-        " = ",
-        React.createElement(
-          "span",
-          {
-            className: `calc-interactive-box ${boxStates[1] ? 'revealed' : (calcState.step7BoxIndex === 1 ? 'clickable' : '')}`,
-            onClick: () => calcState.step7BoxIndex === 1 && handleStep7BoxClick(1)
-          },
-          boxStates[1] ? values.perimeterA : calcData.rows.step7Box2Text
-        ),
-        " + " + perimeterBText + " + ",
-        React.createElement(
-          "span",
-          {
-            className: `calc-interactive-box ${boxStates[2] ? 'revealed' : (calcState.step7BoxIndex === 2 ? 'clickable' : '')}`,
-            onClick: () => calcState.step7BoxIndex === 2 && handleStep7BoxClick(2)
-          },
-          boxStates[2] ? values.remaining : calcData.rows.step7Box3Text
-        )
-      )
+    const box1 = React.createElement(
+      "span",
+      {
+        className: `calc-interactive-box ${boxStates[0] ? "revealed correct" : calcState.step7BoxIndex === 0 ? "clickable" : ""}`,
+        onClick: () => calcState.step7BoxIndex === 0 && handleStep7BoxClick(0)
+      },
+      boxStates[0] ? values.totalWire : calcData.rows.step7Box1Text
     );
-    
-    return rows;
+    const box2 = React.createElement(
+      "span",
+      {
+        className: `calc-interactive-box ${boxStates[1] ? "revealed correct" : calcState.step7BoxIndex === 1 ? "clickable" : ""}`,
+        onClick: () => calcState.step7BoxIndex === 1 && handleStep7BoxClick(1)
+      },
+      boxStates[1] ? values.perimeterA : calcData.rows.step7Box2Text
+    );
+    const box3 = React.createElement(
+      "span",
+      {
+        className: `calc-interactive-box ${boxStates[2] ? "revealed correct" : calcState.step7BoxIndex === 2 ? "clickable" : ""}`,
+        onClick: () => calcState.step7BoxIndex === 2 && handleStep7BoxClick(2)
+      },
+      boxStates[2] ? values.remaining : calcData.rows.step7Box3Text
+    );
+    const rhs = React.createElement(React.Fragment, {}, box2, " + ", perimeterBText, " + ", box3);
+    return [makeCalcRow("row-eq", box1, rhs)];
   };
   
   // Render calculation rows for Step 8
   const renderStep8Rows = () => {
-    const rows = [];
-    
-    if (!calcState.step8BoxClicked) {
-      rows.push(
-        React.createElement("div", { key: "row-eq", className: "calc-row" },
-          React.createElement(
-            "span",
-            {
-              className: "calc-interactive-box clickable",
-              onClick: handleStep8BoxClick
-            },
-            calcData.rows.step8BoxText
-          ),
-          calcData.rows.step8CalcRow
-        )
-      );
-    } else {
-      rows.push(
-        React.createElement("div", { key: "row-eq", className: "calc-row" },
-          calcData.rows.step8SubstituteValue + calcData.rows.step8CalcRow
-        )
-      );
-    }
-    
-    return rows;
+    const [, rhsOnly] = (" " + calcData.rows.step8CalcRow).split(" = ");
+    const rhs = rhsOnly || calcData.rows.step8CalcRow;
+    const lhs = !calcState.step8BoxClicked
+      ? React.createElement("span", { className: "calc-interactive-box clickable", onClick: handleStep8BoxClick }, calcData.rows.step8BoxText)
+      : calcData.rows.step8SubstituteValue;
+    return [makeCalcRow("row-eq", lhs, rhs)];
   };
   
   // Render calculation rows for Step 9
   const renderStep9Rows = () => {
-    const rows = [];
     const perimeterBText = calcData.rows.step9BoxText || "Perimeter of B";
-    
     if (!calcState.step9BoxClicked) {
-      // Show row with Perimeter of B as interactive box
-      const parts = calcData.rows.step9CalcRow1.split(perimeterBText);
-      rows.push(
-        React.createElement("div", { key: "row-eq", className: "calc-row" },
-          parts[0],
-          React.createElement(
-            "span",
-            {
-              className: "calc-interactive-box clickable",
-              onClick: handleStep9BoxClick
-            },
-            perimeterBText
-          ),
-          parts[1]
-        )
+      const [lhs, rhsWithBox] = calcData.rows.step9CalcRow1.split(" = ");
+      const parts = (rhsWithBox || "").split(perimeterBText);
+      const rhs = React.createElement(React.Fragment, {},
+        parts[0],
+        React.createElement("span", { className: "calc-interactive-box clickable", onClick: handleStep9BoxClick }, perimeterBText),
+        parts[1]
       );
-    } else {
-      // Show new calculation row
-      rows.push(
-        React.createElement("div", { key: "row-result", className: "calc-row" },
-          calcData.rows.step9CalcRow2
-        )
-      );
+      return [makeCalcRow("row-eq", lhs, rhs)];
     }
-    
-    return rows;
+    const [lhs2, rhs2] = calcData.rows.step9CalcRow2.split(" = ");
+    return [makeCalcRow("row-result", lhs2, rhs2)];
   };
   
   // Render calculation rows for Step 10
   const renderStep10Rows = () => {
-    const rows = [];
-    
-    // First row is always visible
-    rows.push(
-      React.createElement("div", { key: "row-1", className: "calc-row" },
-        calcData.rows.step10CalcRow1
-      )
-    );
-    
-    // Second row with first numpad
+    const [r1Lhs, r1Rhs] = calcData.rows.step10CalcRow1.split(" = ");
+    const rows = [makeCalcRow("row-1", r1Lhs, r1Rhs)];
+
+    const [r2Lhs, r2RhsPrefix] = calcData.rows.step10CalcRow2.split(" = ");
+    const r2Prefix = (r2RhsPrefix || "").replace(/\s*$/, "") || "200 cm - ";
+
     if (!calcState.step10Numpad1Answered) {
-      rows.push(
-        React.createElement("div", { key: "row-2", className: "calc-row" },
-          calcData.rows.step10CalcRow2,
-          React.createElement(
-            "span",
-            { className: `calc-input-box ${inputError && step10NumpadIndex === 0 ? 'error shake' : ''} ${inputCorrect && step10NumpadIndex === 0 ? 'correct' : ''}` },
-            numpadValue || ""
-          ),
-          " " + calcData.units.cm
-        )
-      );
+      const inputClass = `calc-input-box ${inputError && step10NumpadIndex === 0 ? "error shake" : ""} ${inputCorrect && step10NumpadIndex === 0 ? "correct" : ""}`;
+      rows.push(makeCalcRow("row-2", r2Lhs, React.createElement(React.Fragment, {}, r2Prefix, " ", React.createElement("span", { className: inputClass }, numpadValue || ""), " ", calcData.units.cm)));
     } else {
-      rows.push(
-        React.createElement("div", { key: "row-2", className: "calc-row" },
-          calcData.rows.step10CalcRow2 + calcState.step10Numpad1Value + " " + calcData.units.cm
-        )
-      );
-      
-      // Third row with second numpad
+      rows.push(makeCalcRow("row-2", r2Lhs, r2Prefix + calcState.step10Numpad1Value + " " + calcData.units.cm));
+      const r3Lhs = "";
       if (!calcState.step10Numpad2Answered) {
-        rows.push(
-          React.createElement("div", { key: "row-3", className: "calc-row" },
-            calcData.rows.step10CalcRow3,
-            React.createElement(
-              "span",
-              { className: `calc-input-box ${inputError && step10NumpadIndex === 1 ? 'error shake' : ''} ${inputCorrect && step10NumpadIndex === 1 ? 'correct' : ''}` },
-              numpadValue || ""
-            ),
-            " " + calcData.units.cm
-          )
-        );
+        const inputClass2 = `calc-input-box ${inputError && step10NumpadIndex === 1 ? "error shake" : ""} ${inputCorrect && step10NumpadIndex === 1 ? "correct" : ""}`;
+        rows.push(makeCalcRow("row-3", r3Lhs, React.createElement(React.Fragment, {}, React.createElement("span", { className: inputClass2 }, numpadValue || ""), " ", calcData.units.cm)));
       } else {
-        rows.push(
-          React.createElement("div", { key: "row-3", className: "calc-row" },
-            calcData.rows.step10CalcRow3 + calcState.step10Numpad2Value + " " + calcData.units.cm
-          )
-        );
+        rows.push(makeCalcRow("row-3", r3Lhs, calcState.step10Numpad2Value + " " + calcData.units.cm));
       }
     }
-    
     return rows;
   };
   
   // Render calculation rows for Step 11
   const renderStep11Rows = () => {
-    const rows = [];
-    
-    if (calcState.mcqStep11Answered) {
-      rows.push(
-        React.createElement("div", { key: "row-eq", className: "calc-row" },
-          calcData.rows.step11CalcRow
-        )
-      );
-    }
-    
-    return rows;
+    if (!calcState.mcqStep11Answered) return [];
+    const [lhs, rhs] = calcData.rows.step11CalcRow.split(" = ");
+    return [makeCalcRow("row-eq", lhs, rhs)];
   };
   
   // Render calculation rows for Step 12
   const renderStep12Rows = () => {
-    const rows = [];
-    
+    const step12Lhs = (calcData.rows.step12ResultRow || "").replace(/\s*=\s*$/, "").trim() || "Side length of B";
     if (!calcState.step12BoxClicked) {
-      // Show interactive box
-      rows.push(
-        React.createElement("div", { key: "row-eq", className: "calc-row" },
-          calcData.rows.step12CalcRow1,
-          React.createElement(
-            "span",
-            {
-              className: "calc-interactive-box clickable",
-              onClick: handleStep12BoxClick
-            },
-            calcData.rows.step12BoxText
-          ),
-          calcData.rows.step12CalcRow2
-        )
-      );
-    } else if (!calcState.step12NumpadAnswered) {
-      // Box clicked, show substituted value and numpad input
-      rows.push(
-        React.createElement("div", { key: "row-eq", className: "calc-row" },
-          calcData.rows.step12CalcRow1 + calcData.rows.step12SubstituteValue + calcData.rows.step12CalcRow2
-        )
-      );
-      rows.push(
-        React.createElement("div", { key: "row-numpad", className: "calc-row" },
-          calcData.rows.step12ResultRow,
-          React.createElement(
-            "span",
-            { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
-            numpadValue || ""
-          ),
-          " " + calcData.units.cm
-        )
-      );
-    } else {
-      // All done
-      rows.push(
-        React.createElement("div", { key: "row-eq", className: "calc-row" },
-          calcData.rows.step12CalcRow1 + calcData.rows.step12SubstituteValue + calcData.rows.step12CalcRow2
-        )
-      );
-      rows.push(
-        React.createElement("div", { key: "row-result", className: "calc-row" },
-          calcData.rows.step12ResultRow + calcState.step12NumpadValue + " " + calcData.units.cm
-        )
-      );
+      const rhs = React.createElement(React.Fragment, {}, React.createElement("span", { className: "calc-interactive-box clickable", onClick: handleStep12BoxClick }, calcData.rows.step12BoxText), calcData.rows.step12CalcRow2);
+      return [makeCalcRow("row-eq", step12Lhs, rhs)];
     }
-    
-    return rows;
+    const eqFull = calcData.rows.step12CalcRow1 + calcData.rows.step12SubstituteValue + calcData.rows.step12CalcRow2;
+    const [, eqRhs] = eqFull.split(" = ");
+    if (!calcState.step12NumpadAnswered) {
+      const inputClass = `calc-input-box ${inputError ? "error shake" : ""} ${inputCorrect ? "correct" : ""}`;
+      return [
+        makeCalcRow("row-eq", step12Lhs, eqRhs),
+        makeCalcRow("row-numpad", step12Lhs, React.createElement(React.Fragment, {}, React.createElement("span", { className: inputClass }, numpadValue || ""), " ", calcData.units.cm))
+      ];
+    }
+    return [
+      makeCalcRow("row-eq", step12Lhs, eqRhs),
+      makeCalcRow("row-result", step12Lhs, calcState.step12NumpadValue + " " + calcData.units.cm)
+    ];
   };
   
   // Render right panel content

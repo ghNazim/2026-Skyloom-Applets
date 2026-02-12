@@ -3,6 +3,8 @@ const MainCanvas = ({
   unfoldValue,
   isUnfolded,
   mcqAnswered,
+  highlightAnimationDone,
+  onHighlightAnimationComplete,
   onUnfold,
   onMcqCorrect,
   onMcqWrong,
@@ -34,7 +36,9 @@ const MainCanvas = ({
         return {
           ...baseProps,
           labelMode: isUnfolded ? "side" : "none",
-          showFoldedStateLabels: !isUnfolded,
+          showFoldedStateLabels: !isUnfolded && highlightAnimationDone,
+          runHighlightAnimation: !isUnfolded,
+          onHighlightAnimationComplete,
         };
       case 2:
         return {
@@ -229,8 +233,9 @@ const MainCanvas = ({
         React.createElement(SquarePyramid, visualProps)
       ),
 
-      // ---- Step 1 legend (right middle of main-row) ----
+      // ---- Step 1 legend (right middle of main-row); hidden until highlight animation done ----
       step === 1 &&
+        highlightAnimationDone &&
         React.createElement("div", {
           className: "step1-legend",
           dangerouslySetInnerHTML: {
@@ -259,9 +264,10 @@ const MainCanvas = ({
       "div",
       { className: "action-row" },
 
-      // Unfold button (step 1, before unfold)
+      // Unfold button (step 1, before unfold); hidden until highlight animation done
       step === 1 &&
         !isUnfolded &&
+        highlightAnimationDone &&
         React.createElement(
           "button",
           {

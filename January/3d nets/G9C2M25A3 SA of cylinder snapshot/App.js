@@ -1,3 +1,6 @@
+const HIGHLIGHT_DURATION = 1100;
+const DELAY_BEFORE_HIGHLIGHT = 500;
+
 const App = () => {
   const { useState, useRef } = React;
 
@@ -6,6 +9,8 @@ const App = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [questionText, setQuestionText] = useState(APP_DATA.initial.q);
   const [unfoldValue, setUnfoldValue] = useState(0);
+  const [highlightPhase, setHighlightPhase] = useState(null); // 'top' | 'bottom' | 'curved' | null
+  const highlightTimeoutsRef = useRef([]);
 
   // ---- Visual flags for CylinderVisual ----
   const [showHeightArrow, setShowHeightArrow] = useState(false);
@@ -31,6 +36,12 @@ const App = () => {
   const isAnimatingRef = useRef(false);
   const selectedButtonRef = useRef(null);
 
+  const clearHighlightTimeouts = () => {
+    (highlightTimeoutsRef.current || []).forEach(clearTimeout);
+    highlightTimeoutsRef.current = [];
+    setHighlightPhase(null);
+  };
+
   // ==================================================================
   // RESET: fold immediately, clear all visual state
   // ==================================================================
@@ -39,6 +50,7 @@ const App = () => {
       timelineRef.current.kill();
       timelineRef.current = null;
     }
+    clearHighlightTimeouts();
     setUnfoldValue(0);
     setShowHeightArrow(false);
     setShowWidthArrow(false);
@@ -299,8 +311,20 @@ const App = () => {
     isAnimatingRef.current = true;
     setIsAnimating(true);
 
-    // Delay to ensure React applies reset state before animation starts
-    setTimeout(() => runLateralAnimation(), 50);
+    // Show cylinder default, then after delay start highlight (curved only), then unfold
+    highlightTimeoutsRef.current = [];
+    highlightTimeoutsRef.current.push(
+      setTimeout(() => {
+        setHighlightPhase("curved");
+        highlightTimeoutsRef.current.push(
+          setTimeout(() => {
+            setHighlightPhase(null);
+            highlightTimeoutsRef.current = [];
+            runLateralAnimation();
+          }, HIGHLIGHT_DURATION)
+        );
+      }, DELAY_BEFORE_HIGHLIGHT)
+    );
   };
 
   const handleTotalClick = () => {
@@ -314,7 +338,26 @@ const App = () => {
     isAnimatingRef.current = true;
     setIsAnimating(true);
 
-    setTimeout(() => runTotalAnimation(), 50);
+    // Show cylinder default, then after delay highlight all 3 faces (top -> bottom -> curved), then unfold
+    highlightTimeoutsRef.current = [];
+    highlightTimeoutsRef.current.push(
+      setTimeout(() => {
+        setHighlightPhase("top");
+        highlightTimeoutsRef.current.push(
+          setTimeout(() => setHighlightPhase("bottom"), HIGHLIGHT_DURATION)
+        );
+        highlightTimeoutsRef.current.push(
+          setTimeout(() => setHighlightPhase("curved"), HIGHLIGHT_DURATION * 2)
+        );
+        highlightTimeoutsRef.current.push(
+          setTimeout(() => {
+            setHighlightPhase(null);
+            highlightTimeoutsRef.current = [];
+            runTotalAnimation();
+          }, HIGHLIGHT_DURATION * 3)
+        );
+      }, DELAY_BEFORE_HIGHLIGHT)
+    );
   };
 
   // ==================================================================
@@ -334,6 +377,7 @@ const App = () => {
       React.createElement(MainCanvas, {
         selectedButton,
         isAnimating,
+        highlightPhase,
         onLateralClick: handleLateralClick,
         onTotalClick: handleTotalClick,
         unfoldValue,

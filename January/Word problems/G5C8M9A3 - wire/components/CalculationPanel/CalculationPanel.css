@@ -63,16 +63,46 @@
 }
 
 .calc-rows-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1vw;
+  display: table;
   width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  border-spacing: 0 1vw;
 }
 
 .calc-row {
+  display: table-row;
   font-size: 2vw;
   color: white;
   line-height: 1.8;
+}
+
+.calc-cell-lhs,
+.calc-cell-eq,
+.calc-cell-rhs {
+  display: table-cell;
+  vertical-align: top;
+  padding-right: 0.5vw;
+}
+
+.calc-cell-lhs {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.calc-cell-eq {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+  padding-left: 0.5vw;
+  padding-right: 0.5vw;
+}
+
+.calc-cell-rhs {
+  width: auto;
+  min-width: 0;
+  text-align: left;
 }
 
 /* Cyan highlight for Perimeter of A in Step 5 */
@@ -113,6 +143,14 @@
   background-color: transparent;
   border: none;
   color: white;
+}
+
+.calc-interactive-box.revealed.correct {
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  background-color: rgba(76, 175, 80, 0.15);
+  border-radius: 0.5vw;
+  padding: 0.2vw 0.5vw;
 }
 
 /* Input box for numpad */
@@ -222,9 +260,10 @@
 }
 
 .findings-list li {
-  font-size: 1.6vw;
+  font-size: 1.5vw;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
+  white-space: pre-line;
 }
 
 .calc-input-div {
@@ -242,14 +281,14 @@
   display: flex;
   flex-direction: column;
   gap: 1vw;
-  padding: 1vw;
+  /* padding: 1vw; */
 }
 
 .calc-mcq-title {
-  font-size: 1.6vw;
+  font-size: 2vw;
   color: white;
   text-align: center;
-  margin-bottom: 1vw;
+  /* margin-bottom: 1vw; */
   line-height: 1.4;
 }
 
@@ -261,7 +300,7 @@
 
 .calc-mcq-option {
   padding: 0.8vw 1.5vw;
-  font-size: 1.6vw;
+  font-size: 2vw;
   font-weight: 500;
   cursor: pointer;
   border: none;
@@ -269,7 +308,7 @@
   color: #1a1a2e;
   border-radius: 0.6vw;
   transition: all 0.3s ease;
-  text-align: left;
+  text-align: center;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
 }
 

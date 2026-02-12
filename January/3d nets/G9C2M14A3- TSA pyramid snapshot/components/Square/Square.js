@@ -18,6 +18,7 @@ const DEEP_BLUE = 0x1e3a8a;
 const MEDIUM_BLUE = 0x3b82f6;
 const FACE_COLOR = 0x1a9cb0; // Teal/cyan for all faces
 const BASE_COLOR = 0x1a9cb0; // Same teal for base
+const HIGHLIGHT_COLOR = 0xffdd00; // Yellow for highlight animation
 
 const faceDefinitions = [
   {
@@ -135,13 +136,20 @@ const SquarePyramid = ({
   dehighlightTrianglesForBase = false, // step 6: all triangles opacity 0.3
   triangleAreaLabelsInSideMode = false, // step 4: triangles show area labels only
   showFoldedStateLabels = false, // step 1 folded: show "a", "l" and line on right
+  showFoldedLabelsVisible = false, // only show folded labels after highlight ends (hide until then)
   pulsateLabels = null,
   baseHighlight = false,
+  highlightAnimationTrigger = null, // "lateral" = 4 faces only, "total" = 5 faces
+  onHighlightAnimationComplete,
 }) => {
   const mountRef = React.useRef(null);
   const svgRef = React.useRef(null);
   const stateRef = React.useRef({}).current;
   const pulsateAnimationRef = React.useRef(null);
+  const ranLateralRef = React.useRef(false);
+  const ranTotalRef = React.useRef(false);
+  const onHighlightAnimationCompleteRef = React.useRef(onHighlightAnimationComplete);
+  onHighlightAnimationCompleteRef.current = onHighlightAnimationComplete;
 
   // ---- Update face rotations ----
   const updateFaceRotations = React.useCallback((facePivots, t) => {
@@ -190,6 +198,10 @@ const SquarePyramid = ({
     directionalLight.position.set(-2, 4, 5);
     scene.add(directionalLight);
 
+    // ---- Pyramid group (for Y/X rotation in highlight animation) ----
+    const pyramidGroup = new THREE.Group();
+    scene.add(pyramidGroup);
+
     // ---- Base square ----
     const baseGeometry = new THREE.PlaneGeometry(
       SQUARE_BASE_LENGTH,
@@ -201,7 +213,7 @@ const SquarePyramid = ({
     });
     const baseMesh = new THREE.Mesh(baseGeometry, baseMaterial);
     baseMesh.rotation.x = -Math.PI / 2;
-    scene.add(baseMesh);
+    pyramidGroup.add(baseMesh);
 
     const edgeMaterial = new THREE.LineBasicMaterial({
       color: 0xffffff,
@@ -228,7 +240,7 @@ const SquarePyramid = ({
       const pivot = new THREE.Group();
       pivot.position.copy(def.pivot);
       pivot.add(mesh);
-      scene.add(pivot);
+      pyramidGroup.add(pivot);
 
       return {
         pivot,
@@ -245,6 +257,7 @@ const SquarePyramid = ({
     stateRef.renderer = renderer;
     stateRef.scene = scene;
     stateRef.camera = camera;
+    stateRef.pyramidGroup = pyramidGroup;
     stateRef.isCameraTop = unfoldValue >= 0.999;
     stateRef.cameraTween = null;
     stateRef.frustumSize = frustumSize;
@@ -256,6 +269,7 @@ const SquarePyramid = ({
     stateRef.pulsateLabels = pulsateLabels;
     stateRef.triangleAreaLabelsInSideMode = triangleAreaLabelsInSideMode;
     stateRef.showFoldedStateLabels = showFoldedStateLabels;
+    stateRef.showFoldedLabelsVisible = showFoldedLabelsVisible;
 
     // ---- Project 3D → 2D ----
     const project3DTo2D = (vector3) => {
@@ -283,7 +297,10 @@ const SquarePyramid = ({
       const isUnfolded = currentUnfoldValue >= 0.999;
       const currentLabelMode = stateRef.labelMode || "none";
       const currentPulsateLabels = stateRef.pulsateLabels || [];
-      const showFolded = stateRef.showFoldedStateLabels && currentUnfoldValue < 0.01;
+      const showFolded =
+        stateRef.showFoldedStateLabels &&
+        currentUnfoldValue < 0.01 &&
+        stateRef.showFoldedLabelsVisible;
 
       // ---- Step 1 FOLDED state only: "a", "l" and height line (right triangle) ----
       // All positions/offsets use constants at top of file: FOLDED_A_POS, FOLDED_L_OFFSET, etc.
@@ -593,11 +610,15 @@ const SquarePyramid = ({
   }, [updateFaceRotations]);
 
   // =====================================================================
-  // UNFOLD EFFECT: Update face rotations
+  // UNFOLD EFFECT: Update face rotations; reset pyramid group rotation when folded
   // =====================================================================
   React.useEffect(() => {
     updateFaceRotations(stateRef.facePivots, unfoldValue);
     stateRef.unfoldValue = unfoldValue;
+    if (unfoldValue < 0.01 && stateRef.pyramidGroup) {
+      stateRef.pyramidGroup.rotation.x = 0;
+      stateRef.pyramidGroup.rotation.y = 0;
+    }
     if (stateRef.updateLabels) {
       stateRef.updateLabels(unfoldValue);
     }
@@ -655,8 +676,9 @@ const SquarePyramid = ({
     stateRef.labelMode = labelMode;
     stateRef.triangleAreaLabelsInSideMode = triangleAreaLabelsInSideMode;
     stateRef.showFoldedStateLabels = showFoldedStateLabels;
+    stateRef.showFoldedLabelsVisible = showFoldedLabelsVisible;
     if (stateRef.updateLabels) stateRef.updateLabels(stateRef.unfoldValue);
-  }, [labelMode, triangleAreaLabelsInSideMode, showFoldedStateLabels]);
+  }, [labelMode, triangleAreaLabelsInSideMode, showFoldedStateLabels, showFoldedLabelsVisible]);
 
   // =====================================================================
   // DEHIGHLIGHT FACES (step 3: highlight left by dehighlighting others)
@@ -757,6 +779,72 @@ const SquarePyramid = ({
       }
     }
   }, [blinkFace]);
+
+  // =====================================================================
+  // HIGHLIGHT ANIMATION: rotate pyramid, highlight faces one by one (lateral = 4 faces, total = 5)
+  // =====================================================================
+  React.useEffect(() => {
+    const trigger = highlightAnimationTrigger;
+    if (!trigger || !stateRef.facePivots || !stateRef.pyramidGroup) return;
+    if (trigger === "lateral" && ranLateralRef.current) return;
+    if (trigger === "total" && ranTotalRef.current) return;
+
+    const includeBase = trigger === "total";
+    if (trigger === "lateral") ranLateralRef.current = true;
+    if (trigger === "total") ranTotalRef.current = true;
+
+    const highlightFace = (name) => {
+      const fp = stateRef.facePivots.find((f) => f.name === name);
+      if (fp) fp.material.color.setHex(HIGHLIGHT_COLOR);
+    };
+    const dehighlightFace = (name) => {
+      const fp = stateRef.facePivots.find((f) => f.name === name);
+      if (fp) fp.material.color.setHex(FACE_COLOR);
+    };
+    const highlightBase = () => {
+      if (stateRef.baseMaterial) stateRef.baseMaterial.color.setHex(HIGHLIGHT_COLOR);
+    };
+    const dehighlightBase = () => {
+      if (stateRef.baseMaterial) stateRef.baseMaterial.color.setHex(BASE_COLOR);
+    };
+
+    const rot = stateRef.pyramidGroup.rotation;
+    const D = 0.5;
+    const HOLD = 1;
+    const faceOrder = ["right", "back", "left", "front"];
+    const angles = [-Math.PI / 2, -Math.PI, (-3 * Math.PI) / 2, -2 * Math.PI];
+
+    if (typeof gsap === "undefined") {
+      const cb = onHighlightAnimationCompleteRef.current;
+      if (cb) cb(trigger);
+      return;
+    }
+
+    const cb = onHighlightAnimationCompleteRef.current;
+    const tl = gsap.timeline({
+      onComplete: () => {
+        if (includeBase) dehighlightBase();
+        if (cb) cb(trigger);
+      },
+    });
+
+    tl.set(rot, { y: 0, x: 0 });
+    for (let i = 0; i < faceOrder.length; i++) {
+      tl.to(rot, { y: angles[i], duration: D, ease: "power2.inOut" });
+      tl.call(() => highlightFace(faceOrder[i]));
+      tl.to({}, { duration: HOLD });
+      tl.call(() => dehighlightFace(faceOrder[i]));
+    }
+    if (includeBase) {
+      tl.to(rot, { x: -Math.PI / 2, duration: D, ease: "power2.inOut" });
+      tl.call(highlightBase);
+      tl.to({}, { duration: HOLD });
+      tl.call(dehighlightBase);
+      tl.to(rot, { x: 0, duration: D, ease: "power2.inOut" });
+    } else {
+      tl.set(rot, { y: 0 });
+    }
+  }, [highlightAnimationTrigger]);
 
   // =====================================================================
   // PULSATE LABELS EFFECT

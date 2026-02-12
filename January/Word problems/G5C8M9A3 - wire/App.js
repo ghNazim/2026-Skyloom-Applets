@@ -547,7 +547,9 @@ const App = () => {
     const targetStep = currentStep - 1;
     resetStateForStep(targetStep);
     setCurrentStep(targetStep);
-    setIsNextDisabled(true);
+    // Next button: enabled only if target step has nextEnabled (e.g. steps 0, 2, 5, 13)
+    const targetStepData = APP_DATA.steps[targetStep];
+    setIsNextDisabled(targetStepData ? !targetStepData.nextEnabled : true);
   };
 
   // Callback from components to enable Next button

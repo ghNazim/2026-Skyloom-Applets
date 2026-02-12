@@ -59,10 +59,10 @@ const DATA = {
       mcqStep3: {
         title: "To find the side length of triangle B, what do we need to find first?",
         options: [
-          "A. The area of triangle B",
-          "B. The height of triangle B",
-          "C. The perimeter of triangle B",
-          "D. The remaining length of the wire"
+          "The area of triangle B",
+          "The height of triangle B",
+          "The perimeter of triangle B",
+          "The remaining length of the wire"
         ],
         answerIndex: 2
       },
@@ -98,10 +98,10 @@ const DATA = {
       mcqStep6: {
         title: "What is the formula to find the perimeter of an equilateral triangle?",
         options: [
-          "A. Perimeter = side length + 2",
-          "B. Perimeter = 2 × side length",
-          "C. Perimeter = 3 × side length",
-          "D. Perimeter = side length × side length"
+          "Perimeter = side length + 2",
+          "Perimeter = 2 × side length",
+          "Perimeter = 3 × side length",
+          "Perimeter = side length × side length"
         ],
         answerIndex: 2
       },
@@ -110,10 +110,10 @@ const DATA = {
       mcqStep11: {
         title: "To find the side of an equilateral triangle, which formula will you use?",
         options: [
-          "A. Side length = Perimeter × 3",
-          "B. Side length = Perimeter − 3",
-          "C. Side length = Perimeter ÷ 3",
-          "D. Side length = Perimeter + 3"
+          "Side length = Perimeter × 3",
+          "Side length = Perimeter − 3",
+          "Side length = Perimeter ÷ 3",
+          "Side length = Perimeter + 3"
         ],
         answerIndex: 2
       },
@@ -353,20 +353,17 @@ const DATA = {
           "assets/compre1.png",
           "assets/compre2.png",
           "assets/compre3.png",
-          "assets/compre4.png",
-          "assets/compre5.png"
+          "assets/compre4.png"
         ],
         given: {
           title: "Diketahui,",
           data: [
             "Panjang kawat total = 2 m",
-            "Segitiga A: Segitiga sama sisi dengan panjang sisi 18 cm",
-            "Segitiga B: Segitiga sama sisi",
+            "Segitiga A: Segitiga sama sisi dengan panjang sisi 18 cm\nSegitiga B: Segitiga sama sisi",
             "Sisa panjang kawat = 68 cm"
           ],
           highlights: [
             "Kawat sepanjang 2 meter",
-            "panjang sisi seperti yang ditunjukkan pada gambar",
             "dua segitiga sama sisi",
             "sisa panjang kawat adalah 68 cm"
           ]
@@ -384,7 +381,7 @@ const DATA = {
       
       splash: {
         step2: {
-          image: "assets/compre5.png",
+          image: "assets/compre4.png",
           text: "<blue>✓ Informasi dikumpulkan dari soal.</blue><br><yellow>Selanjutnya - Mari ingat rumus keliling segitiga sama sisi.</yellow>"
         }
       },
@@ -476,7 +473,7 @@ const DATA = {
           step8BoxText: "2 m",
           step8SubstituteValue: "200 cm",
           
-          step9CalcRow1: "2 m = 54 cm + Keliling B + 68 cm",
+          step9CalcRow1: "200 cm = 54 cm + Keliling B + 68 cm",
           step9CalcRow2: "Keliling B = 200 cm - (54 cm + 68 cm)",
           step9BoxText: "Keliling B",
           
@@ -576,7 +573,7 @@ const DATA = {
           navTextNumpad: "Gunakan numpad untuk mengisi jawaban dan klik ✓ .",
           navTextBox: "Ketuk kotak yang disorot.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/compute2.png",
+          image: "assets/compute1.png",
           isMcqStep6: true,
           nextEnabled: false
         },

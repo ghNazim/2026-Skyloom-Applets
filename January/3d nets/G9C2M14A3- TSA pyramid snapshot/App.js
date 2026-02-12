@@ -23,6 +23,12 @@ const App = () => {
   const [baseFillTransparent, setBaseFillTransparent] = useState(false);
   const [labelMode, setLabelMode] = useState("none");
 
+  // ---- Highlight animation trigger: "lateral" = 4 faces, "total" = 5 faces ----
+  const [highlightTrigger, setHighlightTrigger] = useState(null);
+
+  // ---- Folded state labels ("a", "l", yellow line): show only after highlight ends, hide when unfold starts ----
+  const [showFoldedLabelsVisible, setShowFoldedLabelsVisible] = useState(false);
+
   // ---- Formula states ----
   const [formula1Visible, setFormula1Visible] = useState(false);
   const [formula2Visible, setFormula2Visible] = useState(false);
@@ -43,7 +49,7 @@ const App = () => {
     };
   }, []);
 
-  // ===== BUTTON 1 CLICK HANDLER =====
+  // ===== BUTTON 1 CLICK HANDLER (Lateral) =====
   const handleBtn1Click = () => {
     if (!btn1Enabled || btn1Clicked) return;
     playSound("click");
@@ -58,40 +64,45 @@ const App = () => {
       setText1Display,
       30,
       () => {
-        // [delay 0.5s] after text finishes
+        // [delay 0.5s] after text finishes → start highlight (4 lateral faces only)
         setTimeout(() => {
-          // 2. Unfold pyramid, show side labels, make base transparent
-          const anim = { value: 0 };
-          unfoldAnimRef.current = gsap.to(anim, {
-            value: 1,
-            duration: 2,
-            ease: "power2.inOut",
-            onUpdate: () => setUnfoldValue(anim.value),
-            onComplete: () => {
-              setIsUnfolded(true);
-              setUnfoldValue(1);
-              setLabelMode("side");
-              setBaseFillTransparent(true);
-
-              // [delay 0.5s] after unfold
-              setTimeout(() => {
-                // 3. Show formula row 1 with opacity animation
-                setFormula1Visible(true);
-
-                // After formula appears, enable button 2
-                setTimeout(() => {
-                  setBtn2Enabled(true);
-                  setShowTap2(true);
-                }, 600);
-              }, 500);
-            },
-          });
+          setHighlightTrigger("lateral");
         }, 500);
       }
     );
   };
 
-  // ===== BUTTON 2 CLICK HANDLER =====
+  // Called when highlight animation completes (from SquarePyramid)
+  const handleHighlightComplete = (type) => {
+    setShowFoldedLabelsVisible(true); // show "a", "l" and yellow line now that highlight is over
+    // [delay 0.5s] after highlight → unfold
+    setTimeout(() => {
+      const anim = { value: 0 };
+      unfoldAnimRef.current = gsap.to(anim, {
+        value: 1,
+        duration: 2,
+        ease: "power2.inOut",
+        onUpdate: () => setUnfoldValue(anim.value),
+        onComplete: () => {
+          setIsUnfolded(true);
+          setUnfoldValue(1);
+          setLabelMode("side");
+          setBaseFillTransparent(true);
+
+          // [delay 0.5s] after unfold → formula row 1
+          setTimeout(() => {
+            setFormula1Visible(true);
+            setTimeout(() => {
+              setBtn2Enabled(true);
+              setShowTap2(true);
+            }, 600);
+          }, 500);
+        },
+      });
+    }, 500);
+  };
+
+  // ===== BUTTON 2 CLICK HANDLER (Total) =====
   const handleBtn2Click = () => {
     if (!btn2Enabled || btn2Clicked) return;
     playSound("click");
@@ -99,27 +110,60 @@ const App = () => {
     setBtn2Enabled(false);
     setShowTap2(false);
 
-    // 1. Show text box 2 with typewriter (character by character, 30ms)
+    // 1. Immediately fold pyramid to default (no animation); hide folded labels until highlight ends
+    setUnfoldValue(0);
+    setIsUnfolded(false);
+    setBaseFillTransparent(false);
+    setLabelMode("none");
+    setShowFoldedLabelsVisible(false);
+
+    // 2. Show text box 2 with typewriter
     setText2Visible(true);
     typewriterRef.current = typewriterEffect(
       APP_DATA.texts[1],
       setText2Display,
       30,
       () => {
-        // [delay 0.5s] after text finishes
+        // [delay 0.5s] after text finishes → start highlight (all 5 faces)
         setTimeout(() => {
-          // 2. Color the square base (play click sound)
-          setBaseFillTransparent(false);
-          playSound("click");
-
-          // [delay 0.5s] after base colored
-          setTimeout(() => {
-            // 3. Show formula row 2 with opacity animation
-            setFormula2Visible(true);
-          }, 500);
+          setHighlightTrigger("total");
         }, 500);
       }
     );
+  };
+
+  // Called when "total" highlight animation completes
+  const handleTotalHighlightComplete = () => {
+    setShowFoldedLabelsVisible(true); // show "a", "l" and yellow line now that highlight is over
+    // [delay 0.5s] after highlight → unfold
+    setTimeout(() => {
+      const anim = { value: 0 };
+      unfoldAnimRef.current = gsap.to(anim, {
+        value: 1,
+        duration: 2,
+        ease: "power2.inOut",
+        onUpdate: () => setUnfoldValue(anim.value),
+        onComplete: () => {
+          setIsUnfolded(true);
+          setUnfoldValue(1);
+          setLabelMode("side");
+          // Total flow: keep base visible throughout (do not set transparent)
+
+          // [delay 0.5s] then play click and show formula 2
+          setTimeout(() => {
+            playSound("click");
+            setTimeout(() => {
+              setFormula2Visible(true);
+            }, 500);
+          }, 500);
+        },
+      });
+    }, 500);
+  };
+
+  const onHighlightAnimationComplete = (type) => {
+    if (type === "lateral") handleHighlightComplete(type);
+    if (type === "total") handleTotalHighlightComplete();
   };
 
   // ===== RENDER =====
@@ -146,6 +190,9 @@ const App = () => {
         formula2Visible,
         showTap1,
         showTap2,
+        highlightTrigger,
+        showFoldedLabelsVisible,
+        onHighlightAnimationComplete,
         onBtn1Click: handleBtn1Click,
         onBtn2Click: handleBtn2Click,
         greenColor: SEA_GREEN,

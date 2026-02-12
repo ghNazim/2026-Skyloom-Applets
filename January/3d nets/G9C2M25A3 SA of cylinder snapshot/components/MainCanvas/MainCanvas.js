@@ -1,6 +1,7 @@
 const MainCanvas = ({
   selectedButton,
   isAnimating,
+  highlightPhase,
   onLateralClick,
   onTotalClick,
   unfoldValue,
@@ -101,6 +102,7 @@ const MainCanvas = ({
           showBaseAreaLabel,
           dehighlightBases,
           dehighlightSurface,
+          highlightPhase,
         })
       ),
 

@@ -7,6 +7,7 @@ const T = {
     surfaceColor: 0xfab868, // warm peach for curved surface
     baseColor: 0xf87171, // salmon/coral for circular bases
     surfaceOpacity: 1,
+    highlightColor: 0xffff00, // yellow for highlight animation
   },
 };
 
@@ -32,6 +33,7 @@ const CylinderVisual = ({
   showBaseAreaLabel = false,
   dehighlightBases = false,
   dehighlightSurface = false,
+  highlightPhase = null, // 'top' | 'bottom' | 'curved' when highlighting before unfold
 }) => {
   const radius = CYL_RADIUS;
   const height = CYL_HEIGHT;
@@ -606,7 +608,38 @@ const CylinderVisual = ({
   ]);
 
   // =====================================================================
-  // DEHIGHLIGHT / HIGHLIGHT EFFECT
+  // HIGHLIGHT ANIMATION (before unfold: top -> bottom -> curved or curved only)
+  // =====================================================================
+  useEffect(() => {
+    const { topBaseMaterial, bottomBaseMaterial, surfaceMaterial } =
+      threeRef.current;
+    if (!topBaseMaterial || !bottomBaseMaterial || !surfaceMaterial) return;
+
+    const baseColor = T.parameters.baseColor;
+    const surfaceColor = T.parameters.surfaceColor;
+    const highlightColor = T.parameters.highlightColor;
+
+    if (highlightPhase === "top") {
+      topBaseMaterial.color.setHex(highlightColor);
+      bottomBaseMaterial.color.setHex(baseColor);
+      surfaceMaterial.color.setHex(surfaceColor);
+    } else if (highlightPhase === "bottom") {
+      topBaseMaterial.color.setHex(baseColor);
+      bottomBaseMaterial.color.setHex(highlightColor);
+      surfaceMaterial.color.setHex(surfaceColor);
+    } else if (highlightPhase === "curved") {
+      topBaseMaterial.color.setHex(baseColor);
+      bottomBaseMaterial.color.setHex(baseColor);
+      surfaceMaterial.color.setHex(highlightColor);
+    } else {
+      topBaseMaterial.color.setHex(baseColor);
+      bottomBaseMaterial.color.setHex(baseColor);
+      surfaceMaterial.color.setHex(surfaceColor);
+    }
+  }, [highlightPhase]);
+
+  // =====================================================================
+  // DEHIGHLIGHT / HIGHLIGHT OPACITY EFFECT
   // =====================================================================
   useEffect(() => {
     const { topBaseMaterial, bottomBaseMaterial, surfaceMaterial } =
@@ -621,18 +654,38 @@ const CylinderVisual = ({
     surfaceMaterial.transparent = false;
     surfaceMaterial.opacity = 1;
 
-    if (dehighlightSurface) {
-      surfaceMaterial.transparent = true;
-      surfaceMaterial.opacity = 0.2;
+    if (highlightPhase) {
+      // During highlight: highlighted face full opacity, others at 0.15
+      const dehighlightOpacity = 0.15;
+      if (highlightPhase === "top") {
+        bottomBaseMaterial.transparent = true;
+        bottomBaseMaterial.opacity = dehighlightOpacity;
+        surfaceMaterial.transparent = true;
+        surfaceMaterial.opacity = dehighlightOpacity;
+      } else if (highlightPhase === "bottom") {
+        topBaseMaterial.transparent = true;
+        topBaseMaterial.opacity = dehighlightOpacity;
+        surfaceMaterial.transparent = true;
+        surfaceMaterial.opacity = dehighlightOpacity;
+      } else if (highlightPhase === "curved") {
+        topBaseMaterial.transparent = true;
+        topBaseMaterial.opacity = dehighlightOpacity;
+        bottomBaseMaterial.transparent = true;
+        bottomBaseMaterial.opacity = dehighlightOpacity;
+      }
+    } else {
+      if (dehighlightSurface) {
+        surfaceMaterial.transparent = true;
+        surfaceMaterial.opacity = 0.2;
+      }
+      if (dehighlightBases) {
+        topBaseMaterial.transparent = true;
+        topBaseMaterial.opacity = 0.2;
+        bottomBaseMaterial.transparent = true;
+        bottomBaseMaterial.opacity = 0.2;
+      }
     }
-
-    if (dehighlightBases) {
-      topBaseMaterial.transparent = true;
-      topBaseMaterial.opacity = 0.2;
-      bottomBaseMaterial.transparent = true;
-      bottomBaseMaterial.opacity = 0.2;
-    }
-  }, [dehighlightBases, dehighlightSurface]);
+  }, [dehighlightBases, dehighlightSurface, highlightPhase]);
 
   // =====================================================================
   // RENDER
