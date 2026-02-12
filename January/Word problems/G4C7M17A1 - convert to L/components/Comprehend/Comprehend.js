@@ -8,32 +8,39 @@ const Comprehend = ({ step, substep }) => {
     const toFindData = comprehendData.toFind.data;
     const totalGiven = givenData.length;
     
-    // Calculate what to show based on substep
-    // substep 0 = first given item
-    // substep 1 = second given item
-    // substep 2 = toFind title + first toFind item
+    // Substep -1: only section title, no list
+    if (substep === -1) {
+      return React.createElement(
+        "div",
+        { className: "comprehend-panel" },
+        React.createElement(
+          "h3",
+          { className: "comprehend-section-title" },
+          comprehendData.sectionTitle
+        )
+      );
+    }
     
+    // substep 0 = first given item, etc.
     const showGivenCount = Math.min(substep + 1, totalGiven);
     const showToFind = substep >= totalGiven;
     const toFindCount = showToFind ? Math.min(substep - totalGiven + 1, toFindData.length) : 0;
+    // Only the last-added item in this substep is yellow: given last when substep < totalGiven, else toFind last
+    const givenLastIsHighlight = substep < totalGiven;
+    const toFindLastIsHighlight = showToFind;
     
     return React.createElement(
       "div",
       { className: "comprehend-panel" },
-      // Section Title
       React.createElement(
         "h3",
         { className: "comprehend-section-title" },
         comprehendData.sectionTitle
       ),
-      // Given Section
       React.createElement(
         "div",
         { className: "comprehend-section given-section" },
-        React.createElement(
-          "div",
-          { className: "section-border given-border" }
-        ),
+        React.createElement("div", { className: "section-border given-border" }),
         React.createElement(
           "div",
           { className: "section-content" },
@@ -46,11 +53,12 @@ const Comprehend = ({ step, substep }) => {
             "ul",
             { className: "section-list" },
             givenData.slice(0, showGivenCount).map((item, index) => {
+              const isLastAdded = givenLastIsHighlight && index === showGivenCount - 1;
               return React.createElement(
                 "li",
-                { 
+                {
                   key: `given-${index}`,
-                  className: "section-list-item",
+                  className: "section-list-item" + (isLastAdded ? " last-added" : ""),
                   style: {
                     animation: index === showGivenCount - 1 ? "fadeInUp 0.3s ease-out" : "none"
                   }
@@ -61,14 +69,10 @@ const Comprehend = ({ step, substep }) => {
           )
         )
       ),
-      // To Find Section (appears after all given items are shown)
       showToFind && React.createElement(
         "div",
         { className: "comprehend-section tofind-section" },
-        React.createElement(
-          "div",
-          { className: "section-border tofind-border" }
-        ),
+        React.createElement("div", { className: "section-border tofind-border" }),
         React.createElement(
           "div",
           { className: "section-content" },
@@ -81,11 +85,12 @@ const Comprehend = ({ step, substep }) => {
             "ul",
             { className: "section-list" },
             toFindData.slice(0, toFindCount).map((item, index) => {
+              const isLastAdded = toFindLastIsHighlight && index === toFindCount - 1;
               return React.createElement(
                 "li",
-                { 
+                {
                   key: `tofind-${index}`,
-                  className: "section-list-item tofind-item",
+                  className: "section-list-item tofind-item" + (isLastAdded ? " last-added" : ""),
                   style: {
                     animation: index === toFindCount - 1 ? "fadeInUp 0.3s ease-out" : "none"
                   }

@@ -24,12 +24,36 @@ const App = () => {
   const [currentImage, setCurrentImage] = useState("");
 
   // Calculation state (persistent) for missing-side applet
-  const [calcState, setCalcState] = useState({
+  const getInitialCalcState = () => ({
     formulaRowAdded: false,
     mcqAnsweredCount: 0,
     calcBoxAnswers: [],
     calcBoxFilledIndex: { row: 0, box: 0 }
   });
+
+  const getCalcStateForStepStart = (targetStep) => {
+    // Steps before calc-rows should be fully fresh.
+    if (targetStep <= 4) return getInitialCalcState();
+
+    // Step 5 (calc rows) / Step 6 (final): represent state right after finishing MCQs.
+    const mcqs = appData.mcqs || [];
+    const lastMcq = mcqs.length ? mcqs[mcqs.length - 1] : null;
+    return {
+      ...getInitialCalcState(),
+      mcqAnsweredCount: mcqs.length,
+      formulaRowAdded: !!(lastMcq && lastMcq.formulaRow)
+    };
+  };
+
+  const getBoxCountBeforeRow = (rows, rowIndex) => {
+    const safeRows = rows || [];
+    return safeRows.slice(0, Math.max(0, rowIndex)).reduce((sum, row) => {
+      const count = row && row.answers && row.answers.length ? row.answers.length : 0;
+      return sum + count;
+    }, 0);
+  };
+
+  const [calcState, setCalcState] = useState(getInitialCalcState());
 
   // Step 5: which calc row is visible (0 = first row only; increment when user clicks Next)
   const [visibleCalcRowIndex, setVisibleCalcRowIndex] = useState(0);
@@ -46,12 +70,7 @@ const App = () => {
     setHighlightColor(null);
     setCurrentImage("");
     setVisibleCalcRowIndex(0);
-    setCalcState({
-      formulaRowAdded: false,
-      mcqAnsweredCount: 0,
-      calcBoxAnswers: [],
-      calcBoxFilledIndex: { row: 0, box: 0 }
-    });
+    setCalcState(getInitialCalcState());
   };
 
   const goToNextQuestion = () => {
@@ -66,12 +85,7 @@ const App = () => {
     setHighlightColor(null);
     setCurrentImage("");
     setVisibleCalcRowIndex(0);
-    setCalcState({
-      formulaRowAdded: false,
-      mcqAnsweredCount: 0,
-      calcBoxAnswers: [],
-      calcBoxFilledIndex: { row: 0, box: 0 }
-    });
+    setCalcState(getInitialCalcState());
   };
 
   // Total comprehend substeps: 1 (section only) + given.length + toFind.length
@@ -204,13 +218,56 @@ const App = () => {
       }
     }
 
+    // Step 4 has "substeps" (multiple MCQs). Go back one MCQ first, and reset progress after it.
+    if (currentStep === 4 && (calcState.mcqAnsweredCount || 0) > 0) {
+      setCalcState(prev => ({
+        ...prev,
+        mcqAnsweredCount: Math.max(0, (prev.mcqAnsweredCount || 0) - 1),
+        formulaRowAdded: false
+      }));
+      setIsNextDisabled(true);
+      setDynamicQuestionText("");
+      setDynamicNavText("");
+      return;
+    }
+
+    // Step 5 has "substeps" (calc rows). Go back a row first, and reset any progress after it.
+    if (currentStep === 5) {
+      const calcRows = appData.calcRows || [];
+      if (visibleCalcRowIndex > 0) {
+        const newVisibleRow = visibleCalcRowIndex - 1;
+        const keepBoxes = getBoxCountBeforeRow(calcRows, newVisibleRow);
+        setCalcState(prev => ({
+          ...prev,
+          calcBoxAnswers: (prev.calcBoxAnswers || []).slice(0, keepBoxes)
+        }));
+        setVisibleCalcRowIndex(newVisibleRow);
+        setIsNextDisabled(true);
+        setDynamicQuestionText("");
+        setDynamicNavText("");
+        return;
+      }
+    }
+
     if (currentStep > 0) {
+      const targetStep = currentStep - 1;
       setIsNextDisabled(true);
       setDynamicQuestionText("");
       setDynamicNavText("");
       setCurrentHighlights(null);
       setHighlightColor(null);
-      setCurrentStep(prev => prev - 1);
+
+      // Reset any progress made after the step we are going back to,
+      // so it feels like landing on that step for the first time.
+      if (targetStep <= 4) {
+        setVisibleCalcRowIndex(0);
+        setCalcState(getCalcStateForStepStart(targetStep));
+      } else if (targetStep === 5) {
+        setVisibleCalcRowIndex(0);
+        setCalcState(getCalcStateForStepStart(5));
+      }
+
+      setCurrentStep(targetStep);
     }
   };
 
@@ -271,6 +328,7 @@ const App = () => {
           imageSrc: `${splashData.image}`,
           text: splashData.text,
           step: currentStep,
+          altText: (appData.alts && appData.alts.splashImage) ? appData.alts.splashImage : ""
         })
       ),
       React.createElement(
@@ -309,7 +367,7 @@ const App = () => {
           ),
           appData.questionImage && React.createElement("img", {
             src: appData.questionImage,
-            alt: "Question figure",
+            alt: (appData.alts && appData.alts.questionFigure) ? appData.alts.questionFigure : "",
             className: "comprehend-question-image"
           })
         )

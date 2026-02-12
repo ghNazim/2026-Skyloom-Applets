@@ -68,16 +68,44 @@
 }
 
 .calc-rows-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1vw;
-  width: 100%;
+  display: table;
+  table-layout: auto;
+  width: auto;
+  border-collapse: collapse;
 }
 
 .calc-row {
+  display: table-row;
   font-size: 2vw;
   color: white;
   line-height: 1.8;
+}
+
+/* Label-only row (no "="): normal block, left-aligned, not table cells */
+.calc-row-label {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.calc-cell-lhs,
+.calc-cell-eq,
+.calc-cell-rhs {
+  display: table-cell;
+  vertical-align: middle;
+  padding-right: 0.8vw;
+}
+
+.calc-cell-lhs {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.calc-cell-eq {
+  white-space: nowrap;
+  padding-right: 0vw;
+  width:3vw;
+  text-align: center !important;
 }
 
 .calc-day-label {

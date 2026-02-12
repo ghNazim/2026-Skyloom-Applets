@@ -156,10 +156,10 @@ const CalculationPanel = ({
 
   // Findings div: INFORMATION ANALYSIS format
   const renderFindingsDiv = () => {
-    const title = findingsFormat.title || "INFORMATION ANALYSIS";
-    const givenLabel = findingsFormat.givenLabel || "Given:";
+    const title = findingsFormat.title || "";
+    const givenLabel = findingsFormat.givenLabel || "";
     const givenList = findingsFormat.givenList || [];
-    const toFindLabel = findingsFormat.toFindLabel || "To Find:";
+    const toFindLabel = findingsFormat.toFindLabel || "";
     const toFindList = findingsFormat.toFindList || [];
 
     return React.createElement(
@@ -246,11 +246,19 @@ const CalculationPanel = ({
     const isMultiBox = isMultiBoxQuestion;
     const boxValues = calcState.numpad1BoxValues || [];
     const currentBoxIdx = calcState.numpad1CurrentBoxIndex ?? 0;
+    const stepPrefixHtml = APP_DATA.steps?.[step]?.prefix || "";
+    const renderStepPrefix = () => {
+      if (!stepPrefixHtml) return null;
+      return React.createElement("span", {
+        className: "calc-step-prefix",
+        dangerouslySetInnerHTML: { __html: stepPrefixHtml }
+      });
+    };
 
     if (calcState.formulaRowAdded) {
       rows.push(
         React.createElement("div", { key: "formula", className: "calc-row" },
-          formulaMcqData.formulaRow || "Perimeter of equilateral triangle = 3 × Side"
+          formulaMcqData.formulaRow || ""
         )
       );
     }
@@ -262,6 +270,7 @@ const CalculationPanel = ({
           const box1Filled = !!boxValues[1];
           rows.push(
             React.createElement("div", { key: "numpad1", className: "calc-row" },
+              renderStepPrefix(),
               "= 2 × ",
               React.createElement("span", {
                 className: `calc-input-box ${currentBoxIdx === 0 ? (inputError ? "error shake" : inputCorrect ? "correct" : "highlight") : box0Filled ? "correct" : ""}`
@@ -275,6 +284,7 @@ const CalculationPanel = ({
         } else {
           rows.push(
             React.createElement("div", { key: "numpad1", className: "calc-row" },
+              renderStepPrefix(),
               "= 3 × ",
               React.createElement("span", {
                 className: `calc-input-box ${inputError ? "error shake" : ""} ${inputCorrect ? "correct" : ""}`
@@ -288,12 +298,14 @@ const CalculationPanel = ({
           const v1 = boxValues[1] || numpad1Answers[1];
           rows.push(
             React.createElement("div", { key: "val1", className: "calc-row" },
+              renderStepPrefix(),
               "= 2 × " + v0 + " + " + v1
             )
           );
         } else {
           rows.push(
             React.createElement("div", { key: "val1", className: "calc-row" },
+              renderStepPrefix(),
               "= 3 × " + calcState.numpad1Value
             )
           );
@@ -307,12 +319,14 @@ const CalculationPanel = ({
         const v1 = boxValues[1] || numpad1Answers[1];
         rows.push(
           React.createElement("div", { key: "val1", className: "calc-row" },
+            renderStepPrefix(),
             "= 2 × " + (calcState.numpad1BoxValues?.[0] ?? v0) + " + " + (calcState.numpad1BoxValues?.[1] ?? v1)
           )
         );
       } else {
         rows.push(
           React.createElement("div", { key: "val1", className: "calc-row" },
+            renderStepPrefix(),
             "= 3 × " + (calcState.numpad1Value || perimeterCalc.numpad1Answer)
           )
         );
@@ -320,6 +334,7 @@ const CalculationPanel = ({
       if (!calcState.numpad2Answered) {
         rows.push(
           React.createElement("div", { key: "numpad2", className: "calc-row" },
+            renderStepPrefix(),
             "= ",
             React.createElement("span", {
               className: `calc-input-box ${inputError ? "error shake" : ""} ${inputCorrect ? "correct" : ""}`
@@ -329,6 +344,7 @@ const CalculationPanel = ({
       } else {
         rows.push(
           React.createElement("div", { key: "val2", className: "calc-row" },
+            renderStepPrefix(),
             "= " + calcState.numpad2Value
           )
         );
@@ -398,7 +414,7 @@ const CalculationPanel = ({
         "div",
         { className: "calc-left-panel final with-image" },
         React.createElement("div", { className: "calc-image-row" },
-          imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+          imageSrc && React.createElement("img", { src: imageSrc, alt: APP_DATA.imageAlts?.triangle || "", className: "calc-image" })
         ),
         React.createElement(
           "div",
@@ -419,7 +435,7 @@ const CalculationPanel = ({
       "div",
       { className: "calc-left-panel with-image" },
       React.createElement("div", { className: "calc-image-row" },
-        imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+        imageSrc && React.createElement("img", { src: imageSrc, alt: APP_DATA.imageAlts?.triangle || "", className: "calc-image" })
       ),
       React.createElement(
         "div",

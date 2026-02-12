@@ -57,6 +57,11 @@ y {
   display: inline;
 }
 
+x{
+  display: inline;
+  visibility: hidden;
+}
+
 #hand-ftue {
   position: fixed;
   width: 6vw;

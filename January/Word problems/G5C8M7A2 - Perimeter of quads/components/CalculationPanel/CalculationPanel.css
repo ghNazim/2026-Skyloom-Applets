@@ -58,17 +58,50 @@
 }
 
 .calc-rows-container {
-  display: flex;
-  flex-direction: column;
+  display: table;
+  width: auto;
+  table-layout: auto;
+  border-collapse: collapse;
   gap: .5vw;
-  width: 100%;
 }
 
 .calc-row {
   font-size: 2vw;
   color: white;
   line-height: 1.8;
-  /* animation: fadeInUp 0.3s ease-out; */
+}
+
+/* Each calc row as 3 cells so "=" aligns across all rows; column widths auto (max of column) */
+.calc-row.calc-row-cells {
+  display: table-row;
+}
+
+.calc-cell {
+  display: table-cell;
+  font-size: 2vw;
+  color: white;
+  line-height: 1.8;
+  vertical-align: middle;
+}
+
+.calc-cell-lhs {
+  text-align: right;
+  padding-right: 0.6vw;
+  white-space: nowrap;
+}
+
+.calc-cell-eq {
+  text-align: center;
+  width: 1%;
+  padding-left: 0.6vw;
+  padding-right: 0.6vw;
+  white-space: nowrap;
+}
+
+.calc-cell-rhs {
+  text-align: left;
+  padding-left: 0.6vw;
+  white-space: nowrap;
 }
 
 /* Interactive boxes (Step 4, 7) */
@@ -107,7 +140,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 4vw;
+  width: 5vw;
   height: 3.5vw;
   padding: 0.3vw 0.8vw;
   border-radius: 0.5vw;

@@ -20,10 +20,16 @@ const CalculationPanel = ({
   const comprehendData = APP_DATA.comprehend;
   const calcDisplayData = APP_DATA.calculation;
   
-  // Local state for numpad input
+  // Local state for numpad input (steps 5, 8)
   const [numpadValue, setNumpadValue] = useState("");
   const [inputError, setInputError] = useState(false);
   const [inputCorrect, setInputCorrect] = useState(false);
+  
+  // Steps 4 & 7: two input boxes with numpad
+  const [inputBoxValues, setInputBoxValues] = useState(["", ""]);
+  const [activeInputIndex, setActiveInputIndex] = useState(0);
+  const [inputBoxCorrect, setInputBoxCorrect] = useState([false, false]);
+  const [inputBoxError, setInputBoxError] = useState(false);
   
   // MCQ state
   const [selectedMcqOption, setSelectedMcqOption] = useState(null);
@@ -36,49 +42,86 @@ const CalculationPanel = ({
     setInputCorrect(false);
     setSelectedMcqOption(null);
     setMcqCorrect(false);
+    setInputBoxValues(["", ""]);
+    setActiveInputIndex(0);
+    setInputBoxCorrect([false, false]);
+    setInputBoxError(false);
   }, [step]);
   
-  // Handle interactive box click (Step 4 - first calculation)
-  const handleInteractiveBoxClick1 = (boxIndex) => {
-    if (interactiveBoxState1[boxIndex]) return;
-    
-    if (window.playSound) window.playSound("tick");
-    
-    const newState = { ...interactiveBoxState1, [boxIndex]: true };
-    setInteractiveBoxState1(newState);
-    
-    // Check if both boxes are clicked
-    if (newState[0] && newState[1]) {
-      setTimeout(() => {
-        setCalcState(prev => ({ ...prev, calc1BoxesDone: true }));
-        if (onEnableNext) onEnableNext();
-        if (onUpdateNavText) {
-          const stepData = APP_DATA.steps[4];
-          onUpdateNavText(stepData.navTextCorrect);
-        }
-      }, 500);
+  // Steps 4 & 7: get current input box config
+  const getInputBoxConfig = () => {
+    if (step === 4) return calc1Data.inputBoxes || [];
+    if (step === 7) return calc2Data.inputBoxes || [];
+    return [];
+  };
+  
+  // Steps 4 & 7: handle numpad input for active box
+  const handleInputBoxNumberClick = (num) => {
+    const config = getInputBoxConfig();
+    if (activeInputIndex >= config.length) return;
+    const maxLen = (config[activeInputIndex] && config[activeInputIndex].answer.length) || 5;
+    if (inputBoxValues[activeInputIndex].length < maxLen) {
+      setInputBoxValues(prev => {
+        const next = [...prev];
+        next[activeInputIndex] = next[activeInputIndex] + num;
+        return next;
+      });
+      setInputBoxError(false);
     }
   };
   
-  // Handle interactive box click (Step 7 - second calculation)
-  const handleInteractiveBoxClick2 = (boxIndex) => {
-    if (interactiveBoxState2[boxIndex]) return;
+  const handleInputBoxClear = () => {
+    setInputBoxValues(prev => {
+      const next = [...prev];
+      next[activeInputIndex] = next[activeInputIndex].slice(0, -1);
+      return next;
+    });
+    setInputBoxError(false);
+  };
+  
+  const handleInputBoxSubmit = () => {
+    const config = getInputBoxConfig();
+    const stepNum = step === 4 ? 4 : 7;
+    const stepData = APP_DATA.steps[stepNum];
+    const correctAnswer = config[activeInputIndex] && config[activeInputIndex].answer;
     
-    if (window.playSound) window.playSound("tick");
-    
-    const newState = { ...interactiveBoxState2, [boxIndex]: true };
-    setInteractiveBoxState2(newState);
-    
-    // Check if both boxes are clicked
-    if (newState[0] && newState[1]) {
-      setTimeout(() => {
-        setCalcState(prev => ({ ...prev, calc2BoxesDone: true }));
-        if (onEnableNext) onEnableNext();
-        if (onUpdateNavText) {
-          const stepData = APP_DATA.steps[7];
-          onUpdateNavText(stepData.navTextCorrect);
+    if (inputBoxValues[activeInputIndex] === correctAnswer) {
+      if (window.playSound) window.playSound("correct");
+      setInputBoxCorrect(prev => {
+        const next = [...prev];
+        next[activeInputIndex] = true;
+        return next;
+      });
+      setInputBoxError(false);
+      
+      if (activeInputIndex + 1 >= config.length) {
+        setTimeout(() => {
+          if (step === 4) {
+            setCalcState(prev => ({ ...prev, calc1BoxesDone: true }));
+          } else {
+            setCalcState(prev => ({ ...prev, calc2BoxesDone: true }));
+          }
+          if (onEnableNext) onEnableNext();
+          if (onUpdateNavText) onUpdateNavText(stepData.navTextCorrect);
+        }, 300);
+      } else {
+        setActiveInputIndex(prev => prev + 1);
+        setInputBoxValues(prev => [...prev]);
+        if (onUpdateNavText && stepData.navTextSecondBox) {
+          onUpdateNavText(stepData.navTextSecondBox);
         }
-      }, 500);
+      }
+    } else {
+      if (window.playSound) window.playSound("wrong");
+      setInputBoxError(true);
+      setTimeout(() => {
+        setInputBoxError(false);
+        setInputBoxValues(prev => {
+          const next = [...prev];
+          next[activeInputIndex] = "";
+          return next;
+        });
+      }, 300);
     }
   };
   
@@ -215,27 +258,27 @@ const CalculationPanel = ({
       )
     );
     
-    // Step 4: Show interactive boxes
+    // Step 4: Two input boxes with numpad (numbers only, no placeholder, no suffix)
     if (step === 4) {
+      const config = calc1Data.inputBoxes || [];
+      const op = " × ";
       rows.push(
-        React.createElement("div", { key: "row-interactive", className: "calc-row" },
+        React.createElement("div", { key: "row-interactive", className: "calc-row calc-row-input-boxes" },
           "= ",
           React.createElement(
             "span",
             {
-              className: `calc-interactive-box ${interactiveBoxState1[0] ? 'revealed' : 'clickable'}`,
-              onClick: () => !interactiveBoxState1[0] && handleInteractiveBoxClick1(0)
+              className: `calc-input-box ${inputBoxCorrect[0] ? 'correct' : ''} ${activeInputIndex === 0 && inputBoxError ? 'error shake' : ''} ${activeInputIndex === 0 && !inputBoxCorrect[0] ? 'highlighted' : ''}`
             },
-            interactiveBoxState1[0] ? calc1Data.values.smallBottleCount : calc1Data.values.initialBox1
+            inputBoxCorrect[0] ? (config[0]?.answer || calc1Data.values.smallBottleCount) : (inputBoxValues[0] || "")
           ),
-          " × ",
+          op,
           React.createElement(
             "span",
             {
-              className: `calc-interactive-box ${interactiveBoxState1[1] ? 'revealed' : (interactiveBoxState1[0] ? 'clickable' : '')}`,
-              onClick: () => interactiveBoxState1[0] && !interactiveBoxState1[1] && handleInteractiveBoxClick1(1)
+              className: `calc-input-box ${inputBoxCorrect[1] ? 'correct' : ''} ${activeInputIndex === 1 && inputBoxError ? 'error shake' : ''} ${activeInputIndex === 1 && !inputBoxCorrect[1] ? 'highlighted' : ''}`
             },
-            interactiveBoxState1[1] ? calc1Data.values.eachVolume : calc1Data.values.initialBox2
+            inputBoxCorrect[1] ? (config[1]?.answer || "500") : (inputBoxValues[1] || "")
           )
         )
       );
@@ -291,27 +334,26 @@ const CalculationPanel = ({
       )
     );
     
-    // Step 7: Show interactive boxes
+    // Step 7: Two input boxes with numpad (numbers only, no placeholder, no suffix)
     if (step === 7) {
+      const config = calc2Data.inputBoxes || [];
       rows.push(
-        React.createElement("div", { key: "row-interactive", className: "calc-row" },
+        React.createElement("div", { key: "row-interactive", className: "calc-row calc-row-input-boxes" },
           "= ",
           React.createElement(
             "span",
             {
-              className: `calc-interactive-box ${interactiveBoxState2[0] ? 'revealed' : 'clickable'}`,
-              onClick: () => !interactiveBoxState2[0] && handleInteractiveBoxClick2(0)
+              className: `calc-input-box ${inputBoxCorrect[0] ? 'correct' : ''} ${activeInputIndex === 0 && inputBoxError ? 'error shake' : ''} ${activeInputIndex === 0 && !inputBoxCorrect[0] ? 'highlighted' : ''}`
             },
-            interactiveBoxState2[0] ? calc2Data.values.totalVolume : calc2Data.values.initialBox1
+            inputBoxCorrect[0] ? (config[0]?.answer || "8500") : (inputBoxValues[0] || "")
           ),
           " ÷ ",
           React.createElement(
             "span",
             {
-              className: `calc-interactive-box ${interactiveBoxState2[1] ? 'revealed' : (interactiveBoxState2[0] ? 'clickable' : '')}`,
-              onClick: () => interactiveBoxState2[0] && !interactiveBoxState2[1] && handleInteractiveBoxClick2(1)
+              className: `calc-input-box ${inputBoxCorrect[1] ? 'correct' : ''} ${activeInputIndex === 1 && inputBoxError ? 'error shake' : ''} ${activeInputIndex === 1 && !inputBoxCorrect[1] ? 'highlighted' : ''}`
             },
-            interactiveBoxState2[1] ? calc2Data.values.bigBottleCount : calc2Data.values.initialBox2
+            inputBoxCorrect[1] ? (config[1]?.answer || calc2Data.values.bigBottleCount) : (inputBoxValues[1] || "")
           )
         )
       );
@@ -436,7 +478,16 @@ const CalculationPanel = ({
   
   // Render input content (Numpad or MCQ)
   const renderInputContent = () => {
-    // Step 5: Numpad for first calculation
+    // Step 4: Numpad for two input boxes (first calculation values)
+    if (step === 4 && !calcState.calc1BoxesDone) {
+      return React.createElement(Numpad, {
+        onNumberClick: handleInputBoxNumberClick,
+        onClear: handleInputBoxClear,
+        onSubmit: handleInputBoxSubmit
+      });
+    }
+    
+    // Step 5: Numpad for first calculation result
     if (step === 5 && !calcState.calc1NumpadAnswered) {
       return React.createElement(Numpad, {
         onNumberClick: handleNumberClick,
@@ -445,7 +496,16 @@ const CalculationPanel = ({
       });
     }
     
-    // Step 8: Numpad for second calculation
+    // Step 7: Numpad for two input boxes (second calculation values)
+    if (step === 7 && !calcState.calc2BoxesDone) {
+      return React.createElement(Numpad, {
+        onNumberClick: handleInputBoxNumberClick,
+        onClear: handleInputBoxClear,
+        onSubmit: handleInputBoxSubmit
+      });
+    }
+    
+    // Step 8: Numpad for second calculation result
     if (step === 8 && !calcState.calc2NumpadAnswered) {
       return React.createElement(Numpad, {
         onNumberClick: handleNumberClick,

@@ -1,0 +1,203 @@
+/* ===== MAIN CANVAS CONTAINER (2 columns) ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  gap: 0.5vw;
+}
+
+/* ===== LEFT: BUTTONS COLUMN (50%) ===== */
+.buttons-column {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.18);
+  border-radius: 1vw;
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+
+/* ===== BUTTON ROW (50% height each) ===== */
+.button-row {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2vw;
+  padding: 1.5vw 2vw;
+  position: relative;
+}
+
+/* Subtle divider between the two rows */
+.button-row:first-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===== BUTTON WRAPPER (for tap.gif positioning) ===== */
+.btn-wrapper {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-button {
+  font-size: 2.5vw;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.8vw;
+  padding: 0.9vw 2.8vw;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  outline: none;
+}
+
+.action-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  filter: brightness(1.12);
+}
+
+.action-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Green button (LSA) */
+.green-btn {
+  background: linear-gradient(145deg, #1abc9c, #16a085);
+}
+.green-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(26, 188, 156, 0.35);
+}
+
+/* Blue button (TSA) */
+.blue-btn {
+  background: linear-gradient(145deg, #3498db, #2176ad);
+}
+.blue-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.35);
+}
+
+/* Disabled (not-yet-unlocked) */
+.action-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+  transform: none !important;
+}
+
+/* Disabled but already clicked (keep looking active) */
+.action-button.clicked:disabled {
+  opacity: 0.85;
+  filter: none;
+  cursor: default;
+}
+
+/* ===== TAP GIF (nudge indicator) ===== */
+.tap-gif {
+  position: absolute;
+  width: 4vw;
+  left: 50%;
+  bottom: -2.8vw;
+  transform: translateX(-30%);
+  pointer-events: none;
+  animation: tap-pulse 1.4s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes tap-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translateX(-30%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-30%) scale(1.08);
+  }
+}
+
+/* ===== TEXT BOX ===== */
+.text-box {
+  background-color: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.6vw;
+  padding: 0.8vw 1.4vw;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 2vw;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  min-height: 6.5vw;
+  max-width: 92%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-box.visible {
+  opacity: 1;
+}
+
+/* ===== RIGHT: VISUAL COLUMN (50%) ===== */
+.visual-column {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1vw;
+  background-color: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+/* ===== PYRAMID AREA (80%) ===== */
+.pyramid-area {
+  flex: 0 0 80%;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  min-height: 0;
+}
+
+/* ===== FORMULA AREA (20%) ===== */
+.formula-area {
+  flex: 0 0 20%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5vw;
+  padding: 0.5vw 1vw;
+}
+
+/* ===== FORMULA ROW ===== */
+.formula-row {
+  background-color: rgba(22, 22, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.55vw;
+  padding: 0.45vw 2vw;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.formula-row.visible {
+  opacity: 1;
+}
+
+.formula-text {
+  font-size: 1.9vw;
+  font-weight: 600;
+  white-space: pre;
+  letter-spacing: 0.04em;
+}

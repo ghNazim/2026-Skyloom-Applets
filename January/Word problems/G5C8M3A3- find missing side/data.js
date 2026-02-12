@@ -12,6 +12,12 @@ const DATA1 = {
 
       questionText: "Find the missing side length of the triangle below.",
       questionImage: "assets/question1.svg",
+      alts: {
+        questionFigure: "Question figure",
+        triangleImage: "Triangle",
+        visualImage: "Visual representation",
+        splashImage: "Summary visual"
+      },
 
       comprehend: {
         sectionTitle: "INFORMATION ANALYSIS",
@@ -57,16 +63,16 @@ const DATA1 = {
         {
           title: "Which of the following represents the perimeter of a triangle?",
           options: [
-            "A. The length of one side of the triangle",
-            "B. The sum of the lengths of any two sides",
-            "C. The sum of the lengths of all three sides",
-            "D. The area enclosed by the triangle"
+            "The length of one side of the triangle",
+            "The sum of the lengths of any two sides",
+            "The sum of the lengths of all three sides",
+            "The area enclosed by the triangle"
           ],
           answerIndex: 2,
           formulaRow: "Perimeter = The sum of the lengths of all 3 sides"
         }
       ],
-
+      calcRowMargin: "4vw",
       calcRows: [
         { text: "[box] = 16 + 18 + a", answers: ["54"] },
         { text: "54 = [box] + a", answers: ["34"] },
@@ -74,7 +80,7 @@ const DATA1 = {
         { text: "a = [box]", answers: ["20"] }
       ],
 
-      finalAnswer: "The missing side length of the triangle 20 cm.",
+      finalAnswer: "The missing side length of the triangle is 20 cm.",
 
       steps: {
         0: {
@@ -112,7 +118,7 @@ const DATA1 = {
           nextEnabled: true
         },
         4: {
-          questionText: "Answer the questions below.",
+          questionText: "Answer the question below.",
           navText: "Tap the correct answer.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/q1compute2.svg",
@@ -144,6 +150,150 @@ const DATA1 = {
       },
     },
   },
+  id: {
+    app: {
+      start_over: "Mulai ulang",
+
+      questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
+      questionImage: "assets/question1.svg",
+      alts: {
+        questionFigure: "Gambar soal",
+        triangleImage: "Segitiga",
+        visualImage: "Representasi visual",
+        splashImage: "Ringkasan visual"
+      },
+
+      comprehend: {
+        sectionTitle: "ANALISIS INFORMASI",
+        images: [
+          "assets/q1compre1.svg",
+          "assets/q1compre2.svg",
+          "assets/q1compre3.svg",
+        ],
+        given: {
+          title: "Diketahui,",
+          data: [
+            "Dua sisi segitiga panjangnya 18 cm dan 16 cm.",
+            "Keliling segitiga = 54 cm",
+          ],
+          highlights: ["null", "null"]
+        },
+        toFind: {
+          title: "Ditanyakan",
+          data: ["Panjang sisi yang hilang"],
+          highlights: ["panjang sisi yang hilang"]
+        },
+      },
+
+      splash: {
+        step2: {
+          image: "assets/q1compre3.svg",
+          text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Selanjutnya - Temukan panjang sisi yang hilang pada segitiga.</yellow>"
+        }
+      },
+
+      findingsFormat: {
+        title: "",
+        givenLabel: "Diketahui:",
+        givenList: [
+          "Sisi-sisi segitiga adalah 18 cm dan 16 cm.",
+          "Keliling segitiga = 54 cm"
+        ],
+        toFindLabel: "Ditanyakan:",
+        toFindList: ["Panjang sisi yang hilang"]
+      },
+
+      mcqs: [
+        {
+          title: "Manakah yang menunjukkan keliling segitiga?",
+          options: [
+            "Panjang salah satu sisi segitiga",
+            "Jumlah panjang dua sisi mana pun",
+            "Jumlah panjang ketiga sisi",
+            "Luas daerah yang dibatasi segitiga"
+          ],
+          answerIndex: 2,
+          formulaRow: "Keliling = jumlah panjang ketiga sisi"
+        }
+      ],
+      calcRowMargin: "4vw",
+      calcRows: [
+        { text: "[box] = 16 + 18 + a", answers: ["54"] },
+        { text: "54 = [box] + a", answers: ["34"] },
+        { text: "a = 54 - 34" },
+        { text: "a = [box]", answers: ["20"] }
+      ],
+
+      finalAnswer: "Panjang sisi yang hilang pada segitiga adalah 20 cm.",
+
+      steps: {
+        0: {
+          questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
+          navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
+          isComprehendQuestion: true,
+          nextEnabled: true,
+          hideVisualPanel: true
+        },
+        1: {
+          questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
+          navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
+          navToFind: "Ketuk » untuk mengidentifikasi apa yang harus 'ditanyakan'.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/question1.svg",
+          isComprehend: true,
+          isSubstepComprehend: true,
+          nextEnabled: false,
+          statementInVisual: "Temukan panjang sisi yang hilang pada segitiga di bawah ini."
+        },
+        2: {
+          questionText: "",
+          navText: "Ketuk » untuk melanjutkan.",
+          isSplash: true,
+          splashKey: "step2",
+          nextEnabled: true
+        },
+        3: {
+          questionText: "Mari beri nama sisi yang hilang sebagai 'a'.",
+          navText: "Ketuk » untuk melanjutkan.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q1compute1.svg",
+          isCalculation: true,
+          isCalculationIntro: true,
+          nextEnabled: true
+        },
+        4: {
+          questionText: "Jawab pertanyaan di bawah ini.",
+          navText: "Ketuk jawaban yang benar.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q1compute2.svg",
+          isCalculation: true,
+          isMcqStep: true,
+          nextEnabled: false
+        },
+        5: {
+          questionText: "Mari temukan sisi yang hilang.",
+          navText: "Gunakan papan angka untuk mengisi kotak lalu ketuk ✓ untuk memeriksa.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q1compute2.svg",
+          isCalculation: true,
+          isCalcStep: true,
+          nextEnabled: false
+        },
+        6: {
+          questionText: "Kamu sudah menyelesaikan soal!",
+          navText: "Ketuk » untuk soal berikutnya.",
+          image: "assets/q1compute2.svg",
+          isFinalStep: true,
+          nextEnabled: true
+        }
+      },
+      labels: {
+        given: "Diketahui",
+        toFind: "Ditanyakan",
+        findings: "Temuan"
+      },
+    },
+  },
 };
 
 // Question 2: Isosceles triangle – perimeter 77, two equal sides 27, find base
@@ -154,6 +304,12 @@ const DATA2 = {
 
       questionText: "Find the missing side length of the triangle below.",
       questionImage: "assets/question2.svg",
+      alts: {
+        questionFigure: "Question figure",
+        triangleImage: "Triangle",
+        visualImage: "Visual representation",
+        splashImage: "Summary visual"
+      },
 
       comprehend: {
         sectionTitle: "INFORMATION ANALYSIS",
@@ -212,16 +368,16 @@ const DATA2 = {
         {
           title: "What is the formula to calculate the perimeter of an isosceles triangle?",
           options: [
-            "A. Side × Side",
-            "B. 2 × equal side + base",
-            "C. 3 × side",
-            "D. Equal side + base"
+            "Side × Side",
+            "2 × equal side + base",
+            "3 × side",
+            "Equal side + base"
           ],
           answerIndex: 1,
           formulaRow: "Perimeter of isosceles triangle = 2 × equal side + base"
         }
       ],
-
+      calcRowMargin: "18vw",
       calcRows: [
         { text: "[box] = 2 × a + [box]", answers: ["77", "27"] },
         { text: "2 × a = 77 - 27" },
@@ -267,7 +423,7 @@ const DATA2 = {
           nextEnabled: true
         },
         4: {
-          questionText: "Answer the questions below.",
+          questionText: "Answer the question below.",
           navText: "Tap the correct answer.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/q2compute2.svg",
@@ -299,6 +455,164 @@ const DATA2 = {
       },
     },
   },
+  id: {
+    app: {
+      start_over: "Mulai ulang",
+
+      questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
+      questionImage: "assets/question2.svg",
+      alts: {
+        questionFigure: "Gambar soal",
+        triangleImage: "Segitiga",
+        visualImage: "Representasi visual",
+        splashImage: "Ringkasan visual"
+      },
+
+      comprehend: {
+        sectionTitle: "ANALISIS INFORMASI",
+        images: [
+          "assets/q2compre1.svg",
+          "assets/q2compre2.svg",
+          "assets/q2compre3.svg",
+          "assets/q2compre4.svg",
+        ],
+        given: {
+          title: "Diketahui,",
+          data: [
+            "Dua sisi segitiga sama panjang",
+            "Alas = 27 cm",
+            "Keliling segitiga = 77 cm",
+          ],
+          highlights: ["null", "null"]
+        },
+        toFind: {
+          title: "Ditanyakan",
+          data: ["Panjang sisi yang ditandai"],
+          highlights: ["panjang sisi yang hilang"]
+        },
+      },
+
+      splash: {
+        step2: {
+          image: "assets/q2compre3.svg",
+          text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Selanjutnya - Temukan panjang sisi yang hilang pada segitiga.</yellow>"
+        }
+      },
+
+      findingsFormat: {
+        title: "",
+        givenLabel: "Diketahui:",
+        givenList: [
+          "Dua sisi sama panjang dan alas = 27 cm.",
+          "Keliling segitiga = 77 cm"
+        ],
+        toFindLabel: "Ditanyakan:",
+        toFindList: ["Panjang sisi yang ditandai"]
+      },
+
+      mcqs: [
+        {
+          title: "Apa nama segitiga yang memiliki dua sisi sama panjang?",
+          options: [
+            "Segitiga sembarang",
+            "Segitiga sama kaki",
+            "Segitiga siku-siku",
+            "Segitiga sama sisi"
+          ],
+          answerIndex: 1,
+          formulaRow: null
+        },
+        {
+          title: "Apa rumus untuk menghitung keliling segitiga sama kaki?",
+          options: [
+            "Sisi × Sisi",
+            "2 × sisi yang sama + alas",
+            "3 × sisi",
+            "Sisi yang sama + alas"
+          ],
+          answerIndex: 1,
+          formulaRow: "Keliling segitiga sama kaki = 2 × sisi yang sama + alas"
+        }
+      ],
+
+      calcRowMargin: "18vw",
+      calcRows: [
+        { text: "[box] = 2 × a + [box]", answers: ["77", "27"] },
+        { text: "2 × a = 77 - 27" },
+        { text: "2 × a = [box]", answers: ["50"] },
+        { text: "a = 50 ÷ 2 = [box]", answers: ["25"] }
+      ],
+
+      finalAnswer: "Panjang sisi yang hilang pada segitiga adalah 25 cm.",
+
+      steps: {
+        0: {
+          questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
+          navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
+          isComprehendQuestion: true,
+          nextEnabled: true,
+          hideVisualPanel: true
+        },
+        1: {
+          questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
+          navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
+          navToFind: "Ketuk » untuk mengidentifikasi apa yang harus 'ditanyakan'.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/question2.svg",
+          isComprehend: true,
+          isSubstepComprehend: true,
+          nextEnabled: false,
+          statementInVisual: "Temukan panjang sisi yang hilang pada segitiga di bawah ini."
+        },
+        2: {
+          questionText: "",
+          navText: "Ketuk » untuk melanjutkan.",
+          isSplash: true,
+          splashKey: "step2",
+          nextEnabled: true
+        },
+        3: {
+          questionText: "Mari beri nama sisi yang hilang sebagai 'a'.",
+          navText: "Ketuk » untuk melanjutkan.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q2compute1.svg",
+          isCalculation: true,
+          isCalculationIntro: true,
+          nextEnabled: true
+        },
+        4: {
+          questionText: "Jawab pertanyaan di bawah ini.",
+          navText: "Ketuk jawaban yang benar.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q2compute2.svg",
+          isCalculation: true,
+          isMcqStep: true,
+          nextEnabled: false
+        },
+        5: {
+          questionText: "Mari temukan sisi yang hilang.",
+          navText: "Gunakan papan angka untuk mengisi kotak lalu ketuk ✓ untuk memeriksa.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q2compute2.svg",
+          isCalculation: true,
+          isCalcStep: true,
+          nextEnabled: false
+        },
+        6: {
+          questionText: "Kamu sudah menyelesaikan soal!",
+          navText: "Ketuk » untuk soal berikutnya.",
+          image: "assets/q2compute2.svg",
+          isFinalStep: true,
+          nextEnabled: true
+        }
+      },
+      labels: {
+        given: "Diketahui",
+        toFind: "Ditanyakan",
+        findings: "Temuan"
+      },
+    },
+  },
 };
 
 // Question 3: Equilateral triangle – perimeter 114, find side length
@@ -309,6 +623,12 @@ const DATA3 = {
 
       questionText: "Find the length of the side of the triangle below.",
       questionImage: "assets/question3.svg",
+      alts: {
+        questionFigure: "Question figure",
+        triangleImage: "Triangle",
+        visualImage: "Visual representation",
+        splashImage: "Summary visual"
+      },
 
       comprehend: {
         sectionTitle: "INFORMATION ANALYSIS",
@@ -365,16 +685,16 @@ const DATA3 = {
         {
           title: "What is the formula to calculate the perimeter of an equilateral triangle?",
           options: [
-            "A. Side + Side",
-            "B. 2 × Side",
-            "C. 3 × Side",
-            "D. Side × Side"
+            "Side + Side",
+            "2 × Side",
+            "3 × Side",
+            "Side × Side"
           ],
           answerIndex: 2,
           formulaRow: "Perimeter of equilateral triangle = 3 × Side"
         }
       ],
-
+      calcRowMargin: "18vw",
       calcRows: [
         { text: "[box] = 3 × a", answers: ["114"] },
         { text: "a = 114 ÷ 3" },
@@ -410,7 +730,7 @@ const DATA3 = {
           nextEnabled: true
         },
         3: {
-          questionText: "Let's label the side length as 'a'.",
+          questionText: "Let's label the missing side as 'a'.",
           navText: "Tap » to continue.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/q3compute1.svg",
@@ -419,7 +739,7 @@ const DATA3 = {
           nextEnabled: true
         },
         4: {
-          questionText: "Answer the questions below.",
+          questionText: "Answer the question below.",
           navText: "Tap the correct answer.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/q3compute2.svg",
@@ -448,6 +768,161 @@ const DATA3 = {
         given: "Given",
         toFind: "To Find",
         findings: "Findings"
+      },
+    },
+  },
+  id: {
+    app: {
+      start_over: "Mulai ulang",
+
+      questionText: "Temukan panjang sisi segitiga di bawah ini.",
+      questionImage: "assets/question3.svg",
+      alts: {
+        questionFigure: "Gambar soal",
+        triangleImage: "Segitiga",
+        visualImage: "Representasi visual",
+        splashImage: "Ringkasan visual"
+      },
+
+      comprehend: {
+        sectionTitle: "ANALISIS INFORMASI",
+        images: [
+          "assets/q3compre1.svg",
+          "assets/q3compre2.svg",
+          "assets/q3compre3.svg",
+        ],
+        given: {
+          title: "Diketahui,",
+          data: [
+            "Segitiga memiliki 3 sisi dengan panjang yang sama.",
+            "Keliling segitiga = 114 cm",
+          ],
+          highlights: ["null", "null"]
+        },
+        toFind: {
+          title: "Ditanyakan",
+          data: ["Panjang sisi segitiga"],
+          highlights: ["panjang sisi"]
+        },
+      },
+
+      splash: {
+        step2: {
+          image: "assets/q3compre3.svg",
+          text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Selanjutnya - Temukan panjang sisi segitiga.</yellow>"
+        }
+      },
+
+      findingsFormat: {
+        title: "",
+        givenLabel: "Diketahui:",
+        givenList: [
+          "Segitiga memiliki 3 sisi dengan panjang yang sama.",
+          "Keliling segitiga = 114 cm"
+        ],
+        toFindLabel: "Ditanyakan:",
+        toFindList: ["Panjang sisi segitiga"]
+      },
+
+      mcqs: [
+        {
+          title: "Apa nama segitiga yang semua sisinya sama panjang?",
+          options: [
+            "Segitiga sembarang",
+            "Segitiga sama kaki",
+            "Segitiga siku-siku",
+            "Segitiga sama sisi"
+          ],
+          answerIndex: 3,
+          formulaRow: null
+        },
+        {
+          title: "Apa rumus untuk menghitung keliling segitiga sama sisi?",
+          options: [
+            "Sisi + Sisi",
+            "2 × Sisi",
+            "3 × Sisi",
+            "Sisi × Sisi"
+          ],
+          answerIndex: 2,
+          formulaRow: "Keliling segitiga sama sisi = 3 × Sisi"
+        }
+      ],
+
+      calcRowMargin: "18vw",
+      calcRows: [
+        { text: "[box] = 3 × a", answers: ["114"] },
+        { text: "a = 114 ÷ 3" },
+        { text: "a = [box]", answers: ["38"] }
+      ],
+
+      finalAnswer: "Panjang sisi segitiga adalah 38 cm.",
+
+      steps: {
+        0: {
+          questionText: "Temukan panjang sisi segitiga di bawah ini.",
+          navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
+          isComprehendQuestion: true,
+          nextEnabled: true,
+          hideVisualPanel: true
+        },
+        1: {
+          questionText: "Temukan panjang sisi segitiga di bawah ini.",
+          navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
+          navToFind: "Ketuk » untuk mengidentifikasi apa yang harus 'ditanyakan'.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/question3.svg",
+          isComprehend: true,
+          isSubstepComprehend: true,
+          nextEnabled: false,
+          statementInVisual: "Temukan panjang sisi segitiga di bawah ini."
+        },
+        2: {
+          questionText: "",
+          navText: "Ketuk » untuk melanjutkan.",
+          isSplash: true,
+          splashKey: "step2",
+          nextEnabled: true
+        },
+        3: {
+          questionText: "Mari beri nama sisi yang hilang sebagai 'a'.",
+          navText: "Ketuk » untuk melanjutkan.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q3compute1.svg",
+          isCalculation: true,
+          isCalculationIntro: true,
+          nextEnabled: true
+        },
+        4: {
+          questionText: "Jawab pertanyaan di bawah ini.",
+          navText: "Ketuk jawaban yang benar.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q3compute2.svg",
+          isCalculation: true,
+          isMcqStep: true,
+          nextEnabled: false
+        },
+        5: {
+          questionText: "Mari temukan panjang sisi.",
+          navText: "Gunakan papan angka untuk mengisi kotak lalu ketuk ✓ untuk memeriksa.",
+          navTextCorrect: "Ketuk » untuk melanjutkan.",
+          image: "assets/q3compute2.svg",
+          isCalculation: true,
+          isCalcStep: true,
+          nextEnabled: false
+        },
+        6: {
+          questionText: "Aktivitas selesai!",
+          navText: "Ketuk 'Mulai ulang' untuk memulai ulang aktivitas",
+          image: "assets/q3compute2.svg",
+          isFinalStep: true,
+          nextEnabled: true
+        }
+      },
+      labels: {
+        given: "Diketahui",
+        toFind: "Ditanyakan",
+        findings: "Temuan"
       },
     },
   },

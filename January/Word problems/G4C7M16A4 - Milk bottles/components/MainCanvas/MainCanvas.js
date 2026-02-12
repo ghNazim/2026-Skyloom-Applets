@@ -40,15 +40,16 @@ const MainCanvas = ({
   const renderContent = () => {
     // Step 1: Comprehend with substeps
     if (stepData.isComprehend) {
+      const showVisualImage = comprehendSubstep >= 0;
       return React.createElement(
         "div",
         { className: "main-canvas-container two-column" },
-        // Left Column - Visual
+        // Left Column - Visual (blank when comprehend substep -1)
         React.createElement(
           "div",
           { className: "column visual-column" },
           React.createElement(Visual, {
-            imageSrc: getImageSrc(),
+            imageSrc: showVisualImage ? getImageSrc() : "",
             showAreaLabel: false,
             step: step,
             substep: comprehendSubstep

@@ -64,6 +64,39 @@
   width: 100%;
 }
 
+/* Table layout: 3 cells per row (LHS, =, RHS) so "=" aligns; column widths auto from content */
+.calc-rows-table {
+  width: auto;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 2vw;
+  color: white;
+}
+
+.calc-rows-table .calc-row td {
+  vertical-align: middle;
+  line-height: 1.8;
+  padding: 0.2vw 0.5vw 0.2vw 0;
+}
+
+.calc-cell-lhs {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.calc-cell-eq {
+  width: 1%;
+  white-space: nowrap;
+  padding-left: 0.5vw;
+  padding-right: 0.5vw;
+  text-align: center;
+}
+
+.calc-cell-rhs {
+  white-space: nowrap;
+  text-align: left;
+}
+
 .calc-row {
   font-size: 2vw;
   color: white;
@@ -107,7 +140,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 4vw;
+  width: 5vw;
   height: 3.5vw;
   padding: 0.3vw 0.8vw;
   border-radius: 0.5vw;

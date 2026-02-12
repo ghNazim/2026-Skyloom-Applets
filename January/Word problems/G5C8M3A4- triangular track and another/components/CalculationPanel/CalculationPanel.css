@@ -64,6 +64,53 @@
   width: 100%;
 }
 
+/* Q1: full-width rows (no "=") are normal block; rows with "=" go in a table so "=" aligns */
+.calc-rows-container.q1-aligned {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+  width: 100%;
+}
+
+.calc-rows-container.q1-aligned .calc-q1-table {
+  display: table;
+  width: auto;
+  table-layout: auto;
+}
+
+.calc-rows-container.q1-aligned .calc-q1-table .calc-row-three-cell {
+  display: table-row;
+}
+
+.calc-rows-container.q1-aligned .calc-q1-table .calc-cell-lhs,
+.calc-rows-container.q1-aligned .calc-q1-table .calc-cell-eq,
+.calc-rows-container.q1-aligned .calc-q1-table .calc-cell-rhs {
+  display: table-cell;
+  vertical-align: middle;
+  padding-right: 0.5vw;
+}
+
+/* LHS: only as wide as content (max of LHS cells); no extra width */
+.calc-rows-container.q1-aligned .calc-q1-table .calc-cell-lhs {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.calc-rows-container.q1-aligned .calc-q1-table .calc-cell-eq {
+  width: 1%;
+  white-space: nowrap;
+  padding-left: 0.3vw;
+  padding-right: 0.3vw;
+  text-align: center;
+}
+
+/* RHS: takes all remaining width */
+.calc-rows-container.q1-aligned .calc-q1-table .calc-cell-rhs {
+  width: auto;
+  max-width: none;
+}
+
 .calc-row {
   font-size: 2vw;
   color: white;
@@ -269,7 +316,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1vw;
+  padding: .5vw;
 }
 
 /* MCQ in calculation panel */
@@ -277,26 +324,26 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1vw;
+  gap: .5vw;
   /* padding: 1vw; */
 }
 
 .calc-mcq-title {
-  font-size: 1.8vw;
+  font-size: 2vw;
   color: white;
   text-align: center;
-  margin-bottom: 1vw;
+  /* margin-bottom: 1vw; */
 }
 
 .calc-mcq-options {
   display: flex;
   flex-direction: column;
-  gap: 0.8vw;
+  gap: 0.5vw;
 }
 
 .calc-mcq-option {
   padding: 0.8vw 1.5vw;
-  font-size: 1.8vw;
+  font-size: 2vw;
   font-weight: 500;
   cursor: pointer;
   border: none;

@@ -78,8 +78,7 @@ const CalculationPanel = ({
     }
     const calcPanel = document.querySelector(".calc-equation-row");
     if (calcPanel) {
-      console.log(calcPanel);
-    calcPanel.scrollTo({
+      calcPanel.scrollTo({
         top: calcPanel.scrollHeight,
         behavior: "smooth",
       });
@@ -214,71 +213,104 @@ const CalculationPanel = ({
     return (lastMcq && lastMcq.formulaRow) || "";
   };
 
+  // Split row text into LHS and RHS by first "=" for aligned layout
+  const splitLhsRhs = (text) => {
+    const idx = text.indexOf("=");
+    if (idx < 0) return { lhs: text.trim(), rhs: "", hasEq: false };
+    return {
+      lhs: text.slice(0, idx).trim(),
+      rhs: text.slice(idx + 1).trim(),
+      hasEq: true
+    };
+  };
+
+  // Render one side (LHS or RHS) that may contain [box] placeholders
+  const renderSideContent = (template, startBoxIdx, boxCount, rowFullyFilled, filledAnswersRef) => {
+    if (!template) return [React.createElement("span", { key: "empty" }, "")];
+    const parts = template.split("[box]");
+    const elements = [];
+    let boxIdx = startBoxIdx;
+    const filledAnswers = filledAnswersRef || [];
+    parts.forEach((part, i) => {
+      elements.push(React.createElement("span", { key: `p-${i}` }, part));
+      if (i < parts.length - 1 && boxIdx < startBoxIdx + boxCount) {
+        const isFilled = boxIdx < filledAnswers.length;
+        const isCurrent = boxIdx === filledCount;
+        const value = isFilled ? filledAnswers[boxIdx] : (isCurrent ? numpadValue : "");
+        if (rowFullyFilled) {
+          elements.push(
+            React.createElement("span", { key: `box-${boxIdx}`, className: "calc-filled-inline" }, value)
+          );
+        } else {
+          const boxClass = [
+            "calc-input-box",
+            inputError && isCurrent ? "error shake" : "",
+            (inputCorrect && isCurrent) || (isFilled && !isCurrent) ? "correct" : "",
+            isCurrent ? "highlight" : ""
+          ].filter(Boolean).join(" ");
+          elements.push(
+            React.createElement("span", { key: `box-${boxIdx}`, className: boxClass }, value)
+          );
+        }
+        boxIdx++;
+      }
+    });
+    return elements;
+  };
+
   const renderCalcRows = () => {
-    const rows = [];
     const filledAnswers = calcState.calcBoxAnswers || [];
-    let boxGlobalIndex = 0;
+    const tableRows = [];
 
     if (calcState.formulaRowAdded) {
       const formulaText = getFormulaRowText();
       if (formulaText) {
-        rows.push(
-          React.createElement("div", { key: "formula", className: "calc-row" }, formulaText)
+        const { lhs, rhs, hasEq } = splitLhsRhs(formulaText);
+        tableRows.push(
+          React.createElement(
+            "tr",
+            { key: "formula", className: "calc-row" },
+            React.createElement("td", { className: "calc-cell-lhs" }, lhs),
+            React.createElement("td", { className: "calc-cell-eq" }, hasEq ? "=" : ""),
+            React.createElement("td", { className: "calc-cell-rhs" }, rhs)
+          )
         );
       }
     }
 
-    // Only show calc rows when on step 5; on step 4 only formula row is shown (first row appears after Next)
     if (step === 5) {
       const visibleRows = calcRows.slice(0, visibleCalcRowIndex + 1);
       visibleRows.forEach((rowDef, rowIndex) => {
         const text = rowDef.text || "";
-        const answers = rowDef.answers;
-        if (!answers || !answers.length) {
-          rows.push(
-            React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, text)
-          );
-          return;
-        }
-        const parts = text.split("[box]");
-        const elements = [];
+        const answers = rowDef.answers || [];
+        const { lhs: lhsTemplate, rhs: rhsTemplate, hasEq } = splitLhsRhs(text);
+        const numLhsBoxes = (lhsTemplate.match(/\[box\]/g) || []).length;
+        const numRhsBoxes = (rhsTemplate.match(/\[box\]/g) || []).length;
         const rowStartBox = startBoxIndexForRow(rowIndex);
         const rowBoxCount = answers.length;
-        const rowFullyFilled = filledAnswers.length >= rowStartBox + rowBoxCount;
-        parts.forEach((part, i) => {
-          elements.push(React.createElement("span", { key: `p-${i}` }, part));
-          if (i < parts.length - 1) {
-            const boxIdx = boxGlobalIndex++;
-            const isFilled = boxIdx < filledAnswers.length;
-            const isCurrent = boxIdx === filledCount;
-            const value = isFilled ? filledAnswers[boxIdx] : (isCurrent ? numpadValue : "");
-            if (rowFullyFilled) {
-              elements.push(
-                React.createElement("span", { key: `box-${boxIdx}`, className: "calc-filled-inline" }, value)
-              );
-            } else {
-              const boxClass = [
-                "calc-input-box",
-                inputError && isCurrent ? "error shake" : "",
-                inputCorrect && isCurrent ? "correct" : "",
-                isCurrent ? "highlight" : ""
-              ].filter(Boolean).join(" ");
-              elements.push(
-                React.createElement("span", {
-                  key: `box-${boxIdx}`,
-                  className: boxClass
-                }, value)
-              );
-            }
-          }
-        });
-        rows.push(
-          React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, ...elements)
+        const rowFullyFilled = rowBoxCount === 0 || filledAnswers.length >= rowStartBox + rowBoxCount;
+
+        const lhsElements = renderSideContent(lhsTemplate, rowStartBox, numLhsBoxes, rowFullyFilled, filledAnswers);
+        const rhsElements = renderSideContent(rhsTemplate, rowStartBox + numLhsBoxes, numRhsBoxes, rowFullyFilled, filledAnswers);
+
+        tableRows.push(
+          React.createElement(
+            "tr",
+            { key: `row-${rowIndex}`, className: "calc-row" },
+            React.createElement("td", { className: "calc-cell-lhs" }, ...lhsElements),
+            React.createElement("td", { className: "calc-cell-eq" }, hasEq ? "=" : ""),
+            React.createElement("td", { className: "calc-cell-rhs" }, ...rhsElements)
+          )
         );
       });
     }
 
-    return rows;
+    if (tableRows.length === 0) return null;
+    return React.createElement(
+      "table",
+      { className: "calc-rows-table" },
+      React.createElement("tbody", null, ...tableRows)
+    );
   };
 
   const renderRightPanelContent = () => {

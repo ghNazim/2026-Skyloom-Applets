@@ -80,7 +80,18 @@ const App = () => {
     return 1 + comprehendData.given.data.length + comprehendData.toFind.data.length;
   };
 
-  // Reset next button and dynamic texts on step change
+  // Number of answer boxes in calc rows 0..r (inclusive); for r < 0 returns 0. Used to truncate calcBoxAnswers when going back.
+  const getBoxCountThroughRow = (calcRows, r) => {
+    if (r < 0) return 0;
+    const rows = calcRows || [];
+    let count = 0;
+    for (let i = 0; i <= r && i < rows.length; i++) {
+      count += (rows[i].answers && rows[i].answers.length) ? rows[i].answers.length : 0;
+    }
+    return count;
+  };
+
+  // Reset next button and dynamic texts on step change (do NOT reset comprehendSubstep/visibleCalcRowIndex here; those are set in handleNext/handlePrev)
   useEffect(() => {
     setDynamicQuestionText("");
     setDynamicNavText("");
@@ -98,13 +109,6 @@ const App = () => {
       setIsNextDisabled(false);
     } else {
       setIsNextDisabled(true);
-    }
-
-    if (currentStep === 1) {
-      setComprehendSubstep(0);
-    }
-    if (currentStep === 5) {
-      setVisibleCalcRowIndex(0);
     }
   }, [currentStep, questionIdx, appData]);
 
@@ -192,8 +196,14 @@ const App = () => {
 
     if (window.playSound) window.playSound("click");
     // Skip step 3: from step 2 go directly to step 4
-    if (currentStep === 2) {
+    if (currentStep === 0) {
+      setComprehendSubstep(0);
+      setCurrentStep(1);
+    } else if (currentStep === 2) {
       setCurrentStep(4);
+    } else if (currentStep === 4) {
+      setVisibleCalcRowIndex(0);
+      setCurrentStep(5);
     } else {
       setCurrentStep(prev => prev + 1);
     }
@@ -202,24 +212,87 @@ const App = () => {
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
 
+    const resetCalcStateToInitial = () => {
+      setCalcState({
+        formulaRowAdded: false,
+        mcqAnsweredCount: 0,
+        calcBoxAnswers: [],
+        calcBoxFilledIndex: { row: 0, box: 0 }
+      });
+      setVisibleCalcRowIndex(0);
+    };
+
+    // Step 1: previous substep, and reset any progress after step 1
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
+        resetCalcStateToInitial();
+        setIsNextDisabled(false);
+        setDynamicQuestionText("");
+        setDynamicNavText("");
         return;
       }
     }
 
+    // Step 5: previous calc row; keep only answers for rows *before* the row we're landing on (so that row's boxes are unanswered and numpad is active)
+    if (currentStep === 5) {
+      const calcRows = appData.calcRows || [];
+      if (visibleCalcRowIndex > 0) {
+        const newVisibleIdx = visibleCalcRowIndex - 1;
+        const keepCount = getBoxCountThroughRow(calcRows, newVisibleIdx - 1);
+        setVisibleCalcRowIndex(newVisibleIdx);
+        setCalcState(prev => ({
+          ...prev,
+          calcBoxAnswers: (prev.calcBoxAnswers || []).slice(0, keepCount)
+        }));
+        setIsNextDisabled(true);
+        setDynamicQuestionText("");
+        setDynamicNavText("");
+        return;
+      }
+      // visibleCalcRowIndex === 0: go back to step 4 and reset so step 4 looks fresh
+      resetCalcStateToInitial();
+      setCurrentStep(4);
+      setIsNextDisabled(false);
+      setDynamicQuestionText("");
+      setDynamicNavText("");
+      return;
+    }
+
+    // Step 6: go back to step 5 (last calc row visible, all answers kept)
+    if (currentStep === 6) {
+      const calcRows = appData.calcRows || [];
+      setCurrentStep(5);
+      setVisibleCalcRowIndex(Math.max(0, calcRows.length - 1));
+      setIsNextDisabled(false);
+      setDynamicQuestionText("");
+      setDynamicNavText("");
+      return;
+    }
+
+    // Go back to previous step and reset all progress made after that step
     if (currentStep > 0) {
       setIsNextDisabled(true);
       setDynamicQuestionText("");
       setDynamicNavText("");
       setCurrentHighlights(null);
       setHighlightColor(null);
-      // Skip step 3: from step 4 go back to step 2
+
       if (currentStep === 4) {
+        resetCalcStateToInitial();
         setCurrentStep(2);
-      } else {
-        setCurrentStep(prev => prev - 1);
+        return;
+      }
+      if (currentStep === 2) {
+        resetCalcStateToInitial();
+        setCurrentStep(1);
+        setComprehendSubstep(getTotalComprehendSubsteps() - 1);
+        return;
+      }
+      if (currentStep === 1) {
+        resetCalcStateToInitial();
+        setCurrentStep(0);
+        return;
       }
     }
   };
@@ -239,6 +312,10 @@ const App = () => {
 
   const getQuestionText = () => {
     if (dynamicQuestionText) return dynamicQuestionText;
+    // Step 5 (calc rows): show question text for the visible calc row index when available
+    if (currentStep === 5 && appData.questionTextsWithCalcRows && appData.questionTextsWithCalcRows[visibleCalcRowIndex] != null) {
+      return appData.questionTextsWithCalcRows[visibleCalcRowIndex];
+    }
     const stepData = appData.steps[currentStep];
     return stepData ? stepData.questionText : "";
   };

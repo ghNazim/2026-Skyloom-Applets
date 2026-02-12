@@ -77,171 +77,273 @@ const App = () => {
   };
 
   // Reset all state so that targetStep appears as if reached for the first time.
-  // Clears any state that was set during or after targetStep.
+  // Clears any progress made at targetStep or any later step.
   const resetStateForStep = (targetStep) => {
     setDynamicQuestionText("");
     setDynamicNavText("");
     setCurrentHighlights(null);
     setHighlightColor(null);
 
+    const calc1 = APP_DATA.calculation1;
+    const calc2 = APP_DATA.calculation2;
+    const calc = APP_DATA.calculation;
+    const labels = APP_DATA.labels;
+
+    const emptyCalcState = {
+      calc1BoxesDone: false,
+      calc1NumpadAnswered: false,
+      calc1NumpadValue: "",
+      calc2Numpad1Answered: false,
+      calc2Numpad1Value: "",
+      calc2Numpad2Answered: false,
+      calc2Numpad2Value: "",
+      calc3BoxesDone: false,
+      calc3NumpadAnswered: false,
+      calc3NumpadValue: "",
+      mcq1Answered: false,
+      mcq2Answered: false,
+      mcq3Answered: false,
+      findings: []
+    };
+
     if (targetStep <= 0) {
       setComprehendSubstep(0);
-      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState1({ 0: false, 1: false, 2: false, 3: false, 4: false });
       setInteractiveBoxState2({ 0: false, 1: false });
-      setCalcState({
-        calc1BoxesDone: false,
-        calc1NumpadAnswered: false,
-        calc1NumpadValue: "",
-        calc2BoxesDone: false,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: []
-      });
+      setCalcState(emptyCalcState);
       return;
     }
 
     if (targetStep === 1) {
       setComprehendSubstep(0);
-      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState1({ 0: false, 1: false, 2: false, 3: false, 4: false });
       setInteractiveBoxState2({ 0: false, 1: false });
-      setCalcState({
-        calc1BoxesDone: false,
-        calc1NumpadAnswered: false,
-        calc1NumpadValue: "",
-        calc2BoxesDone: false,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: []
-      });
+      setCalcState(emptyCalcState);
       return;
     }
 
     if (targetStep <= 3) {
-      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState1({ 0: false, 1: false, 2: false, 3: false, 4: false });
       setInteractiveBoxState2({ 0: false, 1: false });
-      setCalcState({
-        calc1BoxesDone: false,
-        calc1NumpadAnswered: false,
-        calc1NumpadValue: "",
-        calc2BoxesDone: false,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: []
-      });
+      setCalcState(emptyCalcState);
       return;
     }
 
     if (targetStep === 4) {
-      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState1({ 0: false, 1: false, 2: false, 3: false, 4: false });
       setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
-        calc1BoxesDone: false,
-        calc1NumpadAnswered: false,
-        calc1NumpadValue: "",
-        calc2BoxesDone: false,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: []
+        ...emptyCalcState,
+        mcq1Answered: true,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step3 },
+          { title: labels.findings, list: calc.defaultFindings.step3to4 }
+        ]
       });
       return;
     }
 
     if (targetStep === 5) {
-      setInteractiveBoxState1({ 0: true, 1: true });
+      setInteractiveBoxState1({ 0: false, 1: false, 2: false, 3: false, 4: false });
       setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
-        calc1BoxesDone: true,
-        calc1NumpadAnswered: false,
-        calc1NumpadValue: "",
-        calc2BoxesDone: false,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: []
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step3 },
+          { title: labels.findings, list: calc.defaultFindings.step3to4 }
+        ]
       });
       return;
     }
 
     if (targetStep === 6) {
-      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
       setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
         calc1BoxesDone: true,
-        calc1NumpadAnswered: true,
-        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
-        calc2BoxesDone: false,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: [calc1Finding]
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step6 },
+          { title: labels.findings, list: calc.defaultFindings.step3to4 }
+        ]
       });
       return;
     }
 
     if (targetStep === 7) {
-      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
       setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
         calc1BoxesDone: true,
         calc1NumpadAnswered: true,
-        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
-        calc2BoxesDone: false,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: [calc1Finding]
+        calc1NumpadValue: calc1.numpad.answer,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step6 },
+          { title: labels.findings, list: [calc1.findings.perimeter] }
+        ]
       });
       return;
     }
 
     if (targetStep === 8) {
-      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
-      setInteractiveBoxState2({ 0: true, 1: true });
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
+      setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
         calc1BoxesDone: true,
         calc1NumpadAnswered: true,
-        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
-        calc2BoxesDone: true,
-        calc2NumpadAnswered: false,
-        calc2NumpadValue: "",
-        mcqAnswered: false,
-        findings: [calc1Finding]
+        calc1NumpadValue: calc1.numpad.answer,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step7to13 },
+          { title: labels.findings, list: [calc1.findings.perimeter] }
+        ]
       });
       return;
     }
 
     if (targetStep === 9) {
-      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
-      const calc2Finding = APP_DATA.calculation2.findings.volumePerBottle;
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
+      setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
         calc1BoxesDone: true,
         calc1NumpadAnswered: true,
-        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
-        calc2BoxesDone: true,
-        calc2NumpadAnswered: true,
-        calc2NumpadValue: APP_DATA.calculation2.numpad.answer,
-        mcqAnswered: false,
-        findings: [calc1Finding, calc2Finding]
+        calc1NumpadValue: calc1.numpad.answer,
+        calc2Numpad1Answered: true,
+        calc2Numpad1Value: calc2.numpad1.answer,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step7to13 },
+          { title: labels.findings, list: [calc1.findings.perimeter] }
+        ]
       });
       return;
     }
 
     if (targetStep === 10) {
-      const calc1Finding = APP_DATA.calculation1.findings.totalVolume;
-      const calc2Finding = APP_DATA.calculation2.findings.volumePerBottle;
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
+      setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
         calc1BoxesDone: true,
         calc1NumpadAnswered: true,
-        calc1NumpadValue: APP_DATA.calculation1.numpad.answer,
-        calc2BoxesDone: true,
-        calc2NumpadAnswered: true,
-        calc2NumpadValue: APP_DATA.calculation2.numpad.answer,
-        mcqAnswered: true,
-        findings: [calc1Finding, calc2Finding, APP_DATA.conversionMcq.conversionFinding]
+        calc1NumpadValue: calc1.numpad.answer,
+        calc2Numpad1Answered: true,
+        calc2Numpad1Value: calc2.numpad1.answer,
+        calc2Numpad2Answered: true,
+        calc2Numpad2Value: calc2.numpad2.answer,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step7to13 },
+          { title: labels.findings, list: [calc1.findings.perimeter, calc2.findings.numberOfPots] }
+        ]
+      });
+      return;
+    }
+
+    if (targetStep === 11) {
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
+        mcq3Answered: true,
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: calc1.numpad.answer,
+        calc2Numpad1Answered: true,
+        calc2Numpad1Value: calc2.numpad1.answer,
+        calc2Numpad2Answered: true,
+        calc2Numpad2Value: calc2.numpad2.answer,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step7to13 },
+          { title: labels.findings, list: [calc1.findings.perimeter, calc2.findings.numberOfPots] }
+        ]
+      });
+      return;
+    }
+
+    if (targetStep === 12) {
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
+      setInteractiveBoxState2({ 0: false, 1: false });
+      setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
+        mcq3Answered: true,
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: calc1.numpad.answer,
+        calc2Numpad1Answered: true,
+        calc2Numpad1Value: calc2.numpad1.answer,
+        calc2Numpad2Answered: true,
+        calc2Numpad2Value: calc2.numpad2.answer,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step7to13 },
+          { title: labels.findings, list: [calc1.findings.perimeter, calc2.findings.numberOfPots] }
+        ]
+      });
+      return;
+    }
+
+    if (targetStep === 13) {
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
+      setInteractiveBoxState2({ 0: true, 1: true });
+      setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
+        mcq3Answered: true,
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: calc1.numpad.answer,
+        calc2Numpad1Answered: true,
+        calc2Numpad1Value: calc2.numpad1.answer,
+        calc2Numpad2Answered: true,
+        calc2Numpad2Value: calc2.numpad2.answer,
+        calc3BoxesDone: true,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step7to13 },
+          { title: labels.findings, list: [calc1.findings.perimeter, calc2.findings.numberOfPots] }
+        ]
+      });
+      return;
+    }
+
+    if (targetStep === 14) {
+      setInteractiveBoxState1({ 0: true, 1: true, 2: true, 3: true, 4: true });
+      setInteractiveBoxState2({ 0: true, 1: true });
+      setCalcState({
+        ...emptyCalcState,
+        mcq1Answered: true,
+        mcq2Answered: true,
+        mcq3Answered: true,
+        calc1BoxesDone: true,
+        calc1NumpadAnswered: true,
+        calc1NumpadValue: calc1.numpad.answer,
+        calc2Numpad1Answered: true,
+        calc2Numpad1Value: calc2.numpad1.answer,
+        calc2Numpad2Answered: true,
+        calc2Numpad2Value: calc2.numpad2.answer,
+        calc3BoxesDone: true,
+        calc3NumpadAnswered: true,
+        calc3NumpadValue: APP_DATA.calculation3.numpad.answer,
+        findings: [
+          { title: labels.given, list: calc.defaultGiven.step7to13 },
+          { title: labels.findings, list: [calc1.findings.perimeter, calc2.findings.numberOfPots] }
+        ]
       });
     }
   };
@@ -501,7 +603,7 @@ const App = () => {
             { className: "comprehend-question-image" },
             React.createElement("img", {
               src: APP_DATA.step0Image || "assets/question.png",
-              alt: APP_DATA.altTexts?.questionImage || "Question image",
+              alt: APP_DATA.altTexts?.questionImage,
               className: "question-image"
             })
           )

@@ -30,8 +30,7 @@ const App = () => {
   // Interactive box state for Step 4 (persistent across re-renders)
   const [interactiveBoxState, setInteractiveBoxState] = useState({ 0: false, 1: false });
   
-  // Calculation state for Steps 5-9 (persistent)
-  const [calcState, setCalcState] = useState({
+  const initialCalcState = {
     mcq1Answered: false,
     showNumpad1: false,
     numpad1Answered: false,
@@ -41,7 +40,66 @@ const App = () => {
     mcq2Answered: false,
     showFinalRow: false,
     findings: []
-  });
+  };
+
+  const [calcState, setCalcState] = useState(initialCalcState);
+
+  const getCalcStateForStep = (stepNum) => {
+    const calcData = APP_DATA.calculation;
+    if (stepNum < 5) return initialCalcState;
+    if (stepNum === 5) return { ...initialCalcState };
+    if (stepNum === 6) {
+      return {
+        ...initialCalcState,
+        mcq1Answered: true,
+        showNumpad1: true,
+        numpad1Answered: true,
+        numpad1Value: calcData.numpad1.answer,
+        findings: calcData.mcq1 ? [calcData.mcq1.finding] : []
+      };
+    }
+    if (stepNum === 7) {
+      return {
+        ...initialCalcState,
+        mcq1Answered: true,
+        showNumpad1: true,
+        numpad1Answered: true,
+        numpad1Value: calcData.numpad1.answer,
+        numpad2Answered: true,
+        numpad2Value: calcData.numpad2.answer,
+        findings: calcData.mcq1 ? [calcData.mcq1.finding] : []
+      };
+    }
+    if (stepNum === 8) {
+      return {
+        ...initialCalcState,
+        mcq1Answered: true,
+        showNumpad1: true,
+        numpad1Answered: true,
+        numpad1Value: calcData.numpad1.answer,
+        numpad2Answered: true,
+        numpad2Value: calcData.numpad2.answer,
+        mcq2Answered: false,
+        showFinalRow: false,
+        findings: calcData.mcq1 ? [calcData.mcq1.finding] : []
+      };
+    }
+    if (stepNum >= 9) {
+      return {
+        ...initialCalcState,
+        mcq1Answered: true,
+        showNumpad1: true,
+        numpad1Answered: true,
+        numpad1Value: calcData.numpad1.answer,
+        numpad2Answered: true,
+        numpad2Value: calcData.numpad2.answer,
+        mcq2Answered: true,
+        showFinalRow: true,
+        findings: calcData.mcq1 ? [calcData.mcq1.finding] : []
+      };
+    }
+    return initialCalcState;
+  };
 
   const handleRestart = () => {
     if (window.playSound) window.playSound("click");
@@ -60,23 +118,13 @@ const App = () => {
       hasEnded: false
     });
     setInteractiveBoxState({ 0: false, 1: false });
-    setCalcState({
-      mcq1Answered: false,
-      showNumpad1: false,
-      numpad1Answered: false,
-      numpad1Value: "",
-      numpad2Answered: false,
-      numpad2Value: "",
-      mcq2Answered: false,
-      showFinalRow: false,
-      findings: []
-    });
+    setCalcState(initialCalcState);
   };
   
-  // Calculate total comprehend substeps
+  // Total comprehend substeps: 1 blank + given + toFind
   const getTotalComprehendSubsteps = () => {
     const comprehendData = APP_DATA.comprehend;
-    return comprehendData.given.data.length + comprehendData.toFind.data.length;
+    return 1 + comprehendData.given.data.length + comprehendData.toFind.data.length;
   };
   
   // Reset next button and dynamic texts on step change
@@ -119,7 +167,7 @@ const App = () => {
     }
   }, [currentStep]);
 
-  // Update nav text for comprehend substeps
+  // Update nav text and highlights for comprehend substeps
   useEffect(() => {
     if (currentStep === 1) {
       const stepData = APP_DATA.steps[1];
@@ -127,60 +175,56 @@ const App = () => {
       const comprehendData = APP_DATA.comprehend;
       const givenCount = comprehendData.given.data.length;
       
-      // Update highlights based on substep - one at a time
       if (comprehendSubstep === 0) {
-        // First given item - show first orange highlight only
-        setCurrentHighlights([comprehendData.given.highlights[0]]);
+        setCurrentHighlights(comprehendData.blankSubstepHighlight ? [comprehendData.blankSubstepHighlight] : null);
         setHighlightColor("orange");
-      } else if (comprehendSubstep === 1) {
-        // Second given item - show second orange highlight only
-        setCurrentHighlights([comprehendData.given.highlights[1]]);
+      } else if (comprehendSubstep >= 1 && comprehendSubstep <= givenCount) {
+        const idx = comprehendSubstep - 1;
+        setCurrentHighlights(comprehendData.given.highlights[idx] ? [comprehendData.given.highlights[idx]] : null);
         setHighlightColor("orange");
-      } else if (comprehendSubstep === givenCount) {
-        // First toFind item - show purple highlight (remove orange)
+      } else if (comprehendSubstep > givenCount) {
         setCurrentHighlights(comprehendData.toFind.highlights);
         setHighlightColor("purple");
       } else {
-        // Remove highlights for subsequent substeps
         setCurrentHighlights(null);
         setHighlightColor(null);
       }
       
-      // Update image based on substep
-      if (comprehendData.images && comprehendData.images[comprehendSubstep]) {
+      if (comprehendData.images && comprehendSubstep > 0 && comprehendData.images[comprehendSubstep]) {
         setCurrentImage(comprehendData.images[comprehendSubstep]);
       }
       
-      // Handle video state based on substep
       if (comprehendData.video && comprehendData.video.substeps[comprehendSubstep]) {
         const videoConfig = comprehendData.video.substeps[comprehendSubstep];
-        setVideoState({
-          isPlaying: videoConfig.isPlaying,
-          showVideo: videoConfig.showVideo,
-          showLastFrame: videoConfig.showLastFrame,
-          hasEnded: false
+        const isPlayingSubstep = videoConfig.isPlaying;
+        setVideoState(prev => {
+          const hasEnded = isPlayingSubstep ? prev.hasEnded : false;
+          const videoEndedOnThisSubstep = isPlayingSubstep && hasEnded;
+          return {
+            ...prev,
+            isPlaying: videoEndedOnThisSubstep ? false : videoConfig.isPlaying,
+            showVideo: videoConfig.showVideo,
+            showLastFrame: videoEndedOnThisSubstep ? true : videoConfig.showLastFrame,
+            hasEnded: hasEnded
+          };
         });
-        
-        // For substep 1 (video playing), disable next until video ends
-        if (comprehendSubstep === 1 && videoConfig.isPlaying) {
-          setIsNextDisabled(true);
+        if (isPlayingSubstep) {
+          if (!videoState.hasEnded) {
+            setIsNextDisabled(true);
+          }
         } else {
           setIsNextDisabled(false);
         }
       } else {
-        // Enable next button for comprehend substeps without video
         setIsNextDisabled(false);
       }
       
-      // If last substep, update nav text
       if (comprehendSubstep === total - 1) {
-        if (stepData.navTextCorrect) {
-          setDynamicNavText(stepData.navTextCorrect);
-        }
+        setDynamicNavText(stepData.navTextCorrect || stepData.navText);
+      } else if (comprehendSubstep === givenCount && stepData.navToFind) {
+        setDynamicNavText(stepData.navToFind);
       } else {
-        if (stepData.navText) {
-          setDynamicNavText(stepData.navText);
-        }
+        setDynamicNavText(stepData.navText || "");
       }
     }
   }, [currentStep, comprehendSubstep]);
@@ -210,7 +254,6 @@ const App = () => {
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
     
-    // Handle step 1 - comprehend with substeps
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
@@ -219,12 +262,17 @@ const App = () => {
     }
     
     if (currentStep > 0) {
+      const targetStep = currentStep - 1;
+      if (targetStep <= 4) {
+        setInteractiveBoxState({ 0: false, 1: false });
+      }
+      setCalcState(getCalcStateForStep(targetStep));
       setIsNextDisabled(true);
       setDynamicQuestionText("");
       setDynamicNavText("");
       setCurrentHighlights(null);
       setHighlightColor(null);
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep(targetStep);
     }
   };
 
@@ -238,23 +286,16 @@ const App = () => {
     setCurrentImage(imageSrc);
   }, []);
   
-  // Callback when video ends
+  // Callback when video ends (playing substep in comprehend)
   const handleVideoEnded = useCallback(() => {
     setVideoState(prev => ({
       ...prev,
       isPlaying: false,
-      hasEnded: true
+      hasEnded: true,
+      showLastFrame: true
     }));
-    
-    // Enable next button when video ends
     setIsNextDisabled(false);
-    
-    // Show second given info when video ends (for substep 1)
-    if (currentStep === 1 && comprehendSubstep === 1) {
-      // The given info will be shown automatically by the existing logic
-      // when the next button is clicked and substep advances
-    }
-  }, [currentStep, comprehendSubstep]);
+  }, []);
 
   // Handlers for dynamic text updates
   const updateTexts = useCallback((question, nav) => {

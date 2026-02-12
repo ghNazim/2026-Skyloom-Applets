@@ -1,6 +1,7 @@
 const MainCanvas = ({
   step,
   appData,
+  questionIdx = 0,
   onEnableNext,
   onUpdateTexts,
   onUpdateImage,
@@ -48,7 +49,8 @@ const MainCanvas = ({
             substep: comprehendSubstep,
             questionRowText: statementInVisual || null,
             questionRowHighlights: questionRowHighlights,
-            questionRowHighlightColor: questionRowHighlightColor
+            questionRowHighlightColor: questionRowHighlightColor,
+            alt: appData.altVisual || "Visual representation"
           })
         ),
         React.createElement(
@@ -85,6 +87,7 @@ const MainCanvas = ({
       return React.createElement(CalculationPanel, {
         step: step,
         appData: appData,
+        questionIdx: questionIdx,
         onEnableNext: onEnableNext,
         onUpdateNavText: (navText) => onUpdateTexts(null, navText),
         calcState: calcState,

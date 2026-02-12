@@ -4,15 +4,17 @@ const Visual = ({ imageSrc, showAreaLabel = false, step, substep = 0, isAnswered
   return React.createElement(
     "div",
     { className: "visual-panel" },
-    isSvgInline 
-      ? React.createElement("div", {
-          className: "svg-inline-wrapper", 
-          dangerouslySetInnerHTML: { __html: imageSrc } 
-        }) 
-      : React.createElement("img", {
-          src: imageSrc,
-          alt: "Visual representation",
-          className: "visual-image",
-        })
+    !imageSrc || !imageSrc.trim()
+      ? null
+      : isSvgInline
+        ? React.createElement("div", {
+            className: "svg-inline-wrapper",
+            dangerouslySetInnerHTML: { __html: imageSrc }
+          })
+        : React.createElement("img", {
+            src: imageSrc,
+            alt: "Visual representation",
+            className: "visual-image",
+          })
   );
 };

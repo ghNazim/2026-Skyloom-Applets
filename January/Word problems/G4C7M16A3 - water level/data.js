@@ -16,33 +16,36 @@ const DATA = {
       // Comprehend step data (Step 1)
       comprehend: {
         sectionTitle: "INFORMATION ANALYSIS",
+        blankSubstepHighlight: "water",
         images: [
           "assets/compre0.svg",
           "assets/compre1.svg",
           "assets/compre2.svg"
         ],
-        // Video configuration for comprehend substeps
         video: {
           src: "assets/water.mp4",
           substeps: {
-            0: { showVideo: true, isPlaying: false, showLastFrame: false }, // First substep - paused at first frame
-            1: { showVideo: true, isPlaying: true, showLastFrame: false },  // Second substep - playing
-            2: { showVideo: true, isPlaying: false, showLastFrame: true }   // Third substep - last frame
+            0: { showVideo: true, isPlaying: false, showLastFrame: false },
+            1: { showVideo: true, isPlaying: false, showLastFrame: false },
+            2: { showVideo: true, isPlaying: true, showLastFrame: false },
+            3: { showVideo: true, isPlaying: false, showLastFrame: true }
           }
         },
-        // Zoom images for different substeps
         zoomImages: [
-          "assets/zoom1.svg", // substep 0
-          "assets/zoom2.svg", // substep 1
-          "assets/zoom3.svg"  // substep 2
+          null,
+          "assets/zoom1.svg",
+          "assets/zoom2.svg",
+          "assets/zoom3.svg"
         ],
         given: {
           title: "Given,",
           data: [
+            
             "Initial volume of water = 2.225 L",
             "Volume of water used = 975.325 mL",
           ],
           highlights: [
+            
             "water tank contains 2.225 L of water.",
             "water is reduced by 975.325 mL"
           ]
@@ -53,7 +56,7 @@ const DATA = {
             "Volume of water left in the tank in cm³."
           ],
           highlights: [
-            "How much water is left in the tank?"
+            "How much water is left in the tank? Represent it in cm³."
           ]
         },
       },
@@ -96,7 +99,9 @@ const DATA = {
         // Values to fill
         values: {
           initialVolume: "2.225 L",
-          usedVolume: "975.325 mL"
+          usedVolume: "975.325 mL",
+          initial1:"Initial volume of water",
+          initial2:"Volume of water used"
         },
         // MCQ for step 5
         mcq1: {
@@ -140,7 +145,9 @@ const DATA = {
           "= [box] mL – 975.325 mL",
           "= 1249.675 mL",
           "= 1249.675 cm³"
-        ]
+        ],
+        resultMl: "1249.675 mL",
+        resultCm3: "1249.675 cm³"
       },
       
       // Steps configuration
@@ -157,6 +164,7 @@ const DATA = {
         1: {
           questionText: "A water tank contains 2.225 L of water. After use, the water is reduced by 975.325 mL. How much water is left in the tank? Represent it in cm³.",
           navText: "Tap » to continue.",
+          navToFind: "Tap » to identify 'to find'.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/compre0.svg",
           isComprehend: true,
@@ -244,7 +252,11 @@ const DATA = {
       labels: {
         given: "Given",
         toFind: "To Find",
-        findings: "Findings:"
+        findings: "Findings:",
+        waterTankAlt: "Water tank",
+        zoomIndicatorAlt: "Zoom indicator",
+        summaryVisualAlt: "Summary visual",
+        visualRepresentationAlt: "Visual representation"
       },
     },
   },
@@ -256,25 +268,26 @@ const DATA = {
       
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
+        blankSubstepHighlight: "air",
         images: [
           "assets/compre0.svg",
           "assets/compre1.svg",
           "assets/compre2.svg"
         ],
-        // Video configuration for comprehend substeps
         video: {
           src: "assets/water.mp4",
           substeps: {
-            0: { showVideo: true, isPlaying: false, showLastFrame: false }, // First substep - paused at first frame
-            1: { showVideo: true, isPlaying: true, showLastFrame: false },  // Second substep - playing
-            2: { showVideo: true, isPlaying: false, showLastFrame: true }   // Third substep - last frame
+            0: { showVideo: true, isPlaying: false, showLastFrame: false },
+            1: { showVideo: true, isPlaying: true, showLastFrame: false },
+            2: { showVideo: true, isPlaying: false, showLastFrame: true },
+            3: { showVideo: true, isPlaying: false, showLastFrame: true }
           }
         },
-        // Zoom images for different substeps
         zoomImages: [
-          "assets/zoom1.svg", // substep 0
-          "assets/zoom2.svg", // substep 1
-          "assets/zoom3.svg"  // substep 2
+          null,
+          "assets/zoom1.svg",
+          "assets/zoom2.svg",
+          "assets/zoom3.svg"
         ],
         given: {
           title: "Diketahui,",
@@ -331,7 +344,9 @@ const DATA = {
         ],
         values: {
           initialVolume: "2,225 L",
-          usedVolume: "975,325 mL"
+          usedVolume: "975,325 mL",
+          initial1: "Volume air awal",
+          initial2: "Volume air yang digunakan"
         },
         mcq1: {
           title: "Bagaimana cara mengubah 2,225 L ke mL?",
@@ -369,7 +384,9 @@ const DATA = {
           "= [box] mL – 975,325 mL",
           "= 1249,675 mL",
           "= 1249,675 cm³"
-        ]
+        ],
+        resultMl: "1249,675 mL",
+        resultCm3: "1249,675 cm³"
       },
       
       steps: {
@@ -383,6 +400,7 @@ const DATA = {
         1: {
           questionText: "Sebuah tangki air berisi 2,225 L air. Setelah digunakan, air berkurang 975,325 mL. Berapa banyak air yang tersisa di dalam tangki? Nyatakan dalam cm³.",
           navText: "Ketuk » untuk melanjutkan.",
+          navToFind: "Ketuk » untuk mengidentifikasi 'ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
           image: "assets/compre0.svg",
           isComprehend: true,
@@ -462,7 +480,11 @@ const DATA = {
       labels: {
         given: "Diketahui",
         toFind: "Ditanyakan",
-        findings: "Temuan:"
+        findings: "Temuan:",
+        waterTankAlt: "Tangki air",
+        zoomIndicatorAlt: "Indikator zoom",
+        summaryVisualAlt: "Visual ringkasan",
+        visualRepresentationAlt: "Representasi visual"
       },
     },
   },

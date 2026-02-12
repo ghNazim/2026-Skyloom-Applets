@@ -1,4 +1,4 @@
-const Visual = ({ imageSrc, showAreaLabel = false, step, substep = 0, isAnswered = false, questionRowText = null, questionRowHighlights = null, questionRowHighlightColor = null }) => {
+const Visual = ({ imageSrc, showAreaLabel = false, step, substep = 0, isAnswered = false, questionRowText = null, questionRowHighlights = null, questionRowHighlightColor = null, alt = "Visual representation" }) => {
   const isSvgInline = imageSrc && imageSrc.trim().startsWith("<svg");
 
   const getHighlightedStatement = () => {
@@ -27,7 +27,7 @@ const Visual = ({ imageSrc, showAreaLabel = false, step, substep = 0, isAnswered
       })
     : React.createElement("img", {
         src: imageSrc,
-        alt: "Visual representation",
+        alt: alt,
         className: "visual-image",
       });
 

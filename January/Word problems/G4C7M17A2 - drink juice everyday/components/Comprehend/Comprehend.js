@@ -2,26 +2,23 @@ const Comprehend = ({ step, substep }) => {
   const comprehendData = APP_DATA.comprehend;
   const stepData = APP_DATA.steps[step];
   
-  // Step 1: Show Information Analysis with progressive reveal (nested structure)
+  // Step 1: Show Information Analysis. Substep 0 = intro (title only). Then progressive reveal.
   if (step === 1) {
     const givenData = comprehendData.given.data;
     const toFindData = comprehendData.toFind.data;
     
-    // Calculate what to show based on substep
-    // Structure: Given has items with labels and subitems
-    // We reveal one subitem at a time
-    
-    // Count total subitems in Given section
     let givenSubitemCount = 0;
     givenData.forEach(item => {
       givenSubitemCount += item.subitems.length;
     });
     
-    const showToFind = substep >= givenSubitemCount;
-    const toFindSubstepIndex = showToFind ? substep - givenSubitemCount : -1;
+    // Substep 0 = intro: only section title, no list
+    const isIntro = substep === 0;
+    const showToFind = !isIntro && substep > givenSubitemCount;
+    const toFindSubstepIndex = showToFind ? substep - givenSubitemCount - 1 : -1;
     
-    // Calculate which items and subitems to show in Given section
     const getGivenItemsToShow = () => {
+      if (isIntro) return [];
       let currentSubstep = 0;
       const result = [];
       
@@ -30,10 +27,10 @@ const Comprehend = ({ step, substep }) => {
         const subitemsToShow = [];
         
         for (let j = 0; j < item.subitems.length; j++) {
-          if (currentSubstep <= substep) {
+          if (currentSubstep < substep) {
             subitemsToShow.push({
               text: item.subitems[j],
-              isNew: currentSubstep === substep
+              isNew: currentSubstep === substep - 1
             });
           }
           currentSubstep++;
@@ -43,13 +40,12 @@ const Comprehend = ({ step, substep }) => {
           result.push({
             label: item.label,
             subitems: subitemsToShow,
-            isNewLabel: result.length === 0 ? substep < item.subitems.length : 
-                        currentSubstep - item.subitems.length <= substep && 
-                        currentSubstep - item.subitems.length > substep - subitemsToShow.length
+            isNewLabel: result.length === 0 ? substep - 1 < item.subitems.length : 
+                        currentSubstep - item.subitems.length <= substep - 1 && 
+                        currentSubstep - item.subitems.length > substep - 1 - subitemsToShow.length
           });
         }
       }
-      
       return result;
     };
     
@@ -58,14 +54,13 @@ const Comprehend = ({ step, substep }) => {
     return React.createElement(
       "div",
       { className: "comprehend-panel" },
-      // Section Title
       React.createElement(
         "h3",
         { className: "comprehend-section-title" },
         comprehendData.sectionTitle
       ),
-      // Given Section
-      React.createElement(
+      // Given section only when past intro
+      !isIntro && React.createElement(
         "div",
         { className: "comprehend-section given-section" },
         React.createElement(
@@ -80,24 +75,14 @@ const Comprehend = ({ step, substep }) => {
             { className: "section-title given-title" },
             comprehendData.given.title
           ),
-          // Nested list structure
           React.createElement(
             "div",
             { className: "nested-list" },
             givenItemsToShow.map((item, itemIndex) => {
               return React.createElement(
                 "div",
-                { 
-                  key: `given-item-${itemIndex}`,
-                  className: "nested-list-item"
-                },
-                // Item label
-                React.createElement(
-                  "div",
-                  { className: "nested-list-label" },
-                  item.label
-                ),
-                // Subitems
+                { key: `given-item-${itemIndex}`, className: "nested-list-item" },
+                React.createElement("div", { className: "nested-list-label" }, item.label),
                 React.createElement(
                   "ul",
                   { className: "nested-sublist" },
@@ -106,10 +91,8 @@ const Comprehend = ({ step, substep }) => {
                       "li",
                       { 
                         key: `given-subitem-${itemIndex}-${subIndex}`,
-                        className: "nested-sublist-item",
-                        style: {
-                          animation: subitem.isNew ? "fadeInUp 0.3s ease-out" : "none"
-                        }
+                        className: "nested-sublist-item" + (subitem.isNew ? " yellow" : ""),
+                        style: { animation: subitem.isNew ? "fadeInUp 0.3s ease-out" : "none" }
                       },
                       subitem.text
                     );
@@ -120,7 +103,6 @@ const Comprehend = ({ step, substep }) => {
           )
         )
       ),
-      // To Find Section (appears after all given items are shown)
       showToFind && React.createElement(
         "div",
         { 
@@ -149,7 +131,7 @@ const Comprehend = ({ step, substep }) => {
                 "li",
                 { 
                   key: `tofind-${index}`,
-                  className: "section-list-item tofind-item",
+                  className: "section-list-item tofind-item" + (index === toFindSubstepIndex ? " yellow" : ""),
                   style: {
                     animation: index === toFindSubstepIndex ? "fadeInUp 0.3s ease-out" : "none"
                   }
@@ -166,34 +148,35 @@ const Comprehend = ({ step, substep }) => {
   return null;
 };
 
-// LeftQuestion component - shows question with highlights in left panel
+// LeftQuestion component - shows question with highlights in left panel (substep 0 = no highlights)
 const LeftQuestion = ({ step, substep }) => {
   const comprehendData = APP_DATA.comprehend;
   const questionText = APP_DATA.questionText;
   
-  // Calculate which highlight to show based on substep
   let givenSubitemCount = 0;
   comprehendData.given.data.forEach(item => {
     givenSubitemCount += item.subitems.length;
   });
   
-  const isToFind = substep >= givenSubitemCount;
+  const isIntro = substep === 0;
+  const isToFind = substep > givenSubitemCount;
   
-  // Get the highlight for current substep
   const getHighlightedText = () => {
     let text = questionText;
+    if (isIntro) return text;
     
-    if (!isToFind && substep < comprehendData.given.highlights.length) {
-      // Highlight given item
-      const highlight = comprehendData.given.highlights[substep];
-      if (highlight && text.includes(highlight)) {
-        text = text.replace(
-          highlight,
-          `<span class="left-question-highlight-orange">${highlight}</span>`
-        );
+    if (!isToFind && substep >= 1) {
+      const highlightIndex = substep - 1;
+      if (highlightIndex < comprehendData.given.highlights.length) {
+        const highlight = comprehendData.given.highlights[highlightIndex];
+        if (highlight && text.includes(highlight)) {
+          text = text.replace(
+            highlight,
+            `<span class="left-question-highlight-orange">${highlight}</span>`
+          );
+        }
       }
     } else if (isToFind) {
-      // Highlight toFind item
       comprehendData.toFind.highlights.forEach(highlight => {
         if (highlight && text.includes(highlight)) {
           text = text.replace(
@@ -203,7 +186,6 @@ const LeftQuestion = ({ step, substep }) => {
         }
       });
     }
-    
     return text;
   };
   

@@ -80,6 +80,13 @@ const App = () => {
     return 1 + comprehendData.given.data.length + comprehendData.toFind.data.length;
   };
 
+  // Set document title from data (no hardcoded English in HTML)
+  useEffect(() => {
+    if (typeof COMMON_STRINGS !== "undefined" && COMMON_STRINGS[current_language]) {
+      document.title = COMMON_STRINGS[current_language].appTitle || "";
+    }
+  }, [questionIdx]);
+
   // Reset next button and dynamic texts on step change
   useEffect(() => {
     setDynamicQuestionText("");
@@ -202,6 +209,7 @@ const App = () => {
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
 
+    // Step 1: go to previous substep if any, else go to previous step
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
@@ -209,19 +217,43 @@ const App = () => {
       }
     }
 
-    if (currentStep > 0) {
-      setIsNextDisabled(true);
-      setDynamicQuestionText("");
-      setDynamicNavText("");
-      setCurrentHighlights(null);
-      setHighlightColor(null);
-      // Skip step 3: from step 4 go back to step 2
-      if (currentStep === 4) {
-        setCurrentStep(2);
-      } else {
-        setCurrentStep(prev => prev - 1);
-      }
+    if (currentStep <= 0) return;
+
+    setIsNextDisabled(true);
+    setDynamicQuestionText("");
+    setDynamicNavText("");
+    setCurrentHighlights(null);
+    setHighlightColor(null);
+
+    // Determine the step we're going back to (target)
+    const targetStep = currentStep === 4 ? 2 : currentStep - 1; // skip step 3 when going back from 4
+
+    // Reset all progress made after targetStep so it looks like landing there for the first time
+    if (targetStep <= 1) {
+      setComprehendSubstep(0);
     }
+    if (targetStep <= 2) {
+      setCalcState(prev => ({
+        ...prev,
+        formulaRowAdded: false,
+        mcqAnsweredCount: 0,
+        calcBoxAnswers: [],
+      }));
+      setVisibleCalcRowIndex(0);
+    } else if (targetStep === 4) {
+      setCalcState(prev => ({
+        ...prev,
+        formulaRowAdded: false,
+        mcqAnsweredCount: 0,
+        calcBoxAnswers: [],
+      }));
+      setVisibleCalcRowIndex(0);
+    } else if (targetStep === 5) {
+      setCalcState(prev => ({ ...prev, calcBoxAnswers: [] }));
+      setVisibleCalcRowIndex(0);
+    }
+
+    setCurrentStep(targetStep);
   };
 
   const enableNext = useCallback(() => {
@@ -238,6 +270,10 @@ const App = () => {
   }, []);
 
   const getQuestionText = () => {
+    // Step 5 (calc step): show question text for the currently visible calc row
+    if (currentStep === 5 && appData.questionTextsWithCalcRows && appData.questionTextsWithCalcRows[visibleCalcRowIndex] != null) {
+      return appData.questionTextsWithCalcRows[visibleCalcRowIndex];
+    }
     if (dynamicQuestionText) return dynamicQuestionText;
     const stepData = appData.steps[currentStep];
     return stepData ? stepData.questionText : "";
@@ -319,7 +355,7 @@ const App = () => {
           ),
           appData.questionImage && React.createElement("img", {
             src: appData.questionImage,
-            alt: "Question figure",
+            alt: typeof COMMON_STRINGS !== "undefined" ? COMMON_STRINGS[current_language].imageAlt : "",
             className: "comprehend-question-image"
           })
         )

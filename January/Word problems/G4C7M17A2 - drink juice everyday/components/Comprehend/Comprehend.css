@@ -98,6 +98,10 @@
   color: #9c27b0;
 }
 
+.yellow {
+  color: yellow !important;
+}
+
 /* Nested list structure */
 .nested-list {
   display: flex;

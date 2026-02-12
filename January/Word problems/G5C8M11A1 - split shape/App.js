@@ -79,7 +79,10 @@ const App = () => {
   const getNavText = () => {
     if (dynamicNavText) return dynamicNavText;
     const stepData = APP_DATA.steps[currentStep];
-    return stepData ? stepData.navText : "";
+    if (!stepData) return "";
+    // Step 5 uses navText1 initially (tap highlighted text), then navText2 after box click
+    if (currentStep === 5) return stepData.navText1 || stepData.navText || "";
+    return stepData.navText || "";
   };
 
   return React.createElement(

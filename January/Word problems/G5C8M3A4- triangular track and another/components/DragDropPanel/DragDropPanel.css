@@ -44,7 +44,6 @@
 .dd-equation-label {
   font-size: 2vw;
   color: white;
-  margin-bottom: 1vw;
   text-align: left;
   line-height: 1.8;
 }
@@ -56,8 +55,51 @@
   align-items: center;
   gap: 0.5vw;
   flex-wrap: wrap;
-  /* justify-content: center; */
   line-height: 1.8;
+}
+
+/* 3-cell layout so "=" aligns between equation label and equation line */
+.dd-equation-table {
+  display: table;
+  width: auto;
+  table-layout: auto;
+}
+
+.dd-equation-table-row {
+  display: table-row;
+}
+
+.dd-equation-table .dd-cell-lhs,
+.dd-equation-table .dd-cell-eq,
+.dd-equation-table .dd-cell-rhs {
+  display: table-cell;
+  vertical-align: middle;
+  padding-right: 0.5vw;
+}
+
+.dd-equation-table .dd-cell-lhs {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.dd-equation-table .dd-cell-eq {
+  width: 2%;
+  white-space: nowrap;
+  padding-left: 0.3vw;
+  padding-right: 0.3vw;
+  text-align: center;
+  font-size: 2.2vw;
+}
+
+.dd-equation-table .dd-cell-rhs {
+  width: auto;
+  max-width: none;
+}
+
+.dd-equation-table .dd-equation-table-row:first-child .dd-cell-lhs,
+.dd-equation-table .dd-equation-table-row:first-child .dd-cell-rhs {
+  padding-bottom: 0.5vw;
 }
 
 /* Drop Zones */
@@ -213,6 +255,19 @@
 
 .dd-draggable.dragging {
   opacity: 0;
+  pointer-events: none;
+}
+
+.drag-drop-panel,
+.dd-draggable,
+.dd-drop-zone {
+  touch-action: none;
+  user-select: none;
+}
+
+.dd-drag-ghost {
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 /* Drag Ghost */

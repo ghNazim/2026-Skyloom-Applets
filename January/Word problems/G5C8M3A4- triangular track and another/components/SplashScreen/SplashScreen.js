@@ -1,4 +1,4 @@
-const SplashScreen = ({ imageSrc, text, step }) => {
+const SplashScreen = ({ imageSrc, text, step, altText = "Summary visual" }) => {
   return React.createElement(
     "div",
     { className: "splash-screen" },
@@ -8,7 +8,7 @@ const SplashScreen = ({ imageSrc, text, step }) => {
       { className: "splash-image-container", style: { position: 'relative' } },
       React.createElement("img", {
         src: imageSrc,
-        alt: "Summary visual",
+        alt: altText,
         className: "splash-image",
       })
     ),

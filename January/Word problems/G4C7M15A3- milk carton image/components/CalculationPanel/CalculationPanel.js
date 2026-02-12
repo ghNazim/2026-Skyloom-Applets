@@ -266,7 +266,7 @@ const CalculationPanel = ({
         React.createElement(
           "div",
           { className: "calc-image-row" },
-          imageSrc && React.createElement("img", { src: imageSrc, alt: "Milk cartons", className: "calc-image" })
+          imageSrc && React.createElement("img", { src: imageSrc, alt: APP_DATA.altMilkCartons, className: "calc-image" })
         ),
         React.createElement(
           "div",
@@ -289,7 +289,7 @@ const CalculationPanel = ({
       React.createElement(
         "div",
         { className: "calc-image-row" },
-        imageSrc && React.createElement("img", { src: imageSrc, alt: "Milk cartons", className: "calc-image" })
+        imageSrc && React.createElement("img", { src: imageSrc, alt: APP_DATA.altMilkCartons, className: "calc-image" })
       ),
       React.createElement(
         "div",

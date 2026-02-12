@@ -28,7 +28,7 @@ const App = () => {
     calc1NumpadAnswered: false,
     calc1NumpadValue: "",
     mcqAnswered: false,
-    findings: ["Total volume of milk = 1450 mL"]
+    findings: []
   });
 
   const handleRestart = () => {
@@ -156,10 +156,35 @@ const App = () => {
     }
   };
 
+  const resetProgressAfterStep = useCallback((targetStep) => {
+    if (targetStep <= 4) {
+      setCalcState({
+        calc1NumpadAnswered: false,
+        calc1NumpadValue: "",
+        mcqAnswered: false,
+        findings: []
+      });
+      setInteractiveBoxState1({ 0: false, 1: false });
+      setInteractiveBoxState2({ 0: false, 1: false });
+    } else if (targetStep === 5) {
+      setCalcState({
+        calc1NumpadAnswered: false,
+        calc1NumpadValue: "",
+        mcqAnswered: false,
+        findings: []
+      });
+    } else if (targetStep === 6) {
+      setCalcState(prev => ({
+        ...prev,
+        mcqAnswered: false,
+        findings: APP_DATA.findingsAfterNumpad || []
+      }));
+    }
+  }, []);
+
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
     
-    // Handle step 1 - comprehend with substeps
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
@@ -168,12 +193,14 @@ const App = () => {
     }
     
     if (currentStep > 0) {
+      const targetStep = currentStep - 1;
+      resetProgressAfterStep(targetStep);
       setIsNextDisabled(true);
       setDynamicQuestionText("");
       setDynamicNavText("");
       setCurrentHighlights(null);
       setHighlightColor(null);
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep(targetStep);
     }
   };
 
@@ -279,7 +306,7 @@ const App = () => {
             { className: "step0-image-row", style: { flex: "0 0 70%", display: "flex", justifyContent: "center", alignItems: "center", padding: "1vw", minHeight: 0 } },
             React.createElement("img", {
               src: "assets/question.png",
-              alt: "Milk cartons",
+              alt: APP_DATA.altMilkCartons,
               style: { maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }
             })
           ),

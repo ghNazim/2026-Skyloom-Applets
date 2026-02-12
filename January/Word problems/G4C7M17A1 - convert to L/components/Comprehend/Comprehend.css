@@ -98,6 +98,15 @@
   color: #9c27b0;
 }
 
+/* Last-added list item (current substep) – only one yellow at a time */
+.section-list-item.last-added {
+  color: yellow;
+}
+
+.tofind-item.last-added::marker {
+  
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

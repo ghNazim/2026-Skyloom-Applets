@@ -209,95 +209,97 @@ const CalculationPanel = ({
     
     return false;
   };
+
+  // Helper: label-only row (no "=") - render as normal left-aligned row, not table cells.
+  const createLabelRow = (key, rowClass, content) => {
+    const cn = "calc-row calc-row-label" + (rowClass ? " " + rowClass : "");
+    return React.createElement("div", { key, className: cn }, content);
+  };
+
+  // Helper: render a calc row as 3 cells (LHS, =, RHS) for alignment. Only for rows that have "=".
+  const createCalcRow = (key, rowClass, lhs, rhs) => {
+    const cn = "calc-row" + (rowClass ? " " + rowClass : "");
+    return React.createElement("div", { key, className: cn },
+      React.createElement("div", { className: "calc-cell-lhs" }, lhs),
+      React.createElement("div", { className: "calc-cell-eq" }, "="),
+      React.createElement("div", { className: "calc-cell-rhs" }, rhs)
+    );
+  };
   
-  // Render calculation rows for Steps 4-5 (Monday conversion)
+  // Render calculation rows for Steps 4-5 (Monday conversion). Returns { labelRows, eqRows }.
   const renderStep4Rows = () => {
     const calcData = APP_DATA.calcStep4;
-    const rows = [];
+    const labelRows = [];
+    const eqRows = [];
     
-    rows.push(
-      React.createElement("div", { key: "day-label", className: "calc-row calc-day-label" }, 
-        calcData.dayLabel
-      )
-    );
+    labelRows.push(createLabelRow("day-label", "calc-day-label", calcData.dayLabel));
     
-    rows.push(
-      React.createElement("div", { key: "initial-line", className: "calc-row" }, 
-        calcData.initialLine
-      )
-    );
+    // "3 L 250 mL = 3 L + 250 mL" -> split by first "="
+    const initialParts = calcData.initialLine.split("=");
+    const initialLhs = initialParts[0].trim();
+    const initialRhs = initialParts[1] ? initialParts.slice(1).join("=").trim() : "";
+    eqRows.push(createCalcRow("initial-line", "", initialLhs, initialRhs));
     
-    // Input line with two boxes
+    // Input line with two boxes: LHS blank, RHS = box × 1000 + box mL
     const box1Filled = calcState.step4Values[0] !== "";
     const box2Filled = calcState.step4Values[1] !== "";
+    const rhsContent = [
+      React.createElement(
+        "span",
+        { 
+          key: "b1",
+          className: `calc-input-box ${currentBoxIndex === 0 && !box1Filled ? 'active' : ''} ${inputError && currentBoxIndex === 0 ? 'error shake' : ''} ${inputCorrectBoxIndex === 0 ? 'correct' : ''} ${box1Filled ? 'filled' : ''}` 
+        },
+        box1Filled ? calcState.step4Values[0] : (currentBoxIndex === 0 ? numpadValue : "")
+      ),
+      " × 1000 + ",
+      React.createElement(
+        "span",
+        { 
+          key: "b2",
+          className: `calc-input-box ${currentBoxIndex === 1 && !box2Filled ? 'active' : ''} ${inputError && currentBoxIndex === 1 ? 'error shake' : ''} ${inputCorrectBoxIndex === 1 ? 'correct' : ''} ${box2Filled ? 'filled' : ''}` 
+        },
+        box2Filled ? calcState.step4Values[1] : (currentBoxIndex === 1 ? numpadValue : "")
+      ),
+      " ",
+      APP_DATA.labels.unitMl
+    ];
+    eqRows.push(createCalcRow("input-line", "", "", rhsContent));
     
-    rows.push(
-      React.createElement("div", { key: "input-line", className: "calc-row" },
-        "= ",
-        React.createElement(
-          "span",
-          { 
-            className: `calc-input-box ${currentBoxIndex === 0 && !box1Filled ? 'active' : ''} ${inputError && currentBoxIndex === 0 ? 'error shake' : ''} ${inputCorrectBoxIndex === 0 ? 'correct' : ''} ${box1Filled ? 'filled' : ''}` 
-          },
-          box1Filled ? calcState.step4Values[0] : (currentBoxIndex === 0 ? numpadValue : "")
-        ),
-        " × 1000 + ",
-        React.createElement(
-          "span",
-          { 
-            className: `calc-input-box ${currentBoxIndex === 1 && !box2Filled ? 'active' : ''} ${inputError && currentBoxIndex === 1 ? 'error shake' : ''} ${inputCorrectBoxIndex === 1 ? 'correct' : ''} ${box2Filled ? 'filled' : ''}` 
-          },
-          box2Filled ? calcState.step4Values[1] : (currentBoxIndex === 1 ? numpadValue : "")
-        ),
-        APP_DATA.labels.unitMl
-      )
-    );
-    
-    return rows;
+    return { labelRows, eqRows };
   };
   
   // Render calculation rows for Step 5 (Monday result)
   const renderStep5Rows = () => {
     const calcData4 = APP_DATA.calcStep4;
-    const calcData5 = APP_DATA.calcStep5;
-    const rows = [];
+    const labelRows = [];
+    const eqRows = [];
     
-    // Show completed Step 4 rows
-    rows.push(
-      React.createElement("div", { key: "day-label", className: "calc-row calc-day-label" }, 
-        calcData4.dayLabel
-      )
-    );
+    labelRows.push(createLabelRow("day-label", "calc-day-label", calcData4.dayLabel));
     
-    rows.push(
-      React.createElement("div", { key: "initial-line", className: "calc-row" }, 
-        calcData4.initialLine
-      )
-    );
+    const initialParts = calcData4.initialLine.split("=");
+    const initialLhs = initialParts[0].trim();
+    const initialRhs = initialParts[1] ? initialParts.slice(1).join("=").trim() : "";
+    eqRows.push(createCalcRow("initial-line", "", initialLhs, initialRhs));
     
-    rows.push(
-      React.createElement("div", { key: "filled-line", className: "calc-row" },
-        `= ${calcState.step4Values[0]} × 1000 + ${calcState.step4Values[1]} mL`
-      )
-    );
+    eqRows.push(createCalcRow("filled-line", "", "", `${calcState.step4Values[0]} × 1000 + ${calcState.step4Values[1]} mL`));
     
-    // Result input
     const resultFilled = calcState.step5Value !== "";
-    rows.push(
-      React.createElement("div", { key: "result-line", className: "calc-row" },
-        "= ",
-        React.createElement(
-          "span",
-          { 
-            className: `calc-input-box ${!resultFilled ? 'active' : ''} ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''} ${resultFilled ? 'filled' : ''}` 
-          },
-          resultFilled ? calcState.step5Value : numpadValue
-        ),
-        APP_DATA.labels.unitMl
-      )
-    );
+    const resultRhs = [
+      React.createElement(
+        "span",
+        { 
+          key: "r",
+          className: `calc-input-box ${!resultFilled ? 'active' : ''} ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''} ${resultFilled ? 'filled' : ''}` 
+        },
+        resultFilled ? calcState.step5Value : numpadValue
+      ),
+      " ",
+      APP_DATA.labels.unitMl
+    ];
+    eqRows.push(createCalcRow("result-line", "", "", resultRhs));
     
-    return rows;
+    return { labelRows, eqRows };
   };
   
   // Render calculation rows for Steps 6-8 (Tuesday, Wednesday, Thursday)
@@ -305,36 +307,32 @@ const CalculationPanel = ({
     const calcData = APP_DATA[calcKey];
     const stateKey = `step${step}Value`;
     const filledValue = calcState[stateKey];
-    const rows = [];
+    const labelRows = [];
+    const eqRows = [];
     
-    rows.push(
-      React.createElement("div", { key: "day-label", className: "calc-row calc-day-label" }, 
-        calcData.dayLabel
-      )
-    );
+    labelRows.push(createLabelRow("day-label", "calc-day-label", calcData.dayLabel));
     
-    rows.push(
-      React.createElement("div", { key: "initial-line", className: "calc-row" }, 
-        calcData.initialLine
-      )
-    );
+    const initialParts = calcData.initialLine.split("=");
+    const initialLhs = initialParts[0].trim();
+    const initialRhs = initialParts[1] ? initialParts.slice(1).join("=").trim() : "";
+    eqRows.push(createCalcRow("initial-line", "", initialLhs, initialRhs));
     
     const resultFilled = filledValue !== "";
-    rows.push(
-      React.createElement("div", { key: "result-line", className: "calc-row" },
-        "= ",
-        React.createElement(
-          "span",
-          { 
-            className: `calc-input-box ${!resultFilled ? 'active' : ''} ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''} ${resultFilled ? 'filled' : ''}` 
-          },
-          resultFilled ? filledValue : numpadValue
-        ),
-        APP_DATA.labels.unitMl
-      )
-    );
+    const resultRhs = [
+      React.createElement(
+        "span",
+        { 
+          key: "r",
+          className: `calc-input-box ${!resultFilled ? 'active' : ''} ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''} ${resultFilled ? 'filled' : ''}` 
+        },
+        resultFilled ? filledValue : numpadValue
+      ),
+      " ",
+      APP_DATA.labels.unitMl
+    ];
+    eqRows.push(createCalcRow("result-line", "", "", resultRhs));
     
-    return rows;
+    return { labelRows, eqRows };
   };
   
   // Render addition/subtraction format rows (Steps 10, 12)
@@ -388,45 +386,45 @@ const CalculationPanel = ({
     const mcqData = APP_DATA.conversionMcq;
     const rows = [];
     
-    // Initial result line
-    rows.push(
-      React.createElement("div", { key: "result-line", className: "calc-row" },
-        mcqData.firstLine
-      )
-    );
+    const firstParts = mcqData.firstLine.split("=");
+    const firstLhs = firstParts[0].trim();
+    const firstRhs = firstParts[1] ? firstParts.slice(1).join("=").trim() : "";
+    rows.push(createCalcRow("result-line", "", firstLhs, firstRhs));
     
     if (showPostMcq) {
-      // Show post-MCQ conversion inputs
       const box1Filled = calcState.step13Values[0] !== "";
       const box2Filled = calcState.step13Values[1] !== "";
       
-      rows.push(
-        React.createElement("div", { key: "conv-line", className: "calc-row" },
-          mcqData.postMcqLines[0]
-        )
-      );
+      const convParts = mcqData.postMcqLines[0].split("=");
+      const convLhs = convParts[0].trim();
+      const convRhs = convParts[1] ? convParts.slice(1).join("=").trim() : "";
+      rows.push(createCalcRow("conv-line", "", convLhs, convRhs));
       
-      rows.push(
-        React.createElement("div", { key: "final-line", className: "calc-row" },
-          mcqData.finalLinePrefix,
-          React.createElement(
-            "span",
-            { 
-              className: `calc-input-box ${currentBoxIndex === 0 && !box1Filled ? 'active' : ''} ${inputError && currentBoxIndex === 0 ? 'error shake' : ''} ${inputCorrectBoxIndex === 0 ? 'correct' : ''} ${box1Filled ? 'filled' : ''}` 
-            },
-            box1Filled ? calcState.step13Values[0] : (currentBoxIndex === 0 ? numpadValue : "")
-          ),
-          APP_DATA.labels.unitL,
-          React.createElement(
-            "span",
-            { 
-              className: `calc-input-box ${currentBoxIndex === 1 && !box2Filled ? 'active' : ''} ${inputError && currentBoxIndex === 1 ? 'error shake' : ''} ${inputCorrectBoxIndex === 1 ? 'correct' : ''} ${box2Filled ? 'filled' : ''}` 
-            },
-            box2Filled ? calcState.step13Values[1] : (currentBoxIndex === 1 ? numpadValue : "")
-          ),
-          APP_DATA.labels.unitMl
-        )
-      );
+      const finalLhs = mcqData.finalLinePrefix.replace(/\s*=\s*$/, "").trim();
+      const finalRhs = [
+        React.createElement(
+          "span",
+          { 
+            key: "b1",
+            className: `calc-input-box ${currentBoxIndex === 0 && !box1Filled ? 'active' : ''} ${inputError && currentBoxIndex === 0 ? 'error shake' : ''} ${inputCorrectBoxIndex === 0 ? 'correct' : ''} ${box1Filled ? 'filled' : ''}` 
+          },
+          box1Filled ? calcState.step13Values[0] : (currentBoxIndex === 0 ? numpadValue : "")
+        ),
+        " ",
+        APP_DATA.labels.unitL,
+        " ",
+        React.createElement(
+          "span",
+          { 
+            key: "b2",
+            className: `calc-input-box ${currentBoxIndex === 1 && !box2Filled ? 'active' : ''} ${inputError && currentBoxIndex === 1 ? 'error shake' : ''} ${inputCorrectBoxIndex === 1 ? 'correct' : ''} ${box2Filled ? 'filled' : ''}` 
+          },
+          box2Filled ? calcState.step13Values[1] : (currentBoxIndex === 1 ? numpadValue : "")
+        ),
+        " ",
+        APP_DATA.labels.unitMl
+      ];
+      rows.push(createCalcRow("final-line", "", finalLhs, finalRhs));
     }
     
     return React.createElement(
@@ -518,13 +516,19 @@ const CalculationPanel = ({
   // Step 14: Final step - keep step 13 layout and add final answer at bottom of left panel
   const renderStep14Final = () => {
     const step13Values = calcState.step13Values || ["7", "800"];
+    const mcqData = APP_DATA.conversionMcq;
+    const firstParts = mcqData.firstLine.split("=");
+    const firstLhs = firstParts[0].trim();
+    const firstRhs = firstParts[1] ? firstParts.slice(1).join("=").trim() : "";
+    const convParts = mcqData.postMcqLines[0].split("=");
+    const convLhs = convParts[0].trim();
+    const convRhs = convParts[1] ? convParts.slice(1).join("=").trim() : "";
+    const finalLhs = mcqData.finalLinePrefix.replace(/\s*=\s*$/, "").trim();
+    const finalRhs = `${step13Values[0]} ${APP_DATA.labels.unitL} ${step13Values[1]} ${APP_DATA.labels.unitMl}`;
     const rows = [
-      React.createElement("div", { key: "result-line", className: "calc-row" }, APP_DATA.conversionMcq.firstLine),
-      React.createElement("div", { key: "conv-line", className: "calc-row" }, APP_DATA.conversionMcq.postMcqLines[0]),
-      React.createElement("div", { key: "final-line", className: "calc-row" },
-        APP_DATA.conversionMcq.finalLinePrefix,
-        step13Values[0], APP_DATA.labels.unitL, step13Values[1], APP_DATA.labels.unitMl
-      )
+      createCalcRow("result-line", "", firstLhs, firstRhs),
+      createCalcRow("conv-line", "", convLhs, convRhs),
+      createCalcRow("final-line", "", finalLhs, finalRhs)
     ];
     return React.createElement(
       "div",
@@ -575,16 +579,17 @@ const CalculationPanel = ({
       return renderStep13();
     }
     
-    // Steps 4-8 - Day conversions
-    let calcRows;
+    // Steps 4-8 - Day conversions (return { labelRows, eqRows })
+    let calcResult;
     if (step === 4) {
-      calcRows = renderStep4Rows();
+      calcResult = renderStep4Rows();
     } else if (step === 5) {
-      calcRows = renderStep5Rows();
+      calcResult = renderStep5Rows();
     } else if (step === 6 || step === 7 || step === 8) {
-      calcRows = renderDayCalcRows(stepData.calcKey);
+      calcResult = renderDayCalcRows(stepData.calcKey);
     }
     
+    const { labelRows = [], eqRows = [] } = calcResult || {};
     return React.createElement(
       "div",
       { className: "calc-left-panel with-question" },
@@ -596,10 +601,11 @@ const CalculationPanel = ({
       React.createElement(
         "div",
         { className: "calc-equation-row" },
+        labelRows,
         React.createElement(
           "div",
           { className: "calc-rows-container" },
-          calcRows
+          eqRows
         )
       )
     );

@@ -771,7 +771,7 @@ const CalculationPanel = ({
           { className: "calc-image-row" },
           React.createElement("img", {
             src: imageSrc,
-            alt: APP_DATA.altTexts?.finalAnswer || "Final answer",
+            alt: APP_DATA.altTexts?.finalAnswer,
             className: "calc-image"
           })
         ),
@@ -807,7 +807,7 @@ const CalculationPanel = ({
         { className: "calc-image-row" },
         imageSrc && React.createElement("img", {
           src: imageSrc,
-          alt: APP_DATA.altTexts?.calculationVisual || "Calculation visual",
+          alt: APP_DATA.altTexts?.calculationVisual,
           className: "calc-image"
         })
       ),

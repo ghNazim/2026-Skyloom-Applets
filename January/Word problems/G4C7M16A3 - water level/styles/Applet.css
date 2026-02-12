@@ -31,9 +31,10 @@
   font-size: calc(0.25rem + 1.75vw);
   gap: 2vh;
   flex-direction: column;
-  height: 7vw;
+  /* height: 7vw;
   max-height: 7vw;
-  min-height: 7vw;
+  min-height: 7vw; */
+  padding-bottom: .5vw;
 }
 
 /* Full width content column for Step 0 */

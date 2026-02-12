@@ -32,6 +32,9 @@ const edgeLabels = {
 const DATA = {
   en: {
     app: {
+      appTitle: "Finding Perimeter of Composite Shape",
+      replayAriaLabel: "Replay animation",
+      unitCm: " cm",
       steps: {
         0: {
           questionText: "Find the perimeter of the given composite shape.",
@@ -56,6 +59,14 @@ const DATA = {
           questionText: "Let's find the missing sides first.",
           navText: "Tap the highlighted text.",
           navAfter: "Tap » to continue.",
+          equationLine0Right: " = BC + CF + FG",
+          equationLine1Left: "40 = ",
+          equationLine1Right: " + CF + FG",
+          equationLine2Left: "40 = 16 + CF + ",
+          equationLine2Right: "",
+          equationLine3Left: "40 = 16 + ",
+          equationLine3Right: " + 14",
+          equationLine4: "CF = 40 – (16 + 14)"
         },
         3: {
           questionText: "Let's find the side length of CF.",
@@ -77,6 +88,9 @@ const DATA = {
   },
   id: {
     app: {
+      appTitle: "Mencari Keliling Bentuk Gabungan",
+      replayAriaLabel: "Putar ulang animasi",
+      unitCm: " cm",
       steps: {
         0: {
           questionText: "Cari keliling dari bentuk gabungan yang diberikan.",
@@ -101,6 +115,14 @@ const DATA = {
           questionText: "Mari kita cari sisi yang hilang terlebih dahulu.",
           navText: "Ketuk teks yang disorot.",
           navAfter: "Ketuk » untuk melanjutkan.",
+          equationLine0Right: " = BC + CF + FG",
+          equationLine1Left: "40 = ",
+          equationLine1Right: " + CF + FG",
+          equationLine2Left: "40 = 16 + CF + ",
+          equationLine2Right: "",
+          equationLine3Left: "40 = 16 + ",
+          equationLine3Right: " + 14",
+          equationLine4: "CF = 40 – (16 + 14)"
         },
         3: {
           questionText: "Mari kita cari panjang sisi CF.",

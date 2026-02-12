@@ -201,7 +201,7 @@ const CalculationPanel = ({
 
   // ----- Findings -----
   const getFindings = () => {
-    const title = labels.findings || "Findings";
+    const title = (labels && labels.findings) || "";
     if (step === 4) {
       return { title: calc1Data.findingsTitle || title, list: calc1Data.findingsListStep4 || [] };
     }
@@ -226,11 +226,12 @@ const CalculationPanel = ({
     rows.push(React.createElement("div", { key: "r1", className: "calc-row" }, r1.text));
     const boxVals = calcState.calc1BoxValues || [null, null, null];
     const answers = r2.answers;
+    const unit = r2.unit || " m³";
     const showFinalState = calcState.calc1BoxesFinal === true;
     if (showFinalState) {
       rows.push(
         React.createElement("div", { key: "r2", className: "calc-row calc-row-final" },
-          "= ", answers[0], " + ", answers[1], " + ", answers[2], r2.unit || " m³"
+          "= ", answers[0], unit, " + ", answers[1], unit, " + ", answers[2], unit
         )
       );
     } else {
@@ -252,11 +253,12 @@ const CalculationPanel = ({
               onClick: () => { if (i <= activeBoxIndex) setActiveBoxIndex(i); }
             },
             boxVals[i] != null ? boxVals[i] : ""
-          )
+          ),
+          unit
         ];
       }).filter(Boolean);
       rows.push(
-        React.createElement("div", { key: "r2", className: "calc-row" }, "= ", ...boxEls, r2.unit || " m³")
+        React.createElement("div", { key: "r2", className: "calc-row" }, "= ", ...boxEls)
       );
     }
     if (substep === 1) {
@@ -454,7 +456,7 @@ const CalculationPanel = ({
       React.createElement(
         "div",
         { className: "calc-left-panel with-image" },
-        React.createElement("div", { className: "calc-image-row" }, imageSrc && React.createElement("img", { src: imageSrc, alt: (calculation.altTexts && calculation.altTexts.stones) || "Stones", className: "calc-image" })),
+        React.createElement("div", { className: "calc-image-row" }, imageSrc && React.createElement("img", { src: imageSrc, alt: (calculation.altTexts && calculation.altTexts.stones) || (APP_DATA.labels && APP_DATA.labels.altImage) || "", className: "calc-image" })),
         React.createElement("div", { className: "calc-equation-row" }, React.createElement("div", { className: "calc-rows-container" }, renderStep4Rows()))
       ),
       React.createElement("div", { className: "calc-right-panel" }, rightPanel)

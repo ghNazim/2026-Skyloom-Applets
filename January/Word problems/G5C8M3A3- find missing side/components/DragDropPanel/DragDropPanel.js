@@ -367,8 +367,8 @@ const DragDropPanel = ({ onComplete, onEnableNext, onUpdateNavText, imageSrc, dr
         "div",
         { className: "dd-image-row" },
         React.createElement("img", {
-          src: imageSrc || "assets/compute1.png",
-          alt: "Milk bottles",
+          src: imageSrc || dragDropData.imageSrc || "",
+          alt: dragDropData.imageAlt || "",
           className: "dd-image"
         })
       ),

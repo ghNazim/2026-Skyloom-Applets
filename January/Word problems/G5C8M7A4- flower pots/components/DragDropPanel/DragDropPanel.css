@@ -103,6 +103,12 @@
   /* max-width: none; */
 }
 
+.dd-drop-zone.operator-zone {
+  flex: 0;
+  min-width: 2.5vw;
+  max-width: 3vw;
+}
+
 .dd-drop-zone.hovered {
   transform: scale(1.1);
   background-color: rgba(128, 128, 128, 0.4);
@@ -204,6 +210,20 @@
 
 .dd-draggable.dragging {
   opacity: 0;
+  pointer-events: none;
+}
+
+/* Prevent scroll/zoom and selection during drag */
+.drag-drop-panel,
+.dd-draggable,
+.dd-drop-zone {
+  touch-action: none;
+  user-select: none;
+}
+
+.dd-drag-ghost {
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 /* Drag Ghost */

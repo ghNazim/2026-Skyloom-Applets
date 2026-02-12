@@ -69,6 +69,7 @@ const MainCanvas = ({
     // Step 3: Drag drop setup (equation-label only, no draggables)
     if (stepData.isDragDropSetup) {
       return React.createElement(DragDropPanel, {
+        key: step,
         onComplete: () => {},
         onEnableNext: onEnableNext,
         onUpdateNavText: (navText) => onUpdateTexts(null, navText),
@@ -82,6 +83,7 @@ const MainCanvas = ({
     if (stepData.isDragDrop) {
       const dragDropKey = stepData.dragDropKey || "dragDrop1";
       return React.createElement(DragDropPanel, {
+        key: step,
         onComplete: () => {},
         onEnableNext: onEnableNext,
         onUpdateNavText: (navText) => onUpdateTexts(null, navText),
@@ -94,6 +96,7 @@ const MainCanvas = ({
     // Steps 5-8: Calculation Panel (numpad, MCQ, conversion, final)
     if (stepData.isNumpad || stepData.isMcq || stepData.isInteractiveBoxConversion || stepData.isFinalStep) {
       return React.createElement(CalculationPanel, {
+        key: step,
         step: step,
         onEnableNext: onEnableNext,
         onUpdateNavText: (navText) => onUpdateTexts(null, navText),

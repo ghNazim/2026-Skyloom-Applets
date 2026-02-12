@@ -140,6 +140,19 @@
   animation: shakeBox 0.3s ease;
 }
 
+.calc-input-box.highlighted {
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.6), 0 0 30px rgba(255, 193, 7, 0.3);
+  border-color: rgba(255, 193, 7, 0.9);
+  animation: glowPulse 1.5s ease-in-out infinite;
+}
+
+.calc-row-input-boxes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5vw;
+}
+
 @keyframes shakeBox {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-5px); }

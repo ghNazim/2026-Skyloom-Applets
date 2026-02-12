@@ -50,10 +50,10 @@ const DATA = {
         title:
           "We're converting 6340 mL into liters (L). Which statement best describes this conversion?",
         options: [
-          "a. Changing from a larger unit to a smaller unit",
-          "b. Changing from a smaller unit to a larger unit",
-          "c. No change in units is needed",
-          "d. Changing from a unit of length to a unit of volume",
+          "Changing from a larger unit to a smaller unit",
+          "Changing from a smaller unit to a larger unit",
+          "No change in units is needed",
+          "Changing from a unit of length to a unit of volume",
         ],
         answerIndex: 1,
       },
@@ -62,10 +62,10 @@ const DATA = {
         title:
           "Which statement correctly shows the relationship between liters (L) and milliliters (mL)?",
         options: [
-          "a. 1 mL = 1000 L",
-          "b. 1 L = 100 mL",
-          "c. 1000 mL = 1 L",
-          "d. 1 mL = 10 L",
+          "1 mL = 1000 L",
+          "1 L = 100 mL",
+          "1000 mL = 1 L",
+          "1 mL = 10 L",
         ],
         answerIndex: 2,
       },
@@ -73,10 +73,10 @@ const DATA = {
       mcqStep5: {
         title: "To convert mL to L, what should you do?",
         options: [
-          "a. Multiply the value in mL by 1000",
-          "b. Divide the value in mL by 1000",
-          "c. Multiply the value in mL by 100",
-          "d. Divide the value in mL by 100",
+          "Multiply the value in mL by 1000",
+          "Divide the value in mL by 1000",
+          "Multiply the value in mL by 100",
+          "Divide the value in mL by 100",
         ],
         answerIndex: 1,
       },
@@ -93,7 +93,8 @@ const DATA = {
         1: {
           questionText:
             "Read the question and identify 'given' and 'to find' in this step.",
-          navText: "Tap » to continue.",
+          navText: "Tap » to identify the 'given' information.",
+          navToFind: "Tap » to identify what do we need 'to find'.",
           navTextCorrect: "Tap » to continue.",
           isComprehend: true,
           isSubstepComprehend: true,
@@ -231,7 +232,8 @@ const DATA = {
         1: {
           questionText:
             "Baca pertanyaan dan identifikasi 'diketahui' dan 'ditanyakan' pada langkah ini.",
-          navText: "Ketuk » untuk melanjutkan.",
+          navText: "Ketuk » untuk mengidentifikasi informasi 'diketahui'.",
+          navToFind: "Ketuk » untuk mengidentifikasi apa yang 'ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
           isComprehend: true,
           isSubstepComprehend: true,

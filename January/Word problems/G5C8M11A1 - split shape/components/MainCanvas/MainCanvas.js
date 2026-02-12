@@ -53,11 +53,20 @@ const MainCanvas = ({
     { x: -80, y: 0 }    // Side corner F (index 5)
   ];
 
-  // Split lines
+  // Split lines: horizontal fixed; diag2 = A to midpoint(DE) extended; diag1 = midpoint(EF) to C extended (by point indices: A=0, B=1, C=2, D=3, E=4, F=5)
+  const extendLen = 200;
+  const midDE = { x: (points[3].x + points[4].x) / 2, y: (points[3].y + points[4].y) / 2 };
+  const midEF = { x: (points[4].x + points[5].x) / 2, y: (points[4].y + points[5].y) / 2 };
+  const d2dx = midDE.x - points[0].x, d2dy = midDE.y - points[0].y;
+  const d2len = Math.sqrt(d2dx * d2dx + d2dy * d2dy) || 1;
+  const d2ux = d2dx / d2len, d2uy = d2dy / d2len;
+  const d1dx = points[2].x - midEF.x, d1dy = points[2].y - midEF.y;
+  const d1len = Math.sqrt(d1dx * d1dx + d1dy * d1dy) || 1;
+  const d1ux = d1dx / d1len, d1uy = d1dy / d1len;
   const splitLines = [
     { id: 'horizontal', x1: -150, y1: 0, x2: 200, y2: 0 },
-    { id: 'diag1', x1: 150, y1: -150, x2: -150, y2: 150 },
-    { id: 'diag2', x1: -150, y1: -150, x2: 150, y2: 150 }
+    { id: 'diag1', x1: midEF.x - extendLen * d1ux, y1: midEF.y - extendLen * d1uy, x2: points[2].x + extendLen * d1ux, y2: points[2].y + extendLen * d1uy },
+    { id: 'diag2', x1: points[0].x - extendLen * d2ux, y1: points[0].y - extendLen * d2uy, x2: midDE.x + extendLen * d2ux, y2: midDE.y + extendLen * d2uy }
   ];
 
   // Side labels: midpoint from points + shift (AB up, CD down so visible in bottom half, DE right, EF left - keep your amounts)
@@ -90,22 +99,23 @@ const MainCanvas = ({
     };
   });
 
-  // Tick marks (2 parallel small lines) on AB, BC, FA at midpoints - geometry convention for equal sides. Hidden from step 3 onward (when square is clicked).
+  // Tick marks (2 parallel small lines) on AB, BC, FA at midpoints - centered on the side (midpoint and perpendicular). Hidden from step 3 onward.
   const abMid = { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 };
   const bcMid = { x: (points[1].x + points[2].x) / 2, y: (points[1].y + points[2].y) / 2 };
   const faMid = { x: (points[5].x + points[0].x) / 2, y: (points[5].y + points[0].y) / 2 };
   const tickLen = 8;
   const tickGap = 4;
+  const half = tickLen / 2;
   const tickMarkSegments = [
-    [ [abMid.x - tickGap/2, abMid.y, abMid.x - tickGap/2, abMid.y - tickLen], [abMid.x + tickGap/2, abMid.y, abMid.x + tickGap/2, abMid.y - tickLen] ],
-    [ [bcMid.x, bcMid.y - tickGap/2, bcMid.x + tickLen, bcMid.y - tickGap/2], [bcMid.x, bcMid.y + tickGap/2, bcMid.x + tickLen, bcMid.y + tickGap/2] ],
-    [ [faMid.x - tickLen, faMid.y - tickGap/2, faMid.x, faMid.y - tickGap/2], [faMid.x - tickLen, faMid.y + tickGap/2, faMid.x, faMid.y + tickGap/2] ]
+    [ [abMid.x - tickGap/2, abMid.y - half, abMid.x - tickGap/2, abMid.y + half], [abMid.x + tickGap/2, abMid.y - half, abMid.x + tickGap/2, abMid.y + half] ],
+    [ [bcMid.x - half, bcMid.y - tickGap/2, bcMid.x + half, bcMid.y - tickGap/2], [bcMid.x - half, bcMid.y + tickGap/2, bcMid.x + half, bcMid.y + tickGap/2] ],
+    [ [faMid.x - half, faMid.y - tickGap/2, faMid.x + half, faMid.y - tickGap/2], [faMid.x - half, faMid.y + tickGap/2, faMid.x + half, faMid.y + tickGap/2] ]
   ];
 
-  // Which labels move with which half when splitting. piece1 = first drawn piece (positive normal), piece2 = second (negative normal). For horizontal: piece1 = bottom half, piece2 = top half.
+  // Which labels move with which half when splitting. piece1 = first drawn (positive normal), piece2 = second (negative normal). Matched to current lines: diag1 = midEF→C, diag2 = A→midDE.
   const splitLabelAssignment = {
     horizontal: { piece1: ['CD', 'DE', 'EF'], piece2: ['AB'], remove: [] },
-    diag1: { piece1: ['AB'], piece2: ['CD', 'DE'], remove: ['EF'] },
+    diag1: { piece1: ['CD', 'DE'], piece2: ['AB'], remove: ['EF'] },
     diag2: { piece1: ['EF'], piece2: ['AB', 'CD'], remove: ['DE'] }
   };
 
@@ -653,7 +663,7 @@ const MainCanvas = ({
 
     sides.forEach((side, index) => {
       if (index > 0) {
-        elements.push(React.createElement("span", { key: `plus-${index}`, className: "equation-text" }, " + "));
+        elements.push(React.createElement("span", { key: `plus-${index}`, className: "equation-text" }, stepData.equationPlus));
       }
       
       const isSubstituted = substitutedSides[side] !== undefined;
@@ -745,7 +755,7 @@ const MainCanvas = ({
         }),
         showTapGif && React.createElement("img", {
           src: "assets/tap.gif",
-          alt: "tap",
+          alt: APP_DATA.steps[2].altTap || "Tap",
           style: getTapGifStyle(),
         })
       )

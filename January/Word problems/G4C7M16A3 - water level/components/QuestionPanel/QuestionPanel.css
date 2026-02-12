@@ -9,11 +9,12 @@
   border-radius: 1vw;
   /* border: 1px solid var(--panel-border-color); */
   backdrop-filter: blur(5vw);
-  margin-bottom: 0.5vw;
+  /* margin-bottom: 0.5vw; */
   /* height: 6vw; */
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: .5vw;
 }
 
 .question-panel h2 {

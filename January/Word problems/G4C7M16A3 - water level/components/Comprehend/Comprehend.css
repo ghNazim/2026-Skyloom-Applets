@@ -98,6 +98,10 @@
   color: #2d5aed;
 }
 
+.section-list-item.yellow {
+  color: yellow !important;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

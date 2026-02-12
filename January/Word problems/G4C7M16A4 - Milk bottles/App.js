@@ -89,7 +89,7 @@ const App = () => {
     }
 
     if (targetStep === 1) {
-      setComprehendSubstep(0);
+      setComprehendSubstep(-1);
       setInteractiveBoxState1({ 0: false, 1: false });
       setInteractiveBoxState2({ 0: false, 1: false });
       setCalcState({
@@ -261,9 +261,9 @@ const App = () => {
       setIsNextDisabled(true);
     }
     
-    // Reset comprehend substep when entering step 1
+    // Reset comprehend substep when entering step 1 (start at -1: question only, no list)
     if (currentStep === 1) {
-      setComprehendSubstep(0);
+      setComprehendSubstep(-1);
     }
     
     // Reset interactive box state when entering step 4
@@ -284,7 +284,19 @@ const App = () => {
       const total = getTotalComprehendSubsteps();
       const comprehendData = APP_DATA.comprehend;
       const givenCount = comprehendData.given.data.length;
-      
+
+      // Comprehend -1: no highlights, only question and title
+      if (comprehendSubstep < 0) {
+        setCurrentHighlights(null);
+        setHighlightColor(null);
+        if (stepData.navText) setDynamicNavText(stepData.navText);
+        setIsNextDisabled(false);
+        if (comprehendData.images && comprehendData.images[0]) {
+          setCurrentImage(comprehendData.images[0]);
+        }
+        return;
+      }
+
       // Update highlights based on substep - one at a time
       if (comprehendSubstep < givenCount) {
         // Given items - show orange highlight for current item
@@ -335,11 +347,10 @@ const App = () => {
   const handleNext = () => {
     const stepData = APP_DATA.steps[currentStep];
     
-    // Handle step 1 - comprehend with substeps
+    // Handle step 1 - comprehend with substeps (including -1 → 0)
     if (currentStep === 1 && stepData.isSubstepComprehend) {
       const totalSubsteps = getTotalComprehendSubsteps();
       if (comprehendSubstep < totalSubsteps - 1) {
-        // Move to next substep
         if (window.playSound) window.playSound("click");
         setComprehendSubstep(prev => prev + 1);
         return;
@@ -365,7 +376,7 @@ const App = () => {
     
     // Handle step 1 - comprehend with substeps (stay on step 1, just go back one substep)
     if (currentStep === 1) {
-      if (comprehendSubstep > 0) {
+      if (comprehendSubstep > -1) {
         setComprehendSubstep(prev => prev - 1);
         return;
       }
@@ -410,17 +421,17 @@ const App = () => {
     return stepData ? stepData.navText : "";
   };
   
-  // Get highlights for current step
+  // Get highlights for current step (none when comprehend substep -1)
   const getHighlights = () => {
-    if (currentStep === 1) {
+    if (currentStep === 1 && comprehendSubstep >= 0) {
       return currentHighlights;
     }
     return null;
   };
   
-  // Get highlight color for current step
+  // Get highlight color for current step (none when comprehend substep -1)
   const getHighlightColor = () => {
-    if (currentStep === 1) {
+    if (currentStep === 1 && comprehendSubstep >= 0) {
       return highlightColor;
     }
     return null;

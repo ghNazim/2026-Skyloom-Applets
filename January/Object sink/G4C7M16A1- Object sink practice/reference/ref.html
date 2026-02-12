@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Volume measurement</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="applet-container">
+      <!-- TITLE BAR -->
+      <div class="titleBar">
+        <h1>Volume measurement</h1>
+        <p>Explore how to measure volume of any irregular shape</p>
+      </div>
+      <!-- ASSETS REGION -->
+      <div class="assets">
+        <!-- CONTEXT BOX -->
+        <div class="contextBox">
+          <div class="context-section">
+            <h2>Select a shape</h2>
+            <p>Select a shape to measure its volume</p>
+          </div>
+          <div class="context-section">
+            <h2>Chosen shape</h2>
+            <p>You have chosen a shape.</p>
+          </div>
+          <div class="context-section">
+            <h2>Drop the shape</h2>
+            <p>Click the 'Next' button to drop the shape into the container.</p>
+          </div>
+          <div class="context-section">
+            <h2>Note the rise in water level</h2>
+            <p>
+              Observe how the water level rises as the shape is dropped. The
+              volume of the displaced water is the volume of the shape.
+            </p>
+          </div>
+          <div class="context-section">
+            <h2>Calculate the volume</h2>
+            <p>
+              Calculate the volme of displaced water by multiplying the rise in
+              water level by the area of the container base.
+            </p>
+          </div>
+          <div class="context-section">
+            <h2>Calculate the volume</h2>
+            <p>
+              Calculate the volme of displaced water by multiplying the rise in
+              water level by the area of the container base.
+            </p>
+          </div>
+        </div>
+
+        <!-- WORKING AREA CONTAINER -->
+        <div class="workingArea-container">
+          <!-- UPPER CONTROLS -->
+
+          <!-- WORKING AREA (Canvas takes full available space) -->
+          <div class="workingArea">
+            <div id="chooseShapeBox">
+              <div class="shapeCard">
+                <img
+                  src="images/watermelon.png"
+                  alt="watermelon"
+                  data-name="watermelon"
+                />
+              </div>
+              <div class="shapeCard">
+                <img
+                  src="images/pumpkin.png"
+                  alt="pumpkin"
+                  data-name="pumpkin"
+                />
+              </div>
+              <div class="shapeCard">
+                <img
+                  src="images/coconut.png"
+                  alt="coconut"
+                  data-name="coconut"
+                />
+              </div>
+            </div>
+            <div id="wrapper">
+              <div id="container">
+                <svg width="800" height="500" id="svg">
+                  <g id="everything">
+                  <g id="beaker">
+                    <polygon id="beakerBack" stroke="black" fill="none" />
+                    <polygon
+                      id="back"
+                      fill="blue"
+                      stroke="black"
+                      fill-opacity="0.5"
+                    />
+                    <polygon
+                      id="topBack"
+                      fill="blue"
+                      stroke="none"
+                      fill-opacity="0.7"
+                    />
+                    <polygon
+                      id="bottom"
+                      fill="blue"
+                      stroke="black"
+                      fill-opacity="0.5"
+                    />
+                    <polygon
+                      id="left"
+                      fill="blue"
+                      stroke="black"
+                      fill-opacity="0.5"
+                    />
+                    <image
+                      href="images/watermelon.png"
+                      height="100"
+                      id="watermelon"
+                    />
+                    <image
+                      href="images/pumpkin.png"
+                      height="100"
+                      transform="translate(-25,0)"
+                      id="pumpkin"
+                    />
+                    <image
+                      href="images/coconut.png"
+                      height="100"
+                      transform="translate(0,0)"
+                      id="coconut"
+                    />
+                    <polygon
+                      id="right"
+                      fill="blue"
+                      stroke="black"
+                      fill-opacity="0.5"
+                    />
+                    <polygon
+                      id="topFront"
+                      fill="blue"
+                      stroke="none"
+                      fill-opacity="0.7"
+                    />
+                    <polygon
+                      id="front"
+                      fill="blue"
+                      stroke="black"
+                      fill-opacity="0.5"
+                    />
+                    <polygon id="beakerFront" fill="none" stroke="black" />
+                  </g>
+                  
+                  <polygon
+                    id="waterLevelMarker"
+                    fill="red"
+                    points="0,0 10,5 0,10"
+                  />
+                  <polygon
+                    id="dynamicMarker"
+                    fill="red"
+                    points="0,0 10,5 0,10"
+                  />
+                
+                  <g id="ruler"></g>
+                  
+                  
+                </g>
+                <g id="labels"></g>
+                  <defs>
+                    <clipPath id="zoomClip">
+                      <circle cx="250" cy="225" r="60" />
+                    </clipPath>
+                  </defs>
+                  <g id="clip" transform="scale(1.6) translate(-180, -140)">
+                  <use clip-path="url(#zoomClip)" href="#everything"  />
+                  <circle
+                  cx="250"
+                  cy="225"
+                  r="60"
+                  fill="none"
+                  stroke="black"
+                  stroke-width="1"
+                />
+                </g>
+                  
+                 
+                </svg>
+              </div>
+              <svg id="labelOverlay" width="800" height="500"></svg>
+            </div>
+            <div id="textOverlay">
+              <div id="volumeFormula">
+                <p>Volume of the Displaced Water</p>
+                <p>= Area of the base x Rise in water level</p>
+                <p>= 30 x 20 x 5 cc</p>
+                <p>= 3000 cc</p>
+              </div>
+            </div>
+            <!-- Overlay for hints and congratulatory messages -->
+            <div class="overlay workingArea-overlay" id="workingOverlay">
+              <div class="overlay-close" id="closeOverlay"></div>
+              <div class="overlay-content" id="overlayContent"></div>
+            </div>
+          </div>
+          <!-- LOWER CONTROLS -->
+          <div class="lowerControls">
+            <button class="btn btn-secondary" id="prevButton" disabled>
+              Previous
+            </button>
+
+            <button class="btn btn-primary" id="nextButton" disabled>
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Full Screen Overlay (preserved from template) -->
+      <div class="overlay fullscreen-overlay" id="fullscreenOverlay">
+        <div class="overlay-close"></div>
+        <div class="overlay-content">
+          <h2>Full Screen Overlay</h2>
+          <p>This overlay covers the entire applet with margins.</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      const appTextContent = {
+  titleBar: {
+    heading: "Volume measurement",
+    subheading: "Explore how to measure volume of any irregular shape",
+  },
+  contextSteps: [
+    {
+      title: "Step 1: Select a Shape",
+      text: "Choose a shape to begin measuring its volume.",
+      highlights: [
+        {
+          word: "volume",
+          def: "volume",
+          instance: 1,
+          description: "Volume is the amount of space something takes up. ",
+        },
+      ],
+    },
+    {
+      title: "Chosen shape:",
+      text: "You have chosen a watermelon to measure its volume.",
+      highlights: [],
+    },
+    {
+      title: "Step 2: Drop the Shape",
+      text: "Click the 'Next' button to release the shape into the container.",
+      highlights: [],
+    },
+    {
+      title: "Observe the Water Level",
+      text: "Notice how the water level rises as the shape submerges. The volume of the displaced water is the volume of the shape.",
+      highlights: [],
+    },
+    {
+      title: "Shape of the Displaced Water",
+      text: "The displaced water forms a cuboid, whose volume we can easily calculate.",
+      highlights: [
+        {
+          word: "cuboid",
+          def: "cuboid",
+          instance: 1,
+          description:
+            "A cuboid is a 3D shape with six flat sides — all in the shape of rectangles. It's like a box or a brick, with definite length, width, and height. ",
+        },
+      ],
+    },
+    {
+      title: "Step 3:Calculate the volume",
+      text: "Determine the shape’s volume by multiplying the rise in water level by the area of the container’s base.",
+      highlights: [
+        {
+          word: "area",
+          def: "area",
+          instance: 1,
+          description:
+            "Area of a rectangle is the product of its length and width. The container's base is in the shape of a rectangle.",
+        },
+      ],
+    },
+  ],
+  controls: {
+    prevButton: "Previous",
+    nextButton: "Next",
+  },
+  volumeFormula: {
+    watermelon: [
+      "Volume of the Displaced Water",
+      "= Area of the base x Rise in water level",
+      "= 30 x 20 x 4 cc",
+      "= 2400 cc",
+    ],
+    pumpkin: [
+      "Volume of the Displaced Water",
+      "= Area of the base x Rise in water level",
+      "= 30 x 20 x 3 cc",
+      "= 1800 cc",
+    ],
+    coconut: [
+      "Volume of the Displaced Water",
+      "= Area of the base x Rise in water level",
+      "= 30 x 20 x 2 cc",
+      "= 1200 cc",
+    ],
+  },
+};
+
+    </script>
+    <script>
+      function initializeTextContent() {
+  // Title Bar
+  document.querySelector(".titleBar h1").textContent =
+    appTextContent.titleBar.heading;
+  document.querySelector(".titleBar p").textContent =
+    appTextContent.titleBar.subheading;
+
+  // Context Sections
+  const contextSections = document.querySelectorAll(
+    ".contextBox .context-section"
+  );
+  appTextContent.contextSteps.forEach((step, index) => {
+    const section = contextSections[index];
+    if (!section) return;
+
+    section.querySelector("h2").textContent = step.title;
+    const p = section.querySelector("p");
+    let processedText = step.text;
+
+    step.highlights.forEach(({ word, def, instance }) => {
+      let count = 0;
+      const regex = new RegExp(`\\b${word}\\b`, "g");
+      processedText = processedText.replace(regex, (match) => {
+        count++;
+        return count === instance
+          ? `<span class="highlight" data-def="${def}">${match}</span>`
+          : match;
+      });
+    });
+
+    p.innerHTML = processedText;
+  });
+
+  document.getElementById("prevButton").textContent =
+    appTextContent.controls.prevButton;
+  document.getElementById("nextButton").textContent =
+    appTextContent.controls.nextButton;
+
+}
+
+function extractDefinitionsFromContent(content) {
+  const definitions = {};
+
+  content.contextSteps.forEach((step) => {
+    step.highlights.forEach(({ def, description }) => {
+      if (def && description && !definitions.hasOwnProperty(def)) {
+        definitions[def] = description;
+      }
+    });
+  });
+
+  return definitions;
+}
+
+const definitions = extractDefinitionsFromContent(appTextContent);
+initializeTextContent();
+
+    </script>
+    <script>
+      function drawPrism(x0, y0, dx, dy, w, h) {
+  function drawBottom() {
+    const polygon = document.getElementById("bottom");
+    const points = `${x0},${y0} ${x0 + w},${y0} ${x0 + w + dx},${y0 - dy} ${
+      x0 + dx
+    },${y0 - dy}`;
+
+    polygon.setAttribute("points", points);
+  }
+
+  function drawTopBack() {
+    const polygon = document.getElementById("topBack");
+    const points = `${x0 + dx / 2},${y0 - h - dy / 2} ${x0 + w + dx / 2},${
+      y0 - h - dy / 2
+    } ${x0 + w + dx},${y0 - dy - h} ${x0 + dx},${y0 - dy - h}`;
+
+    polygon.setAttribute("points", points);
+  }
+  function drawTopFront() {
+    const polygon = document.getElementById("topFront");
+    const points = `${x0},${y0 - h} ${x0 + w},${y0 - h} ${x0 + w + dx / 2},${
+      y0 - dy / 2 - h
+    } ${x0 + dx / 2},${y0 - dy / 2 - h}`;
+
+    polygon.setAttribute("points", points);
+  }
+  function drawFront() {
+    const polygon = document.getElementById("front");
+    const points = `${x0},${y0} ${x0 + w},${y0} ${x0 + w},${y0 - h} ${x0},${
+      y0 - h
+    }`;
+
+    polygon.setAttribute("points", points);
+  }
+  function drawBack() {
+    const polygon = document.getElementById("back");
+    const points = `${x0 + dx},${y0 - dy} ${x0 + w + dx},${y0 - dy} ${
+      x0 + w + dx
+    },${y0 - h - dy} ${x0 + dx},${y0 - h - dy}`;
+
+    polygon.setAttribute("points", points);
+  }
+  function drawRight() {
+    const polygon = document.getElementById("right");
+    const points = `${x0 + w},${y0} ${x0 + dx + w},${y0 - dy} ${x0 + dx + w},${
+      y0 - dy - h
+    } ${x0 + w},${y0 - h}`;
+
+    polygon.setAttribute("points", points);
+  }
+  function drawLeft() {
+    const polygon = document.getElementById("left");
+    const points = `${x0},${y0} ${x0 + dx},${y0 - dy} ${x0 + dx},${
+      y0 - dy - h
+    } ${x0},${y0 - h}`;
+
+    polygon.setAttribute("points", points);
+  }
+
+  drawBottom();
+  drawTopFront();
+  drawTopBack();
+  drawFront();
+  drawBack();
+  drawRight();
+  drawLeft();
+  setWaterLevelMarker("dynamicMarker", 450 - h);
+}
+
+function drawBeaker(x0, y0, dx, dy, w, h) {
+  function drawFront() {
+    const polygon = document.getElementById("beakerFront");
+    const points = `${x0},${y0} ${x0 + w},${y0} ${x0 + w},${y0 - h} ${x0},${
+      y0 - h
+    }`;
+
+    polygon.setAttribute("points", points);
+  }
+  function drawBack() {
+    const polygon = document.getElementById("beakerBack");
+    const points = `${x0 + dx},${y0 - dy} ${x0 + w + dx},${y0 - dy} ${
+      x0 + w + dx
+    },${y0 - h - dy} ${x0 + dx},${y0 - h - dy}`;
+
+    polygon.setAttribute("points", points);
+  }
+  drawLine(x0, y0, x0 + dx, y0 - dy);
+  drawLine(x0 + w, y0, x0 + dx + w, y0 - dy);
+  drawLine(x0, y0 - h, x0 + dx, y0 - dy - h);
+  drawLine(x0 + w, y0 - h, x0 + dx + w, y0 - dy - h);
+  drawFront();
+  drawBack();
+  addRuler(y0-h,y0,10,x0);
+  setWaterLevelMarker("waterLevelMarker", 250);
+}
+function addRuler(startY = 150, endY = 450, interval = 10, x = 250) {
+  const rulerGroup = document.getElementById("ruler");
+  const totalTicks = Math.floor((endY - startY) / interval);
+
+  // Clear previous ticks if any
+  rulerGroup.innerHTML = "";
+
+  for (let i = 0; i <= totalTicks; i++) {
+    const y = endY - i * interval;
+    const label = i; // Or show real-world units if needed
+
+    // Create tick line
+    const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    tick.setAttribute("x1", x);
+    tick.setAttribute("x2", x + 10);
+    tick.setAttribute("y1", y);
+    tick.setAttribute("y2", y);
+    tick.setAttribute("stroke", "black");
+    tick.setAttribute("stroke-width", "1");
+    rulerGroup.appendChild(tick);
+
+    // Create label
+    if (i % 5 === 0) {
+      // Show label every 5 ticks (50 px)
+      const text = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+      text.setAttribute("x", x - 5);
+      text.setAttribute("y", y + 4); // +4 to align baseline
+      text.setAttribute("text-anchor", "end");
+      text.setAttribute("font-size", "10");
+      text.textContent = label;
+      rulerGroup.appendChild(text);
+    }
+  }
+}
+function drawLine(x1, y1, x2, y2, color = "black") {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", x1);
+  line.setAttribute("y1", y1);
+  line.setAttribute("x2", x2);
+  line.setAttribute("y2", y2);
+  line.setAttribute("stroke", color);
+  const svg = document.getElementById("beaker");
+  svg.appendChild(line);
+}
+function setImagePos(id, x, y) {
+  const obj = document.getElementById(id);
+  obj.setAttribute("x", x);
+  obj.setAttribute("y", y);
+}
+
+function animateObjectPosition(
+  object,
+  start,
+  end,
+  duration,
+  pivot,
+  waterlevel,
+  objectHeight,
+  arr
+) {
+  const htosink = objectHeight - waterlevel;
+  const startTime = performance.now();
+  function animate(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1); // Clamp between 0 and 1
+    const newY = start + (end - start) * progress;
+
+    setImagePos(object, 400, newY);
+    if (newY >= pivot && newY <= htosink + pivot) {
+      const hh = ((newY - pivot) / htosink) * waterlevel;
+      drawPrism(...arr, 200 + hh);
+    }
+    else if (newY >= htosink + pivot) {
+      drawPrism(...arr, 200 + waterlevel);
+    }
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+    if (progress >= 1) {
+      addContextSection(5);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showSelectedObject(currentObject) {
+  const images = document.querySelectorAll("#svg image");
+
+  images.forEach((image) => {
+    if (image.id === currentObject) {
+      image.style.display = "block";
+    } else {
+      image.style.display = "none";
+    }
+  });
+}
+
+function revealVolumeFormula(cb) {
+  const container = document.getElementById("volumeFormula");
+  container.style.display = "block";
+  const originalHTML = container.innerHTML;
+
+  // Step 1: Extract text from child elements
+  const lines = Array.from(container.children).map((p) => p.innerHTML);
+  container.innerHTML = ""; // Clear for animation
+
+  let allChars = [];
+
+  // Step 2: Wrap each character in spans
+  lines.forEach((line) => {
+    const p = document.createElement("p");
+
+    for (let char of line) {
+      const span = document.createElement("span");
+      span.textContent = char;
+      p.appendChild(span);
+      allChars.push(span);
+    }
+
+    container.appendChild(p);
+  });
+
+  // Step 3: Animate characters
+  const delay = 30; // ms per character
+  allChars.forEach((span, i) => {
+    setTimeout(() => {
+      span.classList.add("show");
+    }, i * delay);
+  });
+
+  // Step 4: Restore original HTML after the animation
+  const totalDuration = allChars.length * delay + 300; // Add buffer
+  setTimeout(() => {
+    container.innerHTML = originalHTML;
+    cb();
+  }, totalDuration);
+}
+
+function hideVolumeFormula() {
+  const container = document.getElementById("volumeFormula");
+  container.style.display = "none";
+}
+
+function setWaterLevelMarker(id, y, x = 220) {
+  const marker = document.getElementById(id);
+  marker.setAttribute("transform", `translate(${x}, ${y - 5})`);
+}
+
+function addContextSection(maxStep) {
+  const sections = document.querySelectorAll(".context-section");
+  if (maxStep < 1 || maxStep > sections.length) return;
+  const section = sections[maxStep - 1];
+  if (!section.classList.contains("visible")) {
+    section.style.display = "block";
+    void section.offsetWidth;
+    section.classList.add("visible");
+  }
+  const box = document.querySelector(".contextBox");
+  box.scrollTo({
+    top: box.scrollHeight,
+    behavior: "smooth",
+  });
+}
+
+function setVolumeFormula(object) {
+  const formulaContainer = document.querySelector("#volumeFormula");
+  formulaContainer.innerHTML = appTextContent.volumeFormula[object]
+    .map((line) => `<p>${line}</p>`)
+    .join("");
+}
+
+function drawArrowSVG(svg, start, end, color = "blue") {
+  const arrowHeadLength = 10; // Length of the arrowhead
+  const arrowHeadWidth = 7; // Width of the arrowhead
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const angle = Math.atan2(dy, dx);
+
+  // Create the line part of the arrow
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", start.x);
+  line.setAttribute("y1", start.y);
+  line.setAttribute("x2", end.x);
+  line.setAttribute("y2", end.y);
+  line.setAttribute("stroke", color);
+  line.setAttribute("stroke-width", 2);
+  line.setAttribute("stroke-dasharray", "5,5");
+  svg.appendChild(line);
+
+  // Function to create an arrowhead
+  function createArrowhead(x, y, angle, direction) {
+    const headPoint1 = {
+      x: x - direction * arrowHeadLength * Math.cos(angle - Math.PI / 6),
+      y: y - direction * arrowHeadLength * Math.sin(angle - Math.PI / 6),
+    };
+    const headPoint2 = {
+      x: x - direction * arrowHeadLength * Math.cos(angle + Math.PI / 6),
+      y: y - direction * arrowHeadLength * Math.sin(angle + Math.PI / 6),
+    };
+
+    const arrowHead = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "polygon"
+    );
+    arrowHead.setAttribute(
+      "points",
+      `${x},${y} ${headPoint1.x},${headPoint1.y} ${headPoint2.x},${headPoint2.y}`
+    );
+    arrowHead.setAttribute("fill", color);
+    svg.appendChild(arrowHead);
+  }
+  createArrowhead(end.x, end.y, angle, 1);
+  createArrowhead(start.x, start.y, angle, -1);
+}
+
+function writeTextSVG(
+  svg,
+  point,
+  label,
+  anchor = "middle",
+  size = "18",
+  color = "blue"
+) {
+  const x = point.x,
+    y = point.y;
+  const ns = "http://www.w3.org/2000/svg";
+  const text = document.createElementNS(ns, "text");
+  text.setAttribute("x", x);
+  text.setAttribute("y", y);
+  text.setAttribute("fill", color);
+  text.setAttribute("font-size", size);
+  text.setAttribute("text-anchor", anchor);
+  text.textContent = label;
+  svg.appendChild(text);
+}
+
+    </script>
+
+    <script>
+      let overlayUp = false;
+      function showWorkingOverlay(message) {
+        const overlay = document.getElementById("workingOverlay");
+        const overlayContent = document.getElementById("overlayContent");
+        overlayContent.innerHTML = message;
+        overlay.style.backgroundColor = "rgba(65, 105, 225, 0.7)";
+        overlay.classList.add("show");
+      }
+      function closeOverlay() {
+        overlayUp = false;
+        document.getElementById("workingOverlay").classList.remove("show");
+      }
+      document
+        .getElementById("closeOverlay")
+        .addEventListener("click", closeOverlay);
+      function setUpListenersForHighlights() {
+        const keys = Object.keys(definitions);
+        keys.forEach((key) => {
+          document
+            .querySelector(`[data-def="${key}"]`)
+            .addEventListener("click", () => {
+              if (overlayUp) {
+                overlayUp = false;
+                closeOverlay();
+                return
+              }
+              showWorkingOverlay(definitions[key]);
+              overlayUp = true;
+            });
+        });
+      }
+      setUpListenersForHighlights();
+    </script>
+    <script>
+      const wrapper = document.getElementById("wrapper");
+const shapeBox = document.getElementById("chooseShapeBox");
+const nextButton = document.getElementById("nextButton");
+const prevButton = document.getElementById("prevButton");
+const labelsOverlay = document.getElementById("labels");
+const clip = document.getElementById("clip");
+const jarWidth = 300,
+  jarHeight = 300,
+  x0 = 250,
+  y0 = 450,
+  dx = 80,
+  dy = 40,
+  initialWaterLevel = 200;
+const objectHeight = 100;
+const duration = 2000,
+  objectStartX = 400,
+  objectStartY = 50,
+  objectEndY = 340,
+  pivot = 230 - objectHeight;
+
+let currentObject = null;
+let step = 0;
+const sinkData = {
+  watermelon: {
+    objectHeight: 100,
+    objectStartX: 400,
+    objectStartY: 10,
+    objectEndY: 290,
+    pivot: 80,
+    waterLevel: 40,
+  },
+  pumpkin: {
+    objectHeight: 100,
+    objectStartX: 400,
+    objectStartY: 10,
+    objectEndY: 290,
+    pivot: 80,
+    waterLevel: 30,
+  },
+  coconut: {
+    objectHeight: 200,
+    objectStartX: 400,
+    objectStartY: 10,
+    objectEndY: 290,
+    pivot: 80,
+    waterLevel: 20,
+  },
+};
+callWithStep(0);
+
+function callWithStep(step) {
+  if (step === 0) {
+    prevButton.disabled = true;
+    wrapper.style.display = "none";
+    shapeBox.style.display = "flex";
+    addContextSection(1);
+  } else if (step === 1) {
+    drawPrism(x0, y0, dx, dy, jarWidth, initialWaterLevel);
+    drawBeaker(x0, y0, dx, dy, jarWidth, jarHeight);
+    prevButton.disabled = false;
+    wrapper.style.display = "block";
+    shapeBox.style.display = "none";
+    setUpStep1();
+  } else if (step === 2) {
+    removeLabels();
+    hideVolumeFormula();
+    nextButton.disabled = false;
+    wrapper.style.transform = "translateX(0)";
+  } else if (step === 3) {
+    addContextSection(6);
+    nextButton.disabled = true;
+    prevButton.disabled = true;
+    wrapper.style.transform = "translateX(26%)";
+
+    setTimeout(() => {
+      drawLabels();
+      revealVolumeFormula(() => {
+        prevButton.disabled = false;
+      });
+    }, 600);
+  }
+}
+document.querySelectorAll(".shapeCard").forEach((card) => {
+  card.addEventListener("click", () => {
+    // Remove .selected from all cards
+    nextButton.disabled = false;
+    document
+      .querySelectorAll(".shapeCard")
+      .forEach((c) => c.classList.remove("selected"));
+
+    // Add .selected to the clicked card
+    card.classList.add("selected");
+    currentObject = card.querySelector("img").dataset.name;
+    onShapeSelection(currentObject);
+  });
+});
+function handleNext() {
+  step++;
+  if (step === 2) {
+    addContextSection(4);
+    animateObjectPosition(
+      currentObject,
+      objectStartY,
+      objectEndY,
+      duration,
+      pivot,
+      sinkData[currentObject].waterLevel,
+      objectHeight,
+      [x0, y0, dx, dy, jarWidth]
+    );
+  } else {
+    callWithStep(step);
+  }
+}
+function handlePrev() {
+  step--;
+  callWithStep(step);
+}
+nextButton.addEventListener("click", handleNext);
+prevButton.addEventListener("click", handlePrev);
+
+function setUpStep1() {
+  showSelectedObject(currentObject);
+  setImagePos(currentObject, objectStartX, objectStartY);
+  addContextSection(3);
+}
+
+function onShapeSelection(shape) {
+  addContextSection(2);
+  setVolumeFormula(shape);
+  // get second .context-section element
+  const contextSection = document.querySelectorAll(
+    ".contextBox .context-section"
+  )[1];
+  const p = contextSection.querySelector("p");
+  const text = "You have selected " + shape + " to find its volume.";
+  p.textContent = text;
+}
+
+function drawLabels() {
+  const d = 8;
+  drawArrowSVG(
+    labelsOverlay,
+    { x: x0 + jarWidth + d, y: y0 + 5 },
+    { x: x0 + jarWidth + dx + d, y: y0 - dy + 5 }
+  );
+  drawArrowSVG(
+    labelsOverlay,
+    { x: x0, y: y0 + d },
+    { x: x0 + jarWidth, y: y0 + d }
+  );
+  writeTextSVG(
+    labelsOverlay,
+    { x: x0 + jarWidth / 2, y: y0 + 3.5 * d },
+    "30 cm"
+  );
+  writeTextSVG(
+    labelsOverlay,
+    { x: x0 + jarWidth + dx / 2 + 2 * d, y: y0 + 5 },
+    "20 cm",
+    "start"
+  );
+  drawArrowSVG(
+    labelsOverlay,
+    { x: x0 - d, y: y0 - initialWaterLevel },
+    {
+      x: x0 - d,
+      y: y0 - initialWaterLevel - sinkData[currentObject].waterLevel,
+    }
+  );
+  writeTextSVG(
+    labelsOverlay,
+    {
+      x: x0 - 4 * d,
+      y: 5 + y0 - initialWaterLevel - sinkData[currentObject].waterLevel / 2,
+    },
+    sinkData[currentObject].waterLevel / 10 + " cm"
+  );
+  labelsOverlay.style.opacity = "1";
+}
+
+function removeLabels() {
+  labelsOverlay.replaceChildren();
+  labelsOverlay.style.opacity = "0";
+}
+
+    </script>
+  </body>
+</html>

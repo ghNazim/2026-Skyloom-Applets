@@ -182,19 +182,17 @@ const CalculationPanel = ({
     }
   };
   
-  // Render calculation rows based on current state
   const renderCalculationRows = () => {
     const rows = [];
-    
-    // Always show base equation from step 4 onwards
+    const initialEq = calcData.initialEquation || [];
     rows.push(
       React.createElement("div", { key: "row-label", className: "calc-row" }, 
-        "Volume of water left in the tank"
+        initialEq[0] || "Volume of water left in the tank"
       )
     );
     rows.push(
       React.createElement("div", { key: "row-eq1", className: "calc-row" }, 
-        "= Initial volume of water – Volume of water used"
+        initialEq[1] || "= Initial volume of water – Volume of water used"
       )
     );
     
@@ -209,7 +207,7 @@ const CalculationPanel = ({
               className: `calc-interactive-box ${interactiveBoxState[0] ? 'revealed' : 'clickable'}`,
               onClick: () => !interactiveBoxState[0] && handleInteractiveBoxClick(0)
             },
-            interactiveBoxState[0] ? calcData.values.initialVolume : "?"
+            interactiveBoxState[0] ? calcData.values.initialVolume : calcData.values.initial1
           ),
           " – ",
           React.createElement(
@@ -218,7 +216,7 @@ const CalculationPanel = ({
               className: `calc-interactive-box ${interactiveBoxState[1] ? 'revealed' : (interactiveBoxState[0] ? 'clickable' : '')}`,
               onClick: () => interactiveBoxState[0] && !interactiveBoxState[1] && handleInteractiveBoxClick(1)
             },
-            interactiveBoxState[1] ? calcData.values.usedVolume : "?"
+            interactiveBoxState[1] ? calcData.values.usedVolume : calcData.values.initial2
           )
         )
       );
@@ -233,68 +231,74 @@ const CalculationPanel = ({
       );
     }
     
-    // Step 5 with numpad: Show conversion row with input box
+    const rowTemplates = calcData.rows || [];
+    const resultMl = calcData.resultMl != null ? calcData.resultMl : "1249.675 mL";
+    const resultCm3 = calcData.resultCm3 != null ? calcData.resultCm3 : "1249.675 cm³";
+
     if (step === 5 && calcState.mcq1Answered && !calcState.numpad1Answered) {
+      const template = rowTemplates[1] || "= (2.225 × [box]) mL – 975.325 mL";
+      const parts = template.split('[box]');
       rows.push(
         React.createElement("div", { key: "row-conv1", className: "calc-row" },
-          "= (2.225 × ",
+          parts[0] || "= (2.225 × ",
           React.createElement(
             "span",
             { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
             numpadValue || ""
           ),
-          ") mL – 975.325 mL"
+          parts[1] || ") mL – 975.325 mL"
         )
       );
     }
     
-    // Step 5 after numpad answered or step 6+
     if (calcState.numpad1Answered || step >= 6) {
+      const template = rowTemplates[1] || "= (2.225 × [box]) mL – 975.325 mL";
+      const val = calcState.numpad1Value || calcData.numpad1.answer;
       rows.push(
         React.createElement("div", { key: "row-conv1-done", className: "calc-row" },
-          `= (2.225 × ${calcState.numpad1Value || "1000"}) mL – 975.325 mL`
+          template.replace('[box]', val)
         )
       );
     }
     
-    // Step 6: Show second numpad row
     if (step === 6 && !calcState.numpad2Answered) {
+      const template = rowTemplates[2] || "= [box] mL – 975.325 mL";
+      const parts = template.split('[box]');
       rows.push(
         React.createElement("div", { key: "row-conv2", className: "calc-row" },
-          "= ",
+          parts[0] || "= ",
           React.createElement(
             "span",
             { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
             numpadValue || ""
           ),
-          " mL – 975.325 mL"
+          parts[1] || " mL – 975.325 mL"
         )
       );
     }
     
-    // Step 6 after numpad answered or step 7+
     if (calcState.numpad2Answered || step >= 7) {
+      const template = rowTemplates[2] || "= [box] mL – 975.325 mL";
+      const val = calcState.numpad2Value || calcData.numpad2.answer;
       rows.push(
         React.createElement("div", { key: "row-conv2-done", className: "calc-row" },
-          `= ${calcState.numpad2Value || "2225"} mL – 975.325 mL`
+          template.replace('[box]', val)
         )
       );
     }
     
-    // Step 7+: Show result row
     if (step >= 7) {
       rows.push(
         React.createElement("div", { key: "row-result", className: "calc-row" },
-          "= 1249.675 mL"
+          resultMl.indexOf("=") === 0 ? resultMl : "= " + resultMl
         )
       );
     }
     
-    // Step 8 after MCQ or step 9: Show cm³ row
     if (calcState.showFinalRow || step >= 9) {
       rows.push(
         React.createElement("div", { key: "row-cm3", className: "calc-row" },
-          "= 1249.675 cm³"
+          resultCm3.indexOf("=") === 0 ? resultCm3 : "= " + resultCm3
         )
       );
     }
@@ -488,13 +492,12 @@ const CalculationPanel = ({
             preload: "metadata"
           }) : (imageSrc && React.createElement("img", {
             src: imageSrc,
-            alt: "Water tank",
+            alt: (APP_DATA.labels && APP_DATA.labels.waterTankAlt) || "Water tank",
             className: "calc-image"
           })),
-          // Zoom image
           zoomImageSrc && React.createElement("img", {
             src: zoomImageSrc,
-            alt: "Zoom indicator",
+            alt: (APP_DATA.labels && APP_DATA.labels.zoomIndicatorAlt) || "Zoom indicator",
             className: "zoom-img",
             style: {
               position: 'absolute',

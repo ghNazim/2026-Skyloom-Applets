@@ -203,6 +203,14 @@
 
 .dd-draggable.dragging {
   opacity: 0;
+  pointer-events: none;
+}
+
+.drag-drop-panel,
+.dd-draggable,
+.dd-drop-zone {
+  touch-action: none;
+  user-select: none;
 }
 
 /* Drag Ghost */
@@ -218,4 +226,6 @@
   border-radius: 0.8vw;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   opacity: 0.95;
+  pointer-events: none;
+  white-space: nowrap;
 }

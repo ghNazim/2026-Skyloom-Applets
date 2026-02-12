@@ -60,9 +60,9 @@
 }
 
 .section-title {
-  font-size: 2.2vw;
+  font-size: 2vw;
   font-weight: 700;
-  margin-bottom: 0.8vw;
+  margin-bottom: 0.4vw;
 }
 
 .given-title {
@@ -83,7 +83,7 @@
   font-size: 2vw;
   color: white;
   line-height: 1.4;
-  margin-bottom: 0.5vw;
+  margin-bottom: 0.2vw;
 }
 
 .section-list-item::marker {

@@ -10,6 +10,10 @@ const DATA = {
     app: {
       start_over: "Restart",
 
+      altMilkCartons: "Milk cartons",
+      altSummaryVisual: "Summary visual",
+      altVisualRepresentation: "Visual representation",
+
       // Question text for display
       questionText: "Look at the picture carefully. What is the total volume of the three milk cartons in liters?",
 
@@ -90,11 +94,11 @@ const DATA = {
       calculation1: {
         initialEquation: [
           "Total volume of milk = Volume of three milk cartons",
-          "= 1,000 mL + 250 mL + 200 mL",
-          "= [box] mL"
+          "Total volume of milk = 1,000 mL + 250 mL + 200 mL",
+          "Total volume of milk = [box] mL"
         ],
         numpadRow: {
-          prefix: "= ",
+          prefix: "Total volume of milk = ",
           suffix: " mL"
         },
         numpad: {
@@ -122,10 +126,10 @@ const DATA = {
       conversionMcq: {
         title: "How do we convert mL to L?",
         options: [
-          "A. Multiply the mL value by 1,000",
-          "B. Divide the mL value by 1,000",
-          "C. Multiply the mL value by 100",
-          "D. Divide the mL value by 100"
+          "Multiply the mL value by 1,000",
+          "Divide the mL value by 1,000",
+          "Multiply the mL value by 100",
+          "Divide the mL value by 100"
         ],
         answerIndex: 1
       },
@@ -220,6 +224,9 @@ const DATA = {
   id: {
     app: {
       start_over: "Mulai Ulang",
+      altMilkCartons: "Karton susu",
+      altSummaryVisual: "Visual ringkasan",
+      altVisualRepresentation: "Representasi visual",
       questionText: "Lihat gambar dengan saksama. Berapa total volume tiga karton susu dalam liter?",
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
@@ -250,7 +257,7 @@ const DATA = {
         ]
       },
       dragDrop1: {
-        equationLabel: "Total volume susu",
+        equationLabel: "Total volume susu = Volume tiga karton susu",
         equationLineFormat: "valuesWithPlusZones",
         fixedParts: ["1.000 mL", "250 mL", "200 mL"],
         dropZones: [

@@ -34,6 +34,18 @@ const App = () => {
     formulaMcqAnswered: false
   });
 
+  const getEmptyCalcState = () => ({
+    formulaRowAdded: false,
+    numpad1Answered: false,
+    numpad1Value: "",
+    numpad1BoxValues: [],
+    numpad1CurrentBoxIndex: 0,
+    numpad2Answered: false,
+    numpad2Value: "",
+    triangleMcqAnswered: false,
+    formulaMcqAnswered: false
+  });
+
   const resetQuestionState = () => {
     setCurrentStep(0);
     setIsNextDisabled(true);
@@ -43,17 +55,36 @@ const App = () => {
     setCurrentHighlights(null);
     setHighlightColor(null);
     setCurrentImage("");
-    setCalcState({
-      formulaRowAdded: false,
-      numpad1Answered: false,
-      numpad1Value: "",
-      numpad1BoxValues: [],
-      numpad1CurrentBoxIndex: 0,
-      numpad2Answered: false,
-      numpad2Value: "",
-      triangleMcqAnswered: false,
-      formulaMcqAnswered: false
-    });
+    setCalcState(getEmptyCalcState());
+  };
+
+  // When going "previous" to targetStep, return calcState as if we just landed on that step (reset all progress after it).
+  const getCalcStateForTargetStep = (targetStep, currentCalcState) => {
+    if (targetStep <= 2) return getEmptyCalcState();
+    if (targetStep === 3) return getEmptyCalcState();
+    if (targetStep === 4) {
+      return {
+        ...getEmptyCalcState(),
+        triangleMcqAnswered: true
+      };
+    }
+    if (targetStep === 5) {
+      return {
+        ...getEmptyCalcState(),
+        triangleMcqAnswered: true,
+        formulaRowAdded: true,
+        formulaMcqAnswered: true
+      };
+    }
+    if (targetStep === 6) {
+      return {
+        ...currentCalcState,
+        numpad2Answered: false,
+        numpad2Value: ""
+      };
+    }
+    // step 7 or other: keep current
+    return currentCalcState;
   };
 
   const handleRestart = () => {
@@ -129,8 +160,11 @@ const App = () => {
 
       const stepData = APP_DATA.steps[1];
       const total = getTotalComprehendSubsteps();
+      const totalGiven = comprehendData.given.data.length;
       if (comprehendSubstep === total - 1) {
         if (stepData.navTextCorrect) setDynamicNavText(stepData.navTextCorrect);
+      } else if (comprehendSubstep === totalGiven && stepData.navToFind) {
+        setDynamicNavText(stepData.navToFind);
       } else {
         if (stepData.navText) setDynamicNavText(stepData.navText);
       }
@@ -170,6 +204,7 @@ const App = () => {
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
 
+    // Step 1: go back within comprehend substeps
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
@@ -177,6 +212,7 @@ const App = () => {
       }
     }
 
+    // Step 0 with previous question: go to previous question's last step
     if (currentStep === 0 && questionIdx > 0) {
       setQuestionIdx(prev => prev - 1);
       setCurrentStep(7);
@@ -184,13 +220,25 @@ const App = () => {
       return;
     }
 
+    // Go back to previous step: reset all progress after the target step so it looks like first time
     if (currentStep > 0) {
-      setIsNextDisabled(true);
+      const targetStep = currentStep - 1;
+
+      setCalcState(prev => getCalcStateForTargetStep(targetStep, prev));
+
       setDynamicQuestionText("");
       setDynamicNavText("");
       setCurrentHighlights(null);
       setHighlightColor(null);
-      setCurrentStep(prev => prev - 1);
+
+      if (targetStep === 1) {
+        setCurrentStep(1);
+        setComprehendSubstep(getTotalComprehendSubsteps() - 1);
+        setIsNextDisabled(false);
+      } else {
+        setCurrentStep(targetStep);
+        setIsNextDisabled(true);
+      }
     }
   };
 
@@ -254,7 +302,7 @@ const App = () => {
           isNextDisabled: isNextDisabled,
           isPrevDisabled: currentStep <= 0 && questionIdx <= 0,
           navText: getNavText(),
-          nextSymbol: "»"
+          nextSymbol: APP_DATA.nextSymbol || "»"
         })
       )
     );
@@ -282,7 +330,7 @@ const App = () => {
           ),
           APP_DATA.questionImage && React.createElement("img", {
             src: APP_DATA.questionImage,
-            alt: "Question figure",
+            alt: APP_DATA.imageAlts?.questionFigure || "",
             className: "comprehend-question-image"
           })
         )
@@ -295,7 +343,7 @@ const App = () => {
           isNextDisabled: isNextDisabled,
           isPrevDisabled: currentStep <= 0 && questionIdx <= 0,
           navText: getNavText(),
-          nextSymbol: "»"
+          nextSymbol: APP_DATA.nextSymbol || "»"
         })
       )
     );
@@ -336,7 +384,7 @@ const App = () => {
         isNextDisabled: isNextDisabled,
         isPrevDisabled: currentStep <= 0 && questionIdx <= 0,
         navText: getNavText(),
-        nextSymbol: currentStep === 7 ? APP_DATA.start_over : "»"
+        nextSymbol: currentStep === 7 ? APP_DATA.start_over : (APP_DATA.nextSymbol || "»")
       })
     )
   );

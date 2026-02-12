@@ -71,7 +71,13 @@ const App = () => {
     setCurrentHighlights(null);
     setHighlightColor(null);
     if (targetStep < 1) setComprehendSubstep(0);
-    if (targetStep < 4) {
+    if (targetStep <= 4) setInteractiveBoxState1({ 0: false, 1: false });
+    if (targetStep <= 7) setInteractiveBoxState2({ 0: false, 1: false });
+
+    const step4Finding = (APP_DATA.calculation1 && APP_DATA.calculation1.findingsListStep5 && APP_DATA.calculation1.findingsListStep5[0]) || (APP_DATA.fallbackStep4Finding || "");
+    const halfFinding = (APP_DATA.calculation2 && APP_DATA.calculation2.findingHalf) || (APP_DATA.fallbackHalfFinding || "");
+
+    if (targetStep <= 3) {
       setCalcState(prev => ({
         ...prev,
         calc1Substep: 0,
@@ -86,7 +92,7 @@ const App = () => {
         calc3Substituted: false,
         findings: []
       }));
-    } else if (targetStep < 5) {
+    } else if (targetStep <= 4) {
       setCalcState(prev => ({
         ...prev,
         calc1Substep: 0,
@@ -101,8 +107,7 @@ const App = () => {
         calc3Substituted: false,
         findings: []
       }));
-    } else if (targetStep < 6) {
-      const step4Finding = (APP_DATA.calculation1 && APP_DATA.calculation1.findingsListStep5 && APP_DATA.calculation1.findingsListStep5[0]) || "Volume of all 3 stones = 7 m³";
+    } else if (targetStep <= 6) {
       setCalcState(prev => ({
         ...prev,
         calc2Substep: 0,
@@ -112,29 +117,14 @@ const App = () => {
         calc3Substituted: false,
         findings: [step4Finding]
       }));
-    } else if (targetStep < 7) {
-      const step4Finding = (APP_DATA.calculation1 && APP_DATA.calculation1.findingsListStep5 && APP_DATA.calculation1.findingsListStep5[0]) || "Volume of all 3 stones = 7 m³";
+    } else if (targetStep <= 7) {
       setCalcState(prev => ({
         ...prev,
-        calc2Substep: 0,
-        calc2BoxValue: "",
-        calc2BoxFinal: false,
         mcqAnswered: false,
         calc3Substituted: false,
-        findings: [step4Finding]
+        findings: [step4Finding, halfFinding]
       }));
-    } else if (targetStep < 8) {
-      setCalcState(prev => {
-        const step4Finding = (APP_DATA.calculation1 && APP_DATA.calculation1.findingsListStep5 && APP_DATA.calculation1.findingsListStep5[0]) || "Volume of all 3 stones = 7 m³";
-        const halfFinding = (APP_DATA.calculation2 && APP_DATA.calculation2.findingHalf) || "Volume of half of the stones = 3.5 m³";
-        return {
-          ...prev,
-          mcqAnswered: false,
-          calc3Substituted: false,
-          findings: [step4Finding, halfFinding]
-        };
-      });
-    } else if (targetStep < 9) {
+    } else if (targetStep <= 8) {
       setCalcState(prev => ({ ...prev, calc3Substituted: false }));
     }
   }
@@ -182,7 +172,7 @@ const App = () => {
 
     if (currentStep === 7) {
       setInteractiveBoxState2({ 0: false, 1: false });
-      const step7Finding = (APP_DATA.calculation2 && APP_DATA.calculation2.findingHalf) || "Volume of half of the stones = 3.5 m³";
+      const step7Finding = (APP_DATA.calculation2 && APP_DATA.calculation2.findingHalf) || (APP_DATA.fallbackHalfFinding || "");
       setCalcState(prev => {
         const list = prev.findings || [];
         if (list.includes(step7Finding)) return prev;
@@ -309,7 +299,8 @@ const App = () => {
     if (currentStep > 0) {
       const targetStep = currentStep - 1;
       resetStateAfterStep(targetStep);
-      setIsNextDisabled(true);
+      const targetStepData = APP_DATA.steps[targetStep];
+      setIsNextDisabled(!(targetStepData && targetStepData.nextEnabled));
       setCurrentStep(targetStep);
     }
   };
@@ -468,7 +459,7 @@ const App = () => {
         isNextDisabled: isNextDisabled,
         isPrevDisabled: currentStep <= 0,
         navText: getNavText(),
-        nextSymbol: currentStep === 9 ? (APP_DATA.start_over || "Restart") : "»"
+        nextSymbol: currentStep === 9 ? (APP_DATA.start_over || "»") : "»"
       })
     )
   );

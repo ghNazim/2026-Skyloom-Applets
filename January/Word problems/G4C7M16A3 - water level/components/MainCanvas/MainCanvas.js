@@ -36,13 +36,15 @@ const MainCanvas = ({
     return "";
   };
   
-  // Get video and zoom image configuration for comprehend step
   const getVideoConfig = () => {
     if (step === 1) {
       const comprehendData = APP_DATA.comprehend;
+      const zoomSrc = comprehendData.zoomImages && comprehendData.zoomImages[comprehendSubstep] != null
+        ? comprehendData.zoomImages[comprehendSubstep]
+        : null;
       return {
         videoSrc: comprehendData.video ? comprehendData.video.src : null,
-        zoomImageSrc: comprehendData.zoomImages ? comprehendData.zoomImages[comprehendSubstep] : null
+        zoomImageSrc: zoomSrc
       };
     }
     return { videoSrc: null, zoomImageSrc: null };

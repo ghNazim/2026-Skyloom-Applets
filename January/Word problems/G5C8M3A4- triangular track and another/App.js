@@ -226,12 +226,36 @@ const App = () => {
     }
 
     if (currentStep > 0) {
+      const newStep = currentStep - 1;
+      const steps = appData.steps || {};
+
+      setCalcState(prev => {
+        const next = { ...prev };
+        if (steps[newStep] && steps[newStep].isMcqStep) {
+          next.formulaRowAdded = false;
+          next.mcqAnsweredCount = 0;
+        }
+        const nextCalcSteps = { ...(prev.calcSteps || {}) };
+        Object.keys(steps).forEach(sKey => {
+          const s = parseInt(sKey, 10);
+          if (s >= newStep) {
+            const stepInfo = steps[s];
+            if (stepInfo && stepInfo.isCalcStep && stepInfo.calcStepKey != null) {
+              const key = String(stepInfo.calcStepKey);
+              nextCalcSteps[key] = { visibleRowIndex: 0, answers: [] };
+            }
+          }
+        });
+        next.calcSteps = nextCalcSteps;
+        return next;
+      });
+
       setIsNextDisabled(true);
       setDynamicQuestionText("");
       setDynamicNavText("");
       setCurrentHighlights(null);
       setHighlightColor(null);
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep(newStep);
     }
   };
 
@@ -301,6 +325,7 @@ const App = () => {
           imageSrc: `${splashData.image}`,
           text: splashData.text,
           step: currentStep,
+          altText: appData.altSplash || "Summary visual",
         })
       ),
       React.createElement(
@@ -339,7 +364,7 @@ const App = () => {
           ),
           appData.questionImage && React.createElement("img", {
             src: appData.questionImage,
-            alt: "Question figure",
+            alt: appData.altQuestionFigure || "Question figure",
             className: "comprehend-question-image " + (questionIdx === 1 ? "actual-image" : "")
           })
         )
@@ -374,6 +399,7 @@ const App = () => {
         React.createElement(MainCanvas, {
         step: currentStep,
         appData: appData,
+        questionIdx: questionIdx,
         onEnableNext: enableNext,
         onUpdateTexts: updateTexts,
         onUpdateImage: updateImage,

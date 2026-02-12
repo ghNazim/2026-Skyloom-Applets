@@ -41,13 +41,12 @@ const SplashScreen = ({ imageSrc, text, step }) => {
         preload: "metadata"
       }) : React.createElement("img", {
         src: imageSrc,
-        alt: "Summary visual",
+        alt: (APP_DATA.labels && APP_DATA.labels.summaryVisualAlt) || "Summary visual",
         className: "splash-image",
       }),
-      // Zoom image for splash screen
       zoomImageSrc && React.createElement("img", {
         src: zoomImageSrc,
-        alt: "Zoom indicator",
+        alt: (APP_DATA.labels && APP_DATA.labels.zoomIndicatorAlt) || "Zoom indicator",
         className: "zoom-img",
         style: {
           position: 'absolute',

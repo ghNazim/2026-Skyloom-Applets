@@ -8,7 +8,7 @@ const SplashScreen = ({ imageSrc, text, step }) => {
       { className: "splash-image-container", style: { position: 'relative' } },
       React.createElement("img", {
         src: imageSrc,
-        alt: "Summary visual",
+        alt: typeof COMMON_STRINGS !== "undefined" ? COMMON_STRINGS[current_language].imageAltSplash : "",
         className: "splash-image",
       })
     ),

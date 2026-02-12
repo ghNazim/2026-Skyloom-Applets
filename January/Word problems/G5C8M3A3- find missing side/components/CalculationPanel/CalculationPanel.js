@@ -15,6 +15,18 @@ const CalculationPanel = ({
   const findingsFormat = data.findingsFormat || {};
   const mcqs = data.mcqs || [];
   const calcRows = data.calcRows || [];
+  const calcRowMarginLeft = data.calcRowMargin || undefined;
+  const triangleAltText =
+    data && data.alts && typeof data.alts.triangleImage === "string"
+      ? data.alts.triangleImage
+      : "";
+
+  const stripMcqOptionPrefix = (option) => {
+    if (option === null || option === undefined) return option;
+    const s = String(option);
+    // Remove leading "A. ", "B) ", etc (display-only)
+    return s.replace(/^\s*[A-D]\s*[\.\)]\s*/i, "");
+  };
 
   const [numpadValue, setNumpadValue] = useState("");
   const [inputError, setInputError] = useState(false);
@@ -75,7 +87,7 @@ const calcPanel = document.querySelector(".calc-equation-row");
         behavior: "smooth",
       });
     }
-  }, [step]);
+  }, [step, visibleCalcRowIndex]);
 
   // Step 5: enable Next when current visible row has no boxes (display-only row)
   useEffect(() => {
@@ -85,7 +97,8 @@ const calcPanel = document.querySelector(".calc-equation-row");
   }, [step, visibleCalcRowIndex, currentRowBoxCount, onEnableNext]);
 
   useEffect(() => {
-    if (step === 4 && currentMcqCorrect) {
+    if (step === 4) {
+      // Whenever MCQ index changes (forward/back), treat it like a fresh MCQ.
       setSelectedMcqIndex(null);
       setCurrentMcqCorrect(false);
     }
@@ -151,10 +164,10 @@ const calcPanel = document.querySelector(".calc-equation-row");
   };
 
   const renderFindingsDiv = () => {
-    const title = findingsFormat.title || "INFORMATION ANALYSIS";
-    const givenLabel = findingsFormat.givenLabel || "Given:";
+    const title = findingsFormat.title || (data.comprehend && data.comprehend.sectionTitle) || "";
+    const givenLabel = findingsFormat.givenLabel || (data.labels && data.labels.given ? `${data.labels.given}:` : "");
     const givenList = findingsFormat.givenList || [];
-    const toFindLabel = findingsFormat.toFindLabel || "To Find:";
+    const toFindLabel = findingsFormat.toFindLabel || (data.labels && data.labels.toFind ? `${data.labels.toFind}:` : "");
     const toFindList = findingsFormat.toFindList || [];
 
     return React.createElement(
@@ -200,7 +213,7 @@ const calcPanel = document.querySelector(".calc-equation-row");
               onClick: () => handleMcqClick(index),
               disabled: currentMcqCorrect
             },
-            option
+            stripMcqOptionPrefix(option)
           );
         })
       )
@@ -212,6 +225,40 @@ const calcPanel = document.querySelector(".calc-equation-row");
     return (lastMcq && lastMcq.formulaRow) || "";
   };
 
+  // Build content for one side (lhs or rhs) of a row: text with [box] placeholders replaced by box elements
+  const buildSideContent = (sideText, boxIndicesInSide, rowStartBox, rowBoxCount, rowFullyFilled) => {
+    const parts = sideText.split("[box]");
+    const elements = [];
+    parts.forEach((part, i) => {
+      elements.push(React.createElement("span", { key: `p-${i}` }, part));
+      if (i < parts.length - 1) {
+        const boxIdx = boxIndicesInSide[i];
+        const isFilled = boxIdx < filledCount;
+        const isCurrent = boxIdx === filledCount;
+        const value = isFilled ? (calcState.calcBoxAnswers || [])[boxIdx] : (isCurrent ? numpadValue : "");
+        if (rowFullyFilled) {
+          elements.push(
+            React.createElement("span", { key: `box-${boxIdx}`, className: "calc-filled-inline" }, value)
+          );
+        } else {
+          const boxClass = [
+            "calc-input-box",
+            inputError && isCurrent ? "error shake" : "",
+            (inputCorrect && isCurrent) || isFilled ? "correct" : "",
+            isCurrent ? "highlight" : ""
+          ].filter(Boolean).join(" ");
+          elements.push(
+            React.createElement("span", {
+              key: `box-${boxIdx}`,
+              className: boxClass
+            }, value)
+          );
+        }
+      }
+    });
+    return elements;
+  };
+
   const renderCalcRows = () => {
     const rows = [];
     const filledAnswers = calcState.calcBoxAnswers || [];
@@ -220,8 +267,16 @@ const calcPanel = document.querySelector(".calc-equation-row");
     if (calcState.formulaRowAdded) {
       const formulaText = getFormulaRowText();
       if (formulaText) {
+        const eqIdx = formulaText.indexOf("=");
+        const lhs = eqIdx >= 0 ? formulaText.slice(0, eqIdx) : formulaText;
+        const rhs = eqIdx >= 0 ? formulaText.slice(eqIdx + 1) : "";
+        const eqCell = eqIdx >= 0 ? "=" : "";
         rows.push(
-          React.createElement("div", { key: "formula", className: "calc-row" }, formulaText)
+          React.createElement("div", { key: "formula", className: "calc-row" },
+            React.createElement("div", { className: "calc-cell-lhs" }, lhs),
+            React.createElement("div", { className: "calc-cell-eq" }, eqCell),
+            React.createElement("div", { className: "calc-cell-rhs" }, rhs)
+          )
         );
       }
     }
@@ -232,46 +287,44 @@ const calcPanel = document.querySelector(".calc-equation-row");
       visibleRows.forEach((rowDef, rowIndex) => {
         const text = rowDef.text || "";
         const answers = rowDef.answers;
+        const eqIdx = text.indexOf("=");
+        const lhsText = eqIdx >= 0 ? text.slice(0, eqIdx) : text;
+        const rhsText = eqIdx >= 0 ? text.slice(eqIdx + 1) : "";
+
         if (!answers || !answers.length) {
           rows.push(
-            React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, text)
+            React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" },
+              React.createElement("div", { className: "calc-cell-lhs" }, lhsText),
+              React.createElement("div", { className: "calc-cell-eq" }, eqIdx >= 0 ? "=" : ""),
+              React.createElement("div", { className: "calc-cell-rhs" }, rhsText)
+            )
           );
           return;
         }
-        const parts = text.split("[box]");
-        const elements = [];
+
+        const lhsParts = lhsText.split("[box]");
+        const rhsParts = rhsText.split("[box]");
+        const nLhsBoxes = Math.max(0, lhsParts.length - 1);
+        const nRhsBoxes = Math.max(0, rhsParts.length - 1);
         const rowStartBox = startBoxIndexForRow(rowIndex);
         const rowBoxCount = answers.length;
         const rowFullyFilled = filledAnswers.length >= rowStartBox + rowBoxCount;
-        parts.forEach((part, i) => {
-          elements.push(React.createElement("span", { key: `p-${i}` }, part));
-          if (i < parts.length - 1) {
-            const boxIdx = boxGlobalIndex++;
-            const isFilled = boxIdx < filledAnswers.length;
-            const isCurrent = boxIdx === filledCount;
-            const value = isFilled ? filledAnswers[boxIdx] : (isCurrent ? numpadValue : "");
-            if (rowFullyFilled) {
-              elements.push(
-                React.createElement("span", { key: `box-${boxIdx}`, className: "calc-filled-inline" }, value)
-              );
-            } else {
-              const boxClass = [
-                "calc-input-box",
-                inputError && isCurrent ? "error shake" : "",
-                inputCorrect && isCurrent ? "correct" : "",
-                isCurrent ? "highlight" : ""
-              ].filter(Boolean).join(" ");
-              elements.push(
-                React.createElement("span", {
-                  key: `box-${boxIdx}`,
-                  className: boxClass
-                }, value)
-              );
-            }
-          }
-        });
+
+        const lhsBoxIndices = [];
+        for (let i = 0; i < nLhsBoxes; i++) lhsBoxIndices.push(rowStartBox + i);
+        const rhsBoxIndices = [];
+        for (let i = 0; i < nRhsBoxes; i++) rhsBoxIndices.push(rowStartBox + nLhsBoxes + i);
+
+        const lhsContent = buildSideContent(lhsText, lhsBoxIndices, rowStartBox, rowBoxCount, rowFullyFilled);
+        const rhsContent = buildSideContent(rhsText, rhsBoxIndices, rowStartBox, rowBoxCount, rowFullyFilled);
+        boxGlobalIndex += rowBoxCount;
+
         rows.push(
-          React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, ...elements)
+          React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" },
+            React.createElement("div", { className: "calc-cell-lhs" }, ...lhsContent),
+            React.createElement("div", { className: "calc-cell-eq" }, "="),
+            React.createElement("div", { className: "calc-cell-rhs" }, ...rhsContent)
+          )
         );
       });
     }
@@ -317,7 +370,7 @@ const calcPanel = document.querySelector(".calc-equation-row");
         "div",
         { className: "calc-left-panel final with-image" },
         React.createElement("div", { className: "calc-image-row" },
-          imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+          imageSrc && React.createElement("img", { src: imageSrc, alt: triangleAltText, className: "calc-image" })
         ),
         React.createElement(
           "div",
@@ -338,7 +391,7 @@ const calcPanel = document.querySelector(".calc-equation-row");
         "div",
         { className: "calc-left-panel with-image" },
         React.createElement("div", { className: "calc-image-row" },
-          imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+        imageSrc && React.createElement("img", { src: imageSrc, alt: triangleAltText, className: "calc-image" })
         ),
         React.createElement("div", { className: "calc-equation-row" })
       ),
@@ -356,7 +409,7 @@ const calcPanel = document.querySelector(".calc-equation-row");
       "div",
       { className: "calc-left-panel with-image" },
       React.createElement("div", { className: "calc-image-row" },
-        imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+        imageSrc && React.createElement("img", { src: imageSrc, alt: triangleAltText, className: "calc-image" })
       ),
       React.createElement(
         "div",
@@ -364,7 +417,11 @@ const calcPanel = document.querySelector(".calc-equation-row");
         (showFormulaRow || showCalcRows) && React.createElement(
           "div",
           { className: "calc-rows-container" },
-          renderCalcRows()
+          React.createElement(
+            "div",
+            { className: "calc-rows-table" },
+            ...renderCalcRows()
+          )
         )
       )
     ),

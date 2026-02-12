@@ -6,6 +6,13 @@ const App = () => {
   const [dynamicQuestionText, setDynamicQuestionText] = useState("");
   const [dynamicNavText, setDynamicNavText] = useState("");
 
+  // Set page title from data (for translation)
+  useEffect(() => {
+    if (typeof document !== "undefined" && APP_DATA.appTitle) {
+      document.title = APP_DATA.appTitle;
+    }
+  }, []);
+
   // Reset state when step changes
   useEffect(() => {
     setDynamicQuestionText("");

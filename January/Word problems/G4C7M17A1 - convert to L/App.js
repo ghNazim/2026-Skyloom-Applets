@@ -91,9 +91,9 @@ const App = () => {
       setIsNextDisabled(true);
     }
     
-    // Reset comprehend substep when entering step 1
+    // Reset comprehend substep when entering step 1 (start at -1: title only, no list)
     if (currentStep === 1) {
-      setComprehendSubstep(0);
+      setComprehendSubstep(-1);
     }
     
     // Reset interactive box state when entering step 4
@@ -107,7 +107,7 @@ const App = () => {
     }
   }, [currentStep]);
 
-  // Update nav text for comprehend substeps
+  // Update nav text and highlights for comprehend substeps
   useEffect(() => {
     if (currentStep === 1) {
       const stepData = APP_DATA.steps[1];
@@ -115,38 +115,40 @@ const App = () => {
       const comprehendData = APP_DATA.comprehend;
       const givenCount = comprehendData.given.data.length;
       
-      // Update highlights based on substep - one at a time
+      // Substep -1: no list yet, no highlights, only question and right-panel title
+      if (comprehendSubstep === -1) {
+        setCurrentHighlights(null);
+        setHighlightColor(null);
+        setIsNextDisabled(false);
+        if (stepData.navText) setDynamicNavText(stepData.navText);
+        return;
+      }
+      
+      // Update highlights based on substep - one at a time (substep >= 0)
       if (comprehendSubstep < givenCount) {
-        // Given items - show orange highlight for current item
         setCurrentHighlights([comprehendData.given.highlights[comprehendSubstep]]);
         setHighlightColor("orange");
       } else if (comprehendSubstep === givenCount) {
-        // First toFind item - show purple highlight
         setCurrentHighlights(comprehendData.toFind.highlights);
         setHighlightColor("purple");
       } else {
-        // Remove highlights for subsequent substeps
         setCurrentHighlights(null);
         setHighlightColor(null);
       }
       
-      // Update image based on substep
       if (comprehendData.images && comprehendData.images[comprehendSubstep]) {
         setCurrentImage(comprehendData.images[comprehendSubstep]);
       }
       
-      // Enable next button for comprehend substeps
       setIsNextDisabled(false);
       
-      // If last substep, update nav text
-      if (comprehendSubstep === total - 1) {
-        if (stepData.navTextCorrect) {
-          setDynamicNavText(stepData.navTextCorrect);
-        }
-      } else {
-        if (stepData.navText) {
-          setDynamicNavText(stepData.navText);
-        }
+      // Nav text: initially navText; last item of given → navToFind; last item of toFind → navTextCorrect
+      if (comprehendSubstep === total - 1 && stepData.navTextCorrect) {
+        setDynamicNavText(stepData.navTextCorrect);
+      } else if (comprehendSubstep === givenCount - 1 && stepData.navToFind) {
+        setDynamicNavText(stepData.navToFind);
+      } else if (stepData.navText) {
+        setDynamicNavText(stepData.navText);
       }
     }
   }, [currentStep, comprehendSubstep]);
@@ -157,8 +159,13 @@ const App = () => {
     // Handle step 1 - comprehend with substeps
     if (currentStep === 1 && stepData.isSubstepComprehend) {
       const totalSubsteps = getTotalComprehendSubsteps();
+      // From substep -1, first Next starts comprehend at substep 0
+      if (comprehendSubstep === -1) {
+        if (window.playSound) window.playSound("click");
+        setComprehendSubstep(0);
+        return;
+      }
       if (comprehendSubstep < totalSubsteps - 1) {
-        // Move to next substep
         if (window.playSound) window.playSound("click");
         setComprehendSubstep(prev => prev + 1);
         return;
@@ -184,6 +191,10 @@ const App = () => {
     
     // Handle step 1 - comprehend with substeps
     if (currentStep === 1) {
+      if (comprehendSubstep === 0) {
+        setComprehendSubstep(-1);
+        return;
+      }
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
         return;

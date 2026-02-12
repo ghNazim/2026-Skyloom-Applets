@@ -78,21 +78,21 @@ const MainCanvas = ({
 
   // Permanent labels with offsets
   const permanentLabels = useMemo(() => [
-    { id: 'AH', text: '40 cm', offsetX: 0, offsetY: -25 },
-    { id: 'GH', text: '23 cm', offsetX: 40, offsetY: 0 },
-    { id: 'BC', text: '16 cm', offsetX: 0, offsetY: 30 },
-    { id: 'FG', text: '14 cm', offsetX: 0, offsetY: 30 },
-    { id: 'EF', text: '20 cm', offsetX: 40, offsetY: 0 },
+    { id: 'AH', text: '40 cm', offsetX: 0, offsetY: -35 },
+    { id: 'GH', text: '23 cm', offsetX: 50, offsetY: 0 },
+    { id: 'BC', text: '16 cm', offsetX: 0, offsetY: 35 },
+    { id: 'FG', text: '14 cm', offsetX: 0, offsetY: 35 },
+    { id: 'EF', text: '20 cm', offsetX: 50, offsetY: 0 },
   ], []);
 
   // Corner label offsets
   const cornerLabelOffsets = useMemo(() => ({
     A: { x: -20, y: -15 },
     B: { x: -20, y: 15 },
-    C: { x: -10, y: 20 },
+    C: { x: -10, y: -20 },
     D: { x: -20, y: 15 },
     E: { x: 20, y: 15 },
-    F: { x: 10, y: 20 },
+    F: { x: 10, y: -20 },
     G: { x: 20, y: 15 },
     H: { x: 20, y: -15 },
   }), []);
@@ -492,40 +492,41 @@ const MainCanvas = ({
   };
 
   // Render step 2 equation
+  const s2 = APP_DATA.steps[2];
   const renderStep2Equation = () => {
     if (step2Phase === 0) {
       return React.createElement("div", { className: "equation-row" },
         renderFlipBox('AH', 'AH', '40', true),
-        React.createElement("span", { className: "equation-text" }, " = BC + CF + FG")
+        React.createElement("span", { className: "equation-text" }, s2.equationLine0Right)
       );
     }
     if (step2Phase === 1) {
       return React.createElement("div", { className: "equation-row" },
-        React.createElement("span", { className: "equation-text" }, "40 = "),
+        React.createElement("span", { className: "equation-text" }, s2.equationLine1Left),
         renderFlipBox('BC', 'BC', '16', true),
-        React.createElement("span", { className: "equation-text" }, " + CF + FG")
+        React.createElement("span", { className: "equation-text" }, s2.equationLine1Right)
       );
     }
     if (step2Phase === 2) {
       return React.createElement("div", { className: "equation-row" },
-        React.createElement("span", { className: "equation-text" }, "40 = 16 + CF + "),
+        React.createElement("span", { className: "equation-text" }, s2.equationLine2Left),
         renderFlipBox('FG', 'FG', '14', true),
-        React.createElement("span", { className: "equation-text" }, "")
+        React.createElement("span", { className: "equation-text" }, s2.equationLine2Right)
       );
     }
     if (step2Phase === 3) {
       return React.createElement("div", { className: "equation-row" },
-        React.createElement("span", { className: "equation-text" }, "40 = 16 + "),
+        React.createElement("span", { className: "equation-text" }, s2.equationLine3Left),
         React.createElement("span", { 
           className: "interactive-box active",
           onClick: () => handleStep2BoxClick('CF')
         }, "CF"),
-        React.createElement("span", { className: "equation-text" }, " + 14")
+        React.createElement("span", { className: "equation-text" }, s2.equationLine3Right)
       );
     }
     if (step2Phase === 4) {
       return React.createElement("div", { className: "equation-row" },
-        React.createElement("span", { className: "equation-text" }, "CF = 40 – (16 + 14)")
+        React.createElement("span", { className: "equation-text" }, s2.equationLine4)
       );
     }
     return null;
@@ -566,7 +567,7 @@ const MainCanvas = ({
     // Step 3 equation
     if (step === 3 && showEquation) {
       return React.createElement("div", { className: "equation-row" },
-        React.createElement("span", { className: "equation-text" }, "CF = 40 - ( 16 + 14 ) = "),
+        React.createElement("span", { className: "equation-text" }, APP_DATA.steps[3].equationText),
         React.createElement("span", { 
           className: `input-box ${inputState}`
         }, inputValue || "\u00A0")
@@ -576,11 +577,11 @@ const MainCanvas = ({
     // Step 4 equation
     if (step === 4 && showEquation) {
       return React.createElement("div", { className: "equation-row" },
-        React.createElement("span", { className: "equation-text" }, "Perimeter = Sum of the lengths of all the sides = "),
+        React.createElement("span", { className: "equation-text" }, APP_DATA.steps[4].equationText),
         React.createElement("span", { 
           className: `input-box ${inputState}`
         }, inputValue || "\u00A0"),
-        React.createElement("span", { className: "equation-text" }, " cm")
+        React.createElement("span", { className: "equation-text" }, APP_DATA.unitCm)
       );
     }
 
@@ -730,7 +731,7 @@ const MainCanvas = ({
     const mid = getMidpoint('AB');
     return React.createElement("text", {
       key: "AB-label",
-      x: mid.x - 40,
+      x: mid.x - 50,
       y: mid.y,
       textAnchor: "middle",
       dominantBaseline: "middle",
@@ -744,7 +745,7 @@ const MainCanvas = ({
     const mid = getMidpoint('CD');
     return React.createElement("text", {
       key: "CD-label",
-      x: mid.x - 40,
+      x: mid.x - 50,
       y: mid.y,
       textAnchor: "middle",
       dominantBaseline: "middle",
@@ -759,7 +760,7 @@ const MainCanvas = ({
     return React.createElement("text", {
       key: "DE-label",
       x: mid.x,
-      y: mid.y + 25,
+      y: mid.y + 35,
       textAnchor: "middle",
       dominantBaseline: "middle",
       className: "side-label",
@@ -791,7 +792,7 @@ const MainCanvas = ({
     return React.createElement("text", {
       key: "CF-label",
       x: midX,
-      y: midY - 18,
+      y: midY - 30,
       textAnchor: "middle",
       dominantBaseline: "middle",
       className: labelClass,
@@ -842,14 +843,14 @@ const MainCanvas = ({
           type: "button",
           className: "replay-animation-btn",
           onClick: handleReplayAnimation,
-          "aria-label": "Replay animation",
+          "aria-label": APP_DATA.replayAriaLabel,
         },
         "⟲"
       ),
       React.createElement(
         "svg",
         { 
-          viewBox: "0 0 500 450",
+          viewBox: "-50 -10 600 470",
           className: "shape-svg",
           preserveAspectRatio: "xMidYMid meet"
         },

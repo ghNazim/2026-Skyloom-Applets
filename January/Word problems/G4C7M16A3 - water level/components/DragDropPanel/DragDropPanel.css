@@ -172,6 +172,19 @@
 
 .dd-draggable.dragging {
   opacity: 0;
+  pointer-events: none;
+}
+
+.dd-draggable,
+.dd-drop-zone,
+.drag-drop-panel {
+  touch-action: none;
+  user-select: none;
+}
+
+.dd-drag-ghost {
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 /* Drag Ghost */

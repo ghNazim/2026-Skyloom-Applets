@@ -113,6 +113,10 @@ const DATA = {
           smallBottleCount: "17",
           eachVolume: "500 mL"
         },
+        inputBoxes: [
+          { answer: "17", placeholder: "Number of small bottles", unit: "" },
+          { answer: "500", placeholder: "Volume (mL) in each bottle", unit: "mL" }
+        ],
         numpad: {
           answer: "8500",
           maxLength: 5
@@ -134,6 +138,10 @@ const DATA = {
           totalVolume: "8500 mL",
           bigBottleCount: "5"
         },
+        inputBoxes: [
+          { answer: "8500", placeholder: "Total volume (mL)", unit: "mL" },
+          { answer: "5", placeholder: "Number of big bottles", unit: "" }
+        ],
         numpad: {
           answer: "1700",
           maxLength: 4
@@ -147,10 +155,10 @@ const DATA = {
       conversionMcq: {
         title: "How will you convert 1700 mL to L?",
         options: [
-          "a. Multiply the value in mL by 10",
-          "b. Multiply the value in mL by 100",
-          "c. Divide the value in mL by 100",
-          "d. Divide the value in mL by 1000"
+          "Multiply the value in mL by 10",
+          "Multiply the value in mL by 100",
+          "Divide the value in mL by 100",
+          "Divide the value in mL by 1000"
         ],
         answerIndex: 3,
         conversionFinding: "1000 mL = 1 L"
@@ -219,10 +227,11 @@ const DATA = {
           dragDropKey: "dragDrop1",
           nextEnabled: false
         },
-        // Step 4: Interactive boxes (First calculation)
+        // Step 4: Numpad input boxes (First calculation - two values)
         4: {
           questionText: "Let's find the required volume.",
-          navText: "Tap the highlighted box.",
+          navText: "Use the numpad to fill the first box and click ✓ to check.",
+          navTextSecondBox: "Use the numpad to fill the second box and click ✓ to check.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/compute1.png",
           isInteractiveBoxes: true,
@@ -249,10 +258,11 @@ const DATA = {
           dragDropKey: "dragDrop2",
           nextEnabled: false
         },
-        // Step 7: Interactive boxes (Second calculation)
+        // Step 7: Numpad input boxes (Second calculation - two values)
         7: {
           questionText: "Let's find the volume of milk in each big bottle.",
-          navText: "Tap the highlighted box.",
+          navText: "Use the numpad to fill the first box and click ✓ to check.",
+          navTextSecondBox: "Use the numpad to fill the second box and click ✓ to check.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/compute2.png",
           isInteractiveBoxes: true,
@@ -395,6 +405,10 @@ const DATA = {
           smallBottleCount: "17",
           eachVolume: "500 mL"
         },
+        inputBoxes: [
+          { answer: "17", placeholder: "Jumlah botol kecil", unit: "" },
+          { answer: "500", placeholder: "Volume (mL) di setiap botol", unit: "mL" }
+        ],
         numpad: {
           answer: "8500",
           maxLength: 5
@@ -415,6 +429,10 @@ const DATA = {
           totalVolume: "8500 mL",
           bigBottleCount: "5"
         },
+        inputBoxes: [
+          { answer: "8500", placeholder: "Total volume (mL)", unit: "mL" },
+          { answer: "5", placeholder: "Jumlah botol besar", unit: "" }
+        ],
         numpad: {
           answer: "1700",
           maxLength: 4
@@ -427,10 +445,10 @@ const DATA = {
       conversionMcq: {
         title: "Bagaimana cara mengubah 1700 mL ke L?",
         options: [
-          "a. Kalikan nilai dalam mL dengan 10",
-          "b. Kalikan nilai dalam mL dengan 100",
-          "c. Bagi nilai dalam mL dengan 100",
-          "d. Bagi nilai dalam mL dengan 1000"
+          "Kalikan nilai dalam mL dengan 10",
+          "Kalikan nilai dalam mL dengan 100",
+          "Bagi nilai dalam mL dengan 100",
+          "Bagi nilai dalam mL dengan 1000"
         ],
         answerIndex: 3,
         conversionFinding: "1000 mL = 1 L"
@@ -494,7 +512,8 @@ const DATA = {
         },
         4: {
           questionText: "Mari temukan volume yang diperlukan.",
-          navText: "Ketuk kotak yang disorot.",
+          navText: "Gunakan numpad untuk mengisi kotak pertama dan klik ✓ untuk memeriksa.",
+          navTextSecondBox: "Gunakan numpad untuk mengisi kotak kedua dan klik ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
           image: "assets/compute1.png",
           isInteractiveBoxes: true,
@@ -521,7 +540,8 @@ const DATA = {
         },
         7: {
           questionText: "Mari temukan volume susu di setiap botol besar.",
-          navText: "Ketuk kotak yang disorot.",
+          navText: "Gunakan numpad untuk mengisi kotak pertama dan klik ✓ untuk memeriksa.",
+          navTextSecondBox: "Gunakan numpad untuk mengisi kotak kedua dan klik ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
           image: "assets/compute2.png",
           isInteractiveBoxes: true,

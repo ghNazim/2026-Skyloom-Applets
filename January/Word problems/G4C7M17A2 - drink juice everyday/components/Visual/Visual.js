@@ -11,7 +11,7 @@ const Visual = ({ imageSrc, showAreaLabel = false, step, substep = 0, isAnswered
         }) 
       : React.createElement("img", {
           src: imageSrc,
-          alt: "Visual representation",
+          alt: APP_DATA.labels.altVisualRepresentation,
           className: "visual-image",
         })
   );

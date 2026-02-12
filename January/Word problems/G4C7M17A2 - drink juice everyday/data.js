@@ -64,10 +64,10 @@ const DATA = {
       relationshipMcq: {
         title: "Which statement correctly shows the relationship between liters (L) and milliliters (mL)?",
         options: [
-          "a. 1 mL = 1000 L",
-          "b. 1 L = 100 mL",
-          "c. 1 L = 1000 mL",
-          "d. 1 mL = 10 L"
+          "1 mL = 1000 L",
+          "1 L = 100 mL",
+          "1 L = 1000 mL",
+          "1 mL = 10 L"
         ],
         answerIndex: 2,
         findingOnCorrect: "1 L = 1000 mL"
@@ -220,7 +220,8 @@ const DATA = {
         // Step 1: Comprehend with substeps (Given/To Find) - LeftQuestion component
         1: {
           questionText: "Read the question and identify 'given' and 'to find' in this step.",
-          navText: "Tap » to continue.",
+          navText: "Tap » to identify 'given' information.",
+          navToFind: "Tap » to identify what we need 'to find'.",
           navTextCorrect: "Tap » to continue.",
           isComprehend: true,
           isSubstepComprehend: true,
@@ -359,7 +360,9 @@ const DATA = {
         toFind: "To Find",
         findings: "Findings",
         unitL: " L ",
-        unitMl: " mL"
+        unitMl: " mL",
+        altSummaryVisual: "Summary visual",
+        altVisualRepresentation: "Visual representation"
       },
     },
   },
@@ -559,6 +562,7 @@ const DATA = {
         1: {
           questionText: "Baca pertanyaan dan identifikasi 'diketahui' dan 'ditanyakan' pada langkah ini.",
           navText: "Ketuk » untuk melanjutkan.",
+          navToFind: "Ketuk » untuk mengidentifikasi 'ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
           isComprehend: true,
           isSubstepComprehend: true,
@@ -684,7 +688,9 @@ const DATA = {
         toFind: "Ditanyakan",
         findings: "Temuan",
         unitL: " L ",
-        unitMl: " mL"
+        unitMl: " mL",
+        altSummaryVisual: "Visual ringkasan",
+        altVisualRepresentation: "Representasi visual"
       },
     },
   },

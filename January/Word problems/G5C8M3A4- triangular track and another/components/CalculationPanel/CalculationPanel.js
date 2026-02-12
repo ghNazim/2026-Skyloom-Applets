@@ -1,6 +1,7 @@
 const CalculationPanel = ({
   step,
   appData,
+  questionIdx = 0,
   onEnableNext,
   onUpdateNavText,
   calcState,
@@ -183,8 +184,8 @@ const CalculationPanel = ({
   };
 
   const renderFindingsDiv = () => {
-    const givenLabel = data.givenLabel || findingsFormat.givenLabel || "Given:";
-    const findingsLabel = data.findingsLabel != null ? data.findingsLabel : (findingsFormat.findingsLabel || "Findings:");
+    const givenLabel = data.givenLabel != null ? data.givenLabel : (findingsFormat.givenLabel || "");
+    const findingsLabel = data.findingsLabel != null ? data.findingsLabel : (findingsFormat.findingsLabel || "");
 
     if (findingInstance) {
       const givenList = findingInstance.givenList || [];
@@ -209,7 +210,7 @@ const CalculationPanel = ({
 
     const title = findingsFormat.title || "";
     const givenList = findingsFormat.givenList || [];
-    const toFindLabel = findingsFormat.toFindLabel || "To Find:";
+    const toFindLabel = data.toFindLabel != null ? data.toFindLabel : (findingsFormat.toFindLabel || "");
     const toFindList = findingsFormat.toFindList || [];
     return React.createElement(
       "div",
@@ -291,17 +292,64 @@ const CalculationPanel = ({
     }
 
     if (stepData.isCalcStep && calcStepData) {
-      initialRowsForStep.forEach((line, i) => {
-        rows.push(React.createElement("div", { key: `init-${i}`, className: "calc-row", dangerouslySetInnerHTML: { __html: line } }, ));
-      });
+      const useQ1ThreeCell = questionIdx === 0;
+
+      const flushQ1Table = (tableRows) => {
+        if (!useQ1ThreeCell || tableRows.length === 0) return;
+        rows.push(
+          React.createElement("div", { key: `table-${tableRows[0].key}`, className: "calc-q1-table" }, tableRows.map((r) => r.el))
+        );
+      };
+
+      let tableRun = [];
+      if (useQ1ThreeCell) {
+        initialRowsForStep.forEach((line, i) => {
+          const idx = (line || "").indexOf("=");
+          if (idx >= 0) {
+            const lhs = line.slice(0, idx).trim();
+            const rhs = line.slice(idx + 1).trim();
+            const rowEl = React.createElement("div", { key: `init-${i}`, className: "calc-row calc-row-three-cell" },
+              React.createElement("div", { className: "calc-cell-lhs", dangerouslySetInnerHTML: { __html: lhs } }),
+              React.createElement("div", { className: "calc-cell-eq" }, "="),
+              React.createElement("div", { className: "calc-cell-rhs", dangerouslySetInnerHTML: { __html: rhs } })
+            );
+            tableRun.push({ key: `init-${i}`, el: rowEl });
+          } else {
+            flushQ1Table(tableRun);
+            tableRun = [];
+            rows.push(React.createElement("div", { key: `init-${i}`, className: "calc-row" }, React.createElement("span", { dangerouslySetInnerHTML: { __html: line } })));
+          }
+        });
+      } else {
+        initialRowsForStep.forEach((line, i) => {
+          rows.push(React.createElement("div", { key: `init-${i}`, className: "calc-row", dangerouslySetInnerHTML: { __html: line } }, ));
+        });
+      }
+
       const visibleCalcRows = calcRowsForStep.slice(0, effectiveVisibleRowIndex + 1);
       visibleCalcRows.forEach((rowDef, rowIndex) => {
         const text = rowDef.text || "";
         const answers = rowDef.answers;
         if (!answers || !answers.length) {
-          rows.push(
-            React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, text)
-          );
+          if (useQ1ThreeCell) {
+            const idx = text.indexOf("=");
+            if (idx >= 0) {
+              const lhs = text.slice(0, idx).trim();
+              const rhs = text.slice(idx + 1).trim();
+              const rowEl = React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row calc-row-three-cell" },
+                React.createElement("div", { className: "calc-cell-lhs" }, lhs),
+                React.createElement("div", { className: "calc-cell-eq" }, "="),
+                React.createElement("div", { className: "calc-cell-rhs" }, rhs)
+              );
+              tableRun.push({ key: `row-${rowIndex}`, el: rowEl });
+            } else {
+              flushQ1Table(tableRun);
+              tableRun = [];
+              rows.push(React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, text));
+            }
+          } else {
+            rows.push(React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, text));
+          }
           return;
         }
         const parts = text.split("[box]");
@@ -316,6 +364,7 @@ const CalculationPanel = ({
             const isFilled = boxIdx < filledAnswers.length;
             const isCurrent = boxIdx === filledCount;
             const value = isFilled ? filledAnswers[boxIdx] : (isCurrent ? numpadValue : "");
+            const showAsCorrect = (isFilled && !isCurrent) || (inputCorrect && isCurrent);
             if (rowFullyFilled) {
               elements.push(
                 React.createElement("span", { key: `box-${boxIdx}`, className: "calc-filled-inline" }, value)
@@ -324,7 +373,7 @@ const CalculationPanel = ({
               const boxClass = [
                 "calc-input-box",
                 inputError && isCurrent ? "error shake" : "",
-                inputCorrect && isCurrent ? "correct" : "",
+                showAsCorrect ? "correct" : "",
                 isCurrent ? "highlight" : ""
               ].filter(Boolean).join(" ");
               elements.push(
@@ -333,10 +382,46 @@ const CalculationPanel = ({
             }
           }
         });
-        rows.push(
-          React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, ...elements)
-        );
+        if (useQ1ThreeCell) {
+          const idx = text.indexOf("=");
+          if (idx >= 0) {
+            const lhs = text.slice(0, idx).trim();
+            const rhsParts = text.slice(idx + 1).split("[box]");
+            const rhsElements = [];
+            rhsParts.forEach((rPart, ri) => {
+              rhsElements.push(React.createElement("span", { key: `rhs-p-${ri}` }, rPart));
+              if (ri < rhsParts.length - 1) {
+                const boxIdx = rowStartBox + ri;
+                const isFilled = boxIdx < filledAnswers.length;
+                const isCurrent = boxIdx === filledCount;
+                const value = isFilled ? filledAnswers[boxIdx] : (isCurrent ? numpadValue : "");
+                const showAsCorrect = (isFilled && !isCurrent) || (inputCorrect && isCurrent);
+                if (rowFullyFilled) {
+                  rhsElements.push(React.createElement("span", { key: `rhs-box-${boxIdx}`, className: "calc-filled-inline" }, value));
+                } else {
+                  const boxClass = ["calc-input-box", inputError && isCurrent ? "error shake" : "", showAsCorrect ? "correct" : "", isCurrent ? "highlight" : ""].filter(Boolean).join(" ");
+                  rhsElements.push(React.createElement("span", { key: `rhs-box-${boxIdx}`, className: boxClass }, value));
+                }
+              }
+            });
+            const rowEl = React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row calc-row-three-cell" },
+              React.createElement("div", { className: "calc-cell-lhs" }, lhs),
+              React.createElement("div", { className: "calc-cell-eq" }, "="),
+              React.createElement("div", { className: "calc-cell-rhs" }, ...rhsElements)
+            );
+            tableRun.push({ key: `row-${rowIndex}`, el: rowEl });
+          } else {
+            flushQ1Table(tableRun);
+            tableRun = [];
+            rows.push(React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, ...elements));
+          }
+        } else {
+          rows.push(
+            React.createElement("div", { key: `row-${rowIndex}`, className: "calc-row" }, ...elements)
+          );
+        }
       });
+      if (useQ1ThreeCell && tableRun.length > 0) flushQ1Table(tableRun);
     }
 
     return rows;
@@ -379,7 +464,7 @@ const CalculationPanel = ({
         "div",
         { className: "calc-left-panel final with-image" },
         React.createElement("div", { className: "calc-image-row" },
-          imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+          imageSrc && React.createElement("img", { src: imageSrc, alt: data.altComputeImage || "Figure", className: "calc-image" })
         ),
         React.createElement(
           "div",
@@ -401,12 +486,12 @@ const CalculationPanel = ({
         "div",
         { className: "calc-left-panel with-image" },
         React.createElement("div", { className: "calc-image-row" },
-          imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+          imageSrc && React.createElement("img", { src: imageSrc, alt: data.altComputeImage || "Figure", className: "calc-image" })
         ),
         React.createElement(
           "div",
           { className: "calc-equation-row" },
-          showFormula && React.createElement("div", { className: "calc-rows-container" }, renderCalcRows())
+          showFormula && React.createElement("div", { className: "calc-rows-container" + (questionIdx === 0 && stepData.isCalcStep ? " q1-aligned" : "") }, renderCalcRows())
         )
       ),
       React.createElement("div", { className: "calc-right-panel" }, renderRightPanel())
@@ -422,12 +507,12 @@ const CalculationPanel = ({
         "div",
         { className: "calc-left-panel with-image" },
         React.createElement("div", { className: "calc-image-row" },
-          imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+          imageSrc && React.createElement("img", { src: imageSrc, alt: data.altComputeImage || "Figure", className: "calc-image" })
         ),
         React.createElement(
           "div",
           { className: "calc-equation-row" },
-          React.createElement("div", { className: "calc-rows-container" }, renderCalcRows())
+          React.createElement("div", { className: "calc-rows-container" + (questionIdx === 0 && stepData.isCalcStep ? " q1-aligned" : "") }, renderCalcRows())
         )
       ),
       React.createElement("div", { className: "calc-right-panel" }, renderRightPanel())
@@ -443,14 +528,14 @@ const CalculationPanel = ({
       "div",
       { className: "calc-left-panel with-image" },
       React.createElement("div", { className: "calc-image-row" },
-        imageSrc && React.createElement("img", { src: imageSrc, alt: "Triangle", className: "calc-image" })
+        imageSrc && React.createElement("img", { src: imageSrc, alt: data.altComputeImage || "Figure", className: "calc-image" })
       ),
       React.createElement(
         "div",
         { className: "calc-equation-row" },
         showCalcRows && React.createElement(
           "div",
-          { className: "calc-rows-container" },
+          { className: "calc-rows-container" + (questionIdx === 0 && stepData.isCalcStep ? " q1-aligned" : "") },
           renderCalcRows()
         )
       )

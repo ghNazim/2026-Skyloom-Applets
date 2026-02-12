@@ -43,7 +43,7 @@ const DATA = {
           feedback: "To find the perimeter of a composite shape, we need to know\nthe lengths of all its outer sides."
         },
         1: {
-          questionText: "Uh-oh! One side is missing.",
+          questionText: "Uh-oh! a few side lengths are missing.",
           navText: "Tap the button.",
           navAfter: "Tap » to continue.",
           buttonText: "What to do?",
@@ -55,7 +55,8 @@ const DATA = {
           navWrong: "Tap » to try again!",
           navCorrect: "Tap on the square shape.",
           feedbackCorrect: "Well done!\nThis line splits the shape into a square and a triangle.",
-          feedbackWrong: "This line doesn't help us find the missing side."
+          feedbackWrong: "This line doesn't help us find the missing side.",
+          altTap: "Tap"
         },
         3: {
           questionText: "Since all sides of a square are equal, the missing side is the same length.",
@@ -75,6 +76,7 @@ const DATA = {
           equationRow1: "Perimeter = ",
           equationRow1Box: "Sum of the lengths of all the sides",
           equationRow2: "Perimeter = ",
+          equationPlus: " + ",
           sides: ["AB", "BE", "EF", "FC", "CD", "AD"]
         },
         6: {
@@ -96,7 +98,7 @@ const DATA = {
           feedback: "Untuk menemukan keliling bentuk komposit, kita perlu mengetahui\npanjang semua sisi luarnya."
         },
         1: {
-          questionText: "Oh tidak! Satu sisi hilang.",
+          questionText: "Oh tidak! Beberapa panjang sisi hilang.",
           navText: "Ketuk tombol.",
           navAfter: "Ketuk » untuk melanjutkan.",
           buttonText: "Apa yang harus dilakukan?",
@@ -108,7 +110,8 @@ const DATA = {
           navWrong: "Ketuk » untuk mencoba lagi!",
           navCorrect: "Ketuk pada bentuk persegi.",
           feedbackCorrect: "Bagus sekali!\nGaris ini membagi bentuk menjadi persegi dan segitiga.",
-          feedbackWrong: "Garis ini tidak membantu kita menemukan sisi yang hilang."
+          feedbackWrong: "Garis ini tidak membantu kita menemukan sisi yang hilang.",
+          altTap: "Ketuk"
         },
         3: {
           questionText: "Karena semua sisi persegi sama, sisi yang hilang memiliki panjang yang sama.",
@@ -128,6 +131,7 @@ const DATA = {
           equationRow1: "Keliling   =   ",
           equationRow1Box: "Jumlah panjang semua sisi",
           equationRow2: "Keliling   =   ",
+          equationPlus: " + ",
           sides: ["AB", "BE", "EF", "FC", "CD", "AD"]
         },
         6: {

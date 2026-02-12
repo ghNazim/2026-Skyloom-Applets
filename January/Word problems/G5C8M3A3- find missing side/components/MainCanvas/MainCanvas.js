@@ -43,6 +43,7 @@ const MainCanvas = ({
           { className: "column visual-column" },
           React.createElement(Visual, {
             imageSrc: getImageSrc(),
+            altText: (appData && appData.alts && appData.alts.visualImage) ? appData.alts.visualImage : "",
             showAreaLabel: false,
             step: step,
             substep: comprehendSubstep,

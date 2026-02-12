@@ -4,15 +4,24 @@ const Comprehend = ({ step, substep }) => {
   
   // Step 1: Show Information Analysis with progressive reveal
   if (step === 1) {
+    // Comprehend -1: only section title, no list yet
+    if (substep < 0) {
+      return React.createElement(
+        "div",
+        { className: "comprehend-panel" },
+        React.createElement(
+          "h3",
+          { className: "comprehend-section-title" },
+          comprehendData.sectionTitle
+        )
+      );
+    }
+
     const givenData = comprehendData.given.data;
     const toFindData = comprehendData.toFind.data;
     const totalGiven = givenData.length;
     
-    // Calculate what to show based on substep
-    // substep 0 = first given item
-    // substep 1 = second given item
-    // substep 2 = toFind title + first toFind item
-    
+    // substep 0 = first given item, 1 = second, etc.
     const showGivenCount = Math.min(substep + 1, totalGiven);
     const showToFind = substep >= totalGiven;
     const toFindCount = showToFind ? Math.min(substep - totalGiven + 1, toFindData.length) : 0;

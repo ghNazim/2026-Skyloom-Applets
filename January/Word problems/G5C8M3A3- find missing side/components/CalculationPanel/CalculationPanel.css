@@ -64,11 +64,45 @@
   width: 100%;
 }
 
+/* Table layout: 3 cells per row (LHS, =, RHS) so "=" aligns; column widths auto from max cell */
+.calc-rows-table {
+  display: table;
+  width: auto;
+  table-layout: auto;
+  border-collapse: collapse;
+}
+
 .calc-row {
+  display: table-row;
   font-size: 2vw;
   color: white;
   line-height: 1.8;
-  /* animation: fadeInUp 0.3s ease-out; */
+}
+
+.calc-cell-lhs,
+.calc-cell-eq,
+.calc-cell-rhs {
+  display: table-cell;
+  width: auto;
+  vertical-align: baseline;
+  padding-right: 0.5vw;
+}
+
+.calc-cell-lhs {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.calc-cell-eq {
+  text-align: center;
+  padding-left: 0.4vw;
+  padding-right: 0.4vw;
+  white-space: nowrap;
+}
+
+.calc-cell-rhs {
+  text-align: left;
+  white-space: nowrap;
 }
 
 /* Interactive boxes (Step 4, 7) */
