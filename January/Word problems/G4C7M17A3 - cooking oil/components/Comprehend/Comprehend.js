@@ -46,11 +46,12 @@ const Comprehend = ({ step, substep }) => {
             "ul",
             { className: "section-list" },
             givenData.slice(0, showGivenCount).map((item, index) => {
+              const isLastAdded = !showToFind && index === showGivenCount - 1;
               return React.createElement(
                 "li",
-                { 
+                {
                   key: `given-${index}`,
-                  className: "section-list-item",
+                  className: `section-list-item${isLastAdded ? " yellow" : ""}`,
                   style: {
                     animation: index === showGivenCount - 1 ? "fadeInUp 0.3s ease-out" : "none"
                   }
@@ -81,11 +82,12 @@ const Comprehend = ({ step, substep }) => {
             "ul",
             { className: "section-list" },
             toFindData.slice(0, toFindCount).map((item, index) => {
+              const isLastAdded = index === toFindCount - 1;
               return React.createElement(
                 "li",
-                { 
+                {
                   key: `tofind-${index}`,
-                  className: "section-list-item tofind-item",
+                  className: `section-list-item tofind-item${isLastAdded ? " yellow" : ""}`,
                   style: {
                     animation: index === toFindCount - 1 ? "fadeInUp 0.3s ease-out" : "none"
                   }

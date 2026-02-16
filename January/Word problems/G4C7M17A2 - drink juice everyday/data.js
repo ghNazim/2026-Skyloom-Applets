@@ -120,6 +120,12 @@ const DATA = {
         hideFindings: true
       },
       
+      // Calculation data for Step 3 (initial intro - day label and initial line only)
+      calcStep3: {
+        dayLabel: "Monday:",
+        initialLine: "3 L 250 mL = 3 L + 250 mL",
+      },
+      
       // Calculation data for Step 4 (Monday conversion)
       calcStep4: {
         dayLabel: "Monday:",
@@ -186,10 +192,10 @@ const DATA = {
       conversionMcq: {
         title: "How will you convert 7800 mL to L?",
         options: [
-          "a. Multiply the value in mL by 10",
-          "b. Multiply the value in mL by 100",
-          "c. Divide the value in mL by 100",
-          "d. Divide the value in mL by 1000"
+          "Multiply the value in mL by 10",
+          "Multiply the value in mL by 100",
+          "Divide the value in mL by 100",
+          "Divide the value in mL by 1000"
         ],
         answerIndex: 3,
         firstLine: "Volume of juice left = 7800 mL",
@@ -239,6 +245,8 @@ const DATA = {
         },
         // Step 3: MCQ for L-mL relationship
         3: {
+          questionTextInitial: "Let's convert each day's purchase and use to mL.",
+          navTextInitial: "Tap » to continue.",
           questionText: "Let's understand the relationship between L and mL.",
           navText: "Tap the correct answer.",
           navTextCorrect: "Tap » to continue.",
@@ -419,10 +427,10 @@ const DATA = {
       relationshipMcq: {
         title: "Pernyataan mana yang benar menunjukkan hubungan antara liter (L) dan mililiter (mL)?",
         options: [
-          "a. 1 mL = 1000 L",
-          "b. 1 L = 100 mL",
-          "c. 1 L = 1000 mL",
-          "d. 1 mL = 10 L"
+          "1 mL = 1000 L",
+          "1 L = 100 mL",
+          "1 L = 1000 mL",
+          "1 mL = 10 L"
         ],
         answerIndex: 2,
         findingOnCorrect: "1 L = 1000 mL"
@@ -471,6 +479,11 @@ const DATA = {
           { id: "drag7", text: "÷" }
         ],
         hideFindings: true
+      },
+      
+      calcStep3: {
+        dayLabel: "Senin:",
+        initialLine: "3 L 250 mL = 3 L + 250 mL",
       },
       
       calcStep4: {
@@ -531,10 +544,10 @@ const DATA = {
       conversionMcq: {
         title: "Bagaimana cara mengubah 7800 mL ke L?",
         options: [
-          "a. Kalikan nilai dalam mL dengan 10",
-          "b. Kalikan nilai dalam mL dengan 100",
-          "c. Bagi nilai dalam mL dengan 100",
-          "d. Bagi nilai dalam mL dengan 1000"
+          "Kalikan nilai dalam mL dengan 10",
+          "Kalikan nilai dalam mL dengan 100",
+          "Bagi nilai dalam mL dengan 100",
+          "Bagi nilai dalam mL dengan 1000"
         ],
         answerIndex: 3,
         firstLine: "Volume jus yang tersisa = 7800 mL",
@@ -578,6 +591,8 @@ const DATA = {
           nextEnabled: true
         },
         3: {
+          questionTextInitial: "Mari konversi pembelian dan penggunaan setiap hari ke mL.",
+          navTextInitial: "Ketuk » untuk melanjutkan.",
           questionText: "Mari pahami hubungan antara L dan mL.",
           navText: "Ketuk jawaban yang benar.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",

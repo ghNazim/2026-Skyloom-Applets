@@ -45,6 +45,24 @@
   min-width: 0;
 }
 
+/* ===== STEP 1 LEGEND (before unfold) ===== */
+.legend {
+  position: absolute;
+  bottom: 1vw;
+  left: 50%;
+  transform: translateX(-50%);
+  /* width: 25%; */
+  /* min-width: 120px; */
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 2vw;
+  line-height: 1.4;
+  padding: 0.6vw 0.8vw;
+  border-radius: 0.5vw;
+  text-align: center;
+  box-sizing: border-box;
+}
+
 /* ===== RIGHT PANEL (35% width) ===== */
 .right-panel {
   flex: 0 0 35%;
@@ -136,6 +154,22 @@
   text-decoration: line-through;
   text-decoration-color: red;
   text-decoration-thickness: 2px;
+}
+
+/* Superscript (²): line sits high so it crosses the character */
+.cross-out.cross-out-sup {
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+}
+.cross-out.cross-out-sup::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 35%;
+  height: 2px;
+  background: red;
 }
 
 .equation-box-inline {

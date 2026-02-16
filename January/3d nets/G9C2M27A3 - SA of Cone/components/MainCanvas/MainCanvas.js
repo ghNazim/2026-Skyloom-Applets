@@ -5,7 +5,13 @@ const MainCanvas = ({
   preloadVideoSrc,
   onVideoEnded,
   hasUnfoldedOnce,
+  showStep1Legend,
+  showStep1UnfoldButton,
   onUnfold,
+  showStep34Toggle,
+  onToggleFold,
+  playReverse,
+  step34Animating,
   mcqAnswered,
   onMcqCorrect,
   onMcqWrong,
@@ -51,6 +57,8 @@ const MainCanvas = ({
   let resolvedMediaSrc = mediaSrc;
   if (step === 7 && step7FeedbackSrc) {
     resolvedMediaSrc = step7FeedbackSrc;
+  } else if (step === 2 && isCorrect && stepData.correctFeedbackImage) {
+    resolvedMediaSrc = stepData.correctFeedbackImage;
   } else if (
     step === 10 &&
     selectedOption != null &&
@@ -196,8 +204,8 @@ const MainCanvas = ({
           "span",
           null,
           React.createElement("span", null, "π"),
-          React.createElement("span", { className: "cross-out" }, "l"),
-          React.createElement("span", { className: "cross-out" }, "²")
+          React.createElement("span", {}, "l"),
+          React.createElement("span", { className: "cross-out cross-out-sup" }, "²")
         )
       : "πl²";
 
@@ -275,7 +283,7 @@ const MainCanvas = ({
   };
 
   const renderActionButton = () => {
-    if (step === 1 && !hasUnfoldedOnce) {
+    if (step === 1 && showStep1UnfoldButton && !hasUnfoldedOnce) {
       return React.createElement(
         "button",
         {
@@ -284,6 +292,17 @@ const MainCanvas = ({
           disabled: isVideo,
         },
         APP_DATA.buttons.unfold
+      );
+    }
+    if (showStep34Toggle && onToggleFold) {
+      return React.createElement(
+        "button",
+        {
+          className: "btn action-btn",
+          onClick: onToggleFold,
+          disabled: step34Animating,
+        },
+        "\u27F2"
       );
     }
     return null;
@@ -300,14 +319,24 @@ const MainCanvas = ({
         "div",
         {
           className: "visual-panel",
-          style: showRightPanel ? { flex: "0 0 65%" } : { flex: "1" },
+          style: Object.assign(
+            { position: "relative" },
+            showRightPanel ? { flex: "0 0 65%" } : { flex: "1" }
+          ),
         },
         React.createElement(VisualCanvas, {
           src: resolvedMediaSrc,
           isVideo: isVideo || false,
           preloadVideoSrc: preloadVideoSrc,
+          playReverse: playReverse || false,
           onVideoEnded: onVideoEnded,
-        })
+        }),
+        showStep1Legend &&
+          stepData.legend &&
+          React.createElement("div", {
+            className: "legend",
+            dangerouslySetInnerHTML: { __html: stepData.legend },
+          })
       ),
       showRightPanel &&
         React.createElement(

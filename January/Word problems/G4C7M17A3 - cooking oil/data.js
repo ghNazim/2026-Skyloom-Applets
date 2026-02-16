@@ -20,8 +20,8 @@ const DATA = {
           "assets/compre0.png",
           "assets/compre1.png",
           "assets/compre2.png",
-          "assets/compre2.png",
-          "assets/compre2.png"
+          "assets/compre3.png",
+          "assets/compre3.png"
         ],
         given: {
           title: "Given,",
@@ -52,7 +52,7 @@ const DATA = {
       // Splash screens data
       splash: {
         step2: {
-          image: "assets/compre2.png",
+          image: "assets/compre3.png",
           text: "<blue>✓ Information gathered from the question.</blue><br><yellow>Next - Build a formula to find the number of jerry cans needed.</yellow>"
         }
       },
@@ -89,11 +89,21 @@ const DATA = {
           { type: "equation", text: "= Total volume of oil ÷ Capacity of one jerry can", highlight: "Total volume of oil" }
         ],
         volumeBreakdown: {
+          id: "volumeBreakdown",
           label: "Total volume of oil = ",
           items: [
-            "  5 bottles of 20000 cm³",
+            "    5 bottles of 20000 cm³",
             "+ 4 bottles of 50000 cm³",
             "+ 2 bottles of 100000 cm³"
+          ]
+        },
+        volumeBreakdown2: {
+          id: "volumeBreakdown2",
+          label: "Total volume of oil = ",
+          items: [
+            "    5 × 20000 cm³",
+            "+ 4 × 50000 cm³",
+            "+ 2 × 100000 cm³"
           ]
         }
       },
@@ -169,7 +179,8 @@ const DATA = {
         // Step 1: Comprehend with substeps (Given/To Find)
         1: {
           questionText: "Mother bought several bottles of cooking oil in various sizes. As many as 5 bottles of 20000 cm³ each, 4 bottles of 50000 cm³ each, and 2 bottles of 100000 cm³. All the oil will be transferred to a jerry can with a capacity of 1 m³. How many jerry cans should you prepare?",
-          navText: "Tap » to continue.",
+          navText: "Tap » to identify 'given' information.",
+          navToFind: "Tap » to identify what we need 'to find'.",
           navTextCorrect: "Tap » to continue.",
           image: "assets/compre0.png",
           isComprehend: true,
@@ -190,16 +201,17 @@ const DATA = {
           questionText: "Build a mathematical sentence to find the number of jerry cans needed.",
           navText: "Drag the correct buttons to the correct spot in the sentence.",
           navTextCorrect: "Tap » to continue.",
-          image: "assets/compre2.png",
+          image: "assets/compute.png",
           isDragDrop: true,
           dragDropKey: "dragDrop1",
           nextEnabled: false
         },
-        // Step 4: Show volume breakdown (no interaction)
+        // Step 4: Show volume breakdown (2 substeps: tap highlight then show breakdown)
         4: {
           questionText: "Let's first find the total volume of oil.",
+          navInitial: "Tap the highlighted text",
           navText: "Tap » to continue.",
-          image: "assets/compre2.png",
+          image: "assets/compute.png",
           isStep4Calc: true,
           nextEnabled: true
         },
@@ -208,13 +220,14 @@ const DATA = {
           questionText: "Calculate the total volume of oil.",
           navText: "Use the numpad to fill the answer and click ✓ to check.",
           navTextCorrect: "Tap » to continue.",
-          image: "assets/compre2.png",
+          image: "assets/compute.png",
           isStep5Calc: true,
           nextEnabled: false
         },
-        // Step 6: Convert jerry can volume
+        // Step 6: Convert jerry can volume (2 substeps: tap highlight then show numpad)
         6: {
           questionText: "Convert jerry can volume to cm³.",
+          navInitial: "Tap the highlighted text",
           navText: "Use the numpad to fill the answer and click ✓ to check.",
           navTextCorrect: "Tap » to continue.",
           isStep6Calc: true,
@@ -243,29 +256,35 @@ const DATA = {
         toFind: "To Find",
         findings: "Findings"
       },
+      altCookingOil: "Cooking oil",
+      altMilkBottles: "Milk bottles",
+      altSummaryVisual: "Summary visual",
+      altVisualRepresentation: "Visual representation",
+      findingTotalVolumeFormat: "Total volume of oil = {0} cm³",
+      findingCapacityFormat: "Capacity of one jerry can = {0} cm³",
+      findingJerryCansFormat: "Number of jerry cans needed = {0}",
     },
   },
+
   id: {
     app: {
       start_over: "Mulai Ulang",
-      
       questionText: "Ibu membeli beberapa botol minyak goreng dalam berbagai ukuran. Sebanyak 5 botol berukuran 20000 cm³, 4 botol berukuran 50000 cm³, dan 2 botol berukuran 100000 cm³. Semua minyak akan dipindahkan ke jerigen dengan kapasitas 1 m³. Berapa jerigen yang harus disiapkan?",
-      
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
         images: [
-          "assets/compre0.png",
-          "assets/compre1.png",
-          "assets/compre2.png",
-          "assets/compre2.png",
-          "assets/compre2.png"
+          "assets/compre0_x.png",
+          "assets/compre1_x.png",
+          "assets/compre2_x.png",
+          "assets/compre3_x.png",
+          "assets/compre3_x.png"
         ],
         given: {
           title: "Diketahui,",
           data: [
-            "5 botol berukuran 20000 cm³",
-            "4 botol berukuran 50000 cm³",
-            "2 botol berukuran 100000 cm³",
+            "5 botol 20000 cm³",
+            "4 botol 50000 cm³",
+            "2 botol 100000 cm³",
             "Kapasitas jerigen = 1 m³"
           ],
           highlights: [
@@ -276,7 +295,7 @@ const DATA = {
           ]
         },
         toFind: {
-          title: "Ditanyakan",
+          title: "Ditanya",
           data: [
             "Jumlah jerigen yang dibutuhkan"
           ],
@@ -285,14 +304,12 @@ const DATA = {
           ]
         },
       },
-      
       splash: {
         step2: {
-          image: "assets/compre2.png",
-          text: "<blue>✓ Informasi dikumpulkan dari pertanyaan.</blue><br><yellow>Selanjutnya - Buat rumus untuk menemukan jumlah jerigen yang dibutuhkan.</yellow>"
+          image: "assets/compre3_x.png",
+          text: "<blue>✓ Informasi dikumpulkan dari soal.</blue><br><yellow>Selanjutnya - Buat rumus untuk mencari jumlah jerigen yang dibutuhkan.</yellow>"
         }
       },
-      
       dragDrop1: {
         equationLabel: "Jumlah jerigen yang dibutuhkan",
         dropZones: [
@@ -310,28 +327,36 @@ const DATA = {
         ],
         findingsTitle: "Diketahui",
         findingsList: [
-          "5 botol berukuran 20000 cm³",
-          "4 botol berukuran 50000 cm³",
-          "2 botol berukuran 100000 cm³",
+          "5 botol 20000 cm³",
+          "4 botol 50000 cm³",
+          "2 botol 100000 cm³",
           "Kapasitas jerigen = 1 m³"
         ]
       },
-      
       step4Data: {
         equationRows: [
           { type: "label", text: "Jumlah jerigen yang dibutuhkan" },
           { type: "equation", text: "= Total volume minyak ÷ Kapasitas satu jerigen", highlight: "Total volume minyak" }
         ],
         volumeBreakdown: {
+          id: "volumeBreakdown",
           label: "Total volume minyak = ",
           items: [
-            "5 botol × 20000 cm³",
-            "+ 4 botol × 50000 cm³",
-            "+ 2 botol × 100000 cm³"
+            "    5 botol 20000 cm³",
+            "+ 4 botol 50000 cm³",
+            "+ 2 botol 100000 cm³"
+          ]
+        },
+        volumeBreakdown2: {
+          id: "volumeBreakdown2",
+          label: "Total volume minyak = ",
+          items: [
+            "    5 × 20000 cm³",
+            "+ 4 × 50000 cm³",
+            "+ 2 × 100000 cm³"
           ]
         }
       },
-      
       step5Data: {
         volumeCalculation: {
           label: "Total volume minyak = ",
@@ -346,7 +371,6 @@ const DATA = {
           maxLength: 6
         }
       },
-      
       step6Data: {
         equationRows: [
           { type: "label", text: "Jumlah jerigen yang dibutuhkan" },
@@ -359,13 +383,14 @@ const DATA = {
           maxLength: 7
         }
       },
-      
       step7Data: {
         equationRows: [
           { type: "label", text: "Jumlah jerigen yang dibutuhkan" },
           { type: "equation", text: "= Total volume minyak ÷ Kapasitas satu jerigen" }
         ],
         interactiveRow: {
+          box1ValueInitial: "Total volume minyak",
+          box2ValueInitial: "Kapasitas satu jerigen",
           prefix: "= ",
           box1Value: "500000",
           operator: " ÷ ",
@@ -381,12 +406,10 @@ const DATA = {
           showDecimal: true
         }
       },
-      
       finalAnswer: "Artinya minyak mengisi setengah jerigen, tetapi Anda tetap membutuhkan satu jerigen untuk menyimpannya. Jadi, Anda harus menyiapkan satu jerigen.",
-      
       steps: {
         0: {
-          questionText: "Baca pertanyaan dan identifikasi 'diketahui' dan 'ditanyakan'.",
+          questionText: "Baca soal dan identifikasi 'diketahui' dan 'ditanya'.",
           navText: "Ketuk » untuk mengidentifikasi informasi 'diketahui'.",
           isComprehendQuestion: true,
           nextEnabled: true,
@@ -395,8 +418,9 @@ const DATA = {
         1: {
           questionText: "Ibu membeli beberapa botol minyak goreng dalam berbagai ukuran. Sebanyak 5 botol berukuran 20000 cm³, 4 botol berukuran 50000 cm³, dan 2 botol berukuran 100000 cm³. Semua minyak akan dipindahkan ke jerigen dengan kapasitas 1 m³. Berapa jerigen yang harus disiapkan?",
           navText: "Ketuk » untuk melanjutkan.",
+          navToFind: "Ketuk » untuk menemukan 'ditanya'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/compre0.png",
+          image: "assets/compre0_x.png",
           isComprehend: true,
           isSubstepComprehend: true,
           nextEnabled: false,
@@ -410,18 +434,19 @@ const DATA = {
           nextEnabled: true
         },
         3: {
-          questionText: "Bangun kalimat matematika untuk menemukan jumlah jerigen yang dibutuhkan.",
-          navText: "Seret tombol yang benar ke tempat yang tepat dalam kalimat.",
+          questionText: "Buat kalimat matematika untuk mencari jumlah jerigen yang dibutuhkan.",
+          navText: "Seret tombol yang benar ke tempat yang benar dalam kalimat.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/compre2.png",
+          image: "assets/compute_x.png",
           isDragDrop: true,
           dragDropKey: "dragDrop1",
           nextEnabled: false
         },
         4: {
-          questionText: "Mari pertama temukan total volume minyak.",
+          questionText: "Mari kita cari dulu total volume minyak.",
+          navInitial: "Ketuk teks yang disorot",
           navText: "Ketuk » untuk melanjutkan.",
-          image: "assets/compre2.png",
+          image: "assets/compute_x.png",
           isStep4Calc: true,
           nextEnabled: true
         },
@@ -429,20 +454,21 @@ const DATA = {
           questionText: "Hitung total volume minyak.",
           navText: "Gunakan numpad untuk mengisi jawaban dan klik ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/compre2.png",
+          image: "assets/compute_x.png",
           isStep5Calc: true,
           nextEnabled: false
         },
         6: {
-          questionText: "Ubah volume jerigen ke cm³.",
+          questionText: "Konversi volume jerigen ke cm³.",
+          navInitial: "Ketuk teks yang disorot",
           navText: "Gunakan numpad untuk mengisi jawaban dan klik ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
           isStep6Calc: true,
           nextEnabled: false
         },
         7: {
-          questionText: "Sekarang, mari substitusi nilai yang diberikan ke dalam rumus.",
-          questionTextAfterBoxes: "Mari temukan jumlah jerigen yang dibutuhkan.",
+          questionText: "Sekarang, mari kita substitusi nilai yang diberikan ke dalam rumus.",
+          questionTextAfterBoxes: "Mari kita cari jumlah jerigen yang dibutuhkan.",
           navText: "Ketuk kotak yang disorot untuk mensubstitusi nilai.",
           navTextAfterBoxes: "Gunakan numpad untuk mengisi jawaban dan klik ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
@@ -451,18 +477,26 @@ const DATA = {
         },
         8: {
           questionText: "Aktivitas Selesai!",
-          navText: "Ketuk 'Mulai Ulang' untuk memulai kembali aktivitas",
+          navText: "Ketuk 'Mulai Ulang' untuk mengulang aktivitas",
           isFinalStep: true,
           nextEnabled: true
         }
       },
       labels: {
         given: "Diketahui",
-        toFind: "Ditanyakan",
+        toFind: "Ditanya",
         findings: "Temuan"
       },
+      altCookingOil: "Minyak goreng",
+      altMilkBottles: "Botol susu",
+      altSummaryVisual: "Visual ringkasan",
+      altVisualRepresentation: "Representasi visual",
+      findingTotalVolumeFormat: "Total volume minyak = {0} cm³",
+      findingCapacityFormat: "Kapasitas satu jerigen = {0} cm³",
+      findingJerryCansFormat: "Jumlah jerigen yang dibutuhkan = {0}",
     },
   },
+
 };
 
 const APP_DATA = DATA[current_language].app;

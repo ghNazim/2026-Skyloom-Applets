@@ -627,6 +627,73 @@ const CalculationPanel = ({
   );
 };
 
+// Shared: build calc rows for step 3 (dayLabel + initialLine from calcStep3)
+const getStep3CalcRows = () => {
+  const calcData = APP_DATA.calcStep3;
+  if (!calcData) return [];
+  const labelRow = React.createElement(
+    "div",
+    { key: "day-label", className: "calc-row calc-row-label calc-day-label" },
+    calcData.dayLabel
+  );
+  const initialParts = calcData.initialLine.split("=");
+  const initialLhs = initialParts[0].trim();
+  const initialRhs = initialParts[1] ? initialParts.slice(1).join("=").trim() : "";
+  const eqRow = React.createElement(
+    "div",
+    { key: "initial-line", className: "calc-row" },
+    React.createElement("div", { className: "calc-cell-lhs" }, initialLhs),
+    React.createElement("div", { className: "calc-cell-eq" }, "="),
+    React.createElement("div", { className: "calc-cell-rhs" }, initialRhs)
+  );
+  return [labelRow, eqRow];
+};
+
+// Step 3 initial substep: same layout as substep 1 (question row + calc rows + findings) but no MCQ
+const Step3InitialPanel = ({ calcState }) => {
+  const calcRows = getStep3CalcRows();
+  if (calcRows.length === 0) return null;
+  const findings = (calcState && calcState.findings) || [];
+  return React.createElement(
+    "div",
+    { className: "calc-panel-container" },
+    React.createElement(
+      "div",
+      { className: "calc-left-panel with-question" },
+      React.createElement(
+        "div",
+        { className: "calc-question-row" },
+        APP_DATA.questionText
+      ),
+      React.createElement(
+        "div",
+        { className: "calc-equation-row" },
+        React.createElement("div", { className: "calc-rows-container" }, calcRows)
+      )
+    ),
+    React.createElement(
+      "div",
+      { className: "calc-right-panel" },
+      React.createElement(
+        "div",
+        { className: "calc-input-panel" },
+        React.createElement(
+          "div",
+          { className: "calc-findings-div" },
+          React.createElement("div", { className: "findings-title" }, APP_DATA.labels.findings),
+          React.createElement(
+            "ul",
+            { className: "findings-list" },
+            findings.map((finding, index) =>
+              React.createElement("li", { key: `finding-${index}` }, finding)
+            )
+          )
+        )
+      )
+    )
+  );
+};
+
 // MCQ Panel component for Step 3
 const MCQPanelStep3 = ({ step, mcqKey, onEnableNext, onUpdateNavText, calcState, setCalcState, showFindings }) => {
   const { useState } = React;
@@ -665,10 +732,11 @@ const MCQPanelStep3 = ({ step, mcqKey, onEnableNext, onUpdateNavText, calcState,
     }
   };
   
+  const step3CalcRows = getStep3CalcRows();
   return React.createElement(
     "div",
     { className: "calc-panel-container" },
-    // Left panel with question
+    // Left panel with question and calc rows (same as substep 0)
     React.createElement(
       "div",
       { className: "calc-left-panel with-question" },
@@ -680,7 +748,9 @@ const MCQPanelStep3 = ({ step, mcqKey, onEnableNext, onUpdateNavText, calcState,
       React.createElement(
         "div",
         { className: "calc-equation-row" },
-        // Empty - just showing question
+        step3CalcRows.length > 0
+          ? React.createElement("div", { className: "calc-rows-container" }, step3CalcRows)
+          : null
       )
     ),
     // Right panel with MCQ and findings

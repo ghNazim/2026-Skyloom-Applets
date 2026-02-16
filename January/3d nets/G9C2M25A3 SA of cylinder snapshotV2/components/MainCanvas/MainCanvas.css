@@ -1,0 +1,97 @@
+/* ===== MAIN CANVAS CONTAINER (2 columns) ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== LEFT COLUMN - BUTTONS (35%) ===== */
+.buttons-column {
+  flex: 0 0 35%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.button-row {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1vw;
+  padding: 1vw;
+}
+
+/* ---- SA Buttons (like fullscreen button) ---- */
+.sa-btn {
+  font-size: 1.8vw;
+  padding: 0.8vw 2vw;
+  white-space: nowrap;
+}
+
+.sa-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn.sa-btn.selected,
+.btn.sa-btn.selected:disabled {
+  background: skyblue;
+  color: #1a1a2e;
+  border-color: skyblue;
+  opacity: 1;
+  cursor: default;
+}
+
+/* ---- Text boxes below buttons ---- */
+.button-textbox {
+  color: white;
+  font-size: 2vw;
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1.5;
+  min-height: 4vw;
+}
+
+/* ===== RIGHT COLUMN - VISUAL (65%) ===== */
+.visual-column {
+  flex: 0 0 65%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cylinder-area {
+  flex: 0 0 80%;
+  position: relative;
+  min-height: 0;
+}
+
+/* ---- Formula Box (20%) ---- */
+.formula-box {
+  flex: 0 0 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3vw;
+  padding: 0.5vw;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.formula-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8vw;
+  font-weight: bold;
+}
+
+.formula-part {
+  white-space: pre;
+}

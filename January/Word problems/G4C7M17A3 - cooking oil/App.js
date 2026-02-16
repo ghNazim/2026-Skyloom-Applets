@@ -7,6 +7,9 @@ const App = () => {
   
   // Substep for comprehend step
   const [comprehendSubstep, setComprehendSubstep] = useState(0);
+  // Substeps for step 4 (tap highlight) and step 6 (tap highlight then numpad)
+  const [step4Substep, setStep4Substep] = useState(0);
+  const [step6Substep, setStep6Substep] = useState(0);
   
   // Dynamic text state
   const [dynamicQuestionText, setDynamicQuestionText] = useState("");
@@ -29,11 +32,15 @@ const App = () => {
     step7Value: ""
   });
 
+  // Increment when going back so step 3 (drag-drop) and calculation panels remount with fresh state
+  const [stepResetKey, setStepResetKey] = useState(0);
+
   const handleRestart = () => {
     if (window.playSound) window.playSound("click");
     setCurrentStep(0);
     setIsNextDisabled(true);
     setComprehendSubstep(0);
+    setStepResetKey(k => k + 1);
     setDynamicQuestionText("");
     setDynamicNavText("");
     setCurrentHighlights(null);
@@ -77,10 +84,9 @@ const App = () => {
       setIsNextDisabled(true);
     }
     
-    // Reset comprehend substep when entering step 1
-    if (currentStep === 1) {
-      setComprehendSubstep(0);
-    }
+    if (currentStep === 1) setComprehendSubstep(0);
+    if (currentStep === 4) setStep4Substep(0);
+    if (currentStep === 6) setStep6Substep(0);
   }, [currentStep]);
 
   // Update nav text for comprehend substeps
@@ -111,18 +117,13 @@ const App = () => {
         setCurrentImage(comprehendData.images[comprehendSubstep]);
       }
       
-      // Enable next button for comprehend substeps
       setIsNextDisabled(false);
-      
-      // If last substep, update nav text
       if (comprehendSubstep === total - 1) {
-        if (stepData.navTextCorrect) {
-          setDynamicNavText(stepData.navTextCorrect);
-        }
+        if (stepData.navTextCorrect) setDynamicNavText(stepData.navTextCorrect);
+      } else if (comprehendSubstep === givenCount - 1) {
+        if (stepData.navToFind) setDynamicNavText(stepData.navToFind);
       } else {
-        if (stepData.navText) {
-          setDynamicNavText(stepData.navText);
-        }
+        if (stepData.navText) setDynamicNavText(stepData.navText);
       }
     }
   }, [currentStep, comprehendSubstep]);
@@ -137,6 +138,20 @@ const App = () => {
         // Move to next substep
         if (window.playSound) window.playSound("click");
         setComprehendSubstep(prev => prev + 1);
+        return;
+      }
+    }
+    
+    // Handle step 4 - two substeps: first Next shows volumeBreakdown2, second Next goes to step 5
+    if (currentStep === 4 && stepData.isStep4Calc) {
+      if (step4Substep === 1) {
+        if (window.playSound) window.playSound("click");
+        setStep4Substep(2);
+        return;
+      }
+      if (step4Substep === 2) {
+        if (window.playSound) window.playSound("click");
+        setCurrentStep(prev => prev + 1);
         return;
       }
     }
@@ -158,7 +173,6 @@ const App = () => {
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
     
-    // Handle step 1 - comprehend with substeps
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
         setComprehendSubstep(prev => prev - 1);
@@ -167,47 +181,24 @@ const App = () => {
     }
     
     if (currentStep > 0) {
-      // Reset calcState for the current step and all steps after it
-      // This ensures when going back, all subsequent states are reset
+      const targetStep = currentStep - 1;
+      setStepResetKey(k => k + 1);
       setCalcState(prev => {
-        const newState = { ...prev };
-        
-        // When leaving step 7, reset step 7
-        // When leaving step 6, reset step 6 and step 7
-        // When leaving step 5, reset step 5, step 6, and step 7
-        
-        if (currentStep === 7) {
-          newState.step7Answered = false;
-          newState.step7Value = "";
-        } else if (currentStep === 6) {
-          newState.step6Answered = false;
-          newState.step6Value = "";
-          newState.step7Answered = false;
-          newState.step7Value = "";
-        } else if (currentStep === 5) {
-          newState.step5Answered = false;
-          newState.step5Value = "";
-          newState.step6Answered = false;
-          newState.step6Value = "";
-          newState.step7Answered = false;
-          newState.step7Value = "";
+        const next = { ...prev };
+        if (targetStep <= 5) {
+          next.step5Answered = false;
+          next.step5Value = "";
         }
-        
-        // If going back to a step before step 5, reset everything
-        if (currentStep - 1 < 5) {
-          return {
-            step5Answered: false,
-            step5Value: "",
-            step6Answered: false,
-            step6Value: "",
-            step7Answered: false,
-            step7Value: ""
-          };
+        if (targetStep <= 6) {
+          next.step6Answered = false;
+          next.step6Value = "";
         }
-        
-        return newState;
+        if (targetStep <= 7) {
+          next.step7Answered = false;
+          next.step7Value = "";
+        }
+        return next;
       });
-      
       setIsNextDisabled(true);
       setDynamicQuestionText("");
       setDynamicNavText("");
@@ -241,8 +232,10 @@ const App = () => {
   };
   
   const getNavText = () => {
-    if (dynamicNavText) return dynamicNavText;
     const stepData = APP_DATA.steps[currentStep];
+    if (currentStep === 4 && stepData?.navInitial != null) return step4Substep === 0 ? stepData.navInitial : stepData.navText;
+    if (currentStep === 6 && stepData?.navInitial != null) return step6Substep === 0 ? stepData.navInitial : (dynamicNavText || stepData.navText);
+    if (dynamicNavText) return dynamicNavText;
     return stepData ? stepData.navText : "";
   };
   
@@ -356,6 +349,7 @@ const App = () => {
       "div",
       { className: "app-main-content" },
       React.createElement(MainCanvas, {
+        key: `main-${currentStep}-${stepResetKey}`,
         step: currentStep,
         onEnableNext: enableNext,
         onUpdateTexts: updateTexts,
@@ -363,19 +357,23 @@ const App = () => {
         currentImage: currentImage,
         comprehendSubstep: comprehendSubstep,
         calcState: calcState,
-        setCalcState: setCalcState
+        setCalcState: setCalcState,
+        step4Substep: step4Substep,
+        setStep4Substep: setStep4Substep,
+        step6Substep: step6Substep,
+        setStep6Substep: setStep6Substep
       })
     ),
     React.createElement(
       "div",
       { className: "lower-panel" },
-      React.createElement(Navigation, {
-        onNav: (dir) => dir === 'next' ? handleNext() : handlePrev(),
-        isNextDisabled: isNextDisabled,
-        isPrevDisabled: currentStep <= 0,
-        navText: getNavText(),
-        nextSymbol: currentStep === 8 ? APP_DATA.start_over : "»"
-      })
+        React.createElement(Navigation, {
+          onNav: (dir) => dir === 'next' ? handleNext() : handlePrev(),
+          isNextDisabled: (currentStep === 4 && step4Substep === 0) || (currentStep === 6 && step6Substep === 0) ? true : isNextDisabled,
+          isPrevDisabled: currentStep <= 0,
+          navText: getNavText(),
+          nextSymbol: currentStep === 8 ? APP_DATA.start_over : "»"
+        })
     )
   );
 };

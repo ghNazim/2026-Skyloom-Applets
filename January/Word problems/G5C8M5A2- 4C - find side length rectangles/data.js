@@ -1,4 +1,4 @@
-const current_language = "en";
+
 const decimal = {
   en: ".",
   id: ",",
@@ -96,7 +96,7 @@ const DATA1 = {
           isComprehend: true,
           isSubstepComprehend: true,
           nextEnabled: false,
-          statementInVisual: "The perimeter of the rectangle is 120 cm. If AB = 45 cm, find the length of AD."
+          statementInVisual: "The perimeter of the rectangle is 120 cm.\n If AB = 45 cm, find the length of AD."
         },
         2: {
           questionText: "",
@@ -152,14 +152,14 @@ const DATA1 = {
       start_over: "Mulai Ulang",
 
       questionText: "Keliling persegi panjang adalah 120 cm.\nJika AB = 45 cm, tentukan panjang AD.",
-      questionImage: "assets/question1.svg",
+      questionImage: "assets/question1_x.svg",
 
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
         images: [
-          "assets/q1compre1.svg",
-          "assets/q1compre2.svg",
-          "assets/q1compre3.svg",
+          "assets/q1compre1_x.svg",
+          "assets/q1compre2_x.svg",
+          "assets/q1compre3_x.svg",
         ],
         given: {
           title: "Diketahui,",
@@ -178,7 +178,7 @@ const DATA1 = {
 
       splash: {
         step2: {
-          image: "assets/q1compre3.svg",
+          image: "assets/q1compre3_x.svg",
           text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Lanjut - Tentukan panjang AD.</yellow>"
         }
       },
@@ -233,11 +233,11 @@ const DATA1 = {
           navText: "Ketuk » untuk mengidentifikasi informasi 'diketahui'.",
           navToFind: "Ketuk » untuk mengidentifikasi 'yang ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q1compre0.svg",
+          image: "assets/q1compre0_x.svg",
           isComprehend: true,
           isSubstepComprehend: true,
           nextEnabled: false,
-          statementInVisual: "Keliling persegi panjang adalah 120 cm. Jika AB = 45 cm, tentukan panjang AD."
+          statementInVisual: "Keliling persegi panjang adalah 120 cm.\n Jika AB = 45 cm, tentukan panjang AD."
         },
         2: {
           questionText: "",
@@ -250,7 +250,7 @@ const DATA1 = {
           questionText: "Mari gunakan rumus untuk mencari AD.",
           navText: "Ketuk » untuk melanjutkan.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q1compute1.svg",
+          image: "assets/q1compute1_x.svg",
           isCalculation: true,
           isCalculationIntro: true,
           nextEnabled: true
@@ -259,7 +259,7 @@ const DATA1 = {
           questionText: "Jawab pertanyaan di bawah ini.",
           navText: "Ketuk jawaban yang benar.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q1compute1.svg",
+          image: "assets/q1compute1_x.svg",
           isCalculation: true,
           isMcqStep: true,
           nextEnabled: false
@@ -268,7 +268,7 @@ const DATA1 = {
           questionText: "Mari tentukan panjang AD.",
           navText: "Gunakan numpad untuk mengisi kotak dan ketuk ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q1compute1.svg",
+          image: "assets/q1compute1_x.svg",
           isCalculation: true,
           isCalcStep: true,
           nextEnabled: false
@@ -276,7 +276,7 @@ const DATA1 = {
         6: {
           questionText: "Kamu telah menyelesaikan soal!",
           navText: "Ketuk » untuk soal berikutnya.",
-          image: "assets/q1computeFinal.svg",
+          image: "assets/q1computeFinal_x.svg",
           isFinalStep: true,
           nextEnabled: true
         }
@@ -435,13 +435,13 @@ const DATA2 = {
       start_over: "Mulai Ulang",
 
       questionText: "Keliling persegi adalah 92 cm. Tentukan panjang sisinya.",
-      questionImage: "assets/question2.svg",
+      questionImage: "assets/question2_x.svg",
 
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
         images: [
-          "assets/q2compre1.svg",
-          "assets/q2compre2.svg",
+          "assets/q2compre1_x.svg",
+          "assets/q2compre2_x.svg",
         ],
         given: {
           title: "Diketahui,",
@@ -459,7 +459,7 @@ const DATA2 = {
 
       splash: {
         step2: {
-          image: "assets/q2compre2.svg",
+          image: "assets/q2compre2_x.svg",
           text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Lanjut - Tentukan panjang sisinya.</yellow>"
         }
       },
@@ -511,7 +511,7 @@ const DATA2 = {
           navText: "Ketuk » untuk mengidentifikasi informasi 'diketahui'.",
           navToFind: "Ketuk » untuk mengidentifikasi 'yang ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q2compre0.svg",
+          image: "assets/q2compre0_x.svg",
           isComprehend: true,
           isSubstepComprehend: true,
           nextEnabled: false,
@@ -528,7 +528,7 @@ const DATA2 = {
           questionText: "Mari beri label panjang sisi sebagai 'AB'.",
           navText: "Ketuk » untuk melanjutkan.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q2compute1.svg",
+          image: "assets/q2compute1_x.svg",
           isCalculation: true,
           isCalculationIntro: true,
           nextEnabled: true
@@ -537,7 +537,7 @@ const DATA2 = {
           questionText: "Jawab pertanyaan di bawah ini.",
           navText: "Ketuk jawaban yang benar.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q2compute1.svg",
+          image: "assets/q2compute1_x.svg",
           isCalculation: true,
           isMcqStep: true,
           nextEnabled: false
@@ -546,7 +546,7 @@ const DATA2 = {
           questionText: "Mari tentukan panjang sisi.",
           navText: "Gunakan numpad untuk mengisi kotak dan ketuk ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q2compute1.svg",
+          image: "assets/q2compute1_x.svg",
           isCalculation: true,
           isCalcStep: true,
           nextEnabled: false
@@ -554,7 +554,7 @@ const DATA2 = {
         6: {
           questionText: "Kamu telah menyelesaikan soal!",
           navText: "Ketuk 'Mulai Ulang' untuk mengulang aktivitas",
-          image: "assets/q2computeFinal.svg",
+          image: "assets/q2computeFinal_x.svg",
           isFinalStep: true,
           nextEnabled: true
         }

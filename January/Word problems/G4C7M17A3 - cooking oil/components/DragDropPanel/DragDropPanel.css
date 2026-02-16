@@ -71,8 +71,12 @@
   font-size: 1.8vw;
   transition: all 0.3s ease;
   background-color: rgba(0, 0, 0, 0.2);
-  /* vertical-align: middle; */
-  /* max-width: 10vw; */
+}
+
+.dd-drop-zone.operator-zone {
+  flex: 0;
+  min-width: 2.5vw;
+  max-width: 3vw;
 }
 
 .dd-drop-zone.correct {
@@ -201,6 +205,14 @@
 
 .dd-draggable.dragging {
   opacity: 0;
+  pointer-events: none;
+}
+
+.drag-drop-panel,
+.dd-draggable,
+.dd-drop-zone {
+  touch-action: none;
+  user-select: none;
 }
 
 /* Drag Ghost */

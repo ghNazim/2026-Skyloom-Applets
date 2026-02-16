@@ -24,7 +24,7 @@
   font-size: 2vw;
   font-weight: 600;
   color: #fff;
-  margin-bottom: .5vw;
+  /* margin-bottom: .5vw; */
   text-transform: uppercase;
   letter-spacing: 0.1em;
   text-align: center;
@@ -35,7 +35,7 @@
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 0.8vw;
   padding: .5vw;
-  margin-bottom: 1vw;
+  /* margin-bottom: 1vw; */
   position: relative;
   overflow: hidden;
 }
@@ -96,6 +96,11 @@
 
 .tofind-item::marker {
   color: #9c27b0;
+}
+
+.section-list-item.yellow,
+.section-list-item.tofind-item.yellow {
+  color: yellow !important;
 }
 
 @keyframes fadeInUp {

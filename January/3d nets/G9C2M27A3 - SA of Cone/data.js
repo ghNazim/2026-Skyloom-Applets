@@ -31,12 +31,15 @@ const DATA = {
           qAfterUnfold:
             "The net of the cone shows a circular base and a curved (lateral) surface.",
           nAfterUnfold: "Tap » to explore the surface area of the cone.",
+          legend: "where, l is the slant height <br> r is the radius of the base",
+          foldedImages: ["assets/folded.png", "assets/foldedH1.png", "assets/foldedH2.png"],
         },
         2: {
           q: "Let's identify the curved surface of the cone.",
           n: "Tap the correct answer.",
           nAfterCorrect: "Tap » to continue.",
           mediaSrc: "assets/unfolded1.png",
+          correctFeedbackImage: "assets/mcq1opt3.png",
           mcqTitle:
             "The curved surface of a cone corresponds to which part of a circle?",
           options: ["Semicircle", "Circumference", "Sector"],
@@ -44,18 +47,25 @@ const DATA = {
         },
         3: {
           q: "The net shows that the arc length of the sector is the circumference of the circular base of the cone.",
-          n: "Tap » to continue.",
+          n: "Tap ⟲ to see the visualization or tap » to continue.",
           mediaSrc: "assets/unfolded2.png",
+          foldedImage: "assets/folded.png",
+          unfoldedImage: "assets/unfolded2.png",
+          videoSrc: "assets/cone.mp4",
         },
         4: {
           q: "Also, the sector of the cone is the curved surface area of the cone.",
-          n: "Tap » to continue.",
+          n: "Tap ⟲ to see the visualization or tap » to continue.",
           mediaSrc: "assets/unfoldedHsector.png",
+          foldedImage: "assets/folded.png",
+          unfoldedImage: "assets/unfoldedHsector.png",
+          videoSrc: "assets/cone.mp4",
         },
         5: {
           q: "We need to find the area of sector to find the curved surface area.",
           n: "Tap » to continue.",
           mediaSrc: "assets/sector.png",
+          videoSrc: "assets/translation.mp4",
         },
         6: {
           q: "We learned that, the area of a sector depends on its arc length.",
@@ -151,12 +161,15 @@ const DATA = {
           qAfterUnfold:
             "Jaring-jaring kerucut menunjukkan alas lingkaran dan permukaan lengkung (lateral).",
           nAfterUnfold: "Ketuk » untuk menjelajahi luas permukaan kerucut.",
+          legend: "di mana, l adalah tinggi kemiringan <br> r adalah jari-jari alas",
+          foldedImages: ["assets/folded.png", "assets/foldedH1.png", "assets/foldedH2.png"],
         },
         2: {
           q: "Mari kita identifikasi permukaan lengkung kerucut.",
           n: "Ketuk jawaban yang benar.",
           nAfterCorrect: "Ketuk » untuk melanjutkan.",
           mediaSrc: "assets/unfolded1.png",
+          correctFeedbackImage: "assets/mcq1opt3.png",
           mcqTitle:
             "Permukaan lengkung kerucut sesuai dengan bagian lingkaran mana?",
           options: ["Setengah lingkaran", "Keliling", "Sektor"],
@@ -166,16 +179,23 @@ const DATA = {
           q: "Jaring-jaring menunjukkan bahwa panjang busur sektor adalah keliling alas lingkaran kerucut.",
           n: "Ketuk » untuk melanjutkan.",
           mediaSrc: "assets/unfolded2.png",
+          foldedImage: "assets/folded.png",
+          unfoldedImage: "assets/unfolded2.png",
+          videoSrc: "assets/cone.mp4",
         },
         4: {
           q: "Juga, sektor kerucut adalah luas permukaan lengkung kerucut.",
           n: "Ketuk » untuk melanjutkan.",
           mediaSrc: "assets/unfoldedHsector.png",
+          foldedImage: "assets/folded.png",
+          unfoldedImage: "assets/unfoldedHsector.png",
+          videoSrc: "assets/cone.mp4",
         },
         5: {
           q: "Kita perlu mencari luas sektor untuk mencari luas permukaan lengkung.",
           n: "Ketuk » untuk melanjutkan.",
           mediaSrc: "assets/sector.png",
+          videoSrc: "assets/translation.mp4",
         },
         6: {
           q: "Kita belajar bahwa luas sektor bergantung pada panjang busurnya.",

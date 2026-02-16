@@ -92,6 +92,24 @@
   border-radius: 0.3vw;
 }
 
+/* Interactive cyan highlight - clickable, glowing */
+.calc-highlight-cyan.interactive {
+  cursor: pointer;
+  animation: cyanGlow 1.5s ease-in-out infinite;
+  box-shadow: 0 0 0.4vw rgba(0, 188, 212, 0.6);
+  border: .2vw solid rgba(0, 188, 212, 0.8);
+}
+
+.calc-highlight-cyan.interactive:hover {
+  background-color: rgba(0, 188, 212, 0.55);
+  box-shadow: 0 0 0.8vw rgba(0, 188, 212, 0.8);
+}
+
+@keyframes cyanGlow {
+  0%, 100% { box-shadow: 0 0 0.4vw rgba(0, 188, 212, 0.6); }
+  50% { box-shadow: 0 0 1vw rgba(0, 188, 212, 0.9); }
+}
+
 /* Volume breakdown row - stacked items */
 .volume-breakdown-row {
   display: flex;
@@ -112,7 +130,7 @@
 .volume-item {
   font-size: 2vw;
   line-height: 1.3;
-  white-space: pre;
+  white-space: pre-wrap;
 }
 
 /* Volume calculation row with addition format */
@@ -173,6 +191,45 @@
   gap: 0.5vw;
 }
 
+/* Blank row for spacing (Step 6) */
+.calc-row-blank {
+  min-height: 1.2em;
+}
+
+/* Step 6 last 2 rows: 3-cell table so "=" aligns; width auto (max content) */
+.calc-equation-table-wrapper {
+  width: 100%;
+  margin-top: 0.5vw;
+}
+
+.calc-equation-table {
+  width: auto;
+  border-collapse: collapse;
+  font-size: 2vw;
+  color: white;
+  line-height: 1.3;
+}
+
+.calc-equation-table .calc-eq-cell {
+  white-space: nowrap;
+  vertical-align: middle;
+  padding: 0.2vw 0.5vw 0.2vw 0;
+}
+
+.calc-equation-table .calc-eq-cell.lhs {
+  text-align: right;
+}
+
+.calc-equation-table .calc-eq-cell.eq {
+  text-align: center;
+  padding-left: 0.5vw;
+  padding-right: 0.5vw;
+}
+
+.calc-equation-table .calc-eq-cell.rhs {
+  text-align: left;
+}
+
 /* Interactive boxes (Step 7) */
 .calc-interactive-box {
   display: inline-flex;
@@ -202,6 +259,7 @@
   background-color: transparent;
   border: none;
   color: white;
+  font-size: 2vw;
 }
 
 /* Input box for numpad */

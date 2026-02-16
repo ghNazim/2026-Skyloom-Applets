@@ -1,4 +1,4 @@
-const current_language = "en";
+
 const decimal = {
   en: ".",
   id: ",",
@@ -155,7 +155,7 @@ const DATA1 = {
       start_over: "Mulai ulang",
 
       questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
-      questionImage: "assets/question1.svg",
+      questionImage: "assets/question1_x.svg",
       alts: {
         questionFigure: "Gambar soal",
         triangleImage: "Segitiga",
@@ -166,9 +166,9 @@ const DATA1 = {
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
         images: [
-          "assets/q1compre1.svg",
-          "assets/q1compre2.svg",
-          "assets/q1compre3.svg",
+          "assets/q1compre1_x.svg",
+          "assets/q1compre2_x.svg",
+          "assets/q1compre3_x.svg",
         ],
         given: {
           title: "Diketahui,",
@@ -187,7 +187,7 @@ const DATA1 = {
 
       splash: {
         step2: {
-          image: "assets/q1compre3.svg",
+          image: "assets/q1compre3_x.svg",
           text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Selanjutnya - Temukan panjang sisi yang hilang pada segitiga.</yellow>"
         }
       },
@@ -239,7 +239,7 @@ const DATA1 = {
           navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
           navToFind: "Ketuk » untuk mengidentifikasi apa yang harus 'ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/question1.svg",
+          image: "assets/question1_x.svg",
           isComprehend: true,
           isSubstepComprehend: true,
           nextEnabled: false,
@@ -256,7 +256,7 @@ const DATA1 = {
           questionText: "Mari beri nama sisi yang hilang sebagai 'a'.",
           navText: "Ketuk » untuk melanjutkan.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q1compute1.svg",
+          image: "assets/q1compute1_x.svg",
           isCalculation: true,
           isCalculationIntro: true,
           nextEnabled: true
@@ -265,7 +265,7 @@ const DATA1 = {
           questionText: "Jawab pertanyaan di bawah ini.",
           navText: "Ketuk jawaban yang benar.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q1compute2.svg",
+          image: "assets/q1compute2_x.svg",
           isCalculation: true,
           isMcqStep: true,
           nextEnabled: false
@@ -274,7 +274,7 @@ const DATA1 = {
           questionText: "Mari temukan sisi yang hilang.",
           navText: "Gunakan papan angka untuk mengisi kotak lalu ketuk ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q1compute2.svg",
+          image: "assets/q1compute2_x.svg",
           isCalculation: true,
           isCalcStep: true,
           nextEnabled: false
@@ -282,7 +282,7 @@ const DATA1 = {
         6: {
           questionText: "Kamu sudah menyelesaikan soal!",
           navText: "Ketuk » untuk soal berikutnya.",
-          image: "assets/q1compute2.svg",
+          image: "assets/q1compute2_x.svg",
           isFinalStep: true,
           nextEnabled: true
         }
@@ -323,7 +323,7 @@ const DATA2 = {
           title: "Given,",
           data: [
             "Two sides of the triangle are equal",
-            "Base = 27 cm",
+            "Third side length = 27 cm",
             "Perimeter of the triangle = 77 cm",
           ],
           highlights: ["null", "null"]
@@ -346,7 +346,7 @@ const DATA2 = {
         title: "",
         givenLabel: "Given:",
         givenList: [
-          "Two sides have same length and base = 27 cm.",
+          "Two sides have same length and third side = 27 cm.",
           "Perimeter of the triangle = 77 cm"
         ],
         toFindLabel: "To Find:",
@@ -357,10 +357,10 @@ const DATA2 = {
         {
           title: "What is the name of a triangle that has two sides equal in length?",
           options: [
-            "A. Scalene triangle",
-            "B. Isosceles triangle",
-            "C. Right triangle",
-            "D. Equilateral triangle"
+            "Scalene triangle",
+            "Isosceles triangle",
+            "Right triangle",
+            "Equilateral triangle"
           ],
           answerIndex: 1,
           formulaRow: null
@@ -369,12 +369,12 @@ const DATA2 = {
           title: "What is the formula to calculate the perimeter of an isosceles triangle?",
           options: [
             "Side × Side",
-            "2 × equal side + base",
+            "2 × equal side + third side",
             "3 × side",
-            "Equal side + base"
+            "Equal side + third side"
           ],
           answerIndex: 1,
-          formulaRow: "Perimeter of isosceles triangle = 2 × equal side + base"
+          formulaRow: "Perimeter of isosceles triangle = 2 × equal side + third side"
         }
       ],
       calcRowMargin: "18vw",
@@ -460,7 +460,7 @@ const DATA2 = {
       start_over: "Mulai ulang",
 
       questionText: "Temukan panjang sisi yang hilang pada segitiga di bawah ini.",
-      questionImage: "assets/question2.svg",
+      questionImage: "assets/question2_x.svg",
       alts: {
         questionFigure: "Gambar soal",
         triangleImage: "Segitiga",
@@ -471,10 +471,10 @@ const DATA2 = {
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
         images: [
-          "assets/q2compre1.svg",
-          "assets/q2compre2.svg",
-          "assets/q2compre3.svg",
-          "assets/q2compre4.svg",
+          "assets/q2compre1_x.svg",
+          "assets/q2compre2_x.svg",
+          "assets/q2compre3_x.svg",
+          "assets/q2compre4_x.svg",
         ],
         given: {
           title: "Diketahui,",
@@ -494,7 +494,7 @@ const DATA2 = {
 
       splash: {
         step2: {
-          image: "assets/q2compre3.svg",
+          image: "assets/q2compre3_x.svg",
           text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Selanjutnya - Temukan panjang sisi yang hilang pada segitiga.</yellow>"
         }
       },
@@ -558,7 +558,7 @@ const DATA2 = {
           navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
           navToFind: "Ketuk » untuk mengidentifikasi apa yang harus 'ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/question2.svg",
+          image: "assets/question2_x.svg",
           isComprehend: true,
           isSubstepComprehend: true,
           nextEnabled: false,
@@ -575,7 +575,7 @@ const DATA2 = {
           questionText: "Mari beri nama sisi yang hilang sebagai 'a'.",
           navText: "Ketuk » untuk melanjutkan.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q2compute1.svg",
+          image: "assets/q2compute1_x.svg",
           isCalculation: true,
           isCalculationIntro: true,
           nextEnabled: true
@@ -584,7 +584,7 @@ const DATA2 = {
           questionText: "Jawab pertanyaan di bawah ini.",
           navText: "Ketuk jawaban yang benar.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q2compute2.svg",
+          image: "assets/q2compute2_x.svg",
           isCalculation: true,
           isMcqStep: true,
           nextEnabled: false
@@ -593,7 +593,7 @@ const DATA2 = {
           questionText: "Mari temukan sisi yang hilang.",
           navText: "Gunakan papan angka untuk mengisi kotak lalu ketuk ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q2compute2.svg",
+          image: "assets/q2compute2_x.svg",
           isCalculation: true,
           isCalcStep: true,
           nextEnabled: false
@@ -601,7 +601,7 @@ const DATA2 = {
         6: {
           questionText: "Kamu sudah menyelesaikan soal!",
           navText: "Ketuk » untuk soal berikutnya.",
-          image: "assets/q2compute2.svg",
+          image: "assets/q2compute2_x.svg",
           isFinalStep: true,
           nextEnabled: true
         }
@@ -776,7 +776,7 @@ const DATA3 = {
       start_over: "Mulai ulang",
 
       questionText: "Temukan panjang sisi segitiga di bawah ini.",
-      questionImage: "assets/question3.svg",
+      questionImage: "assets/question3_x.svg",
       alts: {
         questionFigure: "Gambar soal",
         triangleImage: "Segitiga",
@@ -787,9 +787,9 @@ const DATA3 = {
       comprehend: {
         sectionTitle: "ANALISIS INFORMASI",
         images: [
-          "assets/q3compre1.svg",
-          "assets/q3compre2.svg",
-          "assets/q3compre3.svg",
+          "assets/q3compre1_x.svg",
+          "assets/q3compre2_x.svg",
+          "assets/q3compre3_x.svg",
         ],
         given: {
           title: "Diketahui,",
@@ -808,7 +808,7 @@ const DATA3 = {
 
       splash: {
         step2: {
-          image: "assets/q3compre3.svg",
+          image: "assets/q3compre3_x.svg",
           text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><br><yellow>Selanjutnya - Temukan panjang sisi segitiga.</yellow>"
         }
       },
@@ -871,7 +871,7 @@ const DATA3 = {
           navText: "Ketuk » untuk mengidentifikasi informasi yang 'diketahui'.",
           navToFind: "Ketuk » untuk mengidentifikasi apa yang harus 'ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/question3.svg",
+          image: "assets/question3_x.svg",
           isComprehend: true,
           isSubstepComprehend: true,
           nextEnabled: false,
@@ -888,7 +888,7 @@ const DATA3 = {
           questionText: "Mari beri nama sisi yang hilang sebagai 'a'.",
           navText: "Ketuk » untuk melanjutkan.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q3compute1.svg",
+          image: "assets/q3compute1_x.svg",
           isCalculation: true,
           isCalculationIntro: true,
           nextEnabled: true
@@ -897,7 +897,7 @@ const DATA3 = {
           questionText: "Jawab pertanyaan di bawah ini.",
           navText: "Ketuk jawaban yang benar.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q3compute2.svg",
+          image: "assets/q3compute2_x.svg",
           isCalculation: true,
           isMcqStep: true,
           nextEnabled: false
@@ -906,7 +906,7 @@ const DATA3 = {
           questionText: "Mari temukan panjang sisi.",
           navText: "Gunakan papan angka untuk mengisi kotak lalu ketuk ✓ untuk memeriksa.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",
-          image: "assets/q3compute2.svg",
+          image: "assets/q3compute2_x.svg",
           isCalculation: true,
           isCalcStep: true,
           nextEnabled: false
@@ -914,7 +914,7 @@ const DATA3 = {
         6: {
           questionText: "Aktivitas selesai!",
           navText: "Ketuk 'Mulai ulang' untuk memulai ulang aktivitas",
-          image: "assets/q3compute2.svg",
+          image: "assets/q3compute2_x.svg",
           isFinalStep: true,
           nextEnabled: true
         }

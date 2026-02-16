@@ -3,21 +3,27 @@ const MainCanvas = ({
   onEnableNext, 
   onUpdateTexts,
   comprehendSubstep = 0,
+  step3Substep = 0,
   calcState,
   setCalcState
 }) => {
   const { useState, useEffect } = React;
 
-  // Reset state when step changes
+  // Reset state when step changes (and for step 3, when substep changes)
   useEffect(() => {
     const stepData = APP_DATA.steps[step];
     if (stepData) {
-      // Update texts
-      const navText = stepData.navText || "";
-      const questionText = stepData.questionText || "";
-      onUpdateTexts(questionText, navText);
+      if (step === 3) {
+        const navText = step3Substep === 0 ? (stepData.navTextInitial || "") : (stepData.navText || "");
+        const questionText = step3Substep === 0 ? (stepData.questionTextInitial || "") : (stepData.questionText || "");
+        onUpdateTexts(questionText, navText);
+      } else {
+        const navText = stepData.navText || "";
+        const questionText = stepData.questionText || "";
+        onUpdateTexts(questionText, navText);
+      }
     }
-  }, [step]);
+  }, [step, step3Substep]);
 
   // Get step data
   const stepData = APP_DATA.steps[step];
@@ -51,8 +57,11 @@ const MainCanvas = ({
       );
     }
     
-    // Step 3: MCQ Step (L-mL relationship)
+    // Step 3: two substeps - initial (calc lines) then MCQ
     if (stepData.isMcqStep) {
+      if (step3Substep === 0) {
+        return React.createElement(Step3InitialPanel, { calcState: calcState });
+      }
       return React.createElement(MCQPanelStep3, {
         step: step,
         mcqKey: stepData.mcqKey,

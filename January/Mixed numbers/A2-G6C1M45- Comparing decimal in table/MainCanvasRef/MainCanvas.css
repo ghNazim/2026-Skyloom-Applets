@@ -1,0 +1,253 @@
+/* ===== MAIN CANVAS CONTAINER ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  border: 1px solid var(--panel-border-color);
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  gap: 1vw;
+  padding: 1vw;
+}
+
+/* ===== COMPARE DECIMALS CANVAS ===== */
+.compare-canvas {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.compare-canvas-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  gap: 0;
+}
+
+.feedback-row {
+  flex: 0 0 25%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw 2vw;
+}
+
+.main-row {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  padding: 2vw;
+  padding-bottom: 8vw;
+  position: relative;
+}
+
+/* Feedback bubble - match MCQ panel styles */
+.feedback-bubble {
+  width: 100%;
+  padding: 0.8vw;
+  border-radius: 0.5vw;
+  font-size: 2vw;
+  line-height: 1.4;
+  white-space: pre-line;
+  min-height: 8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-1vw);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.feedback-bubble.feedback-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feedback-bubble.feedback-neutral {
+  background-color: rgba(128, 128, 128, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: #fff;
+  visibility: visible;
+}
+
+.feedback-bubble.feedback-wrong {
+  background-color: rgba(255, 0, 0, 0.15);
+  border: 2px solid #ff6b6b;
+  color: #fff;
+  visibility: visible;
+}
+
+.feedback-bubble.feedback-correct {
+  background-color: rgba(76, 175, 80, 0.15);
+  border: 2px solid #66bb6a;
+  color: #fff;
+  visibility: visible;
+}
+
+/* Fraction box for decimal comparison */
+.fraction-box.compare-decimal-box {
+  border: 0.3vw solid #f97315;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 1.5vw;
+  padding: 1.5vw 2.5vw;
+  min-width: 14vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6vw;
+  font-weight: 700;
+  color: white;
+  flex: 0 0 auto;
+}
+
+.compare-decimal-box .decimal-digit {
+  color: white;
+}
+
+.compare-decimal-box .decimal-char {
+  color: #ff6b9d;
+}
+
+.compare-decimal-box .digit-highlight-wrong {
+  color: #ff6b6b !important;
+}
+
+.compare-decimal-box .digit-highlight-correct {
+  color: #2ecc71 !important;
+}
+
+/* Skyblue pulsate for correct flow phase 1 */
+.compare-decimal-box .blue-pulsate {
+  color: #4cc4f4 !important;
+  animation: blue-pulsate-glow 0.8s ease-in-out infinite;
+}
+
+@keyframes blue-pulsate-glow {
+  0%, 100% {
+    text-shadow: 0 0 0.2vw #87ceeb, 0 0 .2vw #87ceeb;
+  }
+  50% {
+    text-shadow: 0 0 .5vw #87ceeb, 0 0 .5vw #87ceeb;
+  }
+}
+
+/* Operator box wrapper (for absolute positioning of buttons) */
+.operator-box-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.operator-box {
+  border: 0.3vw solid #ffffff;
+  background-color: rgba(128, 128, 128, 0.5);
+  border-radius: 1.5vw;
+  width: 8vw;
+  height: 6vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5vw;
+  font-weight: 700;
+  color: white;
+  padding-bottom: 0.8vw;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.operator-box-wrong {
+  background-color: rgba(255, 0, 0, 0.15) !important;
+  border: 2px solid #ff6b6b !important;
+}
+
+.operator-box-correct {
+  background-color: rgba(76, 175, 80, 0.15) !important;
+  border: 2px solid #66bb6a !important;
+}
+
+/* Buttons strip - absolutely positioned below operator box */
+.buttons-strip-disabled {
+  pointer-events: none;
+}
+
+.buttons-strip {
+  position: absolute;
+  top: 160%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.5vw;
+  display: flex;
+  flex-direction: row;
+  gap: 1vw;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 1);
+  border-radius: 1.5vw;
+  padding: 1vw 2vw;
+  border: 0.3vw solid #ffffff;
+}
+
+.operator-btn {
+  width: 4.5vw;
+  height: 4.5vw;
+  border-radius: 50%;
+  border: 0.3vw solid #f97315;
+  background: linear-gradient(145deg, #ff9800, rgb(255, 133, 12));
+  color: white;
+  font-size: 2.5vw;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.operator-btn:disabled {
+  cursor: default;
+}
+
+.operator-btn-wrong {
+  background: linear-gradient(145deg, #ef5350, #c62828) !important;
+  border-color: #ff6b6b !important;
+  color: white;
+}
+
+.operator-btn-correct {
+  background: linear-gradient(145deg, #66bb6a, #2e7d32) !important;
+  border-color: #66bb6a !important;
+  color: white;
+}
+
+/* Flying clone for operator button animation */
+.operator-btn-clone {
+  position: fixed;
+  width: 4.5vw;
+  height: 4.5vw;
+  border-radius: 50%;
+  border: 0.3vw solid #66bb6a;
+  background: linear-gradient(145deg, #66bb6a, #2e7d32);
+  color: white;
+  font-size: 2.5vw;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
+}

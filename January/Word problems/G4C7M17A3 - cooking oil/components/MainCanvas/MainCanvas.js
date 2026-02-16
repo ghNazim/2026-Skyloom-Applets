@@ -6,7 +6,11 @@ const MainCanvas = ({
   currentImage,
   comprehendSubstep = 0,
   calcState,
-  setCalcState
+  setCalcState,
+  step4Substep = 0,
+  setStep4Substep,
+  step6Substep = 0,
+  setStep6Substep
 }) => {
   const { useState, useEffect } = React;
 
@@ -85,7 +89,11 @@ const MainCanvas = ({
         onUpdateQuestionText: (questionText) => onUpdateTexts(questionText, null),
         calcState: calcState,
         setCalcState: setCalcState,
-        imageSrc: getImageSrc()
+        imageSrc: getImageSrc(),
+        step4Substep: step4Substep,
+        setStep4Substep: setStep4Substep,
+        step6Substep: step6Substep,
+        setStep6Substep: setStep6Substep
       });
     }
     

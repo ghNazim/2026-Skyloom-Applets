@@ -159,7 +159,7 @@ const DATA = {
 
       // Step 8: interactive substitution row
       calculation3: {
-        substituteRow: "= [[Volume in m³]] × 1,000,000",
+        substituteRow: "= [[box]] × 1,000,000",
         substitutePlaceholder: "Volume in m³",
         substituteValue: "3.5",
         substitutedRow: "= 3.5 × 1,000,000 cm³"
@@ -326,16 +326,16 @@ const DATA = {
         equationRowPrefix: "",
         equationLineParts: ["= ", 0, " ", 1, " ", 2, " ", 3, " ", 4],
         dropZones: [
-          { id: "zone1", correctAnswers: ["Volume of A", "Volume of B", "Volume of C"], placeholder: "Volume of A" },
+          { id: "zone1", correctAnswers: ["Volume A", "Volume B", "Volume C"], placeholder: "Volume A" },
           { id: "zone2", correctAnswer: "+", placeholder: "+" },
-          { id: "zone3", correctAnswers: ["Volume of A", "Volume of B", "Volume of C"], placeholder: "Volume of B" },
+          { id: "zone3", correctAnswers: ["Volume A", "Volume B", "Volume C"], placeholder: "Volume B" },
           { id: "zone4", correctAnswer: "+", placeholder: "+" },
-          { id: "zone5", correctAnswers: ["Volume of A", "Volume of B", "Volume of C"], placeholder: "Volume of C" }
+          { id: "zone5", correctAnswers: ["Volume A", "Volume B", "Volume C"], placeholder: "Volume C" }
         ],
         draggables: [
-          { id: "d1", text: "Volume of A" },
-          { id: "d2", text: "Volume of B" },
-          { id: "d3", text: "Volume of C" },
+          { id: "d1", text: "Volume A" },
+          { id: "d2", text: "Volume B" },
+          { id: "d3", text: "Volume C" },
           { id: "d4", text: "+" },
           { id: "d5", text: "-" },
           { id: "d6", text: "+" },
@@ -355,9 +355,9 @@ const DATA = {
           { id: "zone3", correctAnswer: "2", placeholder: "2" }
         ],
         draggables: [
-          { id: "d1", text: "Volume of A" },
-          { id: "d2", text: "Volume of B" },
-          { id: "d3", text: "Volume of C" },
+          { id: "d1", text: "Volume A" },
+          { id: "d2", text: "Volume B" },
+          { id: "d3", text: "Volume C" },
           { id: "d4", text: "Total Volume" },
           { id: "d5", text: "+" },
           { id: "d6", text: "×" },
@@ -376,7 +376,7 @@ const DATA = {
       calculation1: {
         rows: [
           { type: "label", text: "Total volume ketiga batu" },
-          { type: "equation", text: "= Volume of A + Volume of B + Volume of C" },
+          { type: "equation", text: "= Volume A + Volume B + Volume C" },
           { type: "fillRow", parts: ["= ", "box", " + ", "box", " + ", "box"], answers: ["1", "2", "4"], unit: " m³" },
           { type: "resultRow", answer: "7", unit: " m³" }
         ],
@@ -411,7 +411,7 @@ const DATA = {
         ]
       },
       calculation3: {
-        substituteRow: "= [[Volume dalam m³]] × 1.000.000",
+        substituteRow: "= [[box]] × 1.000.000",
         substitutePlaceholder: "Volume dalam m³",
         substituteValue: "3,5",
         substitutedRow: "= 3,5 × 1.000.000 cm³"

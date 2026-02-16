@@ -1,0 +1,437 @@
+/* ===== MAIN CANVAS CONTAINER ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== COLUMN STYLES ===== */
+.column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+  position: relative;
+}
+
+.left-column {
+  flex: 0 0 73%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-column {
+  flex: 0 0 27%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-column.empty {
+  /* Empty right panel - no border or background */
+}
+
+/* ===== LEFT PANEL CONTENT ===== */
+.left-panel-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+}
+
+/* ===== MAIN ROW ===== */
+.main-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  width: 100%;
+  justify-content: center;
+}
+
+.main-row.centered {
+  justify-content: center;
+}
+
+.main-row.second-row {
+  margin-top: 1vw;
+}
+
+/* ===== MIXED NUMBER BOX ===== */
+.mixed-number-box {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.25vw solid #e09422;
+  border-radius: 1vw;
+  padding: 1vw 2vw;
+  font-size: 6vw;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+.mixed-number-box.tapped {
+  border-color: #4fc3f7;
+}
+
+.mixed-number-box .integer-part {
+  color: #ffffff;
+}
+
+.mixed-number-box .decimal-point {
+  --font-family-comma: Georgia, sans-serif;
+  font-family: var(--font-family-comma);
+  color: #f06292;
+  margin: 0 0.1vw;
+
+}
+
+.mixed-number-box .fractional-digits {
+  color: #ffffff;
+}
+
+/* Clickable decimal part in step 2 */
+.mixed-number-box .clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mixed-number-box .clickable:hover {
+  text-shadow: 0 0 15px rgba(240, 98, 146, 0.8);
+}
+
+.mixed-number-box .clickable.tapped {
+  color: #4fc3f7;
+  text-shadow: 0 0 15px rgba(79, 195, 247, 0.8);
+}
+
+/* Invisible placeholder for alignment */
+.mixed-number-box.invisible-placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ===== EQUALS SIGN ===== */
+.equals-sign {
+  font-size: 4.5vw;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ===== AND TEXT ===== */
+.and-text {
+  font-size: 3.3vw;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== PLUS SIGN ===== */
+.plus-sign {
+  font-size: 4vw;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== LABELED BOX CONTAINER ===== */
+.labeled-box-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* ===== WHOLE PART BOX ===== */
+.whole-part-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.25vw solid #e09422;
+  border-radius: 0.8vw;
+  padding: 0.8vw 1.5vw;
+  font-size: 4.6vw;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 4vw;
+  transition: all 0.4s ease;
+}
+
+/* ===== DECIMAL PART BOX ===== */
+.decimal-part-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.25vw solid #9e9e9e;
+  border-radius: 0.8vw;
+  padding: 0.8vw 1.5vw;
+  font-size: 4.6vw;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 4vw;
+  transition: all 0.4s ease;
+}
+
+.decimal-part-box .decimal-zero {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.decimal-part-box .decimal-digits {
+  color: #ffffff;
+  transition: color 0.3s ease;
+}
+
+.decimal-part-box .decimal-digits.wrong-visual {
+  color: #ef5350;
+}
+
+/* Correct state */
+.decimal-part-box.correct {
+  background: #2e7d32;
+  border-color: #43a047;
+}
+
+/* Pulsate animation */
+.decimal-part-box.pulsate {
+  animation: pulsate 1.2s ease-in-out infinite;
+}
+
+/* ===== BOX LABEL ===== */
+.box-label {
+  position: absolute;
+  top: -4.8vw;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.7vw;
+  font-weight: 600;
+  color: #ddd;
+  background: rgba(200, 200, 200, 0.15);
+  padding: 0.2vw 0.8vw;
+  border-radius: 0.4vw;
+  white-space: nowrap;
+}
+
+/* ===== FRACTION DISPLAY ===== */
+.fraction-display {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: 0.1vw;
+}
+
+.fraction-display .fraction-num,
+.fraction-display .fraction-den {
+  font-size: 3.5vw;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.fraction-display .fraction-line {
+  width: 110%;
+  min-width: 2.5vw;
+  height: 0.2vw;
+  background-color: #ffffff;
+  border-radius: 1px;
+}
+
+/* ===== MIXED FRACTION DISPLAY ===== */
+.mixed-fraction-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.mixed-fraction-display .mixed-whole {
+  font-size: 6vw;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.mixed-fraction-display .mixed-fraction-part {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: 0.1vw;
+}
+
+.mixed-fraction-display .fraction-num,
+.mixed-fraction-display .fraction-den {
+  font-size: 4.5vw;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.mixed-fraction-display .fraction-line {
+  width: 110%;
+  min-width: 2vw;
+  height: 0.2vw;
+  background-color: #ffffff;
+  border-radius: 1px;
+}
+
+/* ===== MIXED FRACTION BOX ===== */
+.mixed-fraction-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.25vw solid #e09422;
+  border-radius: 1vw;
+  padding: 1.5vw 2.5vw;
+  transition: all 0.4s ease;
+}
+
+/* ===== AND BUTTON (Step 5) ===== */
+.and-button {
+  font-size: 2.9vw;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(145deg, #ffc107, #ff9800);
+  color: #1a1a2e;
+  border-radius: 0.8vw;
+  padding: 0.6vw 1.5vw;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.and-button:hover:not(.clicked) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.and-button.clicked {
+  /* Animation handled by GSAP */
+  pointer-events: none;
+}
+
+/* ===== INPUT FRACTION CONTAINER (Step 4) ===== */
+.input-fraction-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3vw;
+}
+
+.input-box-wrap {
+  position: relative;
+}
+
+.input-cancel-tag {
+  position: absolute;
+  right: -5vw;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.2vw;
+  font-weight: 700;
+  color: #66bb6a;
+}
+
+.input-fraction-line {
+  width: 6.5vw;
+  height: 0.2vw;
+  background-color: #ffffff;
+  border-radius: 1px;
+}
+
+.input-box {
+  width: 6.5vw;
+  height: 4.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.2vw solid #666;
+  border-radius: 0.5vw;
+  font-size: 3.3vw;
+  font-weight: 700;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.input-box.highlighted {
+  border-color: #e09422;
+  box-shadow: 0 0 10px rgba(224, 148, 34, 0.5);
+  animation: inputGlow 1.5s ease-in-out infinite;
+  background-color: white;
+  color: black ;
+}
+
+.input-box.correct {
+  background: #2e7d32;
+  border-color: #43a047;
+  box-shadow: 0 0 10px rgba(67, 160, 71, 0.5);
+}
+
+.input-box.wrong {
+  background: rgba(239, 83, 80, 0.3);
+  border-color: #ef5350;
+  color: white;
+}
+
+/* Input box shake: X-only, -0.3vw to +0.3vw, no rotate or Y */
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.3vw); }
+  40% { transform: translateX(0.3vw); }
+  60% { transform: translateX(-0.3vw); }
+  80% { transform: translateX(0.3vw); }
+}
+
+.input-box.input-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* ===== ANIMATIONS ===== */
+
+/* Pulsate - font size up and down */
+@keyframes pulsate {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+
+
+/* Fade in */
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Input glow */
+@keyframes inputGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(224, 148, 34, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(224, 148, 34, 0.7);
+  }
+}
+
+/* MCQ container style */
+.mcq-container-style {
+  width: 100%;
+  height: 100%;
+}

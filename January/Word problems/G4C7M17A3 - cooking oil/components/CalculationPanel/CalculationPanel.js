@@ -5,7 +5,11 @@ const CalculationPanel = ({
   onUpdateQuestionText,
   calcState,
   setCalcState,
-  imageSrc
+  imageSrc,
+  step4Substep = 0,
+  setStep4Substep,
+  step6Substep = 0,
+  setStep6Substep
 }) => {
   const { useState, useEffect } = React;
   
@@ -47,17 +51,17 @@ const CalculationPanel = ({
     if (window.playSound) window.playSound("tick");
     setBox2Clicked(true);
     
-    // After both boxes clicked, show the final calculation row
+    // After both boxes clicked, show the final calculation row with result (no numpad)
     setTimeout(() => {
       setShowFinalCalcRow(true);
-      // Update question text and nav text
       const stepData = APP_DATA.steps[7];
       if (onUpdateQuestionText && stepData.questionTextAfterBoxes) {
         onUpdateQuestionText(stepData.questionTextAfterBoxes);
       }
-      if (onUpdateNavText && stepData.navTextAfterBoxes) {
-        onUpdateNavText(stepData.navTextAfterBoxes);
+      if (onUpdateNavText && stepData.navTextCorrect) {
+        onUpdateNavText(stepData.navTextCorrect);
       }
+      if (onEnableNext) onEnableNext();
     }, 500);
   };
   
@@ -154,48 +158,63 @@ const CalculationPanel = ({
   
   // Get findings list based on current step
   const getFindings = () => {
+    const fmt = (key, val) => (APP_DATA[key] || "").replace("{0}", val);
     if (step === 4) {
-      return {
-        title: APP_DATA.labels.given,
-        list: comprehendData.given.data
-      };
-    } else if (step === 5) {
-      return {
-        title: APP_DATA.labels.given,
-        list: comprehendData.given.data
-      };
-    } else if (step === 6) {
-      return {
-        title: APP_DATA.labels.findings,
-        list: ["Total volume of oil = 500000 cm³"]
-      };
-    } else if (step === 7) {
+      return { title: APP_DATA.labels.given, list: comprehendData.given.data };
+    }
+    if (step === 5) {
+      return { title: APP_DATA.labels.given, list: comprehendData.given.data };
+    }
+    if (step === 6) {
+      const v = calcState.step5Value || step5Data.numpad.answer;
+      return { title: APP_DATA.labels.findings, list: [fmt("findingTotalVolumeFormat", v)] };
+    }
+    if (step === 7) {
+      const v5 = calcState.step5Value || step5Data.numpad.answer;
+      const v6 = calcState.step6Value ? Number(calcState.step6Value).toLocaleString() : "1,000,000";
       return {
         title: APP_DATA.labels.findings,
-        list: [
-          "Total volume of oil = 500000 cm³",
-          "Capacity of one jerry can = 1,000,000 cm³"
-        ]
+        list: [fmt("findingTotalVolumeFormat", v5), fmt("findingCapacityFormat", v6)]
       };
-    } else if (step === 8) {
+    }
+    if (step === 8) {
+      const v5 = calcState.step5Value || step5Data.numpad.answer;
+      const v6 = calcState.step6Value ? Number(calcState.step6Value).toLocaleString() : "1,000,000";
+      const v7 = calcState.step7Value || step7Data.numpad.answer;
       return {
         title: APP_DATA.labels.findings,
         list: [
-          "Total volume of oil = 500000 cm³",
-          "Capacity of one jerry can = 1,000,000 cm³",
-          "Number of jerry cans needed = 0.5"
+          fmt("findingTotalVolumeFormat", v5),
+          fmt("findingCapacityFormat", v6),
+          fmt("findingJerryCansFormat", v7)
         ]
       };
     }
     return { title: "", list: [] };
   };
   
+  const handleStep4HighlightClick = () => {
+    if (step4Substep !== 0) return;
+    if (window.playSound) window.playSound("tick");
+    setStep4Substep(1);
+    const stepData = APP_DATA.steps[4];
+    if (onUpdateNavText && stepData?.navText) onUpdateNavText(stepData.navText);
+    if (onEnableNext) onEnableNext();
+  };
+
+  const handleStep6HighlightClick = () => {
+    if (step6Substep !== 0) return;
+    if (window.playSound) window.playSound("tick");
+    setStep6Substep(1);
+    const stepData = APP_DATA.steps[6];
+    if (onUpdateNavText && stepData?.navText) onUpdateNavText(stepData.navText);
+  };
+
   // Render right panel content
   const renderRightPanel = () => {
     const findingsData = getFindings();
     const showNumpad = (step === 5 && !calcState.step5Answered) ||
-                       (step === 6 && !calcState.step6Answered) ||
-                       (step === 7 && showFinalCalcRow && !calcState.step7Answered);
+                       (step === 6 && step6Substep === 1 && !calcState.step6Answered);
     
     return React.createElement(
       "div",
@@ -228,50 +247,52 @@ const CalculationPanel = ({
     );
   };
   
-  // Render Step 4 - Show volume breakdown
+  // Render Step 4 - Show volume breakdown (substeps: tap highlight → show breakdown → Next shows volumeBreakdown2 → Next goes to step 5)
   const renderStep4 = () => {
+    const showBreakdown = step4Substep >= 1;
+    const breakdown = step4Substep === 2 ? step4Data.volumeBreakdown2 : step4Data.volumeBreakdown;
+    const cyanClass = "calc-highlight-cyan" + (step4Substep === 0 ? " interactive" : "");
     return React.createElement(
       "div",
       { className: "calc-panel-container" },
       React.createElement(
         "div",
         { className: "calc-left-panel with-image" },
-        // Image row
         React.createElement(
           "div",
           { className: "calc-image-row" },
           imageSrc && React.createElement("img", {
             src: imageSrc,
-            alt: "Cooking oil",
+            alt: APP_DATA.altCookingOil || "Cooking oil",
             className: "calc-image"
           })
         ),
-        // Equation row
         React.createElement(
           "div",
           { className: "calc-equation-row" },
           React.createElement(
             "div",
             { className: "calc-rows-container" },
-            // Label row
             React.createElement("div", { key: "row-label", className: "calc-row calc-label-row" }, 
               step4Data.equationRows[0].text
             ),
-            // Equation row with highlight
             React.createElement("div", { key: "row-eq1", className: "calc-row" },
               "= ",
-              React.createElement("span", { className: "calc-highlight-cyan" }, "Total volume of oil"),
-              " ÷ Capacity of one jerry can"
+              React.createElement("span", {
+                className: cyanClass,
+                onClick: step4Substep === 0 ? handleStep4HighlightClick : undefined,
+                role: step4Substep === 0 ? "button" : undefined
+              }, step4Data.equationRows[1].highlight),
+              (step4Data.equationRows[1].text || "").split(step4Data.equationRows[1].highlight || "")[1] || " ÷ Capacity of one jerry can"
             ),
-            // Volume breakdown row
-            React.createElement(
+            showBreakdown && React.createElement(
               "div",
-              { key: "row-breakdown", className: "calc-row volume-breakdown-row" },
-              React.createElement("span", { className: "volume-label" }, step4Data.volumeBreakdown.label),
+              { key: breakdown.id || "row-breakdown", className: "calc-row volume-breakdown-row" },
+              React.createElement("span", { className: "volume-label" }, breakdown.label),
               React.createElement(
                 "div",
                 { className: "volume-items-column" },
-                step4Data.volumeBreakdown.items.map((item, index) =>
+                breakdown.items.map((item, index) =>
                   React.createElement("span", { key: `item-${index}`, className: "volume-item" }, item)
                 )
               )
@@ -301,7 +322,7 @@ const CalculationPanel = ({
           { className: "calc-image-row" },
           imageSrc && React.createElement("img", {
             src: imageSrc,
-            alt: "Cooking oil",
+            alt: APP_DATA.altCookingOil || "Cooking oil",
             className: "calc-image"
           })
         ),
@@ -314,13 +335,13 @@ const CalculationPanel = ({
             { className: "calc-rows-container" },
             // Label row
             React.createElement("div", { key: "row-label", className: "calc-row calc-label-row" }, 
-              "Number of jerry cans needed"
+              step5Data.equationRows ? step5Data.equationRows[0].text : step4Data.equationRows[0].text
             ),
             // Equation row with highlight
             React.createElement("div", { key: "row-eq1", className: "calc-row" },
               "= ",
-              React.createElement("span", { className: "calc-highlight-cyan" }, "Total volume of oil"),
-              " ÷ Capacity of one jerry can"
+              React.createElement("span", { className: "calc-highlight-cyan" }, step5Data.equationRows ? step5Data.equationRows[1].highlight : step4Data.equationRows[1].highlight),
+              (step5Data.equationRows ? step5Data.equationRows[1].text : step4Data.equationRows[1].text || "").split((step5Data.equationRows ? step5Data.equationRows[1].highlight : step4Data.equationRows[1].highlight) || "")[1] || " ÷ Capacity of one jerry can"
             ),
             // Volume calculation row with addition format
             React.createElement(
@@ -362,43 +383,66 @@ const CalculationPanel = ({
     );
   };
   
-  // Render Step 6 - Convert jerry can volume
+  // Render Step 6 - Convert jerry can volume (2 substeps: tap highlight then show rows + numpad)
   const renderStep6 = () => {
+    const showRest = step6Substep === 1;
+    const cyanClass = "calc-highlight-cyan" + (step6Substep === 0 ? " interactive" : "");
+    // Parse "X = Y" for 3-cell table: LHS, "=", RHS
+    const infoText = step6Data.equationRows[2].text || "";
+    const infoParts = infoText.split(" = ");
+    const infoLHS = infoParts.length >= 2 ? infoParts[0] : infoText;
+    const infoRHS = infoParts.length >= 2 ? infoParts.slice(1).join(" = ") : "";
+    const convText = (step6Data.equationRows[3].text || "").trim();
+    const convLHS = convText.replace(/\s*=\s*$/, "").trim();
+    const convRHS = !calcState.step6Answered
+      ? React.createElement("span", { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` }, numpadValue || "")
+      : React.createElement("span", { className: "calc-result-value" }, calcState.step6Value);
+    const convRHSWithSuffix = React.createElement(React.Fragment, null, convRHS, step6Data.equationRows[3].inputSuffix || " cm³");
+
     return React.createElement(
       "div",
       { className: "calc-panel-container" },
       React.createElement(
         "div",
         { className: "calc-left-panel no-image" },
-        // Equation row only (no image)
         React.createElement(
           "div",
           { className: "calc-equation-row full-height" },
           React.createElement(
             "div",
             { className: "calc-rows-container" },
-            // Label row
             React.createElement("div", { key: "row-label", className: "calc-row calc-label-row" }, 
-              "Number of jerry cans needed"
+              step6Data.equationRows[0].text
             ),
-            // Equation row with highlight
             React.createElement("div", { key: "row-eq1", className: "calc-row" },
-              "= Total volume of oil ÷ ",
-              React.createElement("span", { className: "calc-highlight-cyan" }, "Capacity of one jerry can")
+              (step6Data.equationRows[1].text || "").split(step6Data.equationRows[1].highlight)[0],
+              React.createElement("span", {
+                className: cyanClass,
+                onClick: step6Substep === 0 ? handleStep6HighlightClick : undefined,
+                role: step6Substep === 0 ? "button" : undefined
+              }, step6Data.equationRows[1].highlight),
+              (step6Data.equationRows[1].text || "").split(step6Data.equationRows[1].highlight)[1] || ""
             ),
-            // Info row
-            React.createElement("div", { key: "row-info", className: "calc-row" }, 
-              "Capacity of one jerry can = 1 m³"
-            ),
-            // Conversion row with input
-            React.createElement("div", { key: "row-conv", className: "calc-row conversion-row" }, 
-              "1 m³ = ",
-              !calcState.step6Answered ? React.createElement(
-                "span",
-                { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
-                numpadValue || ""
-              ) : React.createElement("span", { className: "calc-result-value" }, calcState.step6Value),
-              " cm³"
+            showRest && React.createElement("div", { key: "row-blank", className: "calc-row calc-row-blank" }),
+            showRest && React.createElement(
+              "div",
+              { key: "row-eq-table", className: "calc-equation-table-wrapper" },
+              React.createElement(
+                "table",
+                { className: "calc-equation-table", cellPadding: 0, cellSpacing: 0 },
+                React.createElement("tbody", null,
+                  React.createElement("tr", null,
+                    React.createElement("td", { className: "calc-eq-cell lhs" }, infoLHS),
+                    React.createElement("td", { className: "calc-eq-cell eq" }, "="),
+                    React.createElement("td", { className: "calc-eq-cell rhs" }, infoRHS)
+                  ),
+                  React.createElement("tr", null,
+                    React.createElement("td", { className: "calc-eq-cell lhs" }, convLHS),
+                    React.createElement("td", { className: "calc-eq-cell eq" }, "="),
+                    React.createElement("td", { className: "calc-eq-cell rhs" }, convRHSWithSuffix)
+                  )
+                )
+              )
             )
           )
         )
@@ -428,11 +472,11 @@ const CalculationPanel = ({
             { className: "calc-rows-container" },
             // Label row
             React.createElement("div", { key: "row-label", className: "calc-row calc-label-row" }, 
-              "Number of jerry cans needed"
+              step7Data.equationRows[0].text
             ),
             // Equation row (no highlight)
             React.createElement("div", { key: "row-eq1", className: "calc-row" },
-              "= Total volume of oil ÷ Capacity of one jerry can"
+              step7Data.equationRows[1].text
             ),
             // Interactive boxes row
             React.createElement("div", { key: "row-interactive", className: "calc-row" },
@@ -455,14 +499,10 @@ const CalculationPanel = ({
                 box2Clicked ? step7Data.interactiveRow.box2Value : step7Data.interactiveRow.box2ValueInitial
               )
             ),
-            // Final calculation row (appears after both boxes clicked)
+            // Final calculation row (appears after both boxes clicked; show result directly, no numpad)
             showFinalCalcRow && React.createElement("div", { key: "row-final", className: "calc-row" },
               "= ",
-              !calcState.step7Answered ? React.createElement(
-                "span",
-                { className: `calc-input-box ${inputError ? 'error shake' : ''} ${inputCorrect ? 'correct' : ''}` },
-                numpadValue || ""
-              ) : React.createElement("span", { className: "calc-result-value" }, calcState.step7Value)
+              React.createElement("span", { className: "calc-result-value" }, step7Data.numpad.answer)
             )
           )
         )
@@ -492,19 +532,19 @@ const CalculationPanel = ({
             { className: "calc-rows-container" },
             // Label row
             React.createElement("div", { key: "row-label", className: "calc-row calc-label-row" }, 
-              "Number of jerry cans needed"
+              step7Data.equationRows[0].text
             ),
             // Equation row
             React.createElement("div", { key: "row-eq1", className: "calc-row" },
-              "= Total volume of oil ÷ Capacity of one jerry can"
+              step7Data.equationRows[1].text
             ),
             // Values row
             React.createElement("div", { key: "row-values", className: "calc-row" },
-              "= 500000 ÷ 1000000"
+              "= " + (calcState.step5Value || step5Data.numpad.answer) + " ÷ " + (calcState.step6Value || step6Data.numpad.answer)
             ),
             // Result row
             React.createElement("div", { key: "row-result", className: "calc-row" },
-              "= 0.5"
+              "= " + (calcState.step7Value || step7Data.numpad.answer)
             ),
             // Final answer div
             React.createElement(

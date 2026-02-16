@@ -8,6 +8,9 @@ const App = () => {
   // Substep for comprehend step
   const [comprehendSubstep, setComprehendSubstep] = useState(0);
   
+  // Substep for step 3 (0 = initial with calc lines, 1 = MCQ)
+  const [step3Substep, setStep3Substep] = useState(0);
+  
   // Dynamic text state
   const [dynamicQuestionText, setDynamicQuestionText] = useState("");
   const [dynamicNavText, setDynamicNavText] = useState("");
@@ -87,6 +90,7 @@ const App = () => {
     setCurrentStep(0);
     setIsNextDisabled(true);
     setComprehendSubstep(0);
+    setStep3Substep(0);
     setDynamicQuestionText("");
     setDynamicNavText("");
     setCurrentHighlights(null);
@@ -132,7 +136,11 @@ const App = () => {
     if (!stepData) return;
     
     // Handle next button state based on step type
-    if (stepData.nextEnabled) {
+    if (currentStep === 3 && step3Substep === 0) {
+      setIsNextDisabled(false);
+    } else if (currentStep === 3 && step3Substep === 1) {
+      setIsNextDisabled(true);
+    } else if (stepData.nextEnabled) {
       setIsNextDisabled(false);
     } else {
       setIsNextDisabled(true);
@@ -147,7 +155,7 @@ const App = () => {
     if (currentStep === 4 || currentStep === 13) {
       setCalcState(prev => ({ ...prev, currentBoxIndex: 0 }));
     }
-  }, [currentStep]);
+  }, [currentStep, step3Substep]);
 
   // Update highlights for comprehend substeps (substep 0 = intro, no highlights)
   useEffect(() => {
@@ -213,6 +221,15 @@ const App = () => {
   const handleNext = () => {
     const stepData = APP_DATA.steps[currentStep];
     
+    // Handle step 3 - two substeps (initial then MCQ)
+    if (currentStep === 3) {
+      if (step3Substep === 0) {
+        if (window.playSound) window.playSound("click");
+        setStep3Substep(1);
+        return;
+      }
+    }
+    
     // Handle step 1 - comprehend with substeps
     if (currentStep === 1 && stepData.isSubstepComprehend) {
       const totalSubsteps = getTotalComprehendSubsteps();
@@ -241,6 +258,15 @@ const App = () => {
   const handlePrev = () => {
     if (window.playSound) window.playSound("click");
     
+    // Handle step 3 - two substeps
+    if (currentStep === 3) {
+      if (step3Substep === 1) {
+        setStep3Substep(0);
+        return;
+      }
+      // step3Substep === 0: fall through to go to step 2
+    }
+    
     // Handle step 1 - comprehend with substeps
     if (currentStep === 1) {
       if (comprehendSubstep > 0) {
@@ -251,6 +277,10 @@ const App = () => {
     
     if (currentStep > 0) {
       const targetStep = currentStep - 1;
+      // When going back to step 3 from step 4, show MCQ substep (substep 1)
+      if (targetStep === 3) {
+        setStep3Substep(1);
+      }
       // Reset all progress made after targetStep so the previous step appears as first visit
       setCalcState(prev => getCalcStateAfterPrevious(prev, targetStep));
       setIsNextDisabled(true);
@@ -275,14 +305,20 @@ const App = () => {
 
   // Content Selection
   const getQuestionText = () => {
-    if (dynamicQuestionText) return dynamicQuestionText;
     const stepData = APP_DATA.steps[currentStep];
+    if (currentStep === 3 && stepData) {
+      return step3Substep === 0 ? stepData.questionTextInitial : (dynamicQuestionText || stepData.questionText);
+    }
+    if (dynamicQuestionText) return dynamicQuestionText;
     return stepData ? stepData.questionText : "";
   };
   
   const getNavText = () => {
-    if (dynamicNavText) return dynamicNavText;
     const stepData = APP_DATA.steps[currentStep];
+    if (currentStep === 3 && stepData) {
+      return step3Substep === 0 ? stepData.navTextInitial : (dynamicNavText || stepData.navText);
+    }
+    if (dynamicNavText) return dynamicNavText;
     return stepData ? stepData.navText : "";
   };
   
@@ -394,6 +430,7 @@ const App = () => {
         onEnableNext: enableNext,
         onUpdateTexts: updateTexts,
         comprehendSubstep: comprehendSubstep,
+        step3Substep: step3Substep,
         calcState: calcState,
         setCalcState: setCalcState
       })

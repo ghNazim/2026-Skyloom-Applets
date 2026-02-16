@@ -345,7 +345,7 @@ const CalculationPanel = ({
     if (substituted) {
       rows.push(React.createElement("div", { key: "sub", className: "calc-row" }, rowText));
     } else {
-      const parts = rowText.split("[[Volume in m³]]");
+      const parts = rowText.split("[[box]]");
       rows.push(
         React.createElement("div", { key: "sub", className: "calc-row" },
           parts[0],

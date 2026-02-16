@@ -24,10 +24,11 @@
 }
 
 .visual-question-row-text {
-  font-size: 1.8vw;
+  font-size: 2.2vw;
   color: white;
   text-align: center;
   line-height: 1.4;
+  white-space: pre-line;
 }
 
 .visual-image-area {
