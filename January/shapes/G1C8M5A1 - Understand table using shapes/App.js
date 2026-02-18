@@ -1,5 +1,5 @@
 const App = () => {
-  const { useState, useEffect, useCallback, useRef } = React;
+  const { useState, useEffect, useLayoutEffect, useCallback, useRef } = React;
 
   // Main state
   const [currentStep, setCurrentStep] = useState(0);
@@ -21,6 +21,10 @@ const App = () => {
   // Refs for SVG containers
   const scrambledSvgRef = useRef(null);
   const houseSvgRef = useRef(null);
+  const nudgeTargetRef = useRef(null);
+  const [nudgePosition, setNudgePosition] = React.useState(null);
+  const jiggleTimeoutRef = useRef(null);
+  const [hasTappedOkThisStep, setHasTappedOkThisStep] = useState(false);
 
   // Helper function to generate unique ID for a shape element
   const getShapeId = (element, index) => {
@@ -59,10 +63,11 @@ const App = () => {
           newStates[nextRow] = 'active';
           return newStates;
         });
-        // Remove highlighting from all shapes
+        // Remove highlighting from all shapes and restore default order
         removeShapeHighlighting();
       } else {
         // All rows filled, move to next step
+        removeShapeHighlighting();
         setCurrentStep(prev => prev + 1);
       }
     } else {
@@ -113,13 +118,8 @@ const App = () => {
   // Get feedback message based on type
   const getFeedbackMessage = (type, shapeClass) => {
     const plural = shapeClass + 's';
-    const messages = {
-      moreSelected: `You selected more ${plural} than needed.`,
-      lessSelected: `You selected less ${plural} than needed.`,
-      wrongSelected: "You selected wrong shapes.",
-      correct: `Great! You selected the correct number of ${plural}.`
-    };
-    return messages[type] || "";
+    const t = APP_DATA.feedback[type];
+    return t ? t.replace(/\{shape\}/g, plural) : "";
   };
 
   // Get nav text based on state
@@ -128,7 +128,7 @@ const App = () => {
       return stepData.navCorrect;
     }
     if (feedbackType && feedbackType !== 'correct') {
-      return "Tap 'Reset' to try again.";
+      return APP_DATA.common.tapResetToTryAgain;
     }
     return stepData.navText;
   };
@@ -142,7 +142,7 @@ const App = () => {
   };
 
   const handleOK = () => {
-    // playSound("click");
+    setHasTappedOkThisStep(true);
     const stepData = APP_DATA.steps[currentStep];
     if (!stepData) return;
 
@@ -211,22 +211,44 @@ const App = () => {
     setCanSelect(true);
   };
 
-  // Effect to handle jiggling and enabling selection at step start
+  // Measure nudge target for positioning the tap hint
   useEffect(() => {
+    if (!nudgeTargetRef.current) {
+      setNudgePosition(null);
+      return;
+    }
+    const el = nudgeTargetRef.current;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setNudgePosition({ left: r.left, top: r.top, width: r.width, height: r.height });
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [currentStep, feedbackType, activeColorRow, colorCellStates, hasTappedOkThisStep, selectedShapeIds.length]);
+
+  // Reset "nudge OK once" when entering a new step (2–5)
+  useEffect(() => {
+    const stepData = APP_DATA.steps[currentStep];
+    if (stepData && stepData.layout === "without-character") {
+      setHasTappedOkThisStep(false);
+    }
+  }, [currentStep]);
+
+  // Effect to handle jiggling at step start (shake after 5s inactivity only). Selection is enabled immediately.
+  useLayoutEffect(() => {
     const stepData = APP_DATA.steps[currentStep];
     if (!stepData || stepData.layout !== "without-character") return;
 
-    // Start jiggling the target shapes
-    setIsJiggling(true);
-    setCanSelect(false);
+    setIsJiggling(false);
+    setCanSelect(true);
 
-    const jiggleTimer = setTimeout(() => {
-      setIsJiggling(false);
-      setCanSelect(true);
-    }, 1200);
+    jiggleTimeoutRef.current = setTimeout(() => {
+      setIsJiggling(true);
+    }, 5000);
 
     return () => {
-      clearTimeout(jiggleTimer);
+      if (jiggleTimeoutRef.current) clearTimeout(jiggleTimeoutRef.current);
     };
   }, [currentStep]);
 
@@ -271,8 +293,21 @@ const App = () => {
 
     // Setup click handlers
     const handleShapeClick = (e) => {
-      if (!canSelect) return;
-      
+      if (!canSelect) {
+        if (jiggleTimeoutRef.current) {
+          clearTimeout(jiggleTimeoutRef.current);
+          jiggleTimeoutRef.current = null;
+        }
+        setCanSelect(true);
+        return;
+      }
+
+      if (jiggleTimeoutRef.current) {
+        clearTimeout(jiggleTimeoutRef.current);
+        jiggleTimeoutRef.current = null;
+      }
+      setIsJiggling(false);
+
       const shape = e.currentTarget;
       const shapeId = getShapeId(shape, Array.from(allShapes).indexOf(shape));
 
@@ -324,9 +359,10 @@ const App = () => {
         const shapeIndex = startIndex + i;
         if (houseShapes[shapeIndex] && color) {
           const shape = houseShapes[shapeIndex];
-          shape.style.transition = 'fill 0.5s ease, fill-opacity 0.5s ease';
+          shape.style.transition = 'fill 0.5s ease, fill-opacity 0.5s ease, stroke 0.3s ease';
           shape.style.fill = color;
           shape.style.fillOpacity = '1';
+          shape.style.stroke = 'black';
         }
       });
       
@@ -334,45 +370,64 @@ const App = () => {
     });
   }, [filledHouseShapes, currentStep]);
 
-  // Function to highlight shapes by color
+  // Function to highlight shapes by color (and bring them on top so others don't show through)
   const highlightShapesByColor = useCallback((targetColorHex) => {
     if (!houseSvgRef.current) return;
     
     const svgContainer = houseSvgRef.current;
     const allShapes = svgContainer.querySelectorAll('.square, .rectangle, .circle, .triangle');
-    
+    const parent = svgContainer.querySelector('svg');
+    if (!parent) return;
+
+    // Store current DOM order so we can restore it when removing highlight
+    Array.from(allShapes).forEach((shape, index) => {
+      shape.setAttribute('data-order-index', String(index));
+    });
+
+    const highlighted = [];
     allShapes.forEach(shape => {
       const fill = shape.style.fill || shape.getAttribute('fill');
       const normalizedFill = normalizeColorToHex(fill);
       const normalizedTarget = normalizeColorToHex(targetColorHex);
       
       if (normalizedFill === normalizedTarget) {
-        // Highlight: white drop shadow and scale 1.1
+        highlighted.push(shape);
         shape.style.filter = 'drop-shadow(0 0 0.5vw white) drop-shadow(0 0 1vw white)';
         shape.style.transform = 'scale(1.01)';
         shape.style.transformOrigin = 'center';
         shape.style.transition = 'filter 0.3s ease, transform 0.3s ease, opacity 0.3s ease';
         shape.style.opacity = '1';
       } else {
-        // Dehighlight: opacity 0.4
         shape.style.opacity = '0.4';
         shape.style.transition = 'opacity 0.3s ease';
       }
     });
+    // Move highlighted shapes to end of SVG so they render on top (higher z-order)
+    highlighted.forEach(shape => parent.appendChild(shape));
   }, []);
 
-  // Function to remove all highlighting
+  // Function to remove all highlighting and restore shapes to default DOM order
   const removeShapeHighlighting = useCallback(() => {
     if (!houseSvgRef.current) return;
     
     const svgContainer = houseSvgRef.current;
-    const allShapes = svgContainer.querySelectorAll('.square, .rectangle, .circle, .triangle');
+    const parent = svgContainer.querySelector('svg');
+    if (!parent) return;
+    const allShapes = parent.querySelectorAll('.square, .rectangle, .circle, .triangle');
     
     allShapes.forEach(shape => {
       shape.style.filter = '';
       shape.style.transform = '';
       shape.style.opacity = '1';
     });
+
+    // Restore original DOM order so highlighted shapes don't stay on top
+    const sorted = Array.from(allShapes).sort((a, b) => {
+      const i = parseInt(a.getAttribute('data-order-index') || '0', 10);
+      const j = parseInt(b.getAttribute('data-order-index') || '0', 10);
+      return i - j;
+    });
+    sorted.forEach(shape => parent.appendChild(shape));
   }, []);
 
   // Effect to initialize step 9 and count colors
@@ -467,7 +522,9 @@ const App = () => {
       setColorFeedback({
         show: true,
         type: 'correct',
-        message: `Correct! We have ${correctCount} ${currentColor.name.toLowerCase()} colored shapes.`
+        message: APP_DATA.common.correctCountMessage
+          .replace(/\{count\}/g, correctCount)
+          .replace(/\{color\}/g, currentColor.name.toLowerCase())
       });
       // Highlight shapes of this color
       highlightShapesByColor(currentColor.hex);
@@ -482,7 +539,7 @@ const App = () => {
       setColorFeedback({
         show: true,
         type: 'wrong',
-        message: "That's wrong.\n\nTry counting again."
+        message: APP_DATA.common.wrongCountMessage
       });
       // Remove highlighting on wrong answer
       removeShapeHighlighting();
@@ -510,18 +567,24 @@ const App = () => {
   // Step 0: Start Fullscreen
   if (currentStep === 0) {
     return React.createElement(
-      "div",
-      { className: "applet-container" },
+      React.Fragment,
+      null,
       React.createElement(
         "div",
-        { className: "app-main-content", style: { position: "relative" } },
-        React.createElement(Fullscreen, {
-          heading: APP_DATA.start.heading,
-          text: APP_DATA.start.text,
-          buttonText: APP_DATA.start.buttonText,
-          onButtonClick: handleStart,
-        })
-      )
+        { className: "applet-container" },
+        React.createElement(
+          "div",
+          { className: "app-main-content", style: { position: "relative" } },
+          React.createElement(Fullscreen, {
+            heading: APP_DATA.start.heading,
+            text: APP_DATA.start.text,
+            buttonText: APP_DATA.start.buttonText,
+            onButtonClick: handleStart,
+            buttonRef: nudgeTargetRef,
+          })
+        )
+      ),
+      React.createElement(Nudge, { show: !!nudgePosition, position: nudgePosition })
     );
   }
 
@@ -530,20 +593,26 @@ const App = () => {
   // Step 7, 11: Fullscreen Layout
   if (stepData && stepData.layout === "fullscreen") {
     return React.createElement(
-      "div",
-      { className: "applet-container" },
+      React.Fragment,
+      null,
       React.createElement(
         "div",
-        { className: "app-main-content", style: { position: "relative" } },
-        React.createElement(Fullscreen, {
-          heading: stepData.heading,
-          text: stepData.text,
-          buttonText: stepData.buttonText,
-          onButtonClick: currentStep === 11 ? handleStartOver : handleNext,
-          showCharacter: currentStep === 11,
-          characterImage: currentStep === 11 ? "boyCelebration.png" : null,
-        })
-      )
+        { className: "applet-container" },
+        React.createElement(
+          "div",
+          { className: "app-main-content", style: { position: "relative" } },
+          React.createElement(Fullscreen, {
+            heading: stepData.heading,
+            text: stepData.text,
+            buttonText: stepData.buttonText,
+            onButtonClick: currentStep === 11 ? handleStartOver : handleNext,
+            showCharacter: currentStep === 11,
+            characterImage: currentStep === 11 ? "boyCelebration.png" : null,
+            buttonRef: nudgeTargetRef,
+          })
+        )
+      ),
+      React.createElement(Nudge, { show: !!nudgePosition, position: nudgePosition })
     );
   }
 
@@ -567,13 +636,13 @@ const App = () => {
           colorTableValues[index] || ''
         ]);
         rightVisual = React.createElement(ShapesTable, {
-          title: "Color of Shapes Table",
-          headers: ["COLOR", "NUMBER OF SHAPES"],
+          title: APP_DATA.common.colorOfShapesTable,
+          headers: [APP_DATA.common.color, APP_DATA.common.numberOfShapes],
           rows: filledRows,
         });
       } else if (stepData.tableData) {
         rightVisual = React.createElement(ShapesTable, {
-          title: "Shapes Table",
+          title: APP_DATA.common.shapesTable,
           headers: stepData.tableData.headers,
           rows: stepData.tableData.rows,
         });
@@ -581,12 +650,15 @@ const App = () => {
     }
     
     return React.createElement(
-      "div",
-      { className: "applet-container" },
+      React.Fragment,
+      null,
       React.createElement(
         "div",
-        { className: "with-character-layout" },
-        React.createElement(CharacterPanel, {
+        { className: "applet-container" },
+        React.createElement(
+          "div",
+          { className: "with-character-layout" },
+          React.createElement(CharacterPanel, {
           characterImage: stepData.characterImage,
           characterText: stepData.characterText,
         }),
@@ -598,14 +670,16 @@ const App = () => {
               })
             : React.createElement("img", {
                 src: "assets/scrambled.svg",
-                alt: "Scrambled shapes",
+                alt: APP_DATA.common.altScrambledShapes,
               }),
           mainVisualRight: rightVisual,
-          buttonText: "Next",
+          buttonText: APP_DATA.common.next,
           onButtonClick: handleNext,
           bottomText: stepData.bottomText,
+          buttonRef: nudgeTargetRef,
         })
-      )
+      )),
+      React.createElement(Nudge, { show: !!nudgePosition, position: nudgePosition })
     );
   }
 
@@ -618,6 +692,12 @@ const App = () => {
     const okDisabled = isCorrect || isWrong;
     const resetDisabled = !isWrong;
     const nextDisabled = !isCorrect;
+
+    // Nudge on OK only in step 2, only after user has selected exactly 4 squares, and only until OK is clicked once
+    const correctSelectedCount = selectedShapes.filter(el => el.classList.contains(stepData.shapeClass)).length;
+    const wrongSelectedCount = selectedShapes.filter(el => !el.classList.contains(stepData.shapeClass)).length;
+    const hasCorrectSelection = wrongSelectedCount === 0 && correctSelectedCount === stepData.requiredCount;
+    const showNudgeOnOk = currentStep === 2 && !hasTappedOkThisStep && hasCorrectSelection && !okDisabled;
 
     // Create instruction row content
     const instructionContent = feedbackType 
@@ -648,7 +728,7 @@ const App = () => {
             dangerouslySetInnerHTML: { __html: scrambled_svg },
           }),
           tableComponent: React.createElement(ShapesTable, {
-            title: "Shapes Table",
+            title: APP_DATA.common.shapesTable,
             headers: stepData.tableData.headers,
             rows: stepData.tableData.rows,
           }),
@@ -657,19 +737,22 @@ const App = () => {
             React.Fragment,
             null,
             React.createElement(Button, {
-              text: "OK",
+              ref: showNudgeOnOk ? nudgeTargetRef : undefined,
+              text: APP_DATA.common.ok,
               onClick: handleOK,
               className: "action-button",
               disabled: okDisabled,
             }),
             React.createElement(Button, {
-              text: "Reset",
+              ref: !resetDisabled ? nudgeTargetRef : undefined,
+              text: APP_DATA.common.reset,
               onClick: handleReset,
               className: "action-button",
               disabled: resetDisabled,
             }),
             React.createElement(Button, {
-              text: "Next",
+              ref: !nextDisabled ? nudgeTargetRef : undefined,
+              text: APP_DATA.common.next,
               onClick: handleNext,
               className: "action-button",
               disabled: nextDisabled,
@@ -679,7 +762,8 @@ const App = () => {
         React.createElement(NavigationBottom, {
           text: getNavText(stepData),
         })
-      )
+      ),
+      React.createElement(Nudge, { show: !!nudgePosition, position: nudgePosition })
     );
   }
 
@@ -693,15 +777,14 @@ const App = () => {
     const allComplete = stepData.colors.every((_, idx) => colorCellStates[idx] === 'correct');
     
     // Question text
-    const questionText = `How many shapes are ${currentColor.name.toLowerCase()} in color?`;
+    const questionText = APP_DATA.common.howManyShapesColor.replace(/\{color\}/g, currentColor.name.toLowerCase());
     // Nav text
-    let navText = "Use the number pad to answer.";
-    if (allComplete) {
-      navText = "Tap 'Next' to continue.";
+    let navText = APP_DATA.common.useNumberPadToAnswer;
+    if (allComplete || (isCorrect && isLastRow)) {
+      navText = APP_DATA.common.tapNextToContinue;
     } else if (isCorrect && !isLastRow) {
-      // Show next color in nav text when current row is correct
       const nextColor = stepData.colors[activeColorRow + 1];
-      navText = `Tap 'Next' to count ${nextColor.name.toLowerCase()} shapes.`;
+      navText = APP_DATA.common.tapNextToCount.replace(/\{color\}/g, nextColor.name.toLowerCase());
     }
     
     // Numpad disabled when correct
@@ -745,6 +828,8 @@ const App = () => {
               "div",
               { className: "color-counting-table-col" },
               React.createElement(EditableColorTable, {
+                title: APP_DATA.common.colorOfShapesTable,
+                headers: [APP_DATA.common.color, APP_DATA.common.numberOfShapes],
                 colors: stepData.colors,
                 values: colorTableValues,
                 activeRowIndex: activeColorRow,
@@ -772,10 +857,12 @@ const App = () => {
                 onNumberClick: handleColorTableNumberClick,
                 onClear: handleColorTableClear,
                 onSubmit: handleColorTableSubmit,
+                submitButtonRef: undefined,
               }),
               // Next button
               React.createElement(Button, {
-                text: "Next",
+                ref: nextEnabled ? nudgeTargetRef : undefined,
+                text: APP_DATA.common.next,
                 onClick: handleNext,
                 className: "color-counting-next-button",
                 disabled: !nextEnabled,
@@ -786,7 +873,8 @@ const App = () => {
         React.createElement(NavigationBottom, {
           text: navText,
         })
-      )
+      ),
+      React.createElement(Nudge, { show: !!nudgePosition, position: nudgePosition })
     );
   }
 

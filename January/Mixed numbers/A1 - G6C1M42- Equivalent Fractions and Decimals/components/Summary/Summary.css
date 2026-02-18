@@ -1,0 +1,174 @@
+/* Summary Panel */
+.summary-panel {
+  width: 95%;
+  height: 98%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: transparent;
+}
+
+.summary-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1vw;
+  width: 100%;
+  height: 60%;
+  margin-top: 2vw;
+}
+
+.summary-subheading {
+  font-size: 3vw;
+  color: white;
+  text-align: center;
+  margin-bottom: 2vw;
+  font-weight: bold;
+}
+
+.summary-continue-btn {
+  position: absolute;
+  bottom: 2vw;
+  padding: 1vw 3vw;
+  font-size: 2vw;
+}
+
+/* Columns */
+.summary-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1vw;
+}
+
+.summary-arrow {
+  font-size: 3vw;
+  color: white;
+  margin-top: 5vw; /* Align visually with cards */
+}
+
+/* Cards */
+.summary-card {
+  background: rgba(20, 25, 45, 0.85); /* Dark background */
+  border: 0.15vw solid #ffffff; /* White border */
+  border-radius: 1vw;
+  padding: 1.5vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 12vw;
+  min-width: 10vw;
+}
+
+.summary-card-wide {
+  min-width: 25vw;
+  flex-direction: row;
+  gap: 1vw;
+}
+
+.summary-card-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5vw;
+}
+
+/* Typography & Colors */
+.text-white { color: white !important; }
+.text-purple { color: #a460ef !important; }
+.text-orange { color: #feaa2b !important; }
+.text-skyblue { color: #4fc3f7 !important; }
+.text-pink { color: #ff80ab !important; }
+
+/* Fraction Styles */
+.summary-fraction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 6vw;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.summary-fraction-line {
+  width: 100%;
+  height: 0.3vw;
+  background-color: white;
+  margin: 0.2vw 0;
+  border-radius: 0.15vw;
+}
+
+.summary-fraction-num, .summary-fraction-den {
+  display: flex;
+  align-items: center;
+  gap: 0.3vw;
+}
+
+/* Operation styles within fraction */
+.op-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3vw;
+}
+
+.fraction-eq-sign {
+  font-size: 6vw;
+  font-weight: bold;
+  color: white;
+  margin: 0 0.5vw;
+}
+
+/* Final Decimal */
+.summary-final-decimal {
+  font-size: 7.5vw;
+  font-weight: bold;
+  color: white;
+  display: flex;
+  align-items: baseline;
+}
+
+.decimal-point {
+  font-size: 7.5vw;
+  margin: 0 0.2vw;
+}
+
+/* Numbered Steps bubble below cards */
+.summary-step-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5vw;
+  max-width: 16vw;
+  margin-top: 1vw;
+}
+
+.summary-step-bubble {
+  width: 4vw;
+  height: 4vw;
+  background-color: #008ba3; /* Cyan-ish teal */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 2vw;
+  border: 0.15vw dashed white;
+}
+
+.summary-step-text-box {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px dashed white;
+  border-radius: 0.5vw;
+  padding: 0.5vw;
+  color: white;
+  font-size: 2vw;
+  text-align: center;
+}

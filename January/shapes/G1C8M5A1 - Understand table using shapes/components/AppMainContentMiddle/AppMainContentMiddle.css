@@ -8,7 +8,8 @@
 }
 
 .svg-column {
-  width: 60%;
+  width: 68%;
+  flex: 0 0 68%;
   display: flex;
   gap: 1vw;
   min-width: 0;
@@ -46,7 +47,8 @@
 }
 
 .table-column {
-  flex: 1;
+  width: 32%;
+  flex: 0 0 32%;
   display: flex;
   flex-direction: column;
   /* gap: 1vw; */

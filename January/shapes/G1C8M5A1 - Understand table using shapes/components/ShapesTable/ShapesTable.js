@@ -1,3 +1,8 @@
+const hasMultipleWords = (text) => {
+  if (text == null || typeof text !== "string") return false;
+  return text.trim().split(/\s+/).length > 1;
+};
+
 const ShapesTable = ({ title, headers, rows }) => {
   return React.createElement(
     "div",
@@ -13,7 +18,14 @@ const ShapesTable = ({ title, headers, rows }) => {
           "tr",
           null,
           headers.map((header, index) =>
-            React.createElement("th", { key: `header-${index}` }, header)
+            React.createElement(
+              "th",
+              {
+                key: `header-${index}`,
+                className: hasMultipleWords(String(header)) ? "cell-multi-word" : "",
+              },
+              header
+            )
           )
         )
       ),
@@ -24,13 +36,18 @@ const ShapesTable = ({ title, headers, rows }) => {
           React.createElement(
             "tr",
             { key: `row-${rowIndex}` },
-            row.map((cell, colIndex) =>
-              React.createElement(
-                colIndex === 0 ? "th" : "td",
-                { key: `cell-${rowIndex}-${colIndex}` },
-                cell
-              )
-            )
+            row.map((cell, colIndex) => {
+              const Tag = colIndex === 0 ? "th" : "td";
+              const cellText = String(cell);
+              return React.createElement(
+                Tag,
+                {
+                  key: `cell-${rowIndex}-${colIndex}`,
+                  className: hasMultipleWords(cellText) ? "cell-multi-word" : "",
+                },
+                cellText
+              );
+            })
           )
         )
       )

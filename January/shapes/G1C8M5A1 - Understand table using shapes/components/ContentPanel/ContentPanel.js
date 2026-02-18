@@ -1,4 +1,4 @@
-const ContentPanel = ({ mainVisualLeft, mainVisualRight, buttonText, onButtonClick, bottomText }) => {
+const ContentPanel = ({ mainVisualLeft, mainVisualRight, buttonText, onButtonClick, bottomText, buttonRef = null }) => {
   return React.createElement(
     "div",
     { className: "content-panel" },
@@ -9,7 +9,7 @@ const ContentPanel = ({ mainVisualLeft, mainVisualRight, buttonText, onButtonCli
       // Main Visual
       React.createElement(
         "div",
-        { className: "main-visual" },
+        { className: "main-visual" + (mainVisualRight ? " with-right" : "") },
         React.createElement(
           "div",
           { className: "main-visual-left" },
@@ -18,7 +18,11 @@ const ContentPanel = ({ mainVisualLeft, mainVisualRight, buttonText, onButtonCli
         mainVisualRight && React.createElement(
           "div",
           { className: "main-visual-right" },
-          mainVisualRight
+          React.createElement(
+            "div",
+            { className: "main-visual-right-inner" },
+            mainVisualRight
+          )
         )
       ),
       // Main Button
@@ -26,6 +30,7 @@ const ContentPanel = ({ mainVisualLeft, mainVisualRight, buttonText, onButtonCli
         "div",
         { className: "main-button" },
         React.createElement(Button, {
+          ref: buttonRef,
           text: buttonText,
           onClick: onButtonClick,
           className: "",

@@ -1,14 +1,18 @@
 const EditableColorTable = ({ 
+  title,
+  headers,
   colors, 
   values, 
   activeRowIndex, 
   cellStates, 
   onCellValueChange 
 }) => {
+  const tableTitle = title != null ? title : "Color of Shapes Table";
+  const tableHeaders = headers && headers.length >= 2 ? headers : ["COLOR", "NUMBER OF SHAPES"];
   return React.createElement(
     "div",
     { className: "editable-color-table-wrapper" },
-    React.createElement("div", { className: "editable-color-table-title" }, "Color of Shapes Table"),
+    React.createElement("div", { className: "editable-color-table-title" }, tableTitle),
     React.createElement(
       "table",
       { className: "editable-color-table" },
@@ -18,8 +22,8 @@ const EditableColorTable = ({
         React.createElement(
           "tr",
           null,
-          React.createElement("th", null, "COLOR"),
-          React.createElement("th", null, "NUMBER OF SHAPES")
+          React.createElement("th", null, tableHeaders[0]),
+          React.createElement("th", null, tableHeaders[1])
         )
       ),
       React.createElement(

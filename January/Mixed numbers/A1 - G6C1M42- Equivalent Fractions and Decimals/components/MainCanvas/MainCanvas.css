@@ -1,0 +1,340 @@
+/* ===== MAIN CANVAS CONTAINER ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== COLUMN STYLES ===== */
+.column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+  position: relative;
+}
+
+.left-column {
+  flex: 0 0 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-column {
+  flex: 0 0 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-column.empty {
+  /* Empty right panel */
+}
+
+/* ===== LEFT PANEL CONTENT ===== */
+.left-panel-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2vw;
+  padding-top: 2vw;
+  padding-left: 2vw;
+}
+
+/* ===== MAIN ROW ===== */
+.main-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  width: 100%;
+}
+
+.main-row.flex-start {
+  justify-content: flex-start;
+}
+
+.main-row.centered {
+  justify-content: center;
+}
+
+/* ===== FRACTION BOX ===== */
+.fraction-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.25vw solid #9e9e9e;
+  border-radius: 1vw;
+  padding: 1vw 2vw;
+  line-height: 1;
+  gap: 0.3vw;
+  transition: all 0.3s ease;
+  min-width: 8vw;
+}
+
+.fraction-box.fraction-box-orange {
+  border-color: #e09422;
+}
+
+.fraction-box.fraction-box-correct {
+  background: #2e7d32;
+  border-color: #43a047;
+}
+
+.fraction-box .fraction-num,
+.fraction-box .fraction-den {
+  font-size: 7vw;
+  font-weight: 700;
+  color: #ffffff;
+  transition: color 0.3s ease;
+}
+
+.fraction-box .fraction-line {
+  width: 110%;
+  min-width: 5vw;
+  height: 0.3vw;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+/* ===== EQUALS SIGN ===== */
+.equals-sign {
+  font-size: 5vw;
+  font-weight: 700;
+  color: #ff6b9d;
+  transition: all 0.3s ease;
+}
+
+/* ===== INPUT FRACTION CONTAINER (Step 4 & 5) ===== */
+.input-fraction-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3vw;
+  transition: all 0.4s ease;
+}
+
+.input-fraction-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.input-fraction-line {
+  width: 100%;
+  min-width: 12vw;
+  height: 0.25vw;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+.input-box {
+  width: 6.5vw;
+  height: 7vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.2vw solid #666;
+  border-radius: 0.5vw;
+  font-size: 6vw;
+  font-weight: 700;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.input-box.highlighted {
+  border-color: #e09422;
+  box-shadow: 0 0 10px rgba(224, 148, 34, 0.5);
+  animation: inputGlow 1.5s ease-in-out infinite;
+  background-color: white;
+  color: black;
+}
+
+.input-box.correct {
+  background: #2e7d32;
+  border-color: #43a047;
+  box-shadow: 0 0 10px rgba(67, 160, 71, 0.5);
+  animation: none;
+  color: white;
+}
+
+.input-box.wrong {
+  background: rgba(239, 83, 80, 0.3);
+  border-color: #ef5350;
+  color: white;
+  animation: none;
+}
+
+/* Multiply operand */
+.multiply-operand {
+  font-size: 7vw;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Multiply/Divide sign */
+.multiply-sign {
+  font-size: 4vw;
+  font-weight: 700;
+  color: #4fc3f7;
+}
+
+/* ===== RESULT DECIMAL BOX (Step 6) ===== */
+.result-decimal-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 25, 45, 0.8);
+  border: 0.25vw solid #e09422;
+  border-radius: 1vw;
+  padding: 1vw 2vw;
+  min-width: 10vw;
+  min-height: 12vw;
+  transition: all 0.3s ease;
+}
+
+.result-decimal-box.correct {
+  background: #2e7d32;
+  border-color: #43a047;
+  box-shadow: 0 0 15px rgba(67, 160, 71, 0.5);
+}
+
+.result-decimal-box.wrong {
+  border-color: #ef5350;
+  background: rgba(239, 83, 80, 0.2);
+}
+
+.decimal-value {
+  font-size: 7vw;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.decimal-placeholder {
+  display: block;
+  width: 6vw;
+  height: 6vw;
+}
+
+/* ===== NUMPAD WITH FEEDBACK ===== */
+.numpad-with-feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1vw;
+  width: 100%;
+  height: 100%;
+}
+
+.numpad-feedback-box {
+  width: 90%;
+  padding: 1vw;
+  border-radius: 0.5vw;
+  font-size: 1.8vw;
+  line-height: 1.4;
+  white-space: pre-line;
+  min-height: 6vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+}
+
+.numpad-feedback-box.hidden {
+  visibility: hidden;
+}
+
+.numpad-feedback-box.correct {
+  background-color: rgba(76, 175, 80, 0.15);
+  border: 2px solid #66bb6a;
+  visibility: visible;
+}
+
+.numpad-feedback-box.incorrect {
+  background-color: rgba(255, 0, 0, 0.15);
+  border: 2px solid #ff6b6b;
+  visibility: visible;
+}
+
+/* ===== ANIMATIONS ===== */
+
+/* Shake */
+@keyframes shakeIt {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.3vw); }
+  40% { transform: translateX(0.3vw); }
+  60% { transform: translateX(-0.3vw); }
+  80% { transform: translateX(0.3vw); }
+}
+
+.shake-it {
+  animation: shakeIt 0.5s ease-in-out;
+}
+
+/* Input box shake */
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.3vw); }
+  40% { transform: translateX(0.3vw); }
+  60% { transform: translateX(-0.3vw); }
+  80% { transform: translateX(0.3vw); }
+}
+
+.input-box.input-shake {
+  animation: inputShake 0.3s ease-in-out;
+}
+
+/* Fade in */
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Input glow */
+@keyframes inputGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(224, 148, 34, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(224, 148, 34, 0.7);
+  }
+}
+
+/* Pulsate */
+@keyframes pulsate {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* Text red utility */
+.text-red {
+  color: #ef5350 !important;
+}
+
+/* MCQ container style */
+.mcq-container-style {
+  width: 100%;
+  height: 100%;
+}

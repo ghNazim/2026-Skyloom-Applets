@@ -3,6 +3,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 1vw 0vw;
 }
 
 .editable-color-table-title {
@@ -28,8 +29,8 @@
   color: white;
   padding: 0.5vw;
   text-align: center;
-  font-size: 2vw;
-  font-weight: bold;
+  font-size: 1.6vw;
+  /* font-weight: bold; */
   border-radius: 1vw;
 }
 
@@ -56,9 +57,9 @@
 }
 
 .editable-cell.active {
-  background-color: yellow;
+  background-color: #FFD550;
   color: black;
-  border-color: yellow;
+  border-color: orange;
 }
 
 .editable-cell.correct {

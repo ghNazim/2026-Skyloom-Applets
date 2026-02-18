@@ -1,4 +1,4 @@
-const Numpad = ({ disabled = false, onNumberClick, onClear, onSubmit }) => {
+const Numpad = ({ disabled = false, onNumberClick, onClear, onSubmit, submitButtonRef = null }) => {
   const buttons = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
   const handleNumberClick = (num) => {
@@ -61,6 +61,7 @@ const Numpad = ({ disabled = false, onNumberClick, onClear, onSubmit }) => {
       React.createElement(
         "button",
         {
+          ref: submitButtonRef,
           className: "numpad-button submit-button",
           onClick: handleSubmit,
           disabled: disabled,

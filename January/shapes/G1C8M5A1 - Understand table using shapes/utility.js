@@ -28,25 +28,25 @@ function handleComma(sentence) {
 const scrambled_svg = `<svg width="314" height="506" viewBox="0 0 314 506" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_1_117)">
 <path class="triangle" d="M100.353 129.5H12.6475L56.5 23.3086L100.353 129.5Z" fill="#FF7ED1" stroke="white"/>
-<path class="triangle" d="M106.353 374.5H18.6475L62.5 268.309L106.353 374.5Z" fill="#CC0000" stroke="white"/>
-<path class="triangle" d="M218.353 374.5H130.647L174.5 268.309L218.353 374.5Z" fill="#00FF00" stroke="white"/>
+<path class="triangle" d="M312.353 186.5H224.647L268.5 80.3086L312.353 186.5Z" fill="#CC0000" stroke="white"/>
+<path class="triangle" d="M242.353 387.5H154.647L198.5 281.309L242.353 387.5Z" fill="#00FF00" stroke="white"/>
 <path class="triangle" d="M79.6475 21.5L167.353 21.5L123.5 127.691L79.6475 21.5Z" fill="#FF9900" stroke="white"/>
-<path class="triangle" d="M107.921 146.873L151.774 222.828L37.8833 237.946L107.921 146.873Z" fill="#FF9900" stroke="white"/>
-<circle class="circle" cx="170.5" cy="112.5" r="16" fill="#FFFF00" stroke="white"/>
-<circle class="circle" cx="42.5" cy="406.5" r="16" fill="#CC0000" stroke="white"/>
-<circle class="circle" cx="106.5" cy="410.5" r="16" fill="#FFFF00" stroke="white"/>
-<circle class="circle" cx="45.5" cy="165.5" r="16" fill="#FFFF00" stroke="white"/>
-<circle class="circle" cx="260.5" cy="355.5" r="16" fill="#00FF00" stroke="white"/>
-<circle class="circle" cx="191.5" cy="47.5" r="16" fill="#FFFF00" stroke="white"/>
-<path class="square" d="M61.5 441.5V480.5H22.5V441.5H61.5Z" fill="#00FFFF" stroke="white"/>
-<path class="square" d="M127.5 441.5V480.5H88.5V441.5H127.5Z" fill="#00FFFF" stroke="white"/>
-<path class="square" d="M162.5 238.5V277.5H123.5V238.5H162.5Z" fill="#00FFFF" stroke="white"/>
-<path class="square" d="M263.5 150.5V189.5H224.5V150.5H263.5Z" fill="#00FFFF" stroke="white"/>
-<path class="square" d="M206.5 162.5V201.5H167.5V162.5H206.5Z" fill="#00FFFF" stroke="white"/>
-<path class="square" d="M263.5 22.5V61.5H224.5V22.5H263.5Z" fill="#00FFFF" stroke="white"/>
-<rect class="rectangle" x="221.5" y="211.5" width="49" height="103" fill="#CC0000" stroke="white"/>
-<rect class="rectangle" x="194.5" y="79.5" width="103" height="49" fill="#FF7ED1" stroke="white"/>
-<rect class="rectangle" x="163.5" y="423.5" width="103" height="49" fill="#00FF00" stroke="white"/>
+<path class="triangle" d="M84.9215 135.873L128.774 211.828L14.8833 226.946L84.9215 135.873Z" fill="#FF9900" stroke="white"/>
+<circle class="circle" cx="173" cy="248" r="24.5" fill="#FFFF00" stroke="white"/>
+<circle class="circle" cx="51" cy="406" r="24.5" fill="#CC0000" stroke="white"/>
+<circle class="circle" cx="115" cy="407" r="24.5" fill="#FFFF00" stroke="white"/>
+<circle class="circle" cx="274" cy="369" r="24.5" fill="#FFFF00" stroke="white"/>
+<circle class="circle" cx="44" cy="262" r="24.5" fill="#00FF00" stroke="white"/>
+<circle class="circle" cx="192" cy="47" r="24.5" fill="#FFFF00" stroke="white"/>
+<path class="square" d="M71.5 441.5V490.5H22.5V441.5H71.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M137.5 441.5V490.5H88.5V441.5H137.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M135.5 232.5V281.5H86.5V232.5H135.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M241.5 82.5V131.5H192.5V82.5H241.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M174.5 142.5V191.5H125.5V142.5H174.5Z" fill="#00FFFF" stroke="white"/>
+<path class="square" d="M298.5 22.5V71.5H249.5V22.5H298.5Z" fill="#00FFFF" stroke="white"/>
+<rect class="rectangle" x="242.5" y="203.5" width="61" height="128" fill="#CC0000" stroke="white"/>
+<rect class="rectangle" x="167.5" y="432.5" width="128" height="61" fill="#00FF00" stroke="white"/>
+<rect class="rectangle" x="19.5" y="301.5" width="128" height="61" fill="#FF7ED1" stroke="white"/>
 </g>
 <defs>
 <clipPath id="clip0_1_117">
