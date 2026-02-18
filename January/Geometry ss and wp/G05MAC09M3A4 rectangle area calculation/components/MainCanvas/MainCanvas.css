@@ -1,0 +1,234 @@
+/* ===== MAIN CANVAS CONTAINER (flex column) ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== VISUAL ROW (75% height) ===== */
+.visual-row {
+  flex: 0 0 75%;
+  display: flex;
+  flex-direction: row;
+  height: 75%;
+  min-height: 0;
+}
+
+/* ===== LEFT COLUMN - GRID (60% width) ===== */
+.grid-column {
+  flex: 0 0 60%;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 0;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  touch-action: none;
+}
+
+.grid-unit-label {
+  fill: rgba(0, 0, 0, 0.9);
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+}
+
+.grid-arrow-label {
+  font-weight: bold;
+}
+
+.grid-arrow-label-green {
+  fill: #10b981;
+}
+
+.grid-arrow-label-blue {
+  fill: #0ea5e9;
+}
+
+/* ===== RIGHT COLUMN - CALCULATION (40% width) ===== */
+.calc-column {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2vw;
+  gap: 1.2vw;
+  min-width: 0;
+}
+
+.calc-row {
+  display: flex;
+  align-items: center;
+  font-size: 2.3vw;
+  color: white;
+  text-align: left;
+  gap: 0.5vw;
+}
+
+.calc-text {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.calc-green {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.calc-mul {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0.3vw;
+}
+
+.calc-teal {
+  color: #0ea5e9;
+  font-weight: 600;
+}
+
+.calc-result {
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== ACTION ROW (25% height) ===== */
+.action-row {
+  flex: 0 0 25%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4vw;
+  padding: 1vw;
+  padding-bottom: 3vw;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== STEPPER CONTAINER ===== */
+.stepper-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.stepper-label {
+  color: white;
+  font-size: 2vw;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.stepper-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5vw;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.stepper-btn {
+  border: none;
+  color: black;
+  font-size: 2.5vw;
+  font-weight: bold;
+  width: 3.5vw;
+  height: 3.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.stepper-btn-minus {
+  background-color: rgba(200, 200, 200, 0.8);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stepper-btn-minus:hover {
+  background-color: rgba(220, 220, 220, 0.9);
+}
+
+.stepper-btn-minus:active {
+  background-color: rgba(180, 180, 180, 0.9);
+}
+
+.stepper-btn-plus {
+  background-color: #f97316;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.stepper-btn-plus:hover {
+  background-color: #fb923c;
+}
+
+.stepper-btn-plus:active {
+  background-color: #ea580c;
+}
+
+.stepper-value {
+  background-color: white;
+  color: black;
+  font-size: 2.2vw;
+  font-weight: bold;
+  width: 4.5vw;
+  height: 3.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5vw;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-btn {
+  padding: 1vw 2.5vw;
+  font-size: 2.5vw;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  min-width: 8vw;
+}
+
+.area-btn {
+  background-color: #f97316;
+  color: white;
+}
+
+.area-btn:hover {
+  background-color: #fb923c;
+}
+
+.area-btn:active {
+  background-color: #ea580c;
+}
+
+.reset-btn {
+  background-color: rgba(100, 116, 139, 0.8);
+  color: white;
+}
+
+.reset-btn:hover {
+  background-color: rgba(100, 116, 139, 0.9);
+}
+
+.reset-btn:active {
+  background-color: rgba(100, 116, 139, 1);
+}

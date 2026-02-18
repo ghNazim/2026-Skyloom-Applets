@@ -1,0 +1,151 @@
+/* ===== MAIN CANVAS CONTAINER (flex column) ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== VISUAL ROW (75% height) ===== */
+.visual-row {
+  flex: 0 0 75%;
+  display: flex;
+  flex-direction: row;
+  height: 75%;
+  min-height: 0;
+}
+
+/* ===== LEFT COLUMN - BUTTONS (40% width) ===== */
+.button-column {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 0;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2vw;
+  align-items: center;
+  width: 100%;
+}
+
+.base-height-btn {
+  padding: 1.5vw 3vw;
+  font-size: 2.5vw;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  width: 60%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.base-btn {
+  background-color: #f97316;
+  color: white;
+}
+
+.base-btn:hover:not(.disabled) {
+  background-color: #fb923c;
+}
+
+.base-btn:active:not(.disabled) {
+  background-color: #ea580c;
+}
+
+.height-btn {
+  background-color: #f97316;
+  color: white;
+}
+
+.height-btn:hover:not(.disabled) {
+  background-color: #fb923c;
+}
+
+.height-btn:active:not(.disabled) {
+  background-color: #ea580c;
+}
+
+.restart-btn {
+  background-color: #f97316;
+  color: white;
+}
+
+.restart-btn:hover {
+  background-color: #fb923c;
+}
+
+.restart-btn:active {
+  background-color: #ea580c;
+}
+
+.base-height-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.tap-indicator {
+  position: absolute;
+  top: 4vw;
+  right: -1vw;
+  width: 3vw;
+  height: 3vw;
+  pointer-events: none;
+}
+
+/* ===== RIGHT COLUMN - FRAME IMAGE (60% width) ===== */
+.grid-column {
+  flex: 0 0 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw;
+  min-width: 0;
+}
+
+.frame-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: 100%;
+}
+
+/* ===== ACTION ROW (25% height) ===== */
+.action-row {
+  flex: 0 0 25%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw;
+  /* padding-bottom: 3vw; */
+  background-color: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feedback-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 2.3vw;
+  text-align: center;
+  padding: 1vw;
+  border: .2vw dashed rgba(148, 163, 184, 0.5);
+  border-radius: 0.5vw;
+  background-color: rgba(0, 0, 0, 0.2);
+}

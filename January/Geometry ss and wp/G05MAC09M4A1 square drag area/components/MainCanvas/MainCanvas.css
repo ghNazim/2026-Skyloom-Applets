@@ -1,0 +1,122 @@
+/* ===== MAIN CANVAS CONTAINER (2 columns) ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== LEFT COLUMN - GRID (50%) ===== */
+.grid-column {
+  flex: 0 0 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 0;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.grid-unit-label {
+  fill: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  /* font-size set in JS to scale with cell (~50% of unit square width) */
+  pointer-events: none;
+  user-select: none;
+}
+
+.grid-arrow-label {
+  font-weight: bold;
+  /* font-size set in JS in SVG user units for consistent scaling */
+}
+
+.grid-arrow-label-green {
+  fill: #10b981;
+}
+
+.grid-arrow-label-blue {
+  fill: #0ea5e9;
+}
+
+.grid-handle-outer {
+  cursor: grab;
+}
+
+.grid-handle-outer:active {
+  cursor: grabbing;
+}
+
+.grid-handle-inner {
+  pointer-events: none;
+}
+
+/* ===== RIGHT COLUMN - CALCULATION (50%) ===== */
+.calc-column {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2vw 0vw;
+  /* padding-left: 1vw; */
+  gap: 1.2vw;
+  min-width: 0;
+}
+
+.calc-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1.5fr;
+  align-items: baseline;
+  gap: 1vw;
+  font-size: 2.3vw;
+  color: white;
+}
+
+.calc-row .calc-right {
+  /* font-size: 2.3vw; */
+}
+
+.calc-left {
+  text-align: right;
+  font-weight: 500;
+}
+
+.calc-eq {
+  text-align: center;
+}
+
+.calc-right {
+  text-align: left;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.calc-green {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.calc-mul {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0.3vw;
+}
+
+.calc-teal {
+  color: #0ea5e9;
+  font-weight: 600;
+}
+
+.calc-result {
+  font-weight: bold;
+  color: rgb(192, 132, 252);
+}
