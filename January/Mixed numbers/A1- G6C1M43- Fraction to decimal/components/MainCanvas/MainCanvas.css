@@ -66,8 +66,8 @@
 .mixed-number-box {
   display: inline-flex;
   align-items: center;
-  background: rgba(20, 25, 45, 0.8);
-  border: 0.25vw solid #e09422;
+  /* background: rgba(20, 25, 45, 0.8); */
+  /* border: 0.25vw solid #e09422; */
   border-radius: 1vw;
   padding: 1vw 2vw;
   font-size: 6vw;
@@ -75,6 +75,9 @@
   line-height: 1;
   transition: all 0.3s ease;
   gap: 0.5vw;
+}
+.mixed-number-box.step1{
+  font-size: 8vw;
 }
 
 .mixed-number-box .whole-part {
@@ -108,6 +111,20 @@
   animation: shakeIt 0.3s ease-in-out;
 }
 
+/* Scale pulsate animation */
+@keyframes scalePulsate {
+  0%, 100% {
+    transform: scale(0.98);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.mixed-number-box.pulsate {
+  animation: scalePulsate 1s ease-in-out infinite;
+}
+
 /* Fraction part inline in mixed number box */
 .fraction-part-inline {
   display: inline-flex;
@@ -130,9 +147,14 @@
 
 .fraction-part-inline .fraction-num,
 .fraction-part-inline .fraction-den {
-  font-size: 3.5vw;
+  font-size:6vw;
   font-weight: 700;
   color: #ffffff;
+}
+
+.mixed-number-box.step1 .fraction-part-inline .fraction-num,
+.mixed-number-box.step1 .fraction-part-inline .fraction-den {
+  font-size:8vw;
 }
 
 .fraction-part-inline .fraction-line {
@@ -169,15 +191,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(20, 25, 45, 0.8);
-  border: 0.25vw solid #e09422;
+  /* background: rgba(20, 25, 45, 0.8); */
+  /* border: 0.25vw solid #e09422; */
   border-radius: 0.8vw;
   padding: 0.8vw 1.5vw;
-  font-size: 4.6vw;
+  font-size: 6vw;
   font-weight: 700;
   color: #ffffff;
   min-width: 4vw;
-  transition: all 0.4s ease;
+  /* transition: all 0.4s ease; */
+}
+
+/* Split decimal value spans for Step 4 animation */
+.decimal-leading-zero {
+  display: inline-block;
+}
+
+.decimal-rest {
+  display: inline;
 }
 
 /* ===== DECIMAL PART BOX ===== */
@@ -185,15 +216,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(20, 25, 45, 0.8);
-  border: 0.25vw solid #9e9e9e;
+  background: rgba(255, 255, 0, 0.15);
+  border: 0.25vw solid yellow;
   border-radius: 0.8vw;
   padding: 0.8vw 1.5vw;
-  font-size: 4.6vw;
+  font-size: 6vw;
   font-weight: 700;
   color: #ffffff;
   min-width: 4vw;
-  transition: all 0.4s ease;
+  /* transition: all 0.4s ease; */
 }
 
 /* Correct state */
@@ -232,7 +263,7 @@
 
 .fraction-display .fraction-num,
 .fraction-display .fraction-den {
-  font-size: 3.5vw;
+  font-size: 6vw;
   font-weight: 700;
   color: #ffffff;
   display: block; /* Ensure block behavior in flex */
@@ -338,18 +369,18 @@
 }
 
 .input-box {
-  width: 6.5vw;
-  height: 4.5vw;
+  width: 10vw;
+  height: 7vw;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(20, 25, 45, 0.8);
   border: 0.2vw solid #666;
   border-radius: 0.5vw;
-  font-size: 3.3vw;
+  font-size: 6vw;
   font-weight: 700;
   color: #ffffff;
-  transition: all 0.3s ease;
+  /* transition: all 0.3s ease; */
 }
 
 .input-box.highlighted {
@@ -387,16 +418,19 @@
 
 /* Multiply operand */
 .multiply-operand {
-  font-size: 3.5vw;
+  font-size: 6vw;
+  width: 7vw;
   font-weight: 700;
   color: #ffffff;
+  text-align: center;
 }
 
 /* Multiply sign */
 .multiply-sign {
-  font-size: 3vw;
+  font-size: 6vw;
   font-weight: 700;
   color: #4fc3f7;
+  text-align: center;
 }
 
 /* Multiply result after animation */
@@ -422,7 +456,7 @@
   border: 0.25vw solid #e09422;
   border-radius: 1vw;
   padding: 1vw 2vw;
-  transition: all 0.4s ease;
+  /* transition: all 0.4s ease; */
 }
 
 .final-decimal-value {

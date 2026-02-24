@@ -155,7 +155,7 @@ const App = () => {
               setLeftOperatorValue("=");
               setAnimatingSymbol(false);
               setComparisonDone(true);
-            }, 800);
+            }, 1500); // Match animation duration
           }, 1000);
         }
       } else {
@@ -169,7 +169,7 @@ const App = () => {
             setLeftOperatorValue(correctOp);
             setAnimatingSymbol(false);
             setComparisonDone(true);
-          }, 800);
+          }, 1500); // Match animation duration
         }, 1000);
       }
     } else {
@@ -194,18 +194,28 @@ const App = () => {
     }
     if (currentStep === 3) {
       const q = getCurrentQuestion();
-      const place = q.places[compareIndex];
-      const placeName = APP_DATA.placeHeadings[place.name].toLowerCase();
-
+      
       if (comparisonDone) {
-        // After final comparison is done, keep the last relevant question text
-        if (feedbackText) return APP_DATA.step2.questionFinal;
-        return APP_DATA.step3.questionTemplate.replace("{{place}}", placeName);
+        // After final comparison is done
+        if (feedbackText) {
+          // Check if numbers are equal (operator is "=")
+          if (q.operator === "=") {
+            return APP_DATA.step3.questionAllEqual;
+          }
+          return APP_DATA.step2.questionFinal;
+        }
+        // If no feedback text yet, use appropriate text based on operator
+        if (q.operator === "=") {
+          return APP_DATA.step3.questionAllEqual;
+        }
+        return APP_DATA.step2.questionFinal;
       }
-      if (compareIndex > 0) {
-        return APP_DATA.step3.questionEqualMove;
+      
+      // During comparison
+      if (compareIndex === 0) {
+        return APP_DATA.step3.questionFirstPlace;
       }
-      return APP_DATA.step3.questionTemplate.replace("{{place}}", placeName);
+      return APP_DATA.step3.questionEqualMove;
     }
     return "";
   }

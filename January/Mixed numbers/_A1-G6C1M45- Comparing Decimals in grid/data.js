@@ -7,7 +7,7 @@ const DATA = {
     app: {
       start: {
         heading: "Comparing Decimal Numbers",
-        text: "Let us learn how to compare decimal numbers using <br>visual model.",
+        text: "Let us learn how to compare <y>decimal numbers</y> using <br>visual model.",
         buttonText: "Start",
       },
       final: {
@@ -149,7 +149,7 @@ const DATA = {
     app: {
       start: {
         heading: "Membandingkan Bilangan Desimal",
-        text: "Mari kita belajar membandingkan bilangan desimal menggunakan <br>model visual.",
+        text: "Mari kita belajar membandingkan <y>bilangan desimal</y> menggunakan <br>model visual.",
         buttonText: "Mulai",
       },
       final: {
@@ -159,7 +159,7 @@ const DATA = {
       },
       step6: {
         heading: "Membandingkan Bilangan Desimal",
-        text: "Luar biasa!<br>Untuk membandingkan desimal secara visual:<br>1. Bandingkan bilangan bulatnya terlebih dahulu.<br>2. Jika bilangan bulatnya sama, bandingkan bagian yang diarsir.",
+        text: "<left>Luar biasa!<br>Untuk membandingkan desimal secara visual:<br>1. Bandingkan bilangan bulat terlebih dahulu.<br>2. Jika bilangan bulatnya sama, bandingkan bagian yang diarsir.</left>",
         buttonText: "Mulai Lagi",
       },
       nav: {
@@ -187,7 +187,7 @@ const DATA = {
           step3: {
             q: "Manakah dari angka-angka ini yang lebih besar?",
             nav: "Ketuk simbol yang benar.",
-            nAfterCorrect: "Ketuk » untuk menunjukkan bilangan desimal berikutnya.",
+            nAfterCorrect: "Ketuk » untuk melihat perbandingan visual.",
             correctOperator: ">",
             correctFeedback: "Benar! 3,17 memiliki lebih banyak SATUAN daripada 2,75.\nBilangan dengan SATUAN lebih besar adalah bilangan yang lebih besar.",
             wrongFeedback: "Ups! Bilangan dengan SATUAN lebih besar adalah bilangan yang lebih besar."
@@ -196,7 +196,7 @@ const DATA = {
             q: "Amati perbandingan visual.", 
             nav: "", 
             nAfterAnimation: "Ketuk » untuk melanjutkan.",
-            feedbackAfterAnimation: "3,17 memiliki 1 more satuan daripada 2,75. Jadi 3,17 lebih besar.",
+            feedbackAfterAnimation: "3,17 memiliki 1 satuan lebih banyak daripada 2,75. Jadi 3,17 lebih besar.",
           },
         },
         // Q2: 2.42 vs 2.61
@@ -206,7 +206,7 @@ const DATA = {
           step3: {
             q: "Manakah dari angka-angka ini yang lebih besar?",
             nav: "Ketuk simbol yang benar.",
-            nAfterCorrect: "Ketuk » untuk menunjukkan bilangan desimal berikutnya.",
+            nAfterCorrect: "Ketuk » untuk melihat perbandingan visual.",
             correctOperator: "<",
             correctFeedback: "Kamu benar! 2,61 memiliki lebih banyak bagian yang diarsir daripada 2,42.<br>Bilangan dengan bagian yang diarsir lebih banyak adalah bilangan yang lebih besar.",
             wrongFeedback: "Ups! Bilangan dengan bagian yang diarsir lebih banyak adalah bilangan yang lebih besar."
@@ -214,8 +214,8 @@ const DATA = {
           step4: { 
             q: "Amati perbandingan visual.", 
             nav: "", 
-            nAfterAnimation: "Ketuk » untuk melanjutkan.",
-            feedbackAfterAnimation: "2,61 memiliki 2 more persepuluhan daripada 2,42. Jadi 2,61 lebih besar.",
+            nAfterAnimation: "Ketuk » untuk membandingkan pasangan bilangan desimal lainnya.",
+            feedbackAfterAnimation: "2,61 memiliki 2 persepuluhan lebih banyak daripada 2,42. Jadi 2,61 lebih besar.",
           },
         },
         // Q3: 1.38 vs 1.36
@@ -225,7 +225,7 @@ const DATA = {
           step3: {
             q: "Manakah dari angka-angka ini yang lebih besar?",
             nav: "Ketuk simbol yang benar.",
-            nAfterCorrect: "Ketuk » untuk menunjukkan bilangan desimal berikutnya.",
+            nAfterCorrect: "Ketuk » untuk melihat perbandingan visual.",
             correctOperator: ">",
             correctFeedback: "Kamu benar! 1,38 memiliki lebih banyak bagian yang diarsir daripada 1,36.<br>Bilangan dengan bagian yang diarsir lebih banyak adalah bilangan yang lebih besar.",
             wrongFeedback: "Ups! Bilangan dengan bagian yang diarsir lebih banyak adalah bilangan yang lebih besar."
@@ -233,8 +233,8 @@ const DATA = {
           step4: { 
             q: "Amati perbandingan visual.", 
             nav: "", 
-            nAfterAnimation: "Ketuk » untuk melanjutkan.",
-            feedbackAfterAnimation: "1,38 memiliki 2 more perseratusan daripada 1,36. Jadi 1,38 lebih besar.",
+            nAfterAnimation: "Ketuk » untuk membandingkan pasangan bilangan desimal lainnya.",
+            feedbackAfterAnimation: "1,38 memiliki 2 perseratusan lebih banyak daripada 1,36. Jadi 1,38 lebih besar.",
           },
         },
         // Q4: 4.07 vs 3.70
@@ -244,7 +244,7 @@ const DATA = {
           step3: {
             q: "Manakah dari angka-angka ini yang lebih besar?",
             nav: "Ketuk simbol yang benar.",
-            nAfterCorrect: "Ketuk » untuk menunjukkan bilangan desimal berikutnya.",
+            nAfterCorrect: "Ketuk » untuk melihat perbandingan visual.",
             correctOperator: ">",
             correctFeedback: "Kamu benar! 4,07 memiliki lebih banyak SATUAN daripada 3,70.<br>Bilangan dengan SATUAN lebih besar adalah bilangan yang lebih besar.",
             wrongFeedback: "Ups! Bilangan dengan SATUAN lebih besar adalah bilangan yang lebih besar."
@@ -252,8 +252,8 @@ const DATA = {
           step4: { 
             q: "Amati perbandingan visual.", 
             nav: "", 
-            nAfterAnimation: "Ketuk » untuk melanjutkan.",
-            feedbackAfterAnimation: "4,07 memiliki 1 more satuan daripada 3,70. Jadi 4,07 lebih besar.",
+            nAfterAnimation: "Ketuk » untuk membandingkan pasangan bilangan desimal lainnya.",
+            feedbackAfterAnimation: "4,07 memiliki 1 satuan lebih banyak daripada 3,70. Jadi 4,07 lebih besar.",
           },
         },
         // Q5: 3.54 vs 3.54
@@ -263,16 +263,16 @@ const DATA = {
           step3: {
             q: "Manakah dari angka-angka ini yang lebih besar?",
             nav: "Ketuk simbol yang benar.",
-            nAfterCorrect: "Ketuk » untuk menunjukkan bilangan desimal berikutnya.",
+            nAfterCorrect: "Ketuk » untuk melihat perbandingan visual.",
             correctOperator: "=",
-            correctFeedback: "Kamu benar! Kedua model menunjukkan persegi utuh dan bagian arsir yang sama. Jadi 3,54 sama dengan 3,54.",
-            wrongFeedback: "Kurang tepat! Kedua model menunjukkan persegi utuh dan bagian yang diarsir yang sama. Coba lagi."
+            correctFeedback: "Kamu benar! Kedua model menunjukkan persegi utuh dan <br>bagian yang diarsir yang sama. Jadi 3,54 sama dengan 3,54.",
+            wrongFeedback: "Kurang tepat! Kedua model menunjukkan persegi utuh dan bagian yang diarsir yang sama. <br>Coba lagi."
           },
           step4: { 
             q: "Amati perbandingan visual.", 
             nav: "", 
-            nAfterAnimation: "Ketuk » untuk melanjutkan.",
-            feedbackAfterAnimation: "Kedua bilangan memiliki satuan dan bagian yang diarsir yang sama. Jadi mereka sama.",
+            nAfterAnimation: "Ketuk » untuk ringkasan.",
+            feedbackAfterAnimation: "Kedua bilangan memiliki bilangan bulat dan bagian yang diarsir yang sama. Jadi mereka sama.",
           },
         },
       ],
@@ -290,3 +290,4 @@ const DATA = {
 };
 
 const APP_DATA = DATA[current_language].app;
+const decimalChar = current_language === "id" ? ",": "."

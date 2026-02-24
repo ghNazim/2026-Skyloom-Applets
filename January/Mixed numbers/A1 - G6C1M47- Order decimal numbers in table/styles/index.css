@@ -14,6 +14,24 @@
   /* Other colors */
   --white-color: #ffffff;
   --transparent-black-20: rgba(0, 0, 0, 0.2);
+    --blue-1: #61abd8;
+  --blue-2: #3f93cf82;
+  --blue-3: #2b72aa;
+  --pink-1: #f08c9d;
+  --pink-2: #ef506d86;
+  --pink-3: #cd3957;
+  --brown-1: #e9c46a;
+  --brown-2: #ff8b18;
+  --brown-3: #e07407;
+  --green-1: #4dff6b;
+  --green-2: #02d725;
+  --green-3: #00b51e;
+  --gold-1: #fbe057;
+  --gold-2: #caac007b;
+  --gold-3: #b79b00;
+  --purple-1: #bf8ef4; 
+  --purple-2: #9f43f580; 
+  --purple-3: #7e22ce; 
 
   /* Typography */
   --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

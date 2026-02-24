@@ -338,6 +338,10 @@ input[type=range]::-moz-range-track {
   justify-content: center;
   padding-bottom: 0.2vw;
 }
+.num-dot.id {
+  --font-family-comma: Georgia, sans-serif;
+  font-family: var(--font-family-comma);
+}
 
 /* ===== OPERATOR BUTTONS (step 3) ===== */
 .operator-buttons-container {

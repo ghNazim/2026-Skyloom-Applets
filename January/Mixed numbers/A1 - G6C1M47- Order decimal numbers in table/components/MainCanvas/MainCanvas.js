@@ -10,6 +10,7 @@ const MainCanvas = ({
   showHint,
   isHintMode,
   hasSubmittedWrong,
+  animatingRowValue,
   onRowClick,
   onSwap,
   onCheck,
@@ -60,6 +61,11 @@ const MainCanvas = ({
     // But within hint mode, swapping works.
     if (gsapLib && !isNewQuestion) {
       arrangement.forEach((num) => {
+        // Only animate the row that was moved (selected row)
+        if (animatingRowValue !== null && num !== animatingRowValue) {
+          return;
+        }
+        
         const el = rowRefs.current[num];
         const prev = prevPosRef.current[num];
         const current = currentPositions[num];
@@ -73,7 +79,18 @@ const MainCanvas = ({
             gsapLib.fromTo(
               el,
               { x: deltaX, y: deltaY },
-              { x: 0, y: 0, duration: 0.5, ease: "power2.out" }
+              { 
+                x: 0, 
+                y: 0, 
+                duration: 0.5, 
+                ease: "power2.out",
+                onComplete: () => {
+                  // After animation, clear the animating flag by resetting transform
+                  if (el) {
+                    gsapLib.set(el, { clearProps: "transform" });
+                  }
+                }
+              }
             );
           }
         }
@@ -89,7 +106,7 @@ const MainCanvas = ({
     if (isNewQuestion) {
         // We just reset prevPosRef effectively by assigning currentPositions
     }
-  }, [arrangement, isHintMode, questionIndex]); // add questionIndex dependency
+  }, [arrangement, isHintMode, questionIndex, animatingRowValue]); // add questionIndex and animatingRowValue dependency
 
 
   if (step !== 1) {
@@ -120,10 +137,22 @@ const MainCanvas = ({
   };
 
   const colColors = {
-    tens: { bg: "rgba(186, 104, 120, 0.6)", border: "#d4728a" },
-    ones: { bg: "rgba(186, 104, 120, 0.6)", border: "#d4728a" },
-    tenths: { bg: "rgba(160, 140, 80, 0.6)", border: "#c4b44c" },
-    hundredths: { bg: "rgba(128, 80, 168, 0.6)", border: "#a060d0" },
+    tens: { 
+      header: "var(--blue-3)", 
+      digit: "var(--blue-2)" 
+    },
+    ones: { 
+      header: "var(--pink-3)", 
+      digit: "var(--pink-2)" 
+    },
+    tenths: { 
+      header: "var(--gold-3)", 
+      digit: "var(--gold-2)" 
+    },
+    hundredths: { 
+      header: "var(--purple-3)", 
+      digit: "var(--purple-2)" 
+    },
   };
 
 
@@ -161,6 +190,12 @@ const MainCanvas = ({
           (isCorrectCurrent ? " row-no-click" : "") +
           getRowFeedbackClass();
 
+        // Determine button position: above or below based on selected row
+        const showButton = selectedRow !== null && selectedRow !== i && !isCorrectCurrent;
+        const buttonPosition = showButton 
+          ? (i < selectedRow ? "above" : "below")
+          : null;
+
         return React.createElement(
           "div",
           {
@@ -168,14 +203,12 @@ const MainCanvas = ({
             className: "small-row-wrapper",
             ref: (el) => (rowRefs.current[num] = el), // Ref for animation
           },
-          // Swap button on LEFT
-          selectedRow !== null &&
-            selectedRow !== i &&
-            !isCorrectCurrent
+          // Swap button above or below based on selected row position
+          showButton
             ? React.createElement(
                 "button",
                 {
-                  className: "swap-btn swap-btn-left",
+                  className: `swap-btn swap-btn-${buttonPosition}`,
                   onClick: (e) => {
                     e.stopPropagation();
                     onSwap(i);
@@ -246,7 +279,7 @@ const MainCanvas = ({
           {
             key: "heading-" + key,
             className: "big-heading-cell",
-            style: { backgroundColor: colColors[key].bg },
+            style: { backgroundColor: colColors[key].header },
           },
           APP_DATA.placeHeadings[key]
         );
@@ -272,7 +305,7 @@ const MainCanvas = ({
             {
               key: "int-" + d,
               className: "big-digit-cell",
-              style: { backgroundColor: colColors[key].bg },
+              style: { backgroundColor: colColors[key].digit },
             },
             intPart[d]
           )
@@ -296,12 +329,18 @@ const MainCanvas = ({
             {
               key: "dec-" + d,
               className: "big-digit-cell",
-              style: { backgroundColor: colColors[key].bg },
+              style: { backgroundColor: colColors[key].digit },
             },
             decPart[d]
           )
         );
       }
+
+      // Determine button position: above or below based on selected row
+      const showButton = selectedRow !== null && selectedRow !== rowIdx && !isCorrectCurrent;
+      const buttonPosition = showButton 
+        ? (rowIdx < selectedRow ? "above" : "below")
+        : null;
 
       return React.createElement(
         "div",
@@ -310,14 +349,12 @@ const MainCanvas = ({
           className: "big-row-wrapper",
           ref: (el) => (rowRefs.current[num] = el), // Ref
         },
-        // Swap button on LEFT
-        selectedRow !== null &&
-          selectedRow !== rowIdx &&
-          !isCorrectCurrent
+        // Swap button above or below based on selected row position
+        showButton
           ? React.createElement(
               "button",
               {
-                className: "swap-btn swap-btn-left",
+                className: `swap-btn swap-btn-${buttonPosition}`,
                 onClick: (e) => {
                   e.stopPropagation();
                   onSwap(rowIdx);

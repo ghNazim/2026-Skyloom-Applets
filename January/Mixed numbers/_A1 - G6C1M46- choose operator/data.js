@@ -92,12 +92,12 @@ const DATA = {
         operator: "<",
         highlightIndex: 1,
         wrongFeedback:
-          "Ooops! The digit in tens place of the first number is smaller than the second.",
+          "Ooops! The digit in ones place of the first number is smaller than the second.",
         correctFeedback:
-          "The digit in tens place of the first number is smaller than the second.",
+          "The digit in ones place of the first number is smaller than the second.",
         correctFeedbackSteps: [
-          "Look at the digit in tens place.",
-          "The digit in tens place of the first number is smaller than the second.",
+          "Look at the digit in ones place.",
+          "The digit in ones place of the first number is smaller than the second.",
           "The first number is smaller than the second.",
         ],
       },
@@ -122,7 +122,8 @@ const DATA = {
     step1: {
       question: "Compare the given decimal numbers.",
       navText: "Tap the correct symbol to compare the decimal numbers.",
-      navTextNext: "Tap ≫",
+      navTextNext: "Tap » to try comparing next decimal numbers.",
+      navLast: "Tap » to complete the activity.",
     },
   },
 
@@ -209,12 +210,12 @@ const DATA = {
         operator: "<",
         highlightIndex: 1,
         wrongFeedback:
-          "Ups! Angka di tempat puluhan bilangan pertama lebih kecil dari bilangan kedua.",
+          "Ups! Angka di tempat satuan bilangan pertama lebih kecil dari bilangan kedua.",
         correctFeedback:
-          "Angka di tempat puluhan bilangan pertama lebih kecil dari bilangan kedua.",
+          "Angka di tempat satuan bilangan pertama lebih kecil dari bilangan kedua.",
         correctFeedbackSteps: [
-          "Lihat angka di tempat puluhan.",
-          "Angka di tempat puluhan bilangan pertama lebih kecil dari bilangan kedua.",
+          "Lihat angka di tempat satuan.",
+          "Angka di tempat satuan bilangan pertama lebih kecil dari bilangan kedua.",
           "Bilangan pertama lebih kecil dari bilangan kedua.",
         ],
       },
@@ -233,7 +234,8 @@ const DATA = {
     step1: {
       question: "Bandingkan bilangan desimal yang diberikan.",
       navText: "Ketuk simbol yang benar untuk membandingkan bilangan desimal.",
-      navTextNext: "Ketuk ≫",
+      navTextNext: "Ketuk » untuk mencoba membandingkan bilangan desimal berikutnya.",
+      navLast: "Ketuk » untuk menyelesaikan aktivitas.",
     },
   },
 };

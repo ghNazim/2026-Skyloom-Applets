@@ -115,7 +115,8 @@
   font-weight: 700;
   color: white;
   flex-shrink: 0;
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  padding-bottom: 0.5vw;
+  /* transition: background-color 0.25s ease, border-color 0.25s ease; */
 }
 
 .left-operator-box.operator-box-correct {
@@ -133,6 +134,28 @@
   padding: 1vw;
   gap: 1vw;
   position: relative;
+}
+
+/* ===== DECIMAL SURROUND BOX ===== */
+.decimal-surround-box {
+  position: absolute;
+  background-color: rgba(255, 192, 203, 0.3);
+  border-radius: 2vw;
+  pointer-events: none;
+  z-index: 1;
+  display: none;
+}
+
+/* ===== ACTIVE COLUMN SURROUND (step 3) ===== */
+.active-column-surround {
+  position: absolute;
+  border: 0.25vw dashed rgba(255, 255, 255, 0.95);
+  border-radius: 0.8vw;
+  pointer-events: none;
+  z-index: 2;
+  display: none;
+  box-sizing: border-box;
+  transition: left 0.35s ease-out, top 0.35s ease-out, width 0.35s ease-out, height 0.35s ease-out;
 }
 
 /* ===== BIG TABLE LAYOUT ===== */
@@ -180,7 +203,7 @@
 /* Heading row */
 .big-table-heading-row {
   display: grid;
-  gap: 0.3vw;
+  gap: 2vw;
   width: 100%;
   margin-bottom: 0.5vw;
 }
@@ -203,11 +226,11 @@
 /* Data row */
 .big-table-row {
   display: grid;
-  gap: 0.3vw;
+  gap: 2vw;
   width: 100%;
   border-radius: 0.8vw;
   border: 0.2vw solid rgba(255, 255, 255, 0.1);
-  padding: 0.2vw;
+  padding: 0.2vw 0;
   margin-bottom: 0.5vw;
   user-select: none;
 }
@@ -231,9 +254,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3vw;
   font-weight: 700;
   color: #ff6b9d;
+  height: 3.4vw;
+  font-size: 8vw;
+  padding-bottom: 2.8vw;
+}
+
+/* Decimal pulse animation for step 2 final stage */
+.big-decimal-cell.decimal-pulse-animation {
+  animation: decimalPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes decimalPulse {
+  0%, 100% {
+    font-size: 7.4vw; /* 90% of 8vw */
+  }
+  50% {
+    font-size: 8.8vw; /* 130% of 8vw */
+  }
 }
 
 /* Column highlighting for step 3 */
@@ -289,7 +328,30 @@
   font-size: 2.5vw;
   font-weight: 700;
   color: white;
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  padding-bottom: .2vw;
+  /* transition: background-color 0.25s ease, border-color 0.25s ease; */
+  position: relative;
+}
+
+.comparison-operator-box.operator-box-empty::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.15vw;
+  height: 2.5vw;
+  background-color: #ffffff;
+  animation: blinkCursor 1s infinite;
+}
+
+@keyframes blinkCursor {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
 }
 
 .comparison-operator-box.operator-box-wrong {
@@ -318,6 +380,34 @@
   padding: 0.8vw 1.5vw;
   border: 0.25vw solid #ffffff;
   z-index: 10;
+}
+
+.buttons-strip::before {
+  content: "";
+  position: absolute;
+  top: -1.1vw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 1.1vw solid transparent;
+  border-right: 1.1vw solid transparent;
+  border-bottom: 1.1vw solid #ffffff;
+  z-index: 11;
+}
+
+.buttons-strip::after {
+  content: "";
+  position: absolute;
+  top: -0.95vw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 0.95vw solid transparent;
+  border-right: 0.95vw solid transparent;
+  border-bottom: 0.95vw solid rgba(0, 0, 0, 0.95);
+  z-index: 12;
 }
 
 .buttons-strip-disabled {

@@ -48,9 +48,9 @@
 }
 
 .summary-arrow {
-  font-size: 3vw;
+  font-size: 9vw;
   color: white;
-  margin-top: 5vw; /* Align visually with cards */
+  margin-top: 1vw; 
 }
 
 /* Cards */
@@ -63,8 +63,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 12vw;
+  height: 18vw; /* Fixed height for all cards - increased from min-height 12vw */
   min-width: 10vw;
+  overflow: visible; /* Allow arrows to be visible outside card */
 }
 
 .summary-card-wide {
@@ -132,6 +133,8 @@
   color: white;
   display: flex;
   align-items: baseline;
+  position: relative;
+  overflow: visible;
 }
 
 .decimal-point {
@@ -147,6 +150,14 @@
   gap: 0.5vw;
   max-width: 16vw;
   margin-top: 1vw;
+}
+
+.summary-step-container.num1 {
+  max-width: 28vw;
+}
+
+.summary-step-container.num2 {
+  max-width: 20vw;
 }
 
 .summary-step-bubble {
@@ -171,4 +182,62 @@
   color: white;
   font-size: 2vw;
   text-align: center;
+  width: 100%; /* Fill the container width to match card width */
+  box-sizing: border-box;
+}
+
+/* Decimal dots in summary */
+.summary-decimal-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5vw;
+  height: 4vw;
+  margin: 0 0.2vw;
+  position: relative;
+}
+
+/* For English: use ::before to create circular dots (only when empty) */
+.summary-decimal-dot:empty::before {
+  content: '';
+  display: block;
+  width: 0.9vw;
+  height: 0.9vw;
+  border-radius: 50%;
+}
+
+.summary-decimal-dot.active:empty::before {
+  background: #e91e63;
+}
+
+.summary-decimal-dot.inactive:empty::before {
+  background: rgba(233, 30, 99, 0.4);
+}
+
+/* For Indonesian: style the comma text (when it contains text) */
+.summary-decimal-dot:not(:empty) {
+  font-family: var(--font-family-comma, Georgia, sans-serif);
+  font-size: 2vw;
+  color: #e91e63;
+}
+
+.summary-decimal-dot.active:not(:empty) {
+  color: #e91e63;
+  opacity: 1;
+}
+
+.summary-decimal-dot.inactive:not(:empty) {
+  color: #e91e63;
+  opacity: 0.4;
+}
+
+/* Curved arrow wrapper */
+.summary-curved-arrow-wrapper {
+  pointer-events: none;
+  position: absolute;
+  z-index: 1000;
+}
+
+.summary-curved-arrow-wrapper svg {
+  display: block;
 }

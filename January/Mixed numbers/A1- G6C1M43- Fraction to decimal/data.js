@@ -4,7 +4,7 @@ const DATA = {
     app: {
       start: {
         heading: "Mixed Numbers to Decimal Numbers",
-        text: "Let us learn how mixed numbers are written as<br>decimal numbers.",
+        text: "Let us learn how <y>mixed numbers</y> are written as<br><y>decimal numbers</y>.",
         buttonText: "Start",
       },
       steps: {
@@ -14,7 +14,7 @@ const DATA = {
         },
         2: {
           questionText:
-            "Rewrite the fractional part with a denominator of {{targetDen}}.",
+            "What is the correct <y>multiplier</y> to make the denominator {{targetDen}}?",
           navText: "Enter the multiplier using the numpad.",
         },
         3: {
@@ -33,7 +33,7 @@ const DATA = {
       // Final screen after all questions (step 6)
       step6Final: {
         heading: "Mixed Numbers to Decimal Numbers",
-        text: "<left>Awesome!<br>To write the mixed number as a decimal:<br>● Write the whole part and the fractional part.<br>● Make the denominator of the fractional part 10 or 100.<br>● Convert to a decimal form and combine with whole number.</left>",
+        text: "<left>Awesome!<br>To write the mixed number as a decimal:<br>● Write the <y>whole part</y> and the <y>fractional part</y>.<br>● Make the <y>denominator</y> of the <y>fractional part</y> 10 or 100.<br>● Convert to a decimal form and combine with whole number.</left>",
         buttonText: "Start Over",
       },
       // Common text elements
@@ -44,9 +44,9 @@ const DATA = {
       summaryHeading: "Mixed Numbers to Decimal Numbers",
       summaryContinueButton: "Continue.",
       summarySubheadingWithConvert:
-        "When the fractional part does not have a 10 or 100 denominator...",
+        "When the fractional part does not have a <y>10 or 100 denominator...</y>",
       summarySubheadingNoConvert:
-        "When the fractional part has a 10 or 100 denominator...",
+        "When the fractional part has a <y>10 or 100 denominator...</y>",
       summaryCardTexts: [
         "Convert the fractional part to a denominator of 10.",
         "Write the fraction with denominator 10 as a decimal.",
@@ -137,6 +137,140 @@ const DATA = {
           questionTextStep4Complete:
             "We have the decimal form of the mixed number.",
           navTextStep4Complete: "Tap » to summarize.",
+        },
+      ],
+    },
+  },
+  id: {
+    app: {
+      start: {
+        heading: "Bilangan Campuran ke Bilangan Desimal",
+        text: "Mari kita pelajari cara <y>bilangan campuran</y> ditulis sebagai<br><y>bilangan desimal</y>.",
+        buttonText: "Mulai",
+      },
+      steps: {
+        1: {
+          questionText: "Identifikasi bagian pecahan pada bilangan campuran.",
+          navText: "Ketuk bagian pecahan pada bilangan campuran.",
+        },
+        2: {
+          questionText:
+            "Berapa <y>pengali</y> yang benar untuk membuat penyebutnya {{targetDen}}?",
+          navText: "Masukkan pengali menggunakan papan angka.",
+        },
+        3: {
+          questionText: "Apa bentuk desimal dari pecahan ini?",
+          navText: "Ketuk jawaban yang benar.",
+        },
+        4: {
+          questionText: "Gabungkan bagian bulat dan bagian desimal.",
+          navText: "Ketuk tombol 'dan' untuk menggabungkan.",
+        },
+        5: {
+          questionText: "",
+          navText: "",
+        },
+      },
+      step6Final: {
+        heading: "Bilangan Campuran ke Bilangan Desimal",
+        text: "<left>Hebat!<br>Untuk menulis bilangan campuran sebagai desimal:<br>● Tulis <y>bagian bulat</y> dan <y>bagian pecahan</y>.<br>● Jadikan <y>penyebut</y> <y>bagian pecahan</y> menjadi 10 atau 100.<br>● Ubah ke bentuk desimal dan gabungkan dengan bilangan bulat.</left>",
+        buttonText: "Mulai Lagi",
+      },
+      equalsSign: "=",
+      andText: "dan",
+      multiplySign: "×",
+      summaryHeading: "Bilangan Campuran ke Bilangan Desimal",
+      summaryContinueButton: "Lanjutkan.",
+      summarySubheadingWithConvert:
+        "Ketika bagian pecahan tidak memiliki penyebut <y>10 atau 100...</y>",
+      summarySubheadingNoConvert:
+        "Ketika bagian pecahan memiliki penyebut <y>10 atau 100...</y>",
+      summaryCardTexts: [
+        "Ubah bagian pecahan menjadi penyebut 10.",
+        "Tulis pecahan dengan penyebut 10 sebagai desimal.",
+        "Gabungkan bilangan bulat dan bagian desimal.",
+      ],
+      summaryCardTextsNoConvert: [
+        "Ubah bagian pecahan ke bentuk desimal.",
+        "Gabungkan bilangan bulat dan bagian desimal.",
+      ],
+      questions: [
+        {
+          whole: 3,
+          numerator: 5,
+          denominator: 10,
+          skipStep2: true,
+          multiplier: 1,
+          targetDenominator: 10,
+          convertedNumerator: 5,
+          convertedDenominator: 10,
+          decimalValue: "0,5",
+          finalDecimal: "3,5",
+          mcqOptions: ["0,5", "5,0", "0,05", "0,3"],
+          mcqAnswerIndex: 0,
+          mcqFeedbacks: [
+            "Benar!",
+            "Ups! Kita perlu\npersepuluhan,\nbukan satuan.",
+            "Ups! Kita perlu\npersepuluhan,\nbukan perseratusan.",
+            "Ups! Periksa angka\npada pembilang\npecahan.",
+          ],
+          step1NavTextFinal: "",
+          questionTextStep4: "Nyatakan 3 satuan dan 0,5 sebagai satu bilangan.",
+          questionTextStep4Complete:
+            "Kita telah mendapatkan bentuk desimal dari bilangan campuran.",
+          navTextStep4Complete: "Ketuk » untuk merangkum.",
+        },
+        {
+          whole: 7,
+          numerator: 2,
+          denominator: 5,
+          skipStep2: false,
+          multiplier: 2,
+          targetDenominator: 10,
+          convertedNumerator: 4,
+          convertedDenominator: 10,
+          decimalValue: "0,4",
+          finalDecimal: "7,4",
+          mcqOptions: ["0,4", "4,0", "0,04", "0,7"],
+          mcqAnswerIndex: 0,
+          mcqFeedbacks: [
+            "Benar!",
+            "Ups! Kita perlu\npersepuluhan,\nbukan satuan.",
+            "Ups! Kita perlu\npersepuluhan,\nbukan perseratusan.",
+            "Ups! Periksa angka\npada pembilang\npecahan.",
+          ],
+          step1NavTextFinal:
+            "Ketuk » untuk menulis ulang bagian pecahan dengan penyebut 10.",
+          questionTextStep4: "Nyatakan 7 satuan dan 0,4 sebagai satu bilangan.",
+          questionTextStep4Complete:
+            "Kita telah mendapatkan bentuk desimal dari bilangan campuran.",
+          navTextStep4Complete: "Ketuk » untuk merangkum.",
+        },
+        {
+          whole: 4,
+          numerator: 3,
+          denominator: 25,
+          skipStep2: false,
+          multiplier: 4,
+          targetDenominator: 100,
+          convertedNumerator: 12,
+          convertedDenominator: 100,
+          decimalValue: "0,12",
+          finalDecimal: "4,12",
+          mcqOptions: ["0,12", "12", "1,2", "0,43"],
+          mcqAnswerIndex: 0,
+          mcqFeedbacks: [
+            "Benar!",
+            "Ups! Kita perlu\nperseratusan,\nbukan persepuluhan.",
+            "Ups! Periksa angka\npada pembilang\npecahan.",
+            "Ups! Periksa angka\npada pembilang\npecahan.",
+          ],
+          step1NavTextFinal:
+            "Ketuk » untuk menulis ulang bagian pecahan dengan penyebut 100.",
+          questionTextStep4: "Nyatakan 4 satuan dan 0,12 sebagai satu bilangan.",
+          questionTextStep4Complete:
+            "Kita telah mendapatkan bentuk desimal dari bilangan campuran.",
+          navTextStep4Complete: "Ketuk » untuk merangkum.",
         },
       ],
     },

@@ -2,7 +2,7 @@ const App = () => {
   const { useState, useEffect, useCallback } = React;
 
   // Main state
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(15);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   
   // DnD Question state

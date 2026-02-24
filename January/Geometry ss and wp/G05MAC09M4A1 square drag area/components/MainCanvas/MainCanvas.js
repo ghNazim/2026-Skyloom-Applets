@@ -1,6 +1,7 @@
 const MainCanvas = () => {
-  const { useState, useRef } = React;
+  const { useState, useRef, useEffect } = React;
   const [side, setSide] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef(null);
 
   const audioCtxRef = useRef(null);
@@ -43,7 +44,7 @@ const MainCanvas = () => {
   };
 
   const handlePointerMove = (e) => {
-    if (e.buttons !== 1) return;
+    if (!isDragging || e.buttons !== 1) return;
     const coords = getGridCoords(e);
     if (!coords) return;
     let avg = (coords.x + coords.y) / 2;
@@ -54,6 +55,27 @@ const MainCanvas = () => {
       setSide(newSide);
     }
   };
+
+  const handlePointerDown = (e) => {
+    setIsDragging(true);
+    e.preventDefault();
+  };
+
+  const handlePointerUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    const handleGlobalPointerUp = () => {
+      setIsDragging(false);
+    };
+    if (isDragging) {
+      document.addEventListener("pointerup", handleGlobalPointerUp);
+      return () => {
+        document.removeEventListener("pointerup", handleGlobalPointerUp);
+      };
+    }
+  }, [isDragging]);
 
   const handleX = padding + side * step;
   const handleY = viewBoxSize - padding - side * step;
@@ -125,13 +147,15 @@ const MainCanvas = () => {
     React.createElement(
       "div",
       { className: "grid-column" },
-      React.createElement(
+        React.createElement(
         "svg",
         {
           ref: svgRef,
           viewBox: "0 0 " + viewBoxSize + " " + (viewBoxSize + 20),
           className: "grid-svg",
           onPointerMove: handlePointerMove,
+          onPointerUp: handlePointerUp,
+          onPointerLeave: handlePointerUp,
         },
         React.createElement("rect", {
           x: padding, y: padding,
@@ -203,11 +227,15 @@ const MainCanvas = () => {
           cx: handleX, cy: handleY, r: "18",
           fill: "white", stroke: "#A855F7", strokeWidth: "3",
           className: "grid-handle-outer",
+          onPointerDown: handlePointerDown,
+          style: { cursor: "grab" },
         }),
         React.createElement("circle", {
           cx: handleX, cy: handleY, r: "6",
           fill: "#A855F7",
           className: "grid-handle-inner",
+          onPointerDown: handlePointerDown,
+          style: { cursor: "grab" },
         })
       )
     ),

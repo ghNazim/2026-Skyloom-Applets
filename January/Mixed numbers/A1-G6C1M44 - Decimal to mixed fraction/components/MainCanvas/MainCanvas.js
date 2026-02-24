@@ -367,7 +367,7 @@ const MainCanvas = ({
           { className: "main-row centered" },
           React.createElement(
             "div",
-            { className: "mixed-number-box" },
+            { className: "mixed-number-box big" },
             React.createElement("span", { className: "integer-part" }, stepData.integerPart),
             React.createElement("span", { className: "decimal-point" }, stepData.decimalPoint),
             React.createElement("span", { className: "fractional-digits" }, stepData.fractionalDigits)
@@ -386,7 +386,7 @@ const MainCanvas = ({
           { className: "main-row centered" },
           React.createElement(
             "div",
-            { className: "mixed-number-box" + (decimalTapped ? " tapped" : "") },
+            { className: "mixed-number-box big" + (decimalTapped ? " tapped" : "") },
             React.createElement("span", { className: "integer-part" }, stepData.integerPart),
             React.createElement("span", {
               className: "decimal-point clickable" + (decimalTapped ? " tapped" : ""),
@@ -642,8 +642,17 @@ const MainCanvas = ({
           React.createElement("span", { className: "equals-sign" }, stepData.equalsSign),
           React.createElement(
             "div",
-            { className: "whole-part-box", ref: wholePartRef },
-            stepData.wholePart
+            { className: "labeled-box-container", ref: wholePartRef },
+            React.createElement(
+              "div",
+              { className: "whole-part-box" },
+              stepData.wholePart
+            ),
+            React.createElement(
+              "div",
+              { className: "box-label" },
+              stepData.labelWhole
+            )
           ),
           // "and" as button (first question) or text (later questions)
           questionIndex === -1
@@ -658,8 +667,17 @@ const MainCanvas = ({
               }, stepData.andText),
           React.createElement(
             "div",
-            { className: "decimal-part-box correct", ref: fractionPartRef },
-            renderFraction(stepData.simplifiedNumerator, stepData.simplifiedDenominator)
+            { className: "labeled-box-container", ref: fractionPartRef },
+            React.createElement(
+              "div",
+              { className: "decimal-part-box correct" },
+              renderFraction(stepData.simplifiedNumerator, stepData.simplifiedDenominator)
+            ),
+            React.createElement(
+              "div",
+              { className: "box-label" },
+              stepData.labelFractional
+            )
           )
         )
       );

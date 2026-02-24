@@ -23,6 +23,14 @@ const MainCanvas = ({
   const comparisonBoxRef = useRef(null);
   const leftOperatorBoxRef = useRef(null);
   const cloneRef = useRef(null);
+  const decimalCell1Ref = useRef(null);
+  const decimalCell2Ref = useRef(null);
+  const decimalSurroundRef = useRef(null);
+  const buttonsStripRef = useRef(null);
+  const bigTableRow0Ref = useRef(null);
+  const bigTableRow1Ref = useRef(null);
+  const activeColumnSurroundRef = useRef(null);
+  const rightColumnRef = useRef(null);
 
   const placeColorMap = {
     tens: { cell: "var(--blue-2)", header: "var(--blue-3)", comparison: "var(--blue-2)" },
@@ -33,7 +41,16 @@ const MainCanvas = ({
 
   // Clone fly animation
   useLayoutEffect(() => {
-    if (!animatingSymbol) return;
+    if (!animatingSymbol) {
+      // Reset clone when not animating
+      if (cloneRef.current) {
+        const gsapLib = typeof gsap !== "undefined" ? gsap : window.gsap;
+        if (gsapLib) {
+          gsapLib.set(cloneRef.current, { opacity: 0 });
+        }
+      }
+      return;
+    }
     if (!comparisonBoxRef.current || !leftOperatorBoxRef.current) return;
 
     const srcRect = comparisonBoxRef.current.getBoundingClientRect();
@@ -47,6 +64,9 @@ const MainCanvas = ({
     const endX = destRect.left + destRect.width / 2;
     const endY = destRect.top + destRect.height / 2;
 
+    // Kill any existing animations on the clone
+    gsapLib.killTweensOf(cloneRef.current);
+
     gsapLib.set(cloneRef.current, {
       left: startX,
       top: startY,
@@ -58,10 +78,136 @@ const MainCanvas = ({
     gsapLib.to(cloneRef.current, {
       left: endX,
       top: endY,
-      duration: 0.7,
+      duration: 1.5,
       ease: "power2.inOut",
+      onComplete: () => {
+        // Fade out after animation completes
+        if (cloneRef.current) {
+          gsapLib.to(cloneRef.current, {
+            opacity: 0,
+            duration: 0.2,
+          });
+        }
+      },
     });
   }, [animatingSymbol]);
+
+  // Position decimal surround box
+  const updateDecimalSurround = () => {
+    if (!decimalCell1Ref.current || !decimalCell2Ref.current || !decimalSurroundRef.current) {
+      if (decimalSurroundRef.current) {
+        decimalSurroundRef.current.style.display = "none";
+      }
+      return;
+    }
+    // Only show after both numbers are tapped (alignPhase >= 2) and keep visible in subsequent steps
+    // Also hide if step is 1 (before alignment starts)
+    if (step === 1 || (step === 2 && alignPhase < 2)) {
+      if (decimalSurroundRef.current) {
+        decimalSurroundRef.current.style.display = "none";
+      }
+      return;
+    }
+
+    const rightColumn = decimalCell1Ref.current.closest(".right-column");
+    if (!rightColumn) return;
+
+    const columnRect = rightColumn.getBoundingClientRect();
+
+    // Get the actual text content bounding box for the decimal point
+    // The decimal cell contains the separator character, we want to surround just that
+    const rect1 = decimalCell1Ref.current.getBoundingClientRect();
+    const rect2 = decimalCell2Ref.current.getBoundingClientRect();
+    
+    // Calculate center positions and use a smaller width focused on the decimal point
+    const center1X = rect1.left + rect1.width / 2;
+    const center2X = rect2.left + rect2.width / 2;
+    const centerX = (center1X + center2X) / 2;
+    
+    // Use a smaller width - just enough to surround the decimal point
+    const decimalWidth = Math.max(rect1.width, rect2.width) * 0.6; // 60% of cell width
+    const left = centerX - decimalWidth / 2 - columnRect.left;
+    const right = centerX + decimalWidth / 2 - columnRect.left;
+    const top = Math.min(rect1.top, rect2.top) - columnRect.top;
+    const bottom = Math.max(rect1.bottom, rect2.bottom) - columnRect.top;
+
+    const padding = 0.2 * window.innerWidth / 100; // Smaller padding
+    decimalSurroundRef.current.style.display = "block";
+    decimalSurroundRef.current.style.left = (left - padding) + "px";
+    decimalSurroundRef.current.style.width = (right - left + padding * 2) + "px";
+    decimalSurroundRef.current.style.top = (top - padding) + "px";
+    decimalSurroundRef.current.style.height = (bottom - top + padding * 10) + "px";
+  };
+
+  useLayoutEffect(() => {
+    updateDecimalSurround();
+    const handleResize = () => updateDecimalSurround();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [step, alignPhase, question, questionIndex]);
+
+  // Position active-column surround (step 3: box around digit cells in active column)
+  const updateActiveColumnSurround = () => {
+    if (!activeColumnSurroundRef.current || !rightColumnRef.current) return;
+    if (step !== 3 || comparisonDone) {
+      activeColumnSurroundRef.current.style.display = "none";
+      return;
+    }
+    const q = question;
+    const allColKeys = [];
+    if (q.maxInt >= 2) allColKeys.push("tens");
+    if (q.maxInt >= 1) allColKeys.push("ones");
+    allColKeys.push("decimal");
+    if (q.maxDec >= 1) allColKeys.push("tenths");
+    if (q.maxDec >= 2) allColKeys.push("hundredths");
+
+    let activeChildIndex = -1;
+    let digitCount = 0;
+    for (let i = 0; i < allColKeys.length; i++) {
+      if (allColKeys[i] === "decimal") continue;
+      if (digitCount === compareIndex) {
+        activeChildIndex = i;
+        break;
+      }
+      digitCount++;
+    }
+    if (activeChildIndex === -1) {
+      activeColumnSurroundRef.current.style.display = "none";
+      return;
+    }
+
+    const row0 = bigTableRow0Ref.current;
+    const row1 = bigTableRow1Ref.current;
+    if (!row0 || !row1 || !row0.children[activeChildIndex] || !row1.children[activeChildIndex]) {
+      activeColumnSurroundRef.current.style.display = "none";
+      return;
+    }
+
+    const cell0 = row0.children[activeChildIndex];
+    const cell1 = row1.children[activeChildIndex];
+    const r0 = cell0.getBoundingClientRect();
+    const r1 = cell1.getBoundingClientRect();
+    const colRect = rightColumnRef.current.getBoundingClientRect();
+
+    const left = Math.min(r0.left, r1.left) - colRect.left;
+    const top = Math.min(r0.top, r1.top) - colRect.top;
+    const right = Math.max(r0.right, r1.right) - colRect.left;
+    const bottom = Math.max(r0.bottom, r1.bottom) - colRect.top;
+    const padding = 0.25 * (window.innerWidth / 100);
+
+    activeColumnSurroundRef.current.style.display = "block";
+    activeColumnSurroundRef.current.style.left = (left - padding) + "px";
+    activeColumnSurroundRef.current.style.top = (top - padding) + "px";
+    activeColumnSurroundRef.current.style.width = (right - left + padding * 2) + "px";
+    activeColumnSurroundRef.current.style.height = (bottom - top + padding * 2) + "px";
+  };
+
+  useLayoutEffect(() => {
+    updateActiveColumnSurround();
+    const handleResize = () => updateActiveColumnSurround();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [step, compareIndex, comparisonDone, question]);
 
   // ========================
   //  RENDER DECIMAL BOX (left column)
@@ -273,12 +419,18 @@ const MainCanvas = ({
         );
         digitIdx++;
       }
+      // Add animation class when step 2 is complete (alignPhase >= 2)
+      const decimalCellClass = "big-decimal-cell" + 
+        (current_language === "id" ? " cm" : "") +
+        (step === 2 && alignPhase >= 2 ? " decimal-pulse-animation" : "");
+      
       cells.push(
         React.createElement(
           "div",
           {
             key: "dec-sep",
-            className: "big-decimal-cell" + (current_language === "id" ? " cm" : ""),
+            ref: rowIdx === 0 ? decimalCell1Ref : decimalCell2Ref,
+            className: decimalCellClass,
           },
           sep
         )
@@ -303,6 +455,7 @@ const MainCanvas = ({
         "div",
         {
           key: "row-" + rowIdx,
+          ref: rowIdx === 0 ? bigTableRow0Ref : bigTableRow1Ref,
           className: "big-table-row",
           style: { gridTemplateColumns: getGridCols() },
         },
@@ -373,7 +526,7 @@ const MainCanvas = ({
           "div",
           {
             ref: comparisonBoxRef,
-            className: operatorBoxClass,
+            className: operatorBoxClass + (!comparisonOperator ? " operator-box-empty" : ""),
           },
           comparisonOperator || ""
         ),
@@ -382,6 +535,7 @@ const MainCanvas = ({
           ? React.createElement(
               "div",
               {
+                ref: buttonsStripRef,
                 className: "buttons-strip" + (buttonsDisabled ? " buttons-strip-disabled" : ""),
               },
               React.createElement(
@@ -515,9 +669,25 @@ const MainCanvas = ({
         // Right column (50%)
         React.createElement(
           "div",
-          { className: "right-column" },
+          { ref: rightColumnRef, className: "right-column" },
           showTable ? renderBigTable() : null,
-          showComparisonRow ? renderComparisonRow() : null
+          showComparisonRow ? renderComparisonRow() : null,
+          // Decimal surround box
+          React.createElement(
+            "div",
+            {
+              ref: decimalSurroundRef,
+              className: "decimal-surround-box",
+            }
+          ),
+          // Step 3: active column surround (digit cells of row 1 & 2)
+          React.createElement(
+            "div",
+            {
+              ref: activeColumnSurroundRef,
+              className: "active-column-surround",
+            }
+          )
         )
       ),
       // Text row (rest)

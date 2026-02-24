@@ -29,6 +29,7 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
   const [operatorSelected, setOperatorSelected] = useState(null);
   const [operatorCorrect, setOperatorCorrect] = useState(false);
   const [shakeOperator, setShakeOperator] = useState(null); // which operator is shaking
+  const [wrongOperator, setWrongOperator] = useState(null); // which operator is in wrong state (red)
 
   // ── Step 4 animation done ──
   const [animDone, setAnimDone] = useState(false);
@@ -50,6 +51,7 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
     setFeedbackText("");
     setFeedbackType("");
     setShakeOperator(null);
+    setWrongOperator(null);
     setOperatorSelected(null);
     setOperatorCorrect(false);
     setAnimDone(false);
@@ -123,11 +125,9 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
     // 1. Compare Ones
     const moveOnes = Math.min(cOnes1, cOnes2);
     if (moveOnes > 0) {
-      await animateMoveToRotor("one", moveOnes, cOnes1, cOnes2);
+      await animateMoveToRotor("one", moveOnes, cOnes1, cOnes2, setOnes1, setOnes2);
       cOnes1 -= moveOnes;
       cOnes2 -= moveOnes;
-      setOnes1(cOnes1);
-      setOnes2(cOnes2);
     }
 
     // Check inequality
@@ -141,11 +141,9 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
     await new Promise(r => setTimeout(r, 500));
     const moveTenths = Math.min(cTenths1, cTenths2);
     if (moveTenths > 0) {
-      await animateMoveToRotor("tenth", moveTenths, cTenths1, cTenths2);
+      await animateMoveToRotor("tenth", moveTenths, cTenths1, cTenths2, setTenths1, setTenths2);
       cTenths1 -= moveTenths;
       cTenths2 -= moveTenths;
-      setTenths1(cTenths1);
-      setTenths2(cTenths2);
     }
 
     if (cTenths1 > 0 || cTenths2 > 0) {
@@ -157,11 +155,9 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
     await new Promise(r => setTimeout(r, 500));
     const moveHunds = Math.min(cHunds1, cHunds2);
     if (moveHunds > 0) {
-      await animateMoveToRotor("hundredth", moveHunds, cHunds1, cHunds2);
+      await animateMoveToRotor("hundredth", moveHunds, cHunds1, cHunds2, setHundredths1, setHundredths2);
       cHunds1 -= moveHunds;
       cHunds2 -= moveHunds;
-      setHundredths1(cHunds1);
-      setHundredths2(cHunds2);
     }
 
     finishAnimation();
@@ -177,38 +173,32 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
     onEnableNext(qData.step4.nAfterAnimation);
   };
 
-  const animateMoveToRotor = (type, count, currentCount1, currentCount2) => {
-    return new Promise((resolve) => {
-      const elementsToMove = [];
+  const animateMoveToRotor = async (type, count, currentCount1, currentCount2, setLeft, setRight) => {
+    const rotorEl = rotorRef.current;
+    if (!rotorEl) {
+      return;
+    }
+
+    const rotorRect = rotorEl.getBoundingClientRect();
+    const rotorCenterX = rotorRect.left + rotorRect.width / 2;
+    const rotorCenterY = rotorRect.top + rotorRect.height / 2;
+
+    // Move pairs one by one (one from left, one from right together)
+    for (let i = 0; i < count; i++) {
+      const leftIdx = currentCount1 - 1 - i;
+      const rightIdx = currentCount2 - 1 - i;
       
-      // Identify Left Elements (top 'count' items)
-      // Stacked squares (type="one") are indexed 0..N-1 (0 is bottom). Top is N-1.
-      // So range: [currentCount1 - count, currentCount1 - 1]
-      for (let i = 0; i < count; i++) {
-        const idx = currentCount1 - 1 - i; 
-        const el = document.getElementById(`sq-${type}-left-${idx}`);
-        if (el) elementsToMove.push({ el, side: 'left' });
-      }
+      const leftEl = document.getElementById(`sq-${type}-left-${leftIdx}`);
+      const rightEl = document.getElementById(`sq-${type}-right-${rightIdx}`);
 
-      // Identify Right Elements
-      for (let i = 0; i < count; i++) {
-        const idx = currentCount2 - 1 - i;
-        const el = document.getElementById(`sq-${type}-right-${idx}`);
-        if (el) elementsToMove.push({ el, side: 'right' });
-      }
+      const pairs = [];
+      if (leftEl) pairs.push({ el: leftEl, side: 'left' });
+      if (rightEl) pairs.push({ el: rightEl, side: 'right' });
 
-      const rotorEl = rotorRef.current;
-      if (!rotorEl || elementsToMove.length === 0) {
-        resolve();
-        return;
-      }
+      if (pairs.length === 0) continue;
 
-      const rotorRect = rotorEl.getBoundingClientRect();
-      const rotorCenterX = rotorRect.left + rotorRect.width / 2;
-      const rotorCenterY = rotorRect.top + rotorRect.height / 2;
-
-      // Create Clones
-      const clones = elementsToMove.map(item => {
+      // Create clones for this pair
+      const clones = pairs.map(item => {
         const rect = item.el.getBoundingClientRect();
         const clone = item.el.cloneNode(true);
         
@@ -224,30 +214,54 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
         clone.style.margin = '0'; // clear margins
         clone.style.transform = 'none'; // clear CSS transforms
         clone.style.zIndex = '1000';
+        clone.style.opacity = '1'; // Start with full opacity
         clone.classList.add('clone-anim');
         document.body.appendChild(clone);
 
         // Hide original
         item.el.style.opacity = '0';
 
-        return clone;
+        return { clone, targetX: rotorCenterX - rect.left - rect.width/2, targetY: rotorCenterY - rect.top - rect.height/2 };
       });
 
-      // Animate
-      gsap.to(clones, {
-        duration: 1.5,
-        x: (i) => rotorCenterX - parseFloat(clones[i].style.left) - parseFloat(clones[i].style.width)/2,
-        y: (i) => rotorCenterY - parseFloat(clones[i].style.top) - parseFloat(clones[i].style.height)/2,
-        scale: 0.5,
-        opacity: 0,
-        ease: "power2.inOut",
-        stagger: 0.05,
-        onComplete: () => {
-          clones.forEach(c => c.remove());
-          resolve();
-        }
+      // Animate this pair - keep full opacity during movement, fade out only at the end
+      await new Promise((resolve) => {
+        const timeline = gsap.timeline({
+          onComplete: () => {
+            clones.forEach(c => c.clone.remove());
+            resolve();
+          }
+        });
+
+        clones.forEach(({ clone, targetX, targetY }) => {
+          // Move to rotor with full opacity
+          timeline.to(clone, {
+            duration: 1.5,
+            x: targetX,
+            y: targetY,
+            scale: 0.5,
+            opacity: 1, // Keep full opacity during movement
+            ease: "power2.inOut"
+          }, 0); // Start all in this pair at the same time
+        });
+
+        // Fade out at the very end (when they reach the rotor)
+        timeline.to(clones.map(c => c.clone), {
+          duration: 0.2,
+          opacity: 0,
+          ease: "power1.out"
+        }, "-=0.2"); // Start 0.2s before the movement completes
       });
-    });
+
+      // Update counts so the label shows on the new last block (n-1, n-2, ...)
+      const newCount1 = currentCount1 - (i + 1);
+      const newCount2 = currentCount2 - (i + 1);
+      setLeft(newCount1);
+      setRight(newCount2);
+
+      // Small delay between pairs
+      await new Promise(r => setTimeout(r, 200));
+    }
   };
 
   // ── Check handler for step 1 (num1) ──
@@ -295,6 +309,12 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
   // ── Operator button click (step 3) ──
   const handleOperatorClick = (op) => {
     if (operatorCorrect) return;
+    
+    // Clear previous wrong state when any button is clicked
+    if (wrongOperator !== null) {
+      setWrongOperator(null);
+    }
+    
     const correctOp = qData.step3.correctOperator;
     if (op === correctOp) {
       playSound("correct");
@@ -311,6 +331,9 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
           setFeedbackText(qData.step3.wrongFeedback);
           setFeedbackType("warn");
       }
+      // Set wrong operator state (red background) - persists until another button is clicked
+      setWrongOperator(op);
+      // Shake animation only for 0.3s
       setShakeOperator(op);
       setTimeout(() => setShakeOperator(null), 300);
     }
@@ -471,7 +494,7 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
           style: { opacity: shouldShowDisplay ? 1 : 0, transition: 'opacity 0.5s' }
       },
         React.createElement("div", { className: "num-box" }, wholeDigit),
-        React.createElement("div", { className: "num-dot" }, "."),
+        React.createElement("div", { className: "num-dot " + current_language }, decimalChar),
         React.createElement("div", { className: "num-box" }, decDigits[0]),
         React.createElement("div", { className: "num-box" }, decDigits[1])
       )
@@ -487,7 +510,8 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
       operators.map(op => {
         let btnClass = "operator-btn";
         if (operatorCorrect && operatorSelected === op) btnClass += " correct";
-        if (shakeOperator === op) btnClass += " shake-red";
+        // Apply shake-red class if this operator is wrong (red state persists) or currently shaking
+        if (wrongOperator === op || shakeOperator === op) btnClass += " shake-red";
         if (operatorCorrect) btnClass += " disabled";
         return React.createElement("button", {
           key: op,
@@ -515,7 +539,10 @@ const MainCanvas = ({ qIndex, step, onEnableNext }) => {
     // ── VISUAL ROW (85%) ──
     React.createElement("div", { className: "visual-row" },
       // Left column (num1) - 44%
-      React.createElement("div", { className: "vis-col vis-col-left" },
+      React.createElement("div", { 
+        className: "vis-col vis-col-left",
+        style: { opacity: step === 2 ? 0.4 : 1, transition: 'opacity 0.3s' }
+      },
         showLeftVisual && renderVisualContainer("left")
       ),
       // Middle column (operators) - 12%

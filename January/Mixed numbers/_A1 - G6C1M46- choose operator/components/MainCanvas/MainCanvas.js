@@ -14,8 +14,12 @@ const MainCanvas = ({
   const [cloneFlying, setCloneFlying] = useState(false);
   const [cloneStyle, setCloneStyle] = useState(null);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
+  const [wrongPulsateActive, setWrongPulsateActive] = useState(true); // red pulsate for 3–4 cycles then stop
+  const [showWiggle, setShowWiggle] = useState(false);
 
   const STEP_DELAY_MS = 3500;
+  const WRONG_PULSATE_DURATION_MS = 3200; // 4 × 0.8s
+  const WIGGLE_DURATION_MS = 300;
 
   const operatorBoxRef = useRef(null);
   const correctButtonRef = useRef(null);
@@ -30,7 +34,32 @@ const MainCanvas = ({
     setCloneFlying(false);
     setCloneStyle(null);
     setFeedbackVisible(false);
+    setWrongPulsateActive(true);
+    setShowWiggle(false);
   }, [questionIndex]);
+
+  // Wrong answer: red pulsate for 3–4 cycles then keep only red highlight
+  useEffect(() => {
+    const isWrong = selectedOperator !== null && selectedOperator !== question.operator;
+    if (!isWrong) {
+      setWrongPulsateActive(true);
+      return;
+    }
+    setWrongPulsateActive(true);
+    const t = setTimeout(() => setWrongPulsateActive(false), WRONG_PULSATE_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [selectedOperator, question.operator]);
+
+  // Wrong answer: wiggle buttons strip once per wrong selection
+  useEffect(() => {
+    const isWrong = selectedOperator !== null && selectedOperator !== question.operator;
+    if (isWrong) setShowWiggle(true);
+  }, [selectedOperator, question.operator]);
+  useEffect(() => {
+    if (!showWiggle) return;
+    const t = setTimeout(() => setShowWiggle(false), WIGGLE_DURATION_MS);
+    return () => clearTimeout(t);
+  }, [showWiggle]);
 
   // Enter phase 1 when user selects correct operator; trigger feedback transition for wrong
   useEffect(() => {
@@ -146,8 +175,10 @@ const MainCanvas = ({
           spanClass += " decimal-char" ;
           if(ch === ",") spanClass += " cm";
         } else {
-          if (isHighlight && isWrong) spanClass += " digit-highlight-wrong";
-          else if (isHighlight && phase1Blue && correctPhase === 1) spanClass += " blue-pulsate";
+          if (isHighlight && isWrong) {
+            spanClass += " digit-highlight-wrong";
+            if (wrongPulsateActive) spanClass += " red-pulsate";
+          } else if (isHighlight && phase1Blue && correctPhase === 1) spanClass += " blue-pulsate";
           else if (isHighlight && (phase2Green || isRight)) spanClass += " digit-highlight-correct";
         }
         return React.createElement("span", { key: i, className: spanClass }, ch);
@@ -259,10 +290,12 @@ const MainCanvas = ({
             },
             operatorBoxContent
           ),
-          React.createElement(
+          (isCorrectCurrent ? null : React.createElement(
             "div",
             {
-              className: "buttons-strip" + (inCorrectFlow || isCorrectCurrent ? " buttons-strip-disabled" : ""),
+              className: "buttons-strip"
+                + (inCorrectFlow ? " buttons-strip-disabled" : "")
+                + (selectedOperator !== null && !isCorrectChoice && showWiggle ? " buttons-strip-wiggle" : ""),
             },
             React.createElement(
               "button",
@@ -297,7 +330,7 @@ const MainCanvas = ({
               },
               "<"
             )
-          )
+          ))
         ),
         renderDecimalNumber(question.num2)
       )

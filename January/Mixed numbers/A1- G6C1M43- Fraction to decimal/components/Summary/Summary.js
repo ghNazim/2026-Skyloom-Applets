@@ -10,16 +10,47 @@ const Summary = ({ question, onContinue }) => {
     ? APP_DATA.summaryCardTextsNoConvert
     : APP_DATA.summaryCardTexts;
 
-  // Helper to render decimal with colored point and digits
+  // Helper to render decimal with colored point/digit and digits (supports . and , for id locale)
   const renderColoredDecimal = (val, digitColorClass = "") => {
-    const parts = val.split(".");
+    const sep = val.includes(",") ? "," : ".";
+    const parts = val.split(sep);
     if (parts.length !== 2) return val;
+    const separatorEl =
+      current_language === "id"
+        ? React.createElement("cm", { className: "summary-decimal-comma text-pink" }, ",")
+        : React.createElement("span", { className: "summary-decimal-point text-pink" }, ".");
     return React.createElement(
       React.Fragment,
       null,
       parts[0],
-      React.createElement("span", { className: "summary-decimal-point text-pink" }, "."),
+      separatorEl,
       React.createElement("span", { className: digitColorClass }, parts[1])
+    );
+  };
+
+  // Helper to render decimal with one small bracket below each digit after decimal (for Card 3)
+  const renderColoredDecimalWithBrackets = (val, digitColorClass = "") => {
+    const sep = val.includes(",") ? "," : ".";
+    const parts = val.split(sep);
+    if (parts.length !== 2) return val;
+    const decimalDigits = parts[1];
+    const separatorEl =
+      current_language === "id"
+        ? React.createElement("cm", { className: "summary-decimal-comma text-pink" }, ",")
+        : React.createElement("span", { className: "summary-decimal-point text-pink" }, ".");
+    return React.createElement(
+      React.Fragment,
+      null,
+      parts[0],
+      separatorEl,
+      ...decimalDigits.split("").map((digit, i) =>
+        React.createElement(
+          "span",
+          { key: i, className: "summary-decimal-digit-with-bracket" },
+          React.createElement("span", { className: digitColorClass }, digit),
+          React.createElement("span", { className: "summary-decimal-bracket text-orange" })
+        )
+      )
     );
   };
 
@@ -73,7 +104,7 @@ const Summary = ({ question, onContinue }) => {
                   "div",
                   { className: "summary-fraction-num" },
                   React.createElement("span", null, q.numerator),
-                  React.createElement("span", { className: "summary-multiplier text-skyblue" }, "×" + q.multiplier)
+                  React.createElement("span", { className: "summary-multiplier text-green" }, "×" + q.multiplier)
                 ),
                 React.createElement("div", { className: "summary-fraction-line" }),
                 React.createElement(
@@ -111,7 +142,7 @@ const Summary = ({ question, onContinue }) => {
                 React.createElement(
                   "div",
                   { className: "summary-fraction-num" },
-                  React.createElement("span", { className: "summary-converted text-skyblue" }, q.convertedNumerator)
+                  React.createElement("span", { className: "summary-converted text-green" }, q.convertedNumerator)
                 ),
                 React.createElement("div", { className: "summary-fraction-line" }),
                 React.createElement(
@@ -144,7 +175,7 @@ const Summary = ({ question, onContinue }) => {
               React.createElement(
                 "span",
                 { className: "summary-decimal" },
-                renderColoredDecimal(q.decimalValue, "text-skyblue")
+                renderColoredDecimalWithBrackets(q.decimalValue, "text-green")
               )
             )
           ),
@@ -168,7 +199,7 @@ const Summary = ({ question, onContinue }) => {
               React.createElement(
                 "span",
                 { className: "summary-final-decimal" },
-                renderColoredDecimal(q.finalDecimal, "text-skyblue")
+                renderColoredDecimal(q.finalDecimal, "text-green")
               )
             )
           ),
@@ -196,7 +227,7 @@ const Summary = ({ question, onContinue }) => {
                 React.createElement(
                   "div",
                   { className: "summary-fraction-num" },
-                  React.createElement("span", { className: "text-skyblue" }, q.numerator)
+                  React.createElement("span", { className: "text-green" }, q.numerator)
                 ),
                 React.createElement("div", { className: "summary-fraction-line" }),
                 React.createElement(
@@ -229,7 +260,7 @@ const Summary = ({ question, onContinue }) => {
               React.createElement(
                 "span",
                 { className: "summary-decimal" },
-                renderColoredDecimal(q.decimalValue, "text-skyblue")
+                renderColoredDecimalWithBrackets(q.decimalValue, "text-green")
               )
             )
           ),
@@ -253,7 +284,7 @@ const Summary = ({ question, onContinue }) => {
               React.createElement(
                 "span",
                 { className: "summary-final-decimal" },
-                 renderColoredDecimal(q.finalDecimal, "text-skyblue")
+                 renderColoredDecimal(q.finalDecimal, "text-green")
               )
             )
           ),
@@ -270,8 +301,8 @@ const Summary = ({ question, onContinue }) => {
     { className: "summary-panel" },
     React.createElement(
       "p",
-      { className: "summary-subheading" },
-      subheading
+      { className: "summary-subheading" , dangerouslySetInnerHTML: { __html: subheading } },
+      
     ),
     React.createElement(
       "div",

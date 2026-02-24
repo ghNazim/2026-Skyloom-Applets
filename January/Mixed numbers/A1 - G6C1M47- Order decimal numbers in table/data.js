@@ -11,7 +11,7 @@ const DATA = {
     questions: [
       { numbers: [3.48, 2.73, 5.15], arrangement: "s2l" },
       { numbers: [6.95, 6.36, 5.15], arrangement: "s2l" },
-      { numbers: [5.42, 5.49, 5.43], arrangement: "s2l" },
+      { numbers: [5.42, 5.49, 5.43], arrangement: "l2s" },
       { numbers: [7.56, 1.94, 9.08, 0.81], arrangement: "s2l" },
       { numbers: [2.13, 2.94, 2.52, 2.72], arrangement: "l2s" },
       { numbers: [31.58, 4.13, 76.09], arrangement: "s2l" },
@@ -33,24 +33,24 @@ const DATA = {
     // Start screen (Step 0)
     start: {
       heading: "Ordering Decimal Numbers",
-      text: "Let's learn how to order decimal numbers from\nsmallest to largest or largest to smallest.",
+      text: "Let's learn how to order <y>decimal numbers</y> from\n<y>smallest to largest</y> or <y>largest to smallest</y>.",
       buttonText: "Start",
     },
 
     // Final screen (Step 2)
     final: {
       heading: "Ordering Decimal Numbers",
-      text: "<left>Awesome!<br>You now know how to order decimals from smallest to<br>largest or largest to smallest by comparing digits from<br>left to right.</left>",
+      text: "Awesome!<br>You now know how to order decimals from \n<y>smallest to largest</y> or <y>largest to smallest</y> \nby comparing digits from <y>left to right</y>.",
       buttonText: "Start Over",
     },
 
     // Step 1 (question solving)
     step1: {
-      questionS2L: "Arrange the decimal numbers in order from smallest to largest.",
-      questionL2S: "Arrange the decimal numbers in order from largest to smallest.",
+      questionS2L: "Arrange the decimal numbers in order from <y>smallest</y> to <y>largest</y>.",
+      questionL2S: "Arrange the decimal numbers in order from <y>largest</y> to <y>smallest</y>.",
       navText: "Tap a decimal, tap a position to move to, then tap Check.",
-      navTextNext: "Tap ≫ to try next decimal numbers.",
-      navTextComplete: "Tap ≫ to complete the activity.",
+      navTextNext: "Tap » to try next decimal numbers.",
+      navTextComplete: "Tap » to complete the activity.",
     },
 
     // Buttons & labels
@@ -66,7 +66,7 @@ const DATA = {
     questions: [
       { numbers: [3.48, 2.73, 5.15], arrangement: "s2l" },
       { numbers: [6.95, 6.36, 5.15], arrangement: "s2l" },
-      { numbers: [5.42, 5.49, 5.43], arrangement: "s2l" },
+      { numbers: [5.42, 5.49, 5.43], arrangement: "l2s" },
       { numbers: [7.56, 1.94, 9.08, 0.81], arrangement: "s2l" },
       { numbers: [2.13, 2.94, 2.52, 2.72], arrangement: "l2s" },
       { numbers: [31.58, 4.13, 76.09], arrangement: "s2l" },
@@ -85,22 +85,22 @@ const DATA = {
 
     start: {
       heading: "Mengurutkan Bilangan Desimal",
-      text: "Mari belajar mengurutkan bilangan desimal dari\nterkecil ke terbesar atau terbesar ke terkecil.",
+      text: "Mari belajar mengurutkan <y>bilangan desimal</y> dari\n<y>terkecil ke terbesar</y> atau <y>terbesar ke terkecil</y>.",
       buttonText: "Mulai",
     },
 
     final: {
       heading: "Mengurutkan Bilangan Desimal",
-      text: "<left>Luar biasa!<br>Kamu sekarang tahu cara mengurutkan desimal dari terkecil ke<br>terbesar atau terbesar ke terkecil dengan membandingkan angka dari<br>kiri ke kanan.</left>",
+      text: "Luar biasa!<br>Kamu sekarang tahu cara mengurutkan desimal dari \n<y>terkecil ke terbesar</y> atau <y>terbesar ke terkecil</y>\n dengan membandingkan angka dari <y>kiri ke kanan</y>.",
       buttonText: "Ulangi",
     },
 
     step1: {
-      questionS2L: "Susun bilangan desimal dari yang terkecil ke terbesar.",
-      questionL2S: "Susun bilangan desimal dari yang terbesar ke terkecil.",
+      questionS2L: "Susun bilangan desimal dari yang <y>terkecil</y> ke <y>terbesar</y>.",
+      questionL2S: "Susun bilangan desimal dari yang <y>terbesar</y> ke <y>terkecil</y>.",
       navText: "Ketuk desimal, ketuk posisi untuk dipindahkan, lalu ketuk Periksa.",
-      navTextNext: "Ketuk ≫ untuk mencoba bilangan desimal berikutnya.",
-      navTextComplete: "Ketuk ≫ untuk menyelesaikan aktivitas.",
+      navTextNext: "Ketuk » untuk mencoba bilangan desimal berikutnya.",
+      navTextComplete: "Ketuk » untuk menyelesaikan aktivitas.",
     },
 
     checkBtn: "Periksa",

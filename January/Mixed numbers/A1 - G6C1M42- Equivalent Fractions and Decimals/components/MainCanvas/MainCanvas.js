@@ -19,14 +19,18 @@ const MainCanvas = ({
   const [step3Selected, setStep3Selected] = useState(null);
   const [step3Correct, setStep3Correct] = useState(false);
 
-  // Step 4: numpad input
-  const [numpadInput, setNumpadInput] = useState("");
-  const [inputCorrect, setInputCorrect] = useState(false);
-  const [inputWrong, setInputWrong] = useState(false);
+  // Step 4: numpad input (both boxes share same value; both highlighted; submit checks both)
+  const [numeratorInput, setNumeratorInput] = useState("");
+  const [denominatorInput, setDenominatorInput] = useState("");
+  const [numeratorCorrect, setNumeratorCorrect] = useState(false);
+  const [denominatorCorrect, setDenominatorCorrect] = useState(false);
+  const [numeratorWrong, setNumeratorWrong] = useState(false);
+  const [denominatorWrong, setDenominatorWrong] = useState(false);
   const [inputShake, setInputShake] = useState(false);
   const [numpadDisabled, setNumpadDisabled] = useState(false);
   const [numpadFeedback, setNumpadFeedback] = useState(null);
   const [numpadFeedbackType, setNumpadFeedbackType] = useState(null);
+  const [bothInputsSubmitted, setBothInputsSubmitted] = useState(false);
 
   // Step 5: animation states
   const [resultAnimDone, setResultAnimDone] = useState(false);
@@ -62,13 +66,17 @@ const MainCanvas = ({
     setStep2Correct(false);
     setStep3Selected(null);
     setStep3Correct(false);
-    setNumpadInput("");
-    setInputCorrect(false);
-    setInputWrong(false);
+    setNumeratorInput("");
+    setDenominatorInput("");
+    setNumeratorCorrect(false);
+    setDenominatorCorrect(false);
+    setNumeratorWrong(false);
+    setDenominatorWrong(false);
     setInputShake(false);
     setNumpadDisabled(false);
     setNumpadFeedback(null);
     setNumpadFeedbackType(null);
+    setBothInputsSubmitted(false);
     setResultAnimDone(false);
     setVanishAnimDone(false);
     setStep6Selected(null);
@@ -167,7 +175,7 @@ const MainCanvas = ({
             top: resultNumRect.top + resultNumRect.height / 2 - numRect.height / 2,
             scale: targetScale,
             opacity: 0, // Fade out as it merges
-            duration: 0.8,
+            duration: 1.04, // Increased by 30% from 0.8
             ease: "power2.inOut",
           },
           0
@@ -179,7 +187,7 @@ const MainCanvas = ({
             top: resultDenRect.top + resultDenRect.height / 2 - denRect.height / 2,
             scale: targetScale,
             opacity: 0,
-            duration: 0.8,
+            duration: 1.04, // Increased by 30% from 0.8
             ease: "power2.inOut",
           },
           0
@@ -187,7 +195,7 @@ const MainCanvas = ({
       } else {
         setResultAnimDone(true);
       }
-    }, 600);
+    }, 780); // Increased by 30% from 600ms
 
     return () => clearTimeout(timer1);
   }, [step, questionIndex]);
@@ -208,23 +216,23 @@ const MainCanvas = ({
              setVanishAnimDone(true);
              setTimeout(() => {
                onAdvanceStep();
-             }, 1000);
+             }, 1300); // Increased by 30% from 1000ms
           },
         });
 
         tl.to([inputContainer, equalSignAfter], {
           scale: 0,
           opacity: 0,
-          duration: 0.4,
+          duration: 0.52, // Increased by 30% from 0.4
           ease: "back.in(1.7)",
         });
       } else {
         setVanishAnimDone(true);
         setTimeout(() => {
           onAdvanceStep();
-        }, 1000);
+        }, 1300); // Increased by 30% from 1000ms
       }
-    }, 1000);
+    }, 1300); // Increased by 30% from 1000ms - delay before Phase 2 starts
 
     return () => clearTimeout(timer2);
   }, [step, questionIndex, resultAnimDone]);
@@ -270,40 +278,73 @@ const MainCanvas = ({
   // STEP 4: Numpad callbacks
   // =============================================
   const handleNumpadNumber = (num) => {
-    if (inputCorrect || numpadDisabled) return;
-    setNumpadInput((prev) => prev + num);
+    if (numpadDisabled) return;
+    
+    // If feedback is showing (incorrect), clear it when user starts typing
+    if (numpadFeedbackType === "incorrect") {
+      setNumpadFeedback(null);
+      setNumpadFeedbackType(null);
+    }
+    
+    if (bothInputsSubmitted && !numeratorCorrect && !denominatorCorrect) {
+      // Both wrong, reset and allow typing again
+      setNumeratorInput("");
+      setDenominatorInput("");
+      setBothInputsSubmitted(false);
+      setNumeratorWrong(false);
+      setDenominatorWrong(false);
+    }
+    
+    // Fill both boxes with the same value (max 2 digits)
+    const append = (prev) => (prev.length >= 2 ? prev : prev + num);
+    setNumeratorInput(append);
+    setDenominatorInput(append);
   };
 
   const handleNumpadClear = () => {
-    if (inputCorrect || numpadDisabled) return;
-    setNumpadInput((prev) => prev.slice(0, -1));
+    if (numpadDisabled) return;
+    setNumeratorInput((prev) => prev.slice(0, -1));
+    setDenominatorInput((prev) => prev.slice(0, -1));
   };
 
   const handleNumpadSubmit = () => {
-    if (inputCorrect || numpadDisabled) return;
+    if (numpadDisabled) return;
     const correctVal = String(stepData.multiplier);
+    const numCorrect = numeratorInput === correctVal;
+    const denCorrect = denominatorInput === correctVal;
 
-    if (numpadInput === correctVal) {
+    setBothInputsSubmitted(true);
+
+    if (numCorrect && denCorrect) {
+      // Both correct -> both green
       playSound("correct");
-      setInputCorrect(true);
+      setNumeratorCorrect(true);
+      setDenominatorCorrect(true);
+      setNumeratorWrong(false);
+      setDenominatorWrong(false);
       setNumpadDisabled(true);
       setNumpadFeedback(stepData.correctFeedback);
       setNumpadFeedbackType("correct");
-      // Auto advance after 3 seconds
-      setTimeout(() => {
-        onAdvanceStep();
-      }, 3000);
+      setTimeout(() => onAdvanceStep(), 3000);
     } else {
+      // Both wrong -> both red (or partial; with shared value we only get both same)
       playSound("wrong");
-      setInputWrong(true);
-      setInputShake(true);
-      setNumpadFeedback(stepData.wrongFeedback);
+      setNumeratorCorrect(numCorrect);
+      setDenominatorCorrect(denCorrect);
+      setNumeratorWrong(!numCorrect);
+      setDenominatorWrong(!denCorrect);
+      setNumpadFeedback(numCorrect || denCorrect ? stepData.partialFeedback : stepData.wrongFeedback);
       setNumpadFeedbackType("incorrect");
       setTimeout(() => {
         setInputShake(false);
-        setInputWrong(false);
-        setNumpadInput("");
-      }, 500);
+        setNumeratorInput("");
+        setDenominatorInput("");
+        setBothInputsSubmitted(false);
+        setNumeratorCorrect(false);
+        setDenominatorCorrect(false);
+        setNumeratorWrong(false);
+        setDenominatorWrong(false);
+      }, 2000);
     }
   };
 
@@ -417,6 +458,20 @@ const MainCanvas = ({
     // ===== STEP 4: fraction = input fraction container =====
     if (step === 4) {
       const opSymbol = q.operationSymbol;
+      // Both boxes highlighted while user is entering (before submit)
+      const bothHighlighted = !numpadDisabled && !bothInputsSubmitted;
+      const numBoxClass =
+        "input-box" +
+        (bothHighlighted ? " highlighted" : "") +
+        (numeratorCorrect ? " correct" : "") +
+        (numeratorWrong ? " wrong" : "") +
+        (inputShake ? " input-shake" : "");
+      const denBoxClass =
+        "input-box" +
+        (bothHighlighted ? " highlighted" : "") +
+        (denominatorCorrect ? " correct" : "") +
+        (denominatorWrong ? " wrong" : "") +
+        (inputShake ? " input-shake" : "");
 
       return React.createElement(
         "div",
@@ -438,7 +493,7 @@ const MainCanvas = ({
               { className: "input-fraction-row" },
               React.createElement(
                 "span",
-                { className: "multiply-operand" },
+                { className: "multiply-operand "+ (questionIndex === 3? "dig3" : "") },
                 q.numerator
               ),
               React.createElement(
@@ -448,15 +503,8 @@ const MainCanvas = ({
               ),
               React.createElement(
                 "div",
-                {
-                  className:
-                    "input-box" +
-                    (!inputCorrect && !inputWrong ? " highlighted" : "") +
-                    (inputCorrect ? " correct" : "") +
-                    (inputWrong ? " wrong" : "") +
-                    (inputShake ? " input-shake" : ""),
-                },
-                numpadInput || "\u00A0"
+                { className: numBoxClass },
+                numeratorInput || "\u00A0"
               )
             ),
             React.createElement("div", { className: "input-fraction-line" }),
@@ -465,7 +513,7 @@ const MainCanvas = ({
               { className: "input-fraction-row" },
               React.createElement(
                 "span",
-                { className: "multiply-operand" },
+                { className: "multiply-operand "+ (questionIndex === 3? "dig3" : "") },
                 q.denominator
               ),
               React.createElement(
@@ -475,15 +523,8 @@ const MainCanvas = ({
               ),
               React.createElement(
                 "div",
-                {
-                  className:
-                    "input-box" +
-                    (!inputCorrect && !inputWrong ? " highlighted" : "") +
-                    (inputCorrect ? " correct" : "") +
-                    (inputWrong ? " wrong" : "") +
-                    (inputShake ? " input-shake" : ""),
-                },
-                numpadInput || "\u00A0"
+                { className: denBoxClass },
+                denominatorInput || "\u00A0"
               )
             )
           )
@@ -549,7 +590,7 @@ const MainCanvas = ({
               { className: "input-fraction-row", ref: inputNumRowRef },
               React.createElement(
                 "span",
-                { className: "multiply-operand" },
+                { className: "multiply-operand "+ (questionIndex === 3? "dig3" : "") },
                 q.numerator
               ),
               React.createElement(
@@ -569,7 +610,7 @@ const MainCanvas = ({
               { className: "input-fraction-row", ref: inputDenRowRef },
               React.createElement(
                 "span",
-                { className: "multiply-operand" },
+                { className: "multiply-operand "+ (questionIndex === 3? "dig3" : "") },
                 q.denominator
               ),
               React.createElement(
@@ -732,8 +773,9 @@ const MainCanvas = ({
             className:
               "numpad-feedback-box" +
               (numpadFeedbackType ? " " + numpadFeedbackType : " hidden"),
+            dangerouslySetInnerHTML: numpadFeedback ? { __html: numpadFeedback.replace(/\n/g, '<br>') } : undefined,
           },
-          numpadFeedback
+          !numpadFeedback ? null : undefined
         ),
         React.createElement(Numpad, {
           disabled: numpadDisabled,

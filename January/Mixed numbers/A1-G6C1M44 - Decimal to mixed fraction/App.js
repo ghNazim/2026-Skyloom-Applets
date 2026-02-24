@@ -66,7 +66,15 @@ const App = () => {
     playSound("click");
     if (currentStep === 5) {
       if (nextQuestionIndex < questions.length) {
-        setCurrentStep(6);
+        // Only show intro screen for the first question (index 0)
+        if (nextQuestionIndex === 0) {
+          setCurrentStep(6);
+        } else {
+          // Skip intro screen for subsequent questions, go directly to step 1
+          setCurrentQuestionIndex(nextQuestionIndex);
+          setCurrentStep(1);
+          setIsNextDisabled(false);
+        }
       } else {
         setCurrentStep(7);
       }
@@ -129,8 +137,8 @@ const App = () => {
     );
   }
 
-  // Step 6: Decimal intro (next question from array)
-  if (currentStep === 6 && questions[nextQuestionIndex]) {
+  // Step 6: Decimal intro (only for first question in array, index 0)
+  if (currentStep === 6 && nextQuestionIndex === 0 && questions[nextQuestionIndex]) {
     const q = questions[nextQuestionIndex];
     const intro = APP_DATA.step6Intro || {};
     return React.createElement(

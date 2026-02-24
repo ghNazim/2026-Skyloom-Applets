@@ -178,7 +178,7 @@
   border: 2px solid #66bb6a !important;
 }
 
-/* Buttons strip - absolutely positioned below operator box */
+/* Buttons strip - callout box with bordered triangle from top middle */
 .buttons-strip-disabled {
   pointer-events: none;
 }
@@ -188,16 +188,71 @@
   top: 160%;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 0.5vw;
   display: flex;
   flex-direction: row;
-  gap: 1vw;
+  gap: 0.8vw;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 1);
-  border-radius: 1.5vw;
-  padding: 1vw 2vw;
-  border: 0.3vw solid #ffffff;
+  background-color: rgba(0, 0, 0, 0.95);
+  border-radius: 1.2vw;
+  padding: 0.8vw 1.5vw;
+  border: 0.25vw solid #ffffff;
+  z-index: 10;
+}
+
+.buttons-strip::before {
+  content: "";
+  position: absolute;
+  top: -3.3vw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 3.3vw solid transparent;
+  border-right: 3.3vw solid transparent;
+  border-bottom: 3.3vw solid #ffffff;
+  z-index: 11;
+}
+
+.buttons-strip::after {
+  content: "";
+  position: absolute;
+  top: -2.85vw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 2.85vw solid transparent;
+  border-right: 2.85vw solid transparent;
+  border-bottom: 2.85vw solid rgba(0, 0, 0, 0.95);
+  z-index: 12;
+}
+
+/* Wiggle animation when wrong answer */
+.buttons-strip-wiggle {
+  animation: buttons-strip-wiggle 0.3s ease-in-out;
+}
+
+@keyframes buttons-strip-wiggle {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(-2deg); }
+  50% { transform: translateX(-50%) rotate(2deg); }
+  75% { transform: translateX(-50%) rotate(-2deg); }
+}
+
+/* Red pulsate for wrong-answer digit highlight (3–4 times then stop) */
+.compare-decimal-box .red-pulsate {
+  color: #ff6b6b !important;
+  animation: red-pulsate-glow 0.8s ease-in-out 4 forwards;
+}
+
+@keyframes red-pulsate-glow {
+  0%, 100% {
+    text-shadow: 0 0 0.2vw #ff6b6b, 0 0 0.2vw #ff6b6b;
+  }
+  50% {
+    text-shadow: 0 0 0.5vw #ff6b6b, 0 0 0.5vw #ff6b6b;
+  }
 }
 
 .operator-btn {

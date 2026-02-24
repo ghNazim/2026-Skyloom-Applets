@@ -11,19 +11,22 @@ const App = () => {
 
   const getCurrentQuestion = () => questions[currentQuestion];
 
-  const handleOperatorSelect = useCallback((operator) => {
-    if (isCorrectCurrent) return;
-    setSelectedOperator(operator);
-    const q = questions[currentQuestion];
-    const correct = operator === q.operator;
-    if (correct) {
-      playSound("correct");
-      // isCorrectCurrent will be set when MainCanvas calls onCorrectAnimationComplete
-    } else {
-      setIsCorrectCurrent(false);
-      playSound("wrong");
-    }
-  }, [currentQuestion, isCorrectCurrent, questions]);
+  const handleOperatorSelect = useCallback(
+    (operator) => {
+      if (isCorrectCurrent) return;
+      setSelectedOperator(operator);
+      const q = questions[currentQuestion];
+      const correct = operator === q.operator;
+      if (correct) {
+        playSound("correct");
+        // isCorrectCurrent will be set when MainCanvas calls onCorrectAnimationComplete
+      } else {
+        setIsCorrectCurrent(false);
+        playSound("wrong");
+      }
+    },
+    [currentQuestion, isCorrectCurrent, questions],
+  );
 
   const handleCorrectAnimationComplete = useCallback(() => {
     setIsCorrectCurrent(true);
@@ -70,7 +73,11 @@ const App = () => {
   function getNavText() {
     if (currentStep === 0 || currentStep === 2) return "";
     if (currentStep === 1) {
-      if (isCorrectCurrent) return APP_DATA.step1.navTextNext;
+      if (isCorrectCurrent) {
+        return currentQuestion === totalQuestions - 1
+          ? APP_DATA.step1.navLast
+          : APP_DATA.step1.navTextNext;
+      }
       return APP_DATA.step1.navText;
     }
     return "";
@@ -106,8 +113,8 @@ const App = () => {
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -123,8 +130,8 @@ const App = () => {
           text: APP_DATA.final.text,
           buttonText: APP_DATA.final.buttonText,
           onButtonClick: handleStartOver,
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -147,7 +154,7 @@ const App = () => {
         isCorrectCurrent: isCorrectCurrent,
         onOperatorSelect: handleOperatorSelect,
         onCorrectAnimationComplete: handleCorrectAnimationComplete,
-      })
+      }),
     ),
     React.createElement(
       "div",
@@ -159,7 +166,7 @@ const App = () => {
         navText: getNavText(),
         totalDots: totalQuestions,
         currentDot: currentQuestion + 1,
-      })
-    )
+      }),
+    ),
   );
 };

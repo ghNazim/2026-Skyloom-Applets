@@ -1,0 +1,196 @@
+.table-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  /* margin: 1vw 0; */
+  margin-top: 2vw;
+}
+
+.data-table {
+  width: 60%;
+  border-collapse: separate;
+  border-spacing: 0.7vw;
+  color: white;
+}
+
+.table-header {
+  /* background-color: #27004c; - removed so column colors show through */
+  color: white;
+  padding: 0.3vw;
+  text-align: center;
+  outline: 0.15vw solid #8e6ee0;
+  border-radius: 0.6vw;
+  font-size: 2.5vw;
+  /* font-weight: bold; */
+}
+
+.table-cell {
+  background-color: #150029;
+  color: white;
+  padding: 0.5vw;
+  text-align: center;
+  outline: 0.15vw solid #8e6ee0;
+  border-radius: 0.6vw;
+  font-size: 2.5vw;
+  /* font-weight: bold; */
+}
+
+.table-cell th {
+  /* background-color: #27004c; */
+  color: white;
+  font-weight: normal;
+}
+
+.table-question-mark {
+  outline: 0.3vw solid rgba(255, 215, 0, 1) !important;
+  /* No box shadow, no animation for step 9 */
+}
+
+.table-cell-highlighted {
+  outline: 0.3vw solid rgba(255, 215, 0, 1) !important;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important;
+  animation: pulsate 1.5s ease-in-out infinite;
+}
+
+.table-arrow-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.arrow-path {
+  fill: none;
+  stroke: white;
+  stroke-width: 0.2vw;
+}
+
+.arrow-head {
+  fill: white;
+}
+
+.table-arrow-label {
+  background-color: white;
+  color: black;
+  /* padding: 0.2vw 0.5vw; */
+  border-radius: 0.3vw;
+  font-size: 2.3vw;
+  font-weight: bold;
+  border: 0.1vw solid black;
+  white-space: nowrap;
+  width: 6vw;
+  height: 4vw;
+  text-align: center;
+  
+  /* padding-bottom: 0.5vw; */
+}
+
+.table-arrow-label.pulsating {
+  border-color: #ffd700;
+  animation: pulsate-border 1.5s ease-in-out infinite;
+}
+
+.table-arrow-label.correct {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.table-arrow-label.incorrect {
+  background-color: #f8d7da;
+  border-color: #dc3545;
+  color: #721c24;
+  animation: shake2 0.3s ease-in-out;
+}
+
+@keyframes pulsate-border {
+  0%,
+  100% {
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    border-color: #ffa500;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+}
+
+@keyframes pulsate {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+  }
+}
+
+/* Column colors */
+.table-col-blue {
+  background-color: #1e3a8a !important;
+  outline-color: #3b82f6 !important;
+}
+
+.table-col-purple {
+  background-color: #6b21a8 !important;
+  outline-color: #a855f7 !important;
+}
+
+.table-col-yellow {
+  background-color: #ca8a04;
+  outline-color: #eab308;
+}
+
+/* Ratio table (Step 6): AE = orange/brown, ED = teal, DA = dark blue */
+.table-col-ae {
+  background-color: #ffb74b74 !important;
+  outline-color: #ffb74b !important;
+}
+
+.table-col-ed {
+  background-color: #47d2b67c !important;
+  outline-color: #14b8a6 !important;
+}
+
+.table-col-da {
+  background-color: #56c7ff84 !important;
+  outline-color: #56C7FF !important;
+}
+
+/* Shaking animation for incorrect answers */
+@keyframes shake2 {
+  0%,
+  100% {
+    transform: translate(-50%, -50%);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translate(-55%, -50%);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translate(-45%, -50%);
+  }
+}
+
+.incorrectCell {
+  background-color: #f8d7da !important;
+  border-color: #dc3545 !important;
+  color: #721c24 !important;
+  /* animation: shake 0.3s ease-in-out; */
+}
+
+.table-cell-correct {
+  background-color: #28a745 !important;
+  outline-color: #28a745 !important;
+  color: white !important;
+}

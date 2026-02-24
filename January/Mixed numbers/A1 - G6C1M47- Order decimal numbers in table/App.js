@@ -11,6 +11,7 @@ const App = () => {
   const [feedbackType, setFeedbackType] = useState(null); // 'correct', 'wrong', or null
   const [hasSubmittedWrong, setHasSubmittedWrong] = useState(false);
   const [hintUsedThisQuestion, setHintUsedThisQuestion] = useState(false);
+  const [animatingRowValue, setAnimatingRowValue] = useState(null); // Track which row value is animating
 
   const questions = APP_DATA.questions;
   const totalQuestions = questions.length;
@@ -52,14 +53,42 @@ const App = () => {
   const handleSwap = useCallback((targetIndex) => {
     if (selectedRow === null || selectedRow === targetIndex) return;
     playSound("click");
+    
     setArrangement(prev => {
       const newArr = [...prev];
-      const temp = newArr[selectedRow];
-      newArr[selectedRow] = newArr[targetIndex];
-      newArr[targetIndex] = temp;
+      const selectedValue = newArr[selectedRow];
+      
+      // Track which row is animating
+      setAnimatingRowValue(selectedValue);
+      
+      // Remove the selected row from its current position
+      newArr.splice(selectedRow, 1);
+      
+      // Calculate the new position based on where the button was placed
+      let newIndex;
+      if (targetIndex < selectedRow) {
+        // Button was above target row, move selected row to that position (above target)
+        // After removing selectedRow, targetIndex remains the same
+        newIndex = targetIndex;
+      } else {
+        // Button was below target row, move selected row to position below target
+        // After removing selectedRow, targetIndex becomes targetIndex - 1
+        // To place below the target, insert at (targetIndex - 1) + 1 = targetIndex
+        newIndex = targetIndex;
+      }
+      
+      // Insert the selected row at the new position
+      newArr.splice(newIndex, 0, selectedValue);
+      
       return newArr;
     });
+    
     setSelectedRow(null);
+    
+    // Clear animating row after animation completes
+    setTimeout(() => {
+      setAnimatingRowValue(null);
+    }, 500);
   }, [selectedRow]);
 
   const handleCheck = useCallback(() => {
@@ -226,6 +255,7 @@ const App = () => {
         showHint: showHint,
         isHintMode: isHintMode,
         hasSubmittedWrong: hasSubmittedWrong,
+        animatingRowValue: animatingRowValue,
         onRowClick: handleRowClick,
         onSwap: handleSwap,
         onCheck: handleCheck,

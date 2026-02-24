@@ -18,10 +18,8 @@ const MainCanvas = ({
   const [fractionalTapped, setFractionalTapped] = useState(false);
   const [wholeTappedWrong, setWholeTappedWrong] = useState(false);
 
-  // Step 2: numpad states
-  const [denominatorInput, setDenominatorInput] = useState("");
-  const [numeratorInput, setNumeratorInput] = useState("");
-  const [activeInput, setActiveInput] = useState("denominator"); // denominator first
+  // Step 2: numpad states (single shared value for both numerator and denominator boxes)
+  const [multiplierInput, setMultiplierInput] = useState("");
   const [denominatorCorrect, setDenominatorCorrect] = useState(false);
   const [numeratorCorrect, setNumeratorCorrect] = useState(false);
   const [inputShake, setInputShake] = useState(false);
@@ -61,9 +59,7 @@ const MainCanvas = ({
   useEffect(() => {
     setFractionalTapped(false);
     setWholeTappedWrong(false);
-    setDenominatorInput("");
-    setNumeratorInput("");
-    setActiveInput("denominator");
+    setMultiplierInput("");
     setDenominatorCorrect(false);
     setNumeratorCorrect(false);
     setInputShake(false);
@@ -141,88 +137,93 @@ const MainCanvas = ({
     }, 300);
   };
 
-  // ========== STEP 2: Numpad ==========
+  // ========== STEP 2: Numpad (single value fills both numerator and denominator boxes) ==========
   const handleNumpadNumber = (num) => {
-    if (activeInput === "denominator" && !denominatorCorrect) {
-      setDenominatorInput(prev => prev + num);
-    } else if (activeInput === "numerator" && !numeratorCorrect) {
-      setNumeratorInput(prev => prev + num);
+    if (!denominatorCorrect && !numeratorCorrect) {
+      setMultiplierInput(prev => (prev.length < 2 ? prev + num : prev));
     }
   };
 
   const handleNumpadClear = () => {
-    if (activeInput === "denominator" && !denominatorCorrect) {
-      setDenominatorInput(prev => prev.slice(0, -1));
-    } else if (activeInput === "numerator" && !numeratorCorrect) {
-      setNumeratorInput(prev => prev.slice(0, -1));
+    if (!denominatorCorrect && !numeratorCorrect) {
+      setMultiplierInput(prev => prev.slice(0, -1));
     }
   };
 
   const handleNumpadSubmit = () => {
     if (!stepData) return;
     const correctMultiplier = String(stepData.multiplier);
+    const bothCorrect = denominatorCorrect && numeratorCorrect;
 
-    if (activeInput === "denominator" && !denominatorCorrect) {
-      if (denominatorInput === correctMultiplier) {
-        playSound("correct");
-        setDenominatorCorrect(true);
-        setActiveInput("numerator");
-      } else {
-        playSound("wrong");
-        setInputWrong(true);
-        setInputShake(true);
-        setTimeout(() => {
-          setInputShake(false);
-          setInputWrong(false);
-          setDenominatorInput("");
-        }, 300);
-      }
-    } else if (activeInput === "numerator" && !numeratorCorrect) {
-      if (numeratorInput === correctMultiplier) {
-        playSound("correct");
-        setNumeratorCorrect(true);
-        // Both correct: hold state for 0.5s, then animate
-        setTimeout(() => {
-          // Animation: remove x, move inputs together
-          const tl = gsap.timeline({
-            onComplete: () => {
-               setMultiplyAnimDone(true);
-               // Auto advance after animation + short hold
-               setTimeout(() => {
-                 onAdvanceStep();
-               }, 1000);
-            }
+    if (bothCorrect) return;
+
+    if (multiplierInput === correctMultiplier) {
+      playSound("correct");
+      setDenominatorCorrect(true);
+      setNumeratorCorrect(true);
+      // Both correct: hold state for 0.5s, then animate merge
+      setTimeout(() => {
+        const numOp = numOperandRef.current;
+        const numIn = numInputRef.current;
+        const denOp = denOperandRef.current;
+        const denIn = denInputRef.current;
+        const signs = multiplySignsRef.current;
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            setMultiplyAnimDone(true);
+            setTimeout(() => onAdvanceStep(), 1000);
+          },
+        });
+
+        // Fade out and collapse multiply signs so the gap closes
+        if (signs && signs.length) {
+          tl.to(signs, {
+            opacity: 0,
+            scale: 0,
+            duration: 0.25,
+            ease: "power2.in",
           });
-          
-          // Fade out multiply signs
-          if(multiplySignsRef.current.length) {
-            tl.to(multiplySignsRef.current, { opacity: 0, duration: 0.3 });
-          }
-          
-          // Move operands and inputs to center (approximate merge)
-          const targets = [
-             numOperandRef.current, numInputRef.current,
-             denOperandRef.current, denInputRef.current
-          ].filter(Boolean);
+        }
 
-          if (targets.length) {
-             tl.to(targets, { 
-               x: (i) => i % 2 === 0 ? "2vw" : "-2vw", // Move towards center
-               scale: 0.8,
-               duration: 0.5 
-             }, "-=0.2");
-          }
-        }, 500);
-      } else {
-        playSound("wrong");
-        setInputWrong(true);
-        setInputShake(true);
-        setTimeout(() => {
-          setInputShake(false);
-          setInputWrong(false);
-          setNumeratorInput("");
-        }, 300);
-      }
+        // Merge: operand moves right, input moves left so they meet in the middle
+        const mergeDistance = "5.5vw";
+        if (numOp && numIn) {
+          tl.to(
+            [numOp, numIn],
+            {
+              x: (i) => (i === 0 ? mergeDistance : "-" + mergeDistance),
+              scale: 0.85,
+              duration: 0.5,
+              ease: "power2.inOut",
+              overwrite: true,
+            },
+            "-=0.15"
+          );
+        }
+        if (denOp && denIn) {
+          tl.to(
+            [denOp, denIn],
+            {
+              x: (i) => (i === 0 ? mergeDistance : "-" + mergeDistance),
+              scale: 0.85,
+              duration: 0.5,
+              ease: "power2.inOut",
+              overwrite: true,
+            },
+            "-=0.5"
+          );
+        }
+      }, 500);
+    } else {
+      playSound("wrong");
+      setInputWrong(true);
+      setInputShake(true);
+      setTimeout(() => {
+        setInputShake(false);
+        setInputWrong(false);
+        setMultiplierInput("");
+      }, 300);
     }
   };
 
@@ -272,6 +273,10 @@ const MainCanvas = ({
     }
   };
 
+  // Ref for the leading zero of decimal value
+  const decimalZeroRef = useRef(null);
+  const decimalRestRef = useRef(null);
+
   // ========== STEP 4: And button + combine ==========
   const handleAndClick = () => {
     if (andClicked) return;
@@ -281,7 +286,11 @@ const MainCanvas = ({
 
     // Run combine animation
     const vanishElement = andButtonRef.current;
-    if (!vanishElement || !wholePartRef.current || !decimalPartRef.current) return;
+    const wholeEl = wholePartRef.current;
+    const decimalEl = decimalPartRef.current;
+    const zeroEl = decimalZeroRef.current;
+    const restEl = decimalRestRef.current;
+    if (!vanishElement || !wholeEl || !decimalEl) return;
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -296,15 +305,55 @@ const MainCanvas = ({
       },
     });
 
-    tl.set([wholePartRef.current, decimalPartRef.current, vanishElement], { transition: "none" });
-    tl.to(vanishElement, { scale: 0, opacity: 0, duration: 0.3, ease: "back.in(1.7)" });
-    tl.to(wholePartRef.current, { x: "100%", duration: 0.5, ease: "power2.inOut" }, "move");
-    tl.to(decimalPartRef.current, { x: "-100%", duration: 0.5, ease: "power2.inOut" }, "move");
-    tl.to([wholePartRef.current, decimalPartRef.current], {
-      scale: 0.5,
-      opacity: 0,
-      duration: 0.3,
-      ease: "power2.in",
+    // Disable CSS transitions
+    tl.set([wholeEl, decimalEl, vanishElement], { transition: "none" });
+
+    // 1. Vanish the "and" button
+    tl.to(vanishElement, { scale: 0, opacity: 0, duration: 0.4, ease: "back.in(1.7)" });
+
+    // 2. Immediately strip background/border from both boxes (plain text)
+    tl.set(wholeEl, {
+      background: "none",
+      border: "none",
+      boxShadow: "none",
+      padding: 0,
+      minWidth: "auto",
+    });
+    tl.set(decimalEl, {
+      background: "none",
+      border: "none",
+      boxShadow: "none",
+      padding: 0,
+      minWidth: "auto",
+    });
+
+    // 3. Calculate position and animate AFTER the set() calls have been applied
+    tl.add(() => {
+      const wholeRect = wholeEl.getBoundingClientRect();
+      const decimalRect = decimalEl.getBoundingClientRect();
+      // We want the decimal part's left edge to be right at the whole part's right edge
+      const moveX = wholeRect.right - decimalRect.left;
+
+      // Move decimal part towards whole AND fade out leading "0" simultaneously
+      tl.to(decimalEl, {
+        x: moveX,
+        duration: 1,
+        ease: "power2.inOut",
+      }, "slide");
+
+      // Fade out the leading "0" during the slide (starts slightly after, ends before slide finishes)
+      if (zeroEl) {
+        tl.to(zeroEl, {
+          opacity: 0,
+          width: 0,
+          duration: 0.6,
+          ease: "power2.in",
+          overflow: "hidden",
+        }, "slide+=0.15");
+      }
+
+      // 5. Brief hold then show result
+      tl.to({}, { duration: 0.5 });
     });
   };
 
@@ -351,7 +400,7 @@ const MainCanvas = ({
             { className: "main-row centered" },
             React.createElement(
               "div",
-              { className: "mixed-number-box" },
+              { className: "mixed-number-box step1 pulsate" },
               React.createElement("span", {
                 className: "whole-part clickable" + (wholeTappedWrong ? " wrong shake-it" : ""),
                 onClick: handleWholeTap,
@@ -438,44 +487,37 @@ const MainCanvas = ({
       }
 
       // Show input: [whole num/den] = whole and [ (num × [input]) / (den × [input]) ]
+      const bothHighlighted = !denominatorCorrect && !numeratorCorrect;
+      const numBoxClass =
+        "input-box" +
+        (bothHighlighted ? " highlighted" : "") +
+        (numeratorCorrect ? " correct" : "") +
+        (inputShake ? " input-shake" : "") +
+        (inputWrong ? " wrong" : "");
+      const denBoxClass =
+        "input-box" +
+        (bothHighlighted ? " highlighted" : "") +
+        (denominatorCorrect ? " correct" : "") +
+        (inputShake ? " input-shake" : "") +
+        (inputWrong ? " wrong" : "");
+
       const numContent = numeratorCorrect && denominatorCorrect
         ? React.createElement(
             React.Fragment,
             null,
             React.createElement("span", { className: "multiply-operand", ref: numOperandRef }, q.numerator),
-            React.createElement("span", { 
-              className: "multiply-sign", 
-              ref: el => multiplySignsRef.current[0] = el 
+            React.createElement("span", {
+              className: "multiply-sign",
+              ref: el => multiplySignsRef.current[0] = el
             }, stepData.multiplySign),
-            React.createElement(
-              "div",
-              {
-                ref: numInputRef,
-                className: "input-box" +
-                  (activeInput === "numerator" && !numeratorCorrect ? " highlighted" : "") +
-                  (numeratorCorrect ? " correct" : "") +
-                  (inputShake && activeInput === "numerator" ? " input-shake" : "") +
-                  (inputWrong && activeInput === "numerator" ? " wrong" : ""),
-              },
-              numeratorInput || "\u00A0"
-            )
+            React.createElement("div", { ref: numInputRef, className: numBoxClass }, multiplierInput || "\u00A0")
           )
         : React.createElement(
             React.Fragment,
             null,
             React.createElement("span", { className: "multiply-operand" }, q.numerator),
             React.createElement("span", { className: "multiply-sign" }, stepData.multiplySign),
-            React.createElement(
-              "div",
-              {
-                className: "input-box" +
-                  (activeInput === "numerator" && !numeratorCorrect ? " highlighted" : "") +
-                  (numeratorCorrect ? " correct" : "") +
-                  (inputShake && activeInput === "numerator" ? " input-shake" : "") +
-                  (inputWrong && activeInput === "numerator" ? " wrong" : ""),
-              },
-              numeratorInput || "\u00A0"
-            )
+            React.createElement("div", { className: numBoxClass }, multiplierInput || "\u00A0")
           );
 
       const denContent = numeratorCorrect && denominatorCorrect
@@ -483,39 +525,18 @@ const MainCanvas = ({
             React.Fragment,
             null,
             React.createElement("span", { className: "multiply-operand", ref: denOperandRef }, q.denominator),
-            React.createElement("span", { 
+            React.createElement("span", {
               className: "multiply-sign",
               ref: el => multiplySignsRef.current[1] = el
             }, stepData.multiplySign),
-            React.createElement(
-              "div",
-              {
-                ref: denInputRef,
-                className: "input-box" +
-                  (activeInput === "denominator" && !denominatorCorrect ? " highlighted" : "") +
-                  (denominatorCorrect ? " correct" : "") +
-                  (inputShake && activeInput === "denominator" ? " input-shake" : "") +
-                  (inputWrong && activeInput === "denominator" ? " wrong" : ""),
-              },
-              denominatorInput || "\u00A0"
-            )
+            React.createElement("div", { ref: denInputRef, className: denBoxClass }, multiplierInput || "\u00A0")
           )
         : React.createElement(
             React.Fragment,
             null,
             React.createElement("span", { className: "multiply-operand" }, q.denominator),
             React.createElement("span", { className: "multiply-sign" }, stepData.multiplySign),
-            React.createElement(
-              "div",
-              {
-                className: "input-box" +
-                  (activeInput === "denominator" && !denominatorCorrect ? " highlighted" : "") +
-                  (denominatorCorrect ? " correct" : "") +
-                  (inputShake && activeInput === "denominator" ? " input-shake" : "") +
-                  (inputWrong && activeInput === "denominator" ? " wrong" : ""),
-              },
-              denominatorInput || "\u00A0"
-            )
+            React.createElement("div", { className: denBoxClass }, multiplierInput || "\u00A0")
           );
 
       return React.createElement(
@@ -561,7 +582,12 @@ const MainCanvas = ({
     // ===== STEP 3: MCQ for decimal form =====
     if (step === 3) {
       const fractionContent = morphedToDecimal
-        ? React.createElement("span", { className: "decimal-morphed" }, stepData.decimalValue)
+        ? (current_language === "id"
+            ? React.createElement("span", {
+                className: "decimal-morphed",
+                dangerouslySetInnerHTML: { __html: handleComma(stepData.decimalValue) },
+              })
+            : React.createElement("span", { className: "decimal-morphed" }, stepData.decimalValue))
         : renderFraction(
             q.convertedNumerator,
             q.convertedDenominator,
@@ -630,8 +656,13 @@ const MainCanvas = ({
             React.createElement("span", { className: "equals-sign" }, stepData.equalsSign),
             React.createElement(
               "div",
-              { className: "final-decimal-box fade-in" },
-              React.createElement("span", { className: "final-decimal-value" }, stepData.finalDecimal)
+              { className: "final-decimal-box" },
+              current_language === "id"
+                ? React.createElement("span", {
+                    className: "final-decimal-value",
+                    dangerouslySetInnerHTML: { __html: handleComma(stepData.finalDecimal) },
+                  })
+                : React.createElement("span", { className: "final-decimal-value" }, stepData.finalDecimal)
             )
           )
         );
@@ -670,7 +701,22 @@ const MainCanvas = ({
           React.createElement(
             "div",
             { className: "decimal-part-box correct", ref: decimalPartRef },
-            stepData.decimalValue
+            // Split decimal value: "0.12" or "0,12" -> "0" + ".12" or ",12"
+            React.createElement("span", {
+              ref: decimalZeroRef,
+              className: "decimal-leading-zero",
+              style: { display: "inline-block" },
+            }, stepData.decimalValue.charAt(0)),
+            current_language === "id"
+              ? React.createElement("span", {
+                  ref: decimalRestRef,
+                  className: "decimal-rest",
+                  dangerouslySetInnerHTML: { __html: handleComma(stepData.decimalValue.substring(1)) },
+                })
+              : React.createElement("span", {
+                  ref: decimalRestRef,
+                  className: "decimal-rest",
+                }, stepData.decimalValue.substring(1))
           )
         )
       );

@@ -75,14 +75,14 @@ const DATA = {
     // Start screen (Step 0)
     start: {
       heading: "Comparing Decimal Numbers",
-      text: "Let's learn how to compare decimal numbers using\nplace value.",
+      text: "Let's learn how to compare <y>decimal numbers</y> using\nplace value.",
       buttonText: "Start",
     },
 
     // Final screen (Step 4)
     final: {
       heading: "Comparing Decimal Numbers",
-      text: "<left>Awesome!<br>To compare decimal numbers:<br>● Compare digits from Left to Right.<br>● The first place where the digits differ determines which decimal is greater.</left>",
+      text: "<left>Awesome!<br>To compare decimal numbers:<br>● Compare digits from <y>Left to Right</y>.<br>● The <y>first place</y> where the <y>digits differ</y> determines which <y>decimal is greater</y>.</left>",
       buttonText: "Start Over",
     },
 
@@ -102,8 +102,9 @@ const DATA = {
 
     // Step 3 - Compare digits
     step3: {
-      questionTemplate: "Let's compare the {{place}} place.",
+      questionFirstPlace: "Let's compare the first place.",
       questionEqualMove: "If the digits in a place are equal, compare the digits in the next place.",
+      questionAllEqual: "If the digits in all places are equal, the numbers are equal.",
       nav: "Tap the correct symbol.",
       navDone: "Tap » to try next pair of decimal numbers.",
       navComplete: "Tap » to complete the activity.",
@@ -135,13 +136,13 @@ const DATA = {
 
     start: {
       heading: "Membandingkan Bilangan Desimal",
-      text: "Mari belajar membandingkan bilangan desimal\nmenggunakan nilai tempat.",
+      text: "Mari belajar membandingkan <y>bilangan desimal</y>\nmenggunakan nilai tempat.",
       buttonText: "Mulai",
     },
 
     final: {
       heading: "Membandingkan Bilangan Desimal",
-      text: "<left>Luar biasa!<br>Untuk membandingkan bilangan desimal:<br>● Bandingkan angka dari Kiri ke Kanan.<br>● Tempat pertama di mana angka berbeda menentukan desimal mana yang lebih besar.</left>",
+      text: "<left>Luar biasa!<br>Untuk membandingkan bilangan desimal:<br>● Bandingkan angka dari <y>Kiri ke Kanan</y>.<br>● <y>Tempat pertama</y> di mana <y>angka berbeda</y> menentukan <y>desimal mana yang lebih besar</y>.</left>",
       buttonText: "Ulangi",
     },
 
@@ -158,8 +159,9 @@ const DATA = {
     },
 
     step3: {
-      questionTemplate: "Mari kita bandingkan tempat {{place}}.",
+      questionFirstPlace: "Mari kita bandingkan tempat pertama.",
       questionEqualMove: "Jika angka di suatu tempat sama, bandingkan angka di tempat berikutnya.",
+      questionAllEqual: "Jika angka di semua tempat sama, bilangan-bilangan tersebut sama.",
       nav: "Ketuk simbol yang benar.",
       navDone: "Ketuk » untuk mencoba pasangan bilangan desimal berikutnya.",
       navComplete: "Ketuk » untuk menyelesaikan aktivitas.",

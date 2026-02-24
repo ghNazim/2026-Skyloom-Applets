@@ -1,10 +1,20 @@
+/**
+ * Returns HTML string for proper fraction notation
+ * @param {string|number} num - Numerator
+ * @param {string|number} den - Denominator
+ * @returns {string} HTML string with fraction notation
+ */
+function fract(num, den) {
+  return `<span style="vertical-align: middle; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;"><span style="font-size: 1em;">${num}</span><span style="width: 120%; height: 3px; background-color: currentColor; margin: 2px 0; border-radius: 1px; display: block;"></span><span style="font-size: 1em;">${den}</span></span>`;
+}
+
 // Master data structure for Fractions to Decimal Numbers applet
 const DATA = {
   en: {
     app: {
       start: {
         heading: "Fractions to Decimal Numbers",
-        text: "Let us learn how fractions with denominator other than<br>10 or 100 are written as decimals.",
+        text: "Let us learn how fractions with <y>denominator</y> other than<br><y>10 or 100</y> are written as decimals.",
         buttonText: "Start",
       },
       steps: {
@@ -25,7 +35,7 @@ const DATA = {
           navText: "Tap the correct answer.",
           navAfterCorrect: "Tap » to {{operation}} by the same number.",
           extraText:
-            "...the numerator and\ndenominator by the\nsame number.",
+            "...the numerator and denominator by the same number.",
         },
         4: {
           questionText:
@@ -53,7 +63,7 @@ const DATA = {
       // Final screen after all questions (step 8)
       step8Final: {
         heading: "Fractions and Decimal",
-        text: "<left>Awesome!<br>To write the given fraction as a decimal:<br>● Convert the denominator to 10 or 100.<br>● Write the fraction with denominator 10 or 100 as a<br>decimal.</left>",
+        text: "<left>Awesome!<br>To write the given fraction as a decimal:<br>● Convert the <y>denominator</y> to 10 or 100.<br>● Write the fraction with <y>denominator 10 or 100 as a decimal</y>.</left>",
         buttonText: "Start Over",
       },
       // Common text elements
@@ -68,7 +78,7 @@ const DATA = {
       summaryHeading: "Fractions to Decimal Numbers",
       summaryContinueButton: "Continue.",
       summarySubheading:
-        "Convert the denominator to {{targetDen}} to write the fraction as a decimal.",
+        "Convert the <y>denominator to {{targetDen}}</y> to write the fraction as a decimal.",
       summaryCardTexts: [
         "Write an equivalent fraction with denominator {{targetDen}}.",
         "Write the fraction as decimal number.",
@@ -95,30 +105,32 @@ const DATA = {
           step2McqOptions: [100, 10],
           step2McqAnswer: 10,
           step2McqCorrectFeedback:
-            "Great choice!\nFor  2/5 ,\nconverting the\ndenominator to 10 is\neasier to write as a\ndecimal.",
+            `Great choice! For  ${fract("2","5")} , converting the denominator to 10 is easier to write as a decimal.`,
           step2McqWrongFeedback:
-            "Nice idea!\nConverting the\ndenominator to 100\nworks, but converting\nthe denominator to 10\nis easier.",
+            "Nice idea! Converting the denominator to 100 works, but converting the denominator to 10 is easier.",
           // Step 3 MCQ: Multiply or Divide?
           step3McqOptions: ["Multiply", "Divide"],
           step3McqAnswer: "Multiply",
           step3McqCorrectFeedback:
-            "Great choice!\nMultiplying can\nchange the\ndenominator 5 to 10.",
+            "Great choice! Multiplying can change the denominator 5 to 10.",
           step3McqWrongFeedback:
-            "Not quite!\nDividing will not\nchange the\ndenominator 5 to a\nlarger number 10.\nTry again!",
+            "Not quite! Dividing will not change the denominator 5 to a larger number 10. Try again!",
           // Step 4: Numpad input
           step4WrongFeedback:
-            "Not quite.\nMultiply 5\nby a\nnumber to\nget 10.",
+            "Not quite. Multiply 5 by a number to get 10.",
           step4CorrectFeedback:
-            "Well done!\nMultiplying\n5 by 2\ngives 10.",
+            "Well done! Multiplying 5 by 2 gives 10.",
+          step4PartialFeedback:
+            "Incorrect! both numerator and denominator should be multiplied by the same number",
           // Step 6 MCQ: Decimal form
           step6McqOptions: ["0.04", "4.2", "0.4", "4.0"],
           step6McqAnswer: "0.4",
           step6McqAnswerIndex: 2,
           step6McqFeedbacks: [
-            "Oops! We\nneed tenths,\nnot\nhundredths.",
-            "Oops! Check\nthe digit in the\nnumerator of\nthe fraction.",
-            "Well done!\nThe\ndenominator\nof 10 gives\na decimal in\ntenths.",
-            "Oops! We\nneed tenths,\nnot\nwholes!",
+            "Oops! We need tenths, not hundredths.",
+            "Oops! Check the digit in the numerator of the fraction.",
+            "Well done! The denominator of 10 gives a decimal in tenths.",
+            "Oops! We need tenths, not wholes!",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -142,27 +154,29 @@ const DATA = {
           step2McqOptions: [10, 100],
           step2McqAnswer: 100,
           step2McqCorrectFeedback:
-            "Great choice!\nFor  8/25 ,\nconverting the\ndenominator to 100\nis easier to write\nas a decimal.",
+            `Great choice! For  ${fract("8","25")} , converting the denominator to 100 is easier to write as a decimal.`,
           step2McqWrongFeedback:
-            "Not quite!\n25 does not divide\nevenly into 10.\nConverting the\ndenominator to 100\nis easier.",
+            "Not quite! 25 does not divide evenly into 10. Converting the denominator to 100 is easier.",
           step3McqOptions: ["Multiply", "Divide"],
           step3McqAnswer: "Multiply",
           step3McqCorrectFeedback:
-            "Great choice!\nMultiplying can\nchange the\ndenominator 25\nto 100.",
+            "Great choice! Multiplying can change the denominator 25 to 100.",
           step3McqWrongFeedback:
-            "Not quite!\nDividing will not\nchange the\ndenominator 25 to a\nlarger number 100.\nTry again!",
+            "Not quite! Dividing will not change the denominator 25 to a larger number 100. Try again!",
           step4WrongFeedback:
-            "Not quite.\nMultiply 25\nby a\nnumber to\nget 100.",
+            "Not quite. Multiply 25 by a number to get 100.",
           step4CorrectFeedback:
-            "Well done!\nMultiplying\n25 by 4\ngives 100.",
+            "Well done! Multiplying 25 by 4 gives 100.",
+          step4PartialFeedback:
+            "Incorrect! both numerator and denominator should be multiplied by the same number",
           step6McqOptions: ["3.2", "0.32", "0.08", "32.0"],
           step6McqAnswer: "0.32",
           step6McqAnswerIndex: 1,
           step6McqFeedbacks: [
-            "Oops! We\nneed hundredths,\nnot\ntenths.",
-            "Well done!\nThe\ndenominator\nof 100 gives\na decimal in\nhundredths.",
-            "Oops! Check\nthe digit in the\nnumerator of\nthe fraction.",
-            "Oops! We\nneed hundredths,\nnot\nwholes!",
+            "Oops! We need hundredths, not tenths.",
+            "Well done! The denominator of 100 gives a decimal in hundredths.",
+            "Oops! Check the digit in the numerator of the fraction.",
+            "Oops! We need hundredths, not wholes!",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -186,27 +200,29 @@ const DATA = {
           step2McqOptions: [100, 10],
           step2McqAnswer: 10,
           step2McqCorrectFeedback:
-            "Great choice!\nFor  30/60 ,\nconverting the\ndenominator to 10 is\neasier to write as a\ndecimal.",
+            `Great choice! For  ${fract("30","60")} , converting the denominator to 10 is easier to write as a decimal.`,
           step2McqWrongFeedback:
-            "Not quite!\n60 does not divide\nevenly into 100.\nConverting the\ndenominator to 10\nis easier.",
+            "Not quite! 60 does not divide evenly into 100. Converting the denominator to 10 is easier.",
           step3McqOptions: ["Multiply", "Divide"],
           step3McqAnswer: "Divide",
           step3McqCorrectFeedback:
-            "Great choice!\nDividing can\nchange the\ndenominator 60\nto 10.",
+            "Great choice! Dividing can change the denominator 60 to 10.",
           step3McqWrongFeedback:
-            "Not quite!\nMultiplying will not\nchange the\ndenominator 60 to a\nsmaller number 10.\nTry again!",
+            "Not quite! Multiplying will not change the denominator 60 to a smaller number 10. Try again!",
           step4WrongFeedback:
-            "Not quite.\nDivide 60\nby a\nnumber to\nget 10.",
+            "Not quite. Divide 60 by a number to get 10.",
           step4CorrectFeedback:
-            "Well done!\nDividing\n60 by 6\ngives 10.",
+            "Well done! Dividing 60 by 6 gives 10.",
+          step4PartialFeedback:
+            "Incorrect! both numerator and denominator should be divided by the same number",
           step6McqOptions: ["5.0", "0.5", "0.05", "0.3"],
           step6McqAnswer: "0.5",
           step6McqAnswerIndex: 1,
           step6McqFeedbacks: [
-            "Oops! We\nneed tenths,\nnot\nwholes!",
-            "Well done!\nThe\ndenominator\nof 10 gives\na decimal in\ntenths.",
-            "Oops! We\nneed tenths,\nnot\nhundredths.",
-            "Oops! Check\nthe digit in the\nnumerator of\nthe fraction.",
+            "Oops! We need tenths, not wholes!",
+            "Well done! The denominator of 10 gives a decimal in tenths.",
+            "Oops! We need tenths, not hundredths.",
+            "Oops! Check the digit in the numerator of the fraction.",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -230,27 +246,29 @@ const DATA = {
           step2McqOptions: [10, 100],
           step2McqAnswer: 100,
           step2McqCorrectFeedback:
-            "Great choice!\nFor  28/400 ,\nconverting the\ndenominator to 100\nis easier to write\nas a decimal.",
+            `Great choice! For  ${fract("28","400")} , converting the denominator to 100 is easier to write as a decimal.`,
           step2McqWrongFeedback:
-            "Not quite!\n400 does not divide\nevenly into 10.\nConverting the\ndenominator to 100\nis easier.",
+            "Not quite! 400 does not divide evenly into 10. Converting the denominator to 100 is easier.",
           step3McqOptions: ["Multiply", "Divide"],
           step3McqAnswer: "Divide",
           step3McqCorrectFeedback:
-            "Great choice!\nDividing can\nchange the\ndenominator 400\nto 100.",
+            "Great choice! Dividing can change the denominator 400 to 100.",
           step3McqWrongFeedback:
-            "Not quite!\nMultiplying will not\nchange the\ndenominator 400 to a\nsmaller number 100.\nTry again!",
+            "Not quite! Multiplying will not change the denominator 400 to a smaller number 100. Try again!",
           step4WrongFeedback:
-            "Not quite.\nDivide 400\nby a\nnumber to\nget 100.",
+            "Not quite. Divide 400 by a number to get 100.",
           step4CorrectFeedback:
-            "Well done!\nDividing\n400 by 4\ngives 100.",
+            "Well done! Dividing 400 by 4 gives 100.",
+          step4PartialFeedback:
+            "Incorrect! both numerator and denominator should be divided by the same number",
           step6McqOptions: ["0.7", "0.07", "7.0", "0.28"],
           step6McqAnswer: "0.07",
           step6McqAnswerIndex: 1,
           step6McqFeedbacks: [
-            "Oops! We\nneed hundredths,\nnot\ntenths.",
-            "Well done!\nThe\ndenominator\nof 100 gives\na decimal in\nhundredths.",
-            "Oops! We\nneed hundredths,\nnot\nwholes!",
-            "Oops! Check\nthe digit in the\nnumerator of\nthe fraction.",
+            "Oops! We need hundredths, not tenths.",
+            "Well done! The denominator of 100 gives a decimal in hundredths.",
+            "Oops! We need hundredths, not wholes!",
+            "Oops! Check the digit in the numerator of the fraction.",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -286,7 +304,7 @@ const DATA = {
           navText: "Ketuk jawaban yang benar.",
           navAfterCorrect: "Ketuk » untuk {{operation}} dengan bilangan yang sama.",
           extraText:
-            "...pembilang dan\npenyebut dengan\nbilangan yang sama.",
+            "...pembilang dan penyebut dengan bilangan yang sama.",
         },
         4: {
           questionText:
@@ -326,7 +344,7 @@ const DATA = {
       summaryHeading: "Pecahan ke Bilangan Desimal",
       summaryContinueButton: "Lanjut.",
       summarySubheading:
-        "Ubah penyebut menjadi {{targetDen}} untuk menulis pecahan sebagai desimal.",
+        "Ubah penyebut menjadi <y>{{targetDen}} untuk menulis</y> pecahan sebagai desimal.",
       summaryCardTexts: [
         "Tulis pecahan senilai dengan penyebut {{targetDen}}.",
         "Tulis pecahan sebagai bilangan desimal.",
@@ -350,27 +368,29 @@ const DATA = {
           step2McqOptions: [100, 10],
           step2McqAnswer: 10,
           step2McqCorrectFeedback:
-            "Pilihan tepat!\nUntuk 2/5,\nmengubah\npenyebut ke 10\nlebih mudah ditulis\nswbagai desimal.",
+            `Pilihan tepat! Untuk ${fract("2","5")}, mengubah penyebut ke 10 lebih mudah ditulis sebagai desimal.`,
           step2McqWrongFeedback:
-            "Ide bagus!\nMengubah\npenyebut ke 100\nbisa, tapi mengubah\npenyebut ke 10\nlebih mudah.",
+            "Ide bagus! Mengubah penyebut ke 100 bisa, tapi mengubah penyebut ke 10 lebih mudah.",
           step3McqOptions: ["Kalikan", "Bagikan"],
           step3McqAnswer: "Kalikan",
           step3McqCorrectFeedback:
-            "Pilihan tepata!\nMengalikan bisa\nmengubah\npenyebut 5 jadi 10.",
+            "Pilihan tepat! Mengalikan bisa mengubah penyebut 5 jadi 10.",
           step3McqWrongFeedback:
-            "Kurang tepat!\nMembagi tidak akan\nmengubah\npenyebut 5 jadi\nangka lebih besar 10.\nCoba lagi!",
+            "Kurang tepat! Membagi tidak akan mengubah penyebut 5 jadi angka lebih besar 10. Coba lagi!",
           step4WrongFeedback:
-            "Kurang tepat.\nKalikan 5\ndengan suatu\nangka untuk\ndapat 10.",
+            "Kurang tepat. Kalikan 5 dengan suatu angka untuk dapat 10.",
           step4CorrectFeedback:
-            "Bagus sekali!\nMengalikan\n5 dengan 2\nhasilkan 10.",
+            "Bagus sekali! Mengalikan 5 dengan 2 hasilkan 10.",
+          step4PartialFeedback:
+            "Tidak benar! pembilang dan penyebut harus dikalikan dengan angka yang sama",
           step6McqOptions: ["0.04", "4.2", "0.4", "4.0"],
           step6McqAnswer: "0.4",
           step6McqAnswerIndex: 2,
           step6McqFeedbacks: [
-            "Ups! Kita\nbutuh persepuluhan,\nbukan\nperseratusan.",
-            "Ups! Cek\nangka di\npembilang\npecahan.",
-            "Bagus sekali!\nPenyebut\n10 hasilkan\ndesimal dalam\npersepuluhan.",
-            "Ups! Kita\nbutuh persepuluhan,\nbukan\nbilangan bulat!",
+            "Ups! Kita butuh persepuluhan, bukan perseratusan.",
+            "Ups! Cek angka di pembilang pecahan.",
+            "Bagus sekali! Penyebut 10 hasilkan desimal dalam persepuluhan.",
+            "Ups! Kita butuh persepuluhan, bukan bilangan bulat!",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -394,27 +414,29 @@ const DATA = {
           step2McqOptions: [10, 100],
           step2McqAnswer: 100,
           step2McqCorrectFeedback:
-            "Pilihan tepat!\nUntuk 8/25,\nmengubah\npenyebut ke 100\nlebih mudah ditulis\nsebagai desimal.",
+            `Pilihan tepat! Untuk ${fract("8","25")}, mengubah penyebut ke 100 lebih mudah ditulis sebagai desimal.`,
           step2McqWrongFeedback:
-            "Kurang tepat!\n25 tidak bisa dibagi\nrata menjadi 10.\nMengubah\npenyebut ke 100\nlebih mudah.",
+            "Kurang tepat! 25 tidak bisa dibagi rata menjadi 10. Mengubah penyebut ke 100 lebih mudah.",
           step3McqOptions: ["Kalikan", "Bagikan"],
           step3McqAnswer: "Kalikan",
           step3McqCorrectFeedback:
-            "Pilihan tepat!\nMengalikan bisa\nmengubah\npenyebut 25\njadi 100.",
+            "Pilihan tepat! Mengalikan bisa mengubah penyebut 25 jadi 100.",
           step3McqWrongFeedback:
-            "Kurang tepat!\nMembagi tidak akan\nmengubah\npenyebut 25 jadi\kangka lebih besar 100.\nCoba lagi!",
+            "Kurang tepat! Membagi tidak akan mengubah penyebut 25 jadi angka lebih besar 100. Coba lagi!",
           step4WrongFeedback:
-            "Kurang tepat.\nKalikan 25\ndengan suatu\nangka untuk\ndapat 100.",
+            "Kurang tepat. Kalikan 25 dengan suatu angka untuk dapat 100.",
           step4CorrectFeedback:
-            "Bagus sekali!\nMengalikan\n25 dengan 4\nhasilkan 100.",
+            "Bagus sekali! Mengalikan 25 dengan 4 hasilkan 100.",
+          step4PartialFeedback:
+            "Tidak benar! pembilang dan penyebut harus dikalikan dengan angka yang sama",
           step6McqOptions: ["3.2", "0.32", "0.08", "32.0"],
           step6McqAnswer: "0.32",
           step6McqAnswerIndex: 1,
           step6McqFeedbacks: [
-            "Ups! Kita\nbutuh perseratusan,\nbukan\npersepuluhan.",
-            "Bagus sekali!\nPenyebut\n100 menghasilkan\ndesimal dalam\nperseratusan.",
-            "Ups! Cek\nangka di\npembilang\npecahan.",
-            "Ups! Kita\nbutuh perseratusan,\nbukan\nbilangan bulat!",
+            "Ups! Kita butuh perseratusan, bukan persepuluhan.",
+            "Bagus sekali! Penyebut 100 menghasilkan desimal dalam perseratusan.",
+            "Ups! Cek angka di pembilang pecahan.",
+            "Ups! Kita butuh perseratusan, bukan bilangan bulat!",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -438,27 +460,29 @@ const DATA = {
           step2McqOptions: [100, 10],
           step2McqAnswer: 10,
           step2McqCorrectFeedback:
-            "Pilihan tepat!\nUntuk 30/60,\nmengubah\npenyebut ke 10\nlebih mudah ditulis\nsebagai desimal.",
+            `Pilihan tepat! Untuk ${fract("30","60")}, mengubah penyebut ke 10 lebih mudah ditulis sebagai desimal.`,
           step2McqWrongFeedback:
-            "Kurang tepat!\n60 tidak bisa dibagi\nrata menjadi 100.\nMengubah\npenyebut ke 10\nlebih mudah.",
+            "Kurang tepat! 60 tidak bisa dibagi rata menjadi 100. Mengubah penyebut ke 10 lebih mudah.",
           step3McqOptions: ["Kalikan", "Bagikan"],
           step3McqAnswer: "Bagikan",
           step3McqCorrectFeedback:
-            "Pilihan tepat!\nMembagi bisa\nmengubah\npenyebut 60\njadi 10.",
+            "Pilihan tepat! Membagi bisa mengubah penyebut 60 jadi 10.",
           step3McqWrongFeedback:
-            "Kurang tepat!\nMengalikan tidak akan\nmengubah\npenyebut 60 jadi\nangka lebih kecil 10.\nCoba lagi!",
+            "Kurang tepat! Mengalikan tidak akan mengubah penyebut 60 jadi angka lebih kecil 10. Coba lagi!",
           step4WrongFeedback:
-            "Kurang tepat.\nBagi 60\ndengan suatu\nangka untuk\ndapat 10.",
+            "Kurang tepat. Bagi 60 dengan suatu angka untuk dapat 10.",
           step4CorrectFeedback:
-            "Bagus sekali!\nMembagi\n60 dengan 6\nhasilkan 10.",
+            "Bagus sekali! Membagi 60 dengan 6 hasilkan 10.",
+          step4PartialFeedback:
+            "Tidak benar! pembilang dan penyebut harus dibagi dengan angka yang sama",
           step6McqOptions: ["5.0", "0.5", "0.05", "0.3"],
           step6McqAnswer: "0.5",
           step6McqAnswerIndex: 1,
           step6McqFeedbacks: [
-            "Ups! Kita\nbutuh persepuluhan,\nbukan\nbilangan bulat!",
-            "Bagus sekali!\nPenyebut\n10 hasilkan\ndesimal dalam\npersepuluhan.",
-            "Ups! Kita\nbutuh persepuluhan,\nbukan\nperseratusan.",
-            "Ups! Cek\nangka di\npembilang\npecahan.",
+            "Ups! Kita butuh persepuluhan, bukan bilangan bulat!",
+            "Bagus sekali! Penyebut 10 hasilkan desimal dalam persepuluhan.",
+            "Ups! Kita butuh persepuluhan, bukan perseratusan.",
+            "Ups! Cek angka di pembilang pecahan.",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -482,27 +506,29 @@ const DATA = {
           step2McqOptions: [10, 100],
           step2McqAnswer: 100,
           step2McqCorrectFeedback:
-            "Pilihan tepat!\nUntuk 28/400,\nmengubah\npenyebut ke 100\nlebih mudah ditulis\nsebagai desimal.",
+            `Pilihan tepat! Untuk ${fract("28","400")}, mengubah penyebut ke 100 lebih mudah ditulis sebagai desimal.`,
           step2McqWrongFeedback:
-            "Kurang tepat!\n400 tidak bisa dibagi\nrata menjadi 10.\nMengubah\npenyebut ke 100\nlebih mudah.",
+            "Kurang tepat! 400 tidak bisa dibagi rata menjadi 10. Mengubah penyebut ke 100 lebih mudah.",
           step3McqOptions: ["Kalikan", "Bagikan"],
           step3McqAnswer: "Bagikan",
           step3McqCorrectFeedback:
-            "Pilihan tepat!\nMembagi bisa\nmengubah\npenyebut 400\njadi 100.",
+            "Pilihan tepat! Membagi bisa mengubah penyebut 400 jadi 100.",
           step3McqWrongFeedback:
-            "Kurang tepat!\nMengalikan tidak akan\nmengubah\npenyebut 400 jadi\nangka lebih kecil 100.\nCoba lagi!",
+            "Kurang tepat! Mengalikan tidak akan mengubah penyebut 400 jadi angka lebih kecil 100. Coba lagi!",
           step4WrongFeedback:
-            "Kurang tepat.\nBagi 400\ndengan suatu\nangka untuk\ndapat 100.",
+            "Kurang tepat. Bagi 400 dengan suatu angka untuk dapat 100.",
           step4CorrectFeedback:
-            "Bagus sekali!\nMembagi\n400 dengan 4\nhasilkan 100.",
+            "Bagus sekali! Membagi 400 dengan 4 hasilkan 100.",
+          step4PartialFeedback:
+            "Tidak benar! pembilang dan penyebut harus dibagi dengan angka yang sama",
           step6McqOptions: ["0.7", "0.07", "7.0", "0.28"],
           step6McqAnswer: "0.07",
           step6McqAnswerIndex: 1,
           step6McqFeedbacks: [
-            "Ups! Kita\nbutuh perseratusan,\nbukan\npersepuluhan.",
-            "Bagus sekali!\nPenyebut\n100 menghasilkan\ndesimal dalam\nperseratusan.",
-            "Ups! Kita\nbutuh perseratusan,\nbukan\nbilangan bulat!",
-            "Ups! Cek\nangka di\npembilang\npecahan.",
+            "Ups! Kita butuh perseratusan, bukan persepuluhan.",
+            "Bagus sekali! Penyebut 100 menghasilkan desimal dalam perseratusan.",
+            "Ups! Kita butuh perseratusan, bukan bilangan bulat!",
+            "Ups! Cek angka di pembilang pecahan.",
           ],
           step6WrongHighlights: {
             0: "denominator",
@@ -596,6 +622,7 @@ function getStepData(step, questionIndex) {
       navText: steps[4].navText,
       wrongFeedback: q.step4WrongFeedback,
       correctFeedback: q.step4CorrectFeedback,
+      partialFeedback: q.step4PartialFeedback,
     };
   }
   if (step === 5) {

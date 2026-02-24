@@ -97,8 +97,9 @@ const MCQPanel = ({
             className: `mcq-feedback ${
               !isAnswered ? "" : isCorrect ? "correct" : "incorrect"
             }`,
+            dangerouslySetInnerHTML: feedbackText ? { __html: feedbackText.replace(/\n/g, '<br>') } : undefined,
           },
-          feedbackText
+          !feedbackText ? null : undefined
         ),
         // MCQ Wrapper (Title + Options)
         React.createElement(
