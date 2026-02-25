@@ -42,15 +42,17 @@ const CalculationPanel = ({
 
   useEffect(() => {
     if (step === 5 && step5Data && step5Data.questions) {
-      const idx = calcState.step5BoxIndex;
-      const qKey = step5Data.variables[idx]?.questionKey;
-      const qText = qKey ? step5Data.questions[qKey] : step5Data.questions.q1;
+      const idx = typeof calcState.step5BoxIndex === "number" ? calcState.step5BoxIndex : 0;
+      const revealed = calcState.step5Revealed;
+      const filled = calcState.step5Filled;
+      const qKey = step5Data.variables && step5Data.variables[idx] ? step5Data.variables[idx].questionKey : "q1";
+      const qText = step5Data.questions[qKey] || step5Data.questions.q1;
       if (onUpdateQuestionText && qText) onUpdateQuestionText(qText);
       if (onUpdateNavText) {
-        const v = step5Data.variables[idx];
+        const v = step5Data.variables && step5Data.variables[idx];
         if (calcState.step5AllDone) onUpdateNavText(step5Data.navTapContinue);
-        else if (!calcState.step5Revealed[idx]) onUpdateNavText(step5Data.navTapVariable || step5Data.navUseNumpad);
-        else if (v && v.needsNumpad && !calcState.step5Filled[idx]) onUpdateNavText(step5Data.navUseNumpad);
+        else if (!Array.isArray(revealed) || !revealed[idx]) onUpdateNavText(step5Data.navTapVariable || step5Data.navUseNumpad);
+        else if (v && v.needsNumpad && (!Array.isArray(filled) || !filled[idx])) onUpdateNavText(step5Data.navUseNumpad);
         else if (idx < 2) onUpdateNavText(step5Data.navTapVariable || step5Data.navUseNumpad);
         else onUpdateNavText(step5Data.navTapContinue);
       }
@@ -94,16 +96,18 @@ const CalculationPanel = ({
 
   // —— Step 5: Tap variable to reveal, then numpad (var 0,1) or direct value (var 2) ——
   const handleStep5VariableTap = (idx) => {
-    if (idx !== calcState.step5BoxIndex) return;
-    const revealed = calcState.step5Revealed[idx];
-    if (revealed) return;
+    const boxIndex = typeof calcState.step5BoxIndex === "number" ? calcState.step5BoxIndex : 0;
+    if (idx !== boxIndex) return;
+    const revealedArr = calcState.step5Revealed;
+    if (!Array.isArray(revealedArr)) return;
+    if (revealedArr[idx]) return;
     if (window.playSound) window.playSound("tick");
     setCalcState(prev => {
-      const nextRevealed = [...prev.step5Revealed];
+      const nextRevealed = Array.isArray(prev.step5Revealed) ? [...prev.step5Revealed] : [false, false, false];
       nextRevealed[idx] = true;
       const v = step5Data.variables[idx];
       const noNumpad = v && v.needsNumpad === false;
-      const nextFilled = noNumpad ? (() => { const f = [...prev.step5Filled]; f[idx] = true; return f; })() : prev.step5Filled;
+      const nextFilled = noNumpad ? (() => { const f = Array.isArray(prev.step5Filled) ? [...prev.step5Filled] : [false, false, false]; f[idx] = true; return f; })() : prev.step5Filled;
       const nextIndex = noNumpad ? idx + 1 : prev.step5BoxIndex;
       const allDone = noNumpad && nextIndex >= 3;
       if (allDone && onEnableNext) setTimeout(() => onEnableNext(), 300);
@@ -115,24 +119,26 @@ const CalculationPanel = ({
   };
 
   const handleStep5NumberClick = (num) => {
-    const idx = calcState.step5BoxIndex;
+    const idx = typeof calcState.step5BoxIndex === "number" ? calcState.step5BoxIndex : 0;
     if (idx >= 2) return;
-    const v = step5Data.variables[idx];
-    const maxLen = (v && v.answer.length) || 5;
-    if (calcState.step5Values[idx].length < maxLen) {
-      setCalcState(prev => {
-        const next = [...prev.step5Values];
-        next[idx] = next[idx] + num;
-        return { ...prev, step5Values: next };
-      });
-      setStep5InputError(false);
-    }
+    const v = step5Data.variables && step5Data.variables[idx];
+    const maxLen = (v && v.answer && v.answer.length) || 5;
+    const valuesArr = Array.isArray(calcState.step5Values) ? calcState.step5Values : ["", "", ""];
+    if ((valuesArr[idx] || "").length >= maxLen) return;
+    setCalcState(prev => {
+      const prevValues = Array.isArray(prev.step5Values) ? prev.step5Values : ["", "", ""];
+      const next = [...prevValues];
+      next[idx] = next[idx] + num;
+      return { ...prev, step5Values: next };
+    });
+    setStep5InputError(false);
   };
 
   const handleStep5Clear = () => {
-    const idx = calcState.step5BoxIndex;
+    const idx = typeof calcState.step5BoxIndex === "number" ? calcState.step5BoxIndex : 0;
     setCalcState(prev => {
-      const next = [...prev.step5Values];
+      const prevValues = Array.isArray(prev.step5Values) ? prev.step5Values : ["", "", ""];
+      const next = [...prevValues];
       next[idx] = next[idx].slice(0, -1);
       return { ...prev, step5Values: next };
     });
@@ -140,13 +146,16 @@ const CalculationPanel = ({
   };
 
   const handleStep5Submit = () => {
-    const idx = calcState.step5BoxIndex;
-    const v = step5Data.variables[idx];
+    const idx = typeof calcState.step5BoxIndex === "number" ? calcState.step5BoxIndex : 0;
+    const v = step5Data.variables && step5Data.variables[idx];
     const correct = v && v.answer;
-    if (calcState.step5Values[idx] === correct) {
+    const valuesArr = calcState.step5Values;
+    const currentVal = Array.isArray(valuesArr) ? valuesArr[idx] : "";
+    if (currentVal === correct) {
       if (window.playSound) window.playSound("correct");
       setCalcState(prev => {
-        const filled = [...prev.step5Filled];
+        const prevFilled = Array.isArray(prev.step5Filled) ? prev.step5Filled : [false, false, false];
+        const filled = [...prevFilled];
         filled[idx] = true;
         const nextIndex = idx + 1;
         const allDone = nextIndex >= 3;
@@ -162,7 +171,8 @@ const CalculationPanel = ({
       setTimeout(() => {
         setStep5InputError(false);
         setCalcState(prev => {
-          const next = [...prev.step5Values];
+          const prevValues = Array.isArray(prev.step5Values) ? prev.step5Values : ["", "", ""];
+          const next = [...prevValues];
           next[idx] = "";
           return { ...prev, step5Values: next };
         });
@@ -292,32 +302,38 @@ const CalculationPanel = ({
     }
 
     if (step === 5 && step5Data) {
-      const vars = step5Data.variables;
-      const currentIdx = calcState.step5BoxIndex;
+      const vars = step5Data.variables || [];
+      const revealed = Array.isArray(calcState.step5Revealed) ? calcState.step5Revealed : [false, false, false];
+      const filled = Array.isArray(calcState.step5Filled) ? calcState.step5Filled : [false, false, false];
+      const values = Array.isArray(calcState.step5Values) ? calcState.step5Values : ["", "", ""];
+      const currentIdx = typeof calcState.step5BoxIndex === "number" ? calcState.step5BoxIndex : 0;
       const renderVar0 = () => {
-        if (!calcState.step5Revealed[0]) {
+        if (!vars[0]) return null;
+        if (!revealed[0]) {
           const isCurrent = currentIdx === 0;
           return isCurrent
             ? React.createElement("span", { className: "calc-interactive-box clickable", onClick: () => handleStep5VariableTap(0) }, vars[0].label)
             : React.createElement("span", { className: "calc-var-label" }, vars[0].label);
         }
-        if (calcState.step5Filled[0]) return vars[0].answer + vars[0].unit;
-        const val0 = calcState.step5Values[0];
+        if (filled[0]) return vars[0].answer + vars[0].unit;
+        const val0 = values[0];
         return React.createElement("span", { className: `calc-input-box ${step5InputError ? "error shake" : ""} highlighted ${!val0 ? "placeholder" : ""}` }, val0 || vars[0].expression);
       };
       const renderVar1 = () => {
-        if (!calcState.step5Revealed[1]) {
+        if (!vars[1]) return null;
+        if (!revealed[1]) {
           const isCurrent = currentIdx === 1;
           return isCurrent
             ? React.createElement("span", { className: "calc-interactive-box clickable", onClick: () => handleStep5VariableTap(1) }, vars[1].label)
             : React.createElement("span", { className: "calc-var-label" }, vars[1].label);
         }
-        if (calcState.step5Filled[1]) return vars[1].answer + vars[1].unit;
-        const val1 = calcState.step5Values[1];
+        if (filled[1]) return vars[1].answer + vars[1].unit;
+        const val1 = values[1];
         return React.createElement("span", { className: `calc-input-box ${step5InputError ? "error shake" : ""} highlighted ${!val1 ? "placeholder" : ""}` }, val1 || vars[1].expression);
       };
       const renderVar2 = () => {
-        if (!calcState.step5Revealed[2]) {
+        if (!vars[2]) return null;
+        if (!revealed[2]) {
           const isCurrent = currentIdx === 2;
           return isCurrent
             ? React.createElement("span", { className: "calc-interactive-box clickable", onClick: () => handleStep5VariableTap(2) }, vars[2].label)
@@ -445,9 +461,11 @@ const CalculationPanel = ({
     }
 
     if (step === 5 && !calcState.step5AllDone) {
-      const idx = calcState.step5BoxIndex;
-      const v = step5Data.variables[idx];
-      const showNumpad = v && v.needsNumpad && calcState.step5Revealed[idx] && !calcState.step5Filled[idx];
+      const idx = typeof calcState.step5BoxIndex === "number" ? calcState.step5BoxIndex : 0;
+      const v = step5Data.variables && step5Data.variables[idx];
+      const revealed = calcState.step5Revealed;
+      const filled = calcState.step5Filled;
+      const showNumpad = v && v.needsNumpad && Array.isArray(revealed) && revealed[idx] && (!Array.isArray(filled) || !filled[idx]);
       if (showNumpad) {
         return React.createElement(Numpad, {
           onNumberClick: handleStep5NumberClick,

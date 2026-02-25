@@ -6,6 +6,7 @@ const MainCanvas = ({ onSliderMove }) => {
   const [progress, setProgress] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [hasSliderMoved, setHasSliderMoved] = useState(false);
+  const [showParallelogramOutline, setShowParallelogramOutline] = useState(false);
   const isResettingRef = useRef(false);
 
   // Grid constants
@@ -24,8 +25,8 @@ const MainCanvas = ({ onSliderMove }) => {
   const startY = 2 * gridSize;
 
   // Tilt logic - max tilt is 2 grid units
-  const maxTiltOffset = 2 * gridSize;
-  const currentTiltOffset = (tilt / 2) * maxTiltOffset;
+  const maxTiltOffset = 1 * gridSize;
+  const currentTiltOffset = (tilt) * maxTiltOffset;
 
   const gridLineColor = "rgba(148, 163, 184, 0.45)";
   const gridDotColor = "rgba(148, 163, 184, 0.5)";
@@ -96,9 +97,11 @@ const MainCanvas = ({ onSliderMove }) => {
         } else {
           setIsAnimating(false);
           setIsComplete(true);
-          // Auto-reset after 1 second
+          setShowParallelogramOutline(true);
+          // Hold parallelogram outline for 1 second, then reset everything
           resetTimeout = setTimeout(() => {
             isResettingRef.current = true;
+            setShowParallelogramOutline(false);
             setTilt(0);
             setIsAnimating(false);
             setProgress(0);
@@ -109,7 +112,7 @@ const MainCanvas = ({ onSliderMove }) => {
             setTimeout(() => {
               isResettingRef.current = false;
             }, 100);
-          }, 1000);
+          }, 2000);
         }
       };
       animationFrame = requestAnimationFrame(animate);
@@ -131,10 +134,27 @@ const MainCanvas = ({ onSliderMove }) => {
 
   const handleSliderRelease = () => {
     // Trigger animation when user releases slider at maximum
-    if (tilt >= 1.98 && !isAnimating && !isComplete && !isResettingRef.current) {
+    if (tilt >= 0.98 && !isAnimating && !isComplete && !isResettingRef.current) {
       setIsAnimating(true);
+      setShowParallelogramOutline(true);
     }
   };
+
+  // Dotted rectangle outline (original position) - shown when slider is moved
+  const dottedRectangleOutline = hasSliderMoved && React.createElement(
+    "rect",
+    {
+      x: startX,
+      y: startY,
+      width: rectW,
+      height: rectH,
+      fill: "none",
+      stroke: "white",
+      strokeWidth: "2.5",
+      strokeDasharray: "6",
+      opacity: "0.6",
+    }
+  );
 
   // Stage: Interactive Tilt
   const interactiveShape = !isAnimating && !isComplete && React.createElement(
@@ -150,6 +170,24 @@ const MainCanvas = ({ onSliderMove }) => {
       fillOpacity: "0.8",
       stroke: "white",
       strokeWidth: "2.5",
+    }
+  );
+
+  // Dotted parallelogram outline - shown during animation and after completion
+  const dottedParallelogramOutline = showParallelogramOutline && React.createElement(
+    "polygon",
+    {
+      points: `
+        ${startX + maxTiltOffset},${startY} 
+        ${startX + rectW + maxTiltOffset},${startY} 
+        ${startX + rectW},${startY + rectH} 
+        ${startX},${startY + rectH}
+      `,
+      fill: "none",
+      stroke: "white",
+      strokeWidth: "2.5",
+      strokeDasharray: "6",
+      opacity: "0.6",
     }
   );
 
@@ -218,7 +256,9 @@ const MainCanvas = ({ onSliderMove }) => {
         gridDots,
         interactiveShape,
         animationShape,
-        completedShape
+        completedShape,
+        dottedRectangleOutline,
+        dottedParallelogramOutline
       )
     ),
 
@@ -229,13 +269,13 @@ const MainCanvas = ({ onSliderMove }) => {
       React.createElement("input", {
         type: "range",
         min: "0",
-        max: "2",
+        max: "1",
         step: "0.01",
         value: tilt,
         onChange: handleSliderChange,
         onMouseUp: handleSliderRelease,
         onTouchEnd: handleSliderRelease,
-        disabled: isAnimating || isComplete,
+        disabled: isAnimating || isComplete || showParallelogramOutline,
         className: "tilt-slider",
       })
     )

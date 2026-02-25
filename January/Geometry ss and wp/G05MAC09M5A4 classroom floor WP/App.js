@@ -89,6 +89,7 @@ const App = () => {
 
     const defaultCalcState = {
       step5BoxIndex: 0,
+      step5Revealed: [false, false, false],
       step5Filled: [false, false, false],
       step5Values: ["", "", ""],
       step5AllDone: false,

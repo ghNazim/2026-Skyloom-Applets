@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2 Cubes Debate</title>
+
+    <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="styles/Applet.css" />
+
+    <link rel="stylesheet" href="components/Navigation/Navigation.css" />
+    <link rel="stylesheet" href="components/QuestionPanel/QuestionPanel.css" />
+    <link rel="stylesheet" href="components/CubesDebate3D/CubesDebate3D.css" />
+    <link rel="stylesheet" href="components/CubesDebateCanvas/CubesDebateCanvas.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="packages/react.development.js"></script>
+    <script src="packages/react-dom.development.js"></script>
+    <script src="packages/gsap.min.js"></script>
+    <script src="packages/confetti.min.js"></script>
+    <script src="packages/three.min.js"></script>
+    <script src="packages/OrbitControls.js"></script>
+
+    <script>
+      const current_language = "en";
+    </script>
+    <script src="data.js"></script>
+    <script src="utility.js"></script>
+
+    <script src="components/Navigation/Navigation.js"></script>
+    <script src="components/QuestionPanel/QuestionPanel.js"></script>
+    <script src="components/CubesDebate3D/CubesDebate3D.js"></script>
+    <script src="components/CubesDebateCanvas/CubesDebateCanvas.js"></script>
+
+    <script src="App.js"></script>
+
+    <script>
+      ReactDOM.render(
+        React.createElement(App),
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>
