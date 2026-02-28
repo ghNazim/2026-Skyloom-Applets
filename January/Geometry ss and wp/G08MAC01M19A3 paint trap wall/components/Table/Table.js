@@ -75,7 +75,7 @@ const Table = ({
     const endCellRect = endCell.getBoundingClientRect();
 
     const isRightColumn = col === 2;
-    const arrowOffsetPx = 40;
+    const arrowOffsetPx = startCellRect.width/2;
 
     let startX, startY, endX, endY, turnPointX, turnPointY1, turnPointY2;
 
@@ -113,7 +113,7 @@ const Table = ({
 
     if (!containerRef.current) return;
     const containerRectForHead = containerRef.current.getBoundingClientRect();
-    const arrowHeadWidth = containerRectForHead.width * 0.012;
+    const arrowHeadWidth = containerRectForHead.width * 0.024;
     const arrowHeadHeight = arrowHeadWidth / 2;
 
     const arrowHead = document.createElementNS(
@@ -123,7 +123,7 @@ const Table = ({
     if (isRightColumn) {
       arrowHead.setAttribute(
         "points",
-        `${endX},${endY} ${endX - arrowHeadWidth},${endY - arrowHeadHeight} ${endX - arrowHeadWidth},${endY + arrowHeadHeight}`
+        `${endX},${endY} ${endX + arrowHeadWidth},${endY - arrowHeadHeight} ${endX + arrowHeadWidth},${endY + arrowHeadHeight}`
       );
     } else {
       arrowHead.setAttribute(

@@ -39,7 +39,7 @@ const App = () => {
 
   const getTotalComprehendSubsteps = () => {
     const data = APP_DATA.comprehend;
-    return (data.infoList && data.infoList.length) ? data.infoList.length : 0;
+    return data.infoList && data.infoList.length ? data.infoList.length : 0;
   };
 
   // On step change: set initial image and next state
@@ -150,7 +150,9 @@ const App = () => {
       setCurrentImage(comprehendData.images[comprehendSubstep]);
     }
     const isLastSubstep = comprehendSubstep === total - 1;
-    setDynamicNavText(isLastSubstep ? (comprehendData.navFinal || "") : (comprehendData.nav || ""));
+    setDynamicNavText(
+      isLastSubstep ? comprehendData.navFinal || "" : comprehendData.nav || "",
+    );
     setIsNextDisabled(false);
   }, [currentStep, comprehendSubstep]);
 
@@ -178,7 +180,8 @@ const App = () => {
     const mcqData = APP_DATA.mcq4;
     if (!mcqData || !mcqData.imagesForEachOption) return;
     if (mcqSelectedIndex !== null && mcqSelectedIndex !== undefined) {
-      const src = mcqData.imagesForEachOption[mcqSelectedIndex] || mcqData.defaultImage;
+      const src =
+        mcqData.imagesForEachOption[mcqSelectedIndex] || mcqData.defaultImage;
       setCurrentImage(src || "");
     }
   }, [mcqSelectedIndex]);
@@ -265,20 +268,23 @@ const App = () => {
     }
   }, [perpLeftClicked, perpRightClicked, enableNext]);
 
-  const handleMcqOptionClick = useCallback((index) => {
-    if (mcqCorrect) return;
-    const mcqData = getMcqData(currentStep);
-    if (!mcqData) return;
-    setMcqSelectedIndex(index);
-    const correct = index === mcqData.correctIndex;
-    if (correct) {
-      setMcqCorrect(true);
-      if (window.playSound) window.playSound("correct");
-      setTimeout(() => enableNext(), 500);
-    } else {
-      if (window.playSound) window.playSound("wrong");
-    }
-  }, [currentStep, mcqCorrect, enableNext]);
+  const handleMcqOptionClick = useCallback(
+    (index) => {
+      if (mcqCorrect) return;
+      const mcqData = getMcqData(currentStep);
+      if (!mcqData) return;
+      setMcqSelectedIndex(index);
+      const correct = index === mcqData.correctIndex;
+      if (correct) {
+        setMcqCorrect(true);
+        if (window.playSound) window.playSound("correct");
+        setTimeout(() => enableNext(), 500);
+      } else {
+        if (window.playSound) window.playSound("wrong");
+      }
+    },
+    [currentStep, mcqCorrect, enableNext],
+  );
 
   const getQuestionText = () => {
     if (dynamicQuestionText) return dynamicQuestionText;
@@ -290,7 +296,9 @@ const App = () => {
   const getNavText = () => {
     const stepData = APP_DATA.steps[currentStep];
     if (currentStep === 6 && stepData && stepData.isTable) {
-      return dynamicNavText != null ? dynamicNavText : (APP_DATA.tableStep && APP_DATA.tableStep.nav) || "";
+      return dynamicNavText != null
+        ? dynamicNavText
+        : (APP_DATA.tableStep && APP_DATA.tableStep.nav) || "";
     }
     if (currentStep === 9 && stepData && stepData.isCompute) {
       return dynamicNavText != null ? dynamicNavText : "";
@@ -328,7 +336,7 @@ const App = () => {
           dataList: splashData.dataList || [],
           belowImage: splashData.belowImage || "",
           step: currentStep,
-        })
+        }),
       ),
       React.createElement(
         "div",
@@ -337,13 +345,11 @@ const App = () => {
           onNav: (dir) => (dir === "next" ? handleNext() : handlePrev()),
           isNextDisabled: isNextDisabled,
           isPrevDisabled:
-          currentStep === 0
-            ? comprehendSubstep <= -1
-            : currentStep <= 0,
+            currentStep === 0 ? comprehendSubstep <= -1 : currentStep <= 0,
           navText: getNavText(),
           nextSymbol: "»",
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -351,7 +357,8 @@ const App = () => {
   return React.createElement(
     "div",
     { className: "applet-container" },
-    stepData && !stepData.hideQuestionPanel &&
+    stepData &&
+      !stepData.hideQuestionPanel &&
       React.createElement(QuestionPanel, {
         text: getQuestionText(),
         step: currentStep,
@@ -383,16 +390,16 @@ const App = () => {
         },
         onStep12NumeratorHighlight: () => {
           setStep12ComputePhase("numerator");
-          setCurrentImage("assets/areaHighlight.svg");
+          setCurrentImage(APP_DATA.areaHighlightImage);
         },
         onStep12DenominatorHighlight: () => {
           setStep12ComputePhase("denominator");
-          setCurrentImage("assets/compute2grey.svg");
+          setCurrentImage(APP_DATA.compute2GreyImage);
         },
         onStep12UnitsHighlight: () => {
           setStep12ComputePhase("units");
         },
-      })
+      }),
     ),
     React.createElement(
       "div",
@@ -401,12 +408,10 @@ const App = () => {
         onNav: (dir) => (dir === "next" ? handleNext() : handlePrev()),
         isNextDisabled: isNextDisabled,
         isPrevDisabled:
-          currentStep === 0
-            ? comprehendSubstep <= -1
-            : currentStep <= 0,
+          currentStep === 0 ? comprehendSubstep <= -1 : currentStep <= 0,
         navText: getNavText(),
         nextSymbol: "»",
-      })
-    )
+      }),
+    ),
   );
 };

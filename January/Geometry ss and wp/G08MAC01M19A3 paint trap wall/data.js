@@ -20,6 +20,8 @@ const DATA = {
       areaCoveredByCanWhite: "Area covered by 1 can = 1.5 m²",
       areaPaintedByCanWhite: "Area painted by 1 can = 1.5 m²",
       costOfCanWhite: "Cost of 1 can = Rp 22,500.00",
+      areaHighlightImage: "assets/areaHighlight.svg",
+      compute2GreyImage: "assets/compute2grey.svg",
 
       // Step 0: Comprehend question
       comprehend: {
@@ -302,7 +304,7 @@ const DATA = {
 
       // Step 12: Compute (#cans of paint – fraction substitution)
       compute2Config: {
-        title: "#cans of paint",
+        title: "Number of cans of paint",
         defaultImage: "assets/compute2.svg",
         navFinal: "Tap »",
         colors: { yellow: "#EAB308" },
@@ -488,6 +490,8 @@ const DATA = {
       areaCoveredByCanWhite: "Luas yang dapat ditutup 1 kaleng = 1,5 m²",
       areaPaintedByCanWhite: "Luas yang dapat dicat 1 kaleng = 1,5 m²",
       costOfCanWhite: "Harga 1 kaleng = Rp 22.500,00",
+      areaHighlightImage: "assets/areaHighlight_id.svg",
+      compute2GreyImage: "assets/compute2Grey_id.svg",
 
       comprehend: {
         comprehendQuestion:
@@ -521,7 +525,7 @@ const DATA = {
 
       splash: {
         step2: {
-          image: "assets/mcq1correct.svg",
+          image: "assets/mcq1correct_id.svg",
           text: "<blue>✓ Informasi dikumpulkan dari gambar.</blue><yellow>Selanjutnya - Identifikasi apa yang diwakili oleh luas sawah.</yellow>",
           belowImage:
             "<bl>Pada trapesium sama kaki ABCD, AD = DC = CB = 4m</bl>",
@@ -533,7 +537,7 @@ const DATA = {
           nav: "Ketuk » untuk memahami bentuk lebih baik.",
         },
         step10: {
-          image: "assets/compute2.svg",
+          image: "assets/compute2_id.svg",
           dataList: [
             "lineAreaCoveredCanWhite",
             "lineCostCanWhite",
@@ -545,7 +549,7 @@ const DATA = {
       },
 
       compute2Visual: {
-        image: "assets/compute2.svg",
+        image: "assets/compute2_id.svg",
         infoList: ["lineAreaPaintedCanWhite", "lineCostCanWhite"],
         cansInfoText: "Jumlah kaleng cat = 13,84",
       },
@@ -568,7 +572,7 @@ const DATA = {
         feedbacks: null,
         imagesForEachOption: null,
         defaultImage: "assets/compre0.svg",
-        correctImage: "assets/mcq1Correct.svg",
+        correctImage: "assets/mcq1Correct_id.svg",
         nav: "Ketuk jawaban yang benar",
         navFinal: "Ketuk » untuk merangkum sejauh ini",
       },
@@ -675,7 +679,7 @@ const DATA = {
       compute1Config: {
         title: "Berapa luas trapesium?",
         defaultImage: "assets/mcq5.svg",
-        finalImage: "assets/compute1final.svg",
+        finalImage: "assets/compute1final_id.svg",
         navFinal: "Ketuk » untuk merangkum sejauh ini",
         colors: {
           lightBlue: "#56C7FF",
@@ -732,7 +736,7 @@ const DATA = {
             delay: 1500,
             row3FullHighlight: true,
             row3Replace: "20,76 m²",
-            image: "assets/compute1final.svg",
+            image: "assets/compute1final_id.svg",
             final: true,
           },
         ],
@@ -746,15 +750,16 @@ const DATA = {
         ],
         correctIndex: 0,
         feedbacks: null,
-        defaultImage: "assets/compute2.svg",
-        correctImage: "assets/compute2.svg",
+        defaultImage: "assets/compute2_id.svg",
+        correctImage: "assets/compute2_id.svg",
         nav: "Ketuk jawaban yang benar",
         navFinal: "Ketuk »",
       },
 
       compute2Config: {
-        title: "#kaleng cat",
-        defaultImage: "assets/compute2.svg",
+        //translate Number of cans of paint
+        title: "Kaleng cat",
+        defaultImage: "assets/compute2_id.svg",
         navFinal: "Ketuk »",
         colors: { yellow: "#EAB308" },
         fraction: { num: "Luas Dinding", den: "Luas yang dicat 1 Kaleng" },
@@ -802,8 +807,8 @@ const DATA = {
           "Ups! Cat hanya dapat dibeli dalam jumlah kaleng utuh!",
           "Benar! Cat hanya dapat dibeli dalam jumlah kaleng utuh! \n\n<b>Total biaya = Rp. 315.000,00</b>",
         ],
-        defaultImage: "assets/compute2.svg",
-        correctImage: "assets/compute2.svg",
+        defaultImage: "assets/compute2_id.svg",
+        correctImage: "assets/compute2_id.svg",
         nav: "Ketuk opsi yang benar.",
         navFinal: "Ketuk » untuk merangkum",
       },
