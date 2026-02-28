@@ -1,0 +1,17 @@
+.only-text-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw;
+  text-align: center;
+}
+
+.only-text-content {
+  font-size: 2.3vw;
+  color: white;
+  line-height: 1.7;
+  white-space: pre-line;
+  margin: 0;
+}

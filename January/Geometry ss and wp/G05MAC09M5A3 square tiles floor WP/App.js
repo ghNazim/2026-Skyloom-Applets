@@ -6,7 +6,7 @@ const App = () => {
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   
   // Substep for comprehend step
-  const [comprehendSubstep, setComprehendSubstep] = useState(0);
+  const [comprehendSubstep, setComprehendSubstep] = useState(-1);
   // Comprehend substep 0: Show Floor button — next disabled until video ends
   const [showFloorRevealed, setShowFloorRevealed] = useState(false);
   const [showFloorVideoPlaying, setShowFloorVideoPlaying] = useState(false);
@@ -345,6 +345,10 @@ const App = () => {
   // Comprehend substep 0: start Show Floor video
   const onShowFloorClick = useCallback(() => {
     setShowFloorVideoPlaying(true);
+    const comprehendData = APP_DATA.comprehend;
+    if (comprehendData && comprehendData.imageAfterVideo) {
+      setCurrentImage(comprehendData.imageAfterVideo);
+    }
   }, []);
 
   // Comprehend substep 0: video ended — show image, enable next
@@ -480,7 +484,7 @@ const App = () => {
         currentImage: currentImage,
         comprehendSubstep: comprehendSubstep,
         showFloorVideoPlaying: showFloorVideoPlaying,
-        onShowFloorClick: onShowFloorClick,
+        onShowFloorClick: (!showFloorVideoPlaying && !showFloorRevealed) ? onShowFloorClick : null,
         onShowFloorVideoEnded: onShowFloorVideoEnded,
         interactiveBoxState1: interactiveBoxState1,
         setInteractiveBoxState1: setInteractiveBoxState1,

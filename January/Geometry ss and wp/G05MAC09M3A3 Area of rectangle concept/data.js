@@ -38,7 +38,7 @@ const DATA = {
         4: {
           questionText: "Fill the rectangle by setting right number of rows.",
           navText: "Drag the slider to set number of rows.",
-          navNext: "Tap ».",
+          navNext: "Tap » to continue.",
           sliderLabel: "Number of rows"
         },
         5: {
@@ -103,7 +103,7 @@ const DATA = {
         4: {
           questionText: "Isi persegi panjang dengan menetapkan jumlah baris yang tepat.",
           navText: "Geser slider untuk menetapkan jumlah baris.",
-          navNext: "Ketuk ».",
+          navNext: "Ketuk » untuk melanjutkan.",
           sliderLabel: "Jumlah baris"
         },
         5: {

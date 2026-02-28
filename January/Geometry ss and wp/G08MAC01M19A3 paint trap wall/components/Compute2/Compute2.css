@@ -69,6 +69,14 @@
   border-radius: 0.2em;
 }
 
+.compute2-unit-highlight {
+  background-color: #FF00E6;
+  color: #fff;
+  padding: 0.05em 0.2em;
+  border-radius: 0.2em;
+  text-decoration: line-through;
+}
+
 @keyframes compute2-fadeIn {
   from {
     opacity: 0;

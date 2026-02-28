@@ -1,0 +1,66 @@
+.text-panel {
+  width: 100%;
+  padding: 1.5vw;
+  font-size: 2.5vw;
+  line-height: 1.4;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.text-panel-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-panel-plain {
+  display: inline;
+}
+
+.text-panel-box {
+  display: inline-block;
+  padding: 0.2em 0.5em;
+  border-radius: 0.3em;
+  font-weight: 600;
+  /* text-decoration: underline; */
+  color: #000000;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.text-panel-box.clickable {
+  cursor: pointer;
+}
+
+.text-panel-box.clickable:hover {
+  /* opacity: 0.9; */
+  transform: scale(1.02);
+}
+
+.text-panel-box.clickable:active {
+  transform: scale(0.98);
+}
+
+.text-panel-box.disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.text-panel-box-green {
+  background-color: rgba(134, 239, 172, 1);
+  margin: 0 1vw;
+}
+
+.text-panel-box-blue {
+  background-color: rgb(228, 201, 255);
+}
+
+.text-panel-box-orange {
+  background-color: rgb(253, 203, 148);
+}
+
+.text-panel-box-yellow {
+  background-color: rgb(255, 235, 134);
+}

@@ -253,8 +253,12 @@ input[type=range]::-moz-range-track {
   position: relative;
   left: auto;
   right: auto;
-  background: rgba(255, 255, 255, 0.15);
-  border: 0.2vw solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border: none;
   border-radius: 50%;
   width: 4vw;
   height: 4vw;
@@ -269,7 +273,7 @@ input[type=range]::-moz-range-track {
 }
 
 .replay-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  /* background: rgba(255, 255, 255, 0.25); */
   transform: scale(1.1);
 }
 

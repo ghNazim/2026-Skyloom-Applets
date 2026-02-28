@@ -30,7 +30,7 @@ const DATA = {
             "Width of the field = 15 m"
           ],
           highlights: [
-            "A rice field in Cianjur.",
+            "rice field in Cianjur.",
             "The length of the field is 25 meters",
             "its width is 15 meters"
           ]
@@ -157,7 +157,7 @@ const DATA = {
         },
         // Step 1: Comprehend with substeps (Given/To Find)
         1: {
-          questionText: "Pak Ahmad has a rice field in Cianjur. The length of the field is 25 meters and its width is 15 meters. What is the total area his rice field?",
+          questionText: "Pak Ahmad has a rice field in Cianjur. The length of the field is 25 meters and\n its width is 15 meters. What is the total area his rice field?",
           navText: "Tap » to identify 'given' information.",
           navToFind:"Tap » to identify what we need 'to find'.",
           navTextCorrect: "Tap » to continue.",
@@ -370,7 +370,7 @@ const DATA = {
           hideVisualPanel: true
         },
         1: {
-          questionText: "Pak Ahmad memiliki sawah di Cianjur. Panjang sawah adalah 25 meter dan lebarnya adalah 15 meter. Berapa total luas sawahnya?",
+          questionText: "Pak Ahmad memiliki sawah di Cianjur. Panjang sawah adalah 25 meter dan\n lebarnya adalah 15 meter. Berapa total luas sawahnya?",
           navText: "Ketuk » untuk mengidentifikasi informasi 'diketahui'.",
           navToFind:"Ketuk » untuk mengidentifikasi apa yang perlu 'ditanyakan'.",
           navTextCorrect: "Ketuk » untuk melanjutkan.",

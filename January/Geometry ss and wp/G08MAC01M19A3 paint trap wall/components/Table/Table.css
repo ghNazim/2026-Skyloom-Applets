@@ -53,6 +53,32 @@
   animation: pulsate 1.5s ease-in-out infinite;
 }
 
+.table-col-border-highlight {
+  outline: 0.3vw solid rgba(255, 215, 0, 1) !important;
+}
+
+.table-cell-active-highlight {
+  /* outline: 0.3vw solid rgba(255, 215, 0, 1) !important; */
+  /* box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important; */
+  /* animation: pulsate 1.5s ease-in-out infinite; */
+}
+
+.table-cell-active-highlight.table-col-ae {
+  background-color: #ffb74b !important;
+  color: black !important;
+}
+
+.table-cell-active-highlight.table-col-ed {
+  background-color: #47d2b6 !important;
+  color: black !important;
+}
+
+.table-cell-active-highlight.table-col-da {
+  /* background-color: #56c7ff !important;
+  color: black !important; */
+  outline: 0.3vw solid #56C7FF !important;
+}
+
 .table-arrow-svg {
   position: absolute;
   top: 0;
@@ -97,6 +123,18 @@
 .table-arrow-label.correct {
   background-color: #28a745;
   border-color: #28a745;
+  color: white;
+}
+
+.table-arrow-label.neutral {
+  background-color: #1a1a2e;
+  border-color: #444;
+  color: white;
+}
+
+.table-arrow-label.incorrectCell {
+  background-color: #dc3545;
+  border-color: #dc3545;
   color: white;
 }
 
@@ -147,17 +185,17 @@
 
 /* Ratio table (Step 6): AE = orange/brown, ED = teal, DA = dark blue */
 .table-col-ae {
-  background-color: #ffb74b74 !important;
+  background-color: #ffb74b55 !important;
   outline-color: #ffb74b !important;
 }
 
 .table-col-ed {
-  background-color: #47d2b67c !important;
+  background-color: #47d2b655 !important;
   outline-color: #14b8a6 !important;
 }
 
 .table-col-da {
-  background-color: #56c7ff84 !important;
+  background-color: #56c7ff55 !important;
   outline-color: #56C7FF !important;
 }
 

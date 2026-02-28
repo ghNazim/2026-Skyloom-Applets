@@ -8,79 +8,149 @@ const Visual = ({
   showFloorVideoEnded,
   onVideoEnded,
   comprehendTileMagnifyClicked,
-  onTileMagnifyClick
+  comprehendTileMagnifyVideoEnded,
+  onTileMagnifyClick,
+  onTileMagnifyVideoEnded,
 }) => {
+  const videoRef = React.useRef(null);
   const isSvgInline = imageSrc && imageSrc.trim().startsWith("<svg");
   const comprehendData = APP_DATA.comprehend || {};
-  const altVisual = (APP_DATA.altTexts && APP_DATA.altTexts.visualRepresentation) || "";
+  const altVisual =
+    (APP_DATA.altTexts && APP_DATA.altTexts.visualRepresentation) || "";
   const altMagnify = (APP_DATA.altTexts && APP_DATA.altTexts.magnifyTile) || "";
 
-  // Step 1, substep 0: show video when "Show Floor" clicked until ended, then image
+  let showVideo = false;
+  let videoSrc = "";
+  let videoHasEnded = false;
+  let videoOnEnded = function () {};
+
   if (step === 1 && substep === 0) {
-    if (showFloorButtonClicked && !showFloorVideoEnded && comprehendData.videoShowFloor) {
-      return React.createElement(
-        "div",
-        { className: "visual-panel" },
-        React.createElement("video", {
-          className: "visual-video",
-          src: comprehendData.videoShowFloor,
-          autoPlay: true,
-          playsInline: true,
-          onEnded: onVideoEnded || (function() {})
-        })
-      );
-    }
-    if (showFloorVideoEnded && imageSrc) {
-      return React.createElement(
-        "div",
-        { className: "visual-panel" },
-        React.createElement("img", {
-          src: imageSrc,
-          alt: altVisual,
-          className: "visual-image"
-        })
-      );
-    }
+    videoSrc = comprehendData.videoShowFloor || "";
+    // Keep video visible (showVideo = true) even after it ends — the paused last
+    // frame stays on screen until the user navigates to the next substep.
+    showVideo = showFloorButtonClicked;
+    videoHasEnded = showFloorVideoEnded;
+    videoOnEnded = onVideoEnded || function () {};
+  } else if (step === 1 && substep === 3) {
+    videoSrc = comprehendData.videoSubstep3 || "";
+    showVideo = comprehendTileMagnifyClicked;
+    videoHasEnded = comprehendTileMagnifyVideoEnded;
+    videoOnEnded = onTileMagnifyVideoEnded || function () {};
   }
 
-  // Step 1, substep 3: show image + clickable tile overlay until magnify clicked
-  if (step === 1 && substep === 3) {
-    const showTileOverlay = !comprehendTileMagnifyClicked && imageSrc;
+  const hasVideo = !!videoSrc;
+  const hasImage = imageSrc && imageSrc.trim();
+  const imageRef = React.useRef(null);
+  const videoEndFiredRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (showVideo && !videoHasEnded && videoRef.current) {
+      // Fresh playback (video not yet ended for this substep visit).
+      videoEndFiredRef.current = false;
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(function () {});
+    }
+    // If videoHasEnded is true (e.g. navigating back to this substep), the video
+    // element is already paused on the last frame — do nothing.
+  }, [showVideo, videoSrc, videoHasEnded]);
+
+  const handleVideoEnd = function () {
+    if (videoEndFiredRef.current) return;
+    videoEndFiredRef.current = true;
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    // Just notify the parent to enable Next. No image switch — the paused last
+    // frame stays visible until the user navigates away.
+    videoOnEnded();
+  };
+
+  const handleTimeUpdate = function () {
+    if (!videoRef.current || videoEndFiredRef.current) return;
+    const video = videoRef.current;
+    if (video.duration && video.currentTime >= video.duration - 0.05) {
+      handleVideoEnd();
+    }
+  };
+
+  const handleVideoEnded = function () {
+    handleVideoEnd();
+  };
+
+  const showTileOverlay =
+    step === 1 &&
+    substep === 3 &&
+    !comprehendTileMagnifyClicked &&
+    imageSrc &&
+    onTileMagnifyClick;
+
+  if (hasVideo) {
     return React.createElement(
       "div",
       { className: "visual-panel visual-panel-relative" },
-      imageSrc && React.createElement("img", {
-        src: imageSrc,
-        alt: "Visual representation",
-        className: "visual-image"
-      }),
-      showTileOverlay && onTileMagnifyClick && React.createElement("div", {
-        className: "visual-tile-magnify",
-        onClick: () => {
-          if (window.playSound) window.playSound("click");
-          onTileMagnifyClick();
+      hasImage &&
+        (isSvgInline
+          ? React.createElement("div", {
+              ref: imageRef,
+              className: "svg-inline-wrapper visual-layer",
+              dangerouslySetInnerHTML: { __html: imageSrc },
+              style: {
+                visibility: showVideo ? "hidden" : "visible",
+                zIndex: showVideo ? 0 : 1,
+              },
+            })
+          : React.createElement("img", {
+              ref: imageRef,
+              src: imageSrc,
+              alt: altVisual,
+              className: "visual-image visual-layer",
+              style: {
+                visibility: showVideo ? "hidden" : "visible",
+                zIndex: showVideo ? 0 : 1,
+              },
+            })),
+      React.createElement("video", {
+        ref: videoRef,
+        src: videoSrc,
+        className: "visual-video visual-layer",
+        preload: "auto",
+        playsInline: true,
+        onTimeUpdate: handleTimeUpdate,
+        onEnded: handleVideoEnded,
+        style: {
+          visibility: showVideo ? "visible" : "hidden",
+          zIndex: showVideo ? 1 : 0,
         },
-        role: "button",
-        "aria-label": "Magnify tile"
-      })
+      }),
+      showTileOverlay &&
+        React.createElement("div", {
+          className:
+            "visual-tile-magnify" + (current_language === "id" ? " id" : ""),
+          onClick: () => {
+            if (window.playSound) window.playSound("click");
+            onTileMagnifyClick();
+          },
+          role: "button",
+          "aria-label": altMagnify,
+          style: { zIndex: 2 },
+        }),
     );
   }
 
-  // Default: image or SVG
   return React.createElement(
     "div",
     { className: "visual-panel" },
-    !imageSrc || !imageSrc.trim()
+    !hasImage
       ? null
       : isSvgInline
         ? React.createElement("div", {
             className: "svg-inline-wrapper",
-            dangerouslySetInnerHTML: { __html: imageSrc }
+            dangerouslySetInnerHTML: { __html: imageSrc },
           })
         : React.createElement("img", {
             src: imageSrc,
             alt: altVisual,
-            className: "visual-image"
-          })
+            className: "visual-image",
+          }),
   );
 };

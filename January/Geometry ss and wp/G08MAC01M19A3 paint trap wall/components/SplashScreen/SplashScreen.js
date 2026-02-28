@@ -3,7 +3,7 @@
  * Row 1: two columns - left: image, right: data list.
  * Row 2: text (supports <blue>, <yellow> etc. via dangerouslySetInnerHTML).
  */
-const SplashScreen = ({ imageSrc, text, dataList = [], step }) => {
+const SplashScreen = ({ imageSrc, text, dataList = [], belowImage, step }) => {
   return React.createElement(
     "div",
     { className: "splash-screen" },
@@ -19,6 +19,11 @@ const SplashScreen = ({ imageSrc, text, dataList = [], step }) => {
             src: imageSrc,
             alt: "Summary visual",
             className: "splash-image",
+          }),
+        belowImage &&
+          React.createElement("div", {
+            className: "splash-below-image",
+            dangerouslySetInnerHTML: { __html: belowImage },
           })
       ),
       React.createElement(

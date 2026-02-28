@@ -1,0 +1,81 @@
+.compute2-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5vw;
+  overflow-y: auto;
+}
+
+.compute2-title {
+  margin: 0 0 1.5vw 0;
+  font-size: 2.5vw;
+  color: white;
+  text-align: center;
+  font-weight: 500;
+}
+
+.compute2-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vw;
+  align-items: center;
+  width: 100%;
+}
+
+.compute2-fraction-row,
+.compute2-row {
+  width: 100%;
+  max-width: 95%;
+  padding: 1vw 1.5vw;
+  font-size: 2.2vw;
+  color: white;
+  background: rgba(40, 40, 50, 0.2);
+  border-radius: 0.8vw;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-sizing: border-box;
+  animation: compute2-fadeIn 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.compute2-row-final {
+  background: rgba(71, 210, 182, 0.25);
+  border-color: #47D2B6;
+  color: white;
+  font-weight: 600;
+  font-size: 2.5vw;
+}
+
+.compute2-fraction-row .compute2-frac-num-wrap,
+.compute2-fraction-row .compute2-frac-den-wrap {
+  text-align: center;
+}
+
+.compute2-fraction-row .compute2-frac-line {
+  width: 80%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.7);
+  margin: 0.3vw 0;
+  border-radius: 1px;
+}
+
+.compute2-highlight {
+  background-color: #EAB308;
+  color: #1a1a2e;
+  padding: 0.1em 0.25em;
+  border-radius: 0.2em;
+}
+
+@keyframes compute2-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.3vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

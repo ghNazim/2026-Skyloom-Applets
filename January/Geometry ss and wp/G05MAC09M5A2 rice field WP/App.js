@@ -313,6 +313,11 @@ const App = () => {
       } else {
         if (window.playSound) window.playSound("click");
       }
+      // Pre-set comprehend substep before entering step 1 so both updates
+      // are batched into a single render (prevents flash of substep-0 content)
+      if (currentStep === 0) {
+        setComprehendSubstep(-1);
+      }
       setCurrentStep(prev => prev + 1);
     }
   };

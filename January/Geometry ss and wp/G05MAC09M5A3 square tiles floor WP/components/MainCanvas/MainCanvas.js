@@ -53,9 +53,9 @@ const MainCanvas = ({
           "div",
           { className: "column visual-column" },
           React.createElement(Visual, {
-            imageSrc: showVideo ? "" : (showVisualImage ? getImageSrc() : ""),
-            videoSrc: showVideo ? comprehendData.videoSrc : "",
-            playVideo: showVideo,
+            imageSrc: showVisualImage ? getImageSrc() : "",
+            videoSrc: comprehendData && comprehendData.videoSrc ? comprehendData.videoSrc : "",
+            playVideo: !!showVideo,
             onVideoEnded: onShowFloorVideoEnded,
             showAreaLabel: false,
             step: step,

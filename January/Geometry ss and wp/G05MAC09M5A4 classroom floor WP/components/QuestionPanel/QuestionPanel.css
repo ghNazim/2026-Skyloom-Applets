@@ -14,7 +14,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
 }
+/* .question-panel.comprehend {
+  height: 11vw;
+} */
 
 .question-panel h2 {
   margin: 0;
@@ -28,10 +32,14 @@
   background-color: #9c27b0;
   padding: 0.2vw 0.5vw;
   border-radius: 0.3em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .question-highlight-orange {
   background-color: #bd7200;
   padding: 0.2vw 0.5vw;
   border-radius: 0.3em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }

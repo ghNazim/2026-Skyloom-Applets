@@ -1,0 +1,206 @@
+.main-canvas-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1vw;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.visual-row {
+  flex: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0.8vw 0.8vw 0 0.8vw;
+}
+
+.action-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 0;
+  padding: 0.5vw;
+}
+
+/* ===== STEP 1: Choice Buttons ===== */
+
+.step1-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4vw;
+  width: 100%;
+  height: 100%;
+}
+
+.choice-btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border: 2px solid var(--button-border-color);
+  color: var(--white-color);
+  font-size: 2.2vw;
+  padding: 0.8vw 4vw;
+  border-radius: 1vw;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+}
+
+.choice-btn:disabled {
+  cursor: not-allowed;
+}
+
+.choice-btn-default:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.choice-btn-correct {
+  background: #22c55e;
+  border-color: #16a34a;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+}
+
+.choice-btn-wrong {
+  background: #ef4444;
+  border-color: #dc2626;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+  animation: shake-btn 0.5s ease;
+}
+
+@keyframes shake-btn {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* ===== STEP 2: Slider + Input + Check ===== */
+
+.step2-controls {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-btn {
+  position: absolute;
+  right: 3vw;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border: 1px solid var(--button-border-color);
+  color: var(--white-color);
+  font-size: 2.5vw;
+  padding: 0.6vw 2vw;
+  border-radius: 0.8vw;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+  transition: opacity 0.2s;
+}
+
+.check-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.slider-input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5vw;
+}
+
+.answer-input {
+  width: 8vw;
+  /* height: 4vw; */
+  text-align: center;
+  font-size: 3vw;
+  font-weight: bold;
+  border-radius: 0.5vw;
+  border: 2px solid #ddb40d;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  padding: 0.5vw 1vw;
+  
+}
+
+.answer-input-wrong {
+  background-color: #fecaca;
+  border-color: #ef4444;
+  animation: shake-input 0.3s ease;
+  color: #940000;
+}
+
+.answer-input-correct {
+  background-color: #00c946;
+  /* border-color: #22c55e; */
+  border: none;
+  color: #fff;
+}
+
+@keyframes shake-input {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.answer-slider {
+  width: 25vw;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 0.5vw;
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 0.5vw;
+  outline: none;
+}
+
+.answer-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.8vw;
+  height: 1.8vw;
+  border-radius: 50%;
+  background: #f97316;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.answer-slider::-moz-range-thumb {
+  width: 1.8vw;
+  height: 1.8vw;
+  border-radius: 50%;
+  background: #f97316;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.answer-slider:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.answer-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}

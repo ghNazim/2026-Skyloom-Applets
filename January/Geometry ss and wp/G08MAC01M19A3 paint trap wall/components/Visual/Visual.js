@@ -9,7 +9,8 @@ const Visual = ({
   infoList = null,
   showCount = 0,
   greenItemIndex = null,
-  yellowLastItem = true,
+  yellowItemIndex = null,
+  dimmedIndices = null,
   showAreaLabel = false,
   step,
   substep = 0,
@@ -23,6 +24,10 @@ const Visual = ({
   const isSvgInline = imageSrc && imageSrc.trim().startsWith("<svg");
   const hasInfoRow = infoList && infoList.length > 0 && showCount >= 0;
   const itemsToShow = hasInfoRow ? infoList.slice(0, showCount) : [];
+  const [cacheKey, setCacheKey] = React.useState(Date.now());
+  React.useEffect(() => {
+    setCacheKey(Date.now());
+  }, [imageSrc]);
 
   return React.createElement(
     "div",
@@ -43,7 +48,7 @@ const Visual = ({
               dangerouslySetInnerHTML: { __html: imageSrc },
             })
           : React.createElement("img", {
-              src: imageSrc,
+              src: `${imageSrc}?v=${cacheKey}`,
               alt: "Visual representation",
               className: "visual-image",
             })
@@ -80,13 +85,14 @@ const Visual = ({
               content = APP_DATA[content];
             }
             const isGreen = index === greenItemIndex || (typeof item === "object" && item !== null && item.green);
-            const isYellow = yellowLastItem && !isGreen && isLast && greenItemIndex == null;
+            const isYellow = index === yellowItemIndex;
+            const isDimmed = dimmedIndices && dimmedIndices.indexOf(index) !== -1 && !isGreen && !isYellow;
             const useHtml = typeof content === "string" && content.indexOf("<") !== -1;
             return React.createElement(
               "li",
               {
                 key: `info-${index}`,
-                className: "visual-info-item" + (isGreen ? " green" : isYellow ? " yellow" : ""),
+                className: "visual-info-item" + (isGreen ? " green" : isYellow ? " yellow" : "") + (isDimmed ? " dimmed" : ""),
                 style: {
                   animation: isLast ? "fadeInUp 0.3s ease-out" : "none",
                 },

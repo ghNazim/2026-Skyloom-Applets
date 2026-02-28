@@ -33,12 +33,12 @@ const App = () => {
     }
   };
 
-  // const handlePrev = () => {
-  //   if (typeof playSound === "function") playSound("click");
-  //   if (currentStep > 1) {
-  //     setCurrentStep(prev => prev - 1);
-  //   }
-  // };
+  const handlePrev = () => {
+    if (typeof playSound === "function") playSound("click");
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
 
   const setNextEnabled = useCallback((enabled) => {
     setIsNextDisabled(!enabled);
@@ -122,9 +122,9 @@ const App = () => {
       "div",
       { className: "lower-panel" },
       React.createElement(Navigation, {
-        onNav: (dir) => (dir === "next" ? handleNext() : null), // No prev button needed as per usual flows unless specified
+        onNav: (dir) => { if (dir === "next") handleNext(); else if (dir === "prev") handlePrev(); },
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: true, // simplified
+        isPrevDisabled: currentStep <= 1,
         navText: getNavText(),
         nextSymbol: "»",
       })

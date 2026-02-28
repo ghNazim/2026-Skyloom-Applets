@@ -20,8 +20,9 @@ const TablePanel = ({
   const [arrowLabelValue, setArrowLabelValue] = useState("");
   const [arrowLabelCorrect, setArrowLabelCorrect] = useState(false);
   const [arrowLabelIncorrect, setArrowLabelIncorrect] = useState(false);
+  const [arrowLabelNeutral, setArrowLabelNeutral] = useState(false);
   const [tableRows, setTableRows] = useState(initialRows);
-  const [highlightedCell, setHighlightedCell] = useState(null);
+  const [highlightedColumn, setHighlightedColumn] = useState(2);
   const timersRef = useRef([]);
 
   const showNumpad = phase === 0;
@@ -62,17 +63,23 @@ const TablePanel = ({
     } else {
       setArrowLabelIncorrect(true);
       if (window.playSound) window.playSound("wrong");
-      setTimeout(() => setArrowLabelIncorrect(false), 300);
+      setTimeout(() => {
+        setArrowLabelIncorrect(false);
+        setArrowLabelValue("");
+      }, 500);
     }
   };
 
-  // Phase 1: after 1s move to phase 2, highlight ED bottom cell (play "click")
+  // Phase 1: after 1s move to phase 2, highlight ED column (play "click")
   useEffect(() => {
     if (phase !== 1) return;
+    setHighlightedColumn(null);
     const t = setTimeout(() => {
       if (window.playSound) window.playSound("click");
+      setArrowLabelCorrect(false);
+      setArrowLabelNeutral(true);
       setPhase(2);
-      setHighlightedCell({ row: 1, col: 1 });
+      setHighlightedColumn(1);
     }, 1000);
     timersRef.current.push(t);
     return () => clearTimeout(t);
@@ -94,7 +101,7 @@ const TablePanel = ({
     const t2 = setTimeout(() => {
       if (window.playSound) window.playSound("click");
       setPhase(3);
-      setHighlightedCell({ row: 1, col: 0 });
+      setHighlightedColumn(0);
     }, 1500);
     timersRef.current.push(t1, t2);
     return () => {
@@ -118,7 +125,7 @@ const TablePanel = ({
     }, 500);
     const t2 = setTimeout(() => {
       setPhase(4);
-      setHighlightedCell(null);
+      setHighlightedColumn(null);
       if (onEnableNext) onEnableNext();
       if (onUpdateNav && tableConfig.navFinal) onUpdateNav(tableConfig.navFinal);
     }, 1500);
@@ -141,13 +148,14 @@ const TablePanel = ({
       React.createElement(Table, {
         headers: tableConfig.headers || ["AE", "ED", "DA"],
         rows: tableRows,
-        highlightedCell: highlightedCell,
+        highlightedColumn: highlightedColumn,
         cellUpdate: null,
         showQuestionMarks: false,
         showArrow: true,
         arrowLabel: displayArrowLabel,
         isArrowLabelCorrect: arrowLabelCorrect,
         isArrowLabelIncorrect: arrowLabelIncorrect,
+        isArrowLabelNeutral: arrowLabelNeutral,
         questionMarkCellCorrect: false,
         isTableComplete: phase === 4,
         arrowColumnIndex: 2,

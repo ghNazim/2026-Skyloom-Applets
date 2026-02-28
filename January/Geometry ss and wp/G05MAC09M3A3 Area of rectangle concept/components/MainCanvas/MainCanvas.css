@@ -128,17 +128,17 @@ input[type=range]::-moz-range-track {
 }
 
 .vertical-slider::-webkit-slider-runnable-track {
-    background: #e91e63; /* Pink */
+    background: #0ea5e9; /* Pink */
 }
 .vertical-slider::-moz-range-track {
-    background: #e91e63;
+    background: #0ea5e9;
 }
 
 .horizontal-slider::-webkit-slider-runnable-track {
-    background: rgba(33, 150, 243, 0.8); /* Blueish */
+    background: #10b981; /* Blueish */
 }
 .horizontal-slider::-moz-range-track {
-    background: rgba(33, 150, 243, 0.8);
+    background: #10b981;
 }
 
 
@@ -228,6 +228,11 @@ input[type=range]::-moz-range-track {
 
 .highlight-blue {
     color: #0ea5e9;
+}
+
+.slider-label-excess {
+    background: #e91e63 !important;
+    color: white !important;
 }
 
 /* Arrows */

@@ -73,8 +73,9 @@ const MCQPanel = ({
         "div",
         {
           className: `mcq-feedback ${feedbackClass}`,
+          dangerouslySetInnerHTML: { __html: feedbackText },
         },
-        feedbackText != null ? feedbackText : ""
+        // feedbackText != null ? feedbackText : ""
       ),
       // Options container - column layout
       React.createElement(

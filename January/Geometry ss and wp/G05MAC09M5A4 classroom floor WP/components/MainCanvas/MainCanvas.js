@@ -10,7 +10,9 @@ const MainCanvas = ({
   showFloorVideoEnded,
   onVideoEnded,
   comprehendTileMagnifyClicked,
+  comprehendTileMagnifyVideoEnded,
   onTileMagnifyClick,
+  onTileMagnifyVideoEnded,
   step3McqAnswered,
   setStep3McqAnswered,
   step3FractionTapped,
@@ -63,7 +65,9 @@ const MainCanvas = ({
             showFloorVideoEnded: showFloorVideoEnded,
             onVideoEnded: onVideoEnded,
             comprehendTileMagnifyClicked: comprehendTileMagnifyClicked,
-            onTileMagnifyClick: onTileMagnifyClick
+            comprehendTileMagnifyVideoEnded: comprehendTileMagnifyVideoEnded,
+            onTileMagnifyClick: onTileMagnifyClick,
+            onTileMagnifyVideoEnded: onTileMagnifyVideoEnded
           })
         ),
         // Right Column - Comprehend

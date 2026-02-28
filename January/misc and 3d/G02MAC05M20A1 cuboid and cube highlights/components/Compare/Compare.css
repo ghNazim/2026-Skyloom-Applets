@@ -1,0 +1,57 @@
+.compare-container {
+  display: flex;
+  gap: 2vw;
+  width: 100%;
+  height: 100%;
+  padding: 1.5vw;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.compare-card {
+  flex: 1;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.55);
+  border-radius: 1vw;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  overflow: hidden;
+}
+
+.compare-card-figure {
+  flex: 1;
+  min-height: 15vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.compare-figure {
+  width: 100%;
+  height: 100%;
+}
+
+.compare-card-title {
+  font-size: 2vw;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  /* margin: 0.5vw 0 1vw; */
+}
+
+.compare-card-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+  padding: 1vw 1.5vw 1.5vw;
+}
+
+.compare-feature-item {
+  background-color: rgba(51, 65, 85, 0.6);
+  color: rgba(226, 232, 240, 0.9);
+  padding: 0.4vw 1vw;
+  border-radius: 0.5vw;
+  font-size: 2vw;
+  text-align: center;
+}

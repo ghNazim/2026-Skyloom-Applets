@@ -19,6 +19,7 @@ const App = () => {
 
   // Step 12: when Compute2 completes, show "Number of cans of paint = 13.84" in visual info list
   const [step12ShowCansInfo, setStep12ShowCansInfo] = useState(false);
+  const [step12ComputePhase, setStep12ComputePhase] = useState(null); // null | "numerator" | "denominator" | "final"
 
   const handleRestart = () => {
     if (window.playSound) window.playSound("click");
@@ -33,6 +34,7 @@ const App = () => {
     setPerpLeftClicked(false);
     setPerpRightClicked(false);
     setStep12ShowCansInfo(false);
+    setStep12ComputePhase(null);
   };
 
   const getTotalComprehendSubsteps = () => {
@@ -111,6 +113,7 @@ const App = () => {
       setIsNextDisabled(true);
     } else if (currentStep === 12) {
       setStep12ShowCansInfo(false);
+      setStep12ComputePhase(null);
       const visual = APP_DATA.compute2Visual || {};
       setCurrentImage(visual.image || "assets/compute2.svg");
       setDynamicNavText("");
@@ -169,7 +172,7 @@ const App = () => {
     // Step 8: no image change on correct
   }, [currentStep, mcqCorrect]);
 
-  // Step 7: show image per selected option
+  // Step 7: show image per selected option (only react to option selection, not step change)
   useEffect(() => {
     if (currentStep !== 7) return;
     const mcqData = APP_DATA.mcq4;
@@ -178,7 +181,7 @@ const App = () => {
       const src = mcqData.imagesForEachOption[mcqSelectedIndex] || mcqData.defaultImage;
       setCurrentImage(src || "");
     }
-  }, [currentStep, mcqSelectedIndex]);
+  }, [mcqSelectedIndex]);
 
   const handleNext = () => {
     const stepData = APP_DATA.steps[currentStep];
@@ -323,6 +326,7 @@ const App = () => {
           imageSrc: splashData.image,
           text: splashData.text,
           dataList: splashData.dataList || [],
+          belowImage: splashData.belowImage || "",
           step: currentStep,
         })
       ),
@@ -372,7 +376,22 @@ const App = () => {
         onPerpRightClick: handlePerpRightClick,
         perpBothComplete: perpBothComplete,
         step12ShowCansInfo: step12ShowCansInfo,
-        onStep12AppendInfo: () => setStep12ShowCansInfo(true),
+        step12ComputePhase: step12ComputePhase,
+        onStep12AppendInfo: () => {
+          setStep12ShowCansInfo(true);
+          setStep12ComputePhase("final");
+        },
+        onStep12NumeratorHighlight: () => {
+          setStep12ComputePhase("numerator");
+          setCurrentImage("assets/areaHighlight.svg");
+        },
+        onStep12DenominatorHighlight: () => {
+          setStep12ComputePhase("denominator");
+          setCurrentImage("assets/compute2grey.svg");
+        },
+        onStep12UnitsHighlight: () => {
+          setStep12ComputePhase("units");
+        },
       })
     ),
     React.createElement(

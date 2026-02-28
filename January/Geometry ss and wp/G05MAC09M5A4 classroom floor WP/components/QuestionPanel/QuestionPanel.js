@@ -24,7 +24,7 @@ const QuestionPanel = ({ text, step, highlights = null, highlightColor = null })
   
   return React.createElement(
     "div",
-    { className: "question-panel" },
+    { className: "question-panel" + (step === 1 ? " comprehend" : "") },
     React.createElement("h2", {
       dangerouslySetInnerHTML: { __html: getHighlightedText() },
     })

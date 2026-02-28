@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How much time</title>
+
+    <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="styles/Applet.css" />
+
+    <link rel="stylesheet" href="components/Fullscreen/Fullscreen.css" />
+    <link
+      rel="stylesheet"
+      href="components/CharacterPanel/CharacterPanel.css"
+    />
+    <link rel="stylesheet" href="components/ContentPanel/ContentPanel.css" />
+    <link rel="stylesheet" href="components/Navigation/Navigation.css" />
+    <link rel="stylesheet" href="components/Nudge/Nudge.css" />
+    <link rel="stylesheet" href="components/CalloutBox/CalloutBox.css" />
+    <link
+      rel="stylesheet"
+      href="components/TimelineContent/TimelineContent.css"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="packages/react.development.js"></script>
+    <script src="packages/react-dom.development.js"></script>
+    <script src="packages/gsap.min.js"></script>
+
+    <script>
+      const current_language = "en";
+    </script>
+    <script src="utility.js"></script>
+    <script src="data.js"></script>
+
+    <script src="components/Fullscreen/Fullscreen.js"></script>
+    <script src="components/CharacterPanel/CharacterPanel.js"></script>
+    <script src="components/ContentPanel/ContentPanel.js"></script>
+    <script src="components/Navigation/Navigation.js"></script>
+    <script src="components/Nudge/Nudge.js"></script>
+    <script src="components/CalloutBox/CalloutBox.js"></script>
+    <script src="components/TimelineContent/TimelineContent.js"></script>
+
+    <script src="App.js"></script>
+
+    <script>
+      ReactDOM.render(
+        React.createElement(App),
+        document.getElementById("root"),
+      );
+    </script>
+  </body>
+</html>

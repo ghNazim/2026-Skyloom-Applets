@@ -22,3 +22,18 @@
   padding: 0.2vw 0.4vw;
   border-radius: 0.3em;
 }
+
+.bl{
+  color: #56C7FF;
+  font-weight: 600;
+}
+
+.gr{
+  color: #57D98A;
+  font-weight: 600;
+}
+
+.yl{
+  color: yellow;
+  font-weight: 600;
+}

@@ -34,6 +34,15 @@
   position: relative;
 }
 
+.visual-layer {
+  position: absolute;
+  left: 1vw;
+  top: 1vw;
+  width: calc(100% - 2vw);
+  height: calc(100% - 2vw);
+  object-fit: contain;
+}
+
 .visual-video {
   max-width: 100%;
   max-height: 100%;
@@ -48,15 +57,23 @@
   width: 5vw;
   height: 5vw;
   border: 2px solid rgba(255, 193, 7, 0.9);
-  box-shadow: 0 0 15px rgba(255, 193, 7, 0.6), 0 0 30px rgba(255, 193, 7, 0.4);
+  box-shadow:
+    0 0 15px rgba(255, 193, 7, 0.6),
+    0 0 30px rgba(255, 193, 7, 0.4);
   border-radius: 0.3vw;
   cursor: pointer;
   background: transparent;
   padding: 0;
+  
+}
+.visual-tile-magnify.id{
+  top: 19%;
 }
 
 .visual-tile-magnify:hover {
-  box-shadow: 0 0 20px rgba(255, 193, 7, 0.8), 0 0 40px rgba(255, 193, 7, 0.5);
+  box-shadow:
+    0 0 20px rgba(255, 193, 7, 0.8),
+    0 0 40px rgba(255, 193, 7, 0.5);
 }
 
 .area-label {

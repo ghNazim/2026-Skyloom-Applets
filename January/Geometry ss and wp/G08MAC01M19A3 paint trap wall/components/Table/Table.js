@@ -1,13 +1,14 @@
 const Table = ({
   headers,
   rows,
-  highlightedCell,
+  highlightedColumn,
   cellUpdate,
   showQuestionMarks,
   showArrow,
   arrowLabel,
   isArrowLabelCorrect,
   isArrowLabelIncorrect,
+  isArrowLabelNeutral,
   questionMarkCellCorrect,
   isFilling,
   isTableComplete,
@@ -166,9 +167,8 @@ const Table = ({
     }
   }, [showArrow, tableData, cellUpdate, arrowLabel, arrowColumnIndex]);
 
-  const isCellHighlighted = (rowIndex, colIndex) => {
-    if (!highlightedCell) return false;
-    return highlightedCell.row === rowIndex && highlightedCell.col === colIndex;
+  const isColumnHighlighted = (colIndex) => {
+    return highlightedColumn !== null && highlightedColumn !== undefined && colIndex === highlightedColumn;
   };
 
   const getCellClassName = (rowIndex, colIndex, cellValue) => {
@@ -189,16 +189,13 @@ const Table = ({
       else if (colIndex === 2) className += " table-col-yellow";
     }
 
-    // If showQuestionMarks is true (step 4), highlight all "?" cells
-    // Otherwise, only highlight the specific cell that should be highlighted
     if (showQuestionMarks && cellValue === "?") {
       className += " table-question-mark";
-    } else if (isCellHighlighted(rowIndex, colIndex)) {
-      className += " table-cell-highlighted";
+    } else if (isColumnHighlighted(colIndex)) {
+      const isBottomRow = rowIndex === rows.length - 1;
+      className += isBottomRow ? " table-cell-active-highlight" : " table-col-border-highlight";
     }
 
-    // Make the bottom row right cell green when correct answer is submitted
-    // Check position, not cell value, because value changes from "?" to answer when correct
     if (questionMarkCellCorrect && rowIndex === 1 && colIndex === 2) {
       className += " table-cell-correct";
     }
@@ -262,7 +259,6 @@ const Table = ({
           "tr",
           null,
           headers.map((header, index) => {
-            // Apply column color classes to headers too
             let headerClassName = "table-header";
             if (columnColorVariant === "ratio") {
               if (index === 0) headerClassName += " table-col-ae";
@@ -272,6 +268,9 @@ const Table = ({
               if (index === 0) headerClassName += " table-col-blue";
               else if (index === 1) headerClassName += " table-col-purple";
               else if (index === 2) headerClassName += " table-col-yellow";
+            }
+            if (isColumnHighlighted(index)) {
+              headerClassName += " table-col-border-highlight";
             }
             return React.createElement(
               "th",
@@ -324,10 +323,10 @@ const Table = ({
           ref: labelRef,
           id: "table-arrow-label",
           className: `table-arrow-label ${
-            !arrowLabel && !isArrowLabelCorrect ? "pulsating" : ""
+            !arrowLabel && !isArrowLabelCorrect && !isArrowLabelNeutral ? "pulsating" : ""
           } ${isArrowLabelCorrect ? "correct" : ""} ${
             isArrowLabelIncorrect ? "incorrectCell" : ""
-          }`,
+          } ${isArrowLabelNeutral ? "neutral" : ""}`,
           style: {
             position: "absolute",
             pointerEvents: "none",

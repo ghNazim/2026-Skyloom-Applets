@@ -26,43 +26,52 @@ const Compute1 = ({
     timersRef.current = [];
   };
 
+  function wrapFirstOutsideTags(html, searchText, openTag, closeTag) {
+    var parts = html.split(/(<[^>]*>)/);
+    var found = false;
+    var depth = 0;
+    var result = parts.map(function (part) {
+      if (part.charAt(0) === '<') {
+        if (part.charAt(1) === '/') depth--;
+        else if (part.charAt(part.length - 2) !== '/') depth++;
+        return part;
+      }
+      if (found || depth > 0) return part;
+      var idx = part.indexOf(searchText);
+      if (idx !== -1) {
+        found = true;
+        return part.slice(0, idx) + openTag + searchText + closeTag + part.slice(idx + searchText.length);
+      }
+      return part;
+    });
+    return result.join('');
+  }
+
   function buildRowHtml(text, highlights, colored) {
     if (!text) return "";
-    const segments = [];
-    let lastEnd = 0;
-    const items = [];
-    (highlights || []).forEach((h) => {
-        const i = text.indexOf(h.text, lastEnd);
-        if (i !== -1) {
-          items.push({ start: i, end: i + h.text.length, type: "highlight", color: h.color, text: h.text });
-        }
-      });
-    (colored || []).forEach((c) => {
-        const i = text.indexOf(c.text, lastEnd);
-        if (i !== -1) {
-          items.push({ start: i, end: i + c.text.length, type: "colored", color: c.color, text: c.text });
-        }
-      });
-    items.sort((a, b) => a.start - b.start);
-    items.forEach((item) => {
-      if (item.start > lastEnd) {
-        segments.push({ type: "normal", text: text.slice(lastEnd, item.start) });
-      }
-      segments.push({ type: item.type, text: item.text, color: item.color });
-      lastEnd = item.end;
+    var html = text;
+    var allItems = [];
+    (highlights || []).forEach(function (h) {
+      allItems.push({ text: h.text, color: h.color, type: "highlight" });
     });
-    if (lastEnd < text.length) {
-      segments.push({ type: "normal", text: text.slice(lastEnd) });
-    }
-    return segments
-      .map((s) => {
-        if (s.type === "normal") return s.text.replace(/</g, "&lt;");
-        if (s.type === "highlight") {
-          return `<span class="compute1-highlight" style="background-color:${s.color};color:white;padding:0.1em 0.2em;border-radius:0.2em">${s.text.replace(/</g, "&lt;")}</span>`;
+    (colored || []).forEach(function (c) {
+      allItems.push({ text: c.text, color: c.color, type: "colored" });
+    });
+    allItems.forEach(function (item) {
+      var wrapOpen = item.type === "highlight"
+        ? '<span class="compute1-highlight" style="display:inline-block;vertical-align:middle;background-color:' + item.color + ';color:white;padding:0.1em 0.2em;border-radius:0.2em">'
+        : '<span class="compute1-colored" style="color:' + item.color + '">';
+      var wrapClose = '</span>';
+      if (item.text.indexOf('<') !== -1) {
+        var idx = html.indexOf(item.text);
+        if (idx !== -1) {
+          html = html.slice(0, idx) + wrapOpen + item.text + wrapClose + html.slice(idx + item.text.length);
         }
-        return `<span class="compute1-colored" style="color:${s.color}">${s.text.replace(/</g, "&lt;")}</span>`;
-      })
-      .join("");
+      } else {
+        html = wrapFirstOutsideTags(html, item.text, wrapOpen, wrapClose);
+      }
+    });
+    return html;
   }
 
   useEffect(() => {
@@ -88,6 +97,9 @@ const Compute1 = ({
           setRow1Highlight([]);
           setRow2Highlight([]);
           setRow2Colored([]);
+        }
+        if (step.highlightRow1 || step.highlightRow2 || step.row2 !== undefined || step.row3 !== undefined || step.row3Replace !== undefined) {
+          if (window.playSound) window.playSound("tick");
         }
         if (step.highlightRow1) {
           setRow1Highlight(step.highlightRow1);
@@ -170,14 +182,11 @@ const Compute1 = ({
         }
         if (rowIdx === 2) {
           if (row3FullReplace !== null) {
-            return React.createElement(
-              "div",
-              {
-                key: "r2",
-                className: "compute1-row compute1-row-final",
-              },
-              row3FullReplace
-            );
+            return React.createElement("div", {
+              key: "r2",
+              className: "compute1-row compute1-row-final",
+              dangerouslySetInnerHTML: { __html: row3FullReplace },
+            });
           }
           const html = buildRowHtml(rowText, row3Highlight, row3Colored);
           return React.createElement("div", {

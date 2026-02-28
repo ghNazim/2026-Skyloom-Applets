@@ -32,3 +32,11 @@ function handleComma(sentence) {
 function sqrt(n) {
     return katex.renderToString(`\\sqrt{${n}}`);
 }
+
+function replaceRoot3(sentence){
+  return sentence.replace("√3", sqrt(3));
+}
+
+function frac(num, den) {
+  return '<span class="inline-frac"><span class="inline-frac-num">' + num + '</span><span class="inline-frac-line"></span><span class="inline-frac-den">' + den + '</span></span>';
+}

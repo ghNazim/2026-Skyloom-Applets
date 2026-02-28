@@ -4,7 +4,7 @@ const Visual = ({ imageSrc, showAreaLabel = false, step, substep = 0, isAnswered
   return React.createElement(
     "div",
     { className: "visual-panel" },
-    !imageSrc || !imageSrc.trim()
+    !imageSrc || !imageSrc.trim() || substep < 0
       ? null
       : isSvgInline
         ? React.createElement("div", {

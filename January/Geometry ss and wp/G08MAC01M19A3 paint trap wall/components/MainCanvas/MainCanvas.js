@@ -19,7 +19,11 @@ const MainCanvas = ({
   onPerpRightClick,
   perpBothComplete,
   step12ShowCansInfo = false,
+  step12ComputePhase = null,
   onStep12AppendInfo,
+  onStep12NumeratorHighlight,
+  onStep12DenominatorHighlight,
+  onStep12UnitsHighlight,
 }) => {
   const stepData = APP_DATA.steps[step];
   if (!stepData) return null;
@@ -27,12 +31,20 @@ const MainCanvas = ({
   // Step 0: Comprehend - two columns
   if (step === 0 && stepData.isComprehend) {
     const comprehendData = APP_DATA.comprehend;
-    const infoList = comprehendData.infoList || [];
-    const showCount = comprehendSubstep >= 0 ? comprehendSubstep + 1 : 0;
-    const highlight =
-      comprehendSubstep >= 0 && comprehendData.highlights && comprehendData.highlights[comprehendSubstep]
-        ? comprehendData.highlights[comprehendSubstep]
-        : null;
+    const isDefault = comprehendSubstep < 0;
+    const infoList = isDefault
+      ? (comprehendData.defaultInfoListItem ? [comprehendData.defaultInfoListItem] : [])
+      : (comprehendData.infoList || []);
+    const showCount = isDefault ? infoList.length : comprehendSubstep + 1;
+    const highlight = isDefault
+      ? (comprehendData.defaultHighlight || null)
+      : (comprehendData.highlights && comprehendData.highlights[comprehendSubstep]
+          ? comprehendData.highlights[comprehendSubstep]
+          : null);
+    const highlightClasses = comprehendData.highlightClasses || [];
+    const highlightClass = isDefault
+      ? (highlightClasses[0] || null)
+      : (highlightClasses[comprehendSubstep] || null);
 
     return React.createElement(
       "div",
@@ -54,6 +66,7 @@ const MainCanvas = ({
         React.createElement(ComprehendQuestion, {
           questionText: comprehendData.comprehendQuestion,
           highlight: highlight,
+          highlightClass: highlightClass,
         })
       )
     );
@@ -68,6 +81,10 @@ const MainCanvas = ({
       ? [...infoList, visualData.cansInfoText]
       : infoList;
     const showCount = listWithCans.length;
+    const phase = step12ComputePhase;
+    const dimmedIndices = phase === null ? [] : phase === "denominator" ? [1] : [0, 1];
+    const yellowItemIndex = phase === "denominator" ? 0 : null;
+    const greenItemIndex = step12ShowCansInfo ? showCount - 1 : null;
     return React.createElement(
       "div",
       { className: "main-canvas-container two-column" },
@@ -78,7 +95,9 @@ const MainCanvas = ({
           imageSrc: currentImage,
           infoList: listWithCans,
           showCount: showCount,
-          greenItemIndex: step12ShowCansInfo ? showCount - 1 : null,
+          greenItemIndex: greenItemIndex,
+          yellowItemIndex: yellowItemIndex,
+          dimmedIndices: dimmedIndices,
           step: step,
         })
       ),
@@ -88,6 +107,9 @@ const MainCanvas = ({
         React.createElement(Compute2, {
           config: computeConfig,
           onAppendInfoItem: onStep12AppendInfo,
+          onNumeratorHighlight: onStep12NumeratorHighlight,
+          onDenominatorHighlight: onStep12DenominatorHighlight,
+          onUnitsHighlight: onStep12UnitsHighlight,
           onEnableNext: onEnableNext,
           onUpdateNav: onUpdateNav,
         })
@@ -109,7 +131,6 @@ const MainCanvas = ({
           imageSrc: currentImage,
           infoList: infoList,
           showCount: infoList.length,
-          yellowLastItem: false,
           step: step,
         })
       ),
@@ -121,17 +142,25 @@ const MainCanvas = ({
     );
   }
 
-  // Step 1, 4, 5, 11, 13: MCQ - two columns (steps 11 & 13 have visual info list)
+  // Step 1, 4, 5, 11, 13: MCQ - two columns (steps 1, 11 & 13 have visual info list)
   if (stepData.isMcq && stepData.mcqKey) {
     const mcqData = APP_DATA[stepData.mcqKey];
     if (!mcqData) return null;
-    const visualData = (step === 11 || step === 13) && APP_DATA.compute2Visual ? APP_DATA.compute2Visual : null;
-    const infoList = visualData
-      ? (step === 13
-          ? [...(visualData.infoList || []), visualData.cansInfoText]
-          : visualData.infoList)
-      : null;
-    const showCount = step === 11 ? 2 : step === 13 ? 3 : 0;
+    let infoList = null;
+    let showCount = 0;
+    if (step === 1) {
+      const comprehendList = APP_DATA.comprehend.infoList || [];
+      infoList = comprehendList;
+      showCount = comprehendList.length;
+    } else if (step === 11 || step === 13) {
+      const visualData = APP_DATA.compute2Visual || null;
+      infoList = visualData
+        ? (step === 13
+            ? [...(visualData.infoList || []), visualData.cansInfoText]
+            : visualData.infoList)
+        : null;
+      showCount = step === 11 ? 2 : 3;
+    }
     return React.createElement(
       "div",
       { className: "main-canvas-container two-column" },
@@ -142,7 +171,7 @@ const MainCanvas = ({
           imageSrc: currentImage,
           infoList: infoList || undefined,
           showCount: infoList ? showCount : 0,
-          yellowLastItem: step !== 11,
+          greenItemIndex: step === 13 && infoList && infoList.length === 3 ? 2 : null,
           step: step,
         })
       ),

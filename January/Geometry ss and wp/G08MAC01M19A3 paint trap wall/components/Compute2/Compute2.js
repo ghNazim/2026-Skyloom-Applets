@@ -8,6 +8,9 @@ const Compute2 = ({
   onAppendInfoItem,
   onEnableNext,
   onUpdateNav,
+  onNumeratorHighlight,
+  onDenominatorHighlight,
+  onUnitsHighlight,
 }) => {
   const { useState, useEffect, useRef } = React;
 
@@ -21,6 +24,7 @@ const Compute2 = ({
   const [row2Den, setRow2Den] = useState(fraction.den);
   const [row2ColoredNum, setRow2ColoredNum] = useState(false);
   const [row2ColoredDen, setRow2ColoredDen] = useState(false);
+  const [row2HighlightUnits, setRow2HighlightUnits] = useState(false);
   const [row2Replace, setRow2Replace] = useState(null); // "13.84" when final
   const timersRef = useRef([]);
 
@@ -54,13 +58,33 @@ const Compute2 = ({
           setRow2ColoredDen(false);
           setRow2Replace(null);
         }
+        if (step.highlightRow1 || step.row2Replace !== undefined || step.highlightRow2Units === true || (step.row2Num !== undefined && !step.row2ColoredNum)) {
+          if (window.playSound) window.playSound("tick");
+        }
         if (step.highlightRow1) {
           setRow1Highlight(step.highlightRow1);
+          if (step.highlightRow1 === "numerator") {
+            setRow2ColoredDen(false);
+            onNumeratorHighlight && onNumeratorHighlight();
+          }
+          if (step.highlightRow1 === "denominator") {
+            setRow2ColoredNum(false);
+            onDenominatorHighlight && onDenominatorHighlight();
+          }
         }
         if (step.row2Num !== undefined) setRow2Num(step.row2Num);
         if (step.row2Den !== undefined) setRow2Den(step.row2Den);
         if (step.row2ColoredNum) setRow2ColoredNum(true);
         if (step.row2ColoredDen) setRow2ColoredDen(true);
+        if (step.highlightRow2Units !== undefined) {
+          setRow2HighlightUnits(step.highlightRow2Units);
+          if (step.highlightRow2Units) {
+            setRow1Highlight(null);
+            setRow2ColoredNum(false);
+            setRow2ColoredDen(false);
+            onUnitsHighlight && onUnitsHighlight();
+          }
+        }
         if (step.row2Replace !== undefined) {
           setRow2Replace(step.row2Replace);
           setRow1Highlight(null);
@@ -79,14 +103,30 @@ const Compute2 = ({
     return () => clearTimers();
   }, [config]);
 
-  const renderFractionRow = (num, den, highlightPart, coloredNum, coloredDen) => {
+  const renderTextWithUnits = (text, unitHighlight) => {
+    if (!unitHighlight || typeof text !== "string") return text;
+    const unitStr = "m²";
+    const idx = text.indexOf(unitStr);
+    if (idx === -1) return text;
+    return React.createElement(
+      React.Fragment,
+      null,
+      text.slice(0, idx),
+      React.createElement("span", { className: "compute2-unit-highlight" }, unitStr),
+      text.slice(idx + unitStr.length)
+    );
+  };
+
+  const renderFractionRow = (num, den, highlightPart, coloredNum, coloredDen, highlightUnits) => {
+    const numContent = highlightUnits ? renderTextWithUnits(num, true) : num;
+    const denContent = highlightUnits ? renderTextWithUnits(den, true) : den;
     const numEl = React.createElement(
       "span",
       {
         className: "compute2-frac-num" + (highlightPart === "numerator" ? " compute2-highlight" : ""),
         style: coloredNum ? { color: yellow } : undefined,
       },
-      num
+      numContent
     );
     const denEl = React.createElement(
       "span",
@@ -94,7 +134,7 @@ const Compute2 = ({
         className: "compute2-frac-den" + (highlightPart === "denominator" ? " compute2-highlight" : ""),
         style: coloredDen ? { color: yellow } : undefined,
       },
-      den
+      denContent
     );
     return React.createElement(
       "div",
@@ -121,6 +161,7 @@ const Compute2 = ({
           fraction.den,
           row1Highlight,
           false,
+          false,
           false
         ),
       row2Visible &&
@@ -135,7 +176,8 @@ const Compute2 = ({
               row2Den,
               null,
               row2ColoredNum,
-              row2ColoredDen
+              row2ColoredDen,
+              row2HighlightUnits
             ))
     )
   );

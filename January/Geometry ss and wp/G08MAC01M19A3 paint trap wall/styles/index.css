@@ -57,6 +57,21 @@ y {
   display: inline;
 }
 
+bl{
+  display: inline;
+  color: #56C7FF;
+}
+
+gr{
+  display: inline;
+  color: #57D98A;
+}
+
+yl{
+  display: inline;
+  color: yellow;
+}
+
 x{
   visibility: hidden;
   display: inline;
@@ -112,6 +127,28 @@ cm {
   display: inline;
 }
 
+
+.inline-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.inline-frac-num,
+.inline-frac-den {
+  display: block;
+  padding: 0 0.15em;
+}
+
+.inline-frac-line {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+}
 
 .katex {
   font-size: 1em;

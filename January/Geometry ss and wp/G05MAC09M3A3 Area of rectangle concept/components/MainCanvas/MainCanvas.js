@@ -17,6 +17,7 @@ const MainCanvas = (props) => {
 
   // Step 5-7 Interactivity
   const [formulaStage, setFormulaStage] = useState(0); // 0: initial, 1: expanded, 2: word formula
+  const [visibleCount, setVisibleCount] = useState(0);
 
   const svgRef = useRef(null);
 
@@ -87,7 +88,9 @@ const MainCanvas = (props) => {
       }
     }
     if (step === 2) {
-        if (showAreaVisual) {
+        const total = length * breadth;
+        const animComplete = showAreaVisual && visibleCount >= total;
+        if (animComplete) {
             onSetNextEnabled(true);
             onUpdateTexts(APP_DATA.steps[2].navNext);
         } else {
@@ -129,8 +132,23 @@ const MainCanvas = (props) => {
      if (step === 7) {
          onSetNextEnabled(true);
      }
-  }, [step, length, breadth, showAreaVisual, squaresInRow, rowsCount, formulaStage]);
+  }, [step, length, breadth, showAreaVisual, squaresInRow, rowsCount, formulaStage, visibleCount]);
 
+  useEffect(() => {
+    if (step === 2 && showAreaVisual) {
+      const total = length * breadth;
+      let current = 0;
+      setVisibleCount(0);
+      const timer = setInterval(() => {
+        current++;
+        setVisibleCount(current);
+        if (current >= total) clearInterval(timer);
+      }, 30);
+      return () => clearInterval(timer);
+    } else {
+      setVisibleCount(0);
+    }
+  }, [showAreaVisual, step]);
 
   // Rendering Helpers
   const renderGrid = () => {
@@ -218,12 +236,12 @@ const MainCanvas = (props) => {
   };
 
   const renderUnitSquares = () => {
-      // Step 2, filled with counts
       if (step === 2 && showAreaVisual) {
           const squares = [];
           let count = 1;
-          for (let r = 0; r < breadth; r++) { // Iterate rows
-              for (let c = 0; c < length; c++) { // Iterate cols
+          for (let r = 0; r < breadth; r++) {
+              for (let c = 0; c < length; c++) {
+                  if (count > visibleCount) return squares;
                   const gx = RECT_START_X + c;
                   const gy = RECT_START_Y + r;
                   squares.push(
@@ -236,10 +254,11 @@ const MainCanvas = (props) => {
                           React.createElement("text", {
                               x: toSvgX(gx) + CELL_SIZE/2, y: toSvgY(gy + 1) + CELL_SIZE/2,
                               textAnchor: "middle", dominantBaseline: "middle",
-                              fill: "white", fontSize: 24 // Increased 50% from 16
-                          }, count++)
+                              fill: "white", fontSize: 24
+                          }, count)
                       )
                   );
+                  count++;
               }
           }
           return squares;
@@ -255,13 +274,17 @@ const MainCanvas = (props) => {
 
           for (let i = 1; i <= squaresInRow; i++) {
               let color;
-              if (isCorrect) {
-                  color = "rgba(16, 185, 129, 0.5)"; // All green if correct
-              } else if (squaresInRow < length) {
+            //   if (isCorrect) {
+            //       color = "rgba(16, 185, 129, 0.5)"; // All green if correct
+            //   } else 
+              if (squaresInRow <= length) {
                   color = "rgba(255, 235, 59, 0.5)"; // All yellow if under
               } else {
                   // Overflow case: Green if inside, Pink if outside
-                  color = i <= length ? "rgba(16, 185, 129, 0.5)" : "rgba(233, 30, 99, 0.5)";
+                  color =
+                    i <= length
+                      ? "rgba(255, 235, 59, 0.5)"
+                      : "rgba(233, 30, 99, 0.5)";
               }
 
               const gx = RECT_START_X + (i-1);
@@ -296,12 +319,15 @@ const MainCanvas = (props) => {
         for (let r = 1; r <= rowsCount; r++) { // 1-indexed count
             let color;
             if (isCorrect) {
-                 color = "rgba(16, 185, 129, 0.5)";
+                 color = "rgba(255, 235, 59, 0.5)";
             } else if (rowsCount < breadth) {
-                 color = "rgba(16, 185, 129, 0.5)"; // Instruction says "green as long as value is less than or equal". Wait, checking... "All the small squares... green as long as... less than or equal." OK.
+                 color = "rgba(255, 235, 59, 0.5)"; // Instruction says "green as long as value is less than or equal". Wait, checking... "All the small squares... green as long as... less than or equal." OK.
             } else {
                  // Overflow
-                 color = r <= breadth ? "rgba(16, 185, 129, 0.5)" : "rgba(233, 30, 99, 0.5)";
+                 color =
+                   r <= breadth
+                     ? "rgba(255, 235, 59, 0.5)"
+                     : "rgba(233, 30, 99, 0.5)";
             }
             
             const rowLen = length; 
@@ -309,14 +335,21 @@ const MainCanvas = (props) => {
             for (let c = 0; c < rowLen; c++) {
                  const gx = RECT_START_X + c;
                  const gy = RECT_START_Y + (r - 1);
+                 const num = (r - 1) * rowLen + c + 1;
                  
                  squares.push(
-                    React.createElement("rect", {
-                         key: `rr-${r}-${c}`,
-                        x: toSvgX(gx), y: toSvgY(gy + 1),
-                        width: CELL_SIZE, height: CELL_SIZE,
-                        fill: color, stroke: "white", strokeWidth: 1
-                    })
+                    React.createElement("g", { key: `rr-${r}-${c}` },
+                        React.createElement("rect", {
+                            x: toSvgX(gx), y: toSvgY(gy + 1),
+                            width: CELL_SIZE, height: CELL_SIZE,
+                            fill: color, stroke: "white", strokeWidth: 1
+                        }),
+                        React.createElement("text", {
+                            x: toSvgX(gx) + CELL_SIZE/2, y: toSvgY(gy + 1) + CELL_SIZE/2,
+                            textAnchor: "middle", dominantBaseline: "middle",
+                            fill: "white", fontSize: 24, fontWeight: "bold"
+                        }, num)
+                    )
                  );
             }
         }
@@ -335,20 +368,32 @@ const MainCanvas = (props) => {
                   const gx = RECT_START_X + c;
                   const gy = RECT_START_Y + r;
                    squares.push(
-                      React.createElement("g", { key: `s5-${r}-${c}` },
-                          React.createElement("rect", {
-                              x: toSvgX(gx), y: toSvgY(gy + 1),
-                              width: CELL_SIZE, height: CELL_SIZE,
-                              fill: "rgba(16, 185, 129, 0.5)", // Green filled
-                              stroke: "white", strokeWidth: 1
-                          }),
-                          React.createElement("text", {
-                              x: toSvgX(gx) + CELL_SIZE/2, y: toSvgY(gy + 1) + CELL_SIZE/2,
-                              textAnchor: "middle", dominantBaseline: "middle",
-                              fill: "white", fontSize: 24 // Increased
-                          }, count++)
-                      )
-                  );
+                     React.createElement(
+                       "g",
+                       { key: `s5-${r}-${c}` },
+                       React.createElement("rect", {
+                         x: toSvgX(gx),
+                         y: toSvgY(gy + 1),
+                         width: CELL_SIZE,
+                         height: CELL_SIZE,
+                         fill: "rgba(255, 235, 59, 0.5)", // Green filled
+                         stroke: "white",
+                         strokeWidth: 1,
+                       }),
+                       React.createElement(
+                         "text",
+                         {
+                           x: toSvgX(gx) + CELL_SIZE / 2,
+                           y: toSvgY(gy + 1) + CELL_SIZE / 2,
+                           textAnchor: "middle",
+                           dominantBaseline: "middle",
+                           fill: "white",
+                           fontSize: 24, // Increased
+                         },
+                         count++,
+                       ),
+                     ),
+                   );
               }
           }
           return squares;
@@ -379,8 +424,14 @@ const MainCanvas = (props) => {
       const midV = isColored ? "url(#arrow-blue)" : "url(#arrow-white)";
       const misV = isColored ? "url(#arrow-blue-rev)" : "url(#arrow-white-rev)";
 
-      // Step 3+: Horizontal Arrow below rect showing squaresInRow (or length later)
+      const isExcessH = step === 3 && squaresInRow > length;
+      const isExcessV = step === 4 && rowsCount > breadth;
+
+      // Step 3: Horizontal Arrow
       if (step === 3 && squaresInRow > 0) {
+          const aColorH = isExcessH ? "#e91e63" : colorH;
+          const aMidH = isExcessH ? "url(#arrow-red)" : midH;
+          const aMisH = isExcessH ? "url(#arrow-red-rev)" : misH;
           const y = toSvgY(RECT_START_Y) + ARROW_OFFSET;
           const startX = toSvgX(RECT_START_X);
           const endX = toSvgX(RECT_START_X + squaresInRow);
@@ -389,19 +440,22 @@ const MainCanvas = (props) => {
               React.createElement("line", {
                   key: "a-h-step3",
                   x1: startX, y1: y, x2: endX, y2: y,
-                  stroke: colorH, strokeWidth: 2,
-                  markerEnd: midH, markerStart: misH
+                  stroke: aColorH, strokeWidth: 2,
+                  markerEnd: aMidH, markerStart: aMisH
               }),
               React.createElement("text", {
                   key: "t-h-step3",
                   x: (startX + endX) / 2, y: y + 25,
-                  fill: colorH, textAnchor: "middle", fontWeight: "bold", fontSize: ArrowTextSize
+                  fill: aColorH, textAnchor: "middle", fontWeight: "bold", fontSize: ArrowTextSize
               }, squaresInRow)
           );
       }
       
-      // Step 4+: Vertical Arrow
+      // Step 4: Vertical Arrow
       if (step === 4 && rowsCount > 0) {
+          const aColorV = isExcessV ? "#e91e63" : colorV;
+          const aMidV = isExcessV ? "url(#arrow-red)" : midV;
+          const aMisV = isExcessV ? "url(#arrow-red-rev)" : misV;
           const x = toSvgX(RECT_START_X) - ARROW_OFFSET;
           const startY = toSvgY(RECT_START_Y); // Bottom
           const endY = toSvgY(RECT_START_Y + rowsCount); // Top
@@ -410,14 +464,14 @@ const MainCanvas = (props) => {
                React.createElement("line", {
                   key: "a-v-step4",
                   x1: x, y1: startY, x2: x, y2: endY,
-                  stroke: colorV,
+                  stroke: aColorV,
                   strokeWidth: 2,
-                  markerEnd: midV, markerStart: misV
+                  markerEnd: aMidV, markerStart: aMisV
               }),
                React.createElement("text", {
                   key: "t-v-step4",
                   x: x - 25, y: (startY + endY) / 2,
-                  fill: colorV, textAnchor: "middle", fontWeight: "bold", fontSize: ArrowTextSize,
+                  fill: aColorV, textAnchor: "middle", fontWeight: "bold", fontSize: ArrowTextSize,
                   transform: `rotate(-90, ${x-25}, ${(startY+endY)/2})`
               }, rowsCount)
           );
@@ -570,7 +624,7 @@ const MainCanvas = (props) => {
                  if (typeof playSound === "function") playSound("tick");
              }
           }),
-          React.createElement("div", { className: "slider-label slider-label-h" }, 
+          React.createElement("div", { className: "slider-label slider-label-h" + (step === 3 && squaresInRow > length ? " slider-label-excess" : "") }, 
              step === 1 ? `${APP_DATA.steps[1].sliders.length}: ${length}` 
              : `${APP_DATA.steps[3].sliderLabel}: ${squaresInRow}`
           )
@@ -578,7 +632,7 @@ const MainCanvas = (props) => {
       (step === 1 || step === 4) && React.createElement("div", { className: "slider-container-vertical" },
           React.createElement("input", {
              type: "range", className: "vertical-slider",
-             min: 0, max: step === 1 ? MAX_BREADTH : 10,
+             min: 0, max: step === 1 ? MAX_BREADTH : 7,
              value: step === 1 ? breadth : rowsCount,
               onChange: (e) => {
                  const v = parseInt(e.target.value);
@@ -587,7 +641,7 @@ const MainCanvas = (props) => {
                  if (typeof playSound === "function") playSound("tick");
              }
           }),
-           React.createElement("div", { className: "slider-label slider-label-v" }, 
+           React.createElement("div", { className: "slider-label slider-label-v" + (step === 4 && rowsCount > breadth ? " slider-label-excess" : "") }, 
              step === 1 ? `${APP_DATA.steps[1].sliders.breadth}: ${breadth}` 
              : `${APP_DATA.steps[4].sliderLabel}: ${rowsCount}`
           )
@@ -608,7 +662,7 @@ const MainCanvas = (props) => {
                 } 
             }, APP_DATA.steps[2].actionButton) 
             : React.createElement("span", { className: "action-text" }, 
-                APP_DATA.steps[2].areaLabel.replace("{{count}}", length * breadth)
+                APP_DATA.steps[2].areaLabel.replace("{{count}}", visibleCount)
             )
         );
     }
@@ -713,6 +767,12 @@ const MainCanvas = (props) => {
                // Defs for arrows
                 React.createElement("defs", null,
                     React.createElement("marker", {
+                      id: "arrow-white", markerWidth: "5", markerHeight: "5", refX: "2.5", refY: "2.5", orient: "auto",
+                    }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "white" })),
+                    React.createElement("marker", {
+                      id: "arrow-white-rev", markerWidth: "5", markerHeight: "5", refX: "2.5", refY: "2.5", orient: "auto-start-reverse",
+                    }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "white" })),
+                    React.createElement("marker", {
                       id: "arrow-green", markerWidth: "5", markerHeight: "5", refX: "2.5", refY: "2.5", orient: "auto",
                     }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "#10b981" })),
                     React.createElement("marker", {
@@ -723,7 +783,13 @@ const MainCanvas = (props) => {
                     }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "#0ea5e9" })),
                     React.createElement("marker", {
                       id: "arrow-blue-rev", markerWidth: "5", markerHeight: "5", refX: "2.5", refY: "2.5", orient: "auto-start-reverse",
-                    }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "#0ea5e9" }))
+                    }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "#0ea5e9" })),
+                    React.createElement("marker", {
+                      id: "arrow-red", markerWidth: "5", markerHeight: "5", refX: "2.5", refY: "2.5", orient: "auto",
+                    }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "#e91e63" })),
+                    React.createElement("marker", {
+                      id: "arrow-red-rev", markerWidth: "5", markerHeight: "5", refX: "2.5", refY: "2.5", orient: "auto-start-reverse",
+                    }, React.createElement("path", { d: "M0,0 L5,2.5 L0,5 Z", fill: "#e91e63" }))
                 ),
                
                renderGrid(),

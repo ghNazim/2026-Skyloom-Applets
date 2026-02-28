@@ -6,7 +6,7 @@ const App = () => {
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   
   // Substep for comprehend step
-  const [comprehendSubstep, setComprehendSubstep] = useState(0);
+  const [comprehendSubstep, setComprehendSubstep] = useState(-1);
   
   // Dynamic text state
   const [dynamicQuestionText, setDynamicQuestionText] = useState("");
@@ -22,8 +22,9 @@ const App = () => {
   // Comprehend substep 0: Show Floor button → video → animEnd.png
   const [showFloorButtonClicked, setShowFloorButtonClicked] = useState(false);
   const [showFloorVideoEnded, setShowFloorVideoEnded] = useState(false);
-  // Comprehend substep 3: tile magnify (compre4in → compre4)
+  // Comprehend substep 3: tile magnify (compre4in → video → compre4)
   const [comprehendTileMagnifyClicked, setComprehendTileMagnifyClicked] = useState(false);
+  const [comprehendTileMagnifyVideoEnded, setComprehendTileMagnifyVideoEnded] = useState(false);
   // Step 3: interactive box (rewrite division as fraction)
   const [step3FractionTapped, setStep3FractionTapped] = useState(false);
   const [step3McqAnswered, setStep3McqAnswered] = useState(false);
@@ -62,6 +63,7 @@ const App = () => {
     setShowFloorButtonClicked(false);
     setShowFloorVideoEnded(false);
     setComprehendTileMagnifyClicked(false);
+    setComprehendTileMagnifyVideoEnded(false);
     setStep3FractionTapped(false);
     setStep3McqAnswered(false);
     setCalcState({
@@ -107,6 +109,7 @@ const App = () => {
       setShowFloorButtonClicked(false);
       setShowFloorVideoEnded(false);
       setComprehendTileMagnifyClicked(false);
+      setComprehendTileMagnifyVideoEnded(false);
       setStep3FractionTapped(false);
       setStep3McqAnswered(false);
       setCalcState(defaultCalcState);
@@ -117,6 +120,7 @@ const App = () => {
       setShowFloorButtonClicked(false);
       setShowFloorVideoEnded(false);
       setComprehendTileMagnifyClicked(false);
+      setComprehendTileMagnifyVideoEnded(false);
       setStep3FractionTapped(false);
       setStep3McqAnswered(false);
       setCalcState(defaultCalcState);
@@ -278,12 +282,15 @@ const App = () => {
         return;
       }
 
-      // —— Substep 3: tile magnify (compre4in → compre4), then enable next ——
+      // —— Substep 3: tile magnify (compre4in → video → compre4), then enable next ——
       if (comprehendSubstep === 3) {
         setCurrentHighlights([comprehendData.given.highlights[3]]);
         setHighlightColor("orange");
         if (!comprehendTileMagnifyClicked) {
           setCurrentImage(comprehendData.imageSubstep3Before || comprehendData.images[3]);
+          setDynamicNavText(comprehendData.navSubstep3TapTile || stepData.navText);
+          setIsNextDisabled(true);
+        } else if (!comprehendTileMagnifyVideoEnded) {
           setDynamicNavText(comprehendData.navSubstep3TapTile || stepData.navText);
           setIsNextDisabled(true);
         } else {
@@ -325,7 +332,7 @@ const App = () => {
         setDynamicNavText(stepData.navText);
       }
     }
-  }, [currentStep, comprehendSubstep, showFloorButtonClicked, showFloorVideoEnded, comprehendTileMagnifyClicked]);
+  }, [currentStep, comprehendSubstep, showFloorButtonClicked, showFloorVideoEnded, comprehendTileMagnifyClicked, comprehendTileMagnifyVideoEnded]);
 
   const handleNext = () => {
     const stepData = APP_DATA.steps[currentStep];
@@ -384,22 +391,21 @@ const App = () => {
     setCurrentImage(imageSrc);
   }, []);
 
-  // Comprehend substep 0: after "Show Floor" tap, when video ends show animEnd and enable next
+  // Comprehend substep 0: after "Show Floor" video ends — just enable Next.
+  // The video stays paused on its last frame; no image switch until the user navigates.
   const onVideoEnded = useCallback(() => {
     setShowFloorVideoEnded(true);
-    const comprehendData = APP_DATA.comprehend;
-    if (comprehendData && comprehendData.imageAfterVideo) {
-      setCurrentImage(comprehendData.imageAfterVideo);
-    }
   }, []);
 
-  // Comprehend substep 3: after tile magnify tap, show compre4 and enable next
+  // Comprehend substep 3: after tile magnify tap, start video
   const onTileMagnifyClick = useCallback(() => {
     setComprehendTileMagnifyClicked(true);
-    const comprehendData = APP_DATA.comprehend;
-    if (comprehendData && comprehendData.images && comprehendData.images[3]) {
-      setCurrentImage(comprehendData.images[3]);
-    }
+  }, []);
+
+  // Comprehend substep 3: after tile magnify video ends — just enable Next.
+  // The video stays paused on its last frame; no image switch until the user navigates.
+  const onTileMagnifyVideoEnded = useCallback(() => {
+    setComprehendTileMagnifyVideoEnded(true);
   }, []);
 
   // Handlers for dynamic text updates
@@ -547,7 +553,9 @@ const App = () => {
         showFloorVideoEnded: showFloorVideoEnded,
         onVideoEnded: onVideoEnded,
         comprehendTileMagnifyClicked: comprehendTileMagnifyClicked,
+        comprehendTileMagnifyVideoEnded: comprehendTileMagnifyVideoEnded,
         onTileMagnifyClick: onTileMagnifyClick,
+        onTileMagnifyVideoEnded: onTileMagnifyVideoEnded,
         step3McqAnswered: step3McqAnswered,
         setStep3McqAnswered: setStep3McqAnswered,
         step3FractionTapped: step3FractionTapped,

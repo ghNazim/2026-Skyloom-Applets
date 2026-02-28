@@ -128,7 +128,6 @@ const MainCanvas = ({ onSliderMove }) => {
     setTilt(newTilt);
     if (!hasSliderMoved && newTilt > 0) {
       setHasSliderMoved(true);
-      if (onSliderMove) onSliderMove(true);
     }
   };
 
@@ -137,6 +136,7 @@ const MainCanvas = ({ onSliderMove }) => {
     if (tilt >= 0.98 && !isAnimating && !isComplete && !isResettingRef.current) {
       setIsAnimating(true);
       setShowParallelogramOutline(true);
+      if (onSliderMove) onSliderMove(true);
     }
   };
 
