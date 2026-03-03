@@ -11,9 +11,18 @@ const MainCanvas = ({
   onEnableNext,
   onUpdateNavText,
 }) => {
-  const { useState, useRef, useCallback } = React;
+  const { useState, useRef, useCallback, useEffect } = React;
   const shapeCanvasRef = useRef(null);
   const [animationPlaying, setAnimationPlaying] = useState(false);
+  const [cubeTapped, setCubeTapped] = useState(false);
+  const prevStepRef = useRef(step);
+
+  useEffect(() => {
+    if (step === 2 && prevStepRef.current !== 2) {
+      setCubeTapped(false);
+    }
+    prevStepRef.current = step;
+  }, [step]);
 
   const stepData = APP_DATA.steps[step];
   const isCuboidStep = step === 1;
@@ -64,8 +73,12 @@ const MainCanvas = ({
       if (typeof playSound === "function") playSound("click");
 
       if (boxId === shapeId && !isDoneStacking) {
-        setShowSlider(true);
-        onUpdateNavText(stepData.navSlider);
+        if (isCubeStep) {
+          setCubeTapped(true);
+        } else {
+          setShowSlider(true);
+          onUpdateNavText(stepData.navSlider);
+        }
         setClickedBoxIds((prev) => {
           const next = prev.includes(shapeId) ? prev : [...prev, shapeId];
           const allBoxIds = stepData.textLines.flat().filter((l) => l.type === "box").map((l) => l.id);
@@ -111,10 +124,12 @@ const MainCanvas = ({
     [
       shapeId,
       isDoneStacking,
+      isCubeStep,
       stepData,
       affirmAction,
       animationPlaying,
       setShowSlider,
+      setCubeTapped,
       setClickedBoxIds,
       onEnableNext,
       onUpdateNavText,
@@ -159,6 +174,13 @@ const MainCanvas = ({
           shapeType: isCuboidStep ? "cuboid" : "cube",
           sliderVal: sliderVal,
           isDoneStacking: isDoneStacking,
+          cubeTapped: isCubeStep ? cubeTapped : undefined,
+          onBackFaceAnimationComplete: isCubeStep
+            ? () => {
+                setShowSlider(true);
+                onUpdateNavText(stepData.navSlider);
+              }
+            : undefined,
         }),
         showSlider &&
           React.createElement(

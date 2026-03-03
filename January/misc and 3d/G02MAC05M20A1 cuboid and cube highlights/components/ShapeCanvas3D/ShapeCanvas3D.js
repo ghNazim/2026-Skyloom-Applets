@@ -1,5 +1,5 @@
 const ShapeCanvas3D = React.forwardRef(
-  ({ shapeType, sliderVal, isDoneStacking }, ref) => {
+  ({ shapeType, sliderVal, isDoneStacking, cubeTapped, onBackFaceAnimationComplete }, ref) => {
     const { useRef, useState, useEffect, useImperativeHandle } = React;
     const mountRef = useRef(null);
     const sceneRef = useRef(null);
@@ -9,6 +9,8 @@ const ShapeCanvas3D = React.forwardRef(
     const highlightGroup = useRef(null);
     const labelGroup = useRef(null);
     const shapeMeshRef = useRef(null);
+    const backFaceRef = useRef(null);
+    const backFaceAnimatedRef = useRef(false);
     const isCube = shapeType === "cube";
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -513,8 +515,9 @@ const ShapeCanvas3D = React.forwardRef(
           stackGroup.current.add(plate);
         }
 
-        if (isCube) {
+        if (isCube && cubeTapped) {
           const backFaceGeom = new THREE.PlaneGeometry(BOX_DIM.w, BOX_DIM.h);
+          backFaceGeom.translate(0, BOX_DIM.h / 2, 0);
           const backFaceMat = new THREE.MeshStandardMaterial({
             color: PRIMARY_COLOR,
             side: THREE.DoubleSide,
@@ -524,7 +527,13 @@ const ShapeCanvas3D = React.forwardRef(
             metalness: 0,
           });
           const backFace = new THREE.Mesh(backFaceGeom, backFaceMat);
-          backFace.position.set(0, BOX_DIM.h / 2, -BOX_DIM.d / 2);
+          backFace.position.set(0, 0, -BOX_DIM.d / 2);
+          const shouldAnimate = !backFaceAnimatedRef.current;
+          if (shouldAnimate) {
+            backFace.rotation.x = Math.PI / 2;
+          } else {
+            backFace.rotation.x = 0;
+          }
           const backEdgesGeom = new THREE.EdgesGeometry(backFaceGeom);
           const backLineMat = new THREE.LineBasicMaterial({
             color: EDGE_COLOR,
@@ -532,9 +541,34 @@ const ShapeCanvas3D = React.forwardRef(
           const backLine = new THREE.LineSegments(backEdgesGeom, backLineMat);
           backFace.add(backLine);
           stackGroup.current.add(backFace);
+          backFaceRef.current = backFace;
+
+          if (shouldAnimate && typeof gsap !== "undefined") {
+            gsap.to(backFace.rotation, {
+              x: 0,
+              duration: 0.6,
+              ease: "power2.out",
+              onComplete: () => {
+                backFaceAnimatedRef.current = true;
+                backFaceRef.current = null;
+                if (typeof onBackFaceAnimationComplete === "function") {
+                  onBackFaceAnimationComplete();
+                }
+              },
+            });
+          } else if (shouldAnimate) {
+            backFace.rotation.x = 0;
+            backFaceAnimatedRef.current = true;
+            if (typeof onBackFaceAnimationComplete === "function") {
+              onBackFaceAnimationComplete();
+            }
+          }
+        } else {
+          backFaceRef.current = null;
+          backFaceAnimatedRef.current = false;
         }
       }
-    }, [sliderVal, isDoneStacking, shapeType]);
+    }, [sliderVal, isDoneStacking, shapeType, cubeTapped]);
 
     return React.createElement("div", {
       ref: mountRef,

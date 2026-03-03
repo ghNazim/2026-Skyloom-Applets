@@ -21,6 +21,7 @@ const Table = ({
   const svgRef = useRef(null);
   const containerRef = useRef(null);
   const labelRef = useRef(null);
+  const multiplyCircleRef = useRef(null);
 
   // Initialize table data from rows prop
   useEffect(() => {
@@ -75,7 +76,7 @@ const Table = ({
     const endCellRect = endCell.getBoundingClientRect();
 
     const isRightColumn = col === 2;
-    const arrowOffsetPx = startCellRect.width/2;
+    const arrowOffsetPx = startCellRect.width/5;
 
     let startX, startY, endX, endY, turnPointX, turnPointY1, turnPointY2;
 
@@ -137,10 +138,18 @@ const Table = ({
 
     if (labelBox) {
       labelBox.style.display = "block";
-      const labelX = turnPointX;
+      const labelX = turnPointX * 1.11;
       const labelY = startY + (endY - startY) / 2;
       labelBox.style.left = `${(labelX / containerRect.width) * 100}%`;
       labelBox.style.top = `${(labelY / containerRect.height) * 100}%`;
+    }
+
+    const multiplyCircle = multiplyCircleRef.current;
+    if (multiplyCircle) {
+      multiplyCircle.style.display = "flex";
+      const midY = (turnPointY1 + turnPointY2) / 2;
+      multiplyCircle.style.left = `${(turnPointX / containerRect.width) * 100}%`;
+      multiplyCircle.style.top = `${(midY / containerRect.height) * 100}%`;
     }
   };
 
@@ -160,9 +169,12 @@ const Table = ({
       if (svgRef.current) {
         svgRef.current.innerHTML = "";
       }
-      // Hide label when showArrow is false
+      // Hide label and multiply circle when showArrow is false
       if (labelRef.current) {
         labelRef.current.style.display = "none";
+      }
+      if (multiplyCircleRef.current) {
+        multiplyCircleRef.current.style.display = "none";
       }
     }
   }, [showArrow, tableData, cellUpdate, arrowLabel, arrowColumnIndex]);
@@ -315,6 +327,23 @@ const Table = ({
         )
       )
     ),
+    // Multiply circle at arrow turning midpoint
+    showArrow &&
+      React.createElement(
+        "div",
+        {
+          ref: multiplyCircleRef,
+          className: "table-arrow-multiply-circle",
+          style: {
+            position: "absolute",
+            display: "none",
+            pointerEvents: "none",
+            zIndex: 15,
+            transform: "translate(-50%, -50%)",
+          },
+        },
+        "×"
+      ),
     // Label for arrow
     showArrow &&
       React.createElement(
@@ -334,7 +363,7 @@ const Table = ({
             transform: "translate(-50%, -50%)",
           },
         },
-        arrowLabel ? `×${arrowLabel}` : ""
+        arrowLabel ? `${arrowLabel}` : ""
       )
   );
 };

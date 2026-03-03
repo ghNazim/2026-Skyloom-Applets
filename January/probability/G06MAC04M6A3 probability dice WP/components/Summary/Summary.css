@@ -1,0 +1,84 @@
+.summary-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  padding: 1.5vw 8vw 2vw;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.summary-heading {
+  font-weight: bold;
+  font-size: 2.7vw;
+  color: var(--accent-color);
+  margin-bottom: 1.5vw;
+}
+
+.summary-event-text {
+  font-size: 2vw;
+  font-weight: 600;
+  margin-bottom: 3vw;
+}
+
+.summary-scale {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 5vw;
+  min-height: 0;
+}
+
+/* ── Cards row (below track) ─────────────────────────────────── */
+.summary-cards-row {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.summary-card {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 0.15vw solid rgba(255, 255, 255, 0.6);
+  border-radius: 0.6vw;
+  padding: 0.4vw;
+  background: rgba(0, 0, 0, 0.15);
+  top: 0;
+}
+
+.summary-card-image {
+  width: 12vw;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0.1vw 0.2vw rgba(0, 0, 0, 0.3));
+  margin-bottom: 1.5vw;
+}
+
+.summary-card-label {
+  font-size: 2vw;
+  text-align: center;
+  line-height: 1.35;
+  padding: 0.2vw 0.3vw;
+  color: white;
+}
+
+.summary-footer-text {
+  font-size: 2.5vw;
+  color: var(--accent-color);
+  /* margin-top: 3vw; */
+  /* margin-bottom: 0.5vw; */
+  flex-shrink: 0;
+  position: relative;
+  top: -2vw;
+}
+
+.summary-button {
+  flex-shrink: 0;
+}

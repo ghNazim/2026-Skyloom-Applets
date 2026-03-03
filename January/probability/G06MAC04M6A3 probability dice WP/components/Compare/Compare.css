@@ -1,0 +1,165 @@
+.compare-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 0.5vw 2vw;
+  overflow: hidden;
+  background-color: rgba(0 , 0, 0, 0.3);
+  border-radius: 1vw;
+  border: 0.25vw solid var(--panel-border-color);
+  padding: 1vw;
+  backdrop-filter: blur(1vw);
+}
+
+.total-info-div {
+  position: absolute;
+  left: 1.5vw;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(130, 150, 170, 0.5);
+  border: 0.15vw solid rgba(255, 255, 255, 0.4);
+  border-radius: 0.8vw;
+  padding: 0.8vw 1.2vw;
+  font-size: 2.3vw;
+  text-align: center;
+  color: white;
+  line-height: 1.4;
+  font-weight: 600;
+  z-index: 5;
+}
+
+.compare-instruction {
+  font-size: 2.1vw;
+  text-align: center;
+  color: white;
+  margin-bottom: 1vw;
+  line-height: 1.4;
+}
+
+.compare-scale-wrapper {
+  width: 85%;
+}
+
+.compare-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5vw;
+  margin: 0.5vw 0;
+}
+
+.compare-ball {
+  width: 7vw;
+  height: auto;
+  filter: drop-shadow(0 0.15vw 0.3vw rgba(0, 0, 0, 0.35));
+}
+
+.operator-box {
+  width: 5vw;
+  height: 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.2vw dashed rgba(255, 255, 255, 0.5);
+  border-radius: 0.6vw;
+  font-size: 3vw;
+  font-weight: bold;
+  color: white;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.operator-correct {
+  background: rgba(76, 175, 80, 0.4);
+  border: 0.2vw solid #66bb6a;
+}
+
+.operator-wrong {
+  background: rgba(229, 57, 53, 0.25);
+  border: 0.2vw dashed #e53935;
+}
+
+.compare-buttons-row {
+  display: flex;
+  gap: 1.5vw;
+  margin: 0.5vw 0;
+}
+
+.compare-btn {
+  width: 5vw;
+  height: 5vw;
+  font-size: 3vw;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 0.6vw;
+  background: #e8e839;
+  color: #1a1a1a;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compare-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.compare-btn:disabled {
+  cursor: default;
+}
+
+.btn-correct {
+  background: #66bb6a;
+  color: white;
+}
+
+.btn-wrong {
+  background: #e53935;
+  color: white;
+}
+
+.feedback-row {
+  padding: 0.8vw 2vw;
+  border-radius: 0.8vw;
+  font-size: 1.8vw;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 80%;
+  color: white;
+}
+
+.feedback-correct {
+  background: rgba(30, 100, 30, 0.55);
+  border: 0.2vw dashed #44aa44;
+}
+
+.feedback-incorrect {
+  background: rgba(150, 30, 30, 0.65);
+  border: 0.2vw dashed #cc4444;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-0.5vw);
+  }
+  40% {
+    transform: translateX(0.5vw);
+  }
+  60% {
+    transform: translateX(-0.3vw);
+  }
+  80% {
+    transform: translateX(0.3vw);
+  }
+}
+
+.shake {
+  animation: shake 0.3s ease;
+}

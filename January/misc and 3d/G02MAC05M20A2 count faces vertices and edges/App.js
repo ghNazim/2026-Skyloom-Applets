@@ -37,7 +37,7 @@ const App = () => {
       setCurrentStep(2);
       setNavText(question.navText);
       setIsNextDisabled(true);
-    }, 1000);
+    }, 2500);
   }, []);
 
   const handleStep2Correct = useCallback(() => {

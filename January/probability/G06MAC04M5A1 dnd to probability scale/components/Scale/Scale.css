@@ -1,0 +1,217 @@
+.scale-component {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+  user-select: none;
+}
+
+/* ── Main bordered section (labels + track + dropzones) ────────── */
+.scale-main-section {
+  flex: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border: 0.4vw solid rgba(200, 170, 50, 1);
+  border-radius: 1vw;
+  padding: 1.2vw 5vw 0.5vw;
+  background-color: rgba(0, 0, 0, 0.12);
+  transition: background-color 0.6s, border-color 0.6s;
+  min-height: 0;
+  overflow: visible;
+}
+
+.scale-main-section.complete {
+  background-color: rgba(50, 100, 55, 0.3);
+  border-color: rgba(100, 200, 110, 0.65);
+}
+
+/* ── Labels row ────────────────────────────────────────────────── */
+.scale-labels-row {
+  position: relative;
+  height: 2.5vw;
+  width: 100%;
+  margin-bottom: 0.2vw;
+  flex-shrink: 0;
+}
+
+.scale-label {
+  position: absolute;
+  font-size: 1.2vw;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-align: center;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-transform: uppercase;
+}
+
+/* ── Track row ─────────────────────────────────────────────────── */
+.scale-track-row {
+  position: relative;
+  width: 100%;
+  height: 2vw;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-bottom: 0.8vw;
+}
+
+.scale-track-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 0.5vw;
+  background: linear-gradient(to right, #bbb 0%, #eee 100%);
+  border-radius: 0.3vw;
+  box-shadow: 0 0.1vw 0.3vw rgba(0, 0, 0, 0.4);
+}
+
+.scale-dot {
+  position: absolute;
+  width: 1.7vw;
+  height: 1.7vw;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  border: 0.18vw solid rgba(255, 255, 255, 0.7);
+  z-index: 2;
+}
+
+/* ── Dropzones row ─────────────────────────────────────────────── */
+.scale-dropzones-row {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.scale-dropzone {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2vw;
+  top: 0;
+  min-width: 6vw;
+  padding: 0.3vw;
+}
+
+.scale-dropzone-item {
+  width: var(--item-size, 8vw);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 0.15vw 0.3vw rgba(0, 0, 0, 0.4));
+  animation: itemPlaceIn 0.35s ease-out;
+}
+
+@keyframes itemPlaceIn {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.scale-dropzone-placeholder {
+  width: var(--item-size, 8vw);
+  height: auto;
+  object-fit: contain;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.scale-dropzone.shake {
+  animation: shakeDropzone 0.45s ease;
+}
+
+@keyframes shakeDropzone {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  20% {
+    transform: translateX(calc(-50% - 0.5vw));
+  }
+  40% {
+    transform: translateX(calc(-50% + 0.5vw));
+  }
+  60% {
+    transform: translateX(calc(-50% - 0.3vw));
+  }
+  80% {
+    transform: translateX(calc(-50% + 0.3vw));
+  }
+}
+
+/* ── Draggables section ────────────────────────────────────────── */
+.scale-draggables-section {
+  flex: 1.3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2vw;
+  padding: 0.5vw 1vw;
+  min-height: 0;
+}
+
+.scale-draggable {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.scale-draggable:hover {
+  transform: translateY(-0.2vw);
+}
+
+.scale-draggable:active {
+  cursor: grabbing;
+}
+
+.scale-draggable.dragging {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scale-draggable-img {
+  width: var(--item-size, 8vw);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 0.2vw 0.4vw rgba(0, 0, 0, 0.35));
+}
+
+/* ── Drag ghost ────────────────────────────────────────────────── */
+.scale-drag-ghost {
+  pointer-events: none;
+}
+
+.scale-ghost-img {
+  width: var(--item-size, 8vw);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0.4vw 0.8vw rgba(0, 0, 0, 0.5));
+}
+
+/* Prevent scroll/zoom during drag */
+.scale-component,
+.scale-draggable,
+.scale-dropzone {
+  touch-action: none;
+  user-select: none;
+}

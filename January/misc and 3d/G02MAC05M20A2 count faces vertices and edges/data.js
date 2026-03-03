@@ -21,6 +21,14 @@ const DATA = {
           answer: 6,
           navText: "Move the slider to find the number of faces and check",
           navCorrect: "Tap '»' to see the next question.",
+          feedbacks: [
+            "Good work!!!<br> You have correctly identified the cube",
+            "Oops! Incorrect <br>Look all the faces are same",
+          ],
+          step2Feedbacks: {
+            correct: "Good work!!!<br>You have correctly identified the number of faces",
+            incorrect: "Oops!! Incorrect<br>A cube has 6 faces",
+          },
         },
         {
           dims: [2, 5, 2],
@@ -29,6 +37,14 @@ const DATA = {
           answer: 8,
           navText: "Move the slider to find the number of vertices and check",
           navCorrect: "Tap '»' to see the next question.",
+          feedbacks: [
+            "Oops! Incorrect <br>Look all the faces are not same",
+            "Good work!!!<br> You have correctly identified the cuboid",
+          ],
+          step2Feedbacks: {
+            correct: "Good work!!!<br>You have correctly identified the number of vertices",
+            incorrect: "Oops!! Incorrect<br>A cuboid has 8 vertices",
+          },
         },
         {
           dims: [6, 2, 2],
@@ -37,6 +53,14 @@ const DATA = {
           answer: 12,
           navText: "Move the slider to find the number of edges and check",
           navCorrect: "Tap '»' to see the next question.",
+          feedbacks: [
+            "Oops! Incorrect <br>Look all the faces are not same",
+            "Good work!!!<br> You have correctly identified the cuboid",
+          ],
+          step2Feedbacks: {
+            correct: "Good work!!!<br>You have correctly identified the number of edges",
+            incorrect: "Oops!! Incorrect<br>A cuboid has 12 edges",
+          },
         },
         {
           dims: [3, 6, 3],
@@ -45,6 +69,14 @@ const DATA = {
           answer: 8,
           navText: "Move the slider to find the number of vertices and check",
           navCorrect: "Tap '»' to see the next question.",
+          feedbacks: [
+            "Oops! Incorrect <br>Look all the faces are not same",
+            "Good work!!!<br> You have correctly identified the cuboid",
+          ],
+          step2Feedbacks: {
+            correct: "Good work!!!<br>You have correctly identified the number of vertices",
+            incorrect: "Oops!! Incorrect<br>A cuboid has 8 vertices",
+          },
         },
         {
           dims: [5, 3, 3],
@@ -53,6 +85,14 @@ const DATA = {
           answer: 6,
           navText: "Move the slider to find the number of faces and check",
           navCorrect: "Tap '»' to see the next question.",
+          feedbacks: [
+            "Oops! Incorrect <br>Look all the faces are not same",
+            "Good work!!!<br> You have correctly identified the cuboid",
+          ],
+          step2Feedbacks: {
+            correct: "Good work!!!<br>You have correctly identified the number of faces",
+            incorrect: "Oops!! Incorrect<br>A cuboid has 6 faces",
+          },
         },
       ],
     },
@@ -79,38 +119,80 @@ const DATA = {
           answer: 6,
           navText: "Gerakkan slider untuk menemukan jumlah sisi dan periksa",
           navCorrect: "Ketuk '»' untuk melihat pertanyaan berikutnya.",
+          feedbacks: [
+            "Kerja bagus!!!<br>Anda telah mengidentifikasi kubus dengan benar",
+            "Ups! Salah<br>Lihat, semua sisinya sama",
+          ],
+          step2Feedbacks: {
+            correct: "Kerja bagus!!!<br>Anda telah mengidentifikasi jumlah sisi dengan benar",
+            incorrect: "Ups!! Salah<br>Sebuah kubus memiliki 6 sisi",
+          },
         },
         {
-          dims: [1, 3, 1],
+          dims: [2, 5, 2],
           step1Answer: "Balok",
           questionText: "Berapa jumlah titik sudut pada benda yang diberikan?",
           answer: 8,
-          navText: "Gerakkan slider untuk menemukan jumlah titik sudut dan periksa",
+          navText:
+            "Gerakkan slider untuk menemukan jumlah titik sudut dan periksa",
           navCorrect: "Ketuk '»' untuk melihat pertanyaan berikutnya.",
+          feedbacks: [
+            "Ups! Salah<br>Lihat, tidak semua sisinya sama",
+            "Kerja bagus!!!<br>Anda telah mengidentifikasi balok dengan benar",
+          ],
+          step2Feedbacks: {
+            correct: "Kerja bagus!!!<br>Anda telah mengidentifikasi jumlah titik sudut dengan benar",
+            incorrect: "Ups!! Salah<br>Sebuah balok memiliki 8 titik sudut",
+          },
         },
         {
-          dims: [3, 1, 1],
+          dims: [6, 2, 2],
           step1Answer: "Balok",
           questionText: "Berapa jumlah rusuk pada benda yang diberikan?",
           answer: 12,
           navText: "Gerakkan slider untuk menemukan jumlah rusuk dan periksa",
           navCorrect: "Ketuk '»' untuk melihat pertanyaan berikutnya.",
+          feedbacks: [
+            "Ups! Salah<br>Lihat, tidak semua sisinya sama",
+            "Kerja bagus!!!<br>Anda telah mengidentifikasi balok dengan benar",
+          ],
+          step2Feedbacks: {
+            correct: "Kerja bagus!!!<br>Anda telah mengidentifikasi jumlah rusuk dengan benar",
+            incorrect: "Ups!! Salah<br>Sebuah balok memiliki 12 rusuk",
+          },
         },
         {
-          dims: [2, 3, 2],
+          dims: [3, 6, 3],
           step1Answer: "Balok",
           questionText: "Berapa jumlah titik sudut pada benda yang diberikan?",
           answer: 8,
-          navText: "Gerakkan slider untuk menemukan jumlah titik sudut dan periksa",
+          navText:
+            "Gerakkan slider untuk menemukan jumlah titik sudut dan periksa",
           navCorrect: "Ketuk '»' untuk melihat pertanyaan berikutnya.",
+          feedbacks: [
+            "Ups! Salah<br>Lihat, tidak semua sisinya sama",
+            "Kerja bagus!!!<br>Anda telah mengidentifikasi balok dengan benar",
+          ],
+          step2Feedbacks: {
+            correct: "Kerja bagus!!!<br>Anda telah mengidentifikasi jumlah titik sudut dengan benar",
+            incorrect: "Ups!! Salah<br>Sebuah balok memiliki 8 titik sudut",
+          },
         },
         {
-          dims: [3, 2, 2],
+          dims: [5, 3, 3],
           step1Answer: "Balok",
           questionText: "Berapa jumlah sisi pada benda yang diberikan?",
           answer: 6,
           navText: "Gerakkan slider untuk menemukan jumlah sisi dan periksa",
           navCorrect: "Ketuk '»' untuk melihat pertanyaan berikutnya.",
+          feedbacks: [
+            "Ups! Salah<br>Lihat, tidak semua sisinya sama",
+            "Kerja bagus!!!<br>Anda telah mengidentifikasi balok dengan benar",
+          ],
+          step2Feedbacks: {
+            correct: "Kerja bagus!!!<br>Anda telah mengidentifikasi jumlah sisi dengan benar",
+            incorrect: "Ups!! Salah<br>Sebuah balok memiliki 6 sisi",
+          },
         },
       ],
     },

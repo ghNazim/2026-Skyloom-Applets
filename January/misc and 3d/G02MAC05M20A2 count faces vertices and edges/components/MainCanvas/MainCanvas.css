@@ -10,7 +10,7 @@
 }
 
 .visual-row {
-  flex: 3;
+  flex: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,7 +28,17 @@
   padding: 0.5vw;
 }
 
-/* ===== STEP 1: Choice Buttons ===== */
+/* ===== STEP 1: Choice Buttons + Feedback ===== */
+
+.step1-action-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 1.8vw;
+}
 
 .step1-buttons {
   display: flex;
@@ -37,7 +47,42 @@
   justify-content: center;
   gap: 4vw;
   width: 100%;
-  height: 100%;
+}
+
+.feedback-row {
+  height: 5.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.mcq-feedback {
+  min-height: 3.5vw;
+  padding: 0.6vw 1.5vw;
+  border-radius: 0.5vw;
+  font-size: 1.8vw;
+  text-align: center;
+  line-height: 1.3;
+  width: 70%;
+}
+
+.mcq-feedback.hidden {
+  visibility: hidden;
+}
+
+.mcq-feedback.correct {
+  background-color: rgba(76, 175, 80, 0.15);
+  border: 2px solid #66bb6a;
+  color: #fff;
+  visibility: visible;
+}
+
+.mcq-feedback.incorrect {
+  background-color: rgba(255, 0, 0, 0.15);
+  border: 2px solid #ff6b6b;
+  color: #fff;
+  visibility: visible;
 }
 
 .choice-btn {
@@ -85,7 +130,17 @@
   40%, 80% { transform: translateX(6px); }
 }
 
-/* ===== STEP 2: Slider + Input + Check ===== */
+/* ===== STEP 2: Slider + Input + Check + Feedback ===== */
+
+.step2-action-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 1.8vw;
+}
 
 .step2-controls {
   position: relative;
@@ -94,6 +149,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  height: fit-content;
 }
 
 .check-btn {
@@ -125,7 +181,7 @@
 
 .slider-input-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 1.5vw;
 }
