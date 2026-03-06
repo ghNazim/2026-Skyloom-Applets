@@ -20,11 +20,12 @@
   min-width: calc(16 * (320 / 260) * 1vmin);
   aspect-ratio: 1;
   border-radius: 50%;
-  background-color: #FFD700;
+  background-color: #f38a3f;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  z-index: 3;
 }
 
 .spinner-rim-thick-blue {
@@ -36,6 +37,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 4;
 }
 
 .spinner-rim-inner-gold {
@@ -43,7 +45,7 @@
   width: calc(var(--spinner-disc-base) * 1vw * (268 / 260));
   height: calc(var(--spinner-disc-base) * 1vw * (268 / 260));
   border-radius: 50%;
-  background-color: #FFD700;
+  background-color: #f38a3f;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,15 +142,17 @@
 
 .wheel-pointer {
   position: absolute;
-  bottom: 0;
-  left: 50%;
+  bottom: 1.1vw;
+
+  left: 53%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
   border-left: 1.2vw solid transparent;
   border-right: 1.2vw solid transparent;
-  border-bottom: 2vw solid #ffd900;
-  z-index: 10;
+  border-bottom: 2vw solid #f12a2a;
+  z-index: 0;
+  scale: 2;
   /* filter: drop-shadow(0 -2px 3px rgba(0, 0, 0, 0.4)); */
 }
 

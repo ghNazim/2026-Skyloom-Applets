@@ -123,7 +123,7 @@ const SpinningWheel = ({ objects, disabledObjects, onSelect }) => {
       phase === "highlight" && selectedTarget ? selectedTarget.index : -1;
     const stops = objects
       .map((obj, i) => {
-        let color = disabledObjects.includes(obj.key) ? "#888888" : "#B91C1C";
+        let color = disabledObjects.includes(obj.key) ? "#888888" : "#f8c9a8";
         if (i === highlightIndex) color = "#e8b830";
         return (
           color +
