@@ -1,0 +1,91 @@
+/* ===== MAIN CANVAS CONTAINER (flex column) ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* ===== VISUAL ROW (80% height) ===== */
+.visual-row {
+  flex: 0 0 80%;
+  display: flex;
+  flex-direction: row;
+  height: 80%;
+  min-height: 0;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  touch-action: none;
+}
+
+/* ===== ACTION ROW (20% height) ===== */
+.action-row {
+  flex: 0 0 20%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== TILT SLIDER ===== */
+.tilt-slider {
+  width: 30vw;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.tilt-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #0ea5e9;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tilt-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #0ea5e9;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tilt-slider:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.tilt-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+.tilt-slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+}
