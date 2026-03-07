@@ -36,7 +36,7 @@ body {
   line-height: 1.5;
   font-weight: 400;
   color: var(--light-text-color);
-  background-image: url("../assets/DarkBG2.jpg");
+  background-image: url("../assets/bg.png");
   background-repeat: no-repeat;
   background-size: cover;
   font-synthesis: none;

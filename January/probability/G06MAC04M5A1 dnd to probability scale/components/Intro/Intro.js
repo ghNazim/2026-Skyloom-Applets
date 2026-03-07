@@ -1,4 +1,4 @@
-const Intro = ({ heading, image, text, buttonText, onButtonClick }) => {
+const Intro = ({ heading, image, text, buttonText, onButtonClick, buttonRef }) => {
   return React.createElement(
     "div",
     { className: "intro-panel" },
@@ -28,6 +28,7 @@ const Intro = ({ heading, image, text, buttonText, onButtonClick }) => {
           dangerouslySetInnerHTML: { __html: text },
         }),
         React.createElement(Button, {
+          ref: buttonRef,
           text: buttonText,
           onClick: onButtonClick,
           className: "intro-button",

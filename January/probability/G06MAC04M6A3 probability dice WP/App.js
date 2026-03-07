@@ -1,5 +1,5 @@
 const App = () => {
-  const { useState } = React;
+  const { useState, useRef, useEffect } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
@@ -9,9 +9,19 @@ const App = () => {
   const [calculateKey, setCalculateKey] = useState(0);
   const [nextButtonText, setNextButtonText] = useState(null);
   const [comprehendKey, setComprehendKey] = useState(0);
+  const [showNudge, setShowNudge] = useState(true);
+
+  const startButtonRef = useRef(null);
+  const continueButtonRef = useRef(null);
+  const nextButtonRef = useRef(null);
+
+  useEffect(() => {
+    setShowNudge(true);
+  }, [currentStep, isNextDisabled]);
 
   const handleStart = () => {
     playSound("click");
+    setShowNudge(false);
     setCurrentStep(1);
     setIsNextDisabled(true);
     setNavText(APP_DATA.comprehend.navStep1Start);
@@ -19,6 +29,7 @@ const App = () => {
 
   const handleContinue = () => {
     playSound("click");
+    setShowNudge(false);
     setCurrentStep(5);
     setIsNextDisabled(true);
     setNavText(APP_DATA.calculate.navActive);
@@ -88,6 +99,7 @@ const App = () => {
 
     if (direction === "next" && !isNextDisabled) {
       playSound("click");
+      setShowNudge(false);
 
       if (currentStep === 1) {
         setCurrentStep(2);
@@ -164,11 +176,20 @@ const App = () => {
             { className: "tap-start-text" },
             intro.tapStartText
           ),
-          React.createElement(Button, {
-            text: intro.buttonText,
-            onClick: handleStart,
-            className: "challenge-intro-btn",
-          })
+          React.createElement(
+            "div",
+            { ref: startButtonRef, style: { display: "inline-block" } },
+            React.createElement(Button, {
+              text: intro.buttonText,
+              onClick: handleStart,
+              className: "challenge-intro-btn",
+            })
+          ),
+          showNudge &&
+            React.createElement(Nudge, {
+              show: true,
+              targetRef: startButtonRef,
+            })
         )
       )
     );
@@ -182,7 +203,15 @@ const App = () => {
       React.createElement(
         "div",
         { className: "app-main-content" },
-        React.createElement(CompareSummary, { onContinue: handleContinue })
+        React.createElement(CompareSummary, {
+          onContinue: handleContinue,
+          buttonRef: continueButtonRef,
+        }),
+        showNudge &&
+          React.createElement(Nudge, {
+            show: true,
+            targetRef: continueButtonRef,
+          })
       )
     );
   }
@@ -217,7 +246,14 @@ const App = () => {
         isPrevDisabled: false,
         navText: navText,
         nextButtonText: nextButtonText,
-      })
+        nextButtonRef: nextButtonRef,
+      }),
+      showNudge &&
+        !isNextDisabled &&
+        React.createElement(Nudge, {
+          show: true,
+          targetRef: nextButtonRef,
+        })
     )
   );
 };

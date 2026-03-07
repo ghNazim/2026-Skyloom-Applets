@@ -69,7 +69,7 @@ const DATA = {
         "That\u2019s incorrect!<br>The number which has more probability will be on more faces.",
       correctFeedback:
         "That\u2019s right!<br>The number which has more probability will be on more faces.",
-      navActive: "Tap on the correct sign",
+      navActive: "Tap on the correct sign.",
       navCorrect: "Tap \u00BB to compare other numbers.",
       navLast: "Tap \u00BB to summarize all the conditions.",
     },
@@ -77,7 +77,7 @@ const DATA = {
     compareSummary: {
       heading: "Conditions to Check",
       conditionsText: "We need to check for <y>five conditions</y>:",
-      conditionLeft: "Total number of<br>faces = 8",
+      conditionLeft: "Total<br>number of<br>faces = 8",
       buttonText: "Continue",
     },
 
@@ -90,7 +90,7 @@ const DATA = {
       correctFeedback: "Great! You found the correct estimate!",
       duplicateFeedback: "This is correct! but this answer is already found.",
       navActive:
-        "Use the buttons to increase or decrease number of faces on which these numbers appear.",
+        "Use the buttons to increase or decrease number of faces.",
       navCorrect: "Tap \u00BB to conclude.",
       navAllFound: "Tap \u00BB to conclude.",
       navOnCheckActive:"Tap ‘Check’ to validate your answer.",
@@ -191,7 +191,7 @@ const DATA = {
         "Itu tidak benar! Angka yang memiliki probabilitas lebih tinggi akan muncul di lebih banyak sisi.",
       correctFeedback:
         "Benar! Angka yang memiliki probabilitas lebih tinggi akan muncul di lebih banyak sisi.",
-      navActive: "Ketuk tanda yang benar",
+      navActive: "Ketuk tanda yang benar.",
       navCorrect: "Ketuk \u00BB untuk membandingkan angka lain.",
       navLast: "Ketuk \u00BB untuk merangkum semua kondisi.",
     },
@@ -199,7 +199,7 @@ const DATA = {
     compareSummary: {
       heading: "Kondisi yang Perlu Diperiksa",
       conditionsText: "Kita perlu memeriksa <y>lima kondisi</y>:",
-      conditionLeft: "Jumlah total<br>sisi = 8",
+      conditionLeft: "Jumlah<br> total<br>sisi = 8",
       buttonText: "Lanjutkan",
     },
 

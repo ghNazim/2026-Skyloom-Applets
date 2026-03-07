@@ -31,8 +31,5 @@
   font-size: calc(0.25rem + 1.75vw);
   gap: 2vh;
   flex-direction: column;
-  height: 8vw;
-  min-height: 8vw;
-  max-height: 8vw;
   /* overflow: hidden; */
 }

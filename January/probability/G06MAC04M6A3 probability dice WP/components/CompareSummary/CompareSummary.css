@@ -29,10 +29,10 @@
 .cs-conditions-box {
   width: 100%;
   display: flex;
-  gap: 2vw;
+  gap: 1.5vw;
   background: rgba(130, 150, 170, 0.35);
   border-radius: 1vw;
-  padding: 2vw;
+  padding: 1vw;
   justify-content: center;
   align-items: stretch;
 }

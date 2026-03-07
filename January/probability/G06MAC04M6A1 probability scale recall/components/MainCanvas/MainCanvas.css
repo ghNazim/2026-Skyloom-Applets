@@ -6,6 +6,33 @@
   /* padding: 3vw 0vw; */
 }
 
+.text-row-above-scale {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 2vw;
+  flex-shrink: 0;
+}
+
+.text-row-above-scale .left-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vw;
+  width: auto;
+  font-size: 2.3vw;
+  text-align: center;
+  color: white;
+  line-height: 1.5;
+}
+
+.left-text-image {
+  height: 12vw;
+  object-fit: contain;
+}
+
 .main-row {
   flex: 1;
   display: flex;

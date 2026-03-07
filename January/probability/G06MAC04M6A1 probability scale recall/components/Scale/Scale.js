@@ -33,17 +33,19 @@ const Scale = ({ step, allVisible, showImages }) => {
     "div",
     { className: "scale-track-row" },
     React.createElement("div", { className: "scale-track-line" }),
-    scalePositions.map((pos, i) =>
-      React.createElement("div", {
+    scalePositions.map((pos, i) => {
+      const isActive = step === i + 1;
+      return React.createElement("div", {
         key: i,
-        className: "scale-dot",
+        className: "scale-dot" + (isActive ? " active-glow" : ""),
         style: {
           left: getIndexPct(i) + "%",
           backgroundColor: pos.dotColor,
           boxShadow: "0 0 0.4vw " + pos.dotColor,
+          ...(isActive ? { "--dot-color": pos.dotColor } : {}),
         },
-      })
-    )
+      });
+    })
   );
 
   const imagesRow = shouldShowImages

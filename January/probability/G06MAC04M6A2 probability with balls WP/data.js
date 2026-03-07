@@ -59,7 +59,7 @@ const DATA = {
         "That\u2019s incorrect!<br>The color which has more probability<br>will be more in number than others.",
       correctFeedback:
         "That\u2019s right!<br>The color which has more probability will be<br>more in number than others.",
-      navActive: "Tap on the correct sign",
+      navActive: "Tap on the correct sign.",
       navCorrect: "Tap \u00BB to compare other colors.",
       navLast: "Tap \u00BB to summarize all the conditions.",
     },
@@ -95,7 +95,7 @@ const DATA = {
         { img1: "assets/orange.png", img2: "assets/red.png", operator: "<" },
         { img1: "assets/red.png", img2: "assets/white.png", operator: "<" },
       ],
-      prevAnswersTitle: "YOUR ANSWERS",
+      prevAnswersTitle: "YOUR ESTIMATES",
     },
 
     allEstimates: {
@@ -176,7 +176,7 @@ const DATA = {
         "Itu tidak benar!<br>Warna yang memiliki probabilitas lebih tinggi<br>akan lebih banyak jumlahnya dari yang lain.",
       correctFeedback:
         "Benar!<br>Warna yang memiliki probabilitas lebih tinggi akan<br>lebih banyak jumlahnya dari yang lain.",
-      navActive: "Ketuk tanda yang benar",
+      navActive: "Ketuk tanda yang benar.",
       navCorrect: "Ketuk \u00BB untuk membandingkan warna lain.",
       navLast: "Ketuk \u00BB untuk merangkum semua kondisi.",
     },

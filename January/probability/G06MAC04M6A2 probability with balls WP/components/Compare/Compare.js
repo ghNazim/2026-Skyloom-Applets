@@ -5,12 +5,14 @@ const Compare = ({ compareIndex, onCorrect }) => {
 
   const [filledOperator, setFilledOperator] = useState(null);
   const [answerState, setAnswerState] = useState(null);
+  const [wrongButtons, setWrongButtons] = useState([]);
   const [shakingBtn, setShakingBtn] = useState(null);
   const [boxShaking, setBoxShaking] = useState(false);
 
   useEffect(() => {
     setFilledOperator(null);
     setAnswerState(null);
+    setWrongButtons([]);
     setShakingBtn(null);
     setBoxShaking(false);
   }, [compareIndex]);
@@ -27,6 +29,7 @@ const Compare = ({ compareIndex, onCorrect }) => {
     } else {
       setAnswerState("wrong");
       playSound("wrong");
+      setWrongButtons((prev) => (prev.includes(op) ? prev : [...prev, op]));
       setShakingBtn(op);
       setBoxShaking(true);
       setTimeout(() => {
@@ -38,8 +41,9 @@ const Compare = ({ compareIndex, onCorrect }) => {
 
   const getButtonClass = (op) => {
     var cls = "compare-btn";
-    if (answerState === "correct" && filledOperator === op) cls += " btn-correct";
-    if (answerState === "wrong" && filledOperator === op) cls += " btn-wrong";
+    if (answerState === "correct" && filledOperator === op)
+      cls += " btn-correct";
+    if (wrongButtons.includes(op)) cls += " btn-wrong";
     if (shakingBtn === op) cls += " shake";
     return cls;
   };
@@ -54,10 +58,10 @@ const Compare = ({ compareIndex, onCorrect }) => {
     "div",
     { className: "compare-container" },
 
-    React.createElement("div", {
-      className: "total-info-div",
-      dangerouslySetInnerHTML: { __html: data.totalInfoText },
-    }),
+    // React.createElement("div", {
+    //   className: "total-info-div",
+    //   dangerouslySetInnerHTML: { __html: data.totalInfoText },
+    // }),
 
     React.createElement("div", {
       className: "compare-instruction",
@@ -70,7 +74,7 @@ const Compare = ({ compareIndex, onCorrect }) => {
       React.createElement(Scale, {
         allVisible: true,
         customImages: APP_DATA.scaleImages,
-      })
+      }),
     ),
 
     React.createElement(
@@ -84,13 +88,13 @@ const Compare = ({ compareIndex, onCorrect }) => {
       React.createElement(
         "div",
         { className: operatorBoxClass },
-        filledOperator
+        filledOperator,
       ),
       React.createElement("img", {
         src: comparison.img2,
         className: "compare-ball",
         draggable: false,
-      })
+      }),
     ),
 
     React.createElement(
@@ -105,9 +109,9 @@ const Compare = ({ compareIndex, onCorrect }) => {
             onClick: () => handleOperatorClick(op),
             disabled: answerState === "correct",
           },
-          op
-        )
-      )
+          op,
+        ),
+      ),
     ),
 
     answerState !== null
@@ -124,6 +128,6 @@ const Compare = ({ compareIndex, onCorrect }) => {
                 : data.wrongFeedback,
           },
         })
-      : null
+      : null,
   );
 };

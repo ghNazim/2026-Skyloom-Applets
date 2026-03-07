@@ -1,20 +1,36 @@
 const App = () => {
-  const { useState, useCallback } = React;
+  const { useState, useCallback, useRef, useEffect } = React;
 
   const [currentStep, setCurrentStep] = useState(0); // 0: intro, 1: question, 2: final
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isNextEnabled, setIsNextEnabled] = useState(false);
+  const [showNudge, setShowNudge] = useState(true);
+
+  const introButtonRef = useRef(null);
+  const fullscreenButtonRef = useRef(null);
+  const nextButtonRef = useRef(null);
 
   const questions = APP_DATA.questions;
   const totalQuestions = questions.length;
 
+  // Show nudge when user is supposed to click a button
+  useEffect(() => {
+    const shouldShow =
+      currentStep === 0 ||
+      currentStep === 2 ||
+      (currentStep === 1 && isNextEnabled);
+    setShowNudge(shouldShow);
+  }, [currentStep, isNextEnabled]);
+
   const handleIntroStart = () => {
+    setShowNudge(false);
     playSound("click");
     setCurrentStep(1);
     setIsNextEnabled(false);
   };
 
   const handleStartOver = () => {
+    setShowNudge(false);
     playSound("click");
     setCurrentStep(0);
     setCurrentQuestion(0);
@@ -27,6 +43,7 @@ const App = () => {
 
   const handleNav = (direction) => {
     if (direction === "next") {
+      setShowNudge(false);
       playSound("click");
       if (currentStep === 1 && isNextEnabled) {
         if (currentQuestion < totalQuestions - 1) {
@@ -83,6 +100,11 @@ const App = () => {
           text: intro.text,
           buttonText: intro.buttonText,
           onButtonClick: handleIntroStart,
+          buttonRef: introButtonRef,
+        }),
+        React.createElement(Nudge, {
+          show: showNudge,
+          targetRef: introButtonRef,
         })
       )
     );
@@ -101,6 +123,11 @@ const App = () => {
           text: APP_DATA.final.text,
           buttonText: APP_DATA.final.buttonText,
           onButtonClick: handleStartOver,
+          buttonRef: fullscreenButtonRef,
+        }),
+        React.createElement(Nudge, {
+          show: showNudge,
+          targetRef: fullscreenButtonRef,
         })
       )
     );
@@ -129,6 +156,11 @@ const App = () => {
         navText: getNavText(),
         totalDots: totalQuestions,
         currentDot: currentQuestion + 1,
+        nextButtonRef: nextButtonRef,
+      }),
+      React.createElement(Nudge, {
+        show: showNudge && isNextEnabled,
+        targetRef: nextButtonRef,
       })
     )
   );

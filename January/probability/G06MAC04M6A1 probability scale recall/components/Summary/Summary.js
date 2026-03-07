@@ -1,4 +1,4 @@
-const Summary = ({ onStartOver }) => {
+const Summary = ({ onStartOver, startOverButtonRef }) => {
   const scalePositions = APP_DATA.scalePositions;
   const images = APP_DATA.images;
   const summaryLabels = APP_DATA.summaryLabels;
@@ -95,6 +95,7 @@ const Summary = ({ onStartOver }) => {
     ),
 
     React.createElement(Button, {
+      ref: startOverButtonRef,
       text: summary.buttonText,
       onClick: onStartOver,
       className: "summary-button",

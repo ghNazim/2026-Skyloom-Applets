@@ -1,14 +1,15 @@
-const Button = ({ onClick, text, className }) => {
+const Button = React.forwardRef(({ onClick, text, className }, ref) => {
   return React.createElement(
     "button",
     {
+      ref: ref,
       className: `btn ${className || ""}`,
       onClick: onClick,
     },
     text
   );
-};
-const Fullscreen = ({ text, buttonText, onButtonClick, heading }) => {
+});
+const Fullscreen = ({ text, buttonText, onButtonClick, heading, buttonRef }) => {
   return React.createElement(
     "div",
     { className: "fullscreen-panel" },
@@ -18,6 +19,7 @@ const Fullscreen = ({ text, buttonText, onButtonClick, heading }) => {
       dangerouslySetInnerHTML: { __html: text },
     }),
     React.createElement(Button, {
+      ref: buttonRef,
       text: buttonText,
       onClick: onButtonClick,
       className: "fullscreen-button",

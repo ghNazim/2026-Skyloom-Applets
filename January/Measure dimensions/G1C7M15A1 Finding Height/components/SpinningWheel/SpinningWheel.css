@@ -1,0 +1,177 @@
+/* Rim geometry from sample.js, scaled to match wheel-inner 46vw (= 260px disc equivalent)
+   Outer gold: 320, Thick blue: 312, Inner gold: 268, Disc: 260 */
+.wheel-outer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Triple-layered golden/teal rim - colors from sample.js (20% smaller: 46 * 0.8 = 36.8) */
+.spinner-rim-outer-gold {
+  --spinner-disc-base: 36.8;
+  --spinner-dot-offset: calc(var(--spinner-disc-base) * 1vw * 312 / 260 / 2 * 145 / 156);
+  position: relative;
+  width: calc(var(--spinner-disc-base) * 1vw * (320 / 260));
+  height: calc(var(--spinner-disc-base) * 1vw * (320 / 260));
+  min-width: calc(16 * (320 / 260) * 1vmin);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: #f38a3f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  z-index: 3;
+}
+
+.spinner-rim-thick-blue {
+  position: relative;
+  width: calc(var(--spinner-disc-base) * 1vw * (312 / 260));
+  height: calc(var(--spinner-disc-base) * 1vw * (312 / 260));
+  border-radius: 50%;
+  background-color: #013444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+}
+
+.spinner-rim-inner-gold {
+  position: relative;
+  width: calc(var(--spinner-disc-base) * 1vw * (268 / 260));
+  height: calc(var(--spinner-disc-base) * 1vw * (268 / 260));
+  border-radius: 50%;
+  background-color: #f38a3f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.spinner-golden-dot {
+  position: absolute;
+  width: 0.35vw;
+  height: 0.35vw;
+  min-width: 6px;
+  min-height: 6px;
+  background-color: #FFECB3;
+  border: 1px solid #FFD700;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  
+  z-index: 6;
+}
+
+.wheel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-inner {
+  width: 36.8vw;
+  min-width: 16vmin;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  position: relative;
+  border: none;
+  box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.wheel-line {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 50%;
+  background: #333;
+  transform-origin: bottom center;
+  z-index: 2;
+}
+
+.wheel-item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  pointer-events: none;
+  z-index: 3;
+  gap: 0.3vw;
+}
+
+.wheel-item.disabled {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.wheel-item-label {
+  font-size: 2vw;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.wheel-item-image {
+  height: 9vw;
+  max-width: 10vw;
+  /* max-height: 4.5vw; */
+  object-fit: contain;
+}
+
+/* Central metallic hub from sample.js */
+.wheel-center-knob {
+  position: absolute;
+  width: calc(var(--spinner-disc-base, 36.8) * 1vw * 20 / 260);
+  height: calc(var(--spinner-disc-base, 36.8) * 1vw * 20 / 260);
+  min-width: 12px;
+  min-height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #FFFDE7 0%, #FFD700 60%, #B8860B 100%);
+  z-index: 20;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid #B8860B;
+}
+
+.wheel-pointer {
+  position: absolute;
+  bottom: 1.1vw;
+
+  left: 53%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 1.2vw solid transparent;
+  border-right: 1.2vw solid transparent;
+  border-bottom: 2vw solid #f12a2a;
+  z-index: 20;
+  scale: 2;
+  /* filter: drop-shadow(0 -2px 3px rgba(0, 0, 0, 0.4)); */
+}
+
+.wheel-selected-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.wheel-selected-image {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  object-fit: contain;
+}

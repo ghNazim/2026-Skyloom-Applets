@@ -1,4 +1,4 @@
-const CompareSummary = ({ onContinue }) => {
+const CompareSummary = ({ onContinue, buttonRef }) => {
   const data = APP_DATA.compareSummary;
   const compareData = APP_DATA.compare.compareData;
 
@@ -55,6 +55,7 @@ const CompareSummary = ({ onContinue }) => {
     ),
 
     React.createElement(Button, {
+      ref: buttonRef,
       text: data.buttonText,
       onClick: onContinue,
       className: "cs-button",

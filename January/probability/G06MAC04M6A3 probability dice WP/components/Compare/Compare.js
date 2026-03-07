@@ -5,12 +5,14 @@ const Compare = ({ compareIndex, onCorrect }) => {
 
   const [filledOperator, setFilledOperator] = useState(null);
   const [answerState, setAnswerState] = useState(null);
+  const [wrongClickedButtons, setWrongClickedButtons] = useState(new Set());
   const [shakingBtn, setShakingBtn] = useState(null);
   const [boxShaking, setBoxShaking] = useState(false);
 
   useEffect(() => {
     setFilledOperator(null);
     setAnswerState(null);
+    setWrongClickedButtons(new Set());
     setShakingBtn(null);
     setBoxShaking(false);
   }, [compareIndex]);
@@ -27,6 +29,11 @@ const Compare = ({ compareIndex, onCorrect }) => {
     } else {
       setAnswerState("wrong");
       playSound("wrong");
+      setWrongClickedButtons(function (prev) {
+        var next = new Set(prev);
+        next.add(op);
+        return next;
+      });
       setShakingBtn(op);
       setBoxShaking(true);
       setTimeout(() => {
@@ -39,7 +46,7 @@ const Compare = ({ compareIndex, onCorrect }) => {
   const getButtonClass = (op) => {
     var cls = "compare-btn";
     if (answerState === "correct" && filledOperator === op) cls += " btn-correct";
-    if (answerState === "wrong" && filledOperator === op) cls += " btn-wrong";
+    if (wrongClickedButtons.has(op)) cls += " btn-wrong";
     if (shakingBtn === op) cls += " shake";
     return cls;
   };
@@ -54,10 +61,10 @@ const Compare = ({ compareIndex, onCorrect }) => {
     "div",
     { className: "compare-container" },
 
-    React.createElement("div", {
-      className: "total-info-div",
-      dangerouslySetInnerHTML: { __html: data.totalInfoText },
-    }),
+    // React.createElement("div", {
+    //   className: "total-info-div",
+    //   dangerouslySetInnerHTML: { __html: data.totalInfoText },
+    // }),
 
     React.createElement("div", {
       className: "compare-instruction",

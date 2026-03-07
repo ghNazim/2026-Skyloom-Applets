@@ -353,6 +353,15 @@
   color: #ffc107;
 }
 
+.prev-answer-digit-empty {
+  border: 0.2vw dashed rgba(255, 255, 255, 0.5);
+  border-radius: 0.6vw;
+  background: transparent;
+  font-size: 2.4vw;
+  font-weight: bold;
+  color: transparent;
+}
+
 /* ── Estimates Table (Step 6) ─────────────────────────────────── */
 .estimates-table {
   display: flex;

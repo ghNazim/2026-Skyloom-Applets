@@ -5,6 +5,7 @@ const Navigation = ({
   navText,
   totalDots,
   currentDot,
+  nextButtonRef,
 }) => {
   return React.createElement(
     "div",
@@ -30,6 +31,7 @@ const Navigation = ({
       React.createElement(
         "button",
         {
+          ref: nextButtonRef,
           className: "nav-chevron",
           onClick: () => onNav("next"),
           disabled: isNextDisabled,

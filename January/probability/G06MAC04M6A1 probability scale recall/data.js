@@ -17,21 +17,21 @@ const DATA = {
     questionPanelText: "Scale of Probability",
 
     leftText:
-      'Event = <br><b>Getting a <br><red>RED BALL</red></b>',
+      'Event = <b>Getting a <red>RED BALL</red></b>',
 
     rightTextArray: [
       '<y>No chance of getting</y> a <red>RED</red> ball.<br><br><red>RED</red> balls are <y>zero</y> in number.',
-      '<y>Less chance of getting</y> a <red>RED</red> ball.<br><br><red>RED</red> balls are <y>least</y> in number.',
-      '<y>Neither more nor less chance<br>of getting</y> a <red>RED</red> ball.<br><br><red>RED</red> balls are <y>neither most nor least</y><br>in number.',
-      '<y>More chance of getting</y> a <red>RED</red> ball.<br><br><red>RED</red> balls are <y>most</y> in number.',
-      '<y>Sure chance of getting</y> a <red>RED</red> ball.<br><br>All balls are <red>RED</red> balls.',
+      '<y>Less chance of getting</y> a <red>RED</red> ball.<br><br><red>RED</red> balls are the <y>least</y> in number.',
+      '<y>Neither more nor less chance<br>of getting</y> a <red>RED</red> ball.<br><br><red>RED</red> balls are <y>neither most nor least</y> in number.',
+      '<y>More chance of getting</y> a <red>RED</red> ball.<br><br><red>RED</red> balls are the <y>most</y> in number.',
+      '<y>Sure chance of getting</y> a <red>RED</red> ball.<br><br>All balls are <red>RED</red> in colour.',
     ],
 
     navTexts: [
-      "Tap \u00BB to see the less likely event on the scale.",
-      "Tap \u00BB to see the possible event on the scale.",
-      "Tap \u00BB to see the more likely event on the scale.",
-      "Tap \u00BB to see the certain event on the scale.",
+      "Tap » to see 'less likely event' on the scale.",
+      "Tap » to see 'possible event' on the scale.",
+      "Tap » to see 'more likely' event on the scale.",
+      "Tap » to see 'certain event' on the scale.",
       "Tap \u00BB to summarize.",
     ],
 
@@ -44,11 +44,11 @@ const DATA = {
     ],
 
     summaryLabels: [
-      '<red>RED</red> balls =<br><i>Zero</i>',
-      '<red>RED</red> balls =<br><i>Least</i>',
-      '<red>RED</red> balls =<br><i>Neither least<br>nor most</i>',
-      '<red>RED</red> balls =<br><i>Most</i>',
-      '<red>RED</red> balls =<br><i>All</i>',
+      '<red>RED</red> balls =<br><y>Zero</y>',
+      '<red>RED</red> balls =<br><y>Least</y>',
+      '<red>RED</red> balls =<br><y>Neither least<br>nor most</y>',
+      '<red>RED</red> balls =<br><y>Most</y>',
+      '<red>RED</red> balls =<br><y>All</y>',
     ],
 
     summary: {
@@ -77,7 +77,7 @@ const DATA = {
     questionPanelText: "Skala Probabilitas",
 
     leftText:
-      'Kejadian = <br><b>Mendapatkan <br><red>BOLA MERAH</red></b>',
+      'Kejadian = <b>Mendapatkan <red>BOLA MERAH</red></b>',
 
     rightTextArray: [
       '<y>Tidak ada peluang mendapatkan</y> <red>BOLA MERAH</red>.<br><br><red>BOLA MERAH</red> berjumlah <y>nol</y>.',
@@ -104,11 +104,11 @@ const DATA = {
     ],
 
     summaryLabels: [
-      '<red>MERAH</red> =<br><i>Nol</i>',
-      '<red>MERAH</red> =<br><i>Paling sedikit</i>',
-      '<red>MERAH</red> =<br><i>Bukan paling sedikit<br>atau banyak</i>',
-      '<red>MERAH</red> =<br><i>Paling banyak</i>',
-      '<red>MERAH</red> =<br><i>Semua</i>',
+      '<red>MERAH</red> =<br><y>Nol</y>',
+      '<red>MERAH</red> =<br><y>Paling sedikit</y>',
+      '<red>MERAH</red> =<br><y>Bukan paling sedikit<br>atau banyak</y>',
+      '<red>MERAH</red> =<br><y>Paling banyak</y>',
+      '<red>MERAH</red> =<br><y>Semua</y>',
     ],
 
     summary: {

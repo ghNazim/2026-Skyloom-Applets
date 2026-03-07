@@ -1,20 +1,32 @@
 const App = () => {
-  const { useState } = React;
+  const { useState, useRef, useEffect } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [nudgeVisible, setNudgeVisible] = useState(true);
+
+  const fullscreenButtonRef = useRef(null);
+  const nextButtonRef = useRef(null);
+  const startOverButtonRef = useRef(null);
+
+  useEffect(() => {
+    setNudgeVisible(true);
+  }, [currentStep]);
 
   const handleStart = () => {
+    setNudgeVisible(false);
     playSound("click");
     setCurrentStep(1);
   };
 
   const handleStartOver = () => {
+    setNudgeVisible(false);
     playSound("click");
     setCurrentStep(0);
   };
 
   const handleNav = (direction) => {
     if (direction === "next") {
+      setNudgeVisible(false);
       playSound("click");
       if (currentStep >= 1 && currentStep <= 5) {
         setCurrentStep(currentStep + 1);
@@ -26,6 +38,10 @@ const App = () => {
       }
     }
   };
+
+  const showNudgeOnFullscreen = currentStep === 0 && nudgeVisible;
+  const showNudgeOnNext = currentStep >= 1 && currentStep <= 5 && nudgeVisible;
+  const showNudgeOnStartOver = currentStep === 6 && nudgeVisible;
 
   if (currentStep === 0) {
     return React.createElement(
@@ -39,8 +55,13 @@ const App = () => {
           text: APP_DATA.intro.text,
           buttonText: APP_DATA.intro.buttonText,
           onButtonClick: handleStart,
+          buttonRef: fullscreenButtonRef,
         })
-      )
+      ),
+      React.createElement(Nudge, {
+        show: showNudgeOnFullscreen,
+        targetRef: fullscreenButtonRef,
+      })
     );
   }
 
@@ -53,8 +74,13 @@ const App = () => {
         { className: "app-main-content" },
         React.createElement(Summary, {
           onStartOver: handleStartOver,
+          startOverButtonRef: startOverButtonRef,
         })
-      )
+      ),
+      React.createElement(Nudge, {
+        show: showNudgeOnStartOver,
+        targetRef: startOverButtonRef,
+      })
     );
   }
 
@@ -83,7 +109,13 @@ const App = () => {
         isNextDisabled: false,
         isPrevDisabled: currentStep <= 1,
         navText: APP_DATA.navTexts[currentStep - 1],
+        nextButtonRef: nextButtonRef,
       })
-    )
+    ),
+
+    React.createElement(Nudge, {
+      show: showNudgeOnNext,
+      targetRef: nextButtonRef,
+    })
   );
 };

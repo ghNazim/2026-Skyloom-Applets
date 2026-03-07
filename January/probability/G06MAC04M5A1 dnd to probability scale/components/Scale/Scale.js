@@ -16,7 +16,9 @@ const Scale = ({ question, onCorrectDrop, onWrongDrop, onAllComplete }) => {
 
   const getWrongFeedback = (targetZone) => {
     const template = APP_DATA.wrongTemplates[targetZone] || "";
-    return template.replace(/{item}/g, question.item || "");
+    return template
+      .replace(/{item}/g, question.item || "")
+      .replace(/{items}/g, question.items || "");
   };
 
   const [availableItems, setAvailableItems] = useState(
@@ -253,8 +255,8 @@ const Scale = ({ question, onCorrectDrop, onWrongDrop, onAllComplete }) => {
             "div",
             {
               key: i,
-              className: "scale-label",
-              style: { left: getIndexPct(i) + "%", },
+              className: "scale-label" + (current_language === "id" ? " id" : ""),
+              style: { left: i === 0 && current_language === "en" ? "1vw" : getIndexPct(i) + "%", },
             },
             pos.label
           )

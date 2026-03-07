@@ -69,8 +69,6 @@ function renderConditionsStrip(conditionStates) {
 const Calculate = ({ step, foundAnswers, onCorrect, onNavChange }) => {
   const { useState } = React;
   const data = APP_DATA.calculate;
-
-  const [prevAnswersSnapshot] = useState(foundAnswers);
   const [counts, setCounts] = useState([0, 0, 0]);
   const [checkResult, setCheckResult] = useState(null);
 
@@ -298,50 +296,56 @@ const Calculate = ({ step, foundAnswers, onCorrect, onNavChange }) => {
     );
   }
 
-  var prevAnswerPanel = null;
-  if (prevAnswersSnapshot.length > 0) {
-    prevAnswerPanel = React.createElement(
+  var numRows = data.validAnswers.length;
+  var prevAnswerPanel = React.createElement(
+    "div",
+    { className: "prev-answer-container" },
+    React.createElement(
       "div",
-      { className: "prev-answer-container" },
+      { className: "prev-answer-title" },
+      data.prevAnswersTitle
+    ),
+    React.createElement(
+      "div",
+      { className: "prev-answer-table" },
       React.createElement(
         "div",
-        { className: "prev-answer-title" },
-        data.prevAnswersTitle
-      ),
-      React.createElement(
-        "div",
-        { className: "prev-answer-table" },
-        React.createElement(
-          "div",
-          { className: "prev-answer-header" },
-          data.ballImages.map(function (img, i) {
-            return React.createElement(
-              "div",
-              { key: i, className: "prev-answer-cell prev-answer-header-cell" },
-              React.createElement("img", {
-                src: img,
-                className: "prev-answer-ball",
-                draggable: false,
-              })
-            );
-          })
-        ),
-        prevAnswersSnapshot.map(function (ans, rowIdx) {
+        { className: "prev-answer-header" },
+        data.ballImages.map(function (img, i) {
           return React.createElement(
             "div",
-            { key: rowIdx, className: "prev-answer-row" },
-            ans.map(function (val, colIdx) {
-              return React.createElement(
-                "div",
-                { key: colIdx, className: "prev-answer-cell prev-answer-digit" },
-                val
-              );
+            { key: i, className: "prev-answer-cell prev-answer-header-cell" },
+            React.createElement("img", {
+              src: img,
+              className: "prev-answer-ball",
+              draggable: false,
             })
           );
         })
-      )
-    );
-  }
+      ),
+      Array.from({ length: numRows }, function (_, rowIdx) {
+        var ans = foundAnswers[rowIdx];
+        return React.createElement(
+          "div",
+          { key: rowIdx, className: "prev-answer-row" },
+          [0, 1, 2].map(function (colIdx) {
+            var val = ans && ans[colIdx] !== undefined ? ans[colIdx] : "";
+            var isEmpty = !val && val !== 0;
+            return React.createElement(
+              "div",
+              {
+                key: colIdx,
+                className:
+                  "prev-answer-cell " +
+                  (isEmpty ? "prev-answer-digit-empty" : "prev-answer-digit"),
+              },
+              val
+            );
+          })
+        );
+      })
+    )
+  );
 
   return React.createElement(
     "div",

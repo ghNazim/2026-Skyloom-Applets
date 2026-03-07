@@ -20,8 +20,8 @@ const DATA = {
       1: "Impossible = 0\nThe {item} with zero count goes here.\nTry again!",
       2: "Less Likely = Least\nThe {item} with the least count goes here.\nTry again!",
       3: "Possible = Neither most nor least\nThe {item} that is neither the most nor the least goes here.\nTry again!",
-      4: "More Likely = Most\nThe {item} with the highest count goes here.\nTry again!",
-      5: "Certain = All\nOnly one {item} should be present for this place.\nTry again!",
+      4: "More Likely = Most\nThe {item} with the highest count goes here only when other {items} also appear. Try again!",
+      5: "Certain = All\nAll the {items} would need to be the same for this event to be certain. Try again!",
     },
 
     questions: [
@@ -211,8 +211,8 @@ const DATA = {
       1: "Mustahil = 0\n{item} dengan jumlah nol letaknya di sini.\nCoba lagi!",
       2: "Kurang Mungkin = Paling sedikit\n{item} dengan jumlah paling sedikit letaknya di sini.\nCoba lagi!",
       3: "Mungkin = Bukan paling banyak atau sedikit\n{item} yang bukan paling banyak atau sedikit letaknya di sini.\nCoba lagi!",
-      4: "Lebih Mungkin = Paling banyak\n{item} dengan jumlah paling banyak letaknya di sini.\nCoba lagi!",
-      5: "Pasti = Semua\nHanya satu {item} yang seharusnya ada di tempat ini.\nCoba lagi!",
+      4: "Lebih Mungkin = Paling banyak\n{item} dengan jumlah paling banyak letaknya di sini hanya ketika {items} lainnya juga muncul. Coba lagi!",
+      5: "Pasti = Semua\nSemua {items} harus sama agar kejadian ini pasti. Coba lagi!",
     },
 
     questions: [
@@ -220,7 +220,7 @@ const DATA = {
         intro: {
           heading: "Latihan Skala Probabilitas",
           image: "assets/bookshelf.png",
-          text: "Jika kita harus memilih buku secara acak,<br>seberapa besar kemungkinan kita mengambil<br>buku dengan warna tertentu?<br>Ketuk 'Mulai' untuk menjelajah.",
+          text: "Jika kita harus memilih buku secara acak, <y>seberapa besar kemungkinan kita mengambil buku dengan warna tertentu?</y><br><br>Ketuk 'Mulai' untuk menjelajah.",
           buttonText: "Mulai",
         },
 
