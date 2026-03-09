@@ -1,0 +1,37 @@
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 97vw;
+  height: calc(97vw * 9 / 16);
+  max-width: 99vw;
+  max-height: 99vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: 0.5vw;
+  position: relative;
+  overflow: visible;
+}
+
+.applet-container .navigation {
+  flex: 0 0 10%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+}
+
+.app-main-content {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+  gap: 1rem;
+  border-radius: 1vw;
+}
+
+.with-character-layout {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  gap: 1vw;
+}
