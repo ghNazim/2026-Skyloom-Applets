@@ -1,0 +1,86 @@
+/* ===== MAIN CANVAS CONTAINER ===== */
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  padding: 1vw;
+}
+
+.main-canvas-measure {
+  gap: 0.5vw;
+}
+
+.main-canvas-measure .character-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-canvas-measure .visual-column {
+  min-width: 0;
+}
+
+.main-canvas-measure .mcq-column {
+  min-width: 0;
+}
+
+/* ===== COLUMN STYLES ===== */
+.column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* padding: 1vw; */
+  position: relative;
+}
+
+.mcq-column {
+  height: 100%;
+}
+
+/* ===== SHAKE ANIMATION ===== */
+@keyframes shake {
+  0% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+  10% {
+    transform: translate(-1px, -2px) rotate(-1deg);
+  }
+  20% {
+    transform: translate(-3px, 0px) rotate(1deg);
+  }
+  30% {
+    transform: translate(3px, 2px) rotate(0deg);
+  }
+  40% {
+    transform: translate(1px, -1px) rotate(1deg);
+  }
+  50% {
+    transform: translate(-1px, 2px) rotate(-1deg);
+  }
+  60% {
+    transform: translate(-3px, 1px) rotate(0deg);
+  }
+  70% {
+    transform: translate(3px, 1px) rotate(-1deg);
+  }
+  80% {
+    transform: translate(-1px, -1px) rotate(1deg);
+  }
+  90% {
+    transform: translate(1px, 2px) rotate(0deg);
+  }
+  100% {
+    transform: translate(1px, -2px) rotate(-1deg);
+  }
+}
+
+.shake {
+  animation: shake 0.3s;
+  animation-iteration-count: 1;
+}

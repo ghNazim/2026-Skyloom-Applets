@@ -1,0 +1,40 @@
+.options-quiz {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  gap: 0.5vw;
+
+}
+
+.option-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5vw;
+  border: 2px solid var(--panel-border-color);
+  border-radius: 1.5vw;
+  background-color: rgba(0, 0, 0, 0.15);
+  padding: 1vw;
+  transition: background 0.2s;
+  backdrop-filter: blur(1vw);
+}
+
+.option-label {
+  font-size: 2vw;
+  font-weight: bold;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.option-column:not([style*="cursor: default"]):hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.option-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
