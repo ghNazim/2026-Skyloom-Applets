@@ -30,7 +30,7 @@ const DATA = {
           unit_length: "6vw",
           unit_name_plural: "hand spans",
           unit_name_singular: "hand span",
-          question_type: "l2s",
+          question_type: "s2l",
           options: [
             { big_image: "assets/stick.png", count: 3 },
             { big_image: "assets/stick2.png", count: 7 },
@@ -68,8 +68,8 @@ const DATA = {
           unit_name_singular: "hand span",
           question_type: "l2s",
           options: [
-            { big_image: "assets/rope.png", count: 7 },
             { big_image: "assets/toytrain.png", count: 5 },
+            { big_image: "assets/rope.png", count: 7 },
             { big_image: "assets/toycar.png", count: 3 },
           ],
         },
@@ -117,7 +117,7 @@ const DATA = {
           unit_length: "6vw",
           unit_name_plural: "jengkal tangan",
           unit_name_singular: "jengkal tangan",
-          question_type: "l2s",
+          question_type: "s2l",
           options: [
             { big_image: "assets/stick.png", count: 3 },
             { big_image: "assets/stick2.png", count: 7 },
@@ -155,8 +155,8 @@ const DATA = {
           unit_name_singular: "jengkal tangan",
           question_type: "l2s",
           options: [
-            { big_image: "assets/rope.png", count: 7 },
             { big_image: "assets/toytrain.png", count: 5 },
+            { big_image: "assets/rope.png", count: 7 },
             { big_image: "assets/toycar.png", count: 3 },
           ],
         },
@@ -168,17 +168,18 @@ const DATA = {
         navCorrect: "Ketuk » untuk mengurutkan set benda berikutnya.",
         navLast: "Ketuk » untuk menyelesaikan aktivitas.",
         checkButton: "Periksa",
-        feedbackCorrect: "Bagus! Benar.",
+        feedbackCorrect: "Bagus! Itu benar.",
         feedbackWrong:
           "Ups! Benda dengan panjang terbesar adalah yang terpanjang. Yang dengan panjang terkecil adalah yang terpendek.",
       },
       final: {
         heading: "Mengurutkan Panjang",
-        text: "Luar biasa!<br>Kita berlatih mengurutkan benda dari terpanjang <br>ke terpendek atau dari terpendek ke terpanjang.",
+        text: "Hebat!<br>Kita berlatih mengurutkan benda dari<br> terpanjang ke terpendek atau dari terpendek ke terpanjang.",
         buttonText: "Mulai Lagi",
       },
     },
   },
+
 };
 
 const APP_DATA = DATA[current_language].app;

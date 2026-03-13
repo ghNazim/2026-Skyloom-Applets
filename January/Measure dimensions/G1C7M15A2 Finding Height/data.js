@@ -9,13 +9,14 @@ const MEASUREMENT_DATA = [
     Pencil: 7, Brush: 8, Spoon: 9, "Ice Cream Stick": 11, Crayon: 14
   },
   {
-    object: "Door",
-    Pencil: 8, Brush: 9, Spoon: 10, "Ice Cream Stick": 12, Crayon: 15
-  },
-  {
     object: "Bookshelf",
     Pencil: 6, Brush: 7, Spoon: 8, "Ice Cream Stick": 10, Crayon: 12
   },
+  {
+    object: "Door",
+    Pencil: 8, Brush: 9, Spoon: 10, "Ice Cream Stick": 12, Crayon: 15
+  },
+  
   {
     object: "Table",
     Pencil: 5, Brush: 5, Spoon: 6, "Ice Cream Stick": 7, Crayon: 9
@@ -26,8 +27,8 @@ const OBJECTS = [
   { key: "Bottle", image: "bottle.png" },
   { key: "Pole", image: "pole.png" },
   { key: "Table", image: "table.png" },
-  { key: "Door", image: "door.png" },
   { key: "Bookshelf", image: "bookshelf.png" },
+  { key: "Door", image: "door.png" },
 ];
 
 const UNITS = [
@@ -64,6 +65,7 @@ const DATA = {
       },
       step1: {
         characterText: "Choose an\nobject to find\nthe height.",
+        characterText2: "Choose the next object to find the height.",
         navText: "Tap the wheel to select an object."
       },
       step2: {
@@ -124,6 +126,7 @@ const DATA = {
       },
       step1: {
         characterText: "Pilih sebuah\nbenda untuk\nmencari\ntingginya.",
+        characterText2: "Pilih benda berikutnya untuk menemukan tingginya.",
         navText: "Ketuk roda untuk memilih sebuah benda."
       },
       step2: {

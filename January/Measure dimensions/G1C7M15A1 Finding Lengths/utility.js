@@ -104,10 +104,14 @@ function createBiDirectionalArrow(x1, y1, x2, y2, options = {}) {
   };
 
   const polyEnd = document.createElementNS(svgNS, "polygon");
+  polyEnd.setAttribute("class", "arrow-head");
+  polyEnd.setAttribute("data-tip", `${x2},${y2}`);
   polyEnd.setAttribute("points", calculatePoints(x2, y2, angle + Math.PI));
   polyEnd.setAttribute("fill", color);
 
   const polyStart = document.createElementNS(svgNS, "polygon");
+  polyStart.setAttribute("class", "arrow-head");
+  polyStart.setAttribute("data-tip", `${x1},${y1}`);
   polyStart.setAttribute("points", calculatePoints(x1, y1, angle));
   polyStart.setAttribute("fill", color);
 

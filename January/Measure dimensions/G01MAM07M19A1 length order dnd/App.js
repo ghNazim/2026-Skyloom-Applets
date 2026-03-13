@@ -6,12 +6,17 @@ const App = () => {
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   const [dynamicNavText, setDynamicNavText] = useState(null);
   const [resetKey, setResetKey] = useState(0);
+  const [dismissedStartNudge, setDismissedStartNudge] = useState(false);
+  const [dismissedNextNudge, setDismissedNextNudge] = useState(false);
+  const [nudgeTargetId, setNudgeTargetId] = useState(null);
+  const [nudgePosition, setNudgePosition] = useState(null);
 
   const questions = APP_DATA.questions || [];
   const hasMoreQuestions = questionIndex < questions.length - 1;
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
+    setDismissedStartNudge(true);
     setCurrentStep(1);
     setQuestionIndex(0);
   };
@@ -23,10 +28,13 @@ const App = () => {
     setIsNextDisabled(true);
     setDynamicNavText(null);
     setResetKey((prev) => prev + 1);
+    setDismissedStartNudge(false);
+    setDismissedNextNudge(false);
   };
 
   const handleNext = () => {
     if (typeof playSound === "function") playSound("click");
+    setDismissedNextNudge(true);
     if (currentStep === 1) {
       if (hasMoreQuestions) {
         setQuestionIndex((prev) => prev + 1);
@@ -58,6 +66,63 @@ const App = () => {
     if (nav !== undefined) setDynamicNavText(nav);
   }, []);
 
+  const updateNudgePositionForId = useCallback((id) => {
+    if (!id) {
+      setNudgePosition(null);
+      return;
+    }
+    const el = document.getElementById(id);
+    if (!el) {
+      setNudgePosition(null);
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    setNudgePosition({
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, []);
+
+  useEffect(() => {
+    // Re-arm the "Next" nudge each time Next gets disabled again,
+    // so it can appear again when Next is enabled on subsequent questions.
+    if (isNextDisabled) setDismissedNextNudge(false);
+  }, [isNextDisabled]);
+
+  useEffect(() => {
+    const activeId =
+      currentStep === 0 && !dismissedStartNudge
+        ? "start-button"
+        : currentStep === 1 && !isNextDisabled && !dismissedNextNudge
+          ? "next-button"
+          : null;
+
+    setNudgeTargetId(activeId);
+
+    if (!activeId) {
+      setNudgePosition(null);
+      return;
+    }
+
+    const raf = requestAnimationFrame(() => updateNudgePositionForId(activeId));
+    const handleResize = () => updateNudgePositionForId(activeId);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [
+    currentStep,
+    isNextDisabled,
+    dismissedStartNudge,
+    dismissedNextNudge,
+    questionIndex,
+    updateNudgePositionForId,
+  ]);
+
   const getQuestionText = () => {
     if (currentStep !== 1 || !questions[questionIndex]) return "";
     const q = questions[questionIndex];
@@ -87,6 +152,11 @@ const App = () => {
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
+          buttonId: "start-button",
+        }),
+        React.createElement(Nudge, {
+          show: !!nudgeTargetId,
+          position: nudgePosition,
         })
       )
     );
@@ -128,6 +198,10 @@ const App = () => {
         onSetNextEnabled: setNextEnabled,
         onUpdateTexts: updateTexts,
         hasMoreQuestions: hasMoreQuestions,
+      }),
+      React.createElement(Nudge, {
+        show: !!nudgeTargetId,
+        position: nudgePosition,
       })
     ),
     React.createElement(

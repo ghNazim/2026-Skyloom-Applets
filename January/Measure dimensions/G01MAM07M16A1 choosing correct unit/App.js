@@ -10,7 +10,7 @@ const BidirectionalArrow = ({ vertical }) => {
       svg.setAttribute("viewBox", "0 0 30 100");
       const g = createBiDirectionalArrow(15, 8, 15, 92, {
         color: "#e74c3c",
-        width: 4,
+        width: 1,
         headSize: 10,
       });
       svg.appendChild(g);
@@ -18,7 +18,7 @@ const BidirectionalArrow = ({ vertical }) => {
       svg.setAttribute("viewBox", "0 0 100 20");
       const g = createBiDirectionalArrow(5, 10, 95, 10, {
         color: "#e74c3c",
-        width: 4,
+        width: 1,
         headSize: 15,
       });
       svg.appendChild(g);
@@ -61,6 +61,9 @@ const App = () => {
   const [fullscreenNudgePosition, setFullscreenNudgePosition] = useState(null);
   const [nextButtonNudgePosition, setNextButtonNudgePosition] = useState(null);
   const [extraUnitNudgePosition, setExtraUnitNudgePosition] = useState(null);
+  const [step1NudgeDismissed, setStep1NudgeDismissed] = useState(false);
+  const [step1NudgePosition, setStep1NudgePosition] = useState(null);
+  const step1ContentRef = useRef(null);
 
   const objData = selectedObject
     ? OBJECTS.find((o) => o.key === selectedObject)
@@ -160,9 +163,9 @@ const App = () => {
     if (!showCountDivs) setCountDivsVisible(0);
   }, [showCountDivs]);
 
-  // Nudge: fullscreen button (step 0 and 5)
+  // Nudge: fullscreen button (step 0 only; no nudge on step 5 start over)
   useEffect(() => {
-    if (currentStep !== 0 && currentStep !== 5) {
+    if (currentStep !== 0) {
       setFullscreenNudgePosition(null);
       return;
     }
@@ -173,7 +176,9 @@ const App = () => {
     }
     const update = () => {
       if (fullscreenButtonRef.current)
-        setFullscreenNudgePosition(fullscreenButtonRef.current.getBoundingClientRect());
+        setFullscreenNudgePosition(
+          fullscreenButtonRef.current.getBoundingClientRect(),
+        );
     };
     update();
     window.addEventListener("resize", update);
@@ -197,7 +202,9 @@ const App = () => {
     }
     const update = () => {
       if (nextButtonRef.current)
-        setNextButtonNudgePosition(nextButtonRef.current.getBoundingClientRect());
+        setNextButtonNudgePosition(
+          nextButtonRef.current.getBoundingClientRect(),
+        );
     };
     const t = setTimeout(update, 50);
     window.addEventListener("resize", update);
@@ -230,6 +237,33 @@ const App = () => {
       window.removeEventListener("resize", update);
     };
   }, [currentStep, step3Feedback, placedCount]);
+
+  // Step 1: show nudge again when returning to choose next object
+  useEffect(() => {
+    if (currentStep === 1 && completedObjects.length > 0) {
+      setStep1NudgeDismissed(false);
+    }
+  }, [currentStep, completedObjects.length]);
+
+  // Nudge: step 1 content panel (wheel area)
+  useEffect(() => {
+    if (currentStep !== 1 || step1NudgeDismissed) {
+      setStep1NudgePosition(null);
+      return;
+    }
+    const el = step1ContentRef.current;
+    if (!el) {
+      setStep1NudgePosition(null);
+      return;
+    }
+    const update = () => {
+      if (step1ContentRef.current)
+        setStep1NudgePosition(step1ContentRef.current.getBoundingClientRect());
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [currentStep, step1NudgeDismissed]);
 
   const getCharacterImage = () => {
     if (currentStep === 2) {
@@ -662,13 +696,18 @@ const App = () => {
               : APP_DATA.step1.characterText,
         }),
         ce(
-          ContentPanel,
-          { step: 1 },
-          ce(SpinningWheel, {
-            objects: OBJECTS,
-            disabledObjects: completedObjects,
-            onSelect: handleObjectSelected,
-          }),
+          "div",
+          { ref: step1ContentRef, className: "step1-content-wrap" },
+          ce(
+            ContentPanel,
+            { step: 1 },
+            ce(SpinningWheel, {
+              objects: OBJECTS,
+              disabledObjects: completedObjects,
+              onSelect: handleObjectSelected,
+              onSpinStart: () => setStep1NudgeDismissed(true),
+            }),
+          ),
         ),
       ),
       ce(Navigation, {
@@ -679,6 +718,10 @@ const App = () => {
         isNextDisabled: true,
         navText: APP_DATA.step1.navText,
         nextButtonRef: nextButtonRef,
+      }),
+      ce(Nudge, {
+        show: !step1NudgeDismissed && !!step1NudgePosition,
+        position: step1NudgePosition,
       }),
     );
   }
@@ -814,7 +857,7 @@ const App = () => {
     let navText;
     if (step3Feedback === "correct") {
       navText = APP_DATA.step3.navTextCorrect;
-    } else if (hasExtras) {
+    } else if (step3Feedback === "more" && hasExtras) {
       navText = t(APP_DATA.step3.navTextRemoveExtra);
     } else {
       navText = t(APP_DATA.step3.navText);

@@ -122,7 +122,7 @@ const App = () => {
   useEffect(() => {
     let show = false;
     let targetRef = null;
-    if (currentStep === 0 || currentStep === 8) {
+    if (currentStep === 0) {
       show = true;
       targetRef = fullscreenButtonRef;
     } else if ((currentStep === 1 && !longStickPlaced) || (currentStep === 3 && !shortStickPlaced)) {

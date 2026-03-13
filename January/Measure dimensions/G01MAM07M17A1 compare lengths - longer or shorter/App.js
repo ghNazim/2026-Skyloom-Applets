@@ -191,7 +191,7 @@ const App = () => {
   useEffect(() => {
     let show = false;
     let targetRef = null;
-    if (currentStep === 0 || currentStep === 12 || currentStep === 14) {
+    if (currentStep === 0 || currentStep === 12) {
       show = true;
       targetRef = fullscreenButtonRef;
     } else if (
@@ -1540,21 +1540,19 @@ const App = () => {
 
   // ===== STEP 14: FULLSCREEN START OVER =====
   if (currentStep === 14) {
-    return renderWithNudge(
+    return ce(
+      "div",
+      { className: "applet-container" },
       ce(
         "div",
-        { className: "applet-container" },
-        ce(
-          "div",
-          { className: "app-main-content", style: { position: "relative" } },
-          ce(Fullscreen, {
-            heading: APP_DATA.step14.heading,
-            text: APP_DATA.step14.text,
-            buttonText: APP_DATA.step14.buttonText,
-            onButtonClick: handleStartOver,
-            buttonRef: fullscreenButtonRef,
-          }),
-        ),
+        { className: "app-main-content", style: { position: "relative" } },
+        ce(Fullscreen, {
+          heading: APP_DATA.step14.heading,
+          text: APP_DATA.step14.text,
+          buttonText: APP_DATA.step14.buttonText,
+          onButtonClick: handleStartOver,
+          buttonRef: fullscreenButtonRef,
+        }),
       ),
     );
   }

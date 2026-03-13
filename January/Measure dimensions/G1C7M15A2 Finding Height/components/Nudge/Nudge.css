@@ -8,4 +8,5 @@
   object-fit: contain;
   width: 5vw;
   height: 5vw;
+  transform: translate(-50%, 0%);
 }

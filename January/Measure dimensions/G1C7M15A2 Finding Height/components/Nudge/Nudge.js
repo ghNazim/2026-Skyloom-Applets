@@ -2,14 +2,14 @@
  * Nudge - Shows a tapping hand (tap.gif) at a given position.
  * Used to hint where the user should tap (e.g. step 2: fractional digits, step 5: and button).
  * Rendered as fixed/absolute overlay from App; position comes from target element rect.
+ * @param {boolean} centerOnTarget - If true, centers the nudge on the position using a fixed tap size.
  */
-const Nudge = ({ show = false, position = null }) => {
+const Nudge = ({ show = false, position = null, centerOnTarget = false }) => {
   if (!show || !position) return null;
 
   const { left, top, width, height } = position;
-  // Center the gif on the target element (approximate gif size in px for centering)
-  const gifWidth = 48;
-  const gifHeight = 48;
+  const TAP_SIZE_PX = 48; // approximate visual size of tap gif
+
   const style = {
     position: "fixed",
     left: left + (width / 2),
@@ -17,6 +17,10 @@ const Nudge = ({ show = false, position = null }) => {
     pointerEvents: "none",
     zIndex: 1000,
   };
+
+  if (centerOnTarget) {
+    style.transform = "translate(-550%, -50%)";
+  } 
 
   return React.createElement(
     "div",

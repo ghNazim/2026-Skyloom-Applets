@@ -1,5 +1,7 @@
 const BidirectionalArrow = () => {
   const ref = React.useRef(null);
+  const headSize = 10;
+  const desiredHeadPx = 10;
   React.useEffect(() => {
     if (!ref.current) return;
     ref.current.innerHTML = "";
@@ -9,11 +11,31 @@ const BidirectionalArrow = () => {
     svg.setAttribute("class", "bidirectional-arrow-svg");
     const g = createBiDirectionalArrow(5, 10, 95, 10, {
       color: "#e74c3c",
-      width: 4,
-      headSize: 15,
+      width: 2,
+      headSize: headSize,
     });
     svg.appendChild(g);
     ref.current.appendChild(svg);
+
+    const updateArrowHeads = () => {
+      const wrap = ref.current;
+      if (!wrap) return;
+      const w = wrap.getBoundingClientRect().width;
+      if (!w) return;
+      const scale = (desiredHeadPx * 100) / (headSize * w);
+      const heads = wrap.querySelectorAll(".arrow-head");
+      heads.forEach((el) => {
+        const tip = el.getAttribute("data-tip");
+        if (tip) {
+          const [tx, ty] = tip.split(",").map(Number);
+          el.setAttribute("transform", `translate(${tx}, ${ty}) scale(${scale}) translate(${-tx}, ${-ty})`);
+        }
+      });
+    };
+    updateArrowHeads();
+    const ro = new ResizeObserver(updateArrowHeads);
+    ro.observe(ref.current);
+    return () => ro.disconnect();
   }, []);
   return React.createElement("div", {
     ref,
@@ -41,6 +63,16 @@ const App = () => {
   const [numpadDisabled, setNumpadDisabled] = useState(false);
   const placedUnitsContainerRef = React.useRef(null);
   const prevPlacedCountRef = React.useRef(0);
+
+  const [step1WheelNudgeDismissed, setStep1WheelNudgeDismissed] = useState(false);
+  const [step3UnitSourceNudgeDismissed, setStep3UnitSourceNudgeDismissed] = useState(false);
+  const [step3FewerUnitSourceNudgeDismissed, setStep3FewerUnitSourceNudgeDismissed] = useState(false);
+  const [nudgePosition, setNudgePosition] = useState(null);
+  const fullscreenButtonRef = React.useRef(null);
+  const nextButtonRef = React.useRef(null);
+  const contentPanelRef = React.useRef(null);
+  const step3UnitSourceRef = React.useRef(null);
+  const step3ExtraItemRef = React.useRef(null);
 
   const getCorrectCount = useCallback(() => {
     if (!selectedObject || !selectedUnit) return 0;
@@ -79,6 +111,61 @@ const App = () => {
     return result;
   };
 
+  // Reset step 3 unit-source nudge when leaving step 3
+  useEffect(() => {
+    if (currentStep !== 3) {
+      setStep3UnitSourceNudgeDismissed(false);
+      setStep3FewerUnitSourceNudgeDismissed(false);
+    }
+  }, [currentStep]);
+
+  // Update nudge position based on active nudge target
+  useEffect(() => {
+    const updatePos = () => {
+      if (currentStep === 0 && fullscreenButtonRef.current) {
+        const r = fullscreenButtonRef.current.getBoundingClientRect();
+        setNudgePosition({ left: r.left, top: r.top, width: r.width, height: r.height });
+        return;
+      }
+      if (currentStep === 1 && !step1WheelNudgeDismissed && contentPanelRef.current) {
+        const r = contentPanelRef.current.getBoundingClientRect();
+        setNudgePosition({
+          left: r.left + r.width / 2 - 24,
+          top: r.top + r.height / 2 - 24,
+          width: 48,
+          height: 48,
+        });
+        return;
+      }
+      const nextEnabled = (currentStep === 3 && step3Feedback === "correct") || (currentStep === 4 && step4Feedback === "correct");
+      if (nextEnabled && nextButtonRef.current) {
+        const r = nextButtonRef.current.getBoundingClientRect();
+        setNudgePosition({ left: r.left, top: r.top, width: r.width, height: r.height });
+        return;
+      }
+      if (currentStep === 3 && step3Feedback === "more" && step3ExtraItemRef.current) {
+        const r = step3ExtraItemRef.current.getBoundingClientRect();
+        setNudgePosition({ left: r.left, top: r.top, width: r.width, height: r.height });
+        return;
+      }
+      if (currentStep === 3 && step3Feedback !== "correct" && step3Feedback !== "more" && (step3Feedback === "fewer" ? !step3FewerUnitSourceNudgeDismissed : !step3UnitSourceNudgeDismissed) && step3UnitSourceRef.current) {
+        const r = step3UnitSourceRef.current.getBoundingClientRect();
+        setNudgePosition({ left: r.left, top: r.top, width: r.width, height: r.height });
+        return;
+      }
+      setNudgePosition(null);
+    };
+    const id = requestAnimationFrame(() => updatePos());
+    return () => cancelAnimationFrame(id);
+  }, [
+    currentStep,
+    step1WheelNudgeDismissed,
+    step3Feedback,
+    step3UnitSourceNudgeDismissed,
+    step3FewerUnitSourceNudgeDismissed,
+    step4Feedback,
+    placedCount,
+  ]);
   // Animate last placed unit when adding in step 3
   useEffect(() => {
     if (currentStep !== 3) return;
@@ -154,6 +241,7 @@ const App = () => {
     setStep4Feedback(null);
     setShowCountDivs(false);
     setNumpadDisabled(false);
+    setStep1WheelNudgeDismissed(false);
   };
 
   const handleObjectSelected = (objectKey) => {
@@ -182,6 +270,8 @@ const App = () => {
     if (placedCount >= maxPlaceable) return;
     if (step3Feedback === "correct") return;
     playSound("click");
+    if (step3Feedback === "fewer") setStep3FewerUnitSourceNudgeDismissed(true);
+    else setStep3UnitSourceNudgeDismissed(true);
     if (step3Feedback) {
       setStep3Feedback(null);
     }
@@ -321,6 +411,7 @@ const App = () => {
       if (newCompleted.length >= OBJECTS.length) {
         setCurrentStep(5);
       } else {
+        setStep1WheelNudgeDismissed(false);
         setSelectedObject(null);
         setSelectedUnit(null);
         setPlacedCount(0);
@@ -347,6 +438,11 @@ const App = () => {
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
+          buttonRef: fullscreenButtonRef,
+        }),
+        ce(Nudge, {
+          show: !!nudgePosition,
+          position: nudgePosition,
         }),
       ),
     );
@@ -380,15 +476,16 @@ const App = () => {
         { className: "with-character-layout" },
         ce(CharacterPanel, {
           characterImage: getCharacterImage(),
-          characterText: APP_DATA.step1.characterText,
+          characterText: completedObjects.length > 0 ? APP_DATA.step1.characterText2 : APP_DATA.step1.characterText,
         }),
         ce(
           ContentPanel,
-          { step: 1 },
+          { step: 1, contentRef: contentPanelRef },
           ce(SpinningWheel, {
             objects: OBJECTS,
             disabledObjects: completedObjects,
             onSelect: handleObjectSelected,
+            onWheelClick: () => setStep1WheelNudgeDismissed(true),
           }),
         ),
       ),
@@ -399,6 +496,11 @@ const App = () => {
         isPrevDisabled: completedObjects.length === 0,
         isNextDisabled: true,
         navText: APP_DATA.step1.navText,
+      }),
+      ce(Nudge, {
+        show: !!nudgePosition,
+        position: nudgePosition,
+        gifClassName: !step1WheelNudgeDismissed ? "step1" : "",
       }),
     );
   }
@@ -436,7 +538,11 @@ const App = () => {
                   className: "measure-object-image",
                   alt: objectName,
                 }),
-                ce("div", { className: "placed-units-container" }),
+                ce("div", {
+                  className:
+                    "placed-units-container" +
+                    (selectedObject ? " " + selectedObject.replace(/\s+/g, "-") : ""),
+                }),
               ),
               ce(
                 "div",
@@ -476,12 +582,10 @@ const App = () => {
   if (currentStep === 3) {
     const objData = OBJECTS.find((o) => o.key === selectedObject);
     const unitData = UNITS.find((u) => u.key === selectedUnit);
-    const hasExtras = placedCount > correctCount;
-
     let navText;
     if (step3Feedback === "correct") {
       navText = t(APP_DATA.step3.navTextCorrect);
-    } else if (hasExtras) {
+    } else if (step3Feedback === "more") {
       navText = t(APP_DATA.step3.navTextRemoveExtra);
     } else {
       navText = t(APP_DATA.step3.navText);
@@ -507,11 +611,13 @@ const App = () => {
     for (let i = 0; i < placedCount; i++) {
       const isExtra = i >= correctCount;
       const showPulse = isExtra && step3Feedback === "more";
+      const isFirstExtra = isExtra && i === correctCount;
       placedItems.push(
         ce(
           "div",
           {
             key: "pu-" + i,
+            ref: isFirstExtra ? step3ExtraItemRef : undefined,
             className:
               "placed-unit" +
               (showPulse ? " red-pulse" : "") +
@@ -572,7 +678,9 @@ const App = () => {
                   "div",
                   {
                     ref: placedUnitsContainerRef,
-                    className: "placed-units-container",
+                    className:
+                      "placed-units-container" +
+                      (selectedObject ? " " + selectedObject.replace(/\s+/g, "-") : ""),
                   },
                   placedItems,
                 ),
@@ -583,6 +691,7 @@ const App = () => {
                 ce(
                   "div",
                   {
+                    ref: step3UnitSourceRef,
                     className: "unit-item-source",
                     onClick: canPlace ? handlePlaceUnit : undefined,
                     style: {
@@ -624,6 +733,11 @@ const App = () => {
         isPrevDisabled: false,
         isNextDisabled: !isNextEnabled,
         navText: navText,
+        nextButtonRef: nextButtonRef,
+      }),
+      ce(Nudge, {
+        show: !!nudgePosition,
+        position: nudgePosition,
       }),
     );
   }
@@ -729,7 +843,11 @@ const App = () => {
                   className: "measure-object-image",
                   alt: objectName,
                 }),
-                ce("div", { className: "placed-units-container" }, placedItems),
+                ce("div", {
+                  className:
+                    "placed-units-container" +
+                    (selectedObject ? " " + selectedObject.replace(/\s+/g, "-") : ""),
+                }, placedItems),
               ),
               ce(
                 "div",
@@ -764,6 +882,11 @@ const App = () => {
         isPrevDisabled: false,
         isNextDisabled: !isNextEnabled,
         navText: navText,
+        nextButtonRef: nextButtonRef,
+      }),
+      ce(Nudge, {
+        show: !!nudgePosition,
+        position: nudgePosition,
       }),
     );
   }

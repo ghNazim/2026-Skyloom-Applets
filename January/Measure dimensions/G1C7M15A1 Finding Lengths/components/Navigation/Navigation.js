@@ -1,4 +1,4 @@
-const Navigation = ({ onNav, isNextDisabled, isPrevDisabled, navText, nextSymbol = "»" }) => {
+const Navigation = ({ onNav, isNextDisabled, isPrevDisabled, navText, nextSymbol = "»", nextButtonRef = null }) => {
   return React.createElement(
     "div",
     { className: "navigation" },
@@ -19,6 +19,7 @@ const Navigation = ({ onNav, isNextDisabled, isPrevDisabled, navText, nextSymbol
     React.createElement(
       "button",
       {
+        ref: nextButtonRef,
         className: "nav-chevron",
         onClick: () => onNav("next"),
         disabled: isNextDisabled,

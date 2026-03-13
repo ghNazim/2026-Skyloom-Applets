@@ -146,12 +146,21 @@
   display: flex;
   align-items: center;
   height: 3vw;
-  overflow-y: visible;
+  overflow: visible;
+  min-width: 0;
 }
-
+.placed-units-container.Table {
+  position: relative;
+  bottom: 19vw;
+}
+.placed-units-container.Bookshelf {
+  position: relative;
+  bottom: 1.4vw;
+}
 .placed-unit {
   position: relative;
   flex-shrink: 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,7 +169,10 @@
 .placed-unit img {
   width: 100%;
   height: auto;
-  object-fit: contain;
+  min-height: .7vw;
+  /* object-fit: contain; */
+  /* filter: drop-shadow(1vw 1vw 5vw rgb(0, 0, 0)) */
+  filter: drop-shadow(10px 10px 10px rgb(0, 0, 0));
 }
 
 .placed-unit.extra {
@@ -197,11 +209,13 @@
 
 .arrow-placeholder {
   flex-shrink: 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 0.5vw;
-  padding: 0.3vw 0.2vw;
+  padding: 0.2vw 0.35vw;
+  box-sizing: border-box;
 }
 
 .arrow-placeholder img {
@@ -211,22 +225,24 @@
   animation: arrowGlow 1s ease-in-out infinite alternate;
 }
 
-/* SVG bidirectional arrow - fills placeholder; min size keeps it visible on small screens */
+/* SVG bidirectional arrow - fits inside placeholder; no min size so multiple arrows stay in bounds */
 .arrow-placeholder .bidirectional-arrow-wrap {
   width: 100%;
   height: 100%;
-  min-width: 48px;
-  min-height: 14px;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  flex-shrink: 1;
 }
 
 .arrow-placeholder .bidirectional-arrow-svg {
   width: 100%;
   height: 100%;
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
   animation: arrowGlow 1s ease-in-out infinite alternate;
 }
 

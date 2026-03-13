@@ -1,21 +1,46 @@
 // Vertical bidirectional arrow (up-down) for the "fewer units" feedback
+const VIEWBOX_HEIGHT = 100;
+const DESIRED_HEAD_PX = 12;
+const MAX_HEAD_VIEWBOX = 28;
+
 const BidirectionalArrow = () => {
   const ref = React.useRef(null);
+  const [headSize, setHeadSize] = React.useState(15);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const updateHeadSize = () => {
+      const height = el.clientHeight || 1;
+      const size = Math.min(
+        (DESIRED_HEAD_PX * VIEWBOX_HEIGHT) / height,
+        MAX_HEAD_VIEWBOX
+      );
+      setHeadSize(size);
+    };
+    updateHeadSize();
+    const ro = new ResizeObserver(updateHeadSize);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   React.useEffect(() => {
     if (!ref.current) return;
-    ref.current.innerHTML = "";
+    const wrap = ref.current;
+    wrap.innerHTML = "";
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 20 100");
+    svg.setAttribute("viewBox", "0 0 20 " + VIEWBOX_HEIGHT);
     svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
     svg.setAttribute("class", "bidirectional-arrow-svg");
     const g = createBiDirectionalArrow(10, 5, 10, 95, {
       color: "#e74c3c",
-      width: 3,
-      headSize: 15,
+      width: 2,
+      headSize,
     });
     svg.appendChild(g);
-    ref.current.appendChild(svg);
-  }, []);
+    wrap.appendChild(svg);
+  }, [headSize]);
+
   return React.createElement("div", {
     ref,
     className: "bidirectional-arrow-wrap",
@@ -34,6 +59,7 @@ const App = () => {
 
   const [placedCount, setPlacedCount] = useState(0);
   const [step3Feedback, setStep3Feedback] = useState(null);
+  const [step3CheckedMore, setStep3CheckedMore] = useState(false);
 
   const [step4Answer, setStep4Answer] = useState(null);
   const [step4Feedback, setStep4Feedback] = useState(null);
@@ -42,6 +68,28 @@ const App = () => {
   const [numpadDisabled, setNumpadDisabled] = useState(false);
   const placedUnitsContainerRef = React.useRef(null);
   const prevPlacedCountRef = React.useRef(0);
+
+  // Nudge refs/state
+  const startButtonRef = React.useRef(null);
+  const unitSourceRef = React.useRef(null);
+
+  const [startNudgePos, setStartNudgePos] = useState(null);
+  const [nextNudgePos, setNextNudgePos] = useState(null);
+  const [wheelNudgePos, setWheelNudgePos] = useState(null);
+  const [unitSourceNudgePos, setUnitSourceNudgePos] = useState(null);
+  const [removeExtraNudgePos, setRemoveExtraNudgePos] = useState(null);
+
+  const [showStartNudge, setShowStartNudge] = useState(true);
+  const [showNextNudge, setShowNextNudge] = useState(false);
+  const [showWheelNudge, setShowWheelNudge] = useState(true);
+  const [showUnitSourceNudge, setShowUnitSourceNudge] = useState(true);
+  const [showRemoveExtraNudge, setShowRemoveExtraNudge] = useState(true);
+
+  const getRect = (el) => {
+    if (!el || typeof el.getBoundingClientRect !== "function") return null;
+    const r = el.getBoundingClientRect();
+    return { left: r.left, top: r.top, width: r.width, height: r.height };
+  };
 
   const getCorrectCount = useCallback(() => {
     if (!selectedObject || !selectedUnit) return 0;
@@ -55,11 +103,14 @@ const App = () => {
   };
 
   const correctCount = getCorrectCount();
-  const maxPlaceable = correctCount + 2;
+  const maxPlaceable = correctCount + 1;
 
   const objectName = selectedObject ? APP_DATA.objectNames[selectedObject] : "";
   const unitName = selectedUnit ? APP_DATA.unitNames[selectedUnit] : "";
   const unitPlural = selectedUnit ? APP_DATA.unitPlurals[selectedUnit] : "";
+  const selectedObjectClass = selectedObject
+    ? String(selectedObject).toLowerCase().replace(/\\s+/g, "-")
+    : "";
 
   const t = (template, extra) => {
     if (!template) return "";
@@ -139,6 +190,7 @@ const App = () => {
 
   const handleStart = () => {
     playSound("click");
+    setShowStartNudge(false);
     setCurrentStep(1);
   };
 
@@ -151,10 +203,12 @@ const App = () => {
     setUsedUnits([]);
     setPlacedCount(0);
     setStep3Feedback(null);
+    setStep3CheckedMore(false);
     setStep4Answer(null);
     setStep4Feedback(null);
     setShowCountDivs(false);
     setNumpadDisabled(false);
+    setShowStartNudge(true);
   };
 
   const handleObjectSelected = (objectKey) => {
@@ -176,6 +230,7 @@ const App = () => {
     setSelectedUnit(unitKey);
     setPlacedCount(0);
     setStep3Feedback(null);
+    setStep3CheckedMore(false);
     setCurrentStep(3);
   };
 
@@ -183,6 +238,7 @@ const App = () => {
     if (placedCount >= maxPlaceable) return;
     if (step3Feedback === "correct") return;
     playSound("click");
+    setShowUnitSourceNudge(false);
     if (step3Feedback) {
       setStep3Feedback(null);
     }
@@ -192,10 +248,12 @@ const App = () => {
   const handleRemoveExtra = () => {
     if (placedCount <= correctCount) return;
     playSound("click");
+    setShowRemoveExtraNudge(false);
     const nextCount = placedCount - 1;
     setPlacedCount(nextCount);
     if (nextCount === correctCount) {
       setStep3Feedback(null);
+      setStep3CheckedMore(false);
     }
   };
 
@@ -205,12 +263,17 @@ const App = () => {
     if (placedCount < correctCount) {
       playSound("wrong");
       setStep3Feedback("fewer");
+      setStep3CheckedMore(false);
+      setShowUnitSourceNudge(true); // nudge on unit source when red arrows show (add more)
     } else if (placedCount > correctCount) {
       playSound("wrong");
       setStep3Feedback("more");
+      setStep3CheckedMore(true);
+      setShowRemoveExtraNudge(true);
     } else {
       playSound("correct");
       setStep3Feedback("correct");
+      setStep3CheckedMore(false);
     }
   };
 
@@ -308,6 +371,7 @@ const App = () => {
 
   const handleNext = () => {
     playSound("click");
+    setShowNextNudge(false);
     if (currentStep === 3 && step3Feedback === "correct") {
       setStep4Answer("");
       setStep4Feedback(null);
@@ -326,6 +390,7 @@ const App = () => {
         setSelectedUnit(null);
         setPlacedCount(0);
         setStep3Feedback(null);
+        setStep3CheckedMore(false);
         setStep4Answer("");
         setStep4Feedback(null);
         setShowCountDivs(false);
@@ -335,6 +400,119 @@ const App = () => {
     }
   };
 
+  // Reset per-step nudge defaults
+  useEffect(() => {
+    setShowNextNudge(false);
+    setNextNudgePos(null);
+    setRemoveExtraNudgePos(null);
+    if (currentStep === 0) {
+      setShowStartNudge(true);
+    }
+    if (currentStep === 1) {
+      setShowWheelNudge(true);
+    }
+    if (currentStep === 3) {
+      setShowUnitSourceNudge(true);
+      setShowRemoveExtraNudge(true);
+    }
+  }, [currentStep]);
+
+  // Start fullscreen nudge position
+  useEffect(() => {
+    if (currentStep !== 0 || !showStartNudge) return;
+    const update = () => setStartNudgePos(getRect(startButtonRef.current));
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [currentStep, showStartNudge]);
+
+  // Wheel nudge position (step 1)
+  useEffect(() => {
+    if (currentStep !== 1 || !showWheelNudge) return;
+    const update = () => {
+      const el = document.querySelector(".wheel-outer");
+      setWheelNudgePos(getRect(el));
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [currentStep, showWheelNudge]);
+
+  // Unit source nudge position (step 3)
+  useEffect(() => {
+    if (currentStep !== 3 || !showUnitSourceNudge) return;
+    const update = () => setUnitSourceNudgePos(getRect(unitSourceRef.current));
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [currentStep, showUnitSourceNudge]);
+
+  // Next button nudge position (steps 3 & 4 when enabled)
+  useEffect(() => {
+    if (!showNextNudge) return;
+    const update = () => {
+      const el = document.getElementById("next-button");
+      setNextNudgePos(getRect(el));
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [showNextNudge]);
+
+  // Show next-button nudge whenever Next becomes enabled (step 3 & 4)
+  useEffect(() => {
+    if (currentStep === 3 && step3Feedback === "correct") {
+      setShowNextNudge(true);
+    }
+    if (currentStep === 4 && step4Feedback === "correct") {
+      setShowNextNudge(true);
+    }
+  }, [currentStep, step3Feedback, step4Feedback]);
+
+  // Extra-remove nudge target (only after check says "more")
+  useEffect(() => {
+    if (currentStep !== 3) return;
+    const hasExtras = placedCount > correctCount;
+    if (!showRemoveExtraNudge) return;
+    if (!(step3CheckedMore && step3Feedback === "more" && hasExtras)) return;
+    const update = () => {
+      const el =
+        document.querySelector(".placed-unit.extra.red-pulse") ||
+        document.querySelector(".placed-unit.extra");
+      setRemoveExtraNudgePos(getRect(el));
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [
+    currentStep,
+    showRemoveExtraNudge,
+    step3CheckedMore,
+    step3Feedback,
+    placedCount,
+    correctCount,
+  ]);
+
   // ===== STEP 0: FULLSCREEN START =====
   if (currentStep === 0) {
     return ce(
@@ -343,11 +521,13 @@ const App = () => {
       ce(
         "div",
         { className: "app-main-content", style: { position: "relative" } },
+        ce(Nudge, { show: showStartNudge, position: startNudgePos }),
         ce(Fullscreen, {
           heading: APP_DATA.start.heading,
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
+          buttonRef: startButtonRef,
         }),
       ),
     );
@@ -373,6 +553,10 @@ const App = () => {
 
   // ===== STEP 1: SPINNING WHEEL =====
   if (currentStep === 1) {
+    const characterTextStep1 =
+      completedObjects.length > 0 && APP_DATA.step1.characterText2
+        ? APP_DATA.step1.characterText2
+        : APP_DATA.step1.characterText;
     return ce(
       "div",
       { className: "applet-container" },
@@ -381,16 +565,35 @@ const App = () => {
         { className: "with-character-layout" },
         ce(CharacterPanel, {
           characterImage: getCharacterImage(),
-          characterText: APP_DATA.step1.characterText,
+          characterText: characterTextStep1,
         }),
         ce(
           ContentPanel,
           { step: 1 },
-          ce(SpinningWheel, {
-            objects: OBJECTS,
-            disabledObjects: completedObjects,
-            onSelect: handleObjectSelected,
-          }),
+          ce(
+            "div",
+            {
+              style: {
+                position: "relative",
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              },
+            },
+            ce(Nudge, {
+              show: showWheelNudge,
+              position: wheelNudgePos,
+              centerOnTarget: true,
+            }),
+            ce(SpinningWheel, {
+              objects: OBJECTS,
+              disabledObjects: completedObjects,
+              onSelect: handleObjectSelected,
+              onUserSpin: () => setShowWheelNudge(false),
+            }),
+          ),
         ),
       ),
       ce(Navigation, {
@@ -440,7 +643,7 @@ const App = () => {
                     className: "measure-object-image" + (objData.key === "Table" ? " table" : ""),
                     alt: objectName,
                   }),
-                  ce("div", { className: "placed-units-container" + (objData.key === "Table" ? " table" : "") }),
+                  ce("div", { className: "placed-units-container " + selectedObjectClass }),
                 ),
               ),
               ce(
@@ -486,7 +689,7 @@ const App = () => {
     let navText;
     if (step3Feedback === "correct") {
       navText = t(APP_DATA.step3.navTextCorrect);
-    } else if (hasExtras) {
+    } else if (step3CheckedMore && step3Feedback === "more" && hasExtras) {
       navText = t(APP_DATA.step3.navTextRemoveExtra);
     } else {
       navText = t(APP_DATA.step3.navText);
@@ -582,7 +785,7 @@ const App = () => {
                     "div",
                     {
                       ref: placedUnitsContainerRef,
-                      className: "placed-units-container" + (objData.key === "Table" ? " table" : ""),
+                      className: "placed-units-container " + selectedObjectClass,
                     },
                     placedItems,
                   ),
@@ -591,10 +794,26 @@ const App = () => {
               ce(
                 "div",
                 { className: "unit-column step3-unit" },
+                ce(Nudge, {
+                  show:
+                    showUnitSourceNudge &&
+                    canPlace &&
+                    !(step3CheckedMore && step3Feedback === "more" && hasExtras),
+                  position: unitSourceNudgePos,
+                }),
+                ce(Nudge, {
+                  show:
+                    showRemoveExtraNudge &&
+                    step3CheckedMore &&
+                    step3Feedback === "more" &&
+                    hasExtras,
+                  position: removeExtraNudgePos,
+                }),
                 ce(
                   "div",
                   {
                     className: "unit-item-source",
+                    ref: unitSourceRef,
                     onClick: canPlace ? handlePlaceUnit : undefined,
                     style: {
                       cursor: canPlace ? "pointer" : "default",
@@ -636,6 +855,7 @@ const App = () => {
         isNextDisabled: !isNextEnabled,
         navText: navText,
       }),
+      ce(Nudge, { show: showNextNudge && isNextEnabled, position: nextNudgePos }),
     );
   }
 
@@ -745,7 +965,7 @@ const App = () => {
                   }),
                   ce(
                     "div",
-                    { className: "placed-units-container" + (objData.key === "Table" ? " table" : "") },
+                    { className: "placed-units-container " + selectedObjectClass },
                     placedItems,
                   ),
                 ),
@@ -784,6 +1004,7 @@ const App = () => {
         isNextDisabled: !isNextEnabled,
         navText: navText,
       }),
+      ce(Nudge, { show: showNextNudge && isNextEnabled, position: nextNudgePos }),
     );
   }
 

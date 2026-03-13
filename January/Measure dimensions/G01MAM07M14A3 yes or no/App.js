@@ -6,6 +6,8 @@ const App = () => {
   const [isAnswered, setIsAnswered] = useState(false);
   const [step1QuestionIndex, setStep1QuestionIndex] = useState(0);
   const [dynamicNavText, setDynamicNavText] = useState("");
+  const [nudgePosition, setNudgePosition] = useState(null);
+  const [nudgeShow, setNudgeShow] = useState(false);
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
@@ -19,6 +21,26 @@ const App = () => {
     setIsAnswered(false);
     setStep1QuestionIndex(0);
   };
+
+  useEffect(() => {
+    setNudgeShow(false);
+    setNudgePosition(null);
+    if (currentStep === 0) {
+      const el = document.getElementById("start-fullscreen-button");
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        setNudgePosition({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+        setNudgeShow(true);
+      }
+    } else if (currentStep === 1 && !isNextDisabled) {
+      const el = document.getElementById("next-button");
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        setNudgePosition({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+        setNudgeShow(true);
+      }
+    }
+  }, [currentStep, isNextDisabled]);
 
   useEffect(() => {
     setIsNextDisabled(true);
@@ -93,7 +115,9 @@ const App = () => {
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
-        })
+          buttonId: "start-fullscreen-button",
+        }),
+        React.createElement(Nudge, { show: nudgeShow, position: nudgePosition })
       )
     );
   }
@@ -139,7 +163,8 @@ const App = () => {
         isPrevDisabled: currentStep !== 1 || step1QuestionIndex <= 0,
         navText: getNavText(),
         nextSymbol: "»",
-      })
+      }),
+      React.createElement(Nudge, { show: nudgeShow, position: nudgePosition })
     )
   );
 };

@@ -1,0 +1,215 @@
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 99vw;
+  height: calc(99vw * 9 / 16);
+  max-width: 99vw;
+  max-height: 99vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: .5vw;
+  position: relative;
+}
+
+.app-main-content {
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    overflow: hidden;
+    gap: 1rem;
+    /* padding: 1rem; */
+    /* background-color: var(--panel-background-color); */
+    border-radius: 1vw;
+    /* border: 1px solid var(--panel-border-color); */
+}
+
+.lower-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--white-color);
+  font-size: calc(0.25rem + 1.75vw);
+  gap: 2vh;
+  flex-direction: column;
+  height: 7vw;
+  max-height: 7vw;
+  min-height: 7vw;
+}
+
+/* With Character Layout */
+.with-character-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 1vw;
+}
+
+/* Without Character Layout */
+.without-character-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Color Counting Layout (Step 9) */
+.color-counting-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.color-counting-main {
+  display: flex;
+  flex: 1;
+  gap: 1vw;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.color-counting-left {
+  width: 33%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+  padding: 1vw;
+}
+
+.color-counting-left > div {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-counting-left > div svg,
+.color-counting-left svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.color-counting-right {
+  width: 67%;
+  display: flex;
+  gap: 1vw;
+  min-height: 0;
+  overflow: hidden;
+  border: .2vw solid var(--panel-border-color);
+  border-radius: 2vw;
+  padding: 1vw;
+}
+
+.color-counting-table-col {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.color-counting-numpad-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1vw;
+  padding: 1vw;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+}
+
+.color-feedback-box {
+  width: 100%;
+  padding: 1vw;
+  border-radius: 1vw;
+  text-align: center;
+  font-size: 2vw;
+  color: white;
+  transition: opacity 0.3s ease;
+  height: 10vw;
+  min-height: 10vw;
+  max-height: 10vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-feedback-box.show.correct {
+  background-color: rgba(46, 204, 112, 0.119);
+  border: 2px solid rgba(46, 204, 113, 0.8);
+  color: #2ecc71;
+}
+
+.color-feedback-box.show.wrong {
+ background-color: rgba(231, 77, 60, 0.103);
+  border: 2px solid rgba(231, 76, 60, 0.8);
+  color: white;
+}
+
+.color-counting-next-button {
+  margin-top: auto;
+}
+
+.color-counting-next-button:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  background: #d3d3d3;
+  color: #666666;
+  border-color: #999999;
+  box-shadow: none;
+}
+
+/* Substep 1: Fill column button */
+.substep1-fill-btn {
+  white-space: pre-line;
+  text-align: center;
+  margin: auto;
+  font-size: 2vw !important;
+  padding: 1.5vw 2vw !important;
+  line-height: 1.5;
+}
+
+/* Substep 2: Tally action buttons row */
+.tally-action-buttons-row {
+  display: flex;
+  gap: 0.8vw;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+}
+
+.tally-action-btn {
+  padding: 1vw 2vw !important;
+  font-size: 2.5vw !important;
+  min-width: 5vw;
+}
+
+.tally-action-btn:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  background: #d3d3d3 !important;
+  color: #666666 !important;
+  border-color: #999999 !important;
+  box-shadow: none !important;
+}

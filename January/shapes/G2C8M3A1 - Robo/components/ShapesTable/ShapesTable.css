@@ -1,0 +1,99 @@
+.shapes-table-wrapper {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+}
+
+.shapes-table-title {
+  background-color: rgb(220, 220, 220);
+  color: #0066cc;
+  padding: 0;
+  text-align: center;
+  font-size: 2vw;
+  font-weight: bold;
+  border-radius: 1vw;
+  margin-bottom: 0.3vw;
+  height: 4vw;
+  line-height: 4vw;
+}
+
+.shapes-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0.3vw;
+  table-layout: fixed;
+}
+
+.shapes-table thead th {
+  background: linear-gradient(180deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  padding: 0;
+  height: 4vw;
+  line-height: 4vw;
+  text-align: center;
+  font-size: 2vw;
+  font-weight: bold;
+  border-radius: 1vw;
+  vertical-align: middle;
+}
+
+.shapes-table tbody td {
+  background-color: transparent;
+  color: white;
+  padding: 0;
+  height: 4vw;
+  line-height: 4vw;
+  text-align: center;
+  font-size: 2vw;
+  border: 0.3vw solid #4a90e2;
+  border-radius: 1vw;
+  vertical-align: middle;
+}
+
+.shapes-table tbody th {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  padding: 0;
+  height: 4vw;
+  line-height: 4vw;
+  text-align: center;
+  font-size: 2vw;
+  border: 0.3vw solid #4a90e2;
+  border-radius: 1vw;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* Tally marks column: center SVG, scale with cell (90% height) */
+.shapes-table-tally-cell {
+  text-align: center;
+  vertical-align: middle;
+  height: 4vw;
+}
+.shapes-table-tally-cell svg {
+  display: block;
+  margin: 0 auto;
+  height: 90%;
+  width: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* Row highlight for steps 2-6 */
+.shapes-table tbody tr.shapes-table-row-highlighted th,
+.shapes-table tbody tr.shapes-table-row-highlighted td {
+  background-color: rgba(0, 102, 204, 0.5);
+}
+
+/* Multi-word cells (e.g. "Persegi Panjang"): smaller font, minimal line-height, fixed height */
+.shapes-table th.cell-multi-word,
+.shapes-table td.cell-multi-word {
+  font-size: 1.7vw;
+  line-height: 1.2;
+  height: 4vw;
+  max-height: 4vw;
+  overflow: hidden;
+  box-sizing: border-box;
+}

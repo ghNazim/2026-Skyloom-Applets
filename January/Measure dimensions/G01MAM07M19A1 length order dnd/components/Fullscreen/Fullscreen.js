@@ -1,14 +1,24 @@
-const Button = ({ onClick, text, className }) => {
+const Button = ({ onClick, text, className, id }) => {
   return React.createElement(
     "button",
     {
       className: `btn ${className || ""}`,
       onClick: onClick,
+      id,
     },
     text
   );
 };
-const Fullscreen = ({ text, buttonText, onButtonClick, heading, left = false, isFinal = false, imageSrc }) => {
+const Fullscreen = ({
+  text,
+  buttonText,
+  onButtonClick,
+  heading,
+  left = false,
+  isFinal = false,
+  imageSrc,
+  buttonId,
+}) => {
   const hasTwoColumns = isFinal && imageSrc;
   const contentArea = hasTwoColumns
     ? React.createElement(
@@ -35,6 +45,7 @@ const Fullscreen = ({ text, buttonText, onButtonClick, heading, left = false, is
       text: buttonText,
       onClick: onButtonClick,
       className: "fullscreen-button",
+      id: buttonId,
     })
   );
 };

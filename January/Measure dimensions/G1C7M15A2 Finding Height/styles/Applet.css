@@ -171,8 +171,8 @@
 /* ===== PLACED UNITS CONTAINER: vertical, bottom-to-top ===== */
 .placed-units-container {
   height: 27vw;
-  width: 6vw;
-  min-width: 4vw;
+  width: 2vw;
+  min-width: 2vw;
   display: flex;
   flex-direction: column-reverse; /* first DOM child = bottom, last = top */
   align-items: center;
@@ -181,6 +181,15 @@
 }
 .placed-units-container.table{
   height: 20vw !important;
+  padding-top: 2vw;
+  position: relative;
+  left: -2.5vw;
+}
+
+.placed-units-container.pole{
+  
+  position: relative;
+  left: -4.5vw;
 }
 .placed-unit {
   position: relative;
@@ -375,6 +384,8 @@
 
 /* ===== QUESTION DIV (Step 4) — in normal flow above the image area ===== */
 .question-div {
+  /* position: absolute; */
+  /* top: 1vw; */
   font-size: 2.2vw;
   color: white;
   text-align: center;

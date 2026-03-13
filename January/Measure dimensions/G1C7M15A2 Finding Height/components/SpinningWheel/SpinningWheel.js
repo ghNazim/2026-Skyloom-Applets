@@ -1,4 +1,4 @@
-const SpinningWheel = ({ objects, disabledObjects, onSelect }) => {
+const SpinningWheel = ({ objects, disabledObjects, onSelect, onUserSpin }) => {
   const { useState, useRef, useEffect } = React;
   const [spinning, setSpinning] = useState(false);
   const [phase, setPhase] = useState("idle");
@@ -83,6 +83,7 @@ const SpinningWheel = ({ objects, disabledObjects, onSelect }) => {
   const handleSpin = () => {
     if (spinning || phase !== "idle") return;
     playSound("click");
+    if (typeof onUserSpin === "function") onUserSpin();
 
     const available = objects.filter((o) => !disabledObjects.includes(o.key));
     if (available.length === 0) return;

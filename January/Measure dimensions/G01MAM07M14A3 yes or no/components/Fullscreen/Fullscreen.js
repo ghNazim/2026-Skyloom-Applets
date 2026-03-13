@@ -1,14 +1,15 @@
-const Button = ({ onClick, text, className }) => {
+const Button = ({ onClick, text, className, id }) => {
   return React.createElement(
     "button",
     {
       className: `btn ${className || ""}`,
       onClick: onClick,
+      id: id || undefined,
     },
     text
   );
 };
-const Fullscreen = ({ text, buttonText, onButtonClick, heading, left = false }) => {
+const Fullscreen = ({ text, buttonText, onButtonClick, heading, left = false, buttonId }) => {
   return React.createElement(
     "div",
     { className: "fullscreen-panel" },
@@ -21,6 +22,7 @@ const Fullscreen = ({ text, buttonText, onButtonClick, heading, left = false }) 
       text: buttonText,
       onClick: onButtonClick,
       className: "fullscreen-button",
+      id: buttonId,
     })
   );
 };

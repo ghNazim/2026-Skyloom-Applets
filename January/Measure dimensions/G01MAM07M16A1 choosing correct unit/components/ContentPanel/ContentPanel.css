@@ -5,6 +5,7 @@
   min-height: 0;
   min-width: 0;
   /* overflow: hidden; */
+  height: 100%;
 }
 
 .content-panel.step1 {

@@ -1,0 +1,119 @@
+.editable-color-table-wrapper {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  padding: 1vw 0vw;
+}
+
+.editable-color-table-title {
+  background-color: rgb(220, 220, 220);
+  color: #0066cc;
+  padding: 0.5vw;
+  text-align: center;
+  font-size: 2vw;
+  font-weight: bold;
+  border-radius: 0.5vw 0.5vw 0 0;
+  margin-bottom: 0.5vw;
+}
+
+.editable-color-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0.3vw;
+  table-layout: fixed;
+}
+
+.editable-color-table thead th {
+  background: linear-gradient(180deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  padding: 0;
+  height: 4vw;
+  line-height: 4vw;
+  text-align: center;
+  font-size: 1.6vw;
+  border-radius: 1vw;
+  vertical-align: middle;
+}
+
+.editable-color-table tbody td {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  padding: 0;
+  height: 4vw;
+  line-height: 4vw;
+  text-align: center;
+  font-size: 2vw;
+  border: 0.3vw solid #4a90e2;
+  border-radius: 1vw;
+  transition: all 0.3s ease;
+  vertical-align: middle;
+}
+
+.editable-color-table tbody th {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  padding: 0;
+  height: 4vw;
+  line-height: 4vw;
+  text-align: center;
+  font-size: 2vw;
+  border: 0.3vw solid #4a90e2;
+  border-radius: 1vw;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+.editable-cell.active {
+  border-color: #FFD550;
+  background-color: rgba(255, 213, 80, 0.1);
+}
+
+.editable-cell.correct {
+  background-color: #00ff0065;
+  color: white;
+  border-color: #00ff00;
+}
+
+.editable-cell.wrong {
+  background-color: rgba(231, 77, 60, 0.103);
+  color: white;
+  border-color: #ff0000;
+}
+
+/* Tally marks column: center SVG, scale with cell (90% height) */
+.editable-color-table-tally-cell {
+  text-align: center;
+  vertical-align: middle;
+  min-height: 4vw;
+  height: 4vw;
+}
+.editable-color-table-tally-cell svg {
+  display: block;
+  margin: 0 auto;
+  height: 90%;
+  width: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* Tally cell states */
+.editable-color-table-tally-cell.tally-state-active {
+  border-color: #FFD550;
+  background-color: rgba(255, 213, 80, 0.1);
+}
+
+.editable-color-table-tally-cell.tally-clickable {
+  cursor: pointer;
+}
+
+.editable-color-table-tally-cell.tally-state-correct {
+  border-color: #00ff00;
+  background-color: #00ff0065;
+}
+
+.editable-color-table-tally-cell.tally-state-wrong {
+  border-color: #ff0000;
+  background-color: rgba(231, 77, 60, 0.103);
+}

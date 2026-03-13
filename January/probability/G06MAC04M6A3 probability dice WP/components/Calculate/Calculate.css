@@ -123,8 +123,8 @@
 }
 
 .digit-box-ball {
-  width: 5vw;
-  height: auto;
+  height: 10vw;
+  width: auto;
   filter: drop-shadow(0 0.1vw 0.2vw rgba(0, 0, 0, 0.3));
 }
 
@@ -171,13 +171,14 @@
 }
 .digit-box-wrapper:has(.total-digit-box) {
   position: relative;
-  top: -1.68vw;
+  /* top: -1.68vw; */
 }
 .total-label {
   font-size: 3vw;
   font-style: italic;
   font-weight: 600;
   color: #ffc107;
+  height: 5.65vw;
 }
 
 .stepper-buttons {

@@ -64,6 +64,7 @@ const DATA = {
       },
       step1: {
         characterText: "Choose an\nobject to find\nthe length.",
+        characterText2: "Choose the next object to find the length.",
         navText: "Tap the wheel to select an object."
       },
       step2: {
@@ -124,6 +125,7 @@ const DATA = {
       },
       step1: {
         characterText: "Pilih sebuah\nbenda untuk\nmencari\npanjangnya.",
+        characterText2: "Pilih benda berikutnya untuk mencari panjangnya.",
         navText: "Ketuk roda untuk memilih sebuah benda."
       },
       step2: {

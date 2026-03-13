@@ -9,3 +9,8 @@
   width: 5vw;
   height: 5vw;
 }
+
+/* Step 1 nudge: override position as needed */
+.nudge-overlay .nudge-tap-gif.step1 {
+  /* Tweak position for step 1 content panel center */
+}

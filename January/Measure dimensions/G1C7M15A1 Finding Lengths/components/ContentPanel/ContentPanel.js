@@ -1,7 +1,7 @@
-const ContentPanel = ({ children, step }) => {
+const ContentPanel = ({ children, step, contentRef }) => {
   return React.createElement(
     "div",
-    { className: "content-panel" + (step === 1 ? " step1" : "") },
+    { ref: contentRef, className: "content-panel" + (step === 1 ? " step1" : "") },
     children,
   );
 };
