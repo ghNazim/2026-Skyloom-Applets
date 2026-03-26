@@ -81,10 +81,12 @@
   gap: 0.5vw;
   padding: 1vw;
   background-color: rgba(0, 0, 0, 0.25);
-  overflow-x: visible;
+  /* overflow-y: hidden; */
+  overflow: hidden;
   /* backdrop-filter: blur(0.5vw); */
   /* overflow-y: hidden; */
 }
+
 
 .unit-column {
   flex: 1;
@@ -96,7 +98,7 @@
   padding: 0.5vw;
   gap: 0.5vw;
   background-color: rgba(0, 0, 0, 0.15);
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 /* ===== OBJECT IMAGE ===== */
@@ -305,12 +307,12 @@
   object-fit: contain;
 }
 .placed-units-container.sharpener img {
-  scale: 10;
-  translate: 2vw 5.4vw;
+  scale: 8;
+  translate: 2vw 10.5vw;
 }
 .placed-units-container.eraser img {
-  scale: 12;
-  translate: 7.5vw -2.5vw;
+  scale: 8;
+  translate: 11vw -2.5vw;
 }
 /* .placed-units-container.mat img {
   scale:1.3;

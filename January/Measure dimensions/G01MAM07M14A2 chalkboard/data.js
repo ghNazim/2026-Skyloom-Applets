@@ -50,13 +50,13 @@ const DATA = {
       step4: {
         characterText:
           "Good job!\n{{Units}} are\nplaced till the\nother end.\nLet's count\nthem!",
-        characterTextDone: "The board is {{count}}\n{{units}} long.",
+        characterTextDone: "The board is\n<y>{{count}} {{units}} long</y>.",
         navText: "Tap {{units}} to count.",
         navTextDone: "Tap \u00BB to continue.",
         questionText: "The board is <y>{{count}} {{units}} long</y>.",
       },
       step5: {
-        characterText: "So, the length\nof the board is\n{{count}} {{units}}.",
+        characterText: "So, the length\nof the board is\n<y>{{count}} {{units}}</y>.",
         navText: "Tap \u00BB to find the height of the board.",
         questionText: "The length of the board is <y>{{count}} {{units}}</y>.",
       },
@@ -76,15 +76,16 @@ const DATA = {
       step9: {
         characterText:
           "Good job!\n{{Units}} are\nplaced till the\ntop.\nLet's count\nthem!",
-        characterTextDone: "The board is {{count}}\n{{units}} tall.",
+        characterTextDone: "The board is\n <bl>{{count}} {{units}} tall</bl>.",
         navText: "Tap {{units}} to count.",
         navTextDone: "Tap \u00BB to continue.",
         questionText: "The board is <bl>{{count}} {{units}} tall</bl>.",
       },
       step10: {
-        characterText: "So, the height of\nthe board is {{count}}\n{{units}}.",
+        characterText: "So, the height of\nthe board is\n <bl>{{count}} {{units}}</bl>.",
         navText: "Tap \u00BB to conclude.",
-        questionText: "The height of the board is <bl>{{count}} {{units}}</bl>.",
+        questionText:
+          "The height of the board is <bl>{{count}} {{units}}</bl>.",
       },
       step11: {
         characterText:
@@ -136,13 +137,13 @@ const DATA = {
       step4: {
         characterText:
           "Bagus!\n{{Units}} sudah\ndiletakkan\nsampai ujung\nlainnya.\nAyo hitung!",
-        characterTextDone: "Papan sepanjang\n{{count}} {{units}}.",
+        characterTextDone: "Papan sepanjang\n<y>{{count}} {{units}}</y>.",
         navText: "Ketuk {{units}} untuk menghitung.",
         navTextDone: "Ketuk \u00BB untuk melanjutkan.",
         questionText: "Papan sepanjang <y>{{count}} {{units}}</y>.",
       },
       step5: {
-        characterText: "Jadi, panjang\npapan adalah\n{{count}} {{units}}.",
+        characterText: "Jadi, panjang\npapan adalah\n<y>{{count}} {{units}}</y>.",
         navText: "Ketuk \u00BB untuk mencari tinggi papan.",
         questionText: "Panjang papan adalah <y>{{count}} {{units}}</y>.",
       },
@@ -163,13 +164,13 @@ const DATA = {
       step9: {
         characterText:
           "Bagus!\n{{Units}} sudah\ndiletakkan\nsampai atas.\nAyo hitung!",
-        characterTextDone: "Papan setinggi\n{{count}} {{units}}.",
+        characterTextDone: "Papan setinggi\n<bl>{{count}} {{units}}</bl>.",
         navText: "Ketuk {{units}} untuk menghitung.",
         navTextDone: "Ketuk \u00BB untuk melanjutkan.",
         questionText: "Papan setinggi <bl>{{count}} {{units}}</bl>.",
       },
       step10: {
-        characterText: "Jadi, tinggi\npapan adalah\n{{count}} {{units}}.",
+        characterText: "Jadi, tinggi\npapan adalah\n<bl>{{count}} {{units}}</bl>.",
         navText: "Ketuk \u00BB untuk menyimpulkan.",
         questionText: "Tinggi papan adalah <bl>{{count}} {{units}}</bl>.",
       },

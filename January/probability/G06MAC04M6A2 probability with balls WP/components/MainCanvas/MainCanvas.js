@@ -7,6 +7,7 @@ const MainCanvas = ({
   foundAnswers,
   onCalculateCorrect,
   comprehendKey,
+  comprehendStep1Part,
   onNavChange,
 }) => {
   if (step >= 1 && step <= 2) {
@@ -16,6 +17,7 @@ const MainCanvas = ({
       React.createElement(Comprehend, {
         key: comprehendKey,
         step: step,
+        step1Part: comprehendStep1Part,
         onAnimationDone: onAnimationDone,
       })
     );

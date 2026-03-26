@@ -19,6 +19,7 @@ function renderConditionsStrip(conditionStates) {
   return React.createElement(
     "div",
     { className: "conditions-strip" },
+    React.createElement("div", { className: "estimate-text" }, calcData.estimateText),
 
     React.createElement(
       "div",

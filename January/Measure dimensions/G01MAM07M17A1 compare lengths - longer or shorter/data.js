@@ -148,8 +148,8 @@ const DATA = {
         unitLabel: "Jengkal Tangan",
       },
       step2: {
-        characterText: "Sebutkan\nberapa panjang\ntongkat\ntersebut?",
-        navText: "Ketuk angka yang benar.",
+        characterText: "Sebutkan\u2013\nberapa panjang\ntongkat\ntersebut?",
+        navText: "Gunakan numpad untuk memasukkan panjang.",
         navCorrect: "Ketuk \u00BB untuk mengukur tongkat lainnya.",
         questionText: "Panjang tongkat adalah {{input}} jengkal tangan.",
         correctFeedback: "Bagus!\nItu benar.",
@@ -163,7 +163,7 @@ const DATA = {
       },
       step4: {
         characterText: "Sebutkan\nberapa panjang\ntongkat\ntersebut?",
-        navText: "Ketuk angka yang benar.",
+        navText: "Gunakan numpad untuk memasukkan panjang.",
         navCorrect: "Ketuk \u00BB untuk membandingkan tongkat.",
         questionText: "Panjang tongkat adalah {{input}} jengkal tangan.",
         correctFeedback: "Bagus!\nItu benar.",
@@ -177,7 +177,7 @@ const DATA = {
         ctCorrect:
           "Tongkat A <y>lebih panjang</y>.\nTongkat B <bl>lebih pendek</bl>.",
         ctCorrect2:
-          "Benda dengan\n<y>panjang lebih besar</y> adalah\n<y>lebih panjang</y>.\nBenda dengan\n<y>panjang lebih kecil</y> adalah\n<y>lebih pendek</y>.",
+          "Benda dengan\n<y>panjang lebih besar</y> adalah\n<y>lebih panjang</y>.\nBenda dengan\n<bl>panjang lebih kecil</bl> adalah\n<bl>lebih pendek</bl>.",
         navCorrect2: "Ketuk \u00BB untuk melihat skenario lain.",
         labelA: "A",
         labelB: "B",
@@ -224,8 +224,8 @@ const DATA = {
         navCorrect: "Ketuk \u00BB untuk melanjutkan.",
         labelLonger: "<y>Lebih Panjang</y>",
         labelShorter: "<bl>Lebih Pendek</bl>",
-        correctFeedback: "Bagus!\nItu benar.",
-        wrongFeedback: "Ups! Benda\ndengan panjang\nlebih besar\nadalah lebih\npanjang.",
+        correctFeedback: "<green>Bagus!\nItu benar.</green>",
+        wrongFeedback: "<red>Ups! Benda\ndengan panjang\nlebih besar\nadalah lebih panjang.</red>",
         correctAnswer: "left",
         leftSubText: "7 jengkal tangan",
         rightSubText: "5 jengkal tangan",
@@ -244,7 +244,7 @@ const DATA = {
         questions: [
           {
             characterText: "Mana yang lebih panjang \u2013pintu atau ranjang?",
-            correctAnswer: "left",
+            correctAnswer: "right",
             correctFeedback: "<green>Bagus!\nItu benar.\nPanjang yang\nlebih besar\nadalah lebih panjang.</green>",
             wrongFeedback: "<red>Ups! Benda\ndengan panjang\nlebih besar\nadalah lebih panjang.</red>",
           },
@@ -270,7 +270,7 @@ const DATA = {
       },
       step14: {
         heading: "Membandingkan Panjang",
-        text: "Sekarang, kita tahu cara menemukan benda yang lebih panjang dan lebih pendek\n dengan membandingkan panjangnya.",
+        text: "Sekarang, kita tahu cara menemukan benda yang lebih panjang dan lebih pendek\ndengan membandingkan panjangnya.",
         buttonText: "Mulai Ulang",
       },
     },

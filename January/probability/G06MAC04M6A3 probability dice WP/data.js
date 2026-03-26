@@ -25,7 +25,7 @@ const DATA = {
 
     comprehend: {
       questionText:
-        'There is a <span class="yellow">game die with 8 faces</span>.<br>Based on the probability scale, what is your <span class="light-blue">estimate<br>of the numbers written on each face of the die</span>?',
+        'There is a <span class="yellow">game die with 8 faces</span>.<br>Based on the <span class="prob-scale">probability scale</span>, what is your <span class="light-blue">estimate<br>of the numbers written on each face of the die</span>?',
       givenTitle: "Given:",
       givenItems: [
         "Total number of faces = 8",
@@ -34,6 +34,7 @@ const DATA = {
       toFindTitle: "To Find:",
       toFindItems: ["Estimate the numbers written on all faces"],
       navStep1Start: "Let\u2019s note the information from the question.",
+      navStep1Mid: "Tap \u00BB to note more information from the question.",
       navStep1Done: "Tap \u00BB to note what we need to find.",
       navStep2Start: "Let’s understand what we need to find.",
       navStep2Done: "Tap \u00BB to solve the challenge.",
@@ -82,6 +83,7 @@ const DATA = {
     },
 
     calculate: {
+      estimateText: "Estimate the number of faces for each type below: ",
       totalTarget: 8,
       conditionTotalText: "Total number of faces = 8",
       totalLabel: "TOTAL",
@@ -147,7 +149,7 @@ const DATA = {
 
     comprehend: {
       questionText:
-        'Ada <span class="yellow">dadu permainan dengan 8 sisi</span>.<br>Berdasarkan skala probabilitas, apa <span class="light-blue">perkiraan Anda tentang angka-angka yang tertulis pada setiap sisi dadu</span>?',
+        'Ada <span class="yellow">dadu permainan dengan 8 sisi</span>.<br>Berdasarkan <span class="prob-scale">skala probabilitas</span>, apa <span class="light-blue">perkiraan Anda tentang angka-angka yang tertulis pada setiap sisi dadu</span>?',
       givenTitle: "Diketahui:",
       givenItems: [
         "Jumlah total sisi = 8",
@@ -156,6 +158,7 @@ const DATA = {
       toFindTitle: "Dicari:",
       toFindItems: ["Perkirakan angka yang tertulis pada semua sisi"],
       navStep1Start: "Mari kita catat informasi dari soal.",
+      navStep1Mid: "Ketuk \u00BB untuk mencatat lebih banyak informasi dari soal.",
       navStep1Done: "Ketuk \u00BB untuk mencatat apa yang perlu dicari.",
       navStep2Start: "Mari kita catat informasi dari soal.",
       navStep2Done: "Ketuk \u00BB untuk menyelesaikan tantangan.",
@@ -204,6 +207,7 @@ const DATA = {
     },
 
     calculate: {
+      estimateText: "Perkirakan jumlah sisi untuk setiap tipe di bawah ini: ",
       totalTarget: 8,
       conditionTotalText: "Jumlah total sisi = 8",
       totalLabel: "TOTAL",

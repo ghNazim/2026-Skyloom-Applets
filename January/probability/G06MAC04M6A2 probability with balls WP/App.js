@@ -27,6 +27,9 @@ const App = () => {
   const [calculateKey, setCalculateKey] = useState(0);
   const [nextButtonText, setNextButtonText] = useState(null);
   const [comprehendKey, setComprehendKey] = useState(0);
+  // Step 1 internal parts (to avoid changing global step numbers)
+  // 0: run part1, 1: wait for Next, 2: run part2, 3: done (Next goes to step 2)
+  const [comprehendStep1Part, setComprehendStep1Part] = useState(0);
 
   const handleStart = () => {
     setShowNudge(false);
@@ -34,6 +37,7 @@ const App = () => {
     setCurrentStep(1);
     setIsNextDisabled(true);
     setNavText(APP_DATA.comprehend.navStep1Start);
+    setComprehendStep1Part(0);
   };
 
   const handleContinue = () => {
@@ -46,7 +50,16 @@ const App = () => {
 
   const handleAnimationDone = (step) => {
     setIsNextDisabled(false);
-    if (step === 1) setNavText(APP_DATA.comprehend.navStep1Done);
+    if (step === "comprehend_step1_part1") {
+      setComprehendStep1Part(1);
+      setNavText(APP_DATA.comprehend.navStep1Continue);
+      return;
+    }
+    if (step === "comprehend_step1_part2") {
+      setComprehendStep1Part(3);
+      setNavText(APP_DATA.comprehend.navStep1Done);
+      return;
+    }
     if (step === 2) setNavText(APP_DATA.comprehend.navStep2Done);
   };
 
@@ -80,13 +93,19 @@ const App = () => {
 
       if (currentStep === 1) {
         setCurrentStep(0);
+        setComprehendStep1Part(0);
       } else if (currentStep === 2) {
-        setComprehendKey(function (p) { return p + 1; });
+        setComprehendKey(function (p) {
+          return p + 1;
+        });
         setCurrentStep(1);
         setIsNextDisabled(true);
         setNavText(APP_DATA.comprehend.navStep1Start);
+        setComprehendStep1Part(0);
       } else if (currentStep === 3) {
-        setComprehendKey(function (p) { return p + 1; });
+        setComprehendKey(function (p) {
+          return p + 1;
+        });
         setCurrentStep(2);
         setIsNextDisabled(true);
         setNavText(APP_DATA.comprehend.navStep2Start);
@@ -98,7 +117,9 @@ const App = () => {
       } else if (currentStep === 6) {
         setCurrentStep(5);
         setFoundAnswers([]);
-        setCalculateKey(function (p) { return p + 1; });
+        setCalculateKey(function (p) {
+          return p + 1;
+        });
         setIsNextDisabled(true);
         setNavText(APP_DATA.calculate.navActive);
       } else if (currentStep === 7) {
@@ -115,9 +136,15 @@ const App = () => {
       playSound("click");
 
       if (currentStep === 1) {
-        setCurrentStep(2);
-        setIsNextDisabled(true);
-        setNavText(APP_DATA.comprehend.navStep2Start);
+        if (comprehendStep1Part === 1) {
+          // Run step1 part2 animation within the same step number
+          setComprehendStep1Part(2);
+          setIsNextDisabled(true);
+        } else if (comprehendStep1Part >= 3) {
+          setCurrentStep(2);
+          setIsNextDisabled(true);
+          setNavText(APP_DATA.comprehend.navStep2Start);
+        }
       } else if (currentStep === 2) {
         setCurrentStep(3);
         setIsNextDisabled(true);
@@ -159,6 +186,7 @@ const App = () => {
         setIsNextDisabled(true);
         setNavText("");
         setComprehendKey(0);
+        setComprehendStep1Part(0);
       }
     }
   };
@@ -186,25 +214,25 @@ const App = () => {
             React.createElement(Scale, {
               allVisible: true,
               customImages: APP_DATA.scaleImages,
-            })
+            }),
           ),
           React.createElement(
             "p",
             { className: "tap-start-text" },
-            intro.tapStartText
+            intro.tapStartText,
           ),
           React.createElement(Button, {
             ref: startButtonRef,
             text: intro.buttonText,
             onClick: handleStart,
             className: "challenge-intro-btn",
-          })
-        )
+          }),
+        ),
       ),
       React.createElement(Nudge, {
         show: showNudge,
         targetRef: startButtonRef,
-      })
+      }),
     );
   }
 
@@ -219,12 +247,12 @@ const App = () => {
         React.createElement(CompareSummary, {
           onContinue: handleContinue,
           buttonRef: continueButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: showNudge,
         targetRef: continueButtonRef,
-      })
+      }),
     );
   }
 
@@ -245,8 +273,9 @@ const App = () => {
         foundAnswers: foundAnswers,
         onCalculateCorrect: handleCalculateCorrect,
         comprehendKey: comprehendKey,
+        comprehendStep1Part: comprehendStep1Part,
         onNavChange: setNavText,
-      })
+      }),
     ),
 
     React.createElement(
@@ -259,12 +288,12 @@ const App = () => {
         navText: navText,
         nextButtonText: nextButtonText,
         nextButtonRef: nextButtonRef,
-      })
+      }),
     ),
     !isNextDisabled &&
       React.createElement(Nudge, {
         show: showNudge,
         targetRef: nextButtonRef,
-      })
+      }),
   );
 };

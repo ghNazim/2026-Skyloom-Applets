@@ -648,7 +648,11 @@ const App = () => {
               ),
               ce(
                 "div",
-                { className: "unit-column step2-units" },
+                {
+                  className:
+                    "unit-column step2-units" +
+                    (availableUnits.length <= 3 ? " step2-units--few" : ""),
+                },
                 availableUnits.map((unit) =>
                   ce(
                     "div",

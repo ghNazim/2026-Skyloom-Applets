@@ -130,6 +130,15 @@
   overflow: hidden;
 }
 
+/* When 3 or fewer items remain, center them vertically and horizontally */
+.step2-units--few {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5vw;
+}
+
 .unit-item {
   display: flex;
   align-items: center;

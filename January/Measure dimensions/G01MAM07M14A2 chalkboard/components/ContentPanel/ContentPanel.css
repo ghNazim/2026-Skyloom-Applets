@@ -79,8 +79,8 @@
 }
 
 .unit-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.03);
+  /* background: rgba(255, 255, 255, 0.1); */
+  /* transform: scale(1.03); */
 }
 
 .unit-column .unit-item img {
@@ -365,6 +365,7 @@
   text-align: center;
   color: white;
   z-index: 5;
+  display: none;
 }
 
 .question-heading.glow-text {

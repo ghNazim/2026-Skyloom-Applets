@@ -9,6 +9,7 @@ const App = () => {
   const [calculateKey, setCalculateKey] = useState(0);
   const [nextButtonText, setNextButtonText] = useState(null);
   const [comprehendKey, setComprehendKey] = useState(0);
+  const [comprehendGivenPart, setComprehendGivenPart] = useState(0); // 0=not started, 1=part1 done, 2=run part2, 3=all done
   const [showNudge, setShowNudge] = useState(true);
 
   const startButtonRef = useRef(null);
@@ -25,6 +26,7 @@ const App = () => {
     setCurrentStep(1);
     setIsNextDisabled(true);
     setNavText(APP_DATA.comprehend.navStep1Start);
+    setComprehendGivenPart(0);
   };
 
   const handleContinue = () => {
@@ -39,6 +41,21 @@ const App = () => {
     setIsNextDisabled(false);
     if (step === 1) setNavText(APP_DATA.comprehend.navStep1Done);
     if (step === 2) setNavText(APP_DATA.comprehend.navStep2Done);
+  };
+
+  const handleGivenPartDone = (part) => {
+    // part 1 completes after showing Given title + yellow text + item 1
+    if (part === 1) {
+      setComprehendGivenPart(1);
+      setIsNextDisabled(false);
+      setNavText(APP_DATA.comprehend.navStep1Mid);
+      return;
+    }
+
+    // part 2 completion is handled by handleAnimationDone(1)
+    if (part === 3) {
+      setComprehendGivenPart(3);
+    }
   };
 
   const handleCompareCorrect = () => {
@@ -72,12 +89,17 @@ const App = () => {
       if (currentStep === 1) {
         setCurrentStep(0);
       } else if (currentStep === 2) {
-        setComprehendKey(function (p) { return p + 1; });
+        setComprehendKey(function (p) {
+          return p + 1;
+        });
         setCurrentStep(1);
         setIsNextDisabled(true);
         setNavText(APP_DATA.comprehend.navStep1Start);
+        setComprehendGivenPart(0);
       } else if (currentStep === 3) {
-        setComprehendKey(function (p) { return p + 1; });
+        setComprehendKey(function (p) {
+          return p + 1;
+        });
         setCurrentStep(2);
         setIsNextDisabled(true);
         setNavText(APP_DATA.comprehend.navStep2Start);
@@ -89,7 +111,9 @@ const App = () => {
       } else if (currentStep === 6) {
         setCurrentStep(5);
         setFoundAnswers([]);
-        setCalculateKey(function (p) { return p + 1; });
+        setCalculateKey(function (p) {
+          return p + 1;
+        });
         setIsNextDisabled(true);
         setNavText(APP_DATA.calculate.navActive);
         setNextButtonText(null);
@@ -102,9 +126,16 @@ const App = () => {
       setShowNudge(false);
 
       if (currentStep === 1) {
-        setCurrentStep(2);
-        setIsNextDisabled(true);
-        setNavText(APP_DATA.comprehend.navStep2Start);
+        if (comprehendGivenPart < 3) {
+          // Trigger Given part 2 animation without changing step number
+          setComprehendGivenPart(2);
+          setIsNextDisabled(true);
+          setNavText(APP_DATA.comprehend.navStep1Start);
+        } else {
+          setCurrentStep(2);
+          setIsNextDisabled(true);
+          setNavText(APP_DATA.comprehend.navStep2Start);
+        }
       } else if (currentStep === 2) {
         setCurrentStep(3);
         setIsNextDisabled(true);
@@ -169,12 +200,12 @@ const App = () => {
             React.createElement(Scale, {
               allVisible: true,
               customImages: APP_DATA.scaleImages,
-            })
+            }),
           ),
           React.createElement(
             "p",
             { className: "tap-start-text" },
-            intro.tapStartText
+            intro.tapStartText,
           ),
           React.createElement(
             "div",
@@ -183,15 +214,15 @@ const App = () => {
               text: intro.buttonText,
               onClick: handleStart,
               className: "challenge-intro-btn",
-            })
+            }),
           ),
           showNudge &&
             React.createElement(Nudge, {
               show: true,
               targetRef: startButtonRef,
-            })
-        )
-      )
+            }),
+        ),
+      ),
     );
   }
 
@@ -211,8 +242,8 @@ const App = () => {
           React.createElement(Nudge, {
             show: true,
             targetRef: continueButtonRef,
-          })
-      )
+          }),
+      ),
     );
   }
 
@@ -233,8 +264,12 @@ const App = () => {
         foundAnswers: foundAnswers,
         onCalculateCorrect: handleCalculateCorrect,
         comprehendKey: comprehendKey,
-        onNavChange: function (text) { setNavText(text); },
-      })
+        comprehendGivenPart: comprehendGivenPart,
+        onGivenPartDone: handleGivenPartDone,
+        onNavChange: function (text) {
+          setNavText(text);
+        },
+      }),
     ),
 
     React.createElement(
@@ -253,7 +288,7 @@ const App = () => {
         React.createElement(Nudge, {
           show: true,
           targetRef: nextButtonRef,
-        })
-    )
+        }),
+    ),
   );
 };

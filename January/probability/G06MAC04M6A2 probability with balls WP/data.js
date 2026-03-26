@@ -25,7 +25,7 @@ const DATA = {
 
     comprehend: {
       questionText:
-        'There are <span class="yellow">10 balls in a bag</span>.<br>When one ball is picked at random, the chance of<br>picking a ball of each color is shown on the probability<br>scale below.<br>Based on this probability scale, <span class="light-blue">estimate how many<br>balls of each color are in the bag</span>.',
+        'There are <span class="yellow">10 balls in a bag</span>.<br>When one ball is picked at random, the <span class="chance-yellow">chance of picking a ball</span> of each color is shown on the probability<br>scale below.<br>Based on this probability scale, <span class="light-blue">estimate how many<br>balls of each color are in the bag</span>.',
       givenTitle: "Given:",
       givenItems: [
         "Total number of balls = 10",
@@ -34,6 +34,7 @@ const DATA = {
       toFindTitle: "To Find:",
       toFindItems: ["Estimate the number of balls of each color"],
       navStep1Start: "Let\u2019s note the information from the question.",
+      navStep1Continue: "Tap \u00BB to continue.",
       navStep1Done: "Tap \u00BB to note what we need to find.",
       navStep2Start: "Let’s understand what we need to find.",
       navStep2Done: "Tap \u00BB to solve the challenge.",
@@ -72,6 +73,7 @@ const DATA = {
     },
 
     calculate: {
+      estimateStatement: "Estimate the number of below given balls:",
       conditionTotalText: "Total number of<br>balls = 10",
       totalLabel: "TOTAL",
       checkText: "Check",
@@ -142,7 +144,7 @@ const DATA = {
 
     comprehend: {
       questionText:
-        'Ada <span class="yellow">10 bola dalam sebuah tas</span>.<br>Ketika satu bola diambil secara acak, peluang mengambil bola dari setiap warna ditunjukkan pada skala probabilitas di bawah ini.<br>Berdasarkan skala probabilitas ini, <span class="light-blue">perkirakan berapa banyak bola dari setiap warna yang ada dalam tas</span>.',
+        'Ada <span class="yellow">10 bola dalam sebuah tas</span>.<br>Ketika satu bola diambil secara acak, <span class="chance-yellow">peluang mengambil bola</span> dari setiap warna ditunjukkan pada skala probabilitas di bawah ini.<br>Berdasarkan skala probabilitas ini, <span class="light-blue">perkirakan berapa banyak bola dari setiap warna yang ada dalam tas</span>.',
       givenTitle: "Diketahui:",
       givenItems: [
         "Jumlah total bola = 10",
@@ -151,6 +153,7 @@ const DATA = {
       toFindTitle: "Dicari:",
       toFindItems: ["Perkirakan jumlah bola dari setiap warna"],
       navStep1Start: "Mari kita catat informasi dari soal.",
+      navStep1Continue: "Ketuk \u00BB untuk melanjutkan.",
       navStep1Done: "Ketuk \u00BB untuk mencatat apa yang perlu dicari.",
       navStep2Start: "Mari kita catat informasi dari soal.",
       navStep2Done: "Ketuk \u00BB untuk menyelesaikan tantangan.",
@@ -189,6 +192,7 @@ const DATA = {
     },
 
     calculate: {
+      estimateStatement: "Perkirakan jumlah bola dari setiap warna:",
       conditionTotalText: "Jumlah total<br>bola = 10",
       totalLabel: "TOTAL",
       checkText: "Periksa",

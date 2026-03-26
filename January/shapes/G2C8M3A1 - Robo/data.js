@@ -27,7 +27,7 @@ const DATA = {
         wrongCountMessage: "That's wrong.\n\nTry counting again.",
         step9FillColumnQuestion:
           "Let's first add all the color names in the first column.",
-        step9FillColumnButton: "Tap here to\nfill the first\ncolumn",
+        step9FillColumnButton: "Tap here to fill the first column",
         step9InitialBottomText: " ",
         step9TallyBottomText:
           "Tap the tally box for each {color} color shapes. Tap ✓ when done.",
@@ -224,7 +224,7 @@ const DATA = {
         wrongCountMessage: "Itu salah.\n\nCoba hitung lagi.",
         step9FillColumnQuestion:
           "Mari kita tambahkan dulu semua nama warna di kolom pertama.",
-        step9FillColumnButton: "Ketuk di sini untuk\nmengisi kolom\npertama",
+        step9FillColumnButton: "Ketuk di sini untuk mengisi kolom pertama",
         step9InitialBottomText: " ",
         step9TallyBottomText:
           "Ketuk kotak tally untuk setiap bentuk warna {color}. Ketuk ✓ jika sudah selesai.",

@@ -77,12 +77,19 @@ left{
 
 /* ── Highlight classes for Comprehend step ────────────────────── */
 .yellow,
-.light-blue {
+.light-blue,
+.prob-scale {
   transition: background-color 0.4s ease, padding 0.3s ease, color 0.3s ease;
   border-radius: 0.3vw;
 }
 
 .highlight-yellow .yellow {
+  background-color: #ffc107;
+  color: #1a1a1a;
+  padding: 0.1vw 0.4vw;
+}
+
+.highlight-prob-scale .prob-scale {
   background-color: #ffc107;
   color: #1a1a1a;
   padding: 0.1vw 0.4vw;

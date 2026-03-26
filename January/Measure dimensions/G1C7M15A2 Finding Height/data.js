@@ -76,12 +76,12 @@ const DATA = {
       step3: {
         topText: "Step 02: Place the small object along the {{object}}",
         characterText: "Find the\nheight of the\n{{object}}.",
-        navText: "Tap the {{unit}} to place beside the {{object}}, then tap check.",
+        navText: "Tap the {{unit}} to place along the {{object}}, then tap check.",
         navTextRemoveExtra: "Tap the {{unit}} to remove extra {{units}}, then tap check.",
         navTextCorrect: "Tap \u00BB to move to step 3.",
         wrongFewer: "Oops! {{Units}} are not placed till the top. Place more {{units}}.",
         wrongMore: "Oops! You placed more {{units}}. Remove the extra {{unit}}.",
-        correct: "Good job! You placed {{units}} beside the {{object}}.",
+        correct: "Good job! You placed {{units}} along the {{object}}.",
         check: "Check"
       },
       step4: {

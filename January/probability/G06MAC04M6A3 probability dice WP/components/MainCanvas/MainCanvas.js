@@ -7,6 +7,8 @@ const MainCanvas = ({
   foundAnswers,
   onCalculateCorrect,
   comprehendKey,
+  comprehendGivenPart,
+  onGivenPartDone,
   onNavChange,
 }) => {
   if (step >= 1 && step <= 2) {
@@ -17,6 +19,8 @@ const MainCanvas = ({
         key: comprehendKey,
         step: step,
         onAnimationDone: onAnimationDone,
+        comprehendGivenPart: comprehendGivenPart,
+        onGivenPartDone: onGivenPartDone,
       })
     );
   }

@@ -375,13 +375,17 @@ const App = () => {
     if (!houseSvgRef.current) return;
     
     const svgContainer = houseSvgRef.current;
-    const allShapes = svgContainer.querySelectorAll('.square, .rectangle, .circle, .triangle');
     const parent = svgContainer.querySelector('svg');
     if (!parent) return;
+    const allShapes = parent.querySelectorAll('.square, .rectangle, .circle, .triangle');
 
-    // Store current DOM order so we can restore it when removing highlight
+    // Store ORIGINAL DOM order once so we can always restore it.
+    // If we rewrite these indices on every highlight, the "baseline" order drifts
+    // because highlighted shapes are appended to the end for z-ordering.
     Array.from(allShapes).forEach((shape, index) => {
-      shape.setAttribute('data-order-index', String(index));
+      if (!shape.hasAttribute('data-order-index')) {
+        shape.setAttribute('data-order-index', String(index));
+      }
     });
 
     const highlighted = [];
@@ -393,9 +397,7 @@ const App = () => {
       if (normalizedFill === normalizedTarget) {
         highlighted.push(shape);
         shape.style.filter = 'drop-shadow(0 0 0.5vw white) drop-shadow(0 0 1vw white)';
-        shape.style.transform = 'scale(1.01)';
-        shape.style.transformOrigin = 'center';
-        shape.style.transition = 'filter 0.3s ease, transform 0.3s ease, opacity 0.3s ease';
+        shape.style.transition = 'filter 0.3s ease, opacity 0.3s ease';
         shape.style.opacity = '1';
       } else {
         shape.style.opacity = '0.4';
@@ -417,8 +419,6 @@ const App = () => {
     
     allShapes.forEach(shape => {
       shape.style.filter = '';
-      shape.style.transform = '';
-      shape.style.transformOrigin = '';
       shape.style.transition = '';
       shape.style.opacity = '1';
     });
@@ -930,28 +930,35 @@ const App = () => {
             "div", { className: "color-counting-main" },
             createHouseLeft(),
             React.createElement(
-              "div", { className: "color-counting-right" },
+              "div", { className: "color-counting-right single-col" },
               React.createElement(
-                "div", { className: "color-counting-table-col" },
-                React.createElement(EditableColorTable, {
-                  title: APP_DATA.common.colorOfShapesTable,
-                  headers: [APP_DATA.common.color, APP_DATA.common.tallyMarks, APP_DATA.common.numberOfShapes],
-                  colors: stepColors,
-                  showColorNames: false,
-                  tallyHtmls: new Array(stepColors.length).fill(''),
-                  tallyCellStates: new Array(stepColors.length).fill('default'),
-                  values: new Array(stepColors.length).fill(''),
-                  cellStates: new Array(stepColors.length).fill('default'),
-                })
-              ),
-              React.createElement(
-                "div", { className: "color-counting-numpad-col" },
-                React.createElement(Button, {
-                  ref: nudgeTargetRef,
-                  text: APP_DATA.common.step9FillColumnButton,
-                  onClick: handleSubstep1Fill,
-                  className: "substep1-fill-btn",
-                })
+                "div", { className: "color-counting-table-col single-col" },
+                React.createElement(
+                  "div", { className: "color-counting-table-wrap" },
+                  React.createElement(EditableColorTable, {
+                    title: APP_DATA.common.colorOfShapesTable,
+                    headers: [APP_DATA.common.color, APP_DATA.common.tallyMarks, APP_DATA.common.numberOfShapes],
+                    colors: stepColors,
+                    showColorNames: false,
+                    tallyHtmls: new Array(stepColors.length).fill(''),
+                    tallyCellStates: new Array(stepColors.length).fill('default'),
+                    values: new Array(stepColors.length).fill(''),
+                    cellStates: new Array(stepColors.length).fill('default'),
+                  })
+                ),
+                React.createElement(
+                  "div", { className: "color-counting-feedback-wrap" },
+                  createFeedbackBox()
+                ),
+                React.createElement(
+                  "div", { className: "color-counting-controls" },
+                  React.createElement(Button, {
+                    ref: nudgeTargetRef,
+                    text: APP_DATA.common.step9FillColumnButton,
+                    onClick: handleSubstep1Fill,
+                    className: "substep1-fill-btn",
+                  })
+                )
               )
             )
           ),
@@ -971,7 +978,7 @@ const App = () => {
       const isCorrect = currentTallyState === 'correct';
       const isWrong = currentTallyState === 'wrong';
       const checkDisabled = isCorrect || isWrong;
-      const resetDisabled = !isWrong;
+      const resetDisabled = isCorrect;
       const nextDisabled = !isCorrect;
       const navText = isWrong
         ? APP_DATA.common.step9TallyTapResetToEnter
@@ -988,46 +995,52 @@ const App = () => {
             "div", { className: "color-counting-main" },
             createHouseLeft(),
             React.createElement(
-              "div", { className: "color-counting-right" },
+              "div", { className: "color-counting-right single-col" },
               React.createElement(
-                "div", { className: "color-counting-table-col" },
-                React.createElement(EditableColorTable, {
-                  title: APP_DATA.common.colorOfShapesTable,
-                  headers: [APP_DATA.common.color, APP_DATA.common.tallyMarks, APP_DATA.common.numberOfShapes],
-                  colors: stepColors,
-                  showColorNames: true,
-                  tallyHtmls: tallyHtmls,
-                  tallyCellStates: tallyCellStates,
-                  onTallyCellClick: handleTallyCellClick,
-                  values: new Array(stepColors.length).fill(''),
-                  cellStates: new Array(stepColors.length).fill('default'),
-                })
-              ),
-              React.createElement(
-                "div", { className: "color-counting-numpad-col" },
-                createFeedbackBox(),
+                "div", { className: "color-counting-table-col single-col" },
                 React.createElement(
-                  "div", { className: "tally-action-buttons-row" },
-                  React.createElement(Button, {
-                    text: "✓",
-                    onClick: handleTallyCheck,
-                    className: "tally-action-btn check-btn",
-                    disabled: checkDisabled,
-                  }),
-                  React.createElement(Button, {
-                    ref: !resetDisabled ? nudgeTargetRef : undefined,
-                    text: "↻",
-                    onClick: handleTallyReset,
-                    className: "tally-action-btn reset-btn",
-                    disabled: resetDisabled,
-                  }),
-                  React.createElement(Button, {
-                    ref: !nextDisabled ? nudgeTargetRef : undefined,
-                    text: ">",
-                    onClick: handleTallyNext,
-                    className: "tally-action-btn next-btn",
-                    disabled: nextDisabled,
+                  "div", { className: "color-counting-table-wrap" },
+                  React.createElement(EditableColorTable, {
+                    title: APP_DATA.common.colorOfShapesTable,
+                    headers: [APP_DATA.common.color, APP_DATA.common.tallyMarks, APP_DATA.common.numberOfShapes],
+                    colors: stepColors,
+                    showColorNames: true,
+                    tallyHtmls: tallyHtmls,
+                    tallyCellStates: tallyCellStates,
+                    onTallyCellClick: handleTallyCellClick,
+                    values: new Array(stepColors.length).fill(''),
+                    cellStates: new Array(stepColors.length).fill('default'),
                   })
+                ),
+                React.createElement(
+                  "div", { className: "color-counting-feedback-wrap" },
+                  createFeedbackBox()
+                ),
+                React.createElement(
+                  "div", { className: "color-counting-controls" },
+                  React.createElement(
+                    "div", { className: "tally-action-buttons-row" },
+                    React.createElement(Button, {
+                      text: "✓",
+                      onClick: handleTallyCheck,
+                      className: "tally-action-btn check-btn",
+                      disabled: checkDisabled,
+                    }),
+                    React.createElement(Button, {
+                      ref: isWrong ? nudgeTargetRef : undefined,
+                      text: "↻",
+                      onClick: handleTallyReset,
+                      className: "tally-action-btn reset-btn",
+                      disabled: resetDisabled,
+                    }),
+                    React.createElement(Button, {
+                      ref: !nextDisabled ? nudgeTargetRef : undefined,
+                      text: ">",
+                      onClick: handleTallyNext,
+                      className: "tally-action-btn next-btn",
+                      disabled: nextDisabled,
+                    })
+                  )
                 )
               )
             )
@@ -1053,28 +1066,35 @@ const App = () => {
             "div", { className: "color-counting-main" },
             createHouseLeft(),
             React.createElement(
-              "div", { className: "color-counting-right" },
+              "div", { className: "color-counting-right single-col" },
               React.createElement(
-                "div", { className: "color-counting-table-col" },
-                React.createElement(EditableColorTable, {
-                  title: APP_DATA.common.colorOfShapesTable,
-                  headers: [APP_DATA.common.color, APP_DATA.common.tallyMarks, APP_DATA.common.numberOfShapes],
-                  colors: stepColors,
-                  showColorNames: true,
-                  tallyHtmls: tallyHtmls,
-                  tallyCellStates: new Array(stepColors.length).fill('default'),
-                  values: new Array(stepColors.length).fill(''),
-                  cellStates: new Array(stepColors.length).fill('default'),
-                })
-              ),
-              React.createElement(
-                "div", { className: "color-counting-numpad-col" },
-                React.createElement(Button, {
-                  ref: nudgeTargetRef,
-                  text: APP_DATA.common.next,
-                  onClick: handleSubstep3Next,
-                  className: "color-counting-next-button",
-                })
+                "div", { className: "color-counting-table-col single-col" },
+                React.createElement(
+                  "div", { className: "color-counting-table-wrap" },
+                  React.createElement(EditableColorTable, {
+                    title: APP_DATA.common.colorOfShapesTable,
+                    headers: [APP_DATA.common.color, APP_DATA.common.tallyMarks, APP_DATA.common.numberOfShapes],
+                    colors: stepColors,
+                    showColorNames: true,
+                    tallyHtmls: tallyHtmls,
+                    tallyCellStates: new Array(stepColors.length).fill('default'),
+                    values: new Array(stepColors.length).fill(''),
+                    cellStates: new Array(stepColors.length).fill('default'),
+                  })
+                ),
+                React.createElement(
+                  "div", { className: "color-counting-feedback-wrap" },
+                  createFeedbackBox()
+                ),
+                React.createElement(
+                  "div", { className: "color-counting-controls" },
+                  React.createElement(Button, {
+                    ref: nudgeTargetRef,
+                    text: APP_DATA.common.next,
+                    onClick: handleSubstep3Next,
+                    className: "color-counting-next-button",
+                  })
+                )
               )
             )
           ),
@@ -1109,8 +1129,7 @@ const App = () => {
           "div", { className: "color-counting-layout" },
           React.createElement(QuestionPanelTop, { text: questionText }),
           React.createElement(
-            "div", { className: "color-counting-main" },
-            createHouseLeft(),
+            "div", { className: "color-counting-main no-left" },
             React.createElement(
               "div", { className: "color-counting-right" },
               React.createElement(

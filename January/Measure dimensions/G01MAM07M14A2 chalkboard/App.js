@@ -452,7 +452,7 @@ const App = () => {
 
   const showVContainer =
     (currentStep >= 6 && currentStep <= 10) || currentStep === 11;
-  const showVArrow = currentStep === 6 || currentStep === 11;
+  const showVArrow = (currentStep === 6 || currentStep === 7 || currentStep === 11);
   const showVUnits = heightPlaced && currentStep >= 8 && currentStep <= 10;
 
   const showLengthCounts = currentStep >= 4 && currentStep <= 5;
@@ -583,7 +583,7 @@ const App = () => {
           key: "vc",
         },
         showVArrow && ce(VerticalArrow, {
-          blink: currentStep === 6,
+          blink: currentStep === 6 || currentStep === 7,
         }),
         ...vItems,
       ),

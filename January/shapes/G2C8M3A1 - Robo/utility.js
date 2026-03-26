@@ -82,22 +82,32 @@ const house_svg = `<svg width="298" height="385" viewBox="0 0 298 385" fill="non
 
 const showGreyWhiteTally = (whiteCount) => {
   const n = Math.max(0, Math.min(10, parseInt(whiteCount, 10) || 0));
-  const allLines = [
-    '<line x1="5.5" y1="2" x2="5.5" y2="17"',
-    '<line x1="12.5" y1="2" x2="12.5" y2="17"',
-    '<line x1="19.5" y1="2" x2="19.5" y2="17"',
-    '<line x1="26.5" y1="2" x2="26.5" y2="17"',
-    '<line x1="28.2443" y1="2.43625" x2="3.2443" y2="16.4363"',
-    '<line x1="37.5" y1="2" x2="37.5" y2="17"',
-    '<line x1="44.5" y1="2" x2="44.5" y2="17"',
-    '<line x1="51.5" y1="2" x2="51.5" y2="17"',
-    '<line x1="58.5" y1="2" x2="58.5" y2="17"',
-    '<line x1="60.2443" y1="2.43625" x2="35.2443" y2="16.4363"'
+
+  // Keep "tally progression" (verticals 1-4, then diagonal as #5) but draw diagonals first
+  // so vertical strokes always appear on top (better layering when lines overlap).
+  const linesInRenderOrder = [
+    // group 1 diagonal (tally index 4) behind its 4 verticals
+    { tallyIndex: 4, line: '<line x1="28.2443" y1="2.43625" x2="3.2443" y2="16.4363"' },
+    { tallyIndex: 0, line: '<line x1="5.5" y1="2" x2="5.5" y2="17"' },
+    { tallyIndex: 1, line: '<line x1="12.5" y1="2" x2="12.5" y2="17"' },
+    { tallyIndex: 2, line: '<line x1="19.5" y1="2" x2="19.5" y2="17"' },
+    { tallyIndex: 3, line: '<line x1="26.5" y1="2" x2="26.5" y2="17"' },
+
+    // group 2 diagonal (tally index 9) behind its 4 verticals
+    { tallyIndex: 9, line: '<line x1="60.2443" y1="2.43625" x2="35.2443" y2="16.4363"' },
+    { tallyIndex: 5, line: '<line x1="37.5" y1="2" x2="37.5" y2="17"' },
+    { tallyIndex: 6, line: '<line x1="44.5" y1="2" x2="44.5" y2="17"' },
+    { tallyIndex: 7, line: '<line x1="51.5" y1="2" x2="51.5" y2="17"' },
+    { tallyIndex: 8, line: '<line x1="58.5" y1="2" x2="58.5" y2="17"' }
   ];
-  const content = allLines.map((line, i) => {
-    const stroke = i < n ? 'white' : '#555555';
-    return `${line} stroke="${stroke}"/>`;
-  }).join('\n');
+
+  const content = linesInRenderOrder
+    .map(({ line, tallyIndex }) => {
+      const stroke = tallyIndex < n ? 'white' : '#555555';
+      const strokeWidth = stroke === 'white' ? '1.5' : '1';
+      return `${line} stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    })
+    .join('\n');
   return `<svg viewBox="0 0 62 19" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">\n${content}\n</svg>`;
 };
 
@@ -108,19 +118,19 @@ const showTally = (num) => {
   }
   // First group of 5: 4 vertical + 1 diagonal
   const group1 = [
-    '<line x1="5.5" y1="2" x2="5.5" y2="17" stroke="white"/>',
-    '<line x1="12.5" y1="2" x2="12.5" y2="17" stroke="white"/>',
-    '<line x1="19.5" y1="2" x2="19.5" y2="17" stroke="white"/>',
-    '<line x1="26.5" y1="2" x2="26.5" y2="17" stroke="white"/>',
-    '<line x1="28.2443" y1="2.43625" x2="3.2443" y2="16.4363" stroke="white"/>'
+    '<line x1="5.5" y1="2" x2="5.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="12.5" y1="2" x2="12.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="19.5" y1="2" x2="19.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="26.5" y1="2" x2="26.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="28.2443" y1="2.43625" x2="3.2443" y2="16.4363" stroke="white" stroke-width="1.5"/>'
   ];
   // Second group of 5 (for 6–10), same pattern shifted by 32 in x
   const group2 = [
-    '<line x1="37.5" y1="2" x2="37.5" y2="17" stroke="white"/>',
-    '<line x1="44.5" y1="2" x2="44.5" y2="17" stroke="white"/>',
-    '<line x1="51.5" y1="2" x2="51.5" y2="17" stroke="white"/>',
-    '<line x1="58.5" y1="2" x2="58.5" y2="17" stroke="white"/>',
-    '<line x1="60.2443" y1="2.43625" x2="35.2443" y2="16.4363" stroke="white"/>'
+    '<line x1="37.5" y1="2" x2="37.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="44.5" y1="2" x2="44.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="51.5" y1="2" x2="51.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="58.5" y1="2" x2="58.5" y2="17" stroke="white" stroke-width="1.5"/>',
+    '<line x1="60.2443" y1="2.43625" x2="35.2443" y2="16.4363" stroke="white" stroke-width="1.5"/>'
   ];
   let content, viewBox;
   if (n <= 5) {

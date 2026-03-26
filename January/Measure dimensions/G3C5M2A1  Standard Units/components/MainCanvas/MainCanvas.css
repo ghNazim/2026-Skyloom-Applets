@@ -1,0 +1,1006 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 1vw;
+  overflow: hidden;
+  /* left: 2.5%; */
+  position: relative;
+}
+
+/* Standard Units – measure layout */
+.measure-main-canvas {
+  overflow: visible;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.measure-canvas-inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.measure-canvas-inner .measure-pencil {
+  pointer-events: auto;
+}
+
+.measure-pencil {
+  position: absolute;
+  left: 50%;
+  top: 7vw;
+  transform: translateX(-50%);
+  width: 27vw;
+  height: auto;
+  max-height: 5vw;
+  object-fit: contain;
+  z-index: 5;
+}
+
+.measure-pencil.measure-pencil-clickable {
+  cursor: pointer;
+}
+
+.measure-eraser-count-top {
+  position: absolute;
+  left: 50%;
+  top: 2vw;
+  transform: translateX(-50%);
+  z-index: 6;
+  padding: 0.4vw 0.8vw;
+  font-size: 2.2vw;
+  font-weight: 600;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 0.25vw dashed #facc15;
+  border-radius: 0.5vw;
+  white-space: nowrap;
+}
+
+.measure-eraser-count-top y {
+  color: #ff9800;
+  font-weight: 700;
+}
+
+.measure-eraser-count-top-aisha {
+  border-color: #87ceeb;
+}
+
+.measure-eraser-count-top-aisha y {
+  color: #87ceeb;
+}
+
+@keyframes measure-eraser-count-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.measure-character {
+  position: absolute;
+  left: 14vw;
+  bottom: 0;
+  height: 55%;
+  width: auto;
+  object-fit: contain;
+  object-position: left bottom;
+  z-index: 4;
+}
+
+.measure-hand-eraser {
+  position: absolute;
+  bottom: 8vw;
+  height: auto;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.measure-hand-eraser-farhan {
+  left: 33vw;
+  width: 9vw;
+}
+
+.measure-hand-eraser-aisha {
+  left: 32vw;
+  width: 6.75vw;
+  bottom: 14vw;
+}
+
+.measure-eraser-clone {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+  height: auto;
+}
+
+.measure-eraser-clone-farhan {
+  width: 9vw;
+}
+
+.measure-eraser-clone-aisha {
+  width: 6.75vw;
+}
+
+.measure-erasers-row {
+  position: absolute;
+  left: 50%;
+  top: calc(7vw + 0.5vw);
+  transform: translateX(-50%);
+  display: flex;
+  width: 27vw;
+  z-index: 3;
+}
+
+.measure-erasers-row-3 {
+  height: 7vw;
+}
+
+.measure-erasers-row-4 {
+  height: 6.75vw;
+}
+
+.measure-eraser-slot {
+  flex: 1 0 0;
+  min-width: 0;
+  position: relative;
+  height: 100%;
+}
+
+.measure-eraser-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.measure-count-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2.2vw;
+  height: 2.2vw;
+  min-width: 2.2vw;
+  min-height: 2.2vw;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 0.15vw solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2vw;
+  font-weight: 700;
+  color: #1a1a2e;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ==================== STEP 5 ==================== */
+
+.s5-container {
+  flex-direction: row;
+  overflow: hidden;
+  gap: 0;
+}
+
+.s5-column {
+  position: relative;
+  width: 35%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.8vw;
+  overflow: hidden;
+}
+
+.s5-mcq-col {
+  width: 30%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.5vw;
+}
+
+/* Eraser count label at top of each column */
+.s5-eraser-count-top {
+  padding: 0.35vw 0.7vw;
+  font-size: 1.8vw;
+  font-weight: 600;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 0.2vw dashed #facc15;
+  border-radius: 0.4vw;
+  white-space: nowrap;
+  text-align: center;
+  z-index: 6;
+  flex-shrink: 0;
+}
+
+.s5-eraser-count-top y {
+  color: #ff9800;
+  font-weight: 700;
+}
+
+.s5-eraser-count-aisha {
+  border-color: #87ceeb;
+}
+
+.s5-eraser-count-aisha y {
+  color: #87ceeb;
+}
+
+/* Measure area: pencil + erasers */
+.s5-measure-area {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+  margin-top: 0.5vw;
+}
+
+.s5-pencil {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  position: relative;
+  z-index: 5;
+}
+
+.s5-erasers-row {
+  display: flex;
+  width: 100%;
+  position: relative;
+  z-index: 3;
+}
+
+.s5-erasers-row-3 {
+  height: 5vw;
+}
+
+.s5-erasers-row-4 {
+  height: 4.5vw;
+}
+
+.s5-eraser-slot {
+  flex: 1 0 0;
+  min-width: 0;
+  position: relative;
+  height: 100%;
+}
+
+.s5-eraser-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Character in step 5 */
+.s5-character {
+  flex: 1;
+  width: auto;
+  max-width: 60%;
+  object-fit: contain;
+  object-position: center bottom;
+  margin-top: auto;
+  z-index: 4;
+}
+
+.s5-farhan-col .s5-character {
+  position: relative;
+  left: -8vw;
+}
+
+.s5-aisha-col .s5-character {
+  position: relative;
+  right: -8vw;
+}
+
+/* Dashed lines for option 0 visual feedback */
+.s5-dashed-line {
+  display: none;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 0;
+  border: 0.15vw dashed #facc15;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.s5-dashed-left {
+  left: 0;
+}
+
+.s5-dashed-right {
+  right: 0;
+}
+
+/* Pencil clones (option 1 feedback) */
+.s5-pencil-clone {
+  pointer-events: none;
+  object-fit: contain;
+}
+
+/* Eraser compare clones (option 2 feedback) */
+.s5-eraser-compare-clone {
+  pointer-events: none;
+  object-fit: contain;
+}
+
+/* ==================== STEP 6 ==================== */
+
+.s6-compare-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ==================== STEP 7 ==================== */
+
+.s7-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.s7-tool-button {
+  background-color: black;
+  color: white;
+  border: 0.25vw solid yellow;
+  padding: 1vw 2vw;
+  font-size: 2.2vw;
+  font-weight: 600;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.s7-tool-button:hover {
+  opacity: 0.9;
+}
+
+/* ==================== STEP 8 ==================== */
+
+.s8-container {
+  overflow: hidden;
+}
+
+.s8-ruler-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.s8-ruler-label {
+  position: absolute;
+  left: 50%;
+  top: 1vw;
+  transform: translateX(-50%);
+  z-index: 6;
+  padding: 0.4vw 0.8vw;
+  font-size: 2.2vw;
+  font-weight: 600;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 0.25vw dashed #facc15;
+  border-radius: 0.5vw;
+  white-space: nowrap;
+}
+
+.s8-ruler-img {
+  position: absolute;
+  top: 7vw;
+  left: 1vw;
+  width: 130%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ==================== STEP 9 ==================== */
+
+.s9-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+}
+
+/* Annotation layer sits above the ruler */
+.s9-annotation-layer {
+  position: relative;
+  width: 130%;
+  left: 1vw;
+  height: 7vw;
+  flex-shrink: 0;
+  margin-top: 0.5vw;
+}
+
+/* Dashed vertical lines */
+.s9-dashed-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 0.18vw dashed #00bfa5;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Arrow line between 0 and n */
+.s9-arrow-line {
+  position: absolute;
+  bottom: 0.8vw;
+  height: 0;
+  border-top: 0.18vw solid #00bfa5;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Arrowhead left */
+.s9-arrow-line::before {
+  content: "";
+  position: absolute;
+  left: -0.1vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-right: 0.7vw solid #00bfa5;
+  border-top: 0.4vw solid transparent;
+  border-bottom: 0.4vw solid transparent;
+}
+
+/* Arrowhead right */
+.s9-arrow-line::after {
+  content: "";
+  position: absolute;
+  right: -0.1vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 0.7vw solid #00bfa5;
+  border-top: 0.4vw solid transparent;
+  border-bottom: 0.4vw solid transparent;
+}
+
+/* Distance label above arrow */
+.s9-distance-label {
+  position: absolute;
+  bottom: 1.8vw;
+  text-align: center;
+  color: #00bfa5;
+  font-size: 2vw;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* Ruler image */
+.s9-ruler-img {
+  width: 130%;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: 1vw;
+  position: relative;
+  z-index: 5;
+}
+
+/* Circles row */
+.s9-circles-row {
+  position: relative;
+  width: 130%;
+  left: 1vw;
+  height: 5vw;
+  flex-shrink: 0;
+  margin-top: 0.5vw;
+  top: -18vw;
+}
+
+/* Individual clickable circle */
+.s9-cm-circle {
+  position: absolute;
+  top: 0;
+  width: 4vw;
+  height: 4vw;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 0.2vw solid #ccc;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4vw;
+  font-weight: 600;
+  color: #ccc;
+  z-index: 10;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
+  user-select: none;
+  /* animation: pulse-highlight 1.5s infinite; */
+}
+.s9-cm-circle.pulse-highlight {
+  animation: pulse-highlight 1.5s infinite;
+}
+.s9-cm-circle:first-child {
+  animation: none !important;
+}
+
+.s9-cm-circle:hover {
+  border-color: #00bfa5;
+  color: #00bfa5;
+  animation: none !important;
+}
+
+.s9-cm-circle-active {
+  border-color: #00bfa5;
+  color: #00bfa5;
+  background: rgba(0, 191, 165, 0.12);
+  animation: none !important;
+}
+
+/* ==================== STEP 10 ==================== */
+
+.s10-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.s10-ruler-wrap {
+  position: absolute;
+  top: 7vw;
+  left: 1vw;
+  width: 130%;
+  transition:
+    width 1s ease-in-out,
+    left 1s ease-in-out,
+    top 1s ease-in-out;
+}
+
+/* On zoom */
+.s10-ruler-wrap.s10-zoomed {
+  width: 800%;
+  left: 2vw; /* Left edge remains at exactly the same point */
+  top: 1vw; /* Moves the enlarged ruler up so the bottom labels stay visible */
+}
+
+.s10-ruler-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block; /* Allows parent to wrap its height */
+}
+
+.s10-mag-glass {
+  position: absolute;
+  top: 6vw;
+  left: 4vw;
+  width: 10vw;
+  height: auto;
+  cursor: pointer;
+  z-index: 20;
+  transition: transform 0.2s;
+}
+
+.s10-mag-glass:hover {
+  transform: scale(1.1);
+}
+
+.s10-mm-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.s10-mm-circle {
+  position: absolute;
+  top: 6.5%; /* Position right across the middle of the small mm marking lines */
+  width: 1.5vw;
+  height: 1.5vw;
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 50%;
+  border: 0.15vw solid black;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9vw;
+  font-weight: 700;
+  color: black;
+  z-index: 10;
+  animation: s10-pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes s10-pop-in {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ==================== STEP 11 ==================== */
+
+.s11-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.s11-ruler-wrap {
+  position: absolute;
+  width: 800%;
+  left: 2vw;
+  top: 1vw;
+}
+
+.s11-ruler-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.s11-annotation-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Let pointer events through to the ruler layer unless explicit */
+}
+
+/* Vertical dashed lines aligned with markings */
+.s11-dashed-line {
+  position: absolute;
+  top: 2%; /* Nudged up slightly from 6% */
+  height: 20%; /* Length of the dashed lines down the ruler */
+  border-left: 0.18vw dashed #00b0ff;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Arrow bridging 0 to max */
+.s11-arrow-line {
+  position: absolute;
+  top: 21%; /* Aligned at the bottom of the dashed lines */
+  height: 0;
+  border-top: 0.18vw solid #00b0ff;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.s11-arrow-line::before {
+  content: "";
+  position: absolute;
+  left: -0.1vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-right: 0.7vw solid #00b0ff;
+  border-top: 0.4vw solid transparent;
+  border-bottom: 0.4vw solid transparent;
+}
+
+.s11-arrow-line::after {
+  content: "";
+  position: absolute;
+  right: -0.1vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 0.7vw solid #00b0ff;
+  border-top: 0.4vw solid transparent;
+  border-bottom: 0.4vw solid transparent;
+}
+
+.s11-distance-label {
+  position: absolute;
+  top: 20%;
+  transform: translateY(-100%);
+  text-align: center;
+  color: #00b0ff;
+  font-size: 2vw;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 11;
+}
+
+.s11-clickable-circle {
+  position: absolute;
+  top: 6.5%; /* Positioned directly on the millimeter hash marks */
+  width: 3vw;
+  height: 3vw;
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Centers element over precise left % calculation */
+  border-radius: 50%;
+  border: 0.25vw dashed #00b0ff;
+  background: transparent;
+  cursor: pointer;
+  z-index: 20;
+  pointer-events: auto; /* Essential to allow clicks as container prevents it */
+  transition: background 0.2s ease;
+}
+
+.s11-clickable-circle:hover {
+  background: rgba(0, 176, 255, 0.15); /* Soft visual feedback */
+}
+
+/* 1 cm line (above mm line) when qFinal appears - circle markers at both ends */
+.s11-cm-line-block {
+  position: absolute;
+  top: 8%;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.s11-cm-line {
+  position: absolute;
+  top: 50%;
+  height: 0;
+  border-top: 0.18vw solid #00bfa5;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.s11-cm-marker {
+  position: absolute;
+  top: 50%;
+  width: 1.2vw;
+  height: 1.2vw;
+  border-radius: 50%;
+  background: #00bfa5;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.s11-cm-label {
+  position: absolute;
+  top: 8vw;
+  transform: translateY(-100%);
+  text-align: center;
+  color: #00bfa5;
+  font-size: 2vw;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ==================== STEP 12 ==================== */
+
+.s12-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.s12-mes-text {
+  position: absolute;
+  top: 1vw;
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  font-size: 4vw;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.s12-box-cm {
+  border: 0.25vw solid #00bfa5;
+  border-radius: 1vw;
+  padding: 0.5vw 2vw;
+  color: #00bfa5;
+  background: rgba(0, 191, 165, 0.1);
+  min-width: 8vw;
+  text-align: center;
+}
+
+.s12-label-cm {
+  color: #00bfa5;
+}
+
+.s12-label-and {
+  color: #ffb300;
+  font-size: 4vw; /* slightly smaller for 'and' */
+}
+
+.s12-box-mm {
+  border: 0.25vw solid #00b0ff;
+  border-radius: 1vw;
+  padding: 0.5vw 2vw;
+  color: #00b0ff;
+  background: rgba(0, 176, 255, 0.1);
+  min-width: 8vw;
+  text-align: center;
+}
+
+.s12-label-mm {
+  color: #00b0ff;
+}
+
+.s12-ruler-wrap {
+  position: absolute;
+  top: 10vw;
+  left: 1vw;
+  width: 130%; /* Full scale, not zoomed */
+  pointer-events: none; /* Let annotations take interactions on top */
+}
+
+.s12-ruler-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.s12-annotation-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.s12-horiz-line {
+  position: absolute;
+  top: 39%;
+  height: 0;
+  border-top: 0.35vw solid #00b0ff;
+}
+
+.s12-zero-dot {
+  position: absolute;
+  top: 39%;
+  width: 1.5vw;
+  height: 1.5vw;
+  border-radius: 50%;
+  background: #00b0ff;
+  transform: translate(-50%, -50%);
+}
+
+.s12-vert-dash {
+  position: absolute;
+  top: 6%;
+  height: 33%;
+  border-left: 0.25vw dashed #00b0ff;
+  transform: translateX(-50%);
+}
+
+.s12-slider-dot {
+  position: absolute;
+  top: 39%;
+  width: 2.5vw;
+  height: 2.5vw;
+  border-radius: 50%;
+  background: #00b0ff;
+  border: 0.3vw solid rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  pointer-events: auto; /* Needs to be interactive */
+  touch-action: none; /* Crucial to prevent page pull-to-refresh / scrolling during drag */
+}
+
+.s12-slider-dot:active {
+  cursor: grabbing;
+}
+
+/* ==================== STEP 13 & 14 ==================== */
+
+.s13-14-container {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+.s14-mes-text-override {
+  /* Override default top and reposition inside container */
+  position: absolute;
+  top: 3vw;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex !important;
+  z-index: 50;
+}
+
+.s13-14-ruler-wrap {
+  position: absolute;
+  bottom: 1vw;
+  left: 1vw;
+  width: 130%; /* Full scale, matching step 12 scaling visually */
+  pointer-events: none;
+}
+
+.s13-14-ruler-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.s13-14-pencil {
+  position: absolute;
+  /* Will be controlled via inline styles */
+  transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 20;
+}
+
+.s14-dashed-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.s14-dashed-line {
+  position: absolute;
+  bottom: 94%; /* Start precisely at 6% from the top line where the hashes are */
+  height: 8vw; /* Spans up further matching visual design */
+  border-left: 0.25vw dashed #ff9800;
+  transform: translateX(-50%);
+  animation: s14-fade-in 0.3s ease-in backwards;
+  animation-delay: 1.2s; /* Waits patiently for the pencil placement to finish */
+}
+
+@keyframes s14-fade-in {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-2vw); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+
+
+@keyframes pulse-highlight {
+  0% {
+    box-shadow: 0 0 0 0 #00bfa5;
+  }
+  70% {
+    box-shadow: 0 0 0 0.6vw rgba(219, 39, 119, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(219, 39, 119, 0);
+  }
+}

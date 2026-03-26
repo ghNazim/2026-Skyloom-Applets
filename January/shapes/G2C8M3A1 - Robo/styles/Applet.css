@@ -72,8 +72,14 @@
   overflow: hidden;
 }
 
+.color-counting-main.no-left {
+  justify-content: center;
+}
+.color-counting-main.no-left .color-counting-right {
+  width: 95%;
+}
 .color-counting-left {
-  width: 33%;
+  width: 40%;
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -106,7 +112,8 @@
 }
 
 .color-counting-right {
-  width: 67%;
+  /* flex: 1; */
+  width: 60%;
   display: flex;
   gap: 1vw;
   min-height: 0;
@@ -114,6 +121,10 @@
   border: .2vw solid var(--panel-border-color);
   border-radius: 2vw;
   padding: 1vw;
+}
+
+.color-counting-right.single-col {
+  justify-content: center;
 }
 
 .color-counting-table-col {
@@ -124,6 +135,38 @@
   justify-content: center;
   min-height: 0;
   overflow: hidden;
+}
+
+.color-counting-table-col.single-col {
+  /* flex: 1; */
+  width: 100%;
+  justify-content: flex-start;
+  gap: 1vw;
+}
+
+.color-counting-table-wrap {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-counting-feedback-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-counting-controls {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1vw;
 }
 
 .color-counting-numpad-col {
@@ -141,15 +184,15 @@
 
 .color-feedback-box {
   width: 100%;
-  padding: 1vw;
+  padding: .3vw 1vw;
   border-radius: 1vw;
   text-align: center;
   font-size: 2vw;
   color: white;
   transition: opacity 0.3s ease;
-  height: 10vw;
-  min-height: 10vw;
-  max-height: 10vw;
+  height: 8vw;
+  min-height: 8vw;
+  max-height: 8vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -157,13 +200,13 @@
 
 .color-feedback-box.show.correct {
   background-color: rgba(46, 204, 112, 0.119);
-  border: 2px solid rgba(46, 204, 113, 0.8);
+  border: .25vw solid rgba(46, 204, 113, 0.8);
   color: #2ecc71;
 }
 
 .color-feedback-box.show.wrong {
  background-color: rgba(231, 77, 60, 0.103);
-  border: 2px solid rgba(231, 76, 60, 0.8);
+  border: .25vw solid rgba(231, 76, 60, 0.8);
   color: white;
 }
 

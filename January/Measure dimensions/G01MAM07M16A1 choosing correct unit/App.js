@@ -737,7 +737,7 @@ const App = () => {
     const feedbackImageSrc =
       selectedUnit && unitIndex >= 0
         ? "assets/" +
-          APP_DATA.objectNames[selectedObject] +
+          selectedObject.toLowerCase() +
           (unitIndex + 1) +
           ".svg"
         : null;

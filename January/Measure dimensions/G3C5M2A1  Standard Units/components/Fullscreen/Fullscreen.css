@@ -1,0 +1,100 @@
+.fullscreen-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    /* text-align: center; */
+    /* background-color: #2c3e50; */
+    color: white;
+    padding: 2rem;
+    padding-bottom: 10vw;
+    box-sizing: border-box;
+    /* backdrop-filter: blur(5vw); */
+}
+.btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border: 1px solid var(--button-border-color);
+  color: var(--white-color);
+  font-size: 2.5vw;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  padding: 1vw 3vw;
+  border-radius: 1vw;
+  font-weight: bold;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+}
+.fullscreen-content{
+    line-height: 1.6;
+    font-size: 2.5vw;
+    /* margin-bottom: 2rem; */
+    white-space: pre;
+
+}
+.fullscreen-content.center{
+    text-align: center ;
+}
+.fullscreen-content.left{
+    text-align: left ;
+}
+.heading{
+    font-weight: bold;
+    font-size: 2.7vw;
+    margin-bottom: 4vw;
+    color: var(--accent-color);
+}
+
+.fullscreen-button{
+    position: absolute;
+    bottom: 3vw;
+}
+
+/* Final screen: two columns (image left, text right) */
+.fullscreen-two-column {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    width: 100%;
+    max-width: 90vw;
+    min-height: 35vh;
+    flex: 1;
+}
+.fullscreen-image-col {
+    flex: 0 0 45%;
+    max-width: 45%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fullscreen-final-image {
+    width: 100%;
+    
+    object-fit: contain;
+    display: block;
+}
+.fullscreen-text-col {
+    flex: 1 1 55%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+/* Color-coded formula on final screen (match step 6/7) */
+.fullscreen-text-col .highlight-green {
+    color: #10b981;
+}
+.fullscreen-text-col .highlight-blue {
+    color: #00ffff;
+}
+.fullscreen-text-col .highlight-yellow {
+    color: #facc15;
+}
+
+

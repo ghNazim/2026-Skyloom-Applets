@@ -81,6 +81,7 @@
   flex-shrink: 0;
   position: absolute;
   top: -4vw;
+  width: 300%;
 }
 
 .stick-body {

@@ -1,37 +1,53 @@
-const Comprehend = ({ step, onAnimationDone }) => {
+const Comprehend = ({ step, onAnimationDone, comprehendGivenPart, onGivenPartDone }) => {
   const { useState, useEffect } = React;
   const data = APP_DATA.comprehend;
 
   const s1Pre = step >= 2;
   const [showGivenTitle, setShowGivenTitle] = useState(s1Pre);
   const [highlightYellow, setHighlightYellow] = useState(s1Pre);
+  const [highlightProbScale, setHighlightProbScale] = useState(s1Pre);
   const [showGivenItem1, setShowGivenItem1] = useState(s1Pre);
   const [highlightScale, setHighlightScale] = useState(s1Pre);
   const [showGivenItem2, setShowGivenItem2] = useState(s1Pre);
-  const [animStep1Done, setAnimStep1Done] = useState(s1Pre);
+  const [animGivenPart1Done, setAnimGivenPart1Done] = useState(s1Pre);
+  const [animGivenAllDone, setAnimGivenAllDone] = useState(s1Pre);
 
   const [showToFindTitle, setShowToFindTitle] = useState(false);
   const [highlightBlue, setHighlightBlue] = useState(false);
   const [showToFindItem1, setShowToFindItem1] = useState(false);
 
   useEffect(() => {
-    if (step === 1 && !animStep1Done) {
+    // Given step (Step 1) - Part 1
+    if (step === 1 && !animGivenPart1Done) {
       const timers = [];
       timers.push(setTimeout(() => { setShowGivenTitle(true); playSound("click"); }, 500));
       timers.push(setTimeout(() => { setHighlightYellow(true); playSound("click"); }, 1500));
       timers.push(setTimeout(() => { setShowGivenItem1(true); playSound("click"); }, 2500));
-      timers.push(setTimeout(() => { setHighlightScale(true); playSound("click"); }, 3500));
-      timers.push(
-        setTimeout(() => {
-          setShowGivenItem2(true);
-          setAnimStep1Done(true);
-          playSound("click");
-          onAnimationDone(1);
-        }, 4500)
-      );
+      timers.push(setTimeout(() => {
+        setAnimGivenPart1Done(true);
+        playSound("click");
+        onGivenPartDone && onGivenPartDone(1);
+      }, 3200));
       return () => timers.forEach(clearTimeout);
     }
-  }, [step]);
+  }, [step, animGivenPart1Done]);
+
+  useEffect(() => {
+    // Given step (Step 1) - Part 2, triggered by Next click
+    if (step === 1 && comprehendGivenPart === 2 && !animGivenAllDone) {
+      const timers = [];
+      timers.push(setTimeout(() => { setHighlightProbScale(true); playSound("click"); }, 300));
+      timers.push(setTimeout(() => { setHighlightScale(true); playSound("click"); }, 1200));
+      timers.push(setTimeout(() => {
+        setShowGivenItem2(true);
+        setAnimGivenAllDone(true);
+        playSound("click");
+        onGivenPartDone && onGivenPartDone(3);
+        onAnimationDone(1);
+      }, 2200));
+      return () => timers.forEach(clearTimeout);
+    }
+  }, [step, comprehendGivenPart, animGivenAllDone]);
 
   useEffect(() => {
     if (step === 2) {
@@ -52,6 +68,7 @@ const Comprehend = ({ step, onAnimationDone }) => {
   const questionClasses =
     "comprehend-question-text" +
     (highlightYellow ? " highlight-yellow" : "") +
+    (highlightProbScale ? " highlight-prob-scale" : "") +
     (highlightBlue ? " highlight-blue" : "");
 
   return React.createElement(

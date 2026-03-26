@@ -14,7 +14,7 @@ function renderConditionIcon(state) {
   return null;
 }
 
-function renderConditionsStrip(conditionStates) {
+function renderConditionsStrip(conditionStates, step) {
   var calcData = APP_DATA.calculate;
   return React.createElement(
     "div",
@@ -23,14 +23,13 @@ function renderConditionsStrip(conditionStates) {
     React.createElement(
       "div",
       {
-        className:
-          "condition-box condition-box-" + conditionStates[0],
+        className: "condition-box condition-box-" + conditionStates[0],
       },
       React.createElement("div", {
         className: "condition-box-content",
         dangerouslySetInnerHTML: { __html: calcData.conditionTotalText },
       }),
-      renderConditionIcon(conditionStates[0])
+      renderConditionIcon(conditionStates[0]),
     ),
 
     calcData.compareData.map(function (comp, i) {
@@ -38,8 +37,7 @@ function renderConditionsStrip(conditionStates) {
         "div",
         {
           key: i,
-          className:
-            "condition-box condition-box-" + conditionStates[i + 1],
+          className: "condition-box condition-box-" + conditionStates[i + 1],
         },
         React.createElement(
           "div",
@@ -52,17 +50,21 @@ function renderConditionsStrip(conditionStates) {
           React.createElement(
             "span",
             { className: "condition-operator" },
-            comp.operator
+            comp.operator,
           ),
           React.createElement("img", {
             src: comp.img2,
             className: "condition-ball",
             draggable: false,
-          })
+          }),
         ),
-        renderConditionIcon(conditionStates[i + 1])
+        renderConditionIcon(conditionStates[i + 1]),
       );
-    })
+    }),
+    step === 5 && React.createElement("div", {
+      className: "estimate-statement",
+      dangerouslySetInnerHTML: { __html: calcData.estimateStatement },
+    }),
   );
 }
 
@@ -139,7 +141,7 @@ const Calculate = ({ step, foundAnswers, onCorrect, onNavChange }) => {
       "div",
       { className: "calculate-container" },
 
-      renderConditionsStrip(["correct", "correct", "correct"]),
+      renderConditionsStrip(["correct", "correct", "correct"], step),
 
       React.createElement(
         "div",
@@ -350,7 +352,7 @@ const Calculate = ({ step, foundAnswers, onCorrect, onNavChange }) => {
   return React.createElement(
     "div",
     { className: "calculate-container" },
-    renderConditionsStrip(conditionStates),
+    renderConditionsStrip(conditionStates, step),
     React.createElement(
       "div",
       { className: "calc-body" },
