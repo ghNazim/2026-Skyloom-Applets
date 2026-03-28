@@ -1,0 +1,190 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.visual-row {
+  flex: 0 0 80%;
+  height: 80%;
+  min-height: 0;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+  gap: 1vw;
+}
+
+.svg-column {
+  width: 65%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.svg-column.centered {
+  margin: 0 auto;
+}
+
+.numpad-column {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.action-row {
+  flex: 0 0 20%;
+  height: 20%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw 2vw;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 100;
+}
+
+.action-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.action-text {
+  color: white;
+  font-size: 2.2vw;
+  /* display: flex; */
+  align-items: center;
+  gap: 0.3vw;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.action-text.id {
+  font-size: 2vw;
+}
+.action-btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  color: white;
+  border: none;
+  border-radius: 1vw;
+  padding: 0.8vw 2.5vw;
+  font-size: 2.5vw;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  transition: transform 0.1s, background 0.2s;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+/* Answer box states */
+.answer-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 5vw;
+  min-height: 3.2vw;
+  padding: 0.2vw 1.2vw;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 0.5vw;
+  font-size: 2.5vw;
+  transition: background-color 0.2s, color 0.2s;
+  margin-left: 0.3vw;
+}
+
+.answer-box.default {
+  background: white;
+  color: #333;
+  border: 2px solid #ccc;
+}
+
+.answer-box.correct {
+  background: #4caf50;
+  color: white;
+  border: 2px solid #388e3c;
+}
+
+.answer-box.wrong {
+  background: #f44336;
+  color: white;
+  border: 2px solid #d32f2f;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+/* SVG animation class */
+.decomp-hidden {
+  opacity: 0;
+}
+
+/* Clickable shape cursor */
+.shape-clickable {
+  cursor: pointer;
+}
+
+/* Color highlight classes */
+.highlight-orange {
+  color: #e67e22;
+}
+
+.highlight-cyan {
+  color: #00acc1;
+}
+
+.highlight-green {
+  color: #4caf50;
+}

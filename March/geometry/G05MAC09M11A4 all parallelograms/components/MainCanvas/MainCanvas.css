@@ -1,0 +1,143 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 1vw;
+  overflow: hidden;
+}
+
+/* ── Left column: Buttons ── */
+.buttons-column {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5vw;
+  padding: 2vw 2.5vw;
+}
+
+.btn-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.shape-btn {
+  width: 100%;
+  padding: 1.2vw 1.5vw;
+  border-radius: 1.2vw;
+  border: none;
+  font-size: 2vw;
+  font-family: inherit;
+  text-align: center;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.shape-btn-current {
+  background: linear-gradient(145deg, #d4c5e8, #e8ddf5);
+  color: #333;
+  cursor: default;
+  box-shadow: 0 0.2vw 0.6vw rgba(0, 0, 0, 0.25);
+}
+
+.shape-btn-next-active {
+  background: linear-gradient(145deg, #f5a623, #ffc107);
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 0.2vw 0.6vw rgba(0, 0, 0, 0.25);
+}
+
+.shape-btn-next-active:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0.3vw 0.8vw rgba(0, 0, 0, 0.3);
+}
+
+.shape-btn-disabled {
+  background: rgba(200, 200, 200, 0.2);
+  color: rgba(255, 255, 255, 0.45);
+  cursor: default;
+}
+
+.tap-gif {
+  position: absolute;
+  width: 5vw;
+  height: auto;
+  bottom: -1vw;
+  right: 0.5vw;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Right column: Visual ── */
+.visual-column {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 15, 30, 0.45);
+  border-radius: 1vw;
+  border: 1px solid rgba(200, 160, 220, 0.2);
+  padding: 0.5vw 1vw;
+}
+
+.heading-row {
+  height: 13%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.shape-heading {
+  color: white;
+  font-size: 2.5vw;
+  font-weight: bold;
+  margin: 0;
+}
+
+.svg-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0.3vw;
+}
+
+.svg-panel {
+  background: rgba(10, 8, 20, 0.5);
+  border-radius: 0.8vw;
+  border: 1px solid rgba(200, 160, 220, 0.15);
+  padding: 0.5vw;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.formula-row {
+  height: 13%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.formula-text {
+  color: white;
+  font-size: 2vw;
+  font-weight: bold;
+  margin: 0;
+}

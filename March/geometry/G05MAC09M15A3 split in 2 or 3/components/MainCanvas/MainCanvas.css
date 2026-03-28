@@ -1,0 +1,346 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+/* ── Left Column ── */
+.left-column {
+  width: 67%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.left-column.full-width {
+  width: 100%;
+}
+
+.visual-row {
+  height: 75%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5vw;
+  position: relative;
+  background-color: #03003F;
+}
+
+.visual-image {
+  height: 90%;
+  width: auto;
+  /* max-width: 100%; */
+  /* max-height: 100%; */
+  object-fit: contain;
+}
+
+.action-row {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5vw 2vw;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 100;
+}
+
+.action-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.action-content.action-column {
+  flex-direction: column;
+  gap: 0.5vw;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.action-text {
+  color: white;
+  font-size: 2.2vw;
+  align-items: center;
+  gap: 0.3vw;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  color: white;
+  border: none;
+  border-radius: 1vw;
+  padding: 0.8vw 2.5vw;
+  font-size: 2.5vw;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  transition: transform 0.1s, background 0.2s;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── Right Column ── */
+.right-column {
+  width: 33%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: .5vw;
+  padding-left: 0;
+}
+
+.right-panel-content {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    145deg,
+    rgba(30, 35, 90, 0.85),
+    rgba(50, 30, 100, 0.85)
+  );
+  border-radius: 1.5vw;
+  padding: 2vw 2.5vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2.5vw;
+}
+
+.right-step-text {
+  transition: opacity 0.4s ease;
+}
+
+.step-title {
+  font-weight: bold;
+  font-size: 2.2vw;
+  color: white;
+  margin-bottom: 0.3vw;
+}
+
+.step-desc {
+  font-size: 2vw;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* ── Split Buttons ── */
+.split-buttons {
+  gap: 2vw;
+}
+
+.split-btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  color: white;
+  border: 2px solid var(--start-button-gradient-start);
+  border-radius: 1vw;
+  padding: 0.8vw 2vw;
+  font-size: 1.8vw;
+  cursor: pointer;
+  max-width: 21vw;
+  font-weight: bold;
+  font-family: inherit;
+  transition: all 0.2s;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+}
+
+.split-btn:hover:not(.clicked):not(:disabled) {
+  transform: scale(1.03);
+}
+
+.split-btn.clicked {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  cursor: default;
+  box-shadow: none;
+}
+
+/* ── Highlight Box ── */
+.highlight-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.1vw 0.6vw;
+  border: 2px dashed #ffc107;
+  border-radius: 0.4vw;
+  cursor: pointer;
+  animation: glow 1.5s ease-in-out infinite alternate;
+  color: #ffc107;
+  font-weight: bold;
+  margin: 0 0.2vw;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.8),
+      0 0 30px rgba(255, 193, 7, 0.4);
+  }
+}
+
+/* ── Text Rows ── */
+.text-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.text-row-2 {
+  margin-top: 0.3vw;
+  min-height: 3.5vw;
+}
+
+.text-row-content {
+  color: white;
+  font-size: 2vw;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  white-space: pre-wrap;
+}
+
+/* ── Numpad in right panel ── */
+.numpad-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Answer Box ── */
+.answer-box {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 5vw;
+  min-height: 3.2vw;
+  padding: 0.2vw 1.2vw;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 0.5vw;
+  font-size: 2.5vw;
+  transition: background-color 0.2s, color 0.2s;
+  margin: 0 0.3vw;
+}
+
+.answer-box.default {
+  background: white;
+  color: #333;
+  border: 2px solid #ccc;
+}
+
+.answer-box.correct {
+  background: #4caf50;
+  color: white;
+  border: 2px solid #388e3c;
+}
+
+.answer-box.wrong {
+  background: #f44336;
+  color: white;
+  border: 2px solid #d32f2f;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+/* ── Visual Label Boxes ── */
+.visual-label {
+  position: absolute;
+  width: 14vw;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0.6vw;
+  padding: 0.4vw 0.8vw;
+  color: white;
+  font-size: 1.5vw;
+  font-weight: bold;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.visual-label .label-area {
+  font-size: 1.5vw;
+  font-weight: 400;
+  margin-top: 0.15vw;
+  color: rgba(255, 255, 255, 1);
+}
+
+.visual-label.t1 {
+  left: 1vw;
+  top: 10vw;
+}
+
+.visual-label.t2 {
+  right: 0.5vw;
+  top: 0.5vw;
+}
+
+/* Split 3: Triangle left, Rectangle 2 center, Rectangle 1 right */
+.visual-label.tr {
+  left: 1vw;
+  top: 8vw;
+}
+
+.visual-label.r2 {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1vw;
+}
+
+.visual-label.r1 {
+  right: 0.5vw;
+  top: 0.5vw;
+}
