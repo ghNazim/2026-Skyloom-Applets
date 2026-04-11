@@ -32,12 +32,35 @@
   background-color: #03003F;
 }
 
-.visual-image {
+.visual-media-frame {
+  position: relative;
   height: 90%;
-  width: auto;
-  /* max-width: 100%; */
-  /* max-height: 100%; */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.visual-image {
+  height: 100%;
+  width: 100%;
   object-fit: contain;
+}
+
+.split-video-overlay {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.12s linear;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.split-video-overlay.visible {
+  opacity: 1;
 }
 
 .action-row {
@@ -74,6 +97,7 @@
   gap: 0.3vw;
   justify-content: center;
   flex-wrap: wrap;
+  white-space: pre;
 }
 
 .action-btn {
@@ -173,7 +197,7 @@
     0.2vh 0.2vh 0.1vh var(--start-button-shadow);
 }
 
-.split-btn:hover:not(.clicked):not(:disabled) {
+.split-btn:hover:not(.clicked):not(.explored):not(:disabled) {
   transform: scale(1.03);
 }
 
@@ -182,6 +206,27 @@
   border-color: rgba(255, 255, 255, 0.3);
   cursor: default;
   box-shadow: none;
+}
+.split-btn.clicked:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+/* Completed route on return visits — muted, not the same as current choice (.clicked) */
+.split-btn.explored {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.55);
+  box-shadow: none;
+}
+.split-btn.explored:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.split-btn:disabled:not(.clicked):not(.explored) {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ── Highlight Box ── */

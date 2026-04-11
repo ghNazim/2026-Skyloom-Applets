@@ -12,6 +12,8 @@ const MainCanvas = (props) => {
     onDismissMagNudge,
     onDismissS11Nudge,
     onS11NudgeReposition,
+    onDismissS12DragNudge,
+    onS12NudgeReposition,
     onDismissS13Pencil,
     onDismissS14Pencil,
     onDismissS15Eraser,
@@ -384,7 +386,7 @@ const MainCanvas = (props) => {
         fClone.className = "s5-eraser-compare-clone";
         fClone.style.position = "absolute";
         fClone.style.zIndex = "50";
-        fClone.style.opacity = "0.5";
+        fClone.style.opacity = "1";
         const fRect = farhanEraser.getBoundingClientRect();
         fClone.style.left = fRect.left - canvasRect.left + "px";
         fClone.style.top = fRect.top - canvasRect.top + "px";
@@ -397,7 +399,7 @@ const MainCanvas = (props) => {
         aClone.className = "s5-eraser-compare-clone";
         aClone.style.position = "absolute";
         aClone.style.zIndex = "50";
-        aClone.style.opacity = "0.5";
+        aClone.style.opacity = "1";
         const aRect = aishaEraser.getBoundingClientRect();
         aClone.style.left = aRect.left - canvasRect.left + "px";
         aClone.style.top = aRect.top - canvasRect.top + "px";
@@ -542,6 +544,12 @@ const MainCanvas = (props) => {
     }
   }, [step]);
 
+  useEffect(() => {
+    if (step === 12) {
+      onS12NudgeReposition?.();
+    }
+  }, [step, onS12NudgeReposition]);
+
   const handleS12PointerDown = useCallback((e) => {
     e.target.setPointerCapture(e.pointerId);
   }, []);
@@ -575,11 +583,12 @@ const MainCanvas = (props) => {
 
       if (!s12HasDragged && mm > 0) {
         setS12HasDragged(true);
+        if (onDismissS12DragNudge) onDismissS12DragNudge();
         onUpdateTexts(undefined, APP_DATA.step12.nAfterTap);
         onSetNextEnabled(true);
       }
     },
-    [s12HasDragged, onUpdateTexts, onSetNextEnabled],
+    [s12HasDragged, onDismissS12DragNudge, onUpdateTexts, onSetNextEnabled],
   );
 
   const handleS12PointerUp = useCallback((e) => {
@@ -1050,6 +1059,7 @@ const MainCanvas = (props) => {
           }),
           // Drag Interaction Slider Dot Target
           React.createElement("div", {
+            id: "s12-slider-dot",
             className: "s12-slider-dot",
             style: { left: mmPosPercent(s12CurrentMm) + "%" },
             onPointerDown: handleS12PointerDown,

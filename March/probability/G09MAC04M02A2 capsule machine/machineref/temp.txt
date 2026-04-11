@@ -1,0 +1,2 @@
+var $bm_rt;
+$bm_rt = thisComp.layer('Machine').effect('drop old')('Color');

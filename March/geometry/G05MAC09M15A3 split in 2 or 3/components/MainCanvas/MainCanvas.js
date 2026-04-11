@@ -25,6 +25,14 @@ const MainCanvas = function (props) {
   var step5Index = step5IndexState[0];
   var setStep5Index = step5IndexState[1];
 
+  var step3VideoSrcState = useState("");
+  var step3VideoSrc = step3VideoSrcState[0];
+  var setStep3VideoSrc = step3VideoSrcState[1];
+
+  var step3VideoVisibleState = useState(false);
+  var step3VideoVisible = step3VideoVisibleState[0];
+  var setStep3VideoVisible = step3VideoVisibleState[1];
+
   var numpadValueState = useState("");
   var numpadValue = numpadValueState[0];
   var setNumpadValue = numpadValueState[1];
@@ -34,14 +42,69 @@ const MainCanvas = function (props) {
   var setBoxState = boxStateState[1];
 
   var wrongTimerRef = useRef(null);
+  var step3VideoRef = useRef(null);
+  var step4SubstepVideoRef = useRef(null);
+  /** First canvas image for the chosen split (config[0]); avoids question.svg flash on 3→4. */
+  var firstStep4ImageUrlRef = useRef("");
+
+  var step4SubstepVideoSrcState = useState("");
+  var step4SubstepVideoSrc = step4SubstepVideoSrcState[0];
+  var setStep4SubstepVideoSrc = step4SubstepVideoSrcState[1];
+  var step4SubstepVideoVisibleState = useState(false);
+  var step4SubstepVideoVisible = step4SubstepVideoVisibleState[0];
+  var setStep4SubstepVideoVisible = step4SubstepVideoVisibleState[1];
+  var step4SubstepVideoPlaybackEndedState = useState(false);
+  var step4SubstepVideoPlaybackEnded = step4SubstepVideoPlaybackEndedState[0];
+  var setStep4SubstepVideoPlaybackEnded = step4SubstepVideoPlaybackEndedState[1];
+
+  // Preload visual assets to avoid flashes during step transitions.
+  useEffect(function () {
+    var sources = ["assets/question.svg"];
+    var i;
+    var addSrc = function (src) {
+      if (!src) return;
+      if (sources.indexOf(src) === -1) sources.push(src);
+    };
+
+    if (APP_DATA.step5 && APP_DATA.step5.img) {
+      addSrc("assets/" + APP_DATA.step5.img);
+    }
+    if (APP_DATA.step5Split3 && APP_DATA.step5Split3.img) {
+      addSrc("assets/" + APP_DATA.step5Split3.img);
+    }
+    if (APP_DATA.split2Config) {
+      for (i = 0; i < APP_DATA.split2Config.length; i++) {
+        addSrc("assets/" + APP_DATA.split2Config[i].img);
+        if (APP_DATA.split2Config[i].imgCorrect) {
+          addSrc("assets/" + APP_DATA.split2Config[i].imgCorrect);
+        }
+      }
+    }
+    if (APP_DATA.split3Config) {
+      for (i = 0; i < APP_DATA.split3Config.length; i++) {
+        addSrc("assets/" + APP_DATA.split3Config[i].img);
+        if (APP_DATA.split3Config[i].imgCorrect) {
+          addSrc("assets/" + APP_DATA.split3Config[i].imgCorrect);
+        }
+        if (APP_DATA.split3Config[i].imgEnd) {
+          addSrc("assets/" + APP_DATA.split3Config[i].imgEnd);
+        }
+      }
+    }
+
+    for (i = 0; i < sources.length; i++) {
+      var img = new Image();
+      img.src = sources[i];
+    }
+  }, []);
 
   // ── Derived ──
   var config =
     selectedSplit === "split2"
       ? APP_DATA.split2Config
       : selectedSplit === "split3"
-      ? APP_DATA.split3Config
-      : null;
+        ? APP_DATA.split3Config
+        : null;
 
   var getStep5Data = function () {
     if (selectedSplit === "split3" && APP_DATA.step5Split3) {
@@ -53,21 +116,14 @@ const MainCanvas = function (props) {
   var getNavForStep5 = function (idx) {
     var d = getStep5Data();
     var lastIdx = d.texts.length - 1;
-    var oneRouteDoneAlready =
-      exploredSplit2 !== exploredSplit3;
-    if (
-      idx === lastIdx &&
-      oneRouteDoneAlready &&
-      APP_DATA.step5NavSummarise
-    ) {
+    var oneRouteDoneAlready = exploredSplit2 !== exploredSplit3;
+    if (idx === lastIdx && oneRouteDoneAlready && APP_DATA.step5NavSummarise) {
       return APP_DATA.step5NavSummarise;
     }
     return d.navs[idx];
   };
   var currentSubConfig =
-    config && substep >= 0 && substep < config.length
-      ? config[substep]
-      : null;
+    config && substep >= 0 && substep < config.length ? config[substep] : null;
 
   var hasHighlight =
     currentSubConfig &&
@@ -77,8 +133,7 @@ const MainCanvas = function (props) {
 
   var hasText2 = currentSubConfig && !!currentSubConfig.text2;
 
-  var showNumpadInRight =
-    step === 4 && hasText2 && boxState !== "correct";
+  var showNumpadInRight = step === 4 && hasText2 && boxState !== "correct";
 
   var showRightPanel = step >= 2;
 
@@ -91,21 +146,45 @@ const MainCanvas = function (props) {
     return -1;
   };
 
+  // Preload + decode first step-4 image for this route so 3→4 does not flash question.svg
+  // or wait on undecoded pixels when the video overlay is removed.
+  var preloadFirstStep4ImageForSplit = function (split) {
+    var cfg =
+      split === "split2"
+        ? APP_DATA.split2Config
+        : split === "split3"
+          ? APP_DATA.split3Config
+          : null;
+    if (!cfg || !cfg[0] || !cfg[0].img) return;
+    var url = "assets/" + cfg[0].img;
+    firstStep4ImageUrlRef.current = url;
+    var im = new Image();
+    im.src = url;
+    if (typeof im.decode === "function") {
+      im.decode().catch(function () {});
+    }
+  };
+
   // ── Current image ──
   var getCurrentImage = function () {
     if (step === 1 || step === 2) return "assets/question.svg";
     if (step === 3) {
-      if (selectedSplit === "split2") return "assets/a.svg";
-      if (selectedSplit === "split3") return "assets/b.svg";
       return "assets/question.svg";
     }
     if (step === 4 && currentSubConfig) {
       if (boxState === "correct" && currentSubConfig.imgCorrect) {
         return "assets/" + currentSubConfig.imgCorrect;
       }
+      if (currentSubConfig.imgEnd && step4SubstepVideoPlaybackEnded) {
+        return "assets/" + currentSubConfig.imgEnd;
+      }
       return "assets/" + currentSubConfig.img;
     }
     if (step === 5) return "assets/" + getStep5Data().img;
+    // Step 4 before currentSubConfig is ready: use preloaded route first image, not question.svg.
+    if (step === 4 && firstStep4ImageUrlRef.current) {
+      return firstStep4ImageUrlRef.current;
+    }
     return "assets/question.svg";
   };
 
@@ -133,16 +212,21 @@ const MainCanvas = function (props) {
       } else if (step === 3) {
         onSetNextEnabled(false);
         setSelectedSplit(null);
+        firstStep4ImageUrlRef.current = "";
+        setStep3VideoSrc("");
+        setStep3VideoVisible(false);
         registerNextOverride(null);
       } else if (step === 4) {
         setSubstep(0);
+        setStep3VideoSrc("");
+        setStep3VideoVisible(false);
       } else if (step === 5) {
         setStep5Index(0);
       }
 
       return clearWrongTimer;
     },
-    [step]
+    [step],
   );
 
   // ── Step 4: substep init & next override ──
@@ -165,10 +249,17 @@ const MainCanvas = function (props) {
       setNumpadValue("");
       setBoxState("default");
 
-      var hasH =
-        sub.text1 &&
-        sub.text1.indexOf("[") !== -1 &&
-        !sub.text2;
+      if (sub.video) {
+        setStep4SubstepVideoSrc("assets/" + sub.video);
+        setStep4SubstepVideoVisible(false);
+        setStep4SubstepVideoPlaybackEnded(false);
+      } else {
+        setStep4SubstepVideoSrc("");
+        setStep4SubstepVideoVisible(false);
+        setStep4SubstepVideoPlaybackEnded(false);
+      }
+
+      var hasH = sub.text1 && sub.text1.indexOf("[") !== -1 && !sub.text2;
       var hasT2 = !!sub.text2;
 
       if (hasH) {
@@ -196,7 +287,7 @@ const MainCanvas = function (props) {
         registerNextOverride(null);
       };
     },
-    [substep, step, config]
+    [substep, step, config],
   );
 
   // ── Step 5: substep init & next override ──
@@ -227,13 +318,7 @@ const MainCanvas = function (props) {
         registerNextOverride(null);
       };
     },
-    [
-      step5Index,
-      step,
-      selectedSplit,
-      exploredSplit2,
-      exploredSplit3,
-    ]
+    [step5Index, step, selectedSplit, exploredSplit2, exploredSplit3],
   );
 
   // ── Handlers ──
@@ -246,10 +331,58 @@ const MainCanvas = function (props) {
 
   var handleSplitClick = function (split) {
     if (typeof playSound === "function") playSound("click");
+    // Reset route-specific progression before entering step 4 to avoid
+    // one-frame flashes from stale substeps on re-entry.
+    setSubstep(0);
+    setNumpadValue("");
+    setBoxState("default");
     setSelectedSplit(split);
-    onSetNextEnabled(true);
+    preloadFirstStep4ImageForSplit(split);
+    setStep3VideoSrc(split === "split2" ? "assets/2.mp4" : "assets/3.mp4");
+    setStep3VideoVisible(false);
+    onSetNextEnabled(false);
     onUpdateNavText(APP_DATA.step3.navTextAfterSelect);
   };
+
+  var handleStep3VideoLoaded = function () {
+    setStep3VideoVisible(true);
+  };
+
+  var handleStep3VideoEnded = function () {
+    var v = step3VideoRef.current;
+    if (v) {
+      var lastFrameTime = Math.max(0, v.duration - 0.03);
+      v.currentTime = lastFrameTime;
+      v.pause();
+    }
+    if (selectedSplit === "split2" || selectedSplit === "split3") {
+      preloadFirstStep4ImageForSplit(selectedSplit);
+    }
+    onSetNextEnabled(true);
+  };
+
+  var handleStep4SubstepVideoLoaded = function () {
+    setStep4SubstepVideoVisible(true);
+  };
+
+  var handleStep4SubstepVideoEnded = function () {
+    var v = step4SubstepVideoRef.current;
+    if (v && !isNaN(v.duration) && isFinite(v.duration)) {
+      var lastFrameTime = Math.max(0, v.duration - 0.03);
+      v.currentTime = lastFrameTime;
+      v.pause();
+    }
+    setStep4SubstepVideoPlaybackEnded(true);
+  };
+
+  // Keep video mounted (paused on last frame) until correct answer; then remove
+  // overlay so imgEnd/imgCorrect beneath is revealed without a gap.
+  var showStep4SubstepVideo =
+    step === 4 &&
+    currentSubConfig &&
+    currentSubConfig.video &&
+    boxState !== "correct" &&
+    step4SubstepVideoSrc;
 
   var handleStepsButton = function () {
     if (typeof playSound === "function") playSound("click");
@@ -298,7 +431,7 @@ const MainCanvas = function (props) {
       return React.createElement(
         "span",
         { className: "text-row-content" },
-        text1
+        text1,
       );
     }
 
@@ -317,9 +450,7 @@ const MainCanvas = function (props) {
       var highlighted = text1.substring(bracketStart + 1, bracketEnd);
 
       if (before)
-        parts.push(
-          React.createElement("span", { key: "t" + key++ }, before)
-        );
+        parts.push(React.createElement("span", { key: "t" + key++ }, before));
 
       parts.push(
         React.createElement(
@@ -329,8 +460,8 @@ const MainCanvas = function (props) {
             className: "highlight-box",
             onClick: handleHighlightClick,
           },
-          highlighted
-        )
+          highlighted,
+        ),
       );
 
       lastIndex = bracketEnd + 1;
@@ -342,15 +473,15 @@ const MainCanvas = function (props) {
         React.createElement(
           "span",
           { key: "t" + key++ },
-          text1.substring(lastIndex)
-        )
+          text1.substring(lastIndex),
+        ),
       );
     }
 
     return React.createElement(
       "span",
       { className: "text-row-content" },
-      parts
+      parts,
     );
   };
 
@@ -360,15 +491,15 @@ const MainCanvas = function (props) {
     return React.createElement(
       "span",
       { className: "text-row-content" },
-      React.createElement("span", null, parts[0]),
+      React.createElement("span", {
+        dangerouslySetInnerHTML: { __html: parts[0] },
+      }),
       React.createElement(
         "span",
         { className: "answer-box " + boxState },
-        numpadValue || "\u00A0\u00A0"
+        numpadValue || "\u00A0\u00A0",
       ),
-      parts[1]
-        ? React.createElement("span", null, parts[1])
-        : null
+      parts[1] ? React.createElement("span", null, parts[1]) : null,
     );
   };
 
@@ -381,8 +512,8 @@ const MainCanvas = function (props) {
         React.createElement(
           "button",
           { className: "action-btn", onClick: handleStepsButton },
-          APP_DATA.step1.buttonText
-        )
+          APP_DATA.step1.buttonText,
+        ),
       );
     }
 
@@ -391,6 +522,14 @@ const MainCanvas = function (props) {
     }
 
     if (step === 3) {
+      var split2Disabled =
+        exploredSplit2 ||
+        selectedSplit === "split2" ||
+        selectedSplit === "split3";
+      var split3Disabled =
+        exploredSplit3 ||
+        selectedSplit === "split3" ||
+        selectedSplit === "split2";
       return React.createElement(
         "div",
         { className: "action-content split-buttons" },
@@ -399,33 +538,29 @@ const MainCanvas = function (props) {
           {
             className:
               "split-btn" +
-              (exploredSplit2 || selectedSplit === "split2"
-                ? " clicked"
-                : ""),
+              (selectedSplit === "split2" ? " clicked" : "") +
+              (exploredSplit2 && selectedSplit !== "split2" ? " explored" : ""),
             onClick: function () {
               handleSplitClick("split2");
             },
-            disabled:
-              exploredSplit2 || selectedSplit === "split2",
+            disabled: split2Disabled,
           },
-          APP_DATA.step3.split2Button
+          APP_DATA.step3.split2Button,
         ),
         React.createElement(
           "button",
           {
             className:
               "split-btn" +
-              (exploredSplit3 || selectedSplit === "split3"
-                ? " clicked"
-                : ""),
+              (selectedSplit === "split3" ? " clicked" : "") +
+              (exploredSplit3 && selectedSplit !== "split3" ? " explored" : ""),
             onClick: function () {
               handleSplitClick("split3");
             },
-            disabled:
-              exploredSplit3 || selectedSplit === "split3",
+            disabled: split3Disabled,
           },
-          APP_DATA.step3.split3Button
-        )
+          APP_DATA.step3.split3Button,
+        ),
       );
     }
 
@@ -436,15 +571,13 @@ const MainCanvas = function (props) {
         React.createElement(
           "div",
           { key: "tr1", className: "text-row" },
-          renderText1(currentSubConfig.text1)
+          renderText1(currentSubConfig.text1),
         ),
         React.createElement(
           "div",
           { key: "tr2", className: "text-row text-row-2" },
-          currentSubConfig.text2
-            ? renderText2(currentSubConfig.text2)
-            : null
-        )
+          currentSubConfig.text2 ? renderText2(currentSubConfig.text2) : null,
+        ),
       );
     }
 
@@ -456,8 +589,8 @@ const MainCanvas = function (props) {
         React.createElement(
           "span",
           { className: "action-text" },
-          s5.texts[step5Index]
-        )
+          s5.texts[step5Index],
+        ),
       );
     }
 
@@ -480,18 +613,14 @@ const MainCanvas = function (props) {
             onClear: handleNumpadClear,
             onSubmit: handleNumpadSubmit,
             disabled: boxState === "correct",
-          })
-        )
+          }),
+        ),
       );
     }
 
     var highlightedIndex = getHighlightedStepIndex();
-    var stepElements = APP_DATA.rightPanelSteps.map(function (
-      stepInfo,
-      i
-    ) {
-      var isHighlighted =
-        highlightedIndex === -1 || highlightedIndex === i;
+    var stepElements = APP_DATA.rightPanelSteps.map(function (stepInfo, i) {
+      var isHighlighted = highlightedIndex === -1 || highlightedIndex === i;
       return React.createElement(
         "div",
         {
@@ -499,16 +628,8 @@ const MainCanvas = function (props) {
           className: "right-step-text",
           style: { opacity: isHighlighted ? 1 : 0.3 },
         },
-        React.createElement(
-          "div",
-          { className: "step-title" },
-          stepInfo.title
-        ),
-        React.createElement(
-          "div",
-          { className: "step-desc" },
-          stepInfo.desc
-        )
+        React.createElement("div", { className: "step-title" }, stepInfo.title),
+        React.createElement("div", { className: "step-desc" }, stepInfo.desc),
       );
     });
 
@@ -518,8 +639,8 @@ const MainCanvas = function (props) {
       React.createElement(
         "div",
         { className: "right-panel-content" },
-        stepElements
-      )
+        stepElements,
+      ),
     );
   };
 
@@ -545,9 +666,9 @@ const MainCanvas = function (props) {
             ? React.createElement(
                 "div",
                 { className: "label-area" },
-                labels2.t1a
+                labels2.t1a,
               )
-            : null
+            : null,
         ),
         React.createElement(
           "div",
@@ -557,9 +678,9 @@ const MainCanvas = function (props) {
             ? React.createElement(
                 "div",
                 { className: "label-area" },
-                labels2.t2a
+                labels2.t2a,
               )
-            : null
+            : null,
         ),
       ];
     }
@@ -584,9 +705,9 @@ const MainCanvas = function (props) {
             ? React.createElement(
                 "div",
                 { className: "label-area" },
-                labels3.r1a
+                labels3.r1a,
               )
-            : null
+            : null,
         ),
         React.createElement(
           "div",
@@ -596,9 +717,9 @@ const MainCanvas = function (props) {
             ? React.createElement(
                 "div",
                 { className: "label-area" },
-                labels3.r2a
+                labels3.r2a,
               )
-            : null
+            : null,
         ),
         React.createElement(
           "div",
@@ -608,9 +729,9 @@ const MainCanvas = function (props) {
             ? React.createElement(
                 "div",
                 { className: "label-area" },
-                labels3.tra
+                labels3.tra,
               )
-            : null
+            : null,
         ),
       ];
     }
@@ -625,25 +746,59 @@ const MainCanvas = function (props) {
     React.createElement(
       "div",
       {
-        className:
-          "left-column" + (showRightPanel ? "" : " full-width"),
+        className: "left-column" + (showRightPanel ? "" : " full-width"),
       },
       React.createElement(
         "div",
         { className: "visual-row" },
-        React.createElement("img", {
-          src: getCurrentImage(),
-          alt: "",
-          className: "visual-image",
-        }),
-        renderVisualLabels()
+        React.createElement(
+          "div",
+          { className: "visual-media-frame" },
+          React.createElement("img", {
+            src: getCurrentImage(),
+            alt: "",
+            className: "visual-image",
+          }),
+          step === 3 && step3VideoSrc
+            ? React.createElement("video", {
+                key: step3VideoSrc,
+                ref: step3VideoRef,
+                src: step3VideoSrc,
+                className:
+                  "split-video-overlay" + (step3VideoVisible ? " visible" : ""),
+                autoPlay: true,
+                muted: true,
+                playsInline: true,
+                preload: "auto",
+                onLoadedData: handleStep3VideoLoaded,
+                onEnded: handleStep3VideoEnded,
+              })
+            : null,
+          showStep4SubstepVideo
+            ? React.createElement("video", {
+                key: step4SubstepVideoSrc,
+                ref: step4SubstepVideoRef,
+                src: step4SubstepVideoSrc,
+                className:
+                  "split-video-overlay" +
+                  (step4SubstepVideoVisible ? " visible" : ""),
+                autoPlay: true,
+                muted: true,
+                playsInline: true,
+                preload: "auto",
+                onLoadedData: handleStep4SubstepVideoLoaded,
+                onEnded: handleStep4SubstepVideoEnded,
+              })
+            : null,
+        ),
+        renderVisualLabels(),
       ),
       React.createElement(
         "div",
         { className: "action-row" },
-        renderActionRow()
-      )
+        renderActionRow(),
+      ),
     ),
-    renderRightPanel()
+    renderRightPanel(),
   );
 };

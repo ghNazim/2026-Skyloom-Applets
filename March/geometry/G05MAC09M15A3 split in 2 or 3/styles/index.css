@@ -57,6 +57,18 @@ y {
   display: inline;
 }
 
+cy{
+  color: #18FFFF;
+  display: inline;
+}
+gr{
+  color: #00FF55;
+  display: inline;
+}
+or{
+  color: #F96F2A;
+  display: inline;
+}
 
 cm {
   --font-family-comma: Georgia, sans-serif;

@@ -7,26 +7,28 @@
 
 /* ── Left panel (60%) ── */
 .canvas-left-panel {
-  flex: 0 0 60%;
-  max-width: 60%;
+  width: 60%;
   display: flex;
   flex-direction: column;
   gap: 0.5vw;
   overflow: visible;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.154);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2vw;
+  backdrop-filter: blur(.5vw);
 }
 
 .svg-card {
   flex: 1;
-  background-color: rgba(0, 0, 0, 0.154);
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  border-radius: 1vw;
+  
   overflow: visible;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.5vw;
-  backdrop-filter: blur(.5vw);
+  
 }
 
 .triangle-svg {
@@ -43,16 +45,22 @@
   padding: 0.3vw 1vw;
   font-weight: 500;
   flex-shrink: 0;
-  background-color: #0000006e;
+  background-color: rgba(255, 255, 255, 0.138);
+  backdrop-filter: blur(1vw);
+  border-radius: 0 0 2vw 2vw;
 }
 
 /* ── Right panel (40%) ── */
 .canvas-right-panel {
-  flex: 0 0 38%;
-  max-width: 38%;
+  /* flex: 0 0 40%; */
+  width: 40%;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: rgba(255, 255, 255, 0.138);
+  backdrop-filter: blur(1vw);
+  border-radius: 2vw;
+  
 }
 
 .right-panel-center {

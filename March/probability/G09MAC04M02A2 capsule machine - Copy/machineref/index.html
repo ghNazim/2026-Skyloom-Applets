@@ -1,0 +1,578 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta charset="UTF-8">
+<head>
+    <style>
+        body{
+            background-color:#ffffff;
+            margin: 0px;
+            height: 100%;
+            overflow: hidden;
+        }
+        #lottie{
+            background-color:#ffffff;
+            width:100%;
+            height:100%;
+            display:block;
+            overflow: hidden;
+            transform: translate3d(0,0,0);
+            text-align: center;
+            opacity: 1;
+        }
+        #controls {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            max-width: 320px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            font-family: system-ui, sans-serif;
+            font-size: 13px;
+            z-index: 10;
+        }
+        #controls h3 { margin: 0 0 10px 0; font-size: 14px; color: #333; }
+        .control-row { margin-bottom: 10px; }
+        .control-row label { display: block; margin-bottom: 2px; color: #555; }
+        .control-row input[type="range"] { width: 100%; }
+        .control-row input[type="color"] { width: 100%; height: 28px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; }
+        .control-row .value-display { font-size: 11px; color: #888; }
+        #scene-nav { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+        #scene-nav h3 { margin: 0 0 8px 0; font-size: 14px; color: #333; }
+        .scene-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+        .scene-btns button {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f5f5f5;
+            cursor: pointer;
+        }
+        .scene-btns button:hover { background: #e8e8e8; }
+        .scene-btns button.active { background: #333; color: #fff; border-color: #333; }
+    </style>
+</head>
+<body>
+<script src="lottie.min.js"></script>
+<script src="animData.js"></script>
+
+
+<div id="lottie"></div>
+<div id="controls"></div>
+
+<script>
+    const COLOR_MAP = {
+        'purple': '#800080',
+        'red': '#FF0000',
+        'blue': '#0000FF',
+        'green': '#008000',
+        'yellow': '#FFFF00',
+        'white': '#FFFFFF',
+        'orange': '#FFA500',
+        'black': '#000000'
+    };
+
+    const MACHINE_CONFIG = {
+        tubeColors: ['purple', 'red', 'purple', 'red'], // Colors for tube 1, 2, 3, 4
+        serveSequence: ['purple', 'red', 'purple', 'red', 'purple', 'red', 'purple', 'red', 'purple', 'red'] // Ball color for each serve
+    };
+
+    function parseToRgba(hex) {
+        var m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+        return m ? [parseInt(m[1], 16)/255, parseInt(m[2], 16)/255, parseInt(m[3], 16)/255, 1] : [1,1,1,1];
+    }
+    
+    function getScenesFromMarkers(animationData) {
+        var markers = (animationData && animationData.markers) ? animationData.markers.slice() : [];
+        var scenes = [];
+        for (var i = 0; i < markers.length - 1; i++) {
+            var mStart = markers[i];
+            var mEnd = markers[i + 1];
+            var startFrame = typeof mStart.tm === 'number' ? mStart.tm : 0;
+            var endFrame = typeof mEnd.tm === 'number' ? mEnd.tm : startFrame;
+            scenes.push({
+                id: i + 1,
+                label: 'Scene ' + (i + 1),
+                startFrame: startFrame,
+                endFrame: endFrame,
+                startMarker: mStart.cm || String(i + 1),
+                endMarker: mEnd.cm || String(i + 2),
+                isLoop: false
+            });
+        }
+        return { markers: markers, scenes: scenes };
+    }
+
+    /**
+     * Analyses animationData and extracts all effect controls from the layer named 'Machine'.
+     * Returns an array of control descriptors: { effectName, effectIndex, controlType, value, path }.
+     * controlType is 'slider' (ty: 0) or 'color' (ty: 2). path = [layerIndex, effectIndex].
+     */
+    function analyseMachineEffects(animationData) {
+        var layers = animationData && animationData.layers;
+        if (!Array.isArray(layers)) return [];
+
+        var layerIndex = -1;
+        for (var i = 0; i < layers.length; i++) {
+            if (layers[i].nm === 'Machine') {
+                layerIndex = i;
+                break;
+            }
+        }
+        if (layerIndex === -1) return [];
+
+        var layer = layers[layerIndex];
+        var ef = layer.ef;
+        if (!Array.isArray(ef)) return [];
+
+        var controls = [];
+        for (var j = 0; j < ef.length; j++) {
+            var effect = ef[j];
+            var sub = effect.ef;
+            if (!Array.isArray(sub) || sub.length === 0) continue;
+
+            var prop = sub[0];
+            var ty = prop.ty;
+            var v = prop.v;
+            var controlType = null;
+            var value = null;
+
+            if (ty === 0) {
+                controlType = 'slider';
+                if (v && typeof v.k !== 'undefined') {
+                    if (v.a === 1 && Array.isArray(v.k) && v.k.length > 0) {
+                        var first = v.k[0];
+                        value = typeof first.s !== 'undefined' ? first.s[0] : (first.t !== undefined ? first.t : first);
+                        if (Array.isArray(value)) value = value[0];
+                    } else {
+                        value = Array.isArray(v.k) ? v.k[0] : v.k;
+                    }
+                }
+                if (typeof value !== 'number') value = 0;
+            } else if (ty === 2) {
+                controlType = 'color';
+                value = (v && v.k) ? v.k.slice(0, 4) : [1, 1, 1, 1];
+            }
+
+            if (controlType) {
+                controls.push({
+                    effectName: effect.nm || ('effect_' + j),
+                    effectIndex: j,
+                    controlType: controlType,
+                    value: value,
+                    path: [layerIndex, j]
+                });
+            }
+        }
+        return controls;
+    }
+
+    /**
+     * Sets an effect value in animationData for the Machine layer.
+     * path = [layerIndex, effectIndex]. value: number for slider, [r,g,b,a] (0–1) for color.
+     */
+    function setMachineEffectValue(animationData, path, value) {
+        var layers = animationData && animationData.layers;
+        if (!layers || path.length < 2) return;
+        var layer = layers[path[0]];
+        if (!layer || !layer.ef) return;
+        var effect = layer.ef[path[1]];
+        if (!effect || !effect.ef || !effect.ef[0]) return;
+
+        var prop = effect.ef[0];
+        if (prop.ty === 0) {
+            prop.v = { a: 0, k: typeof value === 'number' ? value : Number(value), ix: prop.ix };
+        } else if (prop.ty === 2) {
+            var k = Array.isArray(value) ? value.slice(0, 4) : [1, 1, 1, 1];
+            if (k.length === 3) k.push(1);
+            prop.v = { a: 0, k: k, ix: prop.ix };
+        }
+    }
+
+    /*
+     * Creates UI controls for Machine effects and appends to container. onUpdate() is called after each change.
+     */
+ 
+
+    function createMachineEffectControls(animationData, container, onUpdate) {
+        var controls = analyseMachineEffects(animationData);
+        if (controls.length === 0) {
+            container.innerHTML = '<p>No effect controls found on layer "Machine".</p>';
+            return;
+        }
+
+        function toHex(k) {
+            var r = Math.round((k[0] || 0) * 255);
+            var g = Math.round((k[1] || 0) * 255);
+            var b = Math.round((k[2] || 0) * 255);
+            return '#' + [r, g, b].map(function(x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+        }
+        function fromHex(hex) {
+            var m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+            if (!m) return [1, 1, 1, 1];
+            return [
+                parseInt(m[1], 16) / 255,
+                parseInt(m[2], 16) / 255,
+                parseInt(m[3], 16) / 255,
+                1
+            ];
+        }
+
+        var html = '<h3>Machine effects</h3>';
+        controls.forEach(function(c) {
+            if (c.controlType === 'slider') {
+                html += '<div class="control-row" data-path="' + c.path.join(',') + '" data-type="slider">';
+                html += '<label>' + c.effectName + '</label>';
+                html += '<input id="'+c.effectName+'" type="range" min="0" max="20" step="0.1" value="' + c.value + '">';
+                html += '<span class="value-display">' + c.value + '</span></div>';
+            } else {
+                html += '<div class="control-row" data-path="' + c.path.join(',') + '" data-type="color">';
+                html += '<label>' + c.effectName + '</label>';
+                html += '<input type="color" value="' + toHex(c.value) + '"></div>';
+            }
+        });
+        container.innerHTML = html;
+
+        container.querySelectorAll('.control-row').forEach(function(row) {
+            var path = row.dataset.path.split(',').map(Number);
+            var type = row.dataset.type;
+            if (type === 'slider') {
+                var range = row.querySelector('input[type="range"]');
+                var display = row.querySelector('.value-display');
+                range.addEventListener('input', function() {
+                    var v = parseFloat(range.value);
+                    display.textContent = v;
+                    setMachineEffectValue(animationData, path, v);
+                    if (onUpdate) onUpdate();
+                });
+            } else {
+                var colorInput = row.querySelector('input[type="color"]');
+                colorInput.addEventListener('input', function() {
+                    setMachineEffectValue(animationData, path, fromHex(colorInput.value));
+                    if (onUpdate) onUpdate();
+                });
+            }
+        });
+    }
+
+    var params = {
+        container: document.getElementById('lottie'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: false,
+        animationData: animationData
+    };
+
+    var anim = lottie.loadAnimation(params);
+    var sceneFrameCheckInterval = null;
+
+    function reloadAnimation() {
+        if (sceneFrameCheckInterval) {
+            clearInterval(sceneFrameCheckInterval);
+            sceneFrameCheckInterval = null;
+        }
+        if (anim) anim.destroy();
+        anim = lottie.loadAnimation(params);
+        createSceneNavigation(animationData, anim, document.getElementById('controls'));
+    }
+
+    /**
+     * Creates scene navigation buttons and appends to container. Clicking a button
+     * plays that scene: if scene.isLoop is true, plays the segment in a loop;
+     * if false, plays once and holds at the end frame.
+     * Uses goToAndStop + play + enterFrame (like reference) to stop and hold at last frame.
+     */
+    function createSceneNavigation(animationData, animInstance, container) {
+        var data = getScenesFromMarkers(animationData);
+        var scenes = data.scenes;
+        if (!scenes.length) return;
+
+        var existing = document.getElementById('scene-nav');
+        if (existing) existing.remove();
+        var existingActions = document.getElementById('action-btns-wrap');
+        if (existingActions) existingActions.remove();
+
+        var actionsWrap = document.createElement('div');
+        actionsWrap.id = 'action-btns-wrap';
+        actionsWrap.innerHTML = '<h3>Actions</h3><div class="scene-btns"></div>';
+        var actionsBtnWrap = actionsWrap.querySelector('.scene-btns');
+
+        var nav = document.createElement('div');
+        nav.id = 'scene-nav';
+        nav.innerHTML = '<h3>Scenes</h3><div class="scene-btns"></div>';
+        var btnWrap = nav.querySelector('.scene-btns');
+
+        var currentEnterFrameHandler = null;
+
+        function playScene(scene) {
+            if (!animInstance || !animInstance.isLoaded) return;
+
+            if (animInstance.isPlaying) animInstance.stop();
+            if (sceneFrameCheckInterval) {
+                clearInterval(sceneFrameCheckInterval);
+                sceneFrameCheckInterval = null;
+            }
+            if (currentEnterFrameHandler) {
+                animInstance.removeEventListener('enterFrame', currentEnterFrameHandler);
+                currentEnterFrameHandler = null;
+            }
+
+            var frameStart = scene.startFrame;
+            var frameEnd = scene.endFrame;
+            var holdFrame = scene.endFrame;
+            animInstance.setLoop(false);
+
+            if (scene.isLoop) {
+                var segment = [[frameStart, frameEnd]];
+                currentEnterFrameHandler = function() {
+                    var currentFrame = Math.round(animInstance.currentFrame);
+                    if (currentFrame >= frameEnd) {
+                        animInstance.removeEventListener('enterFrame', currentEnterFrameHandler);
+                        currentEnterFrameHandler = null;
+                        animInstance.playSegments(segment, true);
+                    }
+                };
+                animInstance.addEventListener('enterFrame', currentEnterFrameHandler);
+                animInstance.goToAndStop(frameStart, true);
+                animInstance.playSegments(segment, true);
+                return;
+            }
+
+            var isPlaying = true;
+            currentEnterFrameHandler = function() {
+                if (!isPlaying || !animInstance) return;
+                var currentFrame = Math.round(animInstance.currentFrame);
+                if (currentFrame >= frameEnd) {
+                    isPlaying = false;
+                    animInstance.stop();
+                    animInstance.goToAndStop(holdFrame, true);
+                    if (currentEnterFrameHandler) {
+                        animInstance.removeEventListener('enterFrame', currentEnterFrameHandler);
+                        currentEnterFrameHandler = null;
+                    }
+                    if (sceneFrameCheckInterval) {
+                        clearInterval(sceneFrameCheckInterval);
+                        sceneFrameCheckInterval = null;
+                    }
+                }
+            };
+            animInstance.addEventListener('enterFrame', currentEnterFrameHandler);
+            animInstance.goToAndStop(frameStart, true);
+
+            setTimeout(function() {
+                if (!animInstance || !animInstance.isLoaded) return;
+                animInstance.goToAndStop(frameStart, true);
+                animInstance.play();
+            }, 50);
+
+            sceneFrameCheckInterval = setInterval(function() {
+                if (!animInstance || !animInstance.isLoaded || !isPlaying) {
+                    if (sceneFrameCheckInterval) {
+                        clearInterval(sceneFrameCheckInterval);
+                        sceneFrameCheckInterval = null;
+                    }
+                    return;
+                }
+                var currentFrame = Math.round(animInstance.currentFrame);
+                if (currentFrame >= frameEnd) {
+                    isPlaying = false;
+                    if (animInstance.isPlaying) animInstance.stop();
+                    animInstance.goToAndStop(holdFrame, true);
+                    if (currentEnterFrameHandler) {
+                        animInstance.removeEventListener('enterFrame', currentEnterFrameHandler);
+                        currentEnterFrameHandler = null;
+                    }
+                    if (sceneFrameCheckInterval) {
+                        clearInterval(sceneFrameCheckInterval);
+                        sceneFrameCheckInterval = null;
+                    }
+                }
+            }, 16);
+        }
+
+        function getServesSliderRow() {
+            var rows = container.querySelectorAll('.control-row[data-type="slider"]');
+            for (var i = 0; i < rows.length; i++) {
+                var name = (rows[i].dataset.effectName || '').toLowerCase();
+                if (name.indexOf('serves') >= 0) return rows[i];
+            }
+            return null;
+        }
+        function setServesSliderTo(value) {
+            var row = getServesSliderRow();
+            if (!row) return;
+            var range = row.querySelector('input[type="range"]');
+            var display = row.querySelector('.value-display');
+            if (range) {
+                range.value = value;
+                if (display) display.textContent = value;
+                range.dispatchEvent(new Event('input'));
+            }
+        }
+        function getServesValue() {
+            var row = getServesSliderRow();
+            if (!row) return 1;
+            var range = row.querySelector('input[type="range"]');
+            return range ? parseFloat(range.value) || 1 : 1;
+        }
+
+        var fillBtn = document.createElement('button');
+        fillBtn.type = 'button';
+        fillBtn.textContent = 'Fill';
+        fillBtn.addEventListener('click', function() {
+            if (!animInstance) return;
+           
+            setServesSliderTo(1);
+            if (scenes[0]) playScene(scenes[0]);
+            btnWrap.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+        });
+        actionsBtnWrap.appendChild(fillBtn);
+
+        var serveBtn = document.createElement('button');
+        serveBtn.type = 'button';
+        serveBtn.textContent = 'Serve';
+        serveBtn.addEventListener('click', function() {
+            if (!animInstance) return;
+            var serves = getServesValue();
+            var sceneToPlay = (serves === 1 && scenes[1]) ? scenes[1] : (scenes[3] || scenes[1]);
+            if (sceneToPlay) playScene(sceneToPlay);
+            btnWrap.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+        });
+        actionsBtnWrap.appendChild(serveBtn);
+
+        var serve10Btn = document.createElement('button');
+        serve10Btn.type = 'button';
+        serve10Btn.textContent = '10 serves';
+        serve10Btn.addEventListener('click', function() {
+            if (window.serve10State && window.serve10State.isActive) return;
+            window.serve10State.isActive = true;
+            window.serve10State.count = 0;
+            btnWrap.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+            serve10Btn.classList.add('active');
+            window.serveNextArrayBall();
+        });
+        actionsBtnWrap.appendChild(serve10Btn);
+
+        window.playSceneRef = playScene;
+
+        container.appendChild(actionsWrap);
+
+        scenes.forEach(function(scene, index) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            var loopLabel = scene.isLoop ? ' [loop]' : '';
+            btn.textContent = scene.label + ' (' + Math.round(scene.startFrame) + '–' + Math.round(scene.endFrame) + ')' + loopLabel;
+            btn.dataset.sceneIndex = index;
+            btn.addEventListener('click', function() {
+                if (!animInstance) return;
+                playScene(scene);
+                btnWrap.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+            });
+            btnWrap.appendChild(btn);
+        });
+
+        container.appendChild(nav);
+    }
+
+    window.serve10State = {
+        isActive: false,
+        count: 0,
+        maxCount: MACHINE_CONFIG.serveSequence.length,
+        colors: MACHINE_CONFIG.serveSequence.map(function(c) { return COLOR_MAP[c] || '#FFFFFF'; })
+    };
+
+    window.serveNextArrayBall = function() {
+        var st = window.serve10State;
+        if (st.count >= st.maxCount) {
+            st.isActive = false;
+            var serve10Btn = document.querySelector('#action-btns-wrap button:last-child');
+            if (serve10Btn) serve10Btn.classList.remove('active');
+            return;
+        }
+        
+        var colorHex = st.colors[st.count % st.colors.length];
+        
+        var ctrlList = analyseMachineEffects(animationData);
+        var pC1, pC2, pC3, pC4, pDropNew, pDropOld;
+        ctrlList.forEach(function(c) {
+            var n = c.effectName.toLowerCase();
+            if (n === 'color1') pC1 = c.path;
+            if (n === 'color2') pC2 = c.path;
+            if (n === 'color3') pC3 = c.path;
+            if (n === 'color4') pC4 = c.path;
+            if (n === 'drop new') pDropNew = c.path;
+            if (n === 'drop old') pDropOld = c.path;
+        });
+
+        
+        var rgba = parseToRgba(colorHex);
+        var prevCount = st.count > 0 ? st.count - 1 : 0;
+        var prevColorHex = st.colors[prevCount % st.colors.length];
+        var prevRgba = parseToRgba(prevColorHex);
+        
+        if (pDropOld) setMachineEffectValue(animationData, pDropOld, prevRgba);
+        if (pDropNew) setMachineEffectValue(animationData, pDropNew, rgba);
+
+        reloadAnimation();
+        
+        function onLoaded() {
+            anim.removeEventListener('DOMLoaded', onLoaded);
+            var scenesData = getScenesFromMarkers(animationData).scenes;
+            
+            // First time: run scene 2, then rest of the times: run scene 4
+            var sceneToPlay = (st.count === 0) ? scenesData[1] : scenesData[3];
+            
+            if (!sceneToPlay || !window.playSceneRef) {
+                st.isActive = false;
+                return;
+            }
+            
+            window.playSceneRef(sceneToPlay);
+            
+            var checkEnd = setInterval(function() {
+                if (!anim || !st.isActive) {
+                    clearInterval(checkEnd);
+                    return;
+                }
+                var currentFrame = anim.currentFrame;
+                var isDone = !anim.isPlaying && Math.round(currentFrame) >= Math.round(sceneToPlay.endFrame);
+                if (isDone) {
+                    clearInterval(checkEnd);
+                    st.count++;
+                    // Wait for 1 second before calling the sequence loop
+                    setTimeout(window.serveNextArrayBall, 1000); 
+                }
+            }, 50);
+        }
+        
+        if (anim.isLoaded) {
+            onLoaded();
+        } else {
+            anim.addEventListener('DOMLoaded', onLoaded);
+        }
+    };
+    var initialCtrlList = analyseMachineEffects(animationData);
+    initialCtrlList.forEach(function(c) {
+        var n = c.effectName.toLowerCase();
+        if (n === 'step') {
+            setMachineEffectValue(animationData, c.path, 20);
+        } else if (n === 'color1' && MACHINE_CONFIG.tubeColors[0]) {
+            setMachineEffectValue(animationData, c.path, parseToRgba(COLOR_MAP[MACHINE_CONFIG.tubeColors[0]]));
+        } else if (n === 'color2' && MACHINE_CONFIG.tubeColors[1]) {
+            setMachineEffectValue(animationData, c.path, parseToRgba(COLOR_MAP[MACHINE_CONFIG.tubeColors[1]]));
+        } else if (n === 'color3' && MACHINE_CONFIG.tubeColors[2]) {
+            setMachineEffectValue(animationData, c.path, parseToRgba(COLOR_MAP[MACHINE_CONFIG.tubeColors[2]]));
+        } else if (n === 'color4' && MACHINE_CONFIG.tubeColors[3]) {
+            setMachineEffectValue(animationData, c.path, parseToRgba(COLOR_MAP[MACHINE_CONFIG.tubeColors[3]]));
+        }
+    });
+    createMachineEffectControls(animationData, document.getElementById('controls'), reloadAnimation);
+    reloadAnimation();
+</script>
+</body>
+</html>

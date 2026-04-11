@@ -325,6 +325,43 @@ input[type=range]::-moz-range-track {
     font-weight: bold;
 }
 
+/* Pulsating glow for diagonal lines & labels in step 3 */
+.glow-pulse-orange {
+    animation: pulse-orange 1.5s ease-in-out infinite;
+}
+@keyframes pulse-orange {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 152, 0, 0.4)); }
+    50%      { filter: drop-shadow(0 0 12px rgba(255, 152, 0, 1)) drop-shadow(0 0 18px rgba(255, 152, 0, 0.6)); }
+}
+
+.glow-pulse-cyan {
+    animation: pulse-cyan 1.5s ease-in-out infinite;
+}
+@keyframes pulse-cyan {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.4)); }
+    50%      { filter: drop-shadow(0 0 12px rgba(0, 255, 255, 1)) drop-shadow(0 0 18px rgba(0, 255, 255, 0.6)); }
+}
+
+.glow-pulse-orange-label {
+    animation: pulse-orange-label 0.5s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+@keyframes pulse-orange-label {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 152, 0, 0.4)); transform: scale(1); }
+    50%      { filter: drop-shadow(0 0 12px rgba(255, 152, 0, 1)) drop-shadow(0 0 18px rgba(255, 152, 0, 0.6)); transform: scale(1.05); }
+}
+
+.glow-pulse-cyan-label {
+    animation: pulse-cyan-label 0.5s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+@keyframes pulse-cyan-label {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.4)); transform: scale(1); }
+    50%      { filter: drop-shadow(0 0 12px rgba(0, 255, 255, 1)) drop-shadow(0 0 18px rgba(0, 255, 255, 0.6)); transform: scale(1.05); }
+}
+
 /* Hand FTUE - SVG image (positioned in SVG coords) */
 .hand-ftue-svg {
   pointer-events: none;

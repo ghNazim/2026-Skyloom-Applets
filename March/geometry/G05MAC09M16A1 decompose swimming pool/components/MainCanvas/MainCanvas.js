@@ -36,11 +36,12 @@ const MainCanvas = function (props) {
   var trapFill = "#FFF2E5";
   var rectFill = "#D1F7FF";
   var sqFill = "#F4FFE8";
-  var trapColor = "#E67E22";
+  var trapColor = "#d46401";
   var rectColor = "#00ACC1";
   var sqColor = "#4CAF50";
-  var gridLineColor = "rgba(200, 200, 200, 0.6)";
-  var decompBorderColor = "#999";
+  var gridLineColor = "rgba(148, 163, 184, 0.45)";
+  var gridDotColor = "rgba(148, 163, 184, 0.5)";
+  var decompBorderColor = "#aa81f8";
 
   // ── State ──
   var decomposingState = useState(false);
@@ -282,19 +283,6 @@ const MainCanvas = function (props) {
 
   var renderGrid = function () {
     var els = [];
-    els.push(
-      React.createElement("rect", {
-        key: "bg",
-        x: 0,
-        y: 0,
-        width: svgW,
-        height: svgH,
-        fill: step >1 ? "#FFFFFF" : "transparent",
-        stroke: step >1 ? "#B0D4DB" : "transparent",
-        strokeWidth: 3,
-        rx: 4,
-      }),
-    );
     if (showGridLines) {
       for (var i = 0; i <= gridCells; i++) {
         els.push(
@@ -305,7 +293,7 @@ const MainCanvas = function (props) {
             x2: i * gridSize,
             y2: svgH,
             stroke: gridLineColor,
-            strokeWidth: 2,
+            strokeWidth: "1",
           }),
         );
         els.push(
@@ -316,20 +304,47 @@ const MainCanvas = function (props) {
             x2: svgW,
             y2: i * gridSize,
             stroke: gridLineColor,
-            strokeWidth: 2,
+            strokeWidth: "1",
           }),
         );
+      }
+      for (var gx = 0; gx <= gridCells; gx++) {
+        for (var gy = 0; gy <= gridCells; gy++) {
+          els.push(
+            React.createElement("circle", {
+              key: "dot-" + gx + "-" + gy,
+              cx: gx * gridSize,
+              cy: (gridCells - gy) * gridSize,
+              r: "2.5",
+              fill: gridDotColor,
+            }),
+          );
+        }
       }
     }
     return els;
   };
 
-  // ── Pool Shape ──
+  // ── Pool as raster (step 1 only) ──
+  var renderPoolImage = function () {
+    return React.createElement("image", {
+      key: "pool-image",
+      href: "assets/pool.svg",
+      x: 0,
+      y: 0,
+      width: svgW,
+      height: svgH,
+      preserveAspectRatio: "none",
+    });
+  };
+
+  // ── Pool Shape (vector, step 2+ when pool is shown) ──
   var renderPoolShape = function () {
     return React.createElement("polygon", {
       key: "pool-shape",
       points: pts(ptA, ptB, ptC, ptD, ptF, ptG, ptH),
       fill: poolFill,
+      fillOpacity: 0.8,
       stroke: poolStroke,
       strokeWidth: 2.5,
       strokeLinejoin: "round",
@@ -346,6 +361,7 @@ const MainCanvas = function (props) {
           key: "pool-behind",
           points: pts(ptA, ptB, ptC, ptD, ptF, ptG, ptH),
           fill: poolFill,
+          fillOpacity: 0.8,
           stroke: poolStroke,
           strokeWidth: 2.5,
           strokeLinejoin: "round",
@@ -361,6 +377,7 @@ const MainCanvas = function (props) {
         id: "trap-fill-poly",
         points: pts(ptA, ptB, ptC, ptI),
         fill: trapFill,
+        fillOpacity: 0.8,
         stroke: "none",
         className: hiddenClass,
       }),
@@ -371,6 +388,7 @@ const MainCanvas = function (props) {
         id: "rect-fill-poly",
         points: pts(ptI, ptC, ptD, ptE),
         fill: rectFill,
+        fillOpacity: 0.8,
         stroke: "none",
         className: hiddenClass,
       }),
@@ -381,6 +399,7 @@ const MainCanvas = function (props) {
         id: "sq-fill-poly",
         points: pts(ptE, ptF, ptG, ptH),
         fill: sqFill,
+        fillOpacity: 0.8,
         stroke: "none",
         className: hiddenClass,
       }),
@@ -538,7 +557,9 @@ const MainCanvas = function (props) {
   var renderSvgContent = function () {
     var els = renderGrid();
 
-    if (showPoolShape) {
+    if (step === 1) {
+      els.push(renderPoolImage());
+    } else if (showPoolShape) {
       els.push(renderPoolShape());
     }
 
@@ -713,7 +734,7 @@ const MainCanvas = function (props) {
           "svg",
           {
             ref: svgRef,
-            viewBox: "-15 -15 580 580",
+            viewBox: "0 0 " + svgW + " " + svgH,
             className: "grid-svg",
             preserveAspectRatio: "xMidYMid meet",
           },

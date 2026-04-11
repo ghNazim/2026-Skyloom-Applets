@@ -21,6 +21,7 @@
     /* background-color: var(--panel-background-color); */
     border-radius: 1vw;
     /* border: 1px solid var(--panel-border-color); */
+    padding: 0 1.5vw;
 }
 
 .lower-panel {
@@ -31,7 +32,6 @@
   font-size: calc(0.25rem + 1.75vw);
   gap: 2vh;
   flex-direction: column;
-  height: 7vw;
-  max-height: 7vw;
-  min-height: 7vw;
+  height: 6vw;
+
 }

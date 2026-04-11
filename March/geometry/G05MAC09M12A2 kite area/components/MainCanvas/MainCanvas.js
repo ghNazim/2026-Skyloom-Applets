@@ -479,30 +479,34 @@ const MainCanvas = (props) => {
   };
 
   // ─── ½ d₂ line (A → M) ───
-  const renderHalfD2Line = () => {
+  const renderHalfD2Line = (glowing) => {
+    var lineProps = {
+      x1: ptA.x,
+      y1: ptA.y,
+      x2: ptM.x,
+      y2: ptM.y,
+      stroke: d2Color,
+      strokeWidth: glowing ? 4 : 3,
+    };
+    if (!glowing) lineProps.strokeDasharray = "10 6";
+    if (glowing) lineProps.className = "glow-pulse-cyan";
+    var textProps = {
+      x: (ptA.x + ptM.x) / 2,
+      y: ptA.y - 14,
+      fill: d2Color,
+      fontSize: "20",
+      fontWeight: "bold",
+      fontFamily: "Arial, sans-serif",
+      textAnchor: "middle",
+    };
+    if (glowing) textProps.className = "glow-pulse-cyan-label";
     return React.createElement(
       "g",
       { key: "half-d2", pointerEvents: "none" },
-      React.createElement("line", {
-        x1: ptA.x,
-        y1: ptA.y,
-        x2: ptM.x,
-        y2: ptM.y,
-        stroke: d2Color,
-        strokeWidth: 3,
-        strokeDasharray: "10 6",
-      }),
+      React.createElement("line", lineProps),
       React.createElement(
         "text",
-        {
-          x: (ptA.x + ptM.x) / 2,
-          y: ptA.y - 14,
-          fill: d2Color,
-          fontSize: "20",
-          fontWeight: "bold",
-          fontFamily: "Arial, sans-serif",
-          textAnchor: "middle",
-        },
+        textProps,
         APP_DATA.labels.halfD2,
       ),
     );
@@ -595,6 +599,32 @@ const MainCanvas = (props) => {
   //  STEP 3: Rectangle view
   // ═══════════════════════════════════════════
   const renderStep3 = () => {
+    var glowing = formulaStage >= 1;
+    var d1LineProps = {
+      key: "d1-line-s3",
+      x1: ptA.x,
+      y1: ptA.y,
+      x2: ptC.x,
+      y2: ptC.y,
+      stroke: d1Color,
+      strokeWidth: glowing ? 4 : 3,
+      pointerEvents: "none",
+    };
+    if (!glowing) d1LineProps.strokeDasharray = "10 6";
+    if (glowing) d1LineProps.className = "glow-pulse-orange";
+
+    var d1LabelProps = {
+      key: "d1-label-s3",
+      x: ptX.x + 18,
+      y: (ptA.y + ptX.y) / 2 + 5,
+      fill: d1Color,
+      fontSize: "22",
+      fontWeight: "bold",
+      fontFamily: "Arial, sans-serif",
+      pointerEvents: "none",
+    };
+    if (glowing) d1LabelProps.className = "glow-pulse-orange-label";
+
     return React.createElement(
       "g",
       { key: "step3-content" },
@@ -608,32 +638,13 @@ const MainCanvas = (props) => {
         stroke: kiteStroke,
         strokeWidth: kiteStrokeWidth,
       }),
-      React.createElement("line", {
-        key: "d1-line-s3",
-        x1: ptA.x,
-        y1: ptA.y,
-        x2: ptC.x,
-        y2: ptC.y,
-        stroke: d1Color,
-        strokeWidth: 3,
-        strokeDasharray: "10 6",
-        pointerEvents: "none",
-      }),
+      React.createElement("line", d1LineProps),
       React.createElement(
         "text",
-        {
-          key: "d1-label-s3",
-          x: ptX.x + 18,
-          y: (ptA.y + ptX.y) / 2 + 5,
-          fill: d1Color,
-          fontSize: "22",
-          fontWeight: "bold",
-          fontFamily: "Arial, sans-serif",
-          pointerEvents: "none",
-        },
+        d1LabelProps,
         APP_DATA.labels.d1,
       ),
-      renderHalfD2Line(),
+      renderHalfD2Line(glowing),
     );
   };
 

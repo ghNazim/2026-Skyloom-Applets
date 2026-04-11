@@ -1,0 +1,288 @@
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 99vw;
+  height: calc(99vw * 9 / 16);
+  max-width: 99vw;
+  max-height: 99vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: .5vw;
+  position: relative;
+}
+
+.applet-container .with-character-layout {
+  flex: 1;
+  min-height: 0;
+}
+
+.applet-container .navigation {
+  flex: 0 0 10%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+}
+
+.app-main-content {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+  gap: 1rem;
+  border-radius: 1vw;
+}
+
+.with-character-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 1vw;
+}
+
+/* ===== CONTENT COLUMNS ===== */
+.content-columns {
+  flex: 1;
+  display: flex;
+  gap: 1vw;
+  min-height: 0;
+}
+
+.content-left-column {
+  flex: 0 0 66%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  padding: 1vw;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+  backdrop-filter: blur(1vw);
+  overflow: hidden;
+}
+
+.content-right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  padding: 1vw;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+  backdrop-filter: blur(1vw);
+  overflow: hidden;
+}
+
+.content-left-column.empty-col,
+.content-right-column.empty-col {
+  border: 1px solid var(--panel-border-color);
+}
+
+/* ===== QUESTION STATEMENT ===== */
+.question-statement {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 180, 50, 0.2);
+  border-radius: 1vw;
+  padding: 1.2vw 1.5vw;
+  color: white;
+  font-size: 2vw;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.question-statement .hint-highlight {
+  color: var(--accent-color);
+  
+  padding: 0 0.3vw;
+  border-radius: 0.3vw;
+  font-weight: bold;
+}
+
+/* ===== CALC TABLE ===== */
+.calc-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+  padding: 0.5vw 0;
+}
+
+.calc-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.calc-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2vw;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.calc-cell.item-name {
+  width: 18vw;
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 1.8vw;
+}
+
+.calc-cell.equal-sign {
+  width: 3vw;
+  font-size: 2.2vw;
+}
+
+.calc-cell.kg-label {
+  width: 5vw;
+  font-size: 1.8vw;
+}
+.calc-cell.gm-label{
+  width: 7vw;
+  font-size: 1.8vw;
+}
+
+.calc-cell.operator-sign {
+  width: 3vw;
+  justify-content: center;
+  font-size: 2.5vw;
+  font-weight: bold;
+}
+
+/* ===== NUMBER BOX ===== */
+.number-box {
+  width: 5vw;
+  height: 4vw;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0.5vw;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.2vw;
+  font-weight: bold;
+  cursor: default;
+  transition: border-color 0.3s, background-color 0.3s;
+  user-select: none;
+}
+
+.number-box.kg-num {
+  width: 5vw;
+}
+
+.number-box.gm-num {
+  width: 10vw;
+}
+
+.number-box.active {
+  border-color: #f9d71c;
+  border-width: 2px;
+  box-shadow: 0 0 8px rgba(249, 215, 28, 0.5);
+  cursor: pointer;
+}
+
+.number-box.correct {
+  border-color: #4caf50;
+  border-width: 2px;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+  background-color: rgba(76, 175, 80, 0.15);
+  pointer-events: none;
+}
+
+.number-box.wrong {
+  border-color: #f44336;
+  border-width: 2px;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+  background-color: rgba(244, 67, 54, 0.15);
+  animation: shakeBox 0.5s;
+}
+
+@keyframes shakeBox {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.4vw); }
+  40% { transform: translateX(0.4vw); }
+  60% { transform: translateX(-0.4vw); }
+  80% { transform: translateX(0.4vw); }
+}
+
+.number-box.filled {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== ADDITION BAR ===== */
+.addition-bar {
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.7);
+  margin: 0.8vw 0;
+  /* Start just after the operator column so the bar sits under the actual number content */
+  margin-left: 3vw;
+  width: calc(100% - 4vw);
+}
+
+/* ===== OPERATOR QUESTION ===== */
+.operator-question {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 1vw;
+  padding: 1vw 1.5vw;
+  color: white;
+  font-size: 1.8vw;
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-line;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== RIGHT PANEL (Numpad + Feedback) ===== */
+.right-panel-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  gap: 1vw;
+  padding: 3vw 0vw;
+}
+
+.feedback-box {
+  width: 100%;
+  padding: 1vw;
+  border-radius: 0.8vw;
+  font-size: 1.8vw;
+  line-height: 1.4;
+  text-align: center;
+  white-space: pre-line;
+  min-height: 7vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feedback-box.visible {
+  opacity: 1;
+}
+
+.feedback-box.correct {
+  background-color: rgba(76, 175, 80, 0.15);
+  border: 2px solid #66bb6a;
+  color: #fff;
+}
+
+.feedback-box.incorrect {
+  background-color: rgba(255, 0, 0, 0.15);
+  border: 2px solid #ff6b6b;
+  color: #fff;
+}
+
+/* ===== MCQ in right column ===== */
+.content-right-column .mcq-panel {
+  border: none;
+  padding: 0;
+}
+
+.content-right-column .mcq-feedback {
+  display: none;
+}

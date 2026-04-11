@@ -17,6 +17,8 @@ const App = () => {
   const [magNudgeDismissed, setMagNudgeDismissed] = useState(false);
   const [s11NudgeDismissed, setS11NudgeDismissed] = useState(false);
   const [s11NudgeRepositionTrigger, setS11NudgeRepositionTrigger] = useState(0);
+  const [s12DragNudgeDismissed, setS12DragNudgeDismissed] = useState(false);
+  const [s12NudgeRepositionTrigger, setS12NudgeRepositionTrigger] = useState(0);
   const [s13PencilDismissed, setS13PencilDismissed] = useState(false);
   const [s14PencilDismissed, setS14PencilDismissed] = useState(false);
   const [s15EraserDismissed, setS15EraserDismissed] = useState(false);
@@ -48,6 +50,7 @@ const App = () => {
     setEraserNudgeDismissed(false);
     setMagNudgeDismissed(false);
     setS11NudgeDismissed(false);
+    setS12DragNudgeDismissed(false);
     setS13PencilDismissed(false);
     setS14PencilDismissed(false);
     setS15EraserDismissed(false);
@@ -118,6 +121,7 @@ const App = () => {
       setIsNextDisabled(true);
       setDynamicNavText(null);
       setDynamicQuestionText(null);
+      setS12DragNudgeDismissed(false);
       setResetKey((prev) => prev + 1);
     } else if (currentStep === 12) {
       setCurrentStep(13);
@@ -221,6 +225,7 @@ const App = () => {
     } else if (currentStep === 13) {
       setCurrentStep(12);
       setIsNextDisabled(false);
+      setS12DragNudgeDismissed(false);
       // It returns back to the interactive slider with step 12 defaults
       setDynamicQuestionText(APP_DATA.step12?.q ?? null);
       setDynamicNavText(APP_DATA.step12?.nAfterTap ?? null);
@@ -325,6 +330,8 @@ const App = () => {
       activeId = "mag-glass";
     } else if (currentStep === 11 && !s11NudgeDismissed) {
       activeId = "s11-clickable-circle";
+    } else if (currentStep === 12 && !s12DragNudgeDismissed) {
+      activeId = "s12-slider-dot";
     } else if (currentStep === 13 && !s13PencilDismissed) {
       activeId = "s13-pencil";
     } else if (currentStep === 14 && !s14PencilDismissed) {
@@ -361,6 +368,8 @@ const App = () => {
     magNudgeDismissed,
     s11NudgeDismissed,
     s11NudgeRepositionTrigger,
+    s12DragNudgeDismissed,
+    s12NudgeRepositionTrigger,
     s13PencilDismissed,
     s14PencilDismissed,
     s15EraserDismissed,
@@ -412,6 +421,13 @@ const App = () => {
     return "";
   };
 
+  const nudgeVariant =
+    nudgeTargetId === "s11-clickable-circle" || nudgeTargetId === "mag-glass"
+      ? "tapGrey"
+      : nudgeTargetId === "s12-slider-dot"
+        ? "drag"
+        : "tap";
+
   // Step 0: Start fullscreen
   if (currentStep === 0) {
     return React.createElement(
@@ -430,6 +446,7 @@ const App = () => {
         React.createElement(Nudge, {
           show: !!nudgeTargetId,
           position: nudgePosition,
+          variant: nudgeVariant,
         }),
       ),
     );
@@ -479,6 +496,8 @@ const App = () => {
         onDismissMagNudge: () => setMagNudgeDismissed(true),
         onDismissS11Nudge: () => setS11NudgeDismissed(true),
         onS11NudgeReposition: () => setS11NudgeRepositionTrigger((t) => t + 1),
+        onDismissS12DragNudge: () => setS12DragNudgeDismissed(true),
+        onS12NudgeReposition: () => setS12NudgeRepositionTrigger((t) => t + 1),
         onDismissS13Pencil: () => setS13PencilDismissed(true),
         onDismissS14Pencil: () => setS14PencilDismissed(true),
         onDismissS15Eraser: () => setS15EraserDismissed(true),
@@ -487,6 +506,7 @@ const App = () => {
       React.createElement(Nudge, {
         show: !!nudgeTargetId,
         position: nudgePosition,
+        variant: nudgeVariant,
       }),
     ),
     React.createElement(

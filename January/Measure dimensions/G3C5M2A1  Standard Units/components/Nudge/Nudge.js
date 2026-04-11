@@ -1,9 +1,9 @@
 /**
- * Nudge - Shows a tapping hand (tap.gif) at a given position.
- * Used to hint where the user should tap (e.g. step 2: fractional digits, step 5: and button).
- * Rendered as fixed/absolute overlay from App; position comes from target element rect.
+ * Nudge - Shows a hand hint (tap / tap-grey / drag) at a given position.
+ * Rendered as fixed overlay from App; position comes from target element rect.
+ * @param {"tap"|"tapGrey"|"drag"} [variant="tap"] - tapGrey: visible on light backgrounds (e.g. step 11 ruler); drag: step 12 slider
  */
-const Nudge = ({ show = false, position = null }) => {
+const Nudge = ({ show = false, position = null, variant = "tap" }) => {
   if (!show || !position) return null;
 
   const { left, top, width, height } = position;
@@ -16,13 +16,20 @@ const Nudge = ({ show = false, position = null }) => {
     zIndex: 1000,
   };
 
+  const gif =
+    variant === "tapGrey"
+      ? { src: "assets/tapgrey.gif", className: "nudge-tap-grey-gif" }
+      : variant === "drag"
+        ? { src: "assets/drag.gif", className: "nudge-drag-gif" }
+        : { src: "assets/tap.gif", className: "nudge-tap-gif" };
+
   return React.createElement(
     "div",
     { className: "nudge-overlay", style },
     React.createElement("img", {
-      src: "assets/tap.gif",
+      src: gif.src,
       alt: "",
-      className: "nudge-tap-gif",
-    })
+      className: gif.className,
+    }),
   );
 };
