@@ -1,0 +1,36 @@
+.question-panel {
+  width: 100%;
+  min-height: 6.4vw;
+  color: white;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-radius: 0.8vw;
+  margin-bottom: 0.3vw;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.355);
+  border: 1px solid rgba(194, 214, 255, 0.25);
+  overflow: hidden;
+}
+
+.question-step-number {
+  width: 9.5%;
+  min-width: 7vw;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d39b48;
+  color: #0f243f;
+  font-size: 2.5vw;
+  font-weight: 700;
+}
+
+.question-panel h2 {
+  margin: 0;
+  font-size: 2.1vw;
+  font-weight: 600;
+  line-height: 1.2;
+  flex: 1;
+  text-align: center;
+}

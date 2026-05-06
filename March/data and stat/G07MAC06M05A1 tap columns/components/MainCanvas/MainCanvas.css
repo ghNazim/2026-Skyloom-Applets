@@ -1,0 +1,426 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ───── Feedback Row (20%) ───── */
+.feedback-row {
+  flex: 0 0 20%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-banner {
+  width: 90%;
+  min-height: 68%;
+  padding: 0.6vw 1.2vw;
+  border-radius: 0.7vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 2.1vw;
+  line-height: 1.2;
+  border: 2px dashed transparent;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.feedback-none {
+  opacity: 0;
+}
+
+.feedback-correct {
+  background: rgba(65, 143, 78, 0.58);
+  border-color: #8fcd72;
+}
+
+.feedback-wrong {
+  background: rgba(130, 19, 45, 0.82);
+  border-color: #ef6a6a;
+}
+
+.feedback-partial {
+  background: rgba(120, 130, 145, 0.55);
+  border-color: rgba(200, 210, 225, 0.5);
+}
+
+/* ───── Visual Row (remaining 80%) ───── */
+.visual-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.2vw 1vw 0.3vw;
+  position: relative;
+  border: 1px solid rgba(100, 160, 255, 0.25);
+  border-radius: 0.8vw;
+  background: rgba(10, 25, 55, 0.35);
+}
+
+.main-canvas-container.start-screen .visual-row {
+  height: 100%;
+}
+
+.graph-title {
+  color: #4ade80;
+  font-weight: 700;
+  font-size: 2.1vw;
+  text-align: center;
+  margin-bottom: 0.2vw;
+  flex-shrink: 0;
+}
+
+/* ───── Graph Area ───── */
+.graph-area {
+  flex: 1;
+  min-height: 0;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Columns row */
+.graph-columns-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end; /* Revert to flex-end to wrap tightly around children */
+  justify-content: space-around;
+  padding: 0 2vw;
+  position: relative;
+}
+
+/* ───── Individual Column ───── */
+.graph-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  flex: 1;
+  max-width: 7vw;
+  transition: transform 0.15s;
+}
+
+.graph-column:hover {
+  transform: scale(1.03);
+}
+
+/* Multi-select: correct picks stay visible but dim after a wrong tap until next correct */
+.graph-column.correct-muted {
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
+}
+
+/* Column marks container */
+.column-marks-container {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 0.15vw;
+  padding: 0.3vw 0.5vw;
+  border-radius: 0.5vw;
+  position: relative;
+  z-index: 1;
+  /* background: rgba(60, 80, 120, 0.35); */
+  border: 1.5px solid transparent;
+  transition: border-color 0.3s;
+}
+
+/* Background states for columns */
+.column-bg-correct {
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.35);
+}
+
+.column-bg-wrong {
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.35);
+}
+
+.column-bg-dimmed {
+  border-color: rgba(140, 150, 170, 0.3);
+  background: rgba(80, 90, 110, 0.75);
+}
+
+/* Fill animation - grows from bottom using background-size */
+.column-marks-container.fill-anim {
+  animation: fillFromBottom 0.6s ease-out forwards;
+}
+
+.column-marks-container.fill-anim.column-bg-correct {
+  animation: fillGreenFromBottom 0.6s ease-out forwards;
+}
+
+.column-marks-container.fill-anim.column-bg-wrong {
+  animation: fillRedFromBottom 0.6s ease-out forwards;
+}
+
+.column-marks-container.fill-anim.column-bg-dimmed {
+  animation: fillDimmedFromBottom 0.6s ease-out forwards;
+}
+
+@keyframes fillGreenFromBottom {
+  0% {
+    background-image: linear-gradient(to top, rgba(74, 222, 128, 0.35) 100%, transparent 0);
+    background-size: 100% 0%;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-color: transparent;
+    border-color: #4ade80;
+  }
+  100% {
+    background-image: linear-gradient(to top, rgba(74, 222, 128, 0.35) 100%, transparent 0);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-color: transparent;
+    border-color: #4ade80;
+  }
+}
+
+@keyframes fillRedFromBottom {
+  0% {
+    background-image: linear-gradient(to top, rgba(255, 107, 107, 0.35) 100%, transparent 0);
+    background-size: 100% 0%;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-color: transparent;
+    border-color: #ff6b6b;
+  }
+  100% {
+    background-image: linear-gradient(to top, rgba(255, 107, 107, 0.35) 100%, transparent 0);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-color: transparent;
+    border-color: #ff6b6b;
+  }
+}
+
+@keyframes fillDimmedFromBottom {
+  0% {
+    background-image: linear-gradient(to top, rgba(80, 90, 110, 0.75) 100%, transparent 0);
+    background-size: 100% 0%;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-color: transparent;
+    border-color: rgba(140, 150, 170, 0.3);
+  }
+  100% {
+    background-image: linear-gradient(to top, rgba(80, 90, 110, 0.75) 100%, transparent 0);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-color: transparent;
+    border-color: rgba(140, 150, 170, 0.3);
+  }
+}
+
+/* Cross mark */
+.cross-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2vw;
+  height: 3.2vw;
+}
+
+.cross-mark svg {
+  width: 2.8vw;
+  height: 2.8vw;
+}
+
+/* Tick mark on number line */
+.column-tick {
+  width: 0.45vw;
+  height: 1.2vw;
+  background: #f5a623;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+/* X label under the number line */
+.column-x-label {
+  font-size: 2.2vw;
+  font-weight: 700;
+  color: #f5a623;
+  margin-top: 0.2vw;
+  text-align: center;
+  z-index: 2;
+  transition: opacity 0.3s;
+}
+
+/* Pulsate animation for x-label */
+.column-x-label.pulsate {
+  animation: pulsateOpacity 0.6s ease-in-out infinite;
+}
+
+@keyframes pulsateOpacity {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ───── Number Line ───── */
+.number-line {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  flex-shrink: 0;
+  height: 0.35vw;
+  margin-top: -4.2vw;
+  margin-bottom: 4vw;
+  z-index: 0;
+}
+
+.number-line-bar {
+  flex: 1;
+  height: 0.3vw;
+  background: white;
+}
+
+.number-line-arrow-left,
+.number-line-arrow-right {
+  width: 0;
+  height: 0;
+  flex-shrink: 0;
+}
+
+.number-line-arrow-left {
+  border-top: 0.55vw solid transparent;
+  border-bottom: 0.55vw solid transparent;
+  border-right: 1vw solid white;
+}
+
+.number-line-arrow-right {
+  border-top: 0.55vw solid transparent;
+  border-bottom: 0.55vw solid transparent;
+  border-left: 1vw solid white;
+}
+
+/* ───── X Axis Label ───── */
+.x-axis-label {
+  flex-shrink: 0;
+  text-align: center;
+  margin-top: 0.4vw;
+  padding-bottom: 0.2vw;
+}
+
+.x-axis-label-text {
+  background: #8b7355;
+  color: white;
+  font-weight: 700;
+  font-size: 1.8vw;
+  padding: 0.15vw 2vw;
+  border-radius: 0.5vw;
+}
+
+/* ───── Column Label (e.g., "4 Students") ───── */
+.column-label-box {
+  position: absolute;
+  top: -3.6vw;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+  /* animation: fadeInLabel 0.3s ease-out; */
+}
+
+.column-label-text {
+  background: rgba(10, 50, 30, 0.85);
+  border: 1.5px solid #4ade80;
+  color: white;
+  font-weight: 700;
+  font-size: 1.7vw;
+  padding: 0.2vw 0.8vw;
+  border-radius: 0.5vw;
+  white-space: nowrap;
+}
+
+.column-label-line {
+  width: 2px;
+  height: 1.2vw;
+  background: #4ade80;
+}
+
+@keyframes fadeInLabel {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-0.5vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ───── Summation Overlay (Q4) ───── */
+.summation-top-overlay {
+  position: absolute;
+  /* bottom is set inline dynamically */
+  left: 2vw;
+  right: 2vw;
+  height: 0; /* Just an anchor */
+  z-index: 10;
+  pointer-events: none;
+  /* animation: fadeInLabel 0.4s ease-out; */
+}
+
+.summation-box-wrapper {
+  position: absolute;
+  bottom: 0; /* Bottom edge touches horizontal bar */
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summation-box {
+  background: rgba(10, 50, 30, 0.85);
+  border: 1.5px solid #4ade80;
+  color: white;
+  font-weight: 700;
+  font-size: 1.8vw;
+  padding: 0.25vw 1.2vw;
+  border-radius: 0.5vw;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.summation-stem {
+  width: 2px;
+  height: 1.5vw;
+  background: #4ade80;
+}
+
+.summation-horizontal-bar {
+  position: absolute;
+  top: 0; /* Exactly at the top of the overlay anchor */
+  height: 2px;
+  background: #4ade80;
+}
+
+.summation-drop-line {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  background: #4ade80;
+  transform: translateX(-50%);
+}
+
+

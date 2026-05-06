@@ -250,7 +250,7 @@ const DATA = {
           text1: "Area of triangle = ½ × 4 × BC",
           text2: "BC = EF = [box] cm",
           answer: "5",
-          img: "b3_bc.svg",
+          img: "b3_bc_alt.svg",
           imgCorrect: "b3_bc_found.svg",
         },
         {
@@ -269,25 +269,25 @@ const DATA = {
   id: {
     app: {
       fullscreenStart: {
-        heading: "Luas Bangun Gabungan",
-        text: 'Mari kita uraikan bangun gabungan dan temukan luasnya.\nKetuk "Mulai" untuk memulai aktivitas.',
+        heading: "Luas bangun gabungan",
+        text: 'Mari kita menguraikan bangun gabungan dan mencari luasnya.\nKetuk "Mulai" untuk memulai aktivitas.',
         button: "Mulai",
       },
       fullscreenEnd: {
         heading: "Aktivitas Selesai!",
-        text: 'Kita telah belajar menguraikan bangun gabungan dan menemukan luasnya.\nKetuk "Mulai Ulang" untuk memulai ulang aktivitas.',
+        text: 'Kita telah mempelajari cara menguraikan bangun gabungan dan mencari luasnya.\nKetuk "Mulai Ulang" untuk mengulangi aktivitas.',
         button: "Mulai Ulang",
       },
       step1: {
-        questionText: "Temukan luas bangun gabungan yang diberikan.",
-        navText: "Ketuk tombol untuk menjelajahi langkah-langkah.",
-        buttonText: "Langkah Mencari Luas",
+        questionText: "Tentukan luas bangun gabungan berikut.",
+        navText: "Ketuk tombol untuk melihat langkah-langkah.",
+        buttonText: "Langkah mencari luas",
       },
       step2: {
         navText: "Ketuk » untuk melanjutkan.",
       },
       step3: {
-        navText: "Ketuk tombol pilihan Anda.",
+        navText: "Ketuk tombol pilihanmu.",
         navTextAfterSelect: "Ketuk » untuk menambahkan label.",
         split2Button: "Bagi menjadi 2 bangun",
         split3Button: "Bagi menjadi 3 bangun",
@@ -295,19 +295,19 @@ const DATA = {
       rightPanelSteps: [
         {
           title: "Langkah 1:",
-          desc: "Uraikan bangun gabungan menjadi bangun yang diketahui.",
+          desc: "Uraikan bangun gabungan menjadi bangun-bangun yang dikenal.",
         },
         {
           title: "Langkah 2:",
-          desc: "Hitung luas masing-masing bangun yang diketahui.",
+          desc: "Hitung luas masing-masing bangun yang dikenal.",
         },
         {
           title: "Langkah 3:",
-          desc: "Jumlahkan atau kurangkan luas bangun-bangun yang diketahui.",
+          desc: "Jumlahkan atau kurangkan luas bangun-bangun tersebut.",
         },
       ],
       commonNavs: {
-        navNumpad: "Gunakan numpad untuk mengisi jawaban dan klik ✓.",
+        navNumpad: "Gunakan numpad untuk mengisi jawaban lalu ketuk ✓.",
         navCorrect: "Ketuk » untuk melanjutkan.",
         navHighlightBox: "Ketuk teks yang disorot.",
       },
@@ -348,7 +348,7 @@ const DATA = {
         },
         {
           text1: "Luas trapesium 1 = ½ (  AD  +  BC ) × DZ",
-          text2: "AD = 13 – (4 + 4) = [box] cm",
+          text2: "AD = <or>13</or> – (<gr> 4</gr> + <cy>4 </cy>) = [box] cm",
           answer: "5",
           img: "a1_ad.svg",
           imgCorrect: "a1_ad_found.svg",
@@ -363,10 +363,10 @@ const DATA = {
         },
         {
           text1: "Luas trapesium 1 = ½ (  5  +  13 ) × DZ",
-          text2: "DZ = 12 – 7 = [box] cm",
+          text2: "DZ = <or>12</or> – <gr>7</gr> = [box] cm",
           answer: "5",
-          img: "a1_dz.svg",
-          imgCorrect: "a1_dz_found.svg",
+          img: "a1_dz_alt.svg",
+          imgCorrect: "a1_dz_alt_found.svg",
         },
         {
           text1: "Luas trapesium 1 = ½ (  5  +  13 ) × 5",
@@ -375,7 +375,7 @@ const DATA = {
         },
         {
           text1: "Luas trapesium 1 = 45 cm²",
-          nav: "Ketuk » untuk menemukan luas trapesium 2.",
+          nav: "Ketuk » untuk mencari luas trapesium 2.",
           img: "a1_dz_found.svg",
         },
         {
@@ -402,7 +402,7 @@ const DATA = {
         },
         {
           text1: "Luas trapesium 2 = 38 cm²",
-          nav: "Ketuk » untuk melanjutkan ke langkah 3.",
+          nav: "Ketuk » untuk menuju langkah 3.",
           img: "a2.svg",
         },
       ],
@@ -414,22 +414,22 @@ const DATA = {
           "Luas bangun gabungan = 83 cm²",
         ],
         navs: [
-          "Ketuk » untuk menemukan luas total.",
+          "Ketuk » untuk mencari luas total.",
           "Ketuk » untuk menghitung luas total.",
-          "Ketuk » untuk melihat cara lain menemukan luas bangun ini.",
+          "Ketuk » untuk melihat cara lain mencari luas bangun ini.",
         ],
       },
       step5Split3: {
         img: "bfull.svg",
         texts: [
-          "Luas bangun gabungan = Luas (Persegi Panjang 1 + Persegi Panjang 2 + Segitiga)",
+          "Luas bangun gabungan\n = Luas (Persegi Panjang 1 + Persegi Panjang 2 + Segitiga)",
           "Luas bangun gabungan = 48 cm² + 25 cm² + 10 cm²",
           "Luas bangun gabungan = 83 cm²",
         ],
         navs: [
-          "Ketuk » untuk menemukan luas total.",
+          "Ketuk » untuk mencari luas total.",
           "Ketuk » untuk menghitung luas total.",
-          "Ketuk » untuk melihat cara lain menemukan luas bangun ini.",
+          "Ketuk » untuk melihat cara lain mencari luas bangun ini.",
         ],
       },
       split3Config: [
@@ -453,7 +453,7 @@ const DATA = {
         },
         {
           text1: "Luas persegi panjang 1 = 48 cm²",
-          nav: "Ketuk » untuk menemukan luas persegi panjang 2.",
+          nav: "Ketuk » untuk mencari luas persegi panjang 2.",
           img: "b1.svg",
         },
         {
@@ -467,7 +467,7 @@ const DATA = {
         },
         {
           text1: "Luas persegi panjang 2 = DE × EF",
-          text2: "DE = 13 - 4 - 4 = [box] cm",
+          text2: "DE = <or>13</or> - <gr>4</gr> - <cy>4</cy> = [box] cm",
           answer: "5",
           img: "b2_de.svg",
           imgEnd: "b2_de_alt.svg",
@@ -480,7 +480,7 @@ const DATA = {
         },
         {
           text1: "Luas persegi panjang 2 = 5 × EF",
-          text2: "EF = 12 - 7 = [box] cm",
+          text2: "EF = <gr>12</gr> - <or>7</or> = [box] cm",
           answer: "5",
           img: "b2_ef_alt.svg",
           imgCorrect: "b2_ef_alt_found.svg",
@@ -492,7 +492,7 @@ const DATA = {
         },
         {
           text1: "Luas persegi panjang 2 = 25 cm²",
-          nav: "Ketuk » untuk menemukan luas segitiga.",
+          nav: "Ketuk » untuk mencari luas segitiga.",
           img: "b2_ef_alt_found.svg",
         },
         {
@@ -512,7 +512,7 @@ const DATA = {
           text1: "Luas segitiga = ½ × 4 × BC",
           text2: "BC = EF = [box] cm",
           answer: "5",
-          img: "b3_bc.svg",
+          img: "b3_bc_alt.svg",
           imgCorrect: "b3_bc_found.svg",
         },
         {
@@ -522,12 +522,13 @@ const DATA = {
         },
         {
           text1: "Luas segitiga = 10 cm²",
-          nav: "Ketuk » untuk melanjutkan ke langkah 3.",
+          nav: "Ketuk » untuk menuju langkah 3.",
           img: "b3_bc_found.svg",
         },
       ],
     },
   },
+
 };
 
 const APP_DATA = DATA[current_language].app;

@@ -53,6 +53,13 @@ const DATA = {
 
     interactiveNavText: "Tap the correct place on the line.",
 
+    zeroStage: {
+      navText: "Tap \u2018Add 2 balls\u2019.",
+      extraText:
+        "Let\u2019s keep the same number of <red>RED</red> balls,\nand add 2 more balls to the bowl.",
+      buttonText: "Add 2 Balls",
+    },
+
     labels: {
       red: "RED",
       total: "TOTAL",
@@ -65,10 +72,12 @@ const DATA = {
         totalCount: 4,
         correctPosition: 5,
         initialFeedback: "",
-        wrongFeedback: "All 4 balls are RED.\nYou will get RED every\nsingle time.",
+        wrongFeedback:
+          "All 4 balls are RED. You will get RED every single time.",
         eventText: "Event: Getting a <red>RED</red> ball at random",
         extraText: "Where does this event sit on the probability scale?",
-        correctExtraText: "Since all balls are RED, picking a RED ball\nat random is a <sc5>certain event</sc5>.",
+        correctExtraText:
+          "Since all balls are RED, picking a RED ball\nat random is a <sc5>certain event</sc5>.",
         correctNavText: "Tap \u00BB to add the first 2 balls.",
         wrongText: "Not here,\nTry again!",
       },
@@ -78,10 +87,24 @@ const DATA = {
         totalCount: 6,
         correctPosition: 4,
         initialFeedback: "We added 2 BLUE balls.\nRED is still 4.",
-        wrongFeedback: "RED balls are more in number than\nBLUE. What does that tell you about\nthe chance?",
+        wrongFeedback: "",
+        wrongFeedbackByPosition: {
+          1:
+            "There are 4 RED balls in the bowl, so getting a RED ball is possible \u2013 not impossible.",
+          2:
+            "For less likely, RED balls would need to be fewer than BLUE balls. Check the bowl again.",
+          3:
+            "For equally likely, RED balls would need to be equal to BLUE balls. Check the bowl again.",
+          4:
+            "For more likely, RED balls would need to be more than BLUE balls. Check the bowl again.",
+          5:
+            "For certain, the bowl would need to have only RED balls. Check the bowl again.",
+        },
         eventText: "Event: Getting a <red>RED</red> ball at random",
-        extraText: "Where does this event sit on the probability scale?",
-        correctExtraText: "Since RED balls are more in number, the chance of\ngetting a RED ball is high \u2013 hence this event is <sc4>more\nlikely</sc4>.",
+        extraText:
+          "You now have more balls in the bowl but the same number of RED. \nNow, where does this event sit on the probability scale?",
+        correctExtraText:
+          "Since RED balls are more in number, the chance of\ngetting a RED ball is high \u2013 hence this event is <sc4>more\nlikely</sc4>.",
         correctNavText: "Tap \u00BB to add the next 2 balls.",
         wrongText: "Not here,\nTry again!",
       },
@@ -91,10 +114,24 @@ const DATA = {
         totalCount: 8,
         correctPosition: 3,
         initialFeedback: "We added 2 GREEN balls.\nRED is still 4.",
-        wrongFeedback: "RED and not-RED balls are equal in\nnumber. What does that tell you\nabout the chance?",
+        wrongFeedback: "",
+        wrongFeedbackByPosition: {
+          1:
+            "There are 4 RED balls in the bowl, so getting a RED ball is possible \u2013 not impossible.",
+          2:
+            "For less likely, RED balls would need to be fewer than not-RED balls. Check the bowl again.",
+          3:
+            "For equally likely, RED balls would need to be equal to not-RED balls. Check the bowl again.",
+          4:
+            "For more likely, RED balls would need to be more than not-RED balls. Check the bowl again.",
+          5:
+            "For certain, the bowl would need to have only RED balls. Check the bowl again.",
+        },
         eventText: "Event: Getting a <red>RED</red> ball at random",
-        extraText: "Where does this event sit on the probability scale?",
-        correctExtraText: "Since RED and not-RED balls are equal in number, the\nchance of getting a RED ball is medium \u2013 hence this event\nis <sc3>equally likely</sc3>.",
+        extraText:
+          "You now have more balls in the bowl but the same number of RED. \nNow, where does this event sit on the probability scale?",
+        correctExtraText:
+          "Since RED and not-RED balls are equal in number, the\nchance of getting a RED ball is medium \u2013 hence this event\nis <sc3>equally likely</sc3>.",
         correctNavText: "Tap \u00BB to add the next 2 balls.",
         wrongText: "Not here,\nTry again!",
       },
@@ -104,10 +141,24 @@ const DATA = {
         totalCount: 10,
         correctPosition: 2,
         initialFeedback: "We added 2 YELLOW balls.\nRED is still 4.",
-        wrongFeedback: "RED balls are fewer in number than\nthe rest. What does that tell you\nabout the chance?",
+        wrongFeedback: "",
+        wrongFeedbackByPosition: {
+          1:
+            "There are 4 RED balls in the bowl, so getting a RED ball is possible \u2013 not impossible.",
+          2:
+            "For less likely, RED balls would need to be fewer than not-RED balls. Check the bowl again.",
+          3:
+            "For equally likely, RED balls would need to be equal to not-RED balls. Check the bowl again.",
+          4:
+            "For more likely, RED balls would need to be more than not-RED balls. Check the bowl again.",
+          5:
+            "For certain, the bowl would need to have only RED balls. Check the bowl again.",
+        },
         eventText: "Event: Getting a <red>RED</red> ball at random",
-        extraText: "Where does this event sit on the probability scale?",
-        correctExtraText: "Since RED balls are fewer in number than non-RED balls,\nthe chance of getting a RED ball is low \u2013 hence this event is\n<sc2>less likely</sc2>.",
+        extraText:
+          "You now have more balls in the bowl but the same number of RED. \nNow, where does this event sit on the probability scale?",
+        correctExtraText:
+          "Since RED balls are fewer in number than non-RED balls,\nthe chance of getting a RED ball is low \u2013 hence this event is\n<sc2>less likely</sc2>.",
         correctNavText: "Tap \u00BB to see what happened.",
         wrongText: "Not here,\nTry again!",
       },
@@ -119,27 +170,27 @@ const DATA = {
         {
           dotColor: "#e53935",
           labelHtml:
-            "<span style=\"color:#e53935;font-weight:700\">Impossible<br>event</span>",
+            '<span style="color:#e53935;font-weight:700">Impossible<br>event</span>',
         },
         {
           dotColor: "#fb8c00",
           labelHtml:
-            "<span style=\"color:#fb8c00;font-weight:700\">Less likely<br>event</span>",
+            '<span style="color:#fb8c00;font-weight:700">Less likely<br>event</span>',
         },
         {
           dotColor: "#fdd835",
           labelHtml:
-            "<span style=\"color:#fdd835;font-weight:700\">Equally likely<br>event</span>",
+            '<span style="color:#fdd835;font-weight:700">Equally likely<br>event</span>',
         },
         {
           dotColor: "#29b6f6",
           labelHtml:
-            "<span style=\"color:#29b6f6;font-weight:700\">More likely<br>event</span>",
+            '<span style="color:#29b6f6;font-weight:700">More likely<br>event</span>',
         },
         {
           dotColor: "#66bb6a",
           labelHtml:
-            "<span style=\"color:#66bb6a;font-weight:700\">Certain<br>event</span>",
+            '<span style="color:#66bb6a;font-weight:700">Certain<br>event</span>',
         },
       ],
       visualImages: [
@@ -172,7 +223,7 @@ const DATA = {
       sequenceCounts: ["4", "6", "8", "10"],
       rightFooter: "Total number of balls changed",
       summaryHtml:
-        "As non-<red>RED</red> balls were added, the chance of getting a <red>RED</red> ball <y>reduced</y> \u2014<br>because the chance is now shared among more balls.<br><br><y><strong>Probability depends on both:</strong></y> what we want AND everything in the bowl",
+        "As non-<red>RED</red> balls were added, the chance of getting a <red>RED</red> ball <y>reduced</y> \u2014<br>because the chance is now shared among more balls.<br><br>Probability depends on both: <y>what we want</y> AND <y>everything in the bowl</y>",
       navText: "Tap \u00BB to conclude.",
     },
 
@@ -239,6 +290,13 @@ const DATA = {
 
     interactiveNavText: "Ketuk posisi yang benar pada garis.",
 
+    zeroStage: {
+      navText: "Ketuk \u2018Tambah 2 bola\u2019.",
+      extraText:
+        "Mari pertahankan jumlah bola <red>MERAH</red> yang sama,\ndan tambahkan 2 bola lagi ke mangkuk.",
+      buttonText: "Tambah 2 Bola",
+    },
+
     labels: {
       red: "MERAH",
       total: "TOTAL",
@@ -252,7 +310,7 @@ const DATA = {
         correctPosition: 5,
         initialFeedback: "",
         wrongFeedback:
-          "Keempat bola adalah MERAH.\nAnda akan selalu mendapat MERAH.",
+          "Semua 4 bola adalah MERAH. Anda akan mendapat MERAH setiap kali.",
         eventText: "Kejadian: Mendapat bola <red>MERAH</red> secara acak",
         extraText: "Di mana kejadian ini pada skala probabilitas?",
         correctExtraText:
@@ -266,10 +324,22 @@ const DATA = {
         totalCount: 6,
         correctPosition: 4,
         initialFeedback: "Kita menambah 2 bola BIRU.\nMERAH tetap 4.",
-        wrongFeedback:
-          "Bola MERAH lebih banyak dari\nBIRU. Apa artinya untuk\npeluangnya?",
+        wrongFeedback: "",
+        wrongFeedbackByPosition: {
+          1:
+            "Ada 4 bola MERAH di mangkuk, jadi mendapat bola MERAH mungkin \u2013 bukan mustahil.",
+          2:
+            "Untuk kurang mungkin, bola MERAH harus lebih sedikit dari bola BIRU. Periksa mangkuk lagi.",
+          3:
+            "Untuk sama mungkin, bola MERAH harus sama banyak dengan bola BIRU. Periksa mangkuk lagi.",
+          4:
+            "Untuk lebih mungkin, bola MERAH harus lebih banyak dari bola BIRU. Periksa mangkuk lagi.",
+          5:
+            "Untuk pasti, mangkuk harus berisi hanya bola MERAH. Periksa mangkuk lagi.",
+        },
         eventText: "Kejadian: Mendapat bola <red>MERAH</red> secara acak",
-        extraText: "Di mana kejadian ini pada skala probabilitas?",
+        extraText:
+          "Sekarang ada lebih banyak bola di mangkuk, tetapi jumlah MERAH tetap sama.\nSekarang, di manakah kejadian ini pada skala probabilitas?",
         correctExtraText:
           "Karena bola MERAH lebih banyak, peluang mendapat\nbola MERAH tinggi \u2013 jadi kejadian ini <sc4>lebih\nmungkin</sc4>.",
         correctNavText: "Ketuk \u00BB untuk menambah 2 bola berikutnya.",
@@ -281,10 +351,22 @@ const DATA = {
         totalCount: 8,
         correctPosition: 3,
         initialFeedback: "Kita menambah 2 bola HIJAU.\nMERAH tetap 4.",
-        wrongFeedback:
-          "Bola MERAH dan bukan-MERAH sama banyaknya.\nApa artinya untuk\npeluangnya?",
+        wrongFeedback: "",
+        wrongFeedbackByPosition: {
+          1:
+            "Ada 4 bola MERAH di mangkuk, jadi mendapat bola MERAH mungkin \u2013 bukan mustahil.",
+          2:
+            "Untuk kurang mungkin, bola MERAH harus lebih sedikit dari bola bukan-MERAH. Periksa mangkuk lagi.",
+          3:
+            "Untuk sama mungkin, bola MERAH harus sama banyak dengan bola bukan-MERAH. Periksa mangkuk lagi.",
+          4:
+            "Untuk lebih mungkin, bola MERAH harus lebih banyak dari bola bukan-MERAH. Periksa mangkuk lagi.",
+          5:
+            "Untuk pasti, mangkuk harus berisi hanya bola MERAH. Periksa mangkuk lagi.",
+        },
         eventText: "Kejadian: Mendapat bola <red>MERAH</red> secara acak",
-        extraText: "Di mana kejadian ini pada skala probabilitas?",
+        extraText:
+          "Sekarang ada lebih banyak bola di mangkuk, tetapi jumlah MERAH tetap sama.\nSekarang, di manakah kejadian ini pada skala probabilitas?",
         correctExtraText:
           "Karena bola MERAH dan bukan-MERAH sama banyaknya,\npeluang mendapat bola MERAH sedang \u2013 jadi kejadian ini\n<sc3>sama mungkin</sc3>.",
         correctNavText: "Ketuk \u00BB untuk menambah 2 bola berikutnya.",
@@ -296,10 +378,22 @@ const DATA = {
         totalCount: 10,
         correctPosition: 2,
         initialFeedback: "Kita menambah 2 bola KUNING.\nMERAH tetap 4.",
-        wrongFeedback:
-          "Bola MERAH lebih sedikit dari\nyang lain. Apa artinya untuk\npeluangnya?",
+        wrongFeedback: "",
+        wrongFeedbackByPosition: {
+          1:
+            "Ada 4 bola MERAH di mangkuk, jadi mendapat bola MERAH mungkin \u2013 bukan mustahil.",
+          2:
+            "Untuk kurang mungkin, bola MERAH harus lebih sedikit dari bola bukan-MERAH. Periksa mangkuk lagi.",
+          3:
+            "Untuk sama mungkin, bola MERAH harus sama banyak dengan bola bukan-MERAH. Periksa mangkuk lagi.",
+          4:
+            "Untuk lebih mungkin, bola MERAH harus lebih banyak dari bola bukan-MERAH. Periksa mangkuk lagi.",
+          5:
+            "Untuk pasti, mangkuk harus berisi hanya bola MERAH. Periksa mangkuk lagi.",
+        },
         eventText: "Kejadian: Mendapat bola <red>MERAH</red> secara acak",
-        extraText: "Di mana kejadian ini pada skala probabilitas?",
+        extraText:
+          "Sekarang ada lebih banyak bola di mangkuk, tetapi jumlah MERAH tetap sama.\nSekarang, di manakah kejadian ini pada skala probabilitas?",
         correctExtraText:
           "Karena bola MERAH lebih sedikit dari bola bukan-MERAH,\npeluang mendapat bola MERAH rendah \u2013 jadi kejadian ini\n<sc2>kurang mungkin</sc2>.",
         correctNavText: "Ketuk \u00BB untuk melihat yang terjadi.",
@@ -313,27 +407,27 @@ const DATA = {
         {
           dotColor: "#e53935",
           labelHtml:
-            "<span style=\"color:#e53935;font-weight:700\">Kejadian<br>mustahil</span>",
+            '<span style="color:#e53935;font-weight:700">Kejadian<br>mustahil</span>',
         },
         {
           dotColor: "#fb8c00",
           labelHtml:
-            "<span style=\"color:#fb8c00;font-weight:700\">Kejadian<br>kurang mungkin</span>",
+            '<span style="color:#fb8c00;font-weight:700">Kejadian<br>kurang mungkin</span>',
         },
         {
           dotColor: "#fdd835",
           labelHtml:
-            "<span style=\"color:#fdd835;font-weight:700\">Kejadian<br>sama mungkin</span>",
+            '<span style="color:#fdd835;font-weight:700">Kejadian<br>sama mungkin</span>',
         },
         {
           dotColor: "#29b6f6",
           labelHtml:
-            "<span style=\"color:#29b6f6;font-weight:700\">Kejadian<br>lebih mungkin</span>",
+            '<span style="color:#29b6f6;font-weight:700">Kejadian<br>lebih mungkin</span>',
         },
         {
           dotColor: "#66bb6a",
           labelHtml:
-            "<span style=\"color:#66bb6a;font-weight:700\">Kejadian<br>pasti</span>",
+            '<span style="color:#66bb6a;font-weight:700">Kejadian<br>pasti</span>',
         },
       ],
       visualImages: [
@@ -366,15 +460,16 @@ const DATA = {
       sequenceCounts: ["4", "6", "8", "10"],
       rightFooter: "Jumlah total bola berubah",
       summaryHtml:
-        "Saat bola non-<red>MERAH</red> ditambahkan, peluang mendapat bola <red>MERAH</red> <y>menyusut</y> \u2014<br>karena peluang itu kini dibagi oleh lebih banyak bola.<br><br><y><strong>Probabilitas bergantung pada keduanya:</strong></y> yang kita inginkan DAN semua isi mangkuk",
-      navText: "Ketuk \u00BB untuk menyelesaikan.",
+        "Saat bola non-<red>MERAH</red> ditambahkan, peluang mendapat bola <red>MERAH</red> <y>menyusut</y> \u2014<br>karena peluang itu kini dibagi di antara lebih banyak bola.<br><br>Probabilitas bergantung pada keduanya: <y>yang kita inginkan</y> DAN <y>semua isi mangkuk</y>",
+      navText: "Ketuk \u00BB untuk menyimpulkan.",
     },
 
     complete: {
       heading: "Probabilitas & Jumlah Total \u2013 Selesai!",
       boxedHtml:
         "Probabilitas tidak hanya bergantung pada yang kita inginkan.<br><y>Ini juga bergantung pada semua isi mangkuk.</y><br>Ubah salah satunya, maka kejadian akan bergerak<br>di skala probabilitas.",
-      instructionText: "Ketuk \u2018Mulai Ulang\u2019 untuk mengulangi aktivitas ini.",
+      instructionText:
+        "Ketuk \u2018Mulai Ulang\u2019 untuk mengulangi aktivitas ini.",
       buttonText: "Mulai Ulang",
     },
   },

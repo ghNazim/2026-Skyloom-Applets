@@ -1,0 +1,38 @@
+.question-panel {
+  width: 100%;
+  /* padding: .5vw 1vw; */
+  /* background-color: #34495e; */
+  color: white;
+  text-align: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-radius: 1vw;
+  /* border: 1px solid var(--panel-border-color); */
+  backdrop-filter: blur(5vw);
+  margin-bottom: 0.5vw;
+  /* height: 6vw; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4vw;
+}
+
+.question-panel h2 {
+  margin: 0;
+  font-size: 2.3vw;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* Highlight classes for step 1 question text */
+.question-highlight-purple {
+  background-color: rgb(105, 0, 129);
+  padding: 0.2vw 0.5vw;
+  border-radius: 0.3em;
+}
+
+.question-highlight-orange {
+  background-color: rgb(172, 112, 0);
+  padding: 0.2vw 0.5vw;
+  border-radius: 0.3em;
+}

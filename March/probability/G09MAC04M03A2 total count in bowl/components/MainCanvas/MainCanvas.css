@@ -44,7 +44,7 @@
   color: white;
   flex-shrink: 0;
   width: 100%;
-  padding: 0.5vw ;
+  padding: 0.5vw;
   background: rgba(20, 60, 65, 0.55);
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 1vw;
@@ -65,10 +65,32 @@
 .mc-feedback-div {
   flex: 0 0 30%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.8vw;
   text-align: center;
   width: 100%;
+}
+
+.mc-add-balls-btn {
+  font-size: 1.8vw;
+  font-weight: 700;
+  color: #fff;
+  padding: 0.6vw 1.4vw;
+  border-radius: 0.8vw;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, #ffaa00 0%, #bb7d00 100%);
+  cursor: pointer;
+  box-shadow: 0 0.2vw 0.4vw rgba(0, 0, 0, 0.35);
+}
+
+.mc-add-balls-btn:hover {
+  filter: brightness(1.08);
+}
+
+.mc-add-balls-btn:active {
+  transform: translateY(1px);
 }
 
 .mc-feedback-initial {

@@ -21,7 +21,7 @@ const DATA = {
       areaPaintedByCanWhite: "Area painted by 1 can = 1.5 m²",
       costOfCanWhite: "Cost of 1 can = Rp 22,500.00",
       areaHighlightImage: "assets/areaHighlight.svg",
-      compute2GreyImage: "assets/compute2grey.svg",
+      compute2GreyImage: "assets/compute2Grey.svg",
 
       // Step 0: Comprehend question
       comprehend: {
@@ -110,7 +110,7 @@ const DATA = {
         feedbacks: null,
         imagesForEachOption: null,
         defaultImage: "assets/compre0.svg",
-        correctImage: "assets/mcq1Correct.svg",
+        correctImage: "assets/mcq1correct.svg",
         nav: "Tap the correct answer",
         navFinal: "Tap » to summarise so far",
       },
@@ -572,7 +572,7 @@ const DATA = {
         feedbacks: null,
         imagesForEachOption: null,
         defaultImage: "assets/compre0.svg",
-        correctImage: "assets/mcq1Correct_id.svg",
+        correctImage: "assets/mcq1correct_id.svg",
         nav: "Ketuk jawaban yang benar",
         navFinal: "Ketuk » untuk merangkum sejauh ini",
       },
@@ -665,20 +665,20 @@ const DATA = {
       mcq5: {
         title: "Berapa luas trapesium?",
         options: [
-          `${frac(1, 2)} × ( a × b ) × h`,
-          `${frac(1, 2)} × ( a + b ) × h`,
+          `${frac(1, 2)} × ( a × b ) × t`,
+          `${frac(1, 2)} × ( a + b ) × t`,
         ],
         correctIndex: 1,
         feedbacks: null,
-        defaultImage: "assets/mcq5.svg",
-        correctImage: "assets/mcq5.svg",
+        defaultImage: "assets/mcq5_id.svg",
+        correctImage: "assets/mcq5_id.svg",
         nav: "Ketuk jawaban yang benar",
         navFinal: "Ketuk »",
       },
 
       compute1Config: {
         title: "Berapa luas trapesium?",
-        defaultImage: "assets/mcq5.svg",
+        defaultImage: "assets/mcq5_id.svg",
         finalImage: "assets/compute1final_id.svg",
         navFinal: "Ketuk » untuk merangkum sejauh ini",
         colors: {
@@ -687,30 +687,30 @@ const DATA = {
           yellow: "#EAB308",
         },
         steps: [
-          { delay: 0, row1: `${frac(1, 2)} × ( a + b ) × h`, rowsCount: 1 },
-          { delay: 1000, appendRow: `${frac(1, 2)} × ( a + b ) × h` },
+          { delay: 0, row1: `${frac(1, 2)} × ( a + b ) × t`, rowsCount: 1 },
+          { delay: 1000, appendRow: `${frac(1, 2)} × ( a + b ) × t` },
           {
             delay: 1500,
             highlightRow1: [{ text: "a", color: "#56C7FF" }],
-            row2: `${frac(1, 2)} × ( 4 + b ) × h`,
+            row2: `${frac(1, 2)} × ( 4 + b ) × t`,
             row2Colored: [{ text: "4", color: "#56C7FF" }],
-            image: "assets/a.svg",
+            image: "assets/a_id.svg",
           },
           {
             delay: 1500,
             highlightRow1: [{ text: "b", color: "#56C7FF" }],
-            row2: `${frac(1, 2)} × ( 4 + 8 ) × h`,
+            row2: `${frac(1, 2)} × ( 4 + 8 ) × t`,
             row2Colored: [{ text: "8", color: "#56C7FF" }],
-            image: "assets/b.svg",
+            image: "assets/b_id.svg",
           },
           {
             delay: 1500,
-            highlightRow1: [{ text: "h", color: "#47D2B6" }],
+            highlightRow1: [{ text: "t", color: "#47D2B6" }],
             row2: `${frac(1, 2)} × ( 4 + 8 ) × 2${sqrt(3)}`,
             row2Colored: [{ text: `2${sqrt(3)}`, color: "#47D2B6" }],
-            image: "assets/h.svg",
+            image: "assets/h_id.svg",
           },
-          { delay: 1500, image: "assets/mcq5.svg" },
+          { delay: 1500, image: "assets/mcq5_id.svg" },
           { delay: 1500, appendRow: `${frac(1, 2)} × ( 4 + 8 ) × 2${sqrt(3)}` },
           {
             delay: 1500,

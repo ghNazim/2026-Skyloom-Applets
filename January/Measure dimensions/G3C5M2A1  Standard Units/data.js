@@ -190,7 +190,7 @@ const DATA = {
         ],
       },
       step6: {
-        q: "Untuk mendapatkan panjang yang sama, semua orang harus menggunakan benda dengan ukuran yang sama.<br>Tapi benda, tangan dan kaki berbeda ukurannya.",
+        q: "Untuk mendapatkan panjang yang sama, semua orang harus menggunakan benda dengan ukuran yang sama. Tapi benda, tangan dan kaki berbeda ukurannya.",
         n: "Ketuk » untuk melanjutkan.",
       },
       step7: {
@@ -270,7 +270,7 @@ const DATA = {
       },
       step17: {
         heading: "Satuan Baku",
-        text: "Luar biasa! Kita telah belajar mengukur panjang benda dalam <gr>cm</gr> dan <bl>mm</bl> menggunakan penggaris.",
+        text: "Luar biasa! Kita telah belajar mengukur panjang benda <br>dalam <gr>cm</gr> dan <bl>mm</bl> menggunakan penggaris.",
         buttonText: "Mulai Lagi",
       },
     },

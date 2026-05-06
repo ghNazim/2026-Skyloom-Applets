@@ -80,6 +80,10 @@ const CalculationPanel = ({
           className: "calc-interactive-box clickable",
           onClick: () => {
             if (window.playSound) window.playSound("tick");
+            const step3Cfg = APP_DATA.steps[3] || {};
+            if (onUpdateImage && step3Cfg.imageCorrect) {
+              onUpdateImage(step3Cfg.imageCorrect);
+            }
             setStep3Revealed(true);
           }
         }, d.interactiveLabel);

@@ -1,0 +1,107 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.main-canvas-container.distance-applet-canvas {
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+}
+
+.single-svg-canvas svg {
+  width: 100%;
+  height: 100%;
+}
+
+.distance-coordinate-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.blink-line {
+  animation: line-blink 1s ease-in-out infinite;
+}
+
+@keyframes line-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.q-box-clickable {
+  cursor: pointer;
+}
+
+.q-box-clickable:hover rect {
+  fill: rgba(255, 255, 255, 0.24) !important;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+}
+
+.coord-btn {
+  cursor: pointer;
+}
+
+.coord-btn rect {
+  fill: rgba(255, 230, 120, 0.12);
+  stroke: #ffd34d;
+  stroke-width: 2;
+  stroke-dasharray: 6, 4;
+}
+
+.coord-btn text {
+  fill: #f3f4f6;
+}
+
+.coord-btn-wrong rect {
+  fill: rgba(239, 68, 68, 0.18);
+  stroke: #ef4444;
+}
+
+.coord-btn-correct rect {
+  fill: rgba(34, 197, 94, 0.2);
+  stroke: #22c55e;
+}
+
+.coord-btn-shake {
+  animation: coord-shake 0.5s linear;
+}
+
+@keyframes coord-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}

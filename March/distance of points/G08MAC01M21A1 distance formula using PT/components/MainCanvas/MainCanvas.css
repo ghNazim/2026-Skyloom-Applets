@@ -1,0 +1,458 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.main-canvas-container.distance-applet-canvas {
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+}
+
+.single-svg-canvas svg {
+  width: 100%;
+  height: 100%;
+}
+
+.distance-coordinate-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.blink-line {
+  animation: line-blink 1s ease-in-out infinite;
+}
+
+@keyframes line-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.q-box-clickable {
+  cursor: pointer;
+}
+
+.q-box-clickable:hover rect {
+  fill: rgba(255, 255, 255, 0.24) !important;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+}
+
+.coord-btn {
+  cursor: pointer;
+}
+
+.coord-btn rect {
+  fill: rgba(255, 230, 120, 0.12);
+  stroke: #ffd34d;
+  stroke-width: 2;
+  stroke-dasharray: 6, 4;
+}
+
+.coord-btn text {
+  fill: #f3f4f6;
+}
+
+.coord-btn-wrong rect {
+  fill: rgba(239, 68, 68, 0.18);
+  stroke: #ef4444;
+}
+
+.coord-btn-correct rect {
+  fill: rgba(34, 197, 94, 0.2);
+  stroke: #22c55e;
+}
+
+.coord-btn-shake {
+  animation: coord-shake 0.5s linear;
+}
+
+@keyframes coord-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 4 – Split layout (grid left + calc right)
+   ══════════════════════════════════════════════════ */
+
+.s4-split-layout {
+  flex-direction: row !important;
+  padding: 0 !important;
+  gap: 0;
+}
+
+/* Left grid wrapper – slides left on animation */
+.s4-grid-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.s4-grid-wrapper.s4-grid-shifted {
+  width: 58%;
+}
+
+.s4-svg-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right calculation panel */
+.s4-calc-panel {
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 0;
+  transition:
+    width 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+    opacity 0.5s ease 0.3s;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 1vw;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0.5vw;
+}
+
+.s4-calc-panel.s4-calc-visible {
+  width: 42%;
+  opacity: 1;
+  padding: 2vw 2.2vw;
+}
+
+/* Title */
+.s4-calc-title {
+  font-size: 2.2vw;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 2vw;
+  white-space: nowrap;
+  font-family: system-ui, sans-serif;
+}
+
+/* Calculation lines container */
+.s4-calc-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4vw;
+}
+
+/* Individual calculation line */
+.s4-calc-line {
+  display: flex;
+  align-items: center;
+  font-size: 2.8vw;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.s4-d-eq {
+  font-style: italic;
+  margin-right: 0.2em;
+}
+
+/* Square root wrapper – content sits inside, SVG overlays as the sign */
+.s4-sqrt-wrap {
+  display: inline-block;
+  position: relative;
+}
+
+/* Single SVG that draws the entire √ sign (hook + stem + bar) */
+.s4-sqrt-svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Content under the square-root bar */
+.s4-sqrt-content {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 0.2em 0.4em 0.1em 1.4em; /* left padding clears hook/stem */
+  position: relative; /* sits above the SVG */
+}
+
+/* Clickable expression parts */
+.s4-clickable {
+  cursor: pointer;
+  border-radius: 0.4vw;
+  padding: 0.1em 0.35em;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+}
+
+.s4-clickable:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+/* Fade-in animation */
+.s4-fade-in {
+  animation: s4FadeIn 0.45s ease forwards;
+}
+
+@keyframes s4FadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Flying clone: positioned and animated by GSAP */
+.s4-flying-clone {
+  position: absolute;
+  font-size: 2.8vw;
+  font-weight: 700;
+  z-index: 10;
+  pointer-events: none;
+  font-family: system-ui, sans-serif;
+}
+
+/* Superscript styling */
+.s4-calc-line sup {
+  font-size: 0.6em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+.s4-calc-num {
+  padding: 0.1em 0.2em;
+}
+
+/* Hypotenuse label transition */
+.s4-hyp-label {
+  transition: fill 0.5s ease;
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 6 – Problem panel (right)
+   ══════════════════════════════════════════════════ */
+
+.s6-problem-panel {
+  width: 42%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 2vw 2.2vw;
+  margin: 0.5vw;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 1vw;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+  gap: 1.5vw;
+  margin-right: 4vw;
+}
+
+.s6-problem-pill {
+  align-self: flex-start;
+  padding: 0.35em 0.9em;
+  font-size: 1.4vw;
+  font-weight: 600;
+  color: #f3f4f6;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 0.5em;
+  font-family: system-ui, sans-serif;
+}
+
+.s6-problem-statement {
+  font-size: 2.1vw;
+  line-height: 1.45;
+  font-weight: 500;
+  color: #ffffff;
+  font-family: system-ui, sans-serif;
+  padding: 1.2em 1em;
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 0.6vw;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.s6-continue-btn {
+  margin-top: 0.5vw;
+  padding: 0.55em 1.2em;
+  font-size: 2vw;
+  font-weight: 700;
+  font-family: system-ui, sans-serif;
+  color: var(--white-color);
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border: 1px solid var(--button-border-color);
+  border-radius: 0.5em;
+  cursor: pointer;
+  box-shadow:
+    0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+  align-self: center;
+  min-width: 12ch;
+}
+
+.s6-continue-btn:hover {
+  filter: brightness(1.08);
+  border-color: var(--button-hover-border-color);
+}
+
+.s6-continue-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0.1vh 0.2vh var(--transparent-black-20);
+}
+
+/* Step 7 hypotenuse √ — reuse Step 4 sqrt-wrap; foreignObject centers the row */
+.s7-hyp-foreign-inner .s4-sqrt-wrap {
+  vertical-align: bottom;
+}
+
+.s7-hyp-sqrt-wrap .s4-sqrt-content {
+  color: inherit;
+}
+
+/* ══════════════════════════════════════════════════
+   XY-TYPE QUESTION – formula & animation
+   ══════════════════════════════════════════════════ */
+
+.xy-anim-container {
+  position: relative;
+}
+
+/* foreignObject inner wrapper — fixed-size formula at final hypotenuse position */
+.xy-anim-fo-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  font-weight: 700;
+  font-size: 28px;
+  font-family: system-ui, sans-serif;
+  line-height: 1.05;
+  color: #E879A0;
+}
+
+.xy-anim-sqrt-final {
+  display: inline-block;
+  position: relative;
+}
+
+.xy-anim-sqrt-content-fixed {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  font-size: inherit;
+  color: inherit;
+}
+
+.xy-anim-sqrt-content-fixed sup {
+  font-size: 0.6em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+.xy-anim-x-slot,
+.xy-anim-y-slot,
+.xy-anim-plus-slot {
+  display: inline;
+  white-space: nowrap;
+}
+
+.xy-flying-clone {
+  white-space: nowrap;
+  font-size: 2.6vw;
+  font-weight: 700;
+  font-family: system-ui, sans-serif;
+}
+
+/* Final hypotenuse label (after animation done) in foreignObject */
+.xy-hyp-formula-final {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  font-weight: 700;
+  font-size: 28px;
+  font-family: system-ui, sans-serif;
+  line-height: 1.05;
+  color: #E879A0;
+}
+
+.xy-sqrt-wrap .s4-sqrt-content {
+  color: inherit;
+}
+
+.xy-sqrt-content {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  font-size: inherit;
+}
+
+.xy-sqrt-term {
+  white-space: nowrap;
+}
+
+.xy-sqrt-term sup {
+  font-size: 0.6em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+.xy-sqrt-plus {
+  margin: 0 0.15em;
+}

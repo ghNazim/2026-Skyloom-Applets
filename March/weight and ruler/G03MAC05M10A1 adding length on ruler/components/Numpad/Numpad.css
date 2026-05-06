@@ -1,0 +1,89 @@
+/* ===== NUMPAD ===== */
+.numpad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.numpad-container.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35vw;
+  background: rgba(56, 81, 97, 0.6);
+  padding: 0.65vw;
+  border-radius: 1vw;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.numpad-button {
+  width: 4vw;
+  height: 4vw;
+  font-size: 2.5vw;
+  font-weight: bold;
+  color: white;
+  border: 0.1vw solid rgb(183, 183, 183);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.3vw;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.numpad-button:hover:not(:disabled) {
+  background: linear-gradient(145deg, #5a6f83, #465869);
+  transform: scale(1.05);
+}
+
+.numpad-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.numpad-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.numpad-button.clear-button {
+  background: linear-gradient(145deg, #d97706, #b45309);
+  border-color: #f59e0b;
+}
+
+.numpad-button.clear-button:hover:not(:disabled) {
+  background: linear-gradient(145deg, #ea8c0c, #c46210);
+}
+
+.numpad-button.submit-button {
+  background: linear-gradient(145deg, #10b981, #059669);
+  border-color: #34d399;
+}
+
+.numpad-button.submit-button:hover:not(:disabled) {
+  background: linear-gradient(145deg, #14c991, #06a577);
+}
+
+.numpad-button.numpad-correct {
+  background: #2ecc71 !important;
+  border-color: #27ae60 !important;
+}
+
+.numpad-button.numpad-wrong {
+  background: #e74c3c !important;
+  border-color: #c0392b !important;
+}
+
+.numpad-grid.simple-mode {
+  padding: 0.8vw;
+}
+
+.numpad-grid.simple-mode .numpad-button {
+  width: 4vw;
+  height: 4vw;
+  font-size: 1.9vw;
+}

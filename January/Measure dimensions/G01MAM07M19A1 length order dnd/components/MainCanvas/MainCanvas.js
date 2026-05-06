@@ -162,6 +162,10 @@ const MainCanvas = (props) => {
   const unitLength = question.unit_length || "6vw";
   const unitNamePlural = question.unit_name_plural || "";
   const unitImage = question.unit_image || "";
+  const getOrderingText =
+    typeof step1.orderingText === "function"
+      ? step1.orderingText
+      : (count, plural) => `${count} ${plural} long`;
 
   const getOptionForSlot = (slotIndex) => {
     if (draggedIndex !== null && hoverIndex !== null) {
@@ -232,7 +236,7 @@ const MainCanvas = (props) => {
       {
         className: `ordering-text-count ${hasChecked ? "ordering-text-count-visible" : ""}`,
       },
-      `${count} ${unitNamePlural} long`,
+      getOrderingText(count, unitNamePlural),
     );
 
     const optionClass = "ordering-option " + (optionBgClass || "");
@@ -394,7 +398,7 @@ const MainCanvas = (props) => {
               React.createElement(
                 "div",
                 { className: "ordering-text-count" },
-                `${count} ${unitNamePlural} long`,
+                getOrderingText(count, unitNamePlural),
               ),
             );
           })(),

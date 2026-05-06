@@ -10,12 +10,17 @@ const OptionsQuiz = ({
   labelShorter,
   leftSubText,
   rightSubText,
+  leftIsTallerOverride,
 }) => {
   const ce = React.createElement;
   const clickable = feedback !== "correct";
 
-  // q1, q3, q4: left is taller; q2: right is taller
-  const leftIsTaller = questionIndex >1;
+  // Default quiz mapping (step 13): q3 and q4 have left as longer.
+  // Step-specific screens (e.g., step 11) can override this via props.
+  const leftIsTaller =
+    typeof leftIsTallerOverride === "boolean"
+      ? leftIsTallerOverride
+      : questionIndex > 1;
   const leftLabel = feedback === "correct" ? (leftIsTaller ? labelTaller : labelShorter) : null;
   const rightLabel = feedback === "correct" ? (leftIsTaller ? labelShorter : labelTaller) : null;
 

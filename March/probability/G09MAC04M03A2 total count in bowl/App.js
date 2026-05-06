@@ -1,8 +1,9 @@
 const App = () => {
   const { useState, useRef } = React;
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
   const [isStepComplete, setIsStepComplete] = useState(false);
+  const [zeroStageStep, setZeroStageStep] = useState(null);
 
   const fullscreenButtonRef = useRef(null);
   const nextButtonRef = useRef(null);
@@ -10,12 +11,19 @@ const App = () => {
   const handleStart = () => {
     playSound("click");
     setCurrentStep(1);
+    setZeroStageStep(null);
+  };
+
+  const handleExitZeroStage = () => {
+    playSound("click");
+    setZeroStageStep(null);
   };
 
   const handleStartOver = () => {
     playSound("click");
-    setCurrentStep(0);
+    setCurrentStep(1);
     setIsStepComplete(false);
+    setZeroStageStep(null);
   };
 
   const handleNav = (direction) => {
@@ -24,11 +32,22 @@ const App = () => {
       if (currentStep === 1) {
         setCurrentStep(2);
         setIsStepComplete(false);
-      } else if (currentStep >= 2 && currentStep <= 4 && isStepComplete) {
-        setCurrentStep(currentStep + 1);
+        setZeroStageStep(null);
+      } else if (currentStep === 2 && isStepComplete) {
+        setCurrentStep(3);
         setIsStepComplete(false);
+        setZeroStageStep(3);
+      } else if (currentStep === 3 && isStepComplete) {
+        setCurrentStep(4);
+        setIsStepComplete(false);
+        setZeroStageStep(4);
+      } else if (currentStep === 4 && isStepComplete) {
+        setCurrentStep(5);
+        setIsStepComplete(false);
+        setZeroStageStep(5);
       } else if (currentStep === 5 && isStepComplete) {
         setCurrentStep(6);
+        setZeroStageStep(null);
       } else if (currentStep === 6) {
         setCurrentStep(7);
       } else if (currentStep === 7) {
@@ -42,9 +61,11 @@ const App = () => {
       } else if (currentStep >= 2 && currentStep <= 5) {
         setCurrentStep(currentStep - 1);
         setIsStepComplete(false);
+        setZeroStageStep(null);
       } else if (currentStep === 6) {
         setCurrentStep(5);
         setIsStepComplete(false);
+        setZeroStageStep(null);
       } else if (currentStep === 7) {
         setCurrentStep(6);
         setIsStepComplete(false);
@@ -62,6 +83,9 @@ const App = () => {
     if (currentStep === 7) return APP_DATA.splash3.navText;
     if (currentStep >= 2 && currentStep <= 5) {
       var stepIndex = currentStep - 2;
+      if (zeroStageStep === currentStep && currentStep >= 3) {
+        return APP_DATA.zeroStage.navText;
+      }
       if (isStepComplete) return APP_DATA.steps[stepIndex].correctNavText;
       return APP_DATA.interactiveNavText;
     }
@@ -70,7 +94,10 @@ const App = () => {
 
   var getIsNextDisabled = function () {
     if (currentStep === 1 || currentStep === 6 || currentStep === 7) return false;
-    if (currentStep >= 2 && currentStep <= 5) return !isStepComplete;
+    if (currentStep >= 2 && currentStep <= 5) {
+      if (zeroStageStep === currentStep) return true;
+      return !isStepComplete;
+    }
     return true;
   };
 
@@ -115,7 +142,7 @@ const App = () => {
         React.createElement(Navigation, {
           onNav: handleNav,
           isNextDisabled: false,
-          isPrevDisabled: false,
+          isPrevDisabled: true,
           navText: getNavText(),
           nextButtonRef: nextButtonRef,
         })
@@ -211,6 +238,11 @@ const App = () => {
         React.createElement(MainCanvas, {
           stepData: APP_DATA.steps[stepIndex],
           onStepComplete: handleStepComplete,
+          inZeroStage:
+            zeroStageStep === currentStep && currentStep >= 3 && currentStep <= 5,
+          onExitZeroStage: handleExitZeroStage,
+          previousStepData:
+            stepIndex > 0 ? APP_DATA.steps[stepIndex - 1] : null,
         })
       ),
       React.createElement(

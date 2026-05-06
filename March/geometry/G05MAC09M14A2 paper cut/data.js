@@ -129,14 +129,14 @@ const DATA = {
           "Remaining area = [[<or>27 × 20</or>]] - [[<bl>½ × (12 + 24) × 18</bl>]]",
         ],
         values: {
-          boxReplacements: ["<or>486 cm²</or>", "<bl>324 cm²</bl>"],
+          boxReplacements: ["<or>540 cm²</or>", "<bl>324 cm²</bl>"],
         },
       },
       calculationFinal: {
         equation: "Remaining area = ",
-        prompt: "Find 486 - 324",
+        prompt: "Find 540 - 324",
         numpad: {
-          answer: "162",
+          answer: "216",
           maxLength: 3,
           unit: " cm²",
         },
@@ -146,7 +146,7 @@ const DATA = {
           riceField: "Paper cut figure",
         },
       },
-      finalAnswer: "So, the remaining area of the sheet is 162 cm².",
+      finalAnswer: "So, the remaining area of the sheet is 216 cm².",
       steps: {
         0: {
           questionText: "Read the question carefully.",
@@ -363,14 +363,14 @@ const DATA = {
           "Luas tersisa = [[<or>27 × 20</or>]] - [[<bl>½ × (12 + 24) × 18</bl>]]",
         ],
         values: {
-          boxReplacements: ["<or>486 cm²</or>", "<bl>324 cm²</bl>"],
+          boxReplacements: ["<or>540 cm²</or>", "<bl>324 cm²</bl>"],
         },
       },
       calculationFinal: {
         equation: "Luas tersisa = ",
-        prompt: "Hitung 486 − 324",
+        prompt: "Hitung 540 − 324",
         numpad: {
-          answer: "162",
+          answer: "216",
           maxLength: 3,
           unit: " cm²",
         },
@@ -380,7 +380,7 @@ const DATA = {
           riceField: "Gambar pemotongan kertas",
         },
       },
-      finalAnswer: "Jadi, luas kertas yang tersisa adalah 162 cm².",
+      finalAnswer: "Jadi, luas kertas yang tersisa adalah 216 cm².",
       steps: {
         0: {
           questionText: "Baca soal dengan teliti.",

@@ -17,8 +17,21 @@ const MainCanvas = ({
   const texts = stepData?.texts || {};
   const currentQuestion = questions[questionIndex] || null;
   const isLastQuestion = questionIndex === questions.length - 1;
+  const appOptions =
+    Array.isArray(APP_DATA?.options) && APP_DATA.options.length
+      ? APP_DATA.options
+      : ["Yes", "No"];
 
   const getText = (key) => (key ? texts[key] || "" : "");
+  const normalizeYesNo = (value) => {
+    const normalized = String(value || "")
+      .trim()
+      .toLowerCase();
+
+    if (normalized === "yes" || normalized === "ya") return "yes";
+    if (normalized === "no" || normalized === "tidak") return "no";
+    return normalized;
+  };
   const ct = getText(currentQuestion?.ctKey);
   const navDefault = getText(stepData?.nKey || "nav_default");
   const navCorrect = getText(currentQuestion?.navCorrectKey);
@@ -58,7 +71,8 @@ const MainCanvas = ({
   const handleOptionClick = (option) => {
     if (!currentQuestion || isCorrect) return;
 
-    const correct = currentQuestion.ans === option;
+    const correct =
+      normalizeYesNo(currentQuestion.ans) === normalizeYesNo(option);
     setSelectedOption(option);
 
     if (correct) {
@@ -78,7 +92,7 @@ const MainCanvas = ({
   if (step !== 1 || !currentQuestion) return null;
 
   const mcqData = {
-    options: ["Yes", "No"],
+    options: appOptions,
     feedbacks: {
       correct: getText(currentQuestion.feedbackCorrectKey),
       wrong: getText(currentQuestion.feedbackWrongKey),

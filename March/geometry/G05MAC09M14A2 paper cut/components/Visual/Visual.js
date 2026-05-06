@@ -79,15 +79,34 @@ const Visual = ({
   }, []);
 
   const handleCutterClick = useCallback(() => {
-    if (!cutMode || !firstFrameReady || videoPlaying || videoEnded) return;
+    if (!cutMode || videoPlaying || videoEnded) return;
     const v = videoRef.current;
     if (!v) return;
     if (window.playSound) window.playSound("click");
-    v.currentTime = 0;
     setVideoPlaying(true);
-    const p = v.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
-  }, [cutMode, firstFrameReady, videoPlaying, videoEnded]);
+    try {
+      v.currentTime = 0;
+    } catch (_) {}
+
+    const startPlay = () => {
+      const p = v.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(() => setVideoPlaying(false));
+      }
+    };
+
+    if (v.readyState >= 2) {
+      startPlay();
+      return;
+    }
+
+    const onCanPlay = () => {
+      v.removeEventListener("canplay", onCanPlay);
+      startPlay();
+    };
+    v.addEventListener("canplay", onCanPlay, { once: true });
+    v.load();
+  }, [cutMode, videoPlaying, videoEnded]);
 
   const handleVideoEnded = useCallback(() => {
     const v = videoRef.current;
@@ -112,19 +131,17 @@ const Visual = ({
         React.createElement("video", {
           key: `cut-video-${cutKey}`,
           ref: videoRef,
-          className:
-            "visual-cut-video" +
-            (firstFrameReady ? "" : " visual-cut-video--waiting"),
+          className: "visual-cut-video",
           src: cutVideoSrc,
           playsInline: true,
           preload: "auto",
           muted: false,
+          onLoadedMetadata: (e) => prepareFirstFrame(e.target),
           onLoadedData: (e) => prepareFirstFrame(e.target),
           onEnded: handleVideoEnded,
         }),
         !videoPlaying &&
           !videoEnded &&
-          firstFrameReady &&
           cutCutterSrc &&
           React.createElement("img", {
             src: cutCutterSrc,

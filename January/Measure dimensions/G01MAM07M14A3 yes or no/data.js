@@ -109,6 +109,7 @@ const questions = [
 const DATA = {
   en: {
     app: {
+      options: ["Yes", "No"],
       start: {
         heading: "Measuring Objects",
         text: "Farhan and Rizky are finding the length and height of an object.<br> Let's see if they are doing it right.",
@@ -144,8 +145,8 @@ const DATA = {
             q4_navCorrect: "Tap » to see a few more scenarios.",
             q4_vt: "Length of the duster is 3 clips.",
             q5_ct: "Is Rizky measuring the height correctly?",
-            q5_feedbackCorrect: "That's correct! When we measure, we place objects along the board.",
-            q5_feedbackWrong: "Oops! The clips needs to be placed along the board. Check again.",
+            q5_feedbackCorrect: "That's correct! When we measure, we place objects along the book.",
+            q5_feedbackWrong: "Oops! The clips needs to be placed along the book. Check again.",
             q5_navCorrect: "Tap » to see two more scenarios",
             q5_vt: "Height of the book is 5 clips.",
             q5_vtCorrect: "Height of the book is <green>4</green> clips.",
@@ -174,6 +175,7 @@ const DATA = {
   },
   id: {
     app: {
+      options: ["Ya", "Tidak"],
       start: {
         heading: "Mengukur Benda",
         text: "Farhan dan Rizky sedang mencari panjang dan tinggi suatu benda.<br> Mari kita lihat apakah mereka melakukannya dengan benar.",

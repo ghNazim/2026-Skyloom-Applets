@@ -1457,6 +1457,7 @@ const App = () => {
               labelShorter: APP_DATA.step11.labelShorter,
               leftSubText: APP_DATA.step11.leftSubText,
               rightSubText: APP_DATA.step11.rightSubText,
+              leftIsTallerOverride: true,
             }),
           ),
         ),

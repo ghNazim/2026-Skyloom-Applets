@@ -1,0 +1,142 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.left-column {
+  flex: 0 0 65%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-column {
+  flex: 0 0 35%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3vw;
+  background-color: rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+.grid-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.right-text {
+  color: white;
+  font-size: 2.2vw;
+  line-height: 1.5;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.highlight {
+  display: inline-block;
+  padding: 0.2vw 0.5vw;
+  border-radius: 0.5vw;
+  transition: all 0.3s ease;
+}
+
+.highlight.active {
+  cursor: pointer;
+  box-shadow: 0 0 1vw rgba(255, 255, 255, 0.5);
+}
+
+.highlight.single-point {
+  background-color: rgba(233, 30, 99, 0.8);
+}
+
+.highlight.intersecting-lines {
+  background-color: rgba(33, 150, 243, 0.8);
+}
+
+.highlight.two-or-more-lines {
+  background-color: rgb(222, 159, 0);
+}
+
+.highlight.different-points {
+  background-color: rgba(233, 30, 99, 0.8);
+}
+
+.highlight.transversal-highlight,
+.highlight.transversal-highlight-2 {
+  background-color: rgba(33, 150, 243, 0.8);
+}
+
+.highlight.two-lines {
+  background-color: rgb(222, 159, 0);
+}
+
+.highlight.eight-angles {
+  background-color: rgba(156, 39, 176, 0.8);
+}
+
+.highlight.between-two-lines,
+.highlight.interior-angles {
+  background-color: rgba(255, 165, 0, 0.8);
+}
+
+.highlight.outside-two-lines,
+.highlight.exterior-angles {
+  background-color: rgba(3, 169, 244, 0.8);
+}
+
+.highlight.inactive {
+  opacity: 0.5;
+}
+
+.angle-clickable {
+  cursor: pointer;
+}
+.angle-clickable path:hover {
+  opacity: 0.8;
+}
+
+.line-clickable {
+  cursor: pointer;
+  transition: stroke-width 0.2s ease;
+}
+.line-clickable:hover {
+  stroke-width: 6;
+}
+
+.line-clickable-group {
+  cursor: pointer;
+}
+.line-clickable-group:hover line:nth-child(2) {
+  stroke-width: 6;
+}
+
+.angle-appear {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tap-gif {
+  position: absolute;
+  width: 4vw;
+  height: 4vw;
+  pointer-events: none;
+  z-index: 100;
+  transform: translate(-2vw, -0.5vw);
+}

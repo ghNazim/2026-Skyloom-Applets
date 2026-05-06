@@ -33,12 +33,6 @@
   /* transition: opacity 0.2s ease; */
 }
 
-/* Hide until first frame is decoded + seek settled — avoids intermittent black/blank flash */
-.visual-cut-video--waiting {
-  opacity: 0;
-  pointer-events: none;
-}
-
 .visual-cutter {
   position: absolute;
   right: 54%;

@@ -1,7 +1,16 @@
-const MainCanvas = ({ stepData, onStepComplete }) => {
+const MainCanvas = ({
+  stepData,
+  onStepComplete,
+  inZeroStage,
+  onExitZeroStage,
+  previousStepData,
+}) => {
   const { useState, useRef, useCallback, useEffect } = React;
 
+  inZeroStage = !!inZeroStage;
+
   const [wrongPositions, setWrongPositions] = useState([]);
+  const [lastWrongPosition, setLastWrongPosition] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [feedbackState, setFeedbackState] = useState("initial");
   const [isAnimating, setIsAnimating] = useState(false);
@@ -21,6 +30,7 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
   useEffect(
     function () {
       setWrongPositions([]);
+      setLastWrongPosition(null);
       setIsAnswered(false);
       setFeedbackState("initial");
       setIsAnimating(false);
@@ -95,21 +105,49 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
   };
 
   var handleImageClick = function (position) {
+    if (inZeroStage) return;
     if (isAnswered || isAnimating) return;
     if (wrongPositions.indexOf(position) !== -1) return;
 
     if (position === stepData.correctPosition) {
       playSound("correct");
+      setWrongPositions([]);
+      setLastWrongPosition(null);
+      setFeedbackState("initial");
       setIsAnimating(true);
       animateBowlToPosition(position);
     } else {
       playSound("wrong");
+      setLastWrongPosition(position);
       setWrongPositions(function (prev) {
         return prev.concat([position]);
       });
       setFeedbackState("wrong");
     }
   };
+
+  var resolveWrongFeedbackText = function () {
+    var byPos = stepData.wrongFeedbackByPosition;
+    if (byPos && lastWrongPosition >= 1 && lastWrongPosition <= 5) {
+      var keyed = byPos[lastWrongPosition];
+      if (keyed) return keyed;
+    }
+    return stepData.wrongFeedback || "";
+  };
+
+  var displayBowlSrc = inZeroStage
+    ? (previousStepData && previousStepData.image) || stepData.image
+    : stepData.image;
+  var displayRedCount = inZeroStage
+    ? previousStepData
+      ? previousStepData.redCount
+      : stepData.redCount
+    : stepData.redCount;
+  var displayTotalCount = inZeroStage
+    ? previousStepData
+      ? previousStepData.totalCount
+      : stepData.totalCount
+    : stepData.totalCount;
 
   var leftColumn = React.createElement(
     "div",
@@ -120,7 +158,7 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
       { className: "mc-bowl-wrapper" },
       React.createElement("img", {
         ref: bowlImageRef,
-        src: stepData.image,
+        src: displayBowlSrc,
         className: "mc-bowl-image",
         alt: "bowl",
         draggable: false,
@@ -137,9 +175,9 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
           __html:
             "<red>" +
             APP_DATA.labels.red +
-            "</red> = <b>" +
-            stepData.redCount +
-            "</b>",
+            "</red> = " +
+            displayRedCount +
+            "",
         },
       }),
       React.createElement("div", { className: "mc-question-separator" }),
@@ -147,7 +185,7 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
         className: "mc-question-col",
         dangerouslySetInnerHTML: {
           __html:
-            APP_DATA.labels.total + " = <b>" + stepData.totalCount + "</b>",
+            APP_DATA.labels.total + " = " + displayTotalCount + "",
         },
       })
     ),
@@ -155,7 +193,9 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
     React.createElement(
       "div",
       { className: "mc-feedback-div" },
-      feedbackState === "initial"
+      inZeroStage
+        ? null
+        : feedbackState === "initial"
         ? React.createElement(
             "div",
             { className: "mc-feedback-initial" },
@@ -165,11 +205,30 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
         ? React.createElement(
             "div",
             { className: "mc-feedback-box" },
-            stepData.wrongFeedback
+            resolveWrongFeedbackText()
+          )
+        : null,
+      inZeroStage
+        ? React.createElement(
+            "button",
+            {
+              type: "button",
+              className: "mc-add-balls-btn",
+              onClick: function () {
+                if (onExitZeroStage) onExitZeroStage();
+              },
+            },
+            APP_DATA.zeroStage.buttonText
           )
         : null
     )
   );
+
+  var extraHtml = inZeroStage
+    ? APP_DATA.zeroStage.extraText
+    : isAnswered
+    ? stepData.correctExtraText
+    : stepData.extraText;
 
   var rightColumn = React.createElement(
     "div",
@@ -187,6 +246,7 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
         registerImageRef: registerImageRef,
         wrongText: stepData.wrongText,
         showSparkle: showSparkle,
+        interactionLocked: inZeroStage,
       })
     ),
 
@@ -200,7 +260,7 @@ const MainCanvas = ({ stepData, onStepComplete }) => {
       React.createElement("div", {
         className: "mc-extra-text",
         dangerouslySetInnerHTML: {
-          __html: isAnswered ? stepData.correctExtraText : stepData.extraText,
+          __html: extraHtml,
         },
       })
     )

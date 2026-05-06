@@ -1,0 +1,102 @@
+:root {
+  /* Color Palette */
+  --accent-color: #f97315;
+  --panel-border-color: #c9a4ff90;
+  --light-text-color: rgba(255, 255, 255, 0.87);
+
+  /* Button styles */
+  --start-button-gradient-start: #ff9800;
+  --start-button-gradient-end: rgb(255, 133, 12);
+  --start-button-shadow: rgb(198, 82, 0);
+  --button-border-color: #6c757d;
+  --button-hover-border-color: #ffc107;
+
+  /* Other colors */
+  --white-color: #ffffff;
+  --transparent-black-20: rgba(0, 0, 0, 0.2);
+
+  /* Typography */
+  --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+html {
+  font-size: 1.5vw;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: var(--font-family);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--light-text-color);
+  background-image: url("../assets/bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* #root{
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+} */
+
+y {
+  font-weight: 600;
+  color: #ff9800;
+  display: inline;
+}
+
+red{
+  background-color: red;
+  color: white;
+  display: inline;
+  padding: .2vw .6vw;
+  border-radius: .5vw;
+}
+
+
+.cm {
+  --font-family-comma: Georgia, sans-serif;
+  font-family: var(--font-family-comma);
+}
+left{
+  text-align: left;
+  display: block;
+}
+
+/* ── Highlight classes for Comprehend step ────────────────────── */
+.yellow,
+.light-blue,
+.prob-scale {
+  transition: background-color 0.4s ease, padding 0.3s ease, color 0.3s ease;
+  border-radius: 0.3vw;
+}
+
+.highlight-yellow .yellow {
+  background-color: #ffc107;
+  color: #1a1a1a;
+  padding: 0.1vw 0.4vw;
+}
+
+.highlight-prob-scale .prob-scale {
+  background-color: #ffc107;
+  color: #1a1a1a;
+  padding: 0.1vw 0.4vw;
+}
+
+.highlight-blue .light-blue {
+  background-color: #4dd0e1;
+  color: #1a1a1a;
+  padding: 0.1vw 0.4vw;
+}

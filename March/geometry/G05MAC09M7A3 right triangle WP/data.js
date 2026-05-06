@@ -167,6 +167,7 @@ const DATA = {
           questionText: "(a) Find the area of the triangle ABC.",
           navText: "Tap the highlighted text.",
           image: "assets/compre4.svg",
+          imageCorrect: "assets/ac.svg",
           isCalcStep: true,
           nextEnabled: false,
         },
@@ -174,7 +175,7 @@ const DATA = {
           questionText:
             "Let's choose the correct base for the corresponding height.",
           navText: "Tap the correct base.",
-          image: "assets/compre4.svg",
+          image: "assets/ac.svg",
           imageCorrect: "assets/pair1.svg",
           isMcqStep: true,
           nextEnabled: false,
@@ -368,6 +369,7 @@ const DATA = {
           questionText: "(a) Cari luas segitiga ABC.",
           navText: "Ketuk teks yang disorot.",
           image: "assets/compre4.svg",
+          imageCorrect: "assets/ac.svg",
           isCalcStep: true,
           nextEnabled: false,
         },
@@ -375,7 +377,7 @@ const DATA = {
           questionText:
             "Mari pilih alas yang benar untuk tinggi yang bersesuaian.",
           navText: "Ketuk alas yang benar.",
-          image: "assets/compre4.svg",
+          image: "assets/ac.svg",
           imageCorrect: "assets/pair1.svg",
           isMcqStep: true,
           nextEnabled: false,

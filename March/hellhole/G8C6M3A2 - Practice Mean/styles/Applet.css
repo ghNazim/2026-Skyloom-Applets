@@ -1,0 +1,40 @@
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 99vw;
+  height: calc(99vw * 9 / 16);
+  max-width: 99vw;
+  max-height: 99vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: 0.45vw;
+  position: relative;
+}
+
+.app-main-content {
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1vw;
+  background: rgba(7, 28, 67, 0.43);
+  border: 1px solid rgba(175, 195, 235, 0.24);
+  padding: 0.5vw;
+}
+
+.lower-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--white-color);
+  font-size: 1.45vw;
+  flex-direction: column;
+  height: 6.2vw;
+  max-height: 6.2vw;
+  min-height: 6.2vw;
+  background: rgba(8, 31, 72, 0.48);
+  border-radius: 0.8vw;
+  padding: 0.5vw;
+   /* background: rgba(255, 255, 255, 0.355); */
+  /* border: 1px solid rgba(175, 195, 235, 0.2); */
+}

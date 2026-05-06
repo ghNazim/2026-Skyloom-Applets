@@ -1,0 +1,16 @@
+.nudge-overlay {
+  pointer-events: none;
+}
+
+.nudge-overlay .nudge-tap-gif {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  width: 5vw;
+  height: 5vw;
+}
+
+/* Step 1 nudge: override position as needed */
+.nudge-overlay .nudge-tap-gif.step1 {
+  /* Tweak position for step 1 content panel center */
+}

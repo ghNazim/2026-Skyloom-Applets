@@ -1,0 +1,357 @@
+.content-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  user-select: none;
+}
+
+.two-column-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 0.8vw;
+}
+
+.visual-column {
+  flex: 0 0 75%;
+  position: relative;
+  border: 0.2vw solid var(--panel-border-color);
+  border-radius: 1vw;
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  padding: 1vw 1.2vw;
+}
+
+.input-column {
+  flex: 0 0 calc(25% - 0.8vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+  min-width: 0;
+}
+
+.feedback-panel {
+  flex: 0 0 44%;
+  border-radius: 0.9vw;
+  border: 0.16vw solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.8vw;
+  font-size: 2vw;
+  line-height: 1.3;
+  white-space: pre-line;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-panel.show {
+  opacity: 1;
+}
+
+.feedback-panel.correct {
+  border-color: rgba(46, 204, 113, 0.9);
+  color: #ffffff;
+  background: rgba(46, 204, 113, 0.18);
+}
+
+.feedback-panel.wrong {
+  border-color: rgba(231, 76, 60, 0.9);
+  color: #ffffff;
+  background: rgba(231, 76, 60, 0.18);
+}
+
+.numpad-panel {
+  flex: 1;
+  border-radius: 0.9vw;
+  /* border: 0.16vw solid rgba(255, 255, 255, 0.2); */
+  /* background: rgba(0, 0, 0, 0.25); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7vw;
+}
+
+/* Wraps optional total-step static brackets + object row; keeps object row at 7.4vw from top. */
+.object-measure-wrap {
+  position: absolute;
+  left: 4vw;
+  top: 7.4vw;
+  display: inline-block;
+  max-width: calc(100% - 4vw);
+}
+
+.total-static-brackets-layer {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: 100%;
+  margin-bottom: 0.35vw;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.total-static-brackets-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25vw;
+  width: 100%;
+}
+
+.total-static-bracket-row--outer {
+  width: 100%;
+}
+
+.total-static-bracket-row--split {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: stretch;
+}
+
+.total-static-bracket {
+  position: relative;
+  /* Compact so two rows fit above objects without clipping under .visual-column overflow */
+  height: 2.85vw;
+  box-sizing: border-box;
+}
+
+.total-static-bracket.is-correct-static {
+  color: #5dffa8;
+}
+
+.object-track {
+  position: relative;
+  height: 8vw;
+  display: flex;
+  /* align-items: flex-end; */
+}
+
+/* Edge guides: real lines (not borders) — set length via --measure-edge-line-length */
+.measure-object {
+  --measure-edge-line-length: 17vw;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Step 1 / pencil align: left line only; answer steps: both. Total align: glue left only, pencil none. */
+.measure-edges--left .measure-edge-line--right {
+  display: none;
+}
+
+.measure-edges--none .measure-edge-line {
+  display: none;
+}
+
+/* Glue align — ruler-sized hint below objects (hidden after correct placement) */
+.blank-ruler-placeholder {
+  position: absolute;
+  left: 4vw;
+  top: calc(7.4vw + 8vw);
+  width: 90%;
+  aspect-ratio: 309 / 68;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 0.12vw solid rgba(160, 160, 170, 0.85);
+  border-radius: 0.5vw;
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 3;
+  animation: blank-ruler-pulse 1.25s ease-in-out infinite;
+}
+
+@keyframes blank-ruler-pulse {
+  0%,
+  100% {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.measure-edge-line {
+  position: absolute;
+  top: 0%;
+  /* transform: translateY(-30%); */
+  width: 0.18vw;
+  border-radius: 0.05vw;
+  background-color: rgba(255, 201, 56, 0.95);
+  height: var(--measure-edge-line-length);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.measure-edge-line--left {
+  left: 0;
+  /* transform: translateX(-50%); */
+}
+
+.measure-edge-line--right {
+  right: 0;
+  transform: translateX(50%);
+}
+
+.measure-object img {
+  width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Stacks optional visualize / equation control above the measurement label row */
+.answer-row-area {
+  position: absolute;
+  bottom: 2vw;
+  left: 0;
+  right: 0;
+  z-index: 5;
+}
+
+.answer-row-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.visualize-addition-btn,
+.total-addition-equation {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 150%;
+  margin-bottom: 0.45vw;
+  z-index: 6;
+}
+
+.visualize-addition-btn {
+  font-size: 2.4vw;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.45vw 1.4vw;
+  border-radius: 0.65vw;
+  border: 0.15vw solid rgba(255, 255, 255, 0.55);
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  color: #fff;
+  box-shadow:
+    0 0.15vh 0.35vh var(--transparent-black-20),
+    0.1vh 0.1vh 0 rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+.visualize-addition-btn:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+.total-addition-equation {
+  font-size: 2.5vw;
+  font-weight: 700;
+  padding: 0.4vw 1.2vw;
+  border-radius: 0.55vw;
+  border: 0.18vw solid rgba(180, 185, 195, 0.95);
+  background: rgba(255, 255, 255, 0.14);
+  color: #f2f4f8;
+  white-space: nowrap;
+}
+
+.answer-row {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  z-index: 5;
+  font-size: 1.9vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1vw;
+  /* background: rgba(0, 0, 0, 0.5); */
+  border-radius: 0.8vw;
+  padding: 0.45vw 1vw;
+  width: 100%;
+  /* text-align: center; */
+}
+
+.measure-bracket-layer {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.measure-cm-bracket {
+  position: absolute;
+  bottom: 0;
+  height: 100%;
+  box-sizing: border-box;
+  color: #ff8eb8;
+}
+
+.measure-cm-bracket.is-correct {
+  color: #5dffa8;
+}
+
+/* Label above the closed (top) part of the bracket */
+.measure-cm-bracket-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  font-size: 1vw;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 0.08vw 0.25vw rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+}
+
+/*
+ * Inverted “square bracket” / ∩ shape: closed along the top and sides,
+ * open end at the bottom facing the ruler (no bottom border).
+ */
+.measure-cm-bracket-draw {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  border-top: 0.22vw solid currentColor;
+  border-left: 0.22vw solid currentColor;
+  border-right: 0.22vw solid currentColor;
+  border-bottom: none;
+  border-radius: 0.35vw 0.35vw 0 0;
+  box-sizing: border-box;
+}
+
+.ruler-container {
+  z-index: 4;
+  touch-action: none;
+  cursor: grab;
+}
+
+.ruler-container.dragging {
+  cursor: grabbing;
+  filter: drop-shadow(0 0 0.5vw rgba(255, 196, 0, 0.8));
+}
+
+.ruler-container.locked {
+  cursor: default;
+}
+
+.ruler-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+}

@@ -11,6 +11,7 @@ const App = () => {
   });
 
   const nextOverrideRef = useRef(null);
+  const prevOverrideRef = useRef(null);
 
   const handleRestart = useCallback(() => {
     if (typeof playSound === "function") playSound("click");
@@ -22,6 +23,7 @@ const App = () => {
       return prev + 1;
     });
     nextOverrideRef.current = null;
+    prevOverrideRef.current = null;
   }, []);
 
   useEffect(() => {
@@ -43,15 +45,19 @@ const App = () => {
 
   const handlePrev = () => {
     if (typeof playSound === "function") playSound("click");
-    if (currentStep > 1) {
-      nextOverrideRef.current = null;
-      setResetKey(function (prev) {
-        return prev + 1;
-      });
-      setCurrentStep(function (prev) {
-        return prev - 1;
-      });
+    if (currentStep <= 1) return;
+    if (prevOverrideRef.current) {
+      prevOverrideRef.current();
+      return;
     }
+    nextOverrideRef.current = null;
+    prevOverrideRef.current = null;
+    setResetKey(function (prev) {
+      return prev + 1;
+    });
+    setCurrentStep(function (prev) {
+      return prev - 1;
+    });
   };
 
   const setNextEnabled = useCallback(function (enabled) {
@@ -64,6 +70,7 @@ const App = () => {
 
   const advanceStep = useCallback(function () {
     nextOverrideRef.current = null;
+    prevOverrideRef.current = null;
     setCurrentStep(function (prev) {
       return prev + 1;
     });
@@ -71,6 +78,7 @@ const App = () => {
 
   const finishStep5Route = useCallback(function (split) {
     nextOverrideRef.current = null;
+    prevOverrideRef.current = null;
     setRouteExplored(function (prev) {
       var next = {
         split2: prev.split2 || split === "split2",
@@ -84,6 +92,10 @@ const App = () => {
 
   const registerNextOverride = useCallback(function (fn) {
     nextOverrideRef.current = fn;
+  }, []);
+
+  const registerPrevOverride = useCallback(function (fn) {
+    prevOverrideRef.current = fn;
   }, []);
 
   const getNavText = () => {
@@ -107,7 +119,7 @@ const App = () => {
           if (typeof playSound === "function") playSound("click");
           setCurrentStep(1);
         },
-      })
+      }),
     );
   }
 
@@ -121,7 +133,7 @@ const App = () => {
         text: APP_DATA.fullscreenEnd.text,
         buttonText: APP_DATA.fullscreenEnd.button,
         onButtonClick: handleRestart,
-      })
+      }),
     );
   }
 
@@ -134,7 +146,7 @@ const App = () => {
         key: "qp",
         text: APP_DATA.step1.questionText,
         step: currentStep,
-      })
+      }),
     );
   }
 
@@ -152,8 +164,9 @@ const App = () => {
         onAdvanceStep: advanceStep,
         onFinishStep5Route: finishStep5Route,
         registerNextOverride: registerNextOverride,
-      })
-    )
+        registerPrevOverride: registerPrevOverride,
+      }),
+    ),
   );
 
   elements.push(
@@ -165,15 +178,19 @@ const App = () => {
           return dir === "next"
             ? handleNext()
             : dir === "prev"
-            ? handlePrev()
-            : null;
+              ? handlePrev()
+              : null;
         },
         isNextDisabled: isNextDisabled,
         isPrevDisabled: currentStep <= 1,
         navText: getNavText(),
-      })
-    )
+      }),
+    ),
   );
 
-  return React.createElement("div", { className: "applet-container" }, elements);
+  return React.createElement(
+    "div",
+    { className: "applet-container" },
+    elements,
+  );
 };

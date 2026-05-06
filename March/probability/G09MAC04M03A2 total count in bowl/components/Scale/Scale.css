@@ -85,8 +85,19 @@
   cursor: pointer;
 }
 
+@keyframes dashed-hover-pulse {
+  0%,
+  100% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
 .scale-image-wrapper.clickable:hover .scale-image {
-  filter: drop-shadow(0 0.15vw 0.3vw rgba(0, 0, 0, 0.35)) brightness(1.15);
+  animation: dashed-hover-pulse 0.9s ease-in-out infinite;
+  filter: drop-shadow(0 0.15vw 0.3vw rgba(0, 0, 0, 0.35)) brightness(1.1);
 }
 
 .scale-image {
@@ -95,6 +106,7 @@
   object-fit: contain;
   filter: drop-shadow(0 0.15vw 0.3vw rgba(0, 0, 0, 0.35));
   transition: filter 0.2s;
+  transform-origin: center center;
 }
 
 .wrong-text {

@@ -1,0 +1,354 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 1vw;
+}
+
+.main-canvas-container--single .canvas-left-panel.ruler-lesson-left {
+  width: 100%;
+  flex: 1 1 100%;
+}
+
+.canvas-left-panel.ruler-lesson-left {
+  position: relative;
+  width: 65%;
+  flex: 0 0 65%;
+  height: 100%;
+  align-self: stretch;
+  gap: 0;
+  min-height: 0;
+}
+
+.canvas-left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+  overflow: visible;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.154);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2vw;
+}
+
+.triangle-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.canvas-right-panel.ruler-action-panel {
+  width: 35%;
+  flex: 0 0 35%;
+}
+
+.canvas-right-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.138);
+  border-radius: 2vw;
+  padding: 1vw;
+  box-sizing: border-box;
+}
+
+.canvas-right-panel.ruler-action-panel--sum {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1vw;
+  padding: 1.2vw 0.8vw;
+}
+
+.ruler-unified-svg-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  overflow: visible;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.ruler-unified-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.ruler-line-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.segment-overline {
+  text-decoration: overline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* Perimeter text rendered inside SVG via foreignObject */
+.perimeter-fo-host {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  font-family: var(--font-family);
+}
+
+.perimeter-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3vw;
+  color: #ffffff;
+  font-size: 21px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.perimeter-text--sum {
+  font-size: 21px;
+}
+
+.perimeter-prefix {
+  color: #ffd44d;
+  font-weight: 700;
+}
+
+.perimeter-expr {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.perimeter-expr-side {
+  color: #ffffff;
+}
+
+.perimeter-expr-value {
+  color: #4fc8f8;
+  font-weight: 700;
+}
+
+.perimeter-expr-plus {
+  color: #ffffff;
+}
+
+.perimeter-unit {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.perimeter-entry-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5em;
+  height: 1.7em;
+  
+  border-radius: 4px;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 2px solid #f0a11f;
+  font-size: 1em;
+  font-weight: 700;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+.perimeter-entry-box--wrong {
+  background: #fff2f2;
+  border-color: #f07f77;
+  color: #b84b4b;
+}
+
+.perimeter-entry-box--correct {
+  background: rgba(10, 12, 14, 0.92);
+  border-color: #4c9f7a;
+  color: #4ce589;
+}
+
+.perimeter-entry-box--shake {
+  animation: perimeter-shake 0.5s ease;
+}
+
+@keyframes perimeter-shake {
+  10%,
+  90% {
+    transform: translateX(-0.08vw);
+  }
+  20%,
+  80% {
+    transform: translateX(0.12vw);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-0.16vw);
+  }
+  40%,
+  60% {
+    transform: translateX(0.16vw);
+  }
+}
+
+/* Feedback panels (right side) */
+.perimeter-feedback-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1vw;
+  box-sizing: border-box;
+}
+
+.guided-step-text {
+  width: 100%;
+  border-radius: 1vw;
+  padding: 0.9vw 1vw;
+  font-size: 1.65vw;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  color: #ffffff;
+  border: 0.16vw dashed rgba(79, 200, 248, 0.7);
+  background: rgba(79, 200, 248, 0.14);
+}
+
+.guided-rot-arrow-blink {
+  animation: guided-rot-arrow-blink 0.9s ease-in-out infinite;
+}
+
+@keyframes guided-rot-arrow-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.perimeter-feedback-area--top {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 5vw;
+}
+
+.perimeter-feedback {
+  width: 100%;
+  border-radius: 1vw;
+  padding: 1vw 1.2vw;
+  font-size: 2.1vw;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  border: 0.18vw dashed transparent;
+  box-sizing: border-box;
+}
+
+.perimeter-feedback--wrong {
+  background: rgba(197, 92, 92, 0.28);
+  border-color: #ff8e8e;
+  color: #ffe7e7;
+}
+
+.perimeter-feedback--correct {
+  background: rgba(54, 147, 118, 0.35);
+  border-color: #4ce589;
+  color: #ffffff;
+}
+
+.perimeter-sum-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+  width: 100%;
+  height: 100%;
+}
+
+.perimeter-numpad-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.perimeter-numpad-wrap .numpad-grid {
+  background: rgba(56, 81, 97, 0.6);
+  padding: 0.7vw;
+  gap: 0.45vw;
+}
+
+.perimeter-numpad-wrap .numpad-button {
+  width: 4.5vw;
+  height: 4.5vw;
+  font-size: 2.5vw;
+  border-radius: 0.55vw;
+}
+
+.perimeter-numpad-wrap .numpad-button.submit-button {
+  background: linear-gradient(145deg, #10b981, #059669);
+  border-color: #34d399;
+}
+
+.perimeter-numpad-wrap .numpad-button.clear-button {
+  background: linear-gradient(145deg, #d97706, #b45309);
+  border-color: #f59e0b;
+}
+
+/* Vertex highlight in step 2 (snap target) */
+.vertex-hint-circle {
+  fill: rgba(255, 255, 255, 0.28);
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 2;
+  animation: vertex-hint-pulse 1.1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes vertex-hint-pulse {
+  0% {
+    opacity: 0.15;
+    transform-origin: center;
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+
+/* Rotation handle waves */
+.rot-handle-wave {
+  fill: rgba(0, 0, 0, 0.5);
+  stroke: rgba(0, 0, 0, 0.25);
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rot-handle-wave-pulse 1.1s ease-out infinite;
+}
+
+.rot-handle-wave--two {
+  animation-delay: 0.55s;
+}
+
+@keyframes rot-handle-wave-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}

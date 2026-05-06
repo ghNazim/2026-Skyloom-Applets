@@ -77,6 +77,7 @@ const DATA = {
       step1: {
         questionTemplateL2s: "Arrange the objects from longest to shortest.",
         questionTemplateS2l: "Arrange the objects from shortest to longest.",
+        orderingText: (count, unitNamePlural) => `${count} ${unitNamePlural} long`,
         navText: "Drag the objects to arrange them, then tap check.",
         navCorrect: "Tap » to arrange the next set of objects.",
         navLast: "Tap » to complete activity.",
@@ -164,6 +165,7 @@ const DATA = {
       step1: {
         questionTemplateL2s: "Urutkan benda dari terpanjang ke terpendek.",
         questionTemplateS2l: "Urutkan benda dari terpendek ke terpanjang.",
+        orderingText: (count, unitNamePlural) => `sepanjang ${count} ${unitNamePlural}`,
         navText: "Seret benda untuk mengurutkannya, lalu ketuk periksa.",
         navCorrect: "Ketuk » untuk mengurutkan set benda berikutnya.",
         navLast: "Ketuk » untuk menyelesaikan aktivitas.",

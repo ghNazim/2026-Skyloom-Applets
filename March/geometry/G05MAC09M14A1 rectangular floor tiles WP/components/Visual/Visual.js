@@ -54,6 +54,15 @@ const Visual = ({
     // element is already paused on the last frame — do nothing.
   }, [showVideo, videoSrc, videoHasEnded]);
 
+  const pinVideoToLastFrame = function () {
+    if (!videoRef.current || !videoHasEnded) return;
+    const video = videoRef.current;
+    if (!video.duration || Number.isNaN(video.duration)) return;
+    video.pause();
+    // Use a tiny epsilon to avoid browser snapping to frame 0.
+    video.currentTime = Math.max(video.duration - 0.04, 0);
+  };
+
   const handleVideoEnd = function () {
     if (videoEndFiredRef.current) return;
     videoEndFiredRef.current = true;
@@ -75,6 +84,10 @@ const Visual = ({
 
   const handleVideoEnded = function () {
     handleVideoEnd();
+  };
+
+  const handleLoadedMetadata = function () {
+    pinVideoToLastFrame();
   };
 
   const showTileOverlay =
@@ -117,6 +130,7 @@ const Visual = ({
         playsInline: true,
         onTimeUpdate: handleTimeUpdate,
         onEnded: handleVideoEnded,
+        onLoadedMetadata: handleLoadedMetadata,
         style: {
           visibility: showVideo ? "visible" : "hidden",
           zIndex: showVideo ? 1 : 0,

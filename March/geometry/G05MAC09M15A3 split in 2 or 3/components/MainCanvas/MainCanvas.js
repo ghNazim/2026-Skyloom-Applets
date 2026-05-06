@@ -7,6 +7,7 @@ const MainCanvas = function (props) {
   var onAdvanceStep = props.onAdvanceStep;
   var onFinishStep5Route = props.onFinishStep5Route;
   var registerNextOverride = props.registerNextOverride;
+  var registerPrevOverride = props.registerPrevOverride;
 
   var useState = React.useState;
   var useEffect = React.useEffect;
@@ -206,9 +207,11 @@ const MainCanvas = function (props) {
       if (step === 1) {
         onSetNextEnabled(false);
         registerNextOverride(null);
+        registerPrevOverride(null);
       } else if (step === 2) {
         onSetNextEnabled(true);
         registerNextOverride(null);
+        registerPrevOverride(null);
       } else if (step === 3) {
         onSetNextEnabled(false);
         setSelectedSplit(null);
@@ -216,6 +219,7 @@ const MainCanvas = function (props) {
         setStep3VideoSrc("");
         setStep3VideoVisible(false);
         registerNextOverride(null);
+        registerPrevOverride(null);
       } else if (step === 4) {
         setSubstep(0);
         setStep3VideoSrc("");
@@ -240,6 +244,7 @@ const MainCanvas = function (props) {
           registerNextOverride(null);
           onAdvanceStep();
         });
+        registerPrevOverride(null);
         return;
       }
       if (substep < 0 || substep >= config.length) return;
@@ -282,9 +287,19 @@ const MainCanvas = function (props) {
         }
         setSubstep(nextSub);
       });
+      registerPrevOverride(
+        substep > 0
+          ? function () {
+              setSubstep(function (prev) {
+                return prev - 1;
+              });
+            }
+          : null,
+      );
 
       return function () {
         registerNextOverride(null);
+        registerPrevOverride(null);
       };
     },
     [substep, step, config],
@@ -313,9 +328,19 @@ const MainCanvas = function (props) {
         }
         setStep5Index(nextIdx);
       });
+      registerPrevOverride(
+        step5Index > 0
+          ? function () {
+              setStep5Index(function (prev) {
+                return prev - 1;
+              });
+            }
+          : null,
+      );
 
       return function () {
         registerNextOverride(null);
+        registerPrevOverride(null);
       };
     },
     [step5Index, step, selectedSplit, exploredSplit2, exploredSplit3],

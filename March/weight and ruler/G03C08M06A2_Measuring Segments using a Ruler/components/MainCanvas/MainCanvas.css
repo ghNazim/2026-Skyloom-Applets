@@ -1,0 +1,975 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 1vw;
+}
+
+/* ── Left panel (65% in ruler lesson) ── */
+.canvas-left-panel.ruler-lesson-left {
+  position: relative;
+  width: 65%;
+  flex: 0 0 65%;
+  height: 100%;
+  align-self: stretch;
+  gap: 0;
+  min-height: 0;
+  /* overflow: hidden; */
+}
+
+.canvas-left-panel {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vw;
+  overflow: visible;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.154);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2vw;
+  /* backdrop-filter: blur(.5vw); */
+  overflow: visible;
+}
+
+.svg-card {
+  flex: 1;
+  
+  overflow: visible;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5vw;
+  
+}
+
+.triangle-svg {
+  width: 90%;
+  height: 80%;
+  overflow: visible;
+  display: block;
+}
+
+.length-comp-text {
+  color: white;
+  font-size: 2.2vw;
+  text-align: center;
+  padding: 0.3vw 1vw;
+  font-weight: 500;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.138);
+  /* backdrop-filter: blur(1vw); */
+  border-radius: 0 0 2vw 2vw;
+}
+
+/* ── Right panel (35% in ruler lesson) ── */
+.canvas-right-panel.ruler-action-panel {
+  width: 35%;
+  flex: 0 0 35%;
+}
+
+.canvas-right-panel {
+  /* flex: 0 0 40%; */
+  width: 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.138);
+  /* backdrop-filter: blur(1vw); */
+  border-radius: 2vw;
+  
+}
+
+.right-panel-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Bring Scale button ── */
+.bring-scale-btn {
+  font-size: 2.2vw;
+  padding: 1vw 2.5vw;
+  white-space: nowrap;
+}
+
+.bring-scale-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Action button base ── */
+.action-btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  color: white;
+  border: none;
+  border-radius: 1vw;
+  padding: 0.8vw 2vw;
+  font-size: 2.5vw;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.1s, background 0.2s;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.action-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* ── Ruler lesson: action column ── */
+.ruler-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vw;
+  width: 92%;
+  height: 92%;
+  justify-content: flex-start;
+  padding: 1vw 0.8vw;
+  box-sizing: border-box;
+}
+
+.ruler-action-intro {
+  margin: 0;
+  color: #fff;
+  font-size: 1.85vw;
+  text-align: center;
+  font-weight: 600;
+}
+
+.action-step-btn {
+  width: 100%;
+  border: none;
+  border-radius: 1vw;
+  padding: 1vw 1.2vw;
+  font-size: 2.5vw;
+  line-height: 1.2;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+  text-align: center;
+  transition: background 0.2s, transform 0.1s, opacity 0.2s;
+  box-shadow: 0 0.2vh 0.5vh rgba(0, 0, 0, 0.25);
+}
+
+.action-step-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.action-step-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.action-step-btn.active {
+  background: linear-gradient(145deg, #e07a2c, #c45f18);
+}
+
+.action-step-btn.ongoing {
+  background: linear-gradient(145deg, #8e6e45, #6d5234);
+}
+
+.action-step-btn.completed {
+  background: linear-gradient(145deg, #4c7a5b, #3a5d46);
+}
+
+.action-step-btn.disabled {
+  background: #5a5a5a;
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-step-btn:disabled:not(.disabled) {
+  cursor: not-allowed;
+}
+
+.action-step-btn:disabled.ongoing,
+.action-step-btn:disabled.completed {
+  opacity: 1;
+  cursor: default;
+}
+
+/* ── One SVG: viewBox height = gridBand / 0.66 so grid maps to top 66%, ruler to bottom 34% ── */
+.ruler-unified-svg-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  overflow: visible;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.ruler-unified-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* ── Bottom 34%: slider overlay (idle: transparent so ruler shows in this band) ── */
+.ruler-slider-zone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  z-index: 2;
+  box-sizing: border-box;
+  border-radius: 0 0 1.6vw 1.6vw;
+  pointer-events: none;
+  background: transparent;
+}
+
+.ruler-slider-zone--active {
+  pointer-events: auto;
+  /* background: rgba(0, 0, 0, 0.12); */
+}
+
+/* ── Slider (step 10 phase 2) ── */
+.measure-slider-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.2vw;
+  box-sizing: border-box;
+  pointer-events: auto;
+  /* border-top: 0.2vw solid rgba(255, 255, 255, 0.22); */
+}
+
+.measure-slider-wrap--dual {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35vw;
+  padding: 0.6vw 1.2vw;
+}
+
+.measure-slider-wrap--cm,
+.measure-slider-wrap--mm {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35vw;
+  padding: 0.6vw 1.2vw;
+}
+
+.measure-slider--cm {
+  border-color: #4c9f7a;
+}
+
+.measure-slider--cm::-webkit-slider-thumb {
+  border-color: #4c9f7a;
+}
+
+.measure-slider--cm::-moz-range-thumb {
+  border-color: #4c9f7a;
+}
+
+.measure-slider--mm {
+  border-color: #5eadeb;
+}
+
+.measure-slider--mm::-webkit-slider-thumb {
+  border-color: #5eadeb;
+}
+
+.measure-slider--mm::-moz-range-thumb {
+  border-color: #5eadeb;
+}
+
+.measure-slider--wrong {
+  border-color: #c75c5c !important;
+}
+
+.measure-slider--wrong::-webkit-slider-thumb {
+  border-color: #c75c5c !important;
+}
+
+.measure-slider--wrong::-moz-range-thumb {
+  border-color: #c75c5c !important;
+}
+
+.measure-slider-row {
+  align-self: flex-start;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.45vw;
+  font-weight: 600;
+}
+
+.measure-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.1vw;
+  min-height: 10px;
+  border-radius: 999px;
+  background: #3a4a55;
+  outline: none;
+  border: 2px solid #4eb2a4;
+  box-sizing: border-box;
+}
+
+.measure-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 2.2vw;
+  height: 2.2vw;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #4eb2a4;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.measure-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #4eb2a4;
+  cursor: pointer;
+}
+
+/* Keep mm slider blue; placed after base slider rules. */
+.measure-slider.measure-slider--mm {
+  border-color: #5eadeb;
+}
+
+.measure-slider.measure-slider--mm::-webkit-slider-thumb {
+  border-color: #5eadeb;
+}
+
+.measure-slider.measure-slider--mm::-moz-range-thumb {
+  border-color: #5eadeb;
+}
+
+.measure-slider:disabled {
+  opacity: 0.85;
+  cursor: default;
+}
+
+.ruler-line-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Feedback (step 11) ── */
+.ruler-feedback-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+  width: 100%;
+  padding: 1.5vw 1vw;
+  text-align: center;
+  border: 2px dashed rgba(255, 255, 255, 0.55);
+  border-radius: 1.2vw;
+  background: rgba(0, 0, 0, 0.12);
+  height: 100%;
+}
+
+.ruler-feedback-box--sea {
+  background: #2d7a70;
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.ruler-feedback-box--cyan {
+  background: #2a6a8a;
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.ruler-feedback-line {
+  color: #fff;
+  font-size: 2vw;
+  font-weight: 600;
+  line-height: 2;
+}
+
+.ruler-feedback-value {
+  font-size: 2.2vw;
+}
+
+.segment-overline {
+  text-decoration: overline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  /* padding: 0 0.15em; */
+}
+
+/* ── CM intro (steps 1–2): ruler wrapper + zoom + cm highlight ── */
+.ruler-intro-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 0;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.ruler-intro-viewport {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: visible;
+  border-radius: inherit;
+  overflow: visible;
+}
+
+.ruler-intro-scaler {
+  width: 100%;
+  flex-shrink: 0;
+  transition: width 0.85s ease;
+  transform-origin: left center;
+}
+
+.ruler-intro-scaler--zoom {
+  width: 250%;
+}
+
+.ruler-intro-scaler--zoom350 {
+  width: 350%;
+}
+
+.ruler-intro-scaler--zoom650 {
+  width: 650%;
+}
+
+.ruler-intro-scaler--zoom780 {
+  width: 1300%;
+}
+
+.ruler-intro-inner {
+  position: relative;
+  width: 100%;
+  display: block;
+  overflow: visible;
+  transition: transform 0.65s ease;
+}
+
+.ruler-intro-inner--lower {
+  transform: translateY(6vw);
+}
+
+/* Step 5: extra 5vw below the usual zoom offset (6vw + 5vw). */
+.ruler-intro-inner--lower-step5 {
+  transform: translateY(11vw);
+}
+
+/* Intro step 7: 650% mm arcs. */
+.ruler-intro-inner--lower-step6 {
+  transform: translateY(31vw);
+}
+
+/* Intro step 8: 780% single-mm view. */
+.ruler-intro-inner--lower-step7 {
+  transform: translateY(67vw);
+}
+
+.ruler-intro-ruler-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Same viewBox as ruler.svg (309×54) + xMinYMin meet → uniform scale (undistorted text) and aligned x. */
+.ruler-intro-arrows-svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ruler-intro-arrows-layer--fade-in {
+  opacity: 0;
+  animation: ruler-intro-arrows-fade-in 0.65s ease forwards;
+}
+
+@keyframes ruler-intro-arrows-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ruler-feedback-gr {
+  color: #3d9b84;
+  font-weight: 700;
+}
+
+.ruler-feedback-bl {
+  color: #5eadeb;
+  font-weight: 700;
+}
+
+.ruler-cm-highlight-box {
+  position: absolute;
+  left: var(--ruler-cm-highlight-left, 4%);
+  top: var(--ruler-cm-highlight-top, 35%);
+  width: 6vw;
+  height: 4vw;
+  border-radius: 1vw;
+  box-sizing: border-box;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 5px #e53935,
+    0 0 14px rgba(229, 57, 53, 0.65);
+  animation: ruler-cm-highlight-blink 1.1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Intro step 6 (250%): wide highlight over cm numerals (tweak via variables). */
+.ruler-step6-highlight-box {
+  position: absolute;
+  z-index: 2;
+  left: var(--ruler-step6-highlight-left, 1%);
+  top: var(--ruler-step6-highlight-top, 21%);
+  width: 54vw;
+  height: 5vw;
+  border-radius: 1.2vw;
+  box-sizing: border-box;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 5px #e53935,
+    0 0 14px rgba(229, 57, 53, 0.55);
+  pointer-events: none;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.ruler-step6-highlight-box--visible {
+  opacity: 1;
+}
+
+@keyframes ruler-cm-highlight-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* —— New flow: non-interactive step status (reuses button look) —— */
+.status-step {
+  width: 100%;
+  border-radius: 1vw;
+  padding: 1vw 1.2vw;
+  font-size: 2.1vw;
+  line-height: 1.2;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 0.2vh 0.5vh rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  pointer-events: none;
+  user-select: none;
+}
+
+.status-step.ongoing {
+  background: linear-gradient(145deg, #8e6e45, #6d5234);
+}
+
+.status-step.completed {
+  background: linear-gradient(145deg, #4c7a5b, #3a5d46);
+}
+
+.status-step.disabled {
+  background: #5a5a5a;
+  opacity: 0.4;
+}
+
+.ruler-action-stack--static {
+  width: 92%;
+  height: 92%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  padding: 1vw 0.8vw;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+
+.ruler-action-intro--sm {
+  font-size: 1.5vw;
+}
+
+/* Length value boxes (step 3 & 5) */
+.ruler-length-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4vw;
+  margin-top: 0.5vw;
+}
+
+.ruler-length-text {
+  margin: 0;
+  color: #fff;
+  font-size: 2.1vw;
+  width: 100%;
+  text-align: center;
+}
+
+.length-value-box {
+  display: inline-block;
+  min-width: 2.8em;
+  text-align: center;
+  font-size: 2.1vw;
+  font-weight: 700;
+  padding: 0.3vw 0.6vw;
+  border-radius: 0.6vw;
+  box-sizing: border-box;
+}
+
+.length-value-box--active {
+  background: #fff;
+  color: #1a1a1a;
+  border: 2px solid #e6c43a;
+  box-shadow: 0 0 0 1px rgba(230, 196, 58, 0.5);
+}
+
+.length-value-box--complete {
+  background: rgba(0, 0, 0, 0.15);
+  color: #4c9f7a;
+  border: none;
+  /* box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06); */
+  /* border: .1vw solid rgba(255, 255, 255, 0.2); */
+  text-shadow: 0 0 0.1vw rgba(0, 0, 0, 0.5);
+}
+
+.length-value-box--complete-mm {
+  background: rgba(0, 0, 0, 0.15);
+  color: #5eadeb;
+  border: none;
+  text-shadow: 0 0 0.1vw rgba(0, 0, 0, 0.5);
+}
+
+.length-value-box--off {
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.35);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.length-value-box--active-mm {
+  background: #fff;
+  color: #1a1a1a;
+  border: 2px solid #e07a2c;
+}
+
+.length-value-box--total {
+  color: #6ecf9a;
+  border: none;
+  min-width: 3.2em;
+}
+
+.length-tiny {
+  font-size: 2.1vw;
+  min-width: 2.2em;
+  padding: 0.25vw 0.45vw;
+}
+
+.ruler-length-unit {
+  color: #fff;
+  font-size: 2.1vw;
+}
+
+.ruler-dual-length-block {
+  margin-top: 0.6vw;
+  width: 100%;
+  text-align: center;
+}
+
+.ruler-dual-length-line {
+  margin: 0 0 0.4vw 0;
+  color: #fff;
+  font-size: 2.1vw;
+}
+
+.ruler-cm-mm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2vw 0.4vw;
+}
+
+.ruler-cm-and {
+  color: #fff;
+  font-size: 2.1vw;
+  white-space: pre;
+}
+
+.ruler-total-eq {
+  margin-top: 0.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35vw;
+  flex-wrap: wrap;
+}
+
+.ruler-total-eq-sym {
+  color: #fff;
+  font-size: 2.1vw;
+  font-weight: 600;
+}
+
+.ruler-total-unit {
+  color: #fff;
+  font-size: 2.1vw;
+}
+
+.ruler-empty {
+  min-height: 20vh;
+}
+
+.canvas-left-panel.ruler-empty,
+.canvas-right-panel.ruler-empty {
+  background: rgba(0, 0, 0, 0.12);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.measure-slider--locked {
+  opacity: 0.75;
+}
+
+/* ---- Step 1 (grid + numpad challenges) ---- */
+.step1-right-panel {
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 0.8vw;
+  box-sizing: border-box;
+}
+
+.step1-top-panel {
+  width: 100%;
+  color: #fff;
+  text-align: center;
+  padding: 0.55vw 0.2vw 0.25vw;
+  box-sizing: border-box;
+}
+
+.step1-statement-row {
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.28vw;
+  flex-wrap: wrap;
+  margin: 0.25vw 0 0.55vw;
+  padding: 0.45vw 0.55vw;
+  border-radius: 0.85vw;
+  background: rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.step1-statement {
+  margin: 0;
+  display: inline-block;
+  font-size: 2.1vw;
+  font-weight: 600;
+}
+
+.step1-entry-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2em;
+  height: 1.8em;
+  margin-left: 0.35vw;
+  padding: 0 0.35vw;
+  border-radius: 0.6vw;
+  background: #fff;
+  color: #1a1a1a;
+  border: 0.28vw solid #f0a11f;
+  font-size: 2.4vw;
+  font-weight: 700;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+.step1-entry-box--wrong {
+  background: #fff2f2;
+  border-color: #f07f77;
+  color: #b84b4b;
+}
+
+.step1-entry-box--correct {
+  background: rgba(10, 12, 14, 0.92);
+  border-color: #4c9f7a;
+  color: #4ce589;
+}
+
+.step1-entry-box--shake {
+  animation: step1-shake 0.5s ease;
+}
+
+.step1-unit {
+  font-size: 2.1vw;
+  font-weight: 600;
+}
+
+.step1-wrong-feedback {
+  margin-top: 0.65vw;
+  border: 0.15vw dashed #ff8e8e;
+  border-radius: 0.55vw;
+  padding: 0.35vw 0.6vw;
+  font-size: 2.05vw;
+  color: #ffe7e7;
+  text-align: center;
+  background: rgba(197, 92, 92, 0.28);
+}
+
+.step1-bottom-panel {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.3vw 0 0.2vw;
+  box-sizing: border-box;
+}
+
+.step1-bottom-panel .numpad-grid {
+  background: transparent;
+  border: none;
+  padding: 0.3vw;
+  gap: 0.7vw;
+}
+
+.step1-bottom-panel .numpad-button {
+  width: 4.8vw;
+  height: 3.2vw;
+  border-radius: 0.65vw;
+  font-size: 2.1vw;
+}
+
+.step1-bottom-panel .numpad-button.submit-button {
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  border-color: #fbbf24;
+}
+
+.step1-correct-feedback {
+  width: 96%;
+  border-radius: 1.2vw;
+  border: 0.15vw dashed #4ce589;
+  background: rgba(54, 147, 118, 0.35);
+  color: #ffffff;
+  text-align: center;
+  font-size: 2.1vw;
+  font-weight: 600;
+  line-height: 1.25;
+  padding: 1.2vw 0.8vw;
+  box-sizing: border-box;
+}
+
+@keyframes step1-shake {
+  10%,
+  90% {
+    transform: translateX(-0.08vw);
+  }
+  20%,
+  80% {
+    transform: translateX(0.12vw);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-0.16vw);
+  }
+  40%,
+  60% {
+    transform: translateX(0.16vw);
+  }
+}
+
+.step8-summary-panel {
+  width: 92%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+}
+
+.step8-summary-row {
+  color: #fff;
+  font-size: 1.8vw;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 0.8vw 1vw;
+  border-radius: 0.8vw;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.align-hint-circle {
+  fill: rgba(255, 255, 255, 0.28);
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 2;
+  animation: align-hint-pulse 0.95s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes align-hint-pulse {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+.rot-handle-wave {
+  fill: rgba(0, 0, 0, 0.5);
+  stroke: rgba(0, 0, 0, 0.25);
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rot-handle-wave-pulse 1.1s ease-out infinite;
+}
+
+.rot-handle-wave--two {
+  animation-delay: 0s;
+}
+
+@keyframes rot-handle-wave-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}

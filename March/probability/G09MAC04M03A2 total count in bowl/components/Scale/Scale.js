@@ -7,7 +7,9 @@ const Scale = ({
   registerImageRef,
   wrongText,
   showSparkle,
+  interactionLocked,
 }) => {
+  interactionLocked = !!interactionLocked;
   var scalePositions = APP_DATA.scalePositions;
 
   var getIndexPct = function (idx) {
@@ -21,6 +23,7 @@ const Scale = ({
   };
 
   var isClickable = function (position) {
+    if (interactionLocked) return false;
     if (isAnswered) return false;
     if (wrongPositions.indexOf(position) !== -1) return false;
     return true;
