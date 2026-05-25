@@ -22,12 +22,12 @@ const describeArc = (x, y, radius, startAngle, endAngle) => {
 const angleData = [
   { id: 1, cx: 305, cy: 170, start: -170.9 + 90, end: -80.5 + 90, r: 35, color: "rgba(156, 39, 176, 0.7)", label: "1", labelR: 45, type: "exterior" },
   { id: 2, cx: 305, cy: 170, start: -80.5 + 90, end: 9.1 + 90, r: 45, color: "rgba(156, 39, 176, 0.5)", label: "2", labelR: 55, type: "exterior" },
-  { id: 3, cx: 305, cy: 170, start: 9.1 + 90, end: 99.5 + 90, r: 35, color: "rgba(156, 39, 176, 0.7)", label: "3", labelR: 45, type: "interior" },
-  { id: 4, cx: 305, cy: 170, start: 99.5 + 90, end: 189.1 + 90, r: 45, color: "rgba(156, 39, 176, 0.5)", label: "4", labelR: 55, type: "interior" },
+  { id: 3, cx: 305, cy: 170, start: 9.1 + 90, end: 99.5 + 90, r: 35, color: "rgba(156, 39, 176, 0.7)", label: "3", labelR: 52, type: "interior" },
+  { id: 4, cx: 305, cy: 170, start: 99.5 + 90, end: 189.1 + 90, r: 45, color: "rgba(156, 39, 176, 0.5)", label: "4", labelR: 60, type: "interior" },
   { id: 5, cx: 275, cy: 350, start: -180 + 90, end: -80.5 + 90, r: 35, color: "rgba(156, 39, 176, 0.7)", label: "5", labelR: 45, type: "interior" },
   { id: 6, cx: 275, cy: 350, start: -80.5 + 90, end: 0 + 90, r: 45, color: "rgba(156, 39, 176, 0.5)", label: "6", labelR: 55, type: "interior" },
-  { id: 7, cx: 275, cy: 350, start: 0 + 90, end: 99.5 + 90, r: 35, color: "rgba(156, 39, 176, 0.7)", label: "7", labelR: 45, type: "exterior" },
-  { id: 8, cx: 275, cy: 350, start: 99.5 + 90, end: 180 + 90, r: 45, color: "rgba(156, 39, 176, 0.5)", label: "8", labelR: 55, type: "exterior" }
+  { id: 7, cx: 275, cy: 350, start: 0 + 90, end: 99.5 + 90, r: 35, color: "rgba(156, 39, 176, 0.7)", label: "7", labelR: 52, type: "exterior" },
+  { id: 8, cx: 275, cy: 350, start: 99.5 + 90, end: 180 + 90, r: 45, color: "rgba(156, 39, 176, 0.5)", label: "8", labelR: 60, type: "exterior" }
 ];
 
 const MainCanvas = (props) => {
@@ -360,7 +360,7 @@ const MainCanvas = (props) => {
       { className: "left-column" },
       React.createElement(
         "svg",
-        { className: "grid-svg", viewBox: "0 0 600 500" },
+        { className: "grid-svg", viewBox: "0 0 600 500", preserveAspectRatio: "xMidYMid slice" },
         React.createElement(
           "defs",
           null,
@@ -452,7 +452,7 @@ const MainCanvas = (props) => {
                 x: polarToCartesian(ang.cx, ang.cy, ang.labelR, ang.start + (ang.end - ang.start)/2).x,
                 y: polarToCartesian(ang.cx, ang.cy, ang.labelR, ang.start + (ang.end - ang.start)/2).y + 6,
                 fill: "#ff80ab",
-                fontSize: "18",
+                fontSize: "24",
                 fontWeight: "bold",
                 textAnchor: "middle"
               }, ang.label)
@@ -530,12 +530,12 @@ const MainCanvas = (props) => {
 
         // Interior/Exterior Region Texts
         (step === 'i3' || step === 'ie4') && React.createElement("text", {
-          x: "20", y: "235", fill: "#ffc107", fontSize: "16", className: "angle-appear"
+          x: "20", y: "235", fill: "#ffc107", fontSize: "24", className: "angle-appear"
         }, APP_DATA.labels.interiorAngles),
         
         (step === 'e3' || step === 'ie4') && React.createElement("g", { className: "angle-appear" },
-          React.createElement("text", { x: "20", y: "70", fill: "#03a9f4", fontSize: "16" }, APP_DATA.labels.exteriorAngles),
-          React.createElement("text", { x: "20", y: "450", fill: "#03a9f4", fontSize: "16" }, APP_DATA.labels.exteriorAngles)
+          React.createElement("text", { x: "20", y: "70", fill: "#03a9f4", fontSize: "24" }, APP_DATA.labels.exteriorAngles),
+          React.createElement("text", { x: "20", y: "450", fill: "#03a9f4", fontSize: "24" }, APP_DATA.labels.exteriorAngles)
         )
       )
     ),

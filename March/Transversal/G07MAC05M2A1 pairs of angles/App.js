@@ -1,14 +1,23 @@
 const App = () => {
-  const { useState, useEffect, useCallback } = React;
+  const { useState, useEffect, useCallback, useRef } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   const [dynamicNavText, setDynamicNavText] = useState(null);
   const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
   const [resetKey, setResetKey] = useState(0);
+  const [showNudge, setShowNudge] = useState(false);
+  const [nudgePosition, setNudgePosition] = useState(null);
+  const nudgeTimeoutRef = useRef(null);
+
+  const hideNudge = useCallback(() => {
+    setShowNudge(false);
+    setNudgePosition(null);
+  }, []);
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
+    hideNudge();
     setCurrentStep(1);
   };
 
@@ -33,6 +42,7 @@ const App = () => {
 
   const handleNext = (overrideStep) => {
     if (typeof playSound === "function") playSound("click");
+    hideNudge();
     if (typeof overrideStep === 'string' || (typeof overrideStep === 'number' && overrideStep !== undefined && overrideStep.nativeEvent === undefined)) {
       setCurrentStep(overrideStep);
     } else if (typeof currentStep === 'number' && currentStep < 10) {
@@ -42,6 +52,7 @@ const App = () => {
 
   const handlePrev = () => {
     if (typeof playSound === "function") playSound("click");
+    hideNudge();
     if (currentStep > 1) {
       setResetKey((prev) => prev + 1);
       setCurrentStep((prev) => prev - 1);
@@ -71,11 +82,66 @@ const App = () => {
     return stepData ? stepData.questionText : "";
   };
 
-  if (currentStep === 0 || currentStep === 8) {
-    const isStart = currentStep === 0;
-    const stepData = isStart ? APP_DATA.start : APP_DATA.steps[8];
-    const clickHandler = isStart ? handleStart : handleRestart;
+  // tap.gif on Start button (step 0 fullscreen only)
+  useEffect(() => {
+    if (nudgeTimeoutRef.current) clearTimeout(nudgeTimeoutRef.current);
+    if (currentStep !== 0) return;
+    nudgeTimeoutRef.current = setTimeout(() => {
+      const el = document.querySelector(".fullscreen-button");
+      if (el) {
+        setNudgePosition(el.getBoundingClientRect());
+        setShowNudge(true);
+      }
+    }, 500);
+    return () => {
+      if (nudgeTimeoutRef.current) clearTimeout(nudgeTimeoutRef.current);
+    };
+  }, [currentStep]);
 
+  // tap.gif on Next when enabled (not on Start Over — optional for the user)
+  useEffect(() => {
+    if (currentStep === 0 || currentStep === 8) return;
+
+    const updateNextNudge = () => {
+      if (isNextDisabled) {
+        hideNudge();
+        return;
+      }
+      const nextBtn = document.getElementById("next-button");
+      if (nextBtn) {
+        setNudgePosition(nextBtn.getBoundingClientRect());
+        setShowNudge(true);
+      }
+    };
+
+    const timeoutId = setTimeout(updateNextNudge, 100);
+    window.addEventListener("resize", updateNextNudge);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", updateNextNudge);
+    };
+  }, [currentStep, isNextDisabled, dynamicNavText, hideNudge]);
+
+  if (currentStep === 0) {
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(Fullscreen, {
+          heading: APP_DATA.start.heading,
+          text: APP_DATA.start.text,
+          buttonText: APP_DATA.start.buttonText,
+          onButtonClick: handleStart,
+        })
+      ),
+      React.createElement(Nudge, { show: showNudge, position: nudgePosition })
+    );
+  }
+
+  if (currentStep === 8) {
+    const stepData = APP_DATA.steps[8];
     return React.createElement(
       "div",
       { className: "applet-container" },
@@ -86,7 +152,7 @@ const App = () => {
           heading: stepData.heading,
           text: stepData.text,
           buttonText: stepData.buttonText,
-          onButtonClick: clickHandler,
+          onButtonClick: handleRestart,
         })
       )
     );
@@ -128,6 +194,7 @@ const App = () => {
         navText: getNavText(),
         nextSymbol: "»"
       })
-    )
+    ),
+    React.createElement(Nudge, { show: showNudge, position: nudgePosition })
   );
 };

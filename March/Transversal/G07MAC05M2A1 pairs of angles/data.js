@@ -31,6 +31,7 @@ const DATA = {
           questionText: "Relationship between each linear pair",
           navText: "Tap each button and look at the figure.",
           navTextAfter: "Tap » to summarize Linear Pairs",
+          questionTextAfter: "Linear pairs add up to <pr>180°</pr>.",
         },
         4: {
           questionText: "Linear Pairs of Angles",
@@ -48,6 +49,7 @@ const DATA = {
           questionText: "Relationship between each vertical angle",
           navText: "Tap each button and look at the figure.",
           navTextAfter: "Tap » to summarize vertical angles",
+          questionTextAfter: "The measures of vertical angles are equal.",
         },
         7: {
           questionText: "Vertical Angles",
@@ -92,6 +94,7 @@ const DATA = {
           questionText: "Hubungan antara setiap pasangan linear",
           navText: "Ketuk setiap tombol dan perhatikan gambarnya.",
           navTextAfter: "Ketuk » untuk merangkum Pasangan Linear",
+          questionTextAfter: "Pasangan linear berjumlah <pr>180°</pr>.",
         },
         4: {
           questionText: "Pasangan Sudut Linear",
@@ -109,6 +112,7 @@ const DATA = {
           questionText: "Hubungan antara setiap sudut bertolak belakang",
           navText: "Ketuk setiap tombol dan perhatikan gambarnya.",
           navTextAfter: "Ketuk » untuk merangkum sudut bertolak belakang",
+          questionTextAfter: "Besar sudut bertolak belakang adalah sama.",
         },
         7: {
           questionText: "Sudut Bertolak Belakang",

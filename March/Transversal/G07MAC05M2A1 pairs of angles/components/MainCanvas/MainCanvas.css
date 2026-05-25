@@ -190,6 +190,7 @@
   pointer-events: none;
   z-index: 100;
   transform: translate(-2vw, -0.5vw);
+  opacity: 0.7;
 }
 
 .two-lines-label {
@@ -201,7 +202,7 @@
 
 .straight-line-label {
   fill: #ffc107;
-  font-size: 16px;
+  font-size: 27.2px;
   font-weight: 500;
 }
 

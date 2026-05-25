@@ -70,8 +70,8 @@
 }
 
 .fullscreen-image-col {
-  flex: 0 0 45%;
-  max-width: 45%;
+  flex: 0 0 50%;
+  max-width: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,10 +84,11 @@
 }
 
 .fullscreen-text-col {
-  flex: 1 1 45%;
+  flex: 1 1 50%;
   min-width: 0;
   display: flex;
   align-items: center;
+  font-size: 2.5vw;
 }
 
 .fullscreen-text-col.fullscreen-content {

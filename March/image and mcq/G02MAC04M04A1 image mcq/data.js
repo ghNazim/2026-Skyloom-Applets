@@ -22,7 +22,7 @@ const DATA = {
       questions: [
         {
           img: "assets/one.png",
-          title: "The Circle is ______ the rectangle.",
+          title: "The Circle is ______ the square.",
           options: ["below", "top", "on"],
           ans: 2,
           feedbackImage: "assets/q1h.png",
@@ -50,14 +50,14 @@ const DATA = {
         },
         {
           img: "assets/one.png",
-          title: "The rectangle is ______ the circle.",
+          title: "The square is ______ the circle.",
           options: ["below", "on", "under"],
           ans: 2,
           feedbackImage: "assets/q1h.png",
         },
         {
           img: "assets/one.png",
-          title: "The notebook is to the ______ of the rectangle.",
+          title: "The notebook is to the ______ of the square.",
           options: ["bottom", "left", "right"],
           ans: 2,
           feedbackImage: "assets/q6h.png",
@@ -90,7 +90,7 @@ const DATA = {
       questions: [
         {
           img: "assets/one.png",
-          title: "Lingkaran berada ______ persegi panjang.",
+          title: "Lingkaran berada ______ persegi.",
           options: ["di bawah", "atas", "di atas"],
           ans: 2,
           feedbackImage: "assets/q1h.png",
@@ -118,14 +118,14 @@ const DATA = {
         },
         {
           img: "assets/one.png",
-          title: "Persegi panjang ______ lingkaran.",
+          title: "Persegi ______ lingkaran.",
           options: ["di bawah", "di atas", "tepat di bawah"],
           ans: 2,
           feedbackImage: "assets/q1h.png",
         },
         {
           img: "assets/one.png",
-          title: "Buku catatan ada di ______ persegi panjang.",
+          title: "Buku catatan ada di ______ persegi.",
           options: ["bawah", "kiri", "kanan"],
           ans: 2,
           feedbackImage: "assets/q6h.png",

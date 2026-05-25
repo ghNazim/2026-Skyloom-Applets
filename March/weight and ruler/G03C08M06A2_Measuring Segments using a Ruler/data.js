@@ -402,10 +402,10 @@ Report in ‘cm and mm’ or ‘mm’.`,
           summaryEquals: "=",
           shape: {
             points: {
-              P: [120, 220],
-              Q: [298, 220],
-              R: [298, 42],
-              S: [120, 42],
+              P: [120, 251],
+              Q: [298, 251],
+              R: [298, 73],
+              S: [120, 73],
             },
             sides: {
               PQ: {
@@ -844,10 +844,10 @@ Laporkan dalam ‘cm dan mm’ atau ‘mm’.`,
           summaryEquals: "=",
           shape: {
             points: {
-              P: [120, 220],
-              Q: [298, 220],
-              R: [298, 42],
-              S: [120, 42],
+              P: [120, 251],
+              Q: [298, 251],
+              R: [298, 73],
+              S: [120, 73],
             },
             sides: {
               PQ: {

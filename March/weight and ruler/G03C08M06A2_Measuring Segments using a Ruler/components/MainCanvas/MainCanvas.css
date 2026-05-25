@@ -200,13 +200,13 @@
   cursor: default;
 }
 
-/* ── One SVG: viewBox height = gridBand / 0.66 so grid maps to top 66%, ruler to bottom 34% ── */
+/* ── One SVG: viewBox height = gridBand / 0.66; grid fills full height, ruler overlays bottom band ── */
 .ruler-unified-svg-wrap {
   position: absolute;
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  overflow: visible;
+  overflow: hidden;
   background: rgba(0, 0, 0, 0.22);
 }
 
@@ -217,7 +217,15 @@
   overflow: visible;
 }
 
-/* ── Bottom 34%: slider overlay (idle: transparent so ruler shows in this band) ── */
+.measure-marker--draggable {
+  cursor: grab;
+}
+
+.measure-marker--draggable:active {
+  cursor: grabbing;
+}
+
+/* ── Bottom 34%: slider overlay (legacy; sliders removed — drag markers on canvas) ── */
 .ruler-slider-zone {
   position: absolute;
   left: 0;

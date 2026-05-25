@@ -6,12 +6,15 @@ const MainCanvas = ({
   onUpdateTexts,
   onAnimatingChange,
 }) => {
-  const { useState, useEffect, useRef, useMemo, useCallback } = React;
+  const { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } =
+    React;
 
   const SVG_W = 400;
   const SVG_GRID_H = 280;
   const GRID_FRAC = 0.66;
   const SVG_TOTAL_H = SVG_GRID_H / GRID_FRAC;
+  const GRID_FRAME_STROKE = 2;
+  const GRID_FRAME_RX = 14;
   const PAD = 28;
   const GV = 10;
   const STEP1_ARROW_COUNT = 10;
@@ -43,6 +46,13 @@ const MainCanvas = ({
   const SEGMENT_CM = APP_DATA.measure.correctCm;
   const SLIDER_MAX = APP_DATA.measure.sliderMax;
   const SLIDER_MAX_CM = APP_DATA.measure.sliderMaxCm || 20;
+  const S13_CM_DRAG_MAX = 15;
+  const S13_MM_DRAG_MAX = 10;
+  const DRAG_NUDGE_SRC = "assets/drag.gif";
+  const DRAG_NUDGE_SIZE = 78;
+  const DRAG_NUDGE_X = -DRAG_NUDGE_SIZE / 2;
+  /** Horizontally centered; sits just above marker circle (r=22, cy≈1). */
+  const DRAG_NUDGE_Y = -34;
 
   /** Matches step 10: px per mm along any segment in this grid world. */
   const refDistPx = Math.hypot(FQ[0] - FP[0], FQ[1] - FP[1]);
@@ -99,7 +109,15 @@ const MainCanvas = ({
   const rulerGRef = useRef(null);
   const rulerImgRef = useRef(null);
   const tlRef = useRef(null);
-  const sliderZoneRef = useRef(null);
+  const unifiedSvgRef = useRef(null);
+  const sceneWrapRef = useRef(null);
+  const [gridOffset, setGridOffset] = useState({ dx: 0, dy: 0 });
+  const markerDragRef = useRef(null);
+  const [dragNudgeSeen, setDragNudgeSeen] = useState({
+    pq: false,
+    cm: false,
+    mm: false,
+  });
   const drawPointerIdRef = useRef(null);
   const drawTouchActiveRef = useRef(false);
   const drawMovedRef = useRef(false);
@@ -222,13 +240,38 @@ const MainCanvas = ({
   const showRulerGraphic =
     !isDrawStep && (isPqSteps || (isUserLesson && userSegment));
 
+  const rulerAlignX = P[0] + gridOffset.dx;
+  const rulerAlignY = P[1] + gridOffset.dy;
+
+  const updateGridCenterOffset = useCallback(() => {
+    const wrap = sceneWrapRef.current;
+    if (!wrap) return;
+    const wr = wrap.getBoundingClientRect();
+    if (wr.width < 1 || wr.height < 1) return;
+    const s = Math.min(wr.width / SVG_W, wr.height / SVG_TOTAL_H);
+    const offsetX = (wr.width - SVG_W * s) / 2;
+    const offsetY = (wr.height - SVG_TOTAL_H * s) / 2;
+    const dx = (wr.width / 2 - (offsetX + (SVG_W / 2) * s)) / s;
+    const dy = (wr.height / 2 - (offsetY + (SVG_GRID_H / 2) * s)) / s;
+    setGridOffset({ dx, dy });
+  }, []);
+
+  useLayoutEffect(() => {
+    updateGridCenterOffset();
+    const wrap = sceneWrapRef.current;
+    if (!wrap || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(updateGridCenterOffset);
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, [updateGridCenterOffset, step]);
+
   useEffect(() => {
     if (!showRulerGraphic) return;
     applyRulerGeometry();
     if (alignPhase === "idle") {
       setRulerTransform(initialRulerTransform.x, initialRulerTransform.y, 0);
     } else if (alignPhase === "done") {
-      setRulerTransform(P[0], P[1], angleDeg);
+      setRulerTransform(rulerAlignX, rulerAlignY, angleDeg);
     }
   }, [
     showRulerGraphic,
@@ -236,7 +279,8 @@ const MainCanvas = ({
     applyRulerGeometry,
     initialRulerTransform,
     setRulerTransform,
-    P,
+    rulerAlignX,
+    rulerAlignY,
     angleDeg,
   ]);
 
@@ -247,7 +291,8 @@ const MainCanvas = ({
         step10EntryTimersRef.current.forEach((id) => clearTimeout(id));
         step10EntryTimersRef.current = [];
       }
-      if (step9ShakeTimeoutRef.current) clearTimeout(step9ShakeTimeoutRef.current);
+      if (step9ShakeTimeoutRef.current)
+        clearTimeout(step9ShakeTimeoutRef.current);
       if (step1AnimTimerRef.current) clearTimeout(step1AnimTimerRef.current);
       if (step3AnimTimerRef.current) clearTimeout(step3AnimTimerRef.current);
       if (step7AnimTimerRef.current) clearTimeout(step7AnimTimerRef.current);
@@ -400,7 +445,10 @@ const MainCanvas = ({
               setStep9Phase("done");
               setStep9IntroDone(true);
               if (typeof onUpdateTexts === "function") {
-                onUpdateTexts(APP_DATA.steps[9].navText, APP_DATA.steps[9].questionText);
+                onUpdateTexts(
+                  APP_DATA.steps[9].navText,
+                  APP_DATA.steps[9].questionText,
+                );
               }
               step9AnimTimerRef.current = null;
               return;
@@ -605,6 +653,10 @@ const MainCanvas = ({
     return () => clearTimeout(tid);
   }, [step]);
 
+  useEffect(() => {
+    setDragNudgeSeen({ pq: false, cm: false, mm: false });
+  }, [step]);
+
   const handleStep9OptionClick = useCallback(
     (option) => {
       if (step !== 9 || !step9IntroDone || step9IsCorrect) return;
@@ -612,7 +664,8 @@ const MainCanvas = ({
       const isCorrect = selected === String(APP_DATA.steps[9].mcqCorrect);
       setStep9SelectedOption(selected);
       setStep9IsCorrect(isCorrect);
-      if (typeof playSound === "function") playSound(isCorrect ? "correct" : "wrong");
+      if (typeof playSound === "function")
+        playSound(isCorrect ? "correct" : "wrong");
       if (isCorrect) {
         if (typeof onSetNextEnabled === "function") onSetNextEnabled(true);
         if (typeof onUpdateTexts === "function") {
@@ -622,7 +675,8 @@ const MainCanvas = ({
       }
       if (typeof onSetNextEnabled === "function") onSetNextEnabled(false);
       setStep9Shake(true);
-      if (step9ShakeTimeoutRef.current) clearTimeout(step9ShakeTimeoutRef.current);
+      if (step9ShakeTimeoutRef.current)
+        clearTimeout(step9ShakeTimeoutRef.current);
       step9ShakeTimeoutRef.current = setTimeout(() => {
         setStep9Shake(false);
         step9ShakeTimeoutRef.current = null;
@@ -637,6 +691,34 @@ const MainCanvas = ({
       return [P[0] + u[0] * t, P[1] + u[1] * t];
     },
     [P, u, distPx, lengthCm],
+  );
+
+  const pointerCmOnSegment = useCallback(
+    (clientX, clientY, clampToSegmentEnd = true) => {
+      const svg = unifiedSvgRef.current;
+      if (!svg || distPx < 1e-6) return 0;
+      const pt = svg.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return 0;
+      const loc = pt.matrixTransform(ctm.inverse());
+      const gx = loc.x - gridOffset.dx;
+      const gy = loc.y - gridOffset.dy;
+      const relX = gx - P[0];
+      const relY = gy - P[1];
+      const along = relX * u[0] + relY * u[1];
+      const t = clampToSegmentEnd
+        ? Math.max(0, Math.min(distPx, along))
+        : Math.max(0, along);
+      return (t / distPx) * lengthCm;
+    },
+    [P, u, distPx, lengthCm, gridOffset.dx, gridOffset.dy],
+  );
+
+  const clientToCmAlongSegment = useCallback(
+    (clientX, clientY) => pointerCmOnSegment(clientX, clientY, true),
+    [pointerCmOnSegment],
   );
 
   const lessonCfg = step === 13 ? s13 : s10;
@@ -666,7 +748,7 @@ const MainCanvas = ({
       y: initialRulerTransform.y,
       rot: 0,
     };
-    const to = { x: P[0], y: P[1], rot: angleDeg };
+    const to = { x: rulerAlignX, y: rulerAlignY, rot: angleDeg };
 
     const state = { ...from };
     tl.to(state, {
@@ -687,7 +769,8 @@ const MainCanvas = ({
     initialRulerTransform,
     onAnimatingChange,
     onUpdateTexts,
-    P,
+    rulerAlignX,
+    rulerAlignY,
     setRulerTransform,
     step,
     s13.navAfterAlign,
@@ -708,7 +791,10 @@ const MainCanvas = ({
     if (typeof playSound === "function") playSound("click");
     setPhase2Started(true);
     setMeasureOpen(true);
-    if (step === 10) setSliderVal(0);
+    if (step === 10) {
+      setSliderVal(0);
+      setDragNudgeSeen((prev) => ({ ...prev, pq: false }));
+    }
     if (step === 13) {
       setSliderCm(0);
       setSliderMm(0);
@@ -718,6 +804,7 @@ const MainCanvas = ({
       setS13Phase3Started(false);
       setS13CmError(false);
       setS13MmError(false);
+      setDragNudgeSeen((prev) => ({ ...prev, cm: false }));
     }
     if (typeof onUpdateTexts === "function") {
       if (step === 13) {
@@ -728,24 +815,29 @@ const MainCanvas = ({
     }
   };
 
-  const handleSliderChange = (e) => {
-    if (locked || step !== 10) return;
-    const raw = parseInt(e.target.value, 10);
-    const v = Number.isNaN(raw) ? 0 : raw;
-    if (v >= SEGMENT_CM) {
-      setSliderVal(SEGMENT_CM);
-      setLocked(true);
-      setMovingCorrect(true);
-      if (typeof playSound === "function") playSound("correct");
-      if (typeof onSetNextEnabled === "function") onSetNextEnabled(true);
-      if (typeof onUpdateTexts === "function") {
-        onUpdateTexts(APP_DATA.steps[10].navReadMeasure);
+  const applyStep10CmValue = useCallback(
+    (cmRaw, playTick) => {
+      if (locked || step !== 10) return;
+      const v = Math.max(0, Math.min(SLIDER_MAX, Math.round(cmRaw)));
+      if (v >= SEGMENT_CM) {
+        setSliderVal(SEGMENT_CM);
+        setLocked(true);
+        setMovingCorrect(true);
+        if (typeof playSound === "function") playSound("correct");
+        if (typeof onSetNextEnabled === "function") onSetNextEnabled(true);
+        if (typeof onUpdateTexts === "function") {
+          onUpdateTexts(APP_DATA.steps[10].navReadMeasure);
+        }
+      } else {
+        setSliderVal((prev) => {
+          if (playTick && v !== prev && typeof playSound === "function")
+            playSound("tick");
+          return v;
+        });
       }
-    } else {
-      setSliderVal(v);
-      if (typeof playSound === "function") playSound("tick");
-    }
-  };
+    },
+    [locked, step, onSetNextEnabled, onUpdateTexts],
+  );
 
   const targetWholeCm = Math.floor(lengthMm / 10);
 
@@ -760,7 +852,9 @@ const MainCanvas = ({
       )
         return;
       const v =
-        typeof cmValue === "number" && !Number.isNaN(cmValue) ? cmValue : sliderCm;
+        typeof cmValue === "number" && !Number.isNaN(cmValue)
+          ? cmValue
+          : sliderCm;
       if (typeof playSound === "function") {
         playSound(v === targetWholeCm ? "correct" : "wrong");
       }
@@ -806,6 +900,7 @@ const MainCanvas = ({
     setS13SubPhase("mm");
     setSliderMm(0);
     setS13MmError(false);
+    setDragNudgeSeen((prev) => ({ ...prev, mm: false }));
     if (typeof onUpdateTexts === "function") {
       const wc = Math.floor(lengthMm / 10);
       const navMm =
@@ -825,7 +920,9 @@ const MainCanvas = ({
         return;
       if (s13CmLocked === null) return;
       const mmV =
-        typeof mmValue === "number" && !Number.isNaN(mmValue) ? mmValue : sliderMm;
+        typeof mmValue === "number" && !Number.isNaN(mmValue)
+          ? mmValue
+          : sliderMm;
       const ok = s13CmLocked * 10 + mmV === lengthMm;
       if (typeof playSound === "function") {
         playSound(ok ? "correct" : "wrong");
@@ -876,10 +973,7 @@ const MainCanvas = ({
     const zoomArrowheadScale = INTRO_CM_STROKE_ZOOM / INTRO_CM_STROKE_ZOOM_REF;
 
     const introZoomed =
-      (step === 2 && introZoomActive) ||
-      step === 3 ||
-      step === 4 ||
-      step === 6;
+      (step === 2 && introZoomActive) || step === 3 || step === 4 || step === 6;
     const scalerZoomClass =
       step === 8
         ? " ruler-intro-scaler--zoom780"
@@ -986,12 +1080,11 @@ const MainCanvas = ({
         const d = `M ${x0} ${yBase} Q ${xm} ${yPeakStep1} ${x1} ${yBase}`;
         const isDoneArrow = i < step1RevealIndex;
         const isCurrentArrow = i === step1RevealIndex;
-        const step1ArcPhase =
-          isDoneArrow
-            ? "completed"
-            : isCurrentArrow && step1RevealPhase === "drawing"
-              ? "drawing"
-              : "pending";
+        const step1ArcPhase = isDoneArrow
+          ? "completed"
+          : isCurrentArrow && step1RevealPhase === "drawing"
+            ? "drawing"
+            : "pending";
         const showHead =
           isDoneArrow ||
           (isCurrentArrow &&
@@ -1229,7 +1322,7 @@ const MainCanvas = ({
       const x1 = xAtCm(1);
       const xm = (x0 + x1) / 2;
       const d = `M ${x0} ${yBase} Q ${xm} ${yPeakCmZoom} ${x1} ${yBase}`;
-      const yLbl5 = yBase/ 2 - 5;
+      const yLbl5 = yBase / 2 - 5;
       introSvgOverlay = React.createElement(
         "svg",
         {
@@ -1330,7 +1423,10 @@ const MainCanvas = ({
         introDefsZoom,
         React.createElement(
           "g",
-          { className: "ruler-intro-arrows-layer ruler-intro-arrows-layer--fade-in" },
+          {
+            className:
+              "ruler-intro-arrows-layer ruler-intro-arrows-layer--fade-in",
+          },
           cmNodes6,
         ),
       );
@@ -1347,18 +1443,17 @@ const MainCanvas = ({
         const d = `M ${xa} ${yBase} Q ${xm} ${yPeakMm} ${xb} ${yBase}`;
         const isDoneArrow = j < step7RevealIndex;
         const isCurrentArrow = j === step7RevealIndex;
-        const mmPhase =
-          isDoneArrow
-            ? "completed"
-            : isCurrentArrow
-              ? step7RevealPhase === "drawing"
-                ? "drawing"
-                : step7RevealPhase === "head" ||
-                    step7RevealPhase === "label" ||
-                    step7RevealPhase === "done"
-                  ? "completed"
-                  : "pending"
-              : "pending";
+        const mmPhase = isDoneArrow
+          ? "completed"
+          : isCurrentArrow
+            ? step7RevealPhase === "drawing"
+              ? "drawing"
+              : step7RevealPhase === "head" ||
+                  step7RevealPhase === "label" ||
+                  step7RevealPhase === "done"
+                ? "completed"
+                : "pending"
+            : "pending";
         const showHead =
           isDoneArrow ||
           (isCurrentArrow &&
@@ -1436,7 +1531,7 @@ const MainCanvas = ({
       const x1 = xAtCm(0.1);
       const xm = (x0 + x1) / 2;
       const d = `M ${x0} ${yBase} Q ${xm} ${yPeakMm} ${x1} ${yBase}`;
-      const yLbl7 = (yBase) / 2 - 5;
+      const yLbl7 = yBase / 2 - 5;
       introSvgOverlay = React.createElement(
         "svg",
         {
@@ -1457,7 +1552,7 @@ const MainCanvas = ({
             x2: x1,
             y2: yBase,
             stroke: introMeasureLineOrange,
-            strokeWidth: .3,
+            strokeWidth: 0.3,
             strokeLinecap: "round",
             className: "ruler-intro-arrows-layer--fade-in",
           }),
@@ -1502,7 +1597,9 @@ const MainCanvas = ({
       const cmPhase9 =
         step9Phase === "cmLine"
           ? "drawing"
-          : step9Phase === "cmHead" || step9Phase === "mm" || step9Phase === "done"
+          : step9Phase === "cmHead" ||
+              step9Phase === "mm" ||
+              step9Phase === "done"
             ? "completed"
             : "pending";
       const showCmHead9 =
@@ -1629,8 +1726,7 @@ const MainCanvas = ({
       React.createElement(
         "div",
         {
-          className:
-            "canvas-left-panel ruler-lesson-left ruler-intro-stage",
+          className: "canvas-left-panel ruler-lesson-left ruler-intro-stage",
         },
         React.createElement(
           "div",
@@ -1671,7 +1767,9 @@ const MainCanvas = ({
               step === 6 &&
                 React.createElement("div", {
                   className: `ruler-step6-highlight-box${
-                    step6HighlightVisible ? " ruler-step6-highlight-box--visible" : ""
+                    step6HighlightVisible
+                      ? " ruler-step6-highlight-box--visible"
+                      : ""
                   }`,
                   "aria-hidden": true,
                 }),
@@ -1740,35 +1838,151 @@ const MainCanvas = ({
     );
   }
 
-  const handleSliderCmChange = (e) => {
-    if (locked || step !== 13 || s13SubPhase !== "cm" || s13CmConfirmed) return;
-    const raw = parseInt(e.target.value, 10);
-    const v = Number.isNaN(raw) ? 0 : raw;
-    setSliderCm(Math.min(sliderCmMax, Math.max(0, v)));
-    setS13CmError(false);
-    if (typeof playSound === "function") playSound("tick");
+  const applyS13CmDrag = useCallback(
+    (cmRaw, playTick) => {
+      if (locked || step !== 13 || s13SubPhase !== "cm" || s13CmConfirmed) return;
+      const v = Math.max(0, Math.min(S13_CM_DRAG_MAX, Math.round(cmRaw)));
+      setS13CmError(false);
+      setSliderCm((prev) => {
+        if (playTick && v !== prev && typeof playSound === "function")
+          playSound("tick");
+        return v;
+      });
+    },
+    [locked, step, s13SubPhase, s13CmConfirmed],
+  );
+
+  const applyS13MmDrag = useCallback(
+    (cmRaw, playTick) => {
+      if (
+        locked ||
+        step !== 13 ||
+        s13SubPhase !== "mm" ||
+        !s13Phase3Started ||
+        s13CmLocked === null
+      )
+        return;
+      const frac = cmRaw - s13CmLocked;
+      const v = Math.max(0, Math.min(S13_MM_DRAG_MAX, Math.round(frac * 10)));
+      setS13MmError(false);
+      setSliderMm((prev) => {
+        if (playTick && v !== prev && typeof playSound === "function")
+          playSound("tick");
+        return v;
+      });
+    },
+    [locked, step, s13SubPhase, s13Phase3Started, s13CmLocked],
+  );
+
+  const dragNudgeImage = (visible) =>
+    visible
+      ? React.createElement("image", {
+          key: "drag-nudge",
+          href: DRAG_NUDGE_SRC,
+          x: DRAG_NUDGE_X,
+          y: DRAG_NUDGE_Y,
+          width: DRAG_NUDGE_SIZE,
+          height: DRAG_NUDGE_SIZE,
+          preserveAspectRatio: "xMidYMid meet",
+          opacity: 0.65,
+          style: { pointerEvents: "none" },
+        })
+      : null;
+
+  const dismissDragNudge = (kind) => {
+    setDragNudgeSeen((prev) =>
+      prev[kind] ? prev : { ...prev, [kind]: true },
+    );
   };
 
-  const handleSliderMmChange = (e) => {
-    if (locked || step !== 13 || s13SubPhase !== "mm") return;
-    const raw = parseInt(e.target.value, 10);
-    const v = Number.isNaN(raw) ? 0 : raw;
-    setSliderMm(Math.min(9, Math.max(0, v)));
-    setS13MmError(false);
-    if (typeof playSound === "function") playSound("tick");
+  const handleMarkerPointerDown = (e, kind) => {
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    if (kind === "pq" || kind === "cm" || kind === "mm") dismissDragNudge(kind);
+    if (typeof e.currentTarget?.setPointerCapture === "function") {
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+    markerDragRef.current = { kind, pointerId: e.pointerId };
+    if (kind === "pq") {
+      applyStep10CmValue(clientToCmAlongSegment(e.clientX, e.clientY), false);
+    } else if (kind === "cm") {
+      applyS13CmDrag(pointerCmOnSegment(e.clientX, e.clientY, false), false);
+    } else if (kind === "mm") {
+      applyS13MmDrag(pointerCmOnSegment(e.clientX, e.clientY, false), false);
+    }
   };
 
-  const handleCmSliderPointerUp = (e) => {
-    const raw = parseInt(e?.currentTarget?.value, 10);
-    const v = Number.isNaN(raw) ? sliderCm : raw;
-    tryS13CmPhaseComplete(v);
+  const handleMarkerPointerMove = (e) => {
+    const drag = markerDragRef.current;
+    if (!drag || e.pointerId !== drag.pointerId) return;
+    if (drag.kind === "pq") {
+      applyStep10CmValue(clientToCmAlongSegment(e.clientX, e.clientY), true);
+    } else if (drag.kind === "cm") {
+      applyS13CmDrag(pointerCmOnSegment(e.clientX, e.clientY, false), true);
+    } else if (drag.kind === "mm") {
+      applyS13MmDrag(pointerCmOnSegment(e.clientX, e.clientY, false), true);
+    }
   };
 
-  const handleMmSliderPointerUp = (e) => {
-    const raw = parseInt(e?.currentTarget?.value, 10);
-    const v = Number.isNaN(raw) ? sliderMm : raw;
-    tryS13MmPhaseComplete(v);
+  const handleMarkerPointerUp = (e) => {
+    const drag = markerDragRef.current;
+    if (!drag || e.pointerId !== drag.pointerId) return;
+    if (drag.kind === "cm") {
+      const cmV = Math.max(
+        0,
+        Math.min(
+          S13_CM_DRAG_MAX,
+          Math.round(pointerCmOnSegment(e.clientX, e.clientY, false)),
+        ),
+      );
+      tryS13CmPhaseComplete(cmV);
+    } else if (drag.kind === "mm" && s13CmLocked !== null) {
+      const cmAlong = pointerCmOnSegment(e.clientX, e.clientY, false);
+      const mmV = Math.max(
+        0,
+        Math.min(S13_MM_DRAG_MAX, Math.round((cmAlong - s13CmLocked) * 10)),
+      );
+      tryS13MmPhaseComplete(mmV);
+    }
+    if (typeof e.currentTarget?.releasePointerCapture === "function") {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+    markerDragRef.current = null;
   };
+
+  const pqMarkerDraggable = step === 10 && measureOpen && !locked;
+  const cmMarkerDraggable =
+    step === 13 &&
+    measureOpen &&
+    s13SubPhase === "cm" &&
+    !s13CmConfirmed &&
+    !locked;
+  const mmMarkerDraggable =
+    step === 13 &&
+    measureOpen &&
+    s13Phase3Started &&
+    s13SubPhase === "mm" &&
+    !locked;
+
+  const showPqDragNudge = pqMarkerDraggable && !dragNudgeSeen.pq;
+  const showCmDragNudge = cmMarkerDraggable && !dragNudgeSeen.cm;
+  const showMmDragNudge = mmMarkerDraggable && !dragNudgeSeen.mm;
+
+  const markerDragProps = (draggable, kind) =>
+    draggable
+      ? {
+          className: "measure-marker measure-marker--draggable",
+          style: { cursor: "grab", touchAction: "none" },
+          onPointerDown: (e) => handleMarkerPointerDown(e, kind),
+          onPointerMove: handleMarkerPointerMove,
+          onPointerUp: handleMarkerPointerUp,
+          onPointerCancel: handleMarkerPointerUp,
+        }
+      : { className: "measure-marker" };
 
   const handleGridPointerDown = (e) => {
     if (!isDrawStep || userSegment) return;
@@ -1792,8 +2006,10 @@ const MainCanvas = ({
     const ctm = svg.getScreenCTM();
     if (!ctm) return;
     const loc = pt.matrixTransform(ctm.inverse());
-    if (loc.y > SVG_GRID_H) return;
-    const [sx, sy] = snap(loc.x, loc.y);
+    const gx = loc.x - gridOffset.dx;
+    const gy = loc.y - gridOffset.dy;
+    if (gy > SVG_GRID_H) return;
+    const [sx, sy] = snap(gx, gy);
     drawMovedRef.current = false;
     setDraftA([sx, sy]);
     setDraftB([sx, sy]);
@@ -1815,7 +2031,9 @@ const MainCanvas = ({
     const ctm = svg.getScreenCTM();
     if (!ctm) return;
     const loc = pt.matrixTransform(ctm.inverse());
-    const [sx, sy] = snap(loc.x, loc.y);
+    const gx = loc.x - gridOffset.dx;
+    const gy = loc.y - gridOffset.dy;
+    const [sx, sy] = snap(gx, gy);
     if (draftA) {
       const moved = Math.hypot(sx - draftA[0], sy - draftA[1]) >= 6;
       if (moved) drawMovedRef.current = true;
@@ -1905,7 +2123,8 @@ const MainCanvas = ({
     pt.y = touch.clientY;
     const ctm = svg.getScreenCTM();
     if (!ctm) return null;
-    return pt.matrixTransform(ctm.inverse());
+    const loc = pt.matrixTransform(ctm.inverse());
+    return { x: loc.x - gridOffset.dx, y: loc.y - gridOffset.dy };
   };
 
   const handleGridTouchStart = (e) => {
@@ -1921,7 +2140,13 @@ const MainCanvas = ({
   };
 
   const handleGridTouchMove = (e) => {
-    if (!isDrawStep || !drawTouchActiveRef.current || !drawActive || userSegment) return;
+    if (
+      !isDrawStep ||
+      !drawTouchActiveRef.current ||
+      !drawActive ||
+      userSegment
+    )
+      return;
     const loc = getTouchPoint(e);
     if (!loc) return;
     const [sx, sy] = snap(loc.x, loc.y);
@@ -1979,25 +2204,11 @@ const MainCanvas = ({
   const showMeasureGraphicsPQ =
     measureOpen && (step === 10 || step === 11) && isPqSteps;
   const showMeasureGraphicsUser =
-    userSegment &&
-    ((step === 13 && measureOpen) || step === 14 || step === 15);
+    userSegment && ((step === 13 && measureOpen) || step === 14 || step === 15);
   const showMeasureGraphics = showMeasureGraphicsPQ || showMeasureGraphicsUser;
 
-  const showSliderSingle = step === 10 && measureOpen;
-  const showSliderCmOnly =
-    step === 13 && measureOpen && !s13Phase3Started && !locked;
-  const showSliderMmOnly =
-    step === 13 &&
-    measureOpen &&
-    s13Phase3Started &&
-    s13SubPhase === "mm" &&
-    !locked;
-  const showSliderZone =
-    showSliderSingle || showSliderCmOnly || showSliderMmOnly;
-
   const dualMarkerMode =
-    userSegment &&
-    ((step === 13 && measureOpen) || step === 14 || step === 15);
+    userSegment && ((step === 13 && measureOpen) || step === 14 || step === 15);
 
   const posMovePq = posAtCm(sliderVal);
 
@@ -2017,8 +2228,7 @@ const MainCanvas = ({
 
   let cmAlongDual = targetWholeCm;
   if (step === 13 && measureOpen) {
-    cmAlongDual =
-      s13CmLocked !== null ? s13CmLocked : sliderCm;
+    cmAlongDual = s13CmLocked !== null ? s13CmLocked : sliderCm;
   }
   const posCmPt = posAtCm(cmAlongDual);
 
@@ -2073,11 +2283,7 @@ const MainCanvas = ({
   const cmDualStroke =
     step === 13 && measureOpen && !locked && s13CmError ? COL_WRONG : COL_CM_OK;
   const mmDualStroke =
-    step === 13 &&
-    measureOpen &&
-    s13Phase3Started &&
-    !locked &&
-    s13MmError
+    step === 13 && measureOpen && s13Phase3Started && !locked && s13MmError
       ? COL_WRONG
       : COL_MM_OK;
 
@@ -2090,56 +2296,29 @@ const MainCanvas = ({
       ? sliderMm
       : lengthMm % 10;
 
-  const svgChildren = [];
+  const gridSceneBackChildren = [];
+  const gridSceneFrontChildren = [];
 
-  svgChildren.push(...gridLines);
+  gridSceneBackChildren.push(...gridLines);
 
-  if (showRulerGraphic) {
-    const initialTransform =
-      alignPhase === "done"
-        ? `translate(${P[0]}, ${P[1]}) rotate(${angleDeg})`
-        : `translate(${initialRulerTransform.x}, ${initialRulerTransform.y}) rotate(0)`;
-    const step10RulerEnterStyle =
-      step === 10
-        ? {
-            opacity: step10EntryPhase === "ruler" || step10EntryPhase === "done" ? 1 : 0,
-            transform:
-              step10EntryPhase === "ruler" || step10EntryPhase === "done"
-                ? "translateY(0px)"
-                : "translateY(140px)",
-            transition: "opacity 0.3s ease, transform 0.45s ease",
-          }
-        : null;
-    svgChildren.push(
-      React.createElement(
-        "g",
-        {
-          key: "ruler-entry-wrap",
-          style: step10RulerEnterStyle || undefined,
-        },
-        React.createElement(
-          "g",
-        {
-          key: "ruler-g",
-          ref: rulerGRef,
-          transform: initialTransform,
-        },
-        React.createElement("image", {
-          ref: rulerImgRef,
-          href: "assets/ruler.svg",
-          x: roX,
-          y: 0,
-          width: rW,
-          height: rH,
-          preserveAspectRatio: "none",
-        }),
-        ),
-      ),
-    );
-  }
+  gridSceneBackChildren.push(
+    React.createElement("rect", {
+      key: "grid-frame",
+      x: GRID_FRAME_STROKE / 2,
+      y: GRID_FRAME_STROKE / 2,
+      width: SVG_W - GRID_FRAME_STROKE,
+      height: SVG_GRID_H - GRID_FRAME_STROKE,
+      fill: "none",
+      stroke: "#ffffff",
+      strokeWidth: GRID_FRAME_STROKE,
+      rx: GRID_FRAME_RX,
+      ry: GRID_FRAME_RX,
+      style: { pointerEvents: "none" },
+    }),
+  );
 
   if (showMeasureGraphics) {
-    svgChildren.push(
+    gridSceneFrontChildren.push(
       React.createElement("line", {
         key: "static-dash",
         x1: z3,
@@ -2152,7 +2331,7 @@ const MainCanvas = ({
       }),
     );
     if (showMeasureGraphicsPQ) {
-      svgChildren.push(
+      gridSceneFrontChildren.push(
         React.createElement("line", {
           key: "move-dash-pq",
           x1: m3,
@@ -2166,7 +2345,7 @@ const MainCanvas = ({
       );
     }
     if (dualMarkerMode) {
-      svgChildren.push(
+      gridSceneFrontChildren.push(
         React.createElement("line", {
           key: "move-dash-cm",
           x1: cmDash3,
@@ -2179,7 +2358,7 @@ const MainCanvas = ({
         }),
       );
       if (dualShowMmMarker && posMmPt) {
-        svgChildren.push(
+        gridSceneFrontChildren.push(
           React.createElement("line", {
             key: "move-dash-mm",
             x1: mmDash3,
@@ -2220,8 +2399,7 @@ const MainCanvas = ({
   const dSegX = segDrawB[0] - segDrawA[0];
   const dSegY = segDrawB[1] - segDrawA[1];
   const dSegLen = Math.hypot(dSegX, dSegY);
-  const uSeg =
-    dSegLen > 1e-6 ? [dSegX / dSegLen, dSegY / dSegLen] : u;
+  const uSeg = dSegLen > 1e-6 ? [dSegX / dSegLen, dSegY / dSegLen] : u;
 
   const showSegmentLine =
     isPqSteps ||
@@ -2229,15 +2407,17 @@ const MainCanvas = ({
     (isDrawStep && userSegment) ||
     (isDrawStep && draftA && draftB);
 
+  const segmentStrokeColor = step >= 10 ? "#FFEB3B" : "#ffffff";
+
   if (showSegmentLine && (!isDrawStep || userSegment || (draftA && draftB))) {
-    svgChildren.push(
+    gridSceneFrontChildren.push(
       React.createElement("line", {
         key: "seg",
         x1: segDrawA[0],
         y1: segDrawA[1],
         x2: segDrawB[0],
         y2: segDrawB[1],
-        stroke: "#ffffff",
+        stroke: segmentStrokeColor,
         strokeWidth: 5,
         strokeLinecap: "butt",
       }),
@@ -2250,7 +2430,7 @@ const MainCanvas = ({
   const uLab = isDrawStep ? uSeg : u;
 
   if (showSegmentLine && (!isDrawStep || userSegment || (draftA && draftB))) {
-    svgChildren.push(
+    gridSceneFrontChildren.push(
       React.createElement(
         "text",
         {
@@ -2266,7 +2446,7 @@ const MainCanvas = ({
         l1,
       ),
     );
-    svgChildren.push(
+    gridSceneFrontChildren.push(
       React.createElement(
         "text",
         {
@@ -2285,19 +2465,29 @@ const MainCanvas = ({
   }
 
   if (showMeasureGraphics && showMeasureGraphicsPQ) {
-    svgChildren.push(
+    gridSceneFrontChildren.push(
       React.createElement(
         "g",
         {
           key: "marker-pq",
           transform: `translate(${mk}, ${mk2}) rotate(${angleDeg})`,
+          ...markerDragProps(pqMarkerDraggable, "pq"),
         },
+        pqMarkerDraggable &&
+          React.createElement("circle", {
+            r: 32,
+            fill: "transparent",
+            stroke: "none",
+            style: { pointerEvents: "all" },
+          }),
         React.createElement("circle", {
           r: 22,
           fill: moveMarkerFill,
           stroke: "rgba(255,255,255,0.35)",
           strokeWidth: 2,
+          style: { pointerEvents: pqMarkerDraggable ? "none" : "auto" },
         }),
+        dragNudgeImage(showPqDragNudge),
         React.createElement(
           "text",
           {
@@ -2308,6 +2498,7 @@ const MainCanvas = ({
             fill: "#fff",
             fontSize: 20,
             fontWeight: "bold",
+            style: { pointerEvents: "none" },
           },
           String(sliderVal),
         ),
@@ -2321,6 +2512,7 @@ const MainCanvas = ({
             fill: moveMarkerFill,
             fontSize: 20,
             fontWeight: 600,
+            style: { pointerEvents: "none" },
           },
           "cm",
         ),
@@ -2329,19 +2521,29 @@ const MainCanvas = ({
   }
 
   if (showMeasureGraphics && dualMarkerMode) {
-    svgChildren.push(
+    gridSceneFrontChildren.push(
       React.createElement(
         "g",
         {
           key: "marker-cm",
           transform: `translate(${mkCm}, ${mkCm2}) rotate(${angleDeg})`,
+          ...markerDragProps(cmMarkerDraggable, "cm"),
         },
+        cmMarkerDraggable &&
+          React.createElement("circle", {
+            r: 32,
+            fill: "transparent",
+            stroke: "none",
+            style: { pointerEvents: "all" },
+          }),
         React.createElement("circle", {
           r: 22,
           fill: cmDualStroke,
           stroke: "rgba(255,255,255,0.35)",
           strokeWidth: 2,
+          style: { pointerEvents: cmMarkerDraggable ? "none" : "auto" },
         }),
+        dragNudgeImage(showCmDragNudge),
         React.createElement(
           "text",
           {
@@ -2352,6 +2554,7 @@ const MainCanvas = ({
             fill: "#fff",
             fontSize: 20,
             fontWeight: "bold",
+            style: { pointerEvents: "none" },
           },
           String(cmAlongDual),
         ),
@@ -2365,25 +2568,36 @@ const MainCanvas = ({
             fill: cmDualStroke,
             fontSize: 20,
             fontWeight: 600,
+            style: { pointerEvents: "none" },
           },
           "cm",
         ),
       ),
     );
     if (dualShowMmMarker && posMmPt) {
-      svgChildren.push(
+      gridSceneFrontChildren.push(
         React.createElement(
           "g",
           {
             key: "marker-mm",
             transform: `translate(${mkMm}, ${mkMm2}) rotate(${angleDeg})`,
+            ...markerDragProps(mmMarkerDraggable, "mm"),
           },
+          mmMarkerDraggable &&
+            React.createElement("circle", {
+              r: 32,
+              fill: "transparent",
+              stroke: "none",
+              style: { pointerEvents: "all" },
+            }),
           React.createElement("circle", {
             r: 22,
             fill: mmDualStroke,
             stroke: "rgba(255,255,255,0.35)",
             strokeWidth: 2,
+            style: { pointerEvents: mmMarkerDraggable ? "none" : "auto" },
           }),
+          dragNudgeImage(showMmDragNudge),
           React.createElement(
             "text",
             {
@@ -2394,6 +2608,7 @@ const MainCanvas = ({
               fill: "#fff",
               fontSize: 16,
               fontWeight: "bold",
+              style: { pointerEvents: "none" },
             },
             String(mmPartDisplay),
           ),
@@ -2407,6 +2622,7 @@ const MainCanvas = ({
               fill: mmDualStroke,
               fontSize: 14,
               fontWeight: 600,
+              style: { pointerEvents: "none" },
             },
             "mm",
           ),
@@ -2416,7 +2632,7 @@ const MainCanvas = ({
   }
 
   if (isDrawStep) {
-    svgChildren.push(
+    gridSceneFrontChildren.push(
       React.createElement("rect", {
         key: "draw-hit",
         x: 0,
@@ -2424,7 +2640,10 @@ const MainCanvas = ({
         width: SVG_W,
         height: SVG_GRID_H,
         fill: "transparent",
-        style: { cursor: userSegment ? "default" : "crosshair", touchAction: "none" },
+        style: {
+          cursor: userSegment ? "default" : "crosshair",
+          touchAction: "none",
+        },
         onPointerDown: handleGridPointerDown,
         onPointerMove: handleGridPointerMove,
         onPointerUp: handleGridPointerUp,
@@ -2438,16 +2657,83 @@ const MainCanvas = ({
     );
   }
 
+  let rulerLayer = null;
+  if (showRulerGraphic) {
+    const initialTransform =
+      alignPhase === "done"
+        ? `translate(${rulerAlignX}, ${rulerAlignY}) rotate(${angleDeg})`
+        : `translate(${initialRulerTransform.x}, ${initialRulerTransform.y}) rotate(0)`;
+    const step10RulerEnterStyle =
+      step === 10
+        ? {
+            opacity:
+              step10EntryPhase === "ruler" || step10EntryPhase === "done"
+                ? 1
+                : 0,
+            transform:
+              step10EntryPhase === "ruler" || step10EntryPhase === "done"
+                ? "translateY(0px)"
+                : "translateY(140px)",
+            transition: "opacity 0.3s ease, transform 0.45s ease",
+          }
+        : null;
+    rulerLayer = React.createElement(
+      "g",
+      {
+        key: "ruler-entry-wrap",
+        style: step10RulerEnterStyle || undefined,
+      },
+      React.createElement(
+        "g",
+        {
+          key: "ruler-g",
+          ref: rulerGRef,
+          transform: initialTransform,
+        },
+        React.createElement("image", {
+          ref: rulerImgRef,
+          href: "assets/ruler.svg",
+          x: roX,
+          y: 0,
+          width: rW,
+          height: rH,
+          preserveAspectRatio: "none",
+        }),
+      ),
+    );
+  }
+
+  const gridSceneTransform = `translate(${gridOffset.dx}, ${gridOffset.dy})`;
+  const svgChildren = [
+    React.createElement(
+      "g",
+      { key: "grid-scene-back", transform: gridSceneTransform },
+      ...gridSceneBackChildren,
+    ),
+  ];
+  if (rulerLayer) svgChildren.push(rulerLayer);
+  if (gridSceneFrontChildren.length) {
+    svgChildren.push(
+      React.createElement(
+        "g",
+        { key: "grid-scene-front", transform: gridSceneTransform },
+        ...gridSceneFrontChildren,
+      ),
+    );
+  }
+
   const leftPanel = React.createElement(
     "div",
     { className: "canvas-left-panel ruler-lesson-left" },
     React.createElement(
       "div",
-      { className: "ruler-unified-svg-wrap" },
+      { ref: sceneWrapRef, className: "ruler-unified-svg-wrap" },
       React.createElement(
         "svg",
         {
+          ref: unifiedSvgRef,
           viewBox: `0 0 ${SVG_W} ${SVG_TOTAL_H}`,
+          preserveAspectRatio: "xMidYMid meet",
           className: "triangle-svg ruler-line-svg ruler-unified-svg",
           xmlns: "http://www.w3.org/2000/svg",
           style:
@@ -2460,72 +2746,6 @@ const MainCanvas = ({
         },
         svgChildren,
       ),
-    ),
-    React.createElement(
-      "div",
-      {
-        ref: sliderZoneRef,
-        className: `ruler-slider-zone${showSliderZone ? " ruler-slider-zone--active" : ""}`,
-      },
-      showSliderSingle &&
-        React.createElement(
-          "div",
-          { className: "measure-slider-wrap" },
-          React.createElement("input", {
-            type: "range",
-            className: "measure-slider",
-            min: 0,
-            max: SLIDER_MAX,
-            step: 1,
-            value: sliderVal,
-            disabled: locked,
-            onChange: handleSliderChange,
-          }),
-        ),
-      showSliderCmOnly &&
-        React.createElement(
-          "div",
-          {
-            className: "measure-slider-wrap measure-slider-wrap--cm",
-            onMouseUp: handleCmSliderPointerUp,
-            onTouchEnd: handleCmSliderPointerUp,
-          },
-          React.createElement("div", { className: "measure-slider-row" }, "cm"),
-          React.createElement("input", {
-            type: "range",
-            className: `measure-slider measure-slider--cm${
-              s13CmError ? " measure-slider--wrong" : ""
-            }`,
-            min: 0,
-            max: sliderCmMax,
-            step: 1,
-            value: sliderCm,
-            disabled: locked || s13CmConfirmed,
-            onChange: handleSliderCmChange,
-          }),
-        ),
-      showSliderMmOnly &&
-        React.createElement(
-          "div",
-          {
-            className: "measure-slider-wrap measure-slider-wrap--mm",
-            onMouseUp: handleMmSliderPointerUp,
-            onTouchEnd: handleMmSliderPointerUp,
-          },
-          React.createElement("div", { className: "measure-slider-row" }, "mm"),
-          React.createElement("input", {
-            type: "range",
-            className: `measure-slider measure-slider--mm${
-              s13MmError ? " measure-slider--wrong" : ""
-            }`,
-            min: 0,
-            max: 9,
-            step: 1,
-            value: sliderMm,
-            disabled: locked,
-            onChange: handleSliderMmChange,
-          }),
-        ),
     ),
   );
 

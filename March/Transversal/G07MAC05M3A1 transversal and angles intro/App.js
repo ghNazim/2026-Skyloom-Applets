@@ -1,18 +1,28 @@
 const App = () => {
-  const { useState, useEffect, useCallback } = React;
+  const { useState, useEffect, useCallback, useRef } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   const [dynamicNavText, setDynamicNavText] = useState(null);
   const [resetKey, setResetKey] = useState(0);
+  const [showNudge, setShowNudge] = useState(false);
+  const [nudgePosition, setNudgePosition] = useState(null);
+  const nudgeTimeoutRef = useRef(null);
+
+  const hideNudge = useCallback(() => {
+    setShowNudge(false);
+    setNudgePosition(null);
+  }, []);
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
+    hideNudge();
     setCurrentStep(1);
   };
 
   const handleRestart = () => {
     if (typeof playSound === "function") playSound("click");
+    hideNudge();
     setCurrentStep(0);
     setIsNextDisabled(true);
     setDynamicNavText(null);
@@ -30,6 +40,7 @@ const App = () => {
 
   const handleNext = (overrideStep) => {
     if (typeof playSound === "function") playSound("click");
+    hideNudge();
     if (typeof overrideStep === 'string' || typeof overrideStep === 'number' && overrideStep !== undefined && overrideStep.nativeEvent === undefined) {
       setCurrentStep(overrideStep);
     } else if (typeof currentStep === 'number' && currentStep < 8) {
@@ -64,6 +75,49 @@ const App = () => {
     return stepData ? stepData.navText : "";
   };
 
+  const nextDisabledForNav =
+    currentStep !== "ie4" ? isNextDisabled : false;
+
+  // tap.gif on Start button (step 0)
+  useEffect(() => {
+    if (nudgeTimeoutRef.current) clearTimeout(nudgeTimeoutRef.current);
+    if (currentStep !== 0) return;
+    nudgeTimeoutRef.current = setTimeout(() => {
+      const el = document.querySelector(".fullscreen-button");
+      if (el) {
+        setNudgePosition(el.getBoundingClientRect());
+        setShowNudge(true);
+      }
+    }, 500);
+    return () => {
+      if (nudgeTimeoutRef.current) clearTimeout(nudgeTimeoutRef.current);
+    };
+  }, [currentStep]);
+
+  // tap.gif on Next when enabled (not on Start Over — optional for the user)
+  useEffect(() => {
+    if (currentStep === 0 || currentStep === 9 || currentStep === "ie4") return;
+
+    const updateNextNudge = () => {
+      if (nextDisabledForNav) {
+        hideNudge();
+        return;
+      }
+      const nextBtn = document.getElementById("next-button");
+      if (nextBtn) {
+        setNudgePosition(nextBtn.getBoundingClientRect());
+        setShowNudge(true);
+      }
+    };
+
+    const timeoutId = setTimeout(updateNextNudge, 100);
+    window.addEventListener("resize", updateNextNudge);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", updateNextNudge);
+    };
+  }, [currentStep, nextDisabledForNav, dynamicNavText, hideNudge]);
+
   if (currentStep === 0) {
     return React.createElement(
       "div",
@@ -77,7 +131,8 @@ const App = () => {
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
         })
-      )
+      ),
+      React.createElement(Nudge, { show: showNudge, position: nudgePosition })
     );
   }
 
@@ -124,12 +179,13 @@ const App = () => {
             : dir === "prev"
             ? handlePrev()
             : null,
-        isNextDisabled: currentStep !== 'ie4' ? isNextDisabled : false,
+        isNextDisabled: nextDisabledForNav,
         isPrevDisabled: currentStep <= 1,
         hidePrev: true,
         navText: getNavText(),
         nextSymbol: currentStep === 'ie4' ? APP_DATA.steps.ie4.nextText : "»"
       })
-    )
+    ),
+    React.createElement(Nudge, { show: showNudge, position: nudgePosition })
   );
 };

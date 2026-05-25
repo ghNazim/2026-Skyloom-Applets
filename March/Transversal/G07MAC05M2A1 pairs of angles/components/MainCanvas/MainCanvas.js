@@ -109,6 +109,30 @@ const MainCanvas = (props) => {
   };
   const hideTaps = () => setTapTargets([]);
 
+  const finishStepWithQuestionBlink = (stepNum) => {
+    const stepData = APP_DATA.steps[stepNum];
+    onUpdateTexts(stepData.navTextAfter, stepData.questionTextAfter);
+    hideTaps();
+
+    setTimeout(() => {
+      const el = document.querySelector(".question-panel h2");
+      if (!el) {
+        onSetNextEnabled(true);
+        return;
+      }
+      gsap.to(el, {
+        opacity: 0.2,
+        duration: 0.35,
+        yoyo: true,
+        repeat: 5,
+        onComplete: () => {
+          gsap.set(el, { opacity: 1 });
+          onSetNextEnabled(true);
+        },
+      });
+    }, 50);
+  };
+
   const getTapStyles = () => {
     if (!tapTargets.length) return [];
     const svgEl = document.querySelector('.grid-svg');
@@ -502,9 +526,7 @@ const MainCanvas = (props) => {
     animatingRef.current = false;
     
     if (newClicked.length >= 4) {
-      onUpdateTexts(APP_DATA.steps[3].navTextAfter);
-      onSetNextEnabled(true);
-      hideTaps();
+      finishStepWithQuestionBlink(3);
     }
   };
 
@@ -643,7 +665,8 @@ const MainCanvas = (props) => {
     });
 
     const proxy = { r: ANG_R, rot: 0 };
-    tl.to(proxy, { r: ANG_R * 2, duration: 0.5, onUpdate: () => {
+    const clonePeakR = ANG_R * 4;
+    tl.to(proxy, { r: clonePeakR, duration: 0.5, onUpdate: () => {
       setCloneAngle(prev => prev && { ...prev, r: proxy.r });
     }});
 
@@ -667,10 +690,8 @@ const MainCanvas = (props) => {
         if (rowElement) rowElement.classList.remove('blink-border');
         setTempDehighlight(null);
         animatingRef.current = false;
-        const newClicked = [...clickedRowsRef.current, rowIdx];
-        if (newClicked.length >= 2) {
-          onUpdateTexts(APP_DATA.steps[6].navTextAfter);
-          onSetNextEnabled(true);
+        if (clickedRowsRef.current.length >= 2) {
+          finishStepWithQuestionBlink(6);
         }
       }, 1500);
     });
@@ -783,12 +804,14 @@ const MainCanvas = (props) => {
     if (angle > 90) textRot -= 180;
     else if (angle < -90) textRot += 180;
     
-    // Position at 70% along the ray
-    const mx = CX + (ep.x - CX) * 0.7;
-    const my = CY + (ep.y - CY) * 0.7;
+    // Position further along the ray and offset perpendicular so larger label clears the ray
+    const along = 0.82;
+    const mx = CX + (ep.x - CX) * along;
+    const my = CY + (ep.y - CY) * along;
+    const labelOffset = -26;
 
     return h("text", {
-      x: 0, y: -15, fill: "#ffc107", fontSize: "16", textAnchor: "middle", className: "angle-appear",
+      x: 0, y: labelOffset, textAnchor: "middle", className: "straight-line-label angle-appear",
       transform: `translate(${mx}, ${my}) rotate(${textRot})`
     }, APP_DATA.steps[2].straightLineLabel);
   };

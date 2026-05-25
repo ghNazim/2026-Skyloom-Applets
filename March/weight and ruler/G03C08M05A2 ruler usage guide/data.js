@@ -76,7 +76,7 @@ division (cm)…`,
           questionText: "What is the length of the given line segment?",
           navText: "Tap <b>‘1: Align…’</b> button",
           navAfterAlign: "Tap <b>‘2: Count… large…’</b> button",
-          navSlider: "Drag the slider along the ruler to measure",
+          navSlider: "Drag the marker along the line to measure",
           navReadMeasure: "Tap <b>»</b> to read this measure",
           actionIntro: `To find length of <span class="segment-overline">PQ</span>:`,
           button1:
@@ -102,11 +102,11 @@ With endpoints A and B, this line segment is <span class="segment-overline">AB</
           questionText: "Steps to measure length of line segment with ruler:",
           navText: "Tap <b>‘1: Align…’</b> button",
           navAfterAlign: "Tap <b>‘2: Count… large…’</b> button",
-          navSliderCm: "Move the slider to count large divisions from A to B",
+          navSliderCm: "Drag the cm marker to count large divisions from A to B",
           navAfterCmCorrect:
             "Tap <b>‘3: If there is more distance…’</b> button",
           navSliderMm:
-            "Move the slider to count small divisions between {wholeCm} and {wholeCmPlus1}",
+            "Drag the mm marker to count small divisions between {wholeCm} and {wholeCmPlus1}",
           navReadMeasure: "Tap <b>»</b> to continue",
           actionIntro: `To find length of <span class="segment-overline">AB</span>:`,
           button1:
@@ -217,7 +217,7 @@ bernomor (cm)…`,
           questionText: "Berapakah panjang ruas garis yang diberikan?",
           navText: "Ketuk tombol <b>‘1: Sejajarkan…’</b>",
           navAfterAlign: "Ketuk tombol <b>‘2: Hitung… besar…’</b>",
-          navSlider: "Seret penggeser di sepanjang penggaris untuk mengukur",
+          navSlider: "Seret penanda di sepanjang garis untuk mengukur",
           navReadMeasure: "Ketuk <b>»</b> untuk membaca hasil ukur",
           actionIntro: "Untuk mencari panjang PQ:",
           button1:
@@ -244,10 +244,11 @@ Dengan titik ujung A dan B, ruas garis ini adalah <span class="segment-overline"
             'Pengukuran Ruas Garis <span class="segment-overline">AB</span> memakai penggaris cm:',
           navText: "Ketuk tombol <b>‘1: Sejajarkan…’</b>",
           navAfterAlign: "Ketuk tombol <b>‘2: Hitung… besar…’</b>",
-          navSliderCm: "Seret penggeser cm agar sesuai sentimeter penuh",
+          navSliderCm:
+            "Seret penanda cm untuk menghitung pembagian besar dari A ke B",
           navAfterCmCorrect: "Ketuk tombol <b>‘3: Jika masih ada jarak…’</b>",
           navSliderMm:
-            "Gerakkan penggeser untuk menghitung pembagian kecil antara {wholeCm} dan {wholeCmPlus1}",
+            "Seret penanda mm untuk hitung pembagian kecil {wholeCm}–{wholeCmPlus1}",
           navReadMeasure: "Ketuk <b>»</b> untuk melanjutkan",
           actionIntro: "Untuk mencari panjang AB:",
           button1:
@@ -284,7 +285,7 @@ Dengan titik ujung A dan B, ruas garis ini adalah <span class="segment-overline"
 3: Jika masih ada jarak, hitung MILIMETER ke ujung lain dari penanda SENTIMETER.<br/><br/>
 Laporkan dalam ‘cm dan mm’ atau ‘mm’.`,
         buttonText: "Ulangi dari Awal",
-        imageSrc: "assets/final.png",
+        imageSrc: "assets/start.svg",
       },
     },
   },

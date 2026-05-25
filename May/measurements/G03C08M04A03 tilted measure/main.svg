@@ -1,0 +1,65 @@
+<svg
+  width="1300"
+  height="800"
+  viewBox="0 -40 1300 760"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+<style>
+
+.pencil {
+    transform-origin: center;
+    transform: rotate(32deg);
+    filter: drop-shadow(0px 12px 10px rgba(0, 0, 0, 0.35));
+  }
+  .pencil-box {
+    transform-origin: center;
+    transform: rotate(-1deg);
+    <!-- filter: drop-shadow(0px 12px 10px rgba(0, 0, 0, 0.35)); -->
+  }
+
+  .transparent{
+    opacity: 0.65;
+  }
+  .red {
+  filter:
+    hue-rotate(-60deg)
+}
+</style>
+  <!-- Background -->
+  <image
+    xlink:href="./assets/floor.png"
+    x="0"
+    y="-80"
+    width="1300"
+    height="900"
+    preserveAspectRatio="xMidYMid slice"
+  />
+
+  
+
+  <!-- Pencil -->
+  <image
+    xlink:href="./assets/pencil.png"
+    x="352"
+    y="500"
+    width="570"
+    class="pencil"
+  />
+<!-- Erasers will go here above the pencil box -->
+<image
+    xlink:href="./assets/eraser.png"
+    x="261"
+    y="340"
+    width="140"
+  />
+<!-- Pencil box -->
+  <image
+    xlink:href="./assets/box.png"
+    x="355"
+    y="-130"
+    width="850"
+    class="pencil-box"
+  />
+
+</svg>

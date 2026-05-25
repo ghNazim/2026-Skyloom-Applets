@@ -1,0 +1,131 @@
+.fullscreen-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    color: white;
+    padding: 2vw 2vw 10vw;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.fullscreen-body {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+
+.heading {
+    font-weight: bold;
+    font-size: 2.7vw;
+    margin-bottom: 2vw;
+    color: var(--accent-color);
+    text-align: center;
+    flex-shrink: 0;
+    width: 100%;
+}
+.btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border: 1px solid var(--button-border-color);
+  color: var(--white-color);
+  font-size: 2.5vw;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  padding: 1vw 3vw;
+  border-radius: 1vw;
+  font-weight: bold;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+}
+.fullscreen-content{
+    line-height: 1.6;
+    font-size: 2.5vw;
+    /* margin-bottom: 2rem; */
+    white-space: pre;
+
+}
+.fullscreen-content.center{
+    text-align: center ;
+}
+.fullscreen-content.left {
+    text-align: left;
+    white-space: normal;
+}
+
+.fullscreen-button{
+    position: absolute;
+    bottom: 3vw;
+}
+
+/* Start / final screen: two columns (image left, text right) */
+.fullscreen-two-column {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2vw;
+    width: 100%;
+    max-width: 92vw;
+    min-height: 35vh;
+    flex: 1;
+}
+
+.fullscreen-image-col {
+    /* flex: 0 0 40%; */
+    max-width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-start-image,
+.fullscreen-final-image {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.fullscreen-text-col {
+    /* flex: 0 0 60%; */
+    max-width: 60%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.fullscreen-text-col .fullscreen-content {
+    white-space: normal;
+    text-align: center;
+}
+/* Color-coded formula on final screen (match step 6/7) */
+.fullscreen-text-col .highlight-green {
+    color: #10b981;
+}
+.fullscreen-text-col .highlight-blue {
+    color: #00ffff;
+}
+.fullscreen-text-col .highlight-yellow {
+    color: #facc15;
+}
+.fullscreen-text-col .highlight-orange {
+    color: #ff9800;
+}
+.fullscreen-text-col .highlight-cyan {
+    color: #00ffff;
+}
+.fullscreen-content .highlight-orange {
+    color: #ff9800;
+}
+.fullscreen-content .highlight-cyan {
+    color: #00ffff;
+}

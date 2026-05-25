@@ -1,13 +1,13 @@
 .applet-container {
   aspect-ratio: 16 / 9;
-  width: 99vw;
-  height: calc(99vw * 9 / 16);
-  max-width: 99vw;
-  max-height: 99vh;
+  width: 98vw;
+  height: calc(98vw * 9 / 16);
+  max-width: 98vw;
+  /* max-height: 99vh; */
   display: flex;
   flex-direction: column;
   margin: auto;
-  gap: .5vw;
+  gap: 1vw;
   position: relative;
 }
 
@@ -31,7 +31,8 @@
   font-size: calc(0.25rem + 1.75vw);
   gap: 2vh;
   flex-direction: column;
-  height: 7vw;
+  /* height: 7vw;
   max-height: 7vw;
-  min-height: 7vw;
+  min-height: 7vw; */
+  
 }

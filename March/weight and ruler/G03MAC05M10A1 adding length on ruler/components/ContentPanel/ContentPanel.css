@@ -80,7 +80,7 @@
 .object-measure-wrap {
   position: absolute;
   left: 4vw;
-  top: 7.4vw;
+  top: 9vw;
   display: inline-block;
   max-width: calc(100% - 4vw);
 }
@@ -155,7 +155,7 @@
 .blank-ruler-placeholder {
   position: absolute;
   left: 4vw;
-  top: calc(7.4vw + 8vw);
+  top: calc(9vw + 8vw);
   width: 90%;
   aspect-ratio: 309 / 68;
   background-color: rgba(255, 255, 255, 0.15);
@@ -316,6 +316,10 @@
   white-space: nowrap;
 }
 
+.total-static-brackets-layer .measure-cm-bracket-label {
+  top: -1.4vw;
+  font-size: 1.9vw;
+}
 /*
  * Inverted “square bracket” / ∩ shape: closed along the top and sides,
  * open end at the bottom facing the ruler (no bottom border).
