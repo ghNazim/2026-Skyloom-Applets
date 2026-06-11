@@ -9,6 +9,7 @@
   padding: 2rem;
   padding-bottom: 8.8vw;
   box-sizing: border-box;
+  position: relative;
 }
 
 .btn {
@@ -61,9 +62,15 @@
   color: #ffb63e;
 }
 
-.fullscreen-button {
+.fullscreen-button-wrap {
   position: absolute;
   bottom: 2.6vw;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.fullscreen-button {
+  position: relative;
 }
 
 .fullscreen-formula {

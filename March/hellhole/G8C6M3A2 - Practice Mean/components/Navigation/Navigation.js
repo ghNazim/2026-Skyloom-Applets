@@ -4,6 +4,7 @@ const Navigation = ({
   isPrevDisabled,
   navText,
   nextSymbol = "»",
+  nextButtonRef,
 }) => {
   return React.createElement(
     "div",
@@ -21,15 +22,18 @@ const Navigation = ({
       className: "nav-text-container",
       dangerouslySetInnerHTML: { __html: navText || "" },
     }),
-    React.createElement(
-      "button",
-      {
-        className: "nav-chevron",
-        onClick: () => onNav("next"),
-        disabled: isNextDisabled,
-        id: "next-button",
-      },
-      nextSymbol
-    )
+
+      React.createElement(
+        "button",
+        {
+          ref: nextButtonRef,
+          className: "nav-chevron",
+          onClick: () => onNav("next"),
+          disabled: isNextDisabled,
+          id: "next-button",
+        },
+        nextSymbol
+      ),
+    
   );
 };

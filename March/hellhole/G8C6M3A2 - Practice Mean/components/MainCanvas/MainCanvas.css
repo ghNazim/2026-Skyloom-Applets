@@ -88,8 +88,10 @@
   color: #ffba4f;
 }
 
-.muted-box {
-  opacity: 0.5;
+.muted-box,
+.find-box-disabled {
+  opacity: 0.5 !important;
+  pointer-events: none;
 }
 
 .active-blink {
@@ -327,7 +329,7 @@
   justify-content: center;
 }
 
-.mean-column {
+.mean-column.mean-column-border-visible {
   border-left: 0.14vw solid rgba(255, 255, 255, 0.5);
 }
 
@@ -538,6 +540,12 @@
   gap: 0.55vw;
 }
 
+.q4-dataset-value-clone {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .q4-slot-cell {
   position: relative;
   flex: 0 0 14%;
@@ -666,6 +674,14 @@
   z-index: 3000;
 }
 
+.moving-clone.student-count {
+  background: #f5bc2d !important;
+  color: #122861 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
 /* When cloning mcq/expression text, the clone moves under document.body.
    Some formula-fraction styling is scoped to parents (.mcq-option/.expression-box),
    so we restyle fractions inside moving clones explicitly. */
@@ -693,12 +709,77 @@
   justify-content: center;
 }
 
+/* Step 3 entry: spacer + calc animate via max-height only (flex changes snap if transitioned) */
+.step3-enter-spacer {
+  flex: 0 0 0;
+  min-height: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.65s ease;
+}
+
+.step3-root.step3-enter-pending .step3-enter-spacer,
+.step3-root.step3-enter-reveal .step3-enter-spacer {
+  flex: 1 1 0;
+}
+
+.step3-root.step3-enter-pending .step3-enter-spacer {
+  max-height: 100%;
+}
+
+.step3-root.step3-enter-reveal .step3-enter-spacer {
+  max-height: 0;
+}
+
+.step3-root.step3-enter-pending .step3-visual-row,
+.step3-root.step3-enter-reveal .step3-visual-row {
+  flex: 0 0 30%;
+  max-height: 40vw;
+}
+
+.step3-root.step3-enter-pending .calculation-row,
+.step3-root.step3-enter-reveal .calculation-row {
+  flex: 0 0 auto;
+  min-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.65s ease,
+    opacity 0.65s ease;
+}
+
+.step3-root.step3-enter-pending .calculation-row {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.step3-root.step3-enter-reveal .calculation-row {
+  max-height: 40vw;
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .step3-visual-row {
-  flex: 0 0 34%;
+  flex: 0 0 30%;
+  transition:
+    flex-basis 0.45s ease,
+    flex-grow 0.45s ease,
+    flex-shrink 0.45s ease,
+    max-height 0.45s ease,
+    opacity 0.45s ease,
+    transform 0.45s ease;
 }
 
 .step3-root-collapsed .step3-visual-row {
   flex: 0 0 42%;
+  transition:
+    flex-basis 0.45s ease,
+    flex-grow 0.45s ease,
+    flex-shrink 0.45s ease,
+    max-height 0.45s ease,
+    opacity 0.45s ease,
+    transform 0.45s ease;
 }
 
 .calculation-row {
@@ -710,6 +791,8 @@
   grid-template-columns: 66% 34%;
   gap: 0.75vw;
   transition:
+    flex-basis 0.45s ease,
+    flex-grow 0.45s ease,
     max-height 0.45s ease,
     opacity 0.45s ease,
     margin 0.45s ease;
@@ -828,6 +911,15 @@
   border-color: #f1a8ae;
 }
 
+.correct-option {
+  background: linear-gradient(180deg, #6bc96f, #3f9e44);
+  border-color: #9ed9a2;
+}
+
+.correct-option:disabled {
+  opacity: 1;
+}
+
 .wrong-option-shake {
   animation: wrongShake 0.5s ease-in-out;
 }
@@ -883,7 +975,7 @@
 @keyframes meanValueBlink {
   0%,
   100% {
-    opacity: 0.6;
+    opacity: 0.2;
   }
   50% {
     opacity: 1;

@@ -1,0 +1,47 @@
+.question-panel {
+  width: 100%;
+  color: white;
+  text-align: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-radius: 1vw;
+  backdrop-filter: blur(5vw);
+  margin-bottom: 0.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4vw;
+}
+
+.question-panel h2 {
+  margin: 0;
+  font-size: 2.5vw;
+  font-weight: 400;
+}
+
+.question-highlight-purple {
+  background-color: rgb(105, 0, 129);
+  padding: 0.2vw 0.5vw;
+  border-radius: 0.3em;
+}
+
+.question-highlight-orange {
+  background-color: rgb(172, 112, 0);
+  padding: 0.2vw 0.5vw;
+  border-radius: 0.3em;
+}
+
+.question-panel.blink-question h2,
+.question-panel h2.blink-question-text {
+  animation: questionBlink 0.45s ease-in-out 3;
+}
+
+@keyframes questionBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}

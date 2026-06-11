@@ -51,3 +51,44 @@ function renderFractionHTML(numerator, denominator) {
     "</span>"
   );
 }
+
+function buildStartFormulaHtml(start) {
+  if (!start || typeof renderFractionHTML !== "function") {
+    return "";
+  }
+  return (
+    "<span class='formula-equation'>" +
+    (start.formulaLead || "") +
+    renderFractionHTML(
+      start.formulaSumNumerator || "",
+      start.formulaSumDenominator || "",
+    ) +
+    " = " +
+    renderFractionHTML(
+      start.formulaExpandedNumerator || "",
+      start.formulaExpandedDenominator || "n",
+    ) +
+    "</span>"
+  );
+}
+
+function buildMeanFormulaFractionHtml(terms) {
+  const t =
+    terms ||
+    (typeof APP_DATA !== "undefined" && APP_DATA.terms) ||
+    {};
+  if (typeof renderFractionHTML !== "function") {
+    return "";
+  }
+  return (
+    (t.meanEquals || "Mean =") +
+    " " +
+    renderFractionHTML(t.sumShort || "Sum", t.numberShort || "Number") +
+    " = " +
+    renderFractionHTML(
+      t.formulaExpandedNumerator ||
+        "x<sub>1</sub> + x<sub>2</sub> + &ctdot; + x<sub>n</sub>",
+      t.formulaExpandedDenominator || "n",
+    )
+  );
+}

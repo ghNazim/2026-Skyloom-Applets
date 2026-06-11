@@ -1,0 +1,98 @@
+const DATA = {
+  en: {
+    app: {
+      dataset: [25, 12, 17, 36, 12, 30, 15],
+      sortedDataset: [12, 12, 15, 17, 25, 30, 36],
+      sortMapping: [4, 0, 3, 6, 1, 5, 2],
+      fullDataset: [12, 12, 15, 17, 25, 30, 36, 45, 46, 49, 52],
+      start: {
+        heading: "Locating the Middle Position for Odd-Sized Data Set",
+        text: "Median is the 'middle value'<br>of an odd-count dataset.<br><br>Let\u2019s find a math pattern that will help us find the<br>median value easily\u2026<br><br>Tap 'Start' to begin.",
+        buttonText: "Start",
+      },
+      steps: {
+        1: {
+          questionText: "Finding Median by sorting and crossing out values in pairs from sides\u2026",
+          navText: "Tap 'Sort'",
+          sortButton: "Sort Dataset",
+          navTextAfterSort: "Tap 'Cross Out'",
+          crossOutButton: "Cross out Values",
+          medianText: "The median is<br>the value at the<br><pn>middle position</pn>",
+          findButton: "Find middle position number",
+          navTextFind: "Tap 'Find' to explore a pattern for position of median term",
+          questionTextCount: "Which 'position' helps us find the median value?",
+          navTextCount: "Tap 'Count'",
+          countButton: "Count Dataset",
+          middlePositionLabel: "Middle<br>position<br>= ",
+          totalCountLabel: "Total<br>count<br>= ",
+          relationButton: "How are they related?",
+          navTextRelation: "Tap the button to explore.",
+          formulaText: "Middle position is<br><y>half of (count + 1)</y>",
+          navTextDone: "Tap \u00BB to try this with other sizes of data",
+        },
+        2: {
+          questionText: "Which 'position' helps us find the median value?",
+          navText: "Move the slider to change data count and notice middle.",
+          navTextDone: "Tap \u00BB to summarise",
+        },
+      },
+      final: {
+        heading: "If count of dataset \u2018n\u2019 is ODD",
+        summaryIntro: "The median data point will be the",
+        summaryOutro: "value of sorted data set.",
+        footerText: "Tap \u2018Start Over\u2019 to repeat this activity",
+        buttonText: "Start Over",
+        ellipsis: "\u2026",
+      },
+    },
+  },
+  id: {
+    app: {
+      dataset: [25, 12, 17, 36, 12, 30, 15],
+      sortedDataset: [12, 12, 15, 17, 25, 30, 36],
+      sortMapping: [4, 0, 3, 6, 1, 5, 2],
+      fullDataset: [12, 12, 15, 17, 25, 30, 36, 45, 46, 49, 52],
+      start: {
+        heading: "Menentukan Posisi Tengah untuk Kumpulan Data Berukuran Ganjil",
+        text: "Median adalah 'nilai tengah'<br>dari kumpulan data berjumlah ganjil.<br><br>Mari temukan pola matematika yang akan membantu kita<br>menemukan nilai median dengan mudah\u2026<br><br>Ketuk 'Mulai' untuk memulai.",
+        buttonText: "Mulai",
+      },
+      steps: {
+        1: {
+          questionText: "Menemukan Median dengan mengurutkan dan mencoret nilai berpasangan dari kedua sisi\u2026",
+          navText: "Ketuk 'Urutkan'",
+          sortButton: "Urutkan Data",
+          navTextAfterSort: "Ketuk 'Coret'",
+          crossOutButton: "Coret Nilai",
+          medianText: "Median adalah<br>nilai pada<br><pn>posisi tengah</pn>",
+          findButton: "Temukan nomor posisi tengah",
+          navTextFind: "Ketuk 'Temukan' untuk menjelajahi pola posisi suku median",
+          questionTextCount: "'Posisi' mana yang membantu kita menemukan nilai median?",
+          navTextCount: "Ketuk 'Hitung'",
+          countButton: "Hitung Data",
+          middlePositionLabel: "Posisi<br>tengah<br>= ",
+          totalCountLabel: "Jumlah<br>total<br>= ",
+          relationButton: "Bagaimana hubungannya?",
+          navTextRelation: "Ketuk tombol untuk menjelajahi.",
+          formulaText: "Posisi tengah adalah<br><y>setengah dari (jumlah + 1)</y>",
+          navTextDone: "Ketuk \u00BB untuk mencoba dengan ukuran data lainnya",
+        },
+        2: {
+          questionText: "'Posisi' mana yang membantu kita menemukan nilai median?",
+          navText: "Geser slider untuk mengubah jumlah data dan perhatikan posisi tengah.",
+          navTextDone: "Ketuk \u00BB untuk merangkum",
+        },
+      },
+      final: {
+        heading: "Jika jumlah data \u2018n\u2019 adalah GANJIL",
+        summaryIntro: "Nilai data median adalah",
+        summaryOutro: "nilai dari kumpulan data yang terurut.",
+        footerText: "Ketuk \u2018Ulangi\u2019 untuk mengulang aktivitas ini",
+        buttonText: "Ulangi",
+        ellipsis: "\u2026",
+      },
+    },
+  },
+};
+
+const APP_DATA = DATA[current_language].app;

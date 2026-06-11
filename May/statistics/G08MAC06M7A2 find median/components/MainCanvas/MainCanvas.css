@@ -1,0 +1,534 @@
+.main-canvas-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: visible;
+}
+
+/* ── Data section ── */
+.data-section {
+  flex: 0 0 45%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 1.2vw;
+  overflow: visible;
+  position: relative;
+  min-height: 0;
+}
+
+.data-section.with-callouts {
+  padding-bottom: 0;
+}
+
+/* ── Data-row container (rounded card) ── */
+.dr-container {
+  background: rgba(8, 22, 50, 0.72);
+  border-radius: 1.2vw;
+  padding: 3.2vw 2.4vw 1.4vw;
+  display: inline-flex;
+  justify-content: center;
+  width: 80%;
+  overflow: visible;
+}
+
+.dr-container.sm {
+  padding: 2.6vw 1.4vw 1vw;
+}
+.dr-container.md {
+  padding: 2.9vw 1.8vw 1.2vw;
+}
+
+.dr-row {
+  display: flex;
+  gap: 1.5vw;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: visible;
+}
+.dr-row.sm {
+  gap: 0.7vw;
+}
+.dr-row.md {
+  gap: 1vw;
+}
+
+/* ── Circle wraps ── */
+.num-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: visible;
+}
+
+.num-circle-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Number circles ── */
+.num-circle {
+  width: 6vw;
+  height: 6vw;
+  border-radius: 50%;
+  background: #3c9eda;
+  color: white;
+  font-size: 2.8vw;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition:
+    opacity 0.4s ease,
+    background-color 0.4s ease;
+  flex-shrink: 0;
+  border: 0.3vw solid #83c3eb;
+}
+.num-circle.sm {
+  width: 4.2vw;
+  height: 4.2vw;
+  font-size: 1.85vw;
+}
+.num-circle.md {
+  width: 5vw;
+  height: 5vw;
+  font-size: 2.2vw;
+}
+
+.num-circle.crossed {
+  opacity: 0.3;
+}
+.num-circle.middle-pink {
+  background: #e84888;
+  border-color: #f973a8;
+  z-index: 2;
+}
+.num-circle.dim {
+  opacity: 0.3;
+}
+.num-circle.middle-pink.dim {
+  opacity: 0.3;
+  background: #e84888;
+  border-color: #f973a8;
+}
+.circle-val {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Cross mark ── */
+.cross-mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: xPop 0.3s ease-out forwards;
+  pointer-events: none;
+  z-index: 3;
+}
+.cross-mark svg {
+  width: 88%;
+  height: 88%;
+}
+
+@keyframes xPop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ── Count badges (absolute above circle — no layout shift) ── */
+.count-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin-bottom: 0.25vw;
+  width: 3.5vw;
+  height: 3.5vw;
+  border-radius: 0.35vw;
+  font-size: 2.5vw;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bPop 0.22s ease-out forwards;
+  flex-shrink: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.count-badge.bg-tan {
+  background: #d4c8a0;
+  color: #2a3040;
+}
+.count-badge.bg-pink {
+  background: #e84888;
+  color: white;
+}
+.count-badge.bg-blue {
+  background: #4a90d9;
+  color: white;
+}
+
+.count-badge.settled {
+  animation: none;
+  opacity: 1;
+  transform: translateX(-50%);
+}
+
+.sm .count-badge {
+  width: 2.1vw;
+  height: 1.8vw;
+  font-size: 1.1vw;
+}
+.md .count-badge {
+  width: 2.5vw;
+  height: 2.1vw;
+  font-size: 1.3vw;
+}
+
+@keyframes bPop {
+  0% {
+    transform: translateX(-50%) scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: translateX(-50%) scale(1.15);
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ── Inline callouts (arrow + textbox below a circle) ── */
+.inline-callout {
+  position: absolute;
+  top: calc(100% + 0.4vw);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 15;
+  white-space: nowrap;
+  animation: callFadeIn 0.45s ease-out forwards;
+}
+
+@keyframes callFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0.6vw);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.callout-arrow {
+  width: 2.6vw;
+  height: 3.2vw;
+}
+.callout-arrow svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pink-arrow-anim {
+  animation: arrowBob 0.9s ease-in-out infinite;
+}
+.blue-arrow-anim {
+  animation: arrowBob 1s ease-in-out infinite 0.15s;
+}
+
+@keyframes arrowBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.45vw);
+  }
+}
+
+.callout-box {
+  border-radius: 0.7vw;
+  padding: 0.55vw 1.1vw;
+  font-size: 2vw;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.25;
+  color: white;
+}
+.callout-box.pink-bg {
+  background: #e84888;
+  border: 1px solid rgba(232, 72, 136, 0.45);
+}
+.callout-box.blue-bg {
+  background: rgba(35, 80, 150, 0.78);
+  border: 1px solid rgba(91, 155, 213, 0.45);
+}
+
+/* ── Below section ── */
+.below-section {
+  flex: 0 0 50%;
+  min-height: 12vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+  padding: 0.4vw 1vw 0.3vw;
+  transition: gap 0.35s ease;
+}
+
+/* ── Below-space button ── */
+.bsb {
+  background: linear-gradient(145deg, #ff9800, rgb(255, 133, 12));
+  border: 1px solid #6c757d;
+  color: white;
+  font-size: 2.2vw;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.85vw 2.6vw;
+  border-radius: 0.9vw;
+  box-shadow:
+    0 0.2vh 0.4vh rgba(0, 0, 0, 0.2),
+    0.2vh 0.2vh 0.1vh rgb(198, 82, 0);
+  transition:
+    opacity 0.3s ease,
+    background 0.15s ease;
+}
+.bsb:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.bsb-disabled {
+  background: rgb(171, 171, 171) !important;
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
+}
+.bsb-fading {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.32s ease;
+  box-shadow: none !important;
+}
+
+/* ── Formula row ── */
+.formula-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.8vw;
+  width: 100%;
+  padding: 0 1.5vw;
+}
+
+.formula-textbox {
+  background: rgba(244, 100, 167, 0.6);
+  border: 1px solid rgba(232, 72, 136, 0.35);
+  border-radius: 0.9vw;
+  padding: 0.9vw 1.6vw;
+  color: white;
+  font-size: 2.5vw;
+  text-align: center;
+  line-height: 1.35;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  max-width: 36%;
+}
+.formula-textbox.vis {
+  opacity: 1;
+}
+.formula-textbox.instant {
+  transition: none;
+  opacity: 1;
+}
+
+.formula-expr {
+  display: flex;
+  align-items: center;
+  gap: 1.4vw;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.formula-expr.vis {
+  opacity: 1;
+}
+.formula-expr.instant {
+  transition: none;
+  opacity: 1;
+}
+
+.frac {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.frac-num {
+  display: flex;
+  align-items: center;
+  gap: 0.4vw;
+  font-size: 2.7vw;
+  font-weight: 600;
+  color: white;
+  padding-bottom: 0.25vw;
+}
+.n-box {
+  background: #4a90d9;
+  color: white;
+  padding: 0.2vw 0.7vw;
+  border-radius: 0.35vw;
+  font-weight: 700;
+  font-size: 2.5vw;
+  width: 3.5vw;
+  height: 3.5vw;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.frac-op {
+  font-weight: 600;
+}
+.frac-line {
+  width: 100%;
+  height: 0.22vw;
+  background: white;
+  border-radius: 0.15vw;
+  min-width: 9.5vw;
+}
+.frac-den {
+  font-size: 2.7vw;
+  font-weight: 600;
+  color: white;
+  padding-top: 0.25vw;
+}
+.eq-sign {
+  font-size: 3vw;
+  font-weight: 700;
+  color: white;
+}
+.res-box {
+  background: #e84888;
+  color: white;
+  padding: 0.2vw 0.7vw;
+  border-radius: 0.35vw;
+  font-weight: 700;
+  font-size: 2.5vw;
+  width: 3.5vw;
+  height: 3.5vw;
+  min-width: 2.8vw;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Slider area ── */
+.slider-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.4vw;
+  min-height: 5vw;
+  opacity: 0;
+  transform: translateY(0.6vw);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  pointer-events: none;
+}
+.slider-area.vis {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Animation overlay ── */
+.anim-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: visible;
+}
+
+/* Sort clones — same look as .num-circle */
+.sort-clone {
+  position: absolute;
+  z-index: 110;
+  pointer-events: none;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Flying badges (formula animation) — no .count-badge (avoids bottom/left %) */
+.flying-badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  pointer-events: none;
+  margin: 0;
+  box-sizing: border-box;
+  bottom: auto;
+  right: auto;
+  animation: none;
+  transform: none;
+}
+.flying-badge.badge-blue {
+  background: #4a90d9;
+  color: white;
+}
+.flying-badge.badge-pink {
+  background: #e84888;
+  color: white;
+}
+
+/* ── Fullscreen preview circles (step 0) ── */
+.data-row-preview {
+  display: flex;
+  gap: 1.3vw;
+  justify-content: center;
+  align-items: center;
+  background: rgba(8, 22, 50, 0.55);
+  border-radius: 1.2vw;
+  padding: 1.1vw 2vw;
+  margin-bottom: 1.4vw;
+  width: 80%;
+}
+.preview-circle {
+  width: 6vw;
+  height: 6vw;
+  border-radius: 50%;
+  background: #3c9eda;
+  border: 0.3vw solid #83c3eb;
+  color: white;
+  font-size: 2.8vw;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

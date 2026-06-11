@@ -1,0 +1,116 @@
+.mcq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2%;
+  width: 100%;
+  height: 100%;
+  padding: 1%;
+  box-sizing: border-box;
+}
+
+.mcq-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 98%;
+  height: 98%;
+  margin: 1%;
+  border: none;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 0.8vw;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  color: var(--white-color);
+}
+
+.mcq-option-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+.mcq-option-content {
+  position: relative;
+  z-index: 2;
+  padding: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.mcq-option-content .katex {
+  font-size: 3.5vw;
+  color: var(--white-color);
+}
+
+.mcq-option:hover:not(:disabled) {
+  transform: scale(1.03);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.mcq-option:disabled {
+  cursor: default;
+}
+
+.mcq-option--correct {
+  background: linear-gradient(
+    145deg,
+    var(--correct-answer-background-start),
+    var(--correct-answer-background-end)
+  ) !important;
+  border-color: var(--correct-answer-border) !important;
+}
+
+.mcq-option--incorrect {
+  background: linear-gradient(
+    145deg,
+    var(--incorrect-answer-background-start),
+    var(--incorrect-answer-background-end)
+  ) !important;
+  border-color: var(--incorrect-answer-border) !important;
+}
+
+.mcq-option--correct .mcq-option-content .katex,
+.mcq-option--incorrect .mcq-option-content .katex {
+  color: var(--white-color);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  50%,
+  90% {
+    transform: translateX(-5px);
+  }
+  30%,
+  70% {
+    transform: translateX(5px);
+  }
+}
+
+.mcq-option--shaking {
+  animation: shake 0.5s ease;
+}

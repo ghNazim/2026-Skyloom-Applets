@@ -118,15 +118,126 @@ function computeNavMode(step2Data, flags) {
   return "given";
 }
 
+function step3OptionToHtml(option) {
+  const lhs = "<span class='eq-lhs'>" + option.lhs + "</span>";
+  let rhs = "";
+  if (option.rhsFraction) {
+    if (typeof renderFractionHTML === "function") {
+      rhs = renderFractionHTML(
+        option.rhsFraction.numerator,
+        option.rhsFraction.denominator,
+      );
+    } else {
+      rhs =
+        option.rhsFraction.numerator + " / " + option.rhsFraction.denominator;
+    }
+    rhs = "<span class='eq-rhs-frac'>" + rhs + "</span>";
+  } else {
+    rhs = "<span class='eq-rhs-value'>" + option.rhs + "</span>";
+  }
+  return lhs + " = " + rhs;
+}
+
+function step3PhaseToExp1Html(phase) {
+  if (phase.exp1 && phase.exp1.type === "mean_formula") {
+    if (typeof renderFractionHTML === "function") {
+      return (
+        phase.exp1.left +
+        " " +
+        renderFractionHTML(phase.exp1.numerator, phase.exp1.denominator)
+      );
+    }
+    return phase.exp1.left;
+  }
+  if (phase.exp1 && phase.exp1.type === "html") {
+    if (
+      phase.exp1.useTermsFormula &&
+      typeof buildMeanFormulaFractionHtml === "function"
+    ) {
+      return buildMeanFormulaFractionHtml(APP_DATA.terms || null);
+    }
+    if (phase.exp1.html) {
+      return phase.exp1.html;
+    }
+  }
+  return "";
+}
+
+function buildStep3FinalPhaseHtml(step3Data) {
+  const phases = step3Data.phases;
+  const lastIx = phases.length - 1;
+  let prevCorrectHtml = "";
+  let i;
+  for (i = 0; i < lastIx; i += 1) {
+    const phase = phases[i];
+    const opt = phase.options[phase.correct];
+    prevCorrectHtml = step3OptionToHtml(opt);
+  }
+  const lastPhase = phases[lastIx];
+  const lastCorrectHtml = step3OptionToHtml(
+    lastPhase.options[lastPhase.correct],
+  );
+  const exp1Html = lastPhase.exp1FromPrevious
+    ? prevCorrectHtml
+    : step3PhaseToExp1Html(lastPhase);
+  return {
+    exp1Html: exp1Html,
+    exp2Html: lastCorrectHtml,
+    lastPhaseIndex: lastIx,
+    questionHtml:
+      step3Data.questionTextDone || lastPhase.qCorrect || lastPhase.q,
+  };
+}
+
+function buildStep2FinalFlags(keysOrder) {
+  const flags = {
+    studentsDone: false,
+    totalDone: false,
+    meanDone: false,
+    bagsDone: false,
+    datasetDone: false,
+    missingDone: false,
+  };
+  let ki;
+  for (ki = 0; ki < keysOrder.length; ki += 1) {
+    const key = keysOrder[ki];
+    if (key === "students") flags.studentsDone = true;
+    if (key === "total") flags.totalDone = true;
+    if (key === "mean") flags.meanDone = true;
+    if (key === "bags") flags.bagsDone = true;
+    if (key === "dataset") flags.datasetDone = true;
+    if (key === "missing") flags.missingDone = true;
+  }
+  return flags;
+}
+
+function collectStep2FinalInfoItems(step2Data) {
+  const given = [];
+  const toFind = [];
+  if (step2Data.givenN) given.push(step2Data.givenN);
+  if (step2Data.givenTotal) given.push(step2Data.givenTotal);
+  if (step2Data.givenMean) given.push(step2Data.givenMean);
+  if (step2Data.givenValues) given.push(step2Data.givenValues);
+  if (step2Data.toFindMean) toFind.push(step2Data.toFindMean);
+  if (step2Data.toFindTotal) toFind.push(step2Data.toFindTotal);
+  if (step2Data.toFindN) toFind.push(step2Data.toFindN);
+  if (step2Data.toFindX) toFind.push(step2Data.toFindX);
+  return { given: given, toFind: toFind };
+}
+
 const MainCanvas = (props) => {
   const {
     step,
     questionIndex,
     questionCount,
+    displayMode,
+    isAtFrontier,
     onSetNextEnabled,
     onUpdateNavText,
     onUpdateQuestionText,
+    onStepCompleted,
   } = props;
+  const isFinalMode = displayMode === "final";
   const { useState, useEffect, useLayoutEffect, useMemo, useRef } = React;
 
   const stepsBundle = APP_DATA.questions[questionIndex];
@@ -152,19 +263,32 @@ const MainCanvas = (props) => {
   const [showStudents, setShowStudents] = useState(false);
   const [showTotalBox, setShowTotalBox] = useState(false);
   const [showMeanBox, setShowMeanBox] = useState(false);
-  const [step2HighlightsReady, setStep2HighlightsReady] = useState(false);
-  const [step2EnterStage, setStep2EnterStage] = useState("idle");
+  const [step2HighlightsReady, setStep2HighlightsReady] = useState(
+    step === 2 && displayMode === "final",
+  );
+  const [step2EnterStage, setStep2EnterStage] = useState(function () {
+    if (step !== 2) return "idle";
+    if (displayMode === "final") return "done";
+    return "stage1";
+  });
   const [step2Animating, setStep2Animating] = useState(false);
+  const [step2HoldBlankQuestion, setStep2HoldBlankQuestion] = useState(false);
+  const prevStep2AnimatingRef = useRef(false);
   const [step3PhaseIndex, setStep3PhaseIndex] = useState(0);
   const [step3Exp1Html, setStep3Exp1Html] = useState("");
   const [step3Exp2Html, setStep3Exp2Html] = useState("");
   const [step3WrongIndex, setStep3WrongIndex] = useState(null);
+  const [step3CorrectIndex, setStep3CorrectIndex] = useState(null);
   const [step3ShakeIndex, setStep3ShakeIndex] = useState(null);
   const [step3McqActive, setStep3McqActive] = useState(false);
   const [step3QuestionHtml, setStep3QuestionHtml] = useState("");
   const [step3MeanValue, setStep3MeanValue] = useState("?");
   const [step3TotalValue, setStep3TotalValue] = useState("");
   const [step3CalcCollapsed, setStep3CalcCollapsed] = useState(false);
+  const [step3EnterPhase, setStep3EnterPhase] = useState(function () {
+    if (step === 3 && displayMode !== "final") return "pending";
+    return "done";
+  });
   const [step3Animating, setStep3Animating] = useState(false);
   const [step3NSlotValue, setStep3NSlotValue] = useState("n");
   const [step3Q3FinalGrid, setStep3Q3FinalGrid] = useState(false);
@@ -184,17 +308,140 @@ const MainCanvas = (props) => {
   const step3TotalValueRef = useRef(null);
   const step3NLabelRef = useRef(null);
   const step3XSlotRef = useRef(null);
+  const givenBoxRef = useRef(null);
   const findBoxRef = useRef(null);
   const step3VisualRootRef = useRef(null);
+  const step3RootRef = useRef(null);
   const step2TransitionTimerRef = useRef(null);
   const step2TransitionTimerRef2 = useRef(null);
   const step2TransitionTimerRef3 = useRef(null);
   const q4LabelsShownRef = useRef(false);
   const q4ValuesShownRef = useRef(false);
+  const q3BagRevealShouldAnimateRef = useRef(false);
+  const q3FinalGridTimerRef = useRef(null);
+  const step3EnterTimerRef = useRef(null);
+  const step3EnterDoneTimerRef = useRef(null);
+  const STEP3_ENTER_ANIM_MS = 650;
+  const STEP3_CLONE_MCQ_TO_EXPR_DUR = 0.6;
+  const STEP3_CLONE_EXPR_TO_VISUAL_DUR = 1.2;
+  const STEP3_PAUSE_BEFORE_VISUAL_MS = 400;
+  const STEP3_PAUSE_BEFORE_COLLAPSE_MS = 400;
   /** Q1 step 2: user tapped total before students — images first, labels on students tap */
   const studentsRevealVariantRef = useRef(null);
   const statusRef = useRef(status);
   statusRef.current = status;
+
+  /** Instantly renders the completed (final) UI for questionIndex + targetStep. */
+  const applyFinalStateForStep = (targetStep) => {
+    if (targetStep === 1) {
+      onSetNextEnabled(true);
+      onUpdateNavText(step1Data.navText);
+      onUpdateQuestionText(step1Data.questionText);
+      return;
+    }
+
+    if (targetStep === 2) {
+      const ko = step2Data.keysOrder || ["students", "total", "mean"];
+      const flags = buildStep2FinalFlags(ko);
+      const info = collectStep2FinalInfoItems(step2Data);
+      const visual = step2Data.visual;
+      const isQ3 = visual && visual.layout === "q3Bags";
+      const isQ4 = visual && visual.layout === "q4Slots";
+      const needsTotal =
+        ko.indexOf("total") !== -1 || ko.indexOf("missing") !== -1;
+      const needsMean = ko.indexOf("mean") !== -1;
+
+      if (isQ4) {
+        q4LabelsShownRef.current = true;
+        q4ValuesShownRef.current = true;
+      }
+
+      setStatus({
+        studentsDone: flags.studentsDone,
+        totalDone: flags.totalDone,
+        meanDone: flags.meanDone,
+        bagsDone: flags.bagsDone,
+        datasetDone: flags.datasetDone,
+        missingDone: flags.missingDone,
+        q3ImagesRevealed: isQ3,
+        showWrong: false,
+        navMode: "done",
+      });
+      setGivenItems(info.given);
+      setToFindItems(info.toFind);
+      setShowStudents(!isQ3 && !isQ4);
+      setShowTotalBox(needsTotal);
+      setShowMeanBox(needsMean);
+      setDeferStudentLabels(false);
+      setStep2EnterStage("done");
+      setStep2HighlightsReady(true);
+      setStep2Animating(false);
+      setQ3Step2LabelsRevealed(isQ3);
+      setQ4Step2SlotsMounted(isQ4);
+      studentsLoadedRef.current = true;
+      studentsRevealVariantRef.current = null;
+
+      onSetNextEnabled(true);
+      onUpdateQuestionText(
+        step2Data.questionTextComplete || step2Data.questionText,
+      );
+      onUpdateNavText(step2Data.navTextDone);
+      return;
+    }
+
+    if (targetStep === 3) {
+      const phaseFinal = buildStep3FinalPhaseHtml(step3Data);
+      const slot = step3Data.answerSlot || "mean";
+      const fa = step3Data.finalAnswer || "75";
+      const vis = step3Data.visual;
+      const isQ3 = vis && vis.layout === "q3Bags";
+      const isQ4 = vis && vis.layout === "q4Slots";
+
+      let meanVal = vis ? vis.meanValue : "?";
+      let totalVal = vis ? vis.totalValue : "";
+      let nVal = "n";
+      let xVal = "x";
+
+      if (slot === "mean") meanVal = fa;
+      if (slot === "total") totalVal = fa;
+      if (slot === "n") nVal = fa;
+      if (slot === "xSlot") {
+        xVal = fa;
+        if (isQ4) totalVal = "30";
+      }
+
+      setStep3PhaseIndex(phaseFinal.lastPhaseIndex);
+      setStep3Exp1Html(phaseFinal.exp1Html);
+      setStep3Exp2Html(phaseFinal.exp2Html);
+      setStep3WrongIndex(null);
+      setStep3CorrectIndex(null);
+      setStep3ShakeIndex(null);
+      setStep3McqActive(false);
+      setStep3QuestionHtml(phaseFinal.questionHtml);
+      setStep3MeanValue(meanVal);
+      setStep3TotalValue(totalVal);
+      setStep3CalcCollapsed(true);
+      setStep3EnterPhase("done");
+      setStep3Animating(false);
+      setStep3NSlotValue(nVal);
+      setStep3XSlotValue(xVal);
+      if (q3FinalGridTimerRef.current) {
+        clearTimeout(q3FinalGridTimerRef.current);
+        q3FinalGridTimerRef.current = null;
+      }
+      q3BagRevealShouldAnimateRef.current = false;
+      setStep3Q3FinalGrid(isQ3);
+      setStatus((prev) => ({
+        ...prev,
+        q3ImagesRevealed: isQ3,
+      }));
+      setQ3Step2LabelsRevealed(isQ3);
+
+      onSetNextEnabled(true);
+      onUpdateQuestionText(phaseFinal.questionHtml);
+      onUpdateNavText(step3Data.navTextDone);
+    }
+  };
 
   const answerSlot = step3Data.answerSlot || "mean";
   const finalAnswer = step3Data.finalAnswer || "75";
@@ -227,8 +474,16 @@ const MainCanvas = (props) => {
       }
       return phase.exp1.left;
     }
-    if (phase.exp1 && phase.exp1.type === "html" && phase.exp1.html) {
-      return phase.exp1.html;
+    if (phase.exp1 && phase.exp1.type === "html") {
+      if (
+        phase.exp1.useTermsFormula &&
+        typeof buildMeanFormulaFractionHtml === "function"
+      ) {
+        return buildMeanFormulaFractionHtml(APP_DATA.terms || null);
+      }
+      if (phase.exp1.html) {
+        return phase.exp1.html;
+      }
     }
     return "";
   };
@@ -253,11 +508,19 @@ const MainCanvas = (props) => {
     return lhs + " = " + rhs;
   };
 
+  useLayoutEffect(() => {
+    if (!isFinalMode) return;
+    applyFinalStateForStep(step);
+  }, [isFinalMode, step, questionIndex]);
+
   useEffect(() => {
     if (step === 1) {
       onSetNextEnabled(true);
       onUpdateNavText(step1Data.navText);
       onUpdateQuestionText(step1Data.questionText);
+      if (!isFinalMode && typeof onStepCompleted === "function") {
+        onStepCompleted(questionIndex, 1);
+      }
     }
     if (step === 2) {
       const ko = step2Data.keysOrder || ["students", "total", "mean"];
@@ -265,7 +528,18 @@ const MainCanvas = (props) => {
         return flagForHighlightKey(k, status);
       });
       onSetNextEnabled(allStep2Done);
-      onUpdateQuestionText(getStep2ProgressiveQuestionText(step2Data, status));
+      onUpdateQuestionText(
+        step2HoldBlankQuestion
+          ? " "
+          : getStep2ProgressiveQuestionText(step2Data, status),
+      );
+      if (
+        allStep2Done &&
+        !isFinalMode &&
+        typeof onStepCompleted === "function"
+      ) {
+        onStepCompleted(questionIndex, 2);
+      }
       if (allStep2Done) {
         onUpdateNavText(step2Data.navTextDone);
       } else if (
@@ -277,10 +551,13 @@ const MainCanvas = (props) => {
       }
     }
     if (step === 3) {
-      const allowNext = step3CalcCollapsed;
-      onSetNextEnabled(allowNext);
+      const step3Done = step3CalcCollapsed && !step3McqActive;
+      onSetNextEnabled(step3Done);
       onUpdateQuestionText(step3QuestionHtml || step3Data.questionText);
-      if (step3CalcCollapsed) {
+      if (step3Done && !isFinalMode && typeof onStepCompleted === "function") {
+        onStepCompleted(questionIndex, 3);
+      }
+      if (step3Done) {
         onUpdateNavText(step3Data.navTextDone);
       } else if (step3Animating) {
         onUpdateNavText("");
@@ -297,11 +574,21 @@ const MainCanvas = (props) => {
     step3McqActive,
     step3Animating,
     step3QuestionHtml,
+    step2HoldBlankQuestion,
     questionIndex,
     questionCount,
+    isFinalMode,
   ]);
 
+  useEffect(() => {
+    if (prevStep2AnimatingRef.current && !step2Animating) {
+      setStep2HoldBlankQuestion(false);
+    }
+    prevStep2AnimatingRef.current = step2Animating;
+  }, [step2Animating]);
+
   useLayoutEffect(() => {
+    if (isFinalMode) return;
     if (step2TransitionTimerRef.current) {
       clearTimeout(step2TransitionTimerRef.current);
       step2TransitionTimerRef.current = null;
@@ -316,6 +603,8 @@ const MainCanvas = (props) => {
     }
 
     if (step === 2) {
+      setStep2HoldBlankQuestion(false);
+      prevStep2AnimatingRef.current = false;
       const ko = step2Data.keysOrder || ["students", "total", "mean"];
       const flags = highlightFlagsFromStatus(statusRef.current);
       const allStep2Done = ko.every(function (k) {
@@ -348,7 +637,7 @@ const MainCanvas = (props) => {
     setStep2HighlightsReady(false);
     setStep2Animating(false);
     setStep2EnterStage("idle");
-  }, [step, questionIndex]);
+  }, [step, questionIndex, isFinalMode]);
 
   useLayoutEffect(() => {
     if (step !== 2 || !step2HighlightsReady || !step2RootRef.current) return;
@@ -357,7 +646,9 @@ const MainCanvas = (props) => {
     let ki;
     for (ki = 0; ki < ko.length; ki += 1) {
       const key = ko[ki];
-      if (!flagForHighlightKey(key, highlightFlagsFromStatus(statusRef.current))) {
+      if (
+        !flagForHighlightKey(key, highlightFlagsFromStatus(statusRef.current))
+      ) {
         continue;
       }
       const el = root.querySelector('[data-key="' + key + '"]');
@@ -393,6 +684,7 @@ const MainCanvas = (props) => {
   }, [step, q4Step2SlotsMounted, questionIndex]);
 
   useEffect(() => {
+    if (isFinalMode) return;
     studentsLoadedRef.current = false;
     setStatus({
       studentsDone: false,
@@ -412,21 +704,24 @@ const MainCanvas = (props) => {
     setShowMeanBox(false);
     setDeferStudentLabels(false);
     studentsRevealVariantRef.current = null;
+    setStep2HoldBlankQuestion(false);
+    prevStep2AnimatingRef.current = false;
     setStep3NSlotValue("n");
     setStep3Q3FinalGrid(false);
     setQ3Step2LabelsRevealed(false);
     q4LabelsShownRef.current = false;
     q4ValuesShownRef.current = false;
     setQ4Step2SlotsMounted(false);
-  }, [questionIndex]);
+  }, [questionIndex, isFinalMode]);
 
   useEffect(() => {
-    if (step !== 3) return;
+    if (step !== 3 || isFinalMode) return;
     const phase0 = step3Data.phases[0];
     setStep3PhaseIndex(0);
     setStep3Exp1Html(phaseToExp1Html(phase0, ""));
     setStep3Exp2Html("");
     setStep3WrongIndex(null);
+    setStep3CorrectIndex(null);
     setStep3ShakeIndex(null);
     setStep3McqActive(true);
     setStep3QuestionHtml(phase0.q);
@@ -437,14 +732,71 @@ const MainCanvas = (props) => {
     setStep3NSlotValue("n");
     const vInit = step3Data.visual;
     if (vInit && vInit.layout === "q4Slots") {
-      const ix =
-        vInit.missingSlotIndex != null ? vInit.missingSlotIndex : 2;
+      const ix = vInit.missingSlotIndex != null ? vInit.missingSlotIndex : 2;
       const vals = vInit.slotValues || [];
       setStep3XSlotValue(vals[ix] != null ? String(vals[ix]) : "x");
     } else {
       setStep3XSlotValue("x");
     }
+    if (vInit && vInit.layout === "q3Bags") {
+      setStatus((prev) => ({ ...prev, q3ImagesRevealed: true }));
+      setQ3Step2LabelsRevealed(true);
+    }
     setStep3Q3FinalGrid(false);
+  }, [step, questionIndex, isFinalMode]);
+
+  const clearStep3EnterTimers = () => {
+    if (step3EnterTimerRef.current) {
+      clearTimeout(step3EnterTimerRef.current);
+      step3EnterTimerRef.current = null;
+    }
+    if (step3EnterDoneTimerRef.current) {
+      clearTimeout(step3EnterDoneTimerRef.current);
+      step3EnterDoneTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (step !== 3) {
+      setStep3EnterPhase("idle");
+      clearStep3EnterTimers();
+      return;
+    }
+    if (isFinalMode) {
+      setStep3EnterPhase("done");
+      clearStep3EnterTimers();
+      return;
+    }
+
+    setStep3EnterPhase("pending");
+    clearStep3EnterTimers();
+
+    step3EnterTimerRef.current = setTimeout(function () {
+      step3EnterTimerRef.current = null;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          const root = step3RootRef.current;
+          if (root) void root.offsetHeight;
+          setStep3EnterPhase("reveal");
+          step3EnterDoneTimerRef.current = setTimeout(function () {
+            step3EnterDoneTimerRef.current = null;
+            setStep3EnterPhase("done");
+          }, STEP3_ENTER_ANIM_MS);
+        });
+      });
+    }, 80);
+
+    return clearStep3EnterTimers;
+  }, [step, questionIndex, isFinalMode]);
+
+  useEffect(() => {
+    return function () {
+      if (q3FinalGridTimerRef.current) {
+        clearTimeout(q3FinalGridTimerRef.current);
+        q3FinalGridTimerRef.current = null;
+      }
+      clearStep3EnterTimers();
+    };
   }, [step, questionIndex]);
 
   useEffect(() => {
@@ -454,6 +806,11 @@ const MainCanvas = (props) => {
     if (!root) return;
     const cells = root.querySelectorAll(".q3-final-bag-cell");
     if (!cells.length) return;
+    if (!q3BagRevealShouldAnimateRef.current) {
+      gsap.set(cells, { opacity: 1, scale: 1 });
+      return;
+    }
+    q3BagRevealShouldAnimateRef.current = false;
     const eachStagger = 2 / Math.max(cells.length, 1);
     gsap.fromTo(
       cells,
@@ -469,6 +826,7 @@ const MainCanvas = (props) => {
   }, [step, step3Q3FinalGrid, step3CalcCollapsed, questionIndex]);
 
   useEffect(() => {
+    if (isFinalMode) return;
     if (step !== 2 || !showStudents || studentsLoadedRef.current) return;
     if (step2Data.visual && step2Data.visual.layout === "q3Bags") return;
     if (step2Data.visual && step2Data.visual.layout === "q4Slots") return;
@@ -478,25 +836,37 @@ const MainCanvas = (props) => {
     const finishTotalAfterClone = () => {
       markHighlightClicked("total");
       setShowTotalBox(true);
-      setGivenItems((prev) =>
-        step2Data.givenTotal && prev.indexOf(step2Data.givenTotal) === -1
-          ? prev.concat(step2Data.givenTotal)
-          : prev,
-      );
-      setToFindItems((prev) =>
-        step2Data.toFindTotal && prev.indexOf(step2Data.toFindTotal) === -1
-          ? prev.concat(step2Data.toFindTotal)
-          : prev,
-      );
-      setStatus((prev) => {
-        const nextFlags = { ...prev, totalDone: true };
-        return {
-          ...prev,
-          totalDone: true,
-          navMode: computeNavMode(step2Data, nextFlags),
-        };
-      });
-      setStep2Animating(false);
+      const applyTotalGiven = () => {
+        setGivenItems((prev) =>
+          step2Data.givenTotal && prev.indexOf(step2Data.givenTotal) === -1
+            ? prev.concat(step2Data.givenTotal)
+            : prev,
+        );
+        setToFindItems((prev) =>
+          step2Data.toFindTotal && prev.indexOf(step2Data.toFindTotal) === -1
+            ? prev.concat(step2Data.toFindTotal)
+            : prev,
+        );
+        setStatus((prev) => {
+          const nextFlags = { ...prev, totalDone: true };
+          return {
+            ...prev,
+            totalDone: true,
+            navMode: computeNavMode(step2Data, nextFlags),
+          };
+        });
+        setStep2Animating(false);
+      };
+      if (isStep2WithInfoClones()) {
+        afterNextPaint(() => {
+          const valEl = getMetricValueEl(totalSlotRef);
+          runCloneToInfoBox(valEl, applyTotalGiven, {
+            toFind: !!step2Data.toFindTotal,
+          });
+        });
+        return;
+      }
+      applyTotalGiven();
     };
 
     if (
@@ -521,14 +891,17 @@ const MainCanvas = (props) => {
           stagger: { each: staggerEach },
           ease: "power2.out",
           onComplete: () => {
-            const totalEl = step2RootRef.current.querySelector(
-              '[data-key="total"]',
-            );
+            const totalEl =
+              step2RootRef.current.querySelector('[data-key="total"]');
             if (!totalEl || !totalSlotRef.current) {
               finishTotalAfterClone();
               return;
             }
-            animateCloneTo(totalEl, totalSlotRef.current, finishTotalAfterClone);
+            animateCloneTo(
+              totalEl,
+              totalSlotRef.current,
+              finishTotalAfterClone,
+            );
           },
         },
       );
@@ -551,20 +924,30 @@ const MainCanvas = (props) => {
         },
         ease: "back.out(1.7)",
         onComplete: () => {
-          setGivenItems((prev) =>
-            prev.indexOf(step2Data.givenN) === -1
-              ? prev.concat(step2Data.givenN)
-              : prev,
-          );
-          setStatus((prev) => {
-            const flags = { ...prev, studentsDone: true };
-            return {
-              ...prev,
-              studentsDone: true,
-              navMode: computeNavMode(step2Data, flags),
-            };
-          });
-          setStep2Animating(false);
+          const applyStudentsGiven = () => {
+            setGivenItems((prev) =>
+              prev.indexOf(step2Data.givenN) === -1
+                ? prev.concat(step2Data.givenN)
+                : prev,
+            );
+            setStatus((prev) => {
+              const flags = { ...prev, studentsDone: true };
+              return {
+                ...prev,
+                studentsDone: true,
+                navMode: computeNavMode(step2Data, flags),
+              };
+            });
+            setStep2Animating(false);
+          };
+          if (isStep2WithInfoClones()) {
+            const countEl = getLastStudentCountEl();
+            if (countEl) {
+              cloneToGivenBox(countEl, applyStudentsGiven);
+              return;
+            }
+          }
+          applyStudentsGiven();
         },
       },
     );
@@ -578,6 +961,83 @@ const MainCanvas = (props) => {
     }
   };
 
+  const INFO_CLONE_COLOR = "#f5bc2d";
+  const STEP2_CLONE_TO_INFO_DUR = 0.7;
+  const STEP2_CLONE_Q4_DATASET_DUR = 0.77;
+
+  const isStep2WithInfoClones = () => step === 2;
+
+  const afterNextPaint = (fn) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(fn);
+    });
+  };
+
+  const getMetricValueEl = (slotRef) =>
+    slotRef && slotRef.current
+      ? slotRef.current.querySelector(".metric-value")
+      : null;
+
+  const getLastStudentCountEl = () => {
+    const root = step2RootRef.current;
+    if (!root) return null;
+    const counts = root.querySelectorAll(".student-item .student-count");
+    return counts.length ? counts[counts.length - 1] : null;
+  };
+
+  const getLastQ4SlotCountEl = () => {
+    const root = step2RootRef.current;
+    if (!root) return null;
+    const counts = root.querySelectorAll(".q4-slot-count");
+    return counts.length ? counts[counts.length - 1] : null;
+  };
+
+  const shouldPreserveCloneLook = (el) =>
+    el &&
+    (el.classList.contains("student-count") ||
+      el.classList.contains("q4-slot-count"));
+
+  const cloneToGivenBox = (sourceEl, done) => {
+    if (!sourceEl || !givenBoxRef.current) {
+      if (typeof done === "function") done();
+      return;
+    }
+    animateCloneTo(sourceEl, givenBoxRef.current, done, {
+      cloneColor: INFO_CLONE_COLOR,
+      preserveSourceLook: shouldPreserveCloneLook(sourceEl),
+      duration: STEP2_CLONE_TO_INFO_DUR,
+    });
+  };
+
+  const cloneToFindBox = (sourceEl, done, options) => {
+    if (!sourceEl || !findBoxRef.current) {
+      if (typeof done === "function") done();
+      return;
+    }
+    const color =
+      options && options.cloneColor != null
+        ? options.cloneColor
+        : INFO_CLONE_COLOR;
+    animateCloneTo(sourceEl, findBoxRef.current, done, {
+      cloneColor: color,
+      preserveSourceLook: shouldPreserveCloneLook(sourceEl),
+      duration: STEP2_CLONE_TO_INFO_DUR,
+    });
+  };
+
+  const runCloneToInfoBox = (sourceEl, done, opts) => {
+    const toFind = opts && opts.toFind === true;
+    if (!sourceEl || !isStep2WithInfoClones()) {
+      if (typeof done === "function") done();
+      return;
+    }
+    if (toFind) {
+      cloneToFindBox(sourceEl, done);
+    } else {
+      cloneToGivenBox(sourceEl, done);
+    }
+  };
+
   const animateCloneTo = (sourceEl, targetEl, done, options) => {
     if (!targetEl) {
       if (typeof done === "function") done();
@@ -588,12 +1048,21 @@ const MainCanvas = (props) => {
     const sourceStyle = window.getComputedStyle(sourceEl);
     const cloneColor =
       options && options.cloneColor != null ? options.cloneColor : null;
+    const preserveSourceLook = options && options.preserveSourceLook === true;
 
     const clone = sourceEl.cloneNode(true);
     clone.className = (clone.className + " moving-clone").trim();
-    clone.style.background = "transparent";
+    if (preserveSourceLook) {
+      clone.style.background = sourceStyle.backgroundColor || INFO_CLONE_COLOR;
+      clone.style.borderRadius = sourceStyle.borderRadius;
+      clone.style.display = sourceStyle.display;
+      clone.style.alignItems = sourceStyle.alignItems;
+      clone.style.justifyContent = sourceStyle.justifyContent;
+    } else {
+      clone.style.background = "transparent";
+      clone.style.borderRadius = "0";
+    }
     clone.style.padding = "0";
-    clone.style.borderRadius = "0";
     clone.style.boxSizing = "border-box";
     clone.style.position = "fixed";
     clone.style.left = sourceRect.left + "px";
@@ -610,7 +1079,9 @@ const MainCanvas = (props) => {
     clone.style.fontStyle = sourceStyle.fontStyle;
     clone.style.lineHeight = sourceStyle.lineHeight;
     clone.style.letterSpacing = sourceStyle.letterSpacing;
-    clone.style.color = cloneColor || sourceStyle.color;
+    clone.style.color = preserveSourceLook
+      ? sourceStyle.color
+      : cloneColor || sourceStyle.color;
     clone.style.textTransform = sourceStyle.textTransform;
 
     document.body.appendChild(clone);
@@ -626,6 +1097,9 @@ const MainCanvas = (props) => {
       const endLeft = tcx - cloneRect.width / 2;
       const endTop = tcy - cloneRect.height / 2;
 
+      const tweenDur =
+        options && options.duration != null ? options.duration : 0.5;
+
       gsap.fromTo(
         clone,
         {
@@ -636,7 +1110,7 @@ const MainCanvas = (props) => {
         {
           left: endLeft,
           top: endTop,
-          duration: 0.5,
+          duration: tweenDur,
           ease: "power2.inOut",
           overwrite: "auto",
           onComplete: () => {
@@ -646,6 +1120,143 @@ const MainCanvas = (props) => {
           },
         },
       );
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(runTween);
+    });
+  };
+
+  const cloneQ4DatasetColumnToGivenBox = (columnEl, done) => {
+    if (!columnEl || !givenBoxRef.current) {
+      if (typeof done === "function") done();
+      return;
+    }
+
+    const valueEls = columnEl.querySelectorAll(".q4-slot-inner-value");
+    if (!valueEls.length) {
+      if (typeof done === "function") done();
+      return;
+    }
+
+    const snapshots = [];
+    let vi;
+    for (vi = 0; vi < valueEls.length; vi += 1) {
+      const el = valueEls[vi];
+      const rect = el.getBoundingClientRect();
+      const style = window.getComputedStyle(el);
+      snapshots.push({
+        rect: rect,
+        html: el.innerHTML,
+        fontSize: style.fontSize,
+        fontWeight: style.fontWeight,
+        fontFamily: style.fontFamily,
+        fontStyle: style.fontStyle,
+        lineHeight: style.lineHeight,
+        letterSpacing: style.letterSpacing,
+        color: style.color,
+      });
+    }
+
+    const pieces = [];
+    for (vi = 0; vi < snapshots.length; vi += 1) {
+      const snap = snapshots[vi];
+      const piece = document.createElement("div");
+      piece.className = "q4-dataset-value-clone moving-clone";
+      piece.style.position = "fixed";
+      piece.style.left = snap.rect.left + "px";
+      piece.style.top = snap.rect.top + "px";
+      piece.style.width = snap.rect.width + "px";
+      piece.style.height = snap.rect.height + "px";
+      piece.style.margin = "0";
+      piece.style.padding = "0";
+      piece.style.boxSizing = "border-box";
+      piece.style.display = "flex";
+      piece.style.alignItems = "center";
+      piece.style.justifyContent = "center";
+      piece.style.background = "transparent";
+      piece.style.border = "none";
+      piece.style.zIndex = "2147483647";
+      piece.style.pointerEvents = "none";
+      piece.style.opacity = "1";
+      piece.style.fontSize = snap.fontSize;
+      piece.style.fontWeight = snap.fontWeight;
+      piece.style.fontFamily = snap.fontFamily;
+      piece.style.fontStyle = snap.fontStyle;
+      piece.style.lineHeight = snap.lineHeight;
+      piece.style.letterSpacing = snap.letterSpacing;
+      piece.style.color = snap.color;
+      piece.style.whiteSpace = "nowrap";
+      piece.innerHTML = snap.html;
+      document.body.appendChild(piece);
+      pieces.push(piece);
+    }
+
+    const runTween = () => {
+      const targetEl = givenBoxRef.current;
+      if (!targetEl) {
+        let pi;
+        for (pi = 0; pi < pieces.length; pi += 1) {
+          pieces[pi].remove();
+        }
+        if (typeof done === "function") done();
+        return;
+      }
+
+      const tightGapPx = Math.max(4, window.innerWidth * 0.0006);
+      const widths = [];
+      let totalCompactW = 0;
+      let pi;
+      for (pi = 0; pi < pieces.length; pi += 1) {
+        const w = pieces[pi].getBoundingClientRect().width;
+        widths.push(w);
+        totalCompactW += w;
+      }
+      totalCompactW += tightGapPx * Math.max(pieces.length - 1, 0);
+
+      const targetRect = targetEl.getBoundingClientRect();
+      const rowLeft = targetRect.left + (targetRect.width - totalCompactW) / 2;
+      const rowCenterY = targetRect.top + targetRect.height * 0.58;
+
+      const endSlots = [];
+      let cursorX = rowLeft;
+      for (pi = 0; pi < pieces.length; pi += 1) {
+        const h = snapshots[pi].rect.height;
+        endSlots.push({
+          left: cursorX,
+          top: rowCenterY - h / 2,
+        });
+        cursorX += widths[pi] + tightGapPx;
+      }
+
+      const tweenDur = STEP2_CLONE_Q4_DATASET_DUR;
+      const tweenEase = "power2.inOut";
+      const tl = gsap.timeline({
+        onComplete: () => {
+          for (pi = 0; pi < pieces.length; pi += 1) {
+            gsap.killTweensOf(pieces[pi]);
+            pieces[pi].remove();
+          }
+          if (typeof done === "function") done();
+        },
+      });
+
+      for (pi = 0; pi < pieces.length; pi += 1) {
+        const snap = snapshots[pi];
+        const end = endSlots[pi];
+        tl.to(
+          pieces[pi],
+          {
+            left: end.left,
+            top: end.top,
+            width: widths[pi],
+            height: snap.rect.height,
+            duration: tweenDur,
+            ease: tweenEase,
+          },
+          0,
+        );
+      }
     };
 
     requestAnimationFrame(() => {
@@ -788,23 +1399,29 @@ const MainCanvas = (props) => {
     const wrapFinishStudents = () => {
       q4LabelsShownRef.current = true;
       markHighlightClicked("students");
-      setGivenItems((prev) =>
-        step2Data.givenN && prev.indexOf(step2Data.givenN) === -1
-          ? prev.concat(step2Data.givenN)
-          : prev,
-      );
-      setStatus((prev) => {
-        const next = { ...prev, studentsDone: true };
-        return {
-          ...next,
-          navMode: computeNavMode(step2Data, highlightFlagsFromStatus(next)),
-        };
-      });
-      setStep2Animating(false);
+      const applyStudentsGiven = () => {
+        setGivenItems((prev) =>
+          step2Data.givenN && prev.indexOf(step2Data.givenN) === -1
+            ? prev.concat(step2Data.givenN)
+            : prev,
+        );
+        setStatus((prev) => {
+          const next = { ...prev, studentsDone: true };
+          return {
+            ...next,
+            navMode: computeNavMode(step2Data, highlightFlagsFromStatus(next)),
+          };
+        });
+        setStep2Animating(false);
+      };
+      const countEl = getLastQ4SlotCountEl();
+      if (countEl) {
+        cloneToGivenBox(countEl, applyStudentsGiven);
+      } else {
+        applyStudentsGiven();
+      }
     };
-    const wrapFinishDataset = () => {
-      q4ValuesShownRef.current = true;
-      markHighlightClicked("dataset");
+    const applyDatasetGiven = () => {
       setGivenItems((prev) =>
         step2Data.givenValues && prev.indexOf(step2Data.givenValues) === -1
           ? prev.concat(step2Data.givenValues)
@@ -818,6 +1435,15 @@ const MainCanvas = (props) => {
         };
       });
       setStep2Animating(false);
+    };
+
+    const wrapFinishDataset = (col) => {
+      q4ValuesShownRef.current = true;
+      markHighlightClicked("dataset");
+      const columnForClone = col || imageColumnRef.current;
+      afterNextPaint(() => {
+        cloneQ4DatasetColumnToGivenBox(columnForClone, applyDatasetGiven);
+      });
     };
 
     if (key === "students" && !status.studentsDone) {
@@ -837,10 +1463,8 @@ const MainCanvas = (props) => {
             }
             const lv = q4LabelsShownRef.current;
             const vv = q4ValuesShownRef.current;
-            if (!lv && !vv)
-              runQ4RevealSlotsAndLabels(col, wrapFinishStudents);
-            else if (vv && !lv)
-              runQ4RevealLabelsOnly(col, wrapFinishStudents);
+            if (!lv && !vv) runQ4RevealSlotsAndLabels(col, wrapFinishStudents);
+            else if (vv && !lv) runQ4RevealLabelsOnly(col, wrapFinishStudents);
             else wrapFinishStudents();
           });
         });
@@ -865,11 +1489,13 @@ const MainCanvas = (props) => {
             }
             const lv = q4LabelsShownRef.current;
             const vv = q4ValuesShownRef.current;
-            if (!lv && !vv)
-              runQ4RevealSlotsAndValues(col, wrapFinishDataset);
-            else if (lv && !vv)
-              runQ4RevealValuesOnly(col, wrapFinishDataset);
-            else wrapFinishDataset();
+            if (!lv && !vv) {
+              runQ4RevealSlotsAndValues(col, () => wrapFinishDataset(col));
+            } else if (lv && !vv) {
+              runQ4RevealValuesOnly(col, () => wrapFinishDataset(col));
+            } else {
+              wrapFinishDataset(col);
+            }
           });
         });
       });
@@ -881,28 +1507,35 @@ const MainCanvas = (props) => {
       animateCloneTo(event.target, meanSlotRef.current, () => {
         markHighlightClicked("mean");
         setShowMeanBox(true);
-        setGivenItems((prev) =>
-          step2Data.givenMean && prev.indexOf(step2Data.givenMean) === -1
-            ? prev.concat(step2Data.givenMean)
-            : prev,
-        );
-        setStatus((prev) => {
-          const next = { ...prev, meanDone: true };
-          return {
-            ...next,
-            navMode: computeNavMode(step2Data, highlightFlagsFromStatus(next)),
-          };
+        const applyMeanGiven = () => {
+          setGivenItems((prev) =>
+            step2Data.givenMean && prev.indexOf(step2Data.givenMean) === -1
+              ? prev.concat(step2Data.givenMean)
+              : prev,
+          );
+          setStatus((prev) => {
+            const next = { ...prev, meanDone: true };
+            return {
+              ...next,
+              navMode: computeNavMode(
+                step2Data,
+                highlightFlagsFromStatus(next),
+              ),
+            };
+          });
+          setStep2Animating(false);
+        };
+        afterNextPaint(() => {
+          const valEl = getMetricValueEl(meanSlotRef);
+          runCloneToInfoBox(valEl, applyMeanGiven, { toFind: false });
         });
-        setStep2Animating(false);
       });
       return;
     }
 
     if (key === "missing" && !status.missingDone) {
       const root = step2RootRef.current;
-      const xEl = root
-        ? root.querySelector(".q4-slot-missing-value")
-        : null;
+      const xEl = root ? root.querySelector(".q4-slot-missing-value") : null;
       setStep2Animating(true);
       const runMissing = () => {
         markHighlightClicked("missing");
@@ -922,7 +1555,7 @@ const MainCanvas = (props) => {
         setStep2Animating(false);
       };
       if (xEl && findBoxRef.current) {
-        animateCloneTo(xEl, findBoxRef.current, runMissing);
+        cloneToFindBox(xEl, runMissing);
       } else {
         runMissing();
       }
@@ -934,16 +1567,22 @@ const MainCanvas = (props) => {
       const afterClone = () => {
         markHighlightClicked("total");
         setShowTotalBox(true);
-        setGivenItems((prev) =>
-          step2Data.givenTotal && prev.indexOf(step2Data.givenTotal) === -1
-            ? prev.concat(step2Data.givenTotal)
-            : prev,
-        );
-        setStatus((prev) => {
-          const next = { ...prev, totalDone: true, q3ImagesRevealed: true };
-          return { ...next, navMode: computeNavMode(step2Data, next) };
+        const applyTotalGiven = () => {
+          setGivenItems((prev) =>
+            step2Data.givenTotal && prev.indexOf(step2Data.givenTotal) === -1
+              ? prev.concat(step2Data.givenTotal)
+              : prev,
+          );
+          setStatus((prev) => {
+            const next = { ...prev, totalDone: true, q3ImagesRevealed: true };
+            return { ...next, navMode: computeNavMode(step2Data, next) };
+          });
+          setStep2Animating(false);
+        };
+        afterNextPaint(() => {
+          const valEl = getMetricValueEl(totalSlotRef);
+          runCloneToInfoBox(valEl, applyTotalGiven, { toFind: false });
         });
-        setStep2Animating(false);
       };
       setStep2Animating(true);
       if (!status.q3ImagesRevealed) {
@@ -959,16 +1598,22 @@ const MainCanvas = (props) => {
       const afterClone = () => {
         markHighlightClicked("mean");
         setShowMeanBox(true);
-        setGivenItems((prev) =>
-          step2Data.givenMean && prev.indexOf(step2Data.givenMean) === -1
-            ? prev.concat(step2Data.givenMean)
-            : prev,
-        );
-        setStatus((prev) => {
-          const next = { ...prev, meanDone: true, q3ImagesRevealed: true };
-          return { ...next, navMode: computeNavMode(step2Data, next) };
+        const applyMeanGiven = () => {
+          setGivenItems((prev) =>
+            step2Data.givenMean && prev.indexOf(step2Data.givenMean) === -1
+              ? prev.concat(step2Data.givenMean)
+              : prev,
+          );
+          setStatus((prev) => {
+            const next = { ...prev, meanDone: true, q3ImagesRevealed: true };
+            return { ...next, navMode: computeNavMode(step2Data, next) };
+          });
+          setStep2Animating(false);
+        };
+        afterNextPaint(() => {
+          const valEl = getMetricValueEl(meanSlotRef);
+          runCloneToInfoBox(valEl, applyMeanGiven, { toFind: false });
         });
-        setStep2Animating(false);
       };
       setStep2Animating(true);
       if (!status.q3ImagesRevealed) {
@@ -1004,28 +1649,23 @@ const MainCanvas = (props) => {
                   setQ3Step2LabelsRevealed(true);
                   const nLab = root.querySelector(".q3-slot-label-n");
                   if (nLab && findBoxRef.current) {
-                    animateCloneTo(
-                      nLab,
-                      findBoxRef.current,
-                      () => {
-                        markHighlightClicked("bags");
-                        setToFindItems((prev) =>
-                          step2Data.toFindN &&
-                          prev.indexOf(step2Data.toFindN) === -1
-                            ? prev.concat(step2Data.toFindN)
-                            : prev,
-                        );
-                        setStatus((prev) => {
-                          const next = { ...prev, bagsDone: true };
-                          return {
-                            ...next,
-                            navMode: computeNavMode(step2Data, next),
-                          };
-                        });
-                        setStep2Animating(false);
-                      },
-                      { cloneColor: "#ffffff" },
-                    );
+                    cloneToFindBox(nLab, () => {
+                      markHighlightClicked("bags");
+                      setToFindItems((prev) =>
+                        step2Data.toFindN &&
+                        prev.indexOf(step2Data.toFindN) === -1
+                          ? prev.concat(step2Data.toFindN)
+                          : prev,
+                      );
+                      setStatus((prev) => {
+                        const next = { ...prev, bagsDone: true };
+                        return {
+                          ...next,
+                          navMode: computeNavMode(step2Data, next),
+                        };
+                      });
+                      setStep2Animating(false);
+                    });
                   } else {
                     markHighlightClicked("bags");
                     setToFindItems((prev) =>
@@ -1079,6 +1719,7 @@ const MainCanvas = (props) => {
           setStep3Exp1Html(phaseCorrectHtml);
           setStep3Exp2Html("");
           setStep3WrongIndex(null);
+          setStep3CorrectIndex(null);
           setStep3ShakeIndex(null);
           setStep3QuestionHtml(nextPhase.q);
           setStep3McqActive(true);
@@ -1105,15 +1746,37 @@ const MainCanvas = (props) => {
       setStep3Exp1Html(phaseCorrectHtml);
       setStep3Exp2Html("");
       setStep3WrongIndex(null);
+      setStep3CorrectIndex(null);
       setStep3QuestionHtml(nextPhase.q);
       setStep3McqActive(true);
       setStep3Animating(false);
     }
   };
 
+  const afterStep3VisualFill = (applyValue, onSettled) => {
+    applyValue();
+    setTimeout(function () {
+      onSettled();
+    }, STEP3_PAUSE_BEFORE_COLLAPSE_MS);
+  };
+
+  const flyStep3AnswerToVisual = (sourceEl, targetEl, applyValue, onSettled) => {
+    setTimeout(function () {
+      animateCloneTo(
+        sourceEl,
+        targetEl,
+        function () {
+          afterStep3VisualFill(applyValue, onSettled);
+        },
+        { duration: STEP3_CLONE_EXPR_TO_VISUAL_DUR },
+      );
+    }, STEP3_PAUSE_BEFORE_VISUAL_MS);
+  };
+
   const finishStep3WithAnswerFill = () => {
     setStep3Animating(true);
     setStep3McqActive(false);
+    setStep3CorrectIndex(null);
     const rhsEl =
       step3Exp2Ref.current &&
       step3Exp2Ref.current.querySelector(".eq-rhs-value");
@@ -1121,38 +1784,61 @@ const MainCanvas = (props) => {
     const phases = step3Data.phases;
     const lastPhase = phases[phases.length - 1];
     const doneMsg =
-      step3Data.questionTextDone ||
-      lastPhase.qCorrect ||
-      lastPhase.q;
+      step3Data.questionTextDone || lastPhase.qCorrect || lastPhase.q;
 
     if (answerSlot === "n") {
       const targetEl = step3NLabelRef.current;
-      animateCloneTo(sourceEl, targetEl, () => {
-        setStep3NSlotValue(String(finalAnswer));
-        setTimeout(() => {
-          setStep3CalcCollapsed(true);
+      const isQ3BagsFinish =
+        step3Data.visual && step3Data.visual.layout === "q3Bags";
+      flyStep3AnswerToVisual(
+        sourceEl,
+        targetEl,
+        function () {
+          setStep3NSlotValue(String(finalAnswer));
+        },
+        function () {
           setStep3Animating(false);
           setStep3QuestionHtml(doneMsg);
+          if (isQ3BagsFinish) {
+            setStatus((prev) => ({ ...prev, q3ImagesRevealed: true }));
+            setQ3Step2LabelsRevealed(true);
+            setStep3CalcCollapsed(true);
+            if (q3FinalGridTimerRef.current) {
+              clearTimeout(q3FinalGridTimerRef.current);
+            }
+            if (!isFinalMode && isAtFrontier) {
+              q3BagRevealShouldAnimateRef.current = true;
+            }
+            q3FinalGridTimerRef.current = setTimeout(function () {
+              q3FinalGridTimerRef.current = null;
+              setStep3Q3FinalGrid(true);
+              onSetNextEnabled(true);
+            }, 650);
+            return;
+          }
+          setStep3CalcCollapsed(true);
           setStep3Q3FinalGrid(true);
-          const allowNext = true;
-          onSetNextEnabled(allowNext);
-        }, 300);
-      });
+          onSetNextEnabled(true);
+        },
+      );
       return;
     }
 
     if (answerSlot === "xSlot") {
       const targetEl = step3XSlotRef.current;
-      animateCloneTo(sourceEl, targetEl, () => {
-        setStep3XSlotValue(String(finalAnswer));
-        setTimeout(() => {
+      flyStep3AnswerToVisual(
+        sourceEl,
+        targetEl,
+        function () {
+          setStep3XSlotValue(String(finalAnswer));
+        },
+        function () {
           setStep3CalcCollapsed(true);
           setStep3Animating(false);
           setStep3QuestionHtml(doneMsg);
-          const allowNext = true;
-          onSetNextEnabled(allowNext);
-        }, 300);
-      });
+          onSetNextEnabled(true);
+        },
+      );
       return;
     }
 
@@ -1161,20 +1847,23 @@ const MainCanvas = (props) => {
         ? step3TotalValueRef.current
         : step3MeanValueRef.current;
 
-    animateCloneTo(sourceEl, targetEl, () => {
-      if (answerSlot === "total") {
-        setStep3TotalValue(finalAnswer);
-      } else {
-        setStep3MeanValue(finalAnswer);
-      }
-      setTimeout(() => {
+    flyStep3AnswerToVisual(
+      sourceEl,
+      targetEl,
+      function () {
+        if (answerSlot === "total") {
+          setStep3TotalValue(finalAnswer);
+        } else {
+          setStep3MeanValue(finalAnswer);
+        }
+      },
+      function () {
         setStep3CalcCollapsed(true);
         setStep3Animating(false);
         setStep3QuestionHtml(doneMsg);
-        const allowNext = true;
-        onSetNextEnabled(allowNext);
-      }, 300);
-    });
+        onSetNextEnabled(true);
+      },
+    );
   };
 
   const handleStep3OptionClick = (index, event) => {
@@ -1185,6 +1874,7 @@ const MainCanvas = (props) => {
 
     if (index !== phase.correct) {
       if (typeof playSound === "function") playSound("wrong");
+      setStep3CorrectIndex(null);
       setStep3WrongIndex(index);
       setStep3ShakeIndex(index);
       setStep3QuestionHtml(phase.qWrong + "<br>" + phase.q);
@@ -1195,8 +1885,12 @@ const MainCanvas = (props) => {
     }
 
     if (typeof playSound === "function") playSound("correct");
+    const hadWrong = step3WrongIndex !== null;
     setStep3WrongIndex(null);
-    if (phase.qCorrect) {
+    setStep3CorrectIndex(index);
+    if (hadWrong) {
+      setStep3QuestionHtml(" ");
+    } else if (phase.qCorrect) {
       setStep3QuestionHtml(phase.qCorrect);
     } else {
       setStep3QuestionHtml(phase.q);
@@ -1208,9 +1902,7 @@ const MainCanvas = (props) => {
     const phaseIxSnapshot = step3PhaseIndex;
     const visSnap = step3Data.visual;
     const q4CloneTotal =
-      visSnap &&
-      visSnap.layout === "q4Slots" &&
-      phaseIxSnapshot === 1;
+      visSnap && visSnap.layout === "q4Slots" && phaseIxSnapshot === 1;
 
     animateCloneTo(
       sourceEl || event.currentTarget,
@@ -1235,23 +1927,29 @@ const MainCanvas = (props) => {
           step3TotalValueRef.current &&
           step3Exp2Ref.current
         ) {
-          requestAnimationFrame(() => {
-            const lhsEl =
-              step3Exp2Ref.current &&
-              step3Exp2Ref.current.querySelector(".eq-lhs");
-            if (lhsEl) {
-              animateCloneTo(lhsEl, step3TotalValueRef.current, () => {
-                setStep3TotalValue("30");
-                proceed();
-              });
-              return;
-            }
-            proceed();
-          });
+          const lhsEl =
+            step3Exp2Ref.current &&
+            step3Exp2Ref.current.querySelector(".eq-lhs");
+          if (lhsEl) {
+            setTimeout(function () {
+              animateCloneTo(
+                lhsEl,
+                step3TotalValueRef.current,
+                function () {
+                  setStep3TotalValue("30");
+                  proceed();
+                },
+                { duration: STEP3_CLONE_EXPR_TO_VISUAL_DUR },
+              );
+            }, STEP3_PAUSE_BEFORE_VISUAL_MS);
+            return;
+          }
+          proceed();
           return;
         }
         proceed();
       },
+      { duration: STEP3_CLONE_MCQ_TO_EXPR_DUR },
     );
   };
 
@@ -1312,6 +2010,9 @@ const MainCanvas = (props) => {
 
     if (typeof playSound === "function") playSound("click");
 
+    if (status.showWrong) {
+      setStep2HoldBlankQuestion(true);
+    }
     setStatus((prev) => ({ ...prev, showWrong: false }));
 
     if (step2Data.visual && step2Data.visual.layout === "q4Slots") {
@@ -1343,8 +2044,7 @@ const MainCanvas = (props) => {
           requestAnimationFrame(() => {
             const col = imageColumnRef.current;
             const lbl =
-              col &&
-              col.querySelectorAll(".student-item .student-count");
+              col && col.querySelectorAll(".student-item .student-count");
             if (!lbl || !lbl.length) {
               setStep2Animating(false);
               return;
@@ -1367,20 +2067,30 @@ const MainCanvas = (props) => {
                 onComplete: () => {
                   studentsRevealVariantRef.current = null;
                   markHighlightClicked("students");
-                  setGivenItems((prev) =>
-                    prev.indexOf(step2Data.givenN) === -1
-                      ? prev.concat(step2Data.givenN)
-                      : prev,
-                  );
-                  setStatus((prev) => {
-                    const flags = { ...prev, studentsDone: true };
-                    return {
-                      ...prev,
-                      studentsDone: true,
-                      navMode: computeNavMode(step2Data, flags),
-                    };
-                  });
-                  setStep2Animating(false);
+                  const applyStudentsGiven = () => {
+                    setGivenItems((prev) =>
+                      prev.indexOf(step2Data.givenN) === -1
+                        ? prev.concat(step2Data.givenN)
+                        : prev,
+                    );
+                    setStatus((prev) => {
+                      const flags = { ...prev, studentsDone: true };
+                      return {
+                        ...prev,
+                        studentsDone: true,
+                        navMode: computeNavMode(step2Data, flags),
+                      };
+                    });
+                    setStep2Animating(false);
+                  };
+                  if (isStep2WithInfoClones()) {
+                    const countEl = getLastStudentCountEl();
+                    if (countEl) {
+                      cloneToGivenBox(countEl, applyStudentsGiven);
+                      return;
+                    }
+                  }
+                  applyStudentsGiven();
                 },
               },
             );
@@ -1420,25 +2130,37 @@ const MainCanvas = (props) => {
       animateCloneTo(event.target, totalSlotRef.current, () => {
         markHighlightClicked("total");
         setShowTotalBox(true);
-        setGivenItems((prev) =>
-          step2Data.givenTotal && prev.indexOf(step2Data.givenTotal) === -1
-            ? prev.concat(step2Data.givenTotal)
-            : prev,
-        );
-        setToFindItems((prev) =>
-          step2Data.toFindTotal && prev.indexOf(step2Data.toFindTotal) === -1
-            ? prev.concat(step2Data.toFindTotal)
-            : prev,
-        );
-        setStatus((prev) => {
-          const nextFlags = { ...prev, totalDone: true };
-          return {
-            ...prev,
-            totalDone: true,
-            navMode: computeNavMode(step2Data, nextFlags),
-          };
-        });
-        setStep2Animating(false);
+        const applyTotalGiven = () => {
+          setGivenItems((prev) =>
+            step2Data.givenTotal && prev.indexOf(step2Data.givenTotal) === -1
+              ? prev.concat(step2Data.givenTotal)
+              : prev,
+          );
+          setToFindItems((prev) =>
+            step2Data.toFindTotal && prev.indexOf(step2Data.toFindTotal) === -1
+              ? prev.concat(step2Data.toFindTotal)
+              : prev,
+          );
+          setStatus((prev) => {
+            const nextFlags = { ...prev, totalDone: true };
+            return {
+              ...prev,
+              totalDone: true,
+              navMode: computeNavMode(step2Data, nextFlags),
+            };
+          });
+          setStep2Animating(false);
+        };
+        if (isStep2WithInfoClones()) {
+          afterNextPaint(() => {
+            const valEl = getMetricValueEl(totalSlotRef);
+            runCloneToInfoBox(valEl, applyTotalGiven, {
+              toFind: !!step2Data.toFindTotal,
+            });
+          });
+          return;
+        }
+        applyTotalGiven();
       });
       return;
     }
@@ -1448,25 +2170,37 @@ const MainCanvas = (props) => {
       animateCloneTo(event.target, meanSlotRef.current, () => {
         markHighlightClicked("mean");
         setShowMeanBox(true);
-        setGivenItems((prev) =>
-          step2Data.givenMean && prev.indexOf(step2Data.givenMean) === -1
-            ? prev.concat(step2Data.givenMean)
-            : prev,
-        );
-        setToFindItems((prev) =>
-          step2Data.toFindMean && prev.indexOf(step2Data.toFindMean) === -1
-            ? prev.concat(step2Data.toFindMean)
-            : prev,
-        );
-        setStatus((prev) => {
-          const nextFlags = { ...prev, meanDone: true };
-          return {
-            ...prev,
-            meanDone: true,
-            navMode: computeNavMode(step2Data, nextFlags),
-          };
-        });
-        setStep2Animating(false);
+        const applyMeanInfo = () => {
+          setGivenItems((prev) =>
+            step2Data.givenMean && prev.indexOf(step2Data.givenMean) === -1
+              ? prev.concat(step2Data.givenMean)
+              : prev,
+          );
+          setToFindItems((prev) =>
+            step2Data.toFindMean && prev.indexOf(step2Data.toFindMean) === -1
+              ? prev.concat(step2Data.toFindMean)
+              : prev,
+          );
+          setStatus((prev) => {
+            const nextFlags = { ...prev, meanDone: true };
+            return {
+              ...prev,
+              meanDone: true,
+              navMode: computeNavMode(step2Data, nextFlags),
+            };
+          });
+          setStep2Animating(false);
+        };
+        if (isStep2WithInfoClones()) {
+          afterNextPaint(() => {
+            const valEl = getMetricValueEl(meanSlotRef);
+            runCloneToInfoBox(valEl, applyMeanInfo, {
+              toFind: !!step2Data.toFindMean,
+            });
+          });
+          return;
+        }
+        applyMeanInfo();
       });
     }
   };
@@ -1516,11 +2250,7 @@ const MainCanvas = (props) => {
       const isMiss = idx === missingIx;
       const innerEl = isMiss
         ? String(xVal) === "x"
-          ? React.createElement(
-              "span",
-              { className: "q4-x-italic" },
-              "x",
-            )
+          ? React.createElement("span", { className: "q4-x-italic" }, "x")
           : xVal
         : String(values[idx] != null ? values[idx] : "");
       return React.createElement(
@@ -1532,8 +2262,7 @@ const MainCanvas = (props) => {
         React.createElement(
           "span",
           {
-            className:
-              "student-count q4-slot-count q4-slot-count-static",
+            className: "student-count q4-slot-count q4-slot-count-static",
           },
           lab,
         ),
@@ -1541,8 +2270,7 @@ const MainCanvas = (props) => {
           "div",
           {
             className:
-              "q4-slot-value-box " +
-              (isMiss ? "q4-slot-value-missing" : ""),
+              "q4-slot-value-box " + (isMiss ? "q4-slot-value-missing" : ""),
           },
           React.createElement(
             "span",
@@ -1566,7 +2294,12 @@ const MainCanvas = (props) => {
       dangerouslySetInnerHTML: { __html: html },
     });
 
-  const renderQ3BagSlots = (visual, slotLabelForN, attachNRef, nBlinkActive) => {
+  const renderQ3BagSlots = (
+    visual,
+    slotLabelForN,
+    attachNRef,
+    nBlinkActive,
+  ) => {
     const bagImg = visual.bagImage || "assets/bag.png";
     const slots = visual.q3Slots || [];
     return slots.map(function (slot, idx) {
@@ -1645,6 +2378,7 @@ const MainCanvas = (props) => {
 
   if (step === 1 || step === 2) {
     const isStep1 = step === 1;
+    const findBoxDisabled = !isStep1 && status.navMode === "given";
     const hintKeysForReveal = step2Data.revealHintUntilPriorDone
       ? (step2Data.keysOrder || []).slice(0, -1)
       : ["students"];
@@ -1676,6 +2410,7 @@ const MainCanvas = (props) => {
           React.createElement(
             "div",
             {
+              ref: givenBoxRef,
               className:
                 "info-box given-box " +
                 (status.navMode === "given" && !isStep1 ? "active-blink" : ""),
@@ -1697,7 +2432,7 @@ const MainCanvas = (props) => {
               className:
                 "info-box find-box " +
                 (status.navMode === "find" && !isStep1 ? "active-blink" : "") +
-                (status.navMode === "given" && !isStep1 ? " muted-box" : ""),
+                (findBoxDisabled ? " find-box-disabled" : ""),
             },
             React.createElement("h3", null, labels.toFindTitle),
             !isStep1 &&
@@ -1757,37 +2492,34 @@ const MainCanvas = (props) => {
             step2Data.visual &&
             step2Data.visual.layout === "q4Slots" &&
             q4Step2SlotsMounted
-            ? renderQ4SlotsStep2(
-                step2Data.visual,
-                status.datasetDone,
-              )
+            ? renderQ4SlotsStep2(step2Data.visual, status.datasetDone)
             : !isStep1 &&
                 step2Data.visual &&
                 step2Data.visual.layout === "q3Bags"
               ? renderQ3BagSlots(step2Data.visual, "n", false, false)
               : showStudents
-              ? students.map((student, idx) =>
-                  React.createElement(
-                    "div",
-                    {
-                      className:
-                        "student-item " +
-                        (student.sizeClass ? student.sizeClass + " " : "") +
-                        (status.studentsDone ? "shown " : ""),
-                      key: "student-" + idx,
-                    },
+                ? students.map((student, idx) =>
                     React.createElement(
-                      "span",
-                      { className: "student-count" },
-                      student.count,
+                      "div",
+                      {
+                        className:
+                          "student-item " +
+                          (student.sizeClass ? student.sizeClass + " " : "") +
+                          (status.studentsDone ? "shown " : ""),
+                        key: "student-" + idx,
+                      },
+                      React.createElement(
+                        "span",
+                        { className: "student-count" },
+                        student.count,
+                      ),
+                      React.createElement("img", {
+                        src: student.image,
+                        alt: "student-" + student.count,
+                      }),
                     ),
-                    React.createElement("img", {
-                      src: student.image,
-                      alt: "student-" + student.count,
-                    }),
-                  ),
-                )
-              : null,
+                  )
+                : null,
         ),
         React.createElement(
           "div",
@@ -1824,7 +2556,8 @@ const MainCanvas = (props) => {
             className:
               "mean-column" +
               (q2MeanLayout || q4MeanLayout ? " mean-column-q2" : "") +
-              (q3MeanLayout ? " mean-column-q3" : ""),
+              (q3MeanLayout ? " mean-column-q3" : "") +
+              (!isStep1 && showMeanBox ? " mean-column-border-visible" : ""),
           },
           React.createElement(
             "div",
@@ -1860,8 +2593,7 @@ const MainCanvas = (props) => {
       React.createElement(
         "p",
         {
-          className:
-            "reveal-hint " + (revealHintHidden ? "hide-hint" : ""),
+          className: "reveal-hint " + (revealHintHidden ? "hide-hint" : ""),
         },
         step2Data.revealHint,
       ),
@@ -1876,10 +2608,8 @@ const MainCanvas = (props) => {
 
   if (step === 3) {
     const activePhase = step3Data.phases[step3PhaseIndex];
-    const isQ3Bags =
-      step3Data.visual && step3Data.visual.layout === "q3Bags";
-    const isQ4Slots =
-      step3Data.visual && step3Data.visual.layout === "q4Slots";
+    const isQ3Bags = step3Data.visual && step3Data.visual.layout === "q3Bags";
+    const isQ4Slots = step3Data.visual && step3Data.visual.layout === "q4Slots";
     const q3BagImg = step3Data.visual
       ? step3Data.visual.bagImage || "assets/bag.png"
       : "assets/bag.png";
@@ -1908,11 +2638,18 @@ const MainCanvas = (props) => {
     return React.createElement(
       "div",
       {
+        ref: step3RootRef,
         className:
           "main-canvas-container step3-root " +
           (step3CalcCollapsed ? "step3-root-collapsed" : "") +
+          (step3EnterPhase === "pending" ? " step3-enter-pending" : "") +
+          (step3EnterPhase === "reveal" ? " step3-enter-reveal" : "") +
           (isQ4Slots ? " step3-root-q4" : ""),
       },
+      React.createElement("div", {
+        className: "step3-enter-spacer",
+        "aria-hidden": "true",
+      }),
       React.createElement(
         "div",
         {
@@ -1932,9 +2669,7 @@ const MainCanvas = (props) => {
                 "div",
                 {
                   className:
-                    "image-column image-column-q3-bags" +
-                    (status.q3ImagesRevealed ? " q3-bag-images-on" : "") +
-                    (q3Step2LabelsRevealed ? " q3-bags-labels-on" : ""),
+                    "image-column image-column-q3-bags q3-bag-images-on q3-bags-labels-on",
                 },
                 renderQ3BagSlots(
                   step3Data.visual,
@@ -1950,11 +2685,7 @@ const MainCanvas = (props) => {
                   className:
                     "image-column image-column-q4-slots image-column-q4-step3",
                 },
-                renderQ4SlotsStep3(
-                  step3Data.visual,
-                  step3XSlotValue,
-                  xBlink,
-                ),
+                renderQ4SlotsStep3(step3Data.visual, step3XSlotValue, xBlink),
               )
             : React.createElement(
                 "div",
@@ -2011,7 +2742,7 @@ const MainCanvas = (props) => {
           "div",
           {
             className:
-              "mean-column" +
+              "mean-column mean-column-border-visible" +
               (q2MeanLayout || q4MeanLayout ? " mean-column-q2" : "") +
               (q3MeanLayout ? " mean-column-q3" : ""),
           },
@@ -2087,6 +2818,7 @@ const MainCanvas = (props) => {
               className:
                 "mcq-option " +
                 (step3WrongIndex === idx ? "wrong-option " : "") +
+                (step3CorrectIndex === idx ? "correct-option " : "") +
                 (step3ShakeIndex === idx ? "wrong-option-shake" : ""),
               disabled: !step3McqActive,
               onClick: (event) => handleStep3OptionClick(idx, event),

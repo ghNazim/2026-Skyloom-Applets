@@ -1,0 +1,424 @@
+.main-canvas2-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+/* ===== Diagram wrap (shifts left when panel opens) ===== */
+.mc2-diagram-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.6s ease;
+}
+
+.mc2-diagram-wrap.shifted {
+  width: 70%;
+}
+
+/* ===== SVG ===== */
+.main-canvas2-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.main-canvas2-svg .line-segment,
+.main-canvas2-svg .angle-group,
+.main-canvas2-svg .point-group,
+.main-canvas2-svg .parallel-marker,
+.main-canvas2-svg .line-label,
+.main-canvas2-svg .degree-label,
+.main-canvas2-svg .point-label {
+  transition:
+    opacity 0.5s ease,
+    fill 0.5s ease,
+    stroke 0.5s ease;
+}
+
+.main-canvas2-svg .line-segment.dehi .line-stroke {
+  opacity: 0.2;
+}
+
+.main-canvas2-svg .line-label.dehi,
+.main-canvas2-svg .parallel-marker.dehi {
+  opacity: 0.2;
+}
+
+.main-canvas2-svg .angle-group.dehi,
+.main-canvas2-svg .point-group.dehi {
+  opacity: 0.2;
+}
+
+/* ===== Color-blink animation for lines (1.44s cycle = 40% shorter than 2.4s) ===== */
+.main-canvas2-svg .color-blink-line .line-stroke {
+  transition: none;
+  stroke-width: 3;
+  animation: mc2ColorBlink 1.44s linear infinite;
+}
+
+@keyframes mc2ColorBlink {
+  0% {
+    stroke: #ffffff;
+    stroke-width: 3;
+  }
+  16.67% {
+    stroke: #e74c3c;
+    stroke-width: 4.5;
+  }
+  33.33% {
+    stroke: #29abe2;
+    stroke-width: 3;
+  }
+  50% {
+    stroke: #e289c1;
+    stroke-width: 4.5;
+  }
+  66.67% {
+    stroke: #ffc815;
+    stroke-width: 3;
+  }
+  83.33% {
+    stroke: #9b59b6;
+    stroke-width: 4.5;
+  }
+  100% {
+    stroke: #ffffff;
+    stroke-width: 3;
+  }
+}
+
+/* ===== Opacity blink (infinite) ===== */
+.main-canvas2-svg .blink-opacity {
+  animation: mc2OpacityBlink 1.2s ease-in-out infinite;
+}
+
+/* ===== Opacity blink (5 times) ===== */
+.main-canvas2-svg .blink-opacity-5 {
+  animation: mc2OpacityBlink 0.5s ease-in-out 5;
+}
+
+.main-canvas2-svg .point-label.blink-opacity-5 {
+  animation: mc2OpacityBlink 0.5s ease-in-out 5;
+}
+
+@keyframes mc2OpacityBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ===== Parallel-lines label text ===== */
+.main-canvas2-svg .parallel-lines-label {
+  font-size: 26px;
+  font-weight: bold;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+/* ===== Transversal label text ===== */
+.main-canvas2-svg .transversal-label {
+  font-size: 26px;
+  font-weight: bold;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+/* ===== Opacity-blink text (paired with line color-blink) ===== */
+.main-canvas2-svg .opacity-blink-text {
+  transition: none;
+  animation: mc2OpacityBlink 1.44s ease-in-out infinite;
+}
+
+/* ===== SVG text styles ===== */
+.main-canvas2-svg .point-label {
+  font-size: 30px;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.main-canvas2-svg .degree-label {
+  font-size: 28px;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.main-canvas2-svg .line-label {
+  font-size: 26px;
+  font-weight: bold;
+  fill: white;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.main-canvas2-svg .angle-arc {
+  pointer-events: none;
+}
+
+/* ===== Clickable angle hit areas ===== */
+.main-canvas2-svg .angle-b-hit,
+.main-canvas2-svg .angle-c-hit,
+.main-canvas2-svg .angle-d-hit {
+  cursor: pointer;
+}
+
+.main-canvas2-svg .angle-b-hit .angle-arc,
+.main-canvas2-svg .angle-c-hit .angle-arc,
+.main-canvas2-svg .angle-d-hit .angle-arc {
+  pointer-events: all;
+}
+
+/* ===== Right panel (slides in from right) ===== */
+.mc2-right-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 1vw;
+  box-sizing: border-box;
+  gap: 0.8vw;
+  background-color: rgba(141, 141, 141, 0.3);
+  border-radius: 1vw;
+  transform: translateX(100%);
+  transition: transform 0.6s ease;
+  overflow-y: auto;
+  z-index: 5;
+}
+
+.mc2-right-panel.visible {
+  transform: translateX(0);
+}
+
+/* ===== Feedback box ===== */
+.mc2-feedback-box {
+  width: 100%;
+  min-height: 10vw;
+  padding: 0.8vw 1vw;
+  border-radius: 0.8vw;
+  font-size: 1.75vw;
+  line-height: 1.35;
+  text-align: center;
+  color: white;
+  box-sizing: border-box;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  white-space: pre-line;
+}
+
+.mc2-feedback-box.visible {
+  visibility: visible;
+}
+
+.mc2-feedback-box.correct {
+  background: rgba(46, 204, 112, 0.227);
+  border: 0.25vw solid rgba(46, 204, 112, 0.85);
+}
+
+.mc2-feedback-box.wrong {
+  background: rgba(231, 77, 60, 0.264);
+  border: 0.25vw solid rgba(231, 76, 60, 0.85);
+}
+
+/* ===== Options ===== */
+.mc2-options-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55vw;
+  width: 100%;
+  justify-content: center;
+}
+
+.mc2-option-button {
+  width: 100%;
+  padding: 0.55vw 0.8vw;
+  font-size: 1.75vw;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(145deg, #ffc107, #ff9800);
+  color: #1a1a2e;
+  border-radius: 0.6vw;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-shadow: 0 0.2vw 0.4vw rgba(0, 0, 0, 0.35);
+  font-family: inherit;
+  line-height: 1.15;
+}
+
+.mc2-option-button:hover:not(:disabled) {
+  transform: translateY(-0.1vw);
+}
+
+.mc2-option-button.incorrect {
+  background: linear-gradient(145deg, #e74c3c, #c0392b);
+  color: #ffffff;
+  box-shadow: 0 0 0.8vw rgba(231, 76, 60, 0.55);
+}
+
+.mc2-option-button.correct {
+  background: linear-gradient(145deg, #66bb6a, #43a047);
+  color: #ffffff;
+  box-shadow: 0 0 0.8vw rgba(102, 187, 106, 0.55);
+}
+
+.mc2-option-button:disabled:not(.incorrect):not(.correct) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Numpad input row ===== */
+.mc2-right-panel .input-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6vw;
+  padding: 0.5vw 1.2vw;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 0.8vw;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.mc2-right-panel .input-prefix,
+.mc2-right-panel .input-suffix {
+  font-size: 2.2vw;
+  font-weight: 600;
+  color: white;
+}
+
+.mc2-right-panel .answer-input-box {
+  min-width: 6vw;
+  min-height: 3.2vw;
+  padding: 0.4vw 0.8vw;
+  font-size: 2.2vw;
+  font-weight: 700;
+  color: white;
+  background: rgba(255, 255, 255, 0.12);
+  border: 0.2vw dashed rgba(255, 255, 255, 0.5);
+  border-radius: 0.5vw;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mc2-right-panel .answer-input-box.correct {
+  background: rgba(46, 204, 112, 0.35);
+  border-color: rgba(46, 204, 112, 0.9);
+  border-style: solid;
+  color: #2ecc70;
+}
+
+.mc2-right-panel .answer-input-box.wrong {
+  background: rgba(231, 77, 60, 0.35);
+  border-color: rgba(231, 76, 60, 0.9);
+  border-style: solid;
+  color: #ffe8e8;
+}
+
+.mc2-right-panel .numpad-wrapper {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Hint box (step 7 wrong) ===== */
+.mc2-hint-box {
+  position: absolute;
+  left: 82%;
+  top: 55%;
+  transform: translate(-50%, -50%);
+  padding: 0.5vw 1vw;
+  border-radius: 0.8vw;
+  background: rgba(20, 50, 80, 0.88);
+  border: 0.2vw solid rgba(41, 171, 226, 0.7);
+  color: #ffffff;
+  font-size: 2vw;
+  font-weight: 600;
+  text-align: center;
+  white-space: pre-line;
+  line-height: 1.35;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.mc2-hint-box.id {
+  font-size: 1.7vw;
+  width: 19vw;
+  top: 57%;
+  left: 84%;
+}
+
+.mc2-hint-box.blink-hint {
+  animation: mc2HintBlink 0.9s ease-in-out infinite;
+}
+
+.mc2-hint-box.mc2-hint-box-left {
+  left: 15%;
+  top: 50%;
+}
+
+.mc2-hint-box.mc2-hint-box-left.id {
+  width: 16vw;
+  top: 47%;
+}
+
+.mc2-hint-box.mc2-hint-box-middle {
+  left: 42%;
+  top: 52%;
+}
+
+@keyframes mc2HintBlink {
+  0%,
+  100% {
+    background: rgba(20, 50, 80, 0.88);
+    border-color: rgba(41, 171, 226, 0.7);
+  }
+  50% {
+    background: rgba(231, 76, 60, 0.25);
+    border-color: rgba(231, 76, 60, 0.95);
+  }
+}
+
+/* ===== Flying value (GSAP fly animation) ===== */
+.mc2-flying-value {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  font-size: 2.2vw;
+  font-weight: 700;
+  pointer-events: none;
+  z-index: 2000;
+}

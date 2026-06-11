@@ -52,11 +52,27 @@ const DATA = {
       start: {
         heading: "Mean: Practice",
         textTop: "We know how to find the mean of a dataset.",
-        formulaPrefix: "Mean = ",
-        formulaNumerator: "Total of all values",
-        formulaDenominator: "Number of values",
+        formulaLead: "Mean (<span class='x-overline'>x</span>) = ",
+        formulaSumNumerator: "Sum of all values",
+        formulaSumDenominator: "Number of data values",
+        formulaExpandedNumerator:
+          "x<sub>1</sub> + x<sub>2</sub> + &ctdot; + x<sub>n</sub>",
+        formulaExpandedDenominator: "n",
         textBottom: "Tap 'Start' to solve some questions using this formula.",
         buttonText: "Start",
+      },
+      terms: {
+        mean: "Mean",
+        meanEquals: "Mean =",
+        total: "Total",
+        sumOfAllValues: "Sum of all values",
+        numberOfDataValues: "Number of data values",
+        sumShort: "Sum",
+        numberShort: "Number",
+        values: "Values",
+        formulaExpandedNumerator:
+          "x<sub>1</sub> + x<sub>2</sub> + &ctdot; + x<sub>n</sub>",
+        formulaExpandedDenominator: "n",
       },
       end: {
         heading: "Well Done!",
@@ -329,7 +345,7 @@ const DATA = {
             3: {
               questionText: "Which equation places each value correctly?",
               navText: "Tap the correct equation.",
-              navTextDone: "You've finished this challenge.",
+              navTextDone: "Tap » for the next challenge.",
               questionTextDone: "Great! There are 30 bags in the group.",
               answerSlot: "n",
               finalAnswer: "30",
@@ -413,8 +429,7 @@ const DATA = {
             1: {
               questionText:
                 "Now, the hardest pattern — one data value is missing.",
-              navText:
-                "Tap » to identify the 'given' and 'to find' data.",
+              navText: "Tap » to identify the 'given' and 'to find' data.",
               statement:
                 "Five friends recorded the<br>number of books they read:  4,  6,  x,  5,  5.<br>The mean is 6 books.<br>Find the missing value, x.",
             },
@@ -434,7 +449,7 @@ const DATA = {
               navTextToFind: "Tap the data 'to find'",
               navTextDone: "Tap » to solve the question now.",
               statementTemplate:
-                "<span class='qs-highlight highlight-given' data-key='students'>Five friends</span> recorded the<br><span class='qs-highlight highlight-given' data-key='dataset'>number of books they read:  4,  6,  x,  5,  5.</span><br>The <span class='qs-highlight highlight-given' data-key='mean'>mean is 6</span> books.<br><span class='qs-highlight highlight-find' data-key='missing'>Find the missing value, x</span>.",
+                "<span class='qs-highlight highlight-given' data-key='students'>Five friends</span> recorded the<br>number of books they read: <span class='qs-highlight highlight-given' data-key='dataset'> 4,  6,  x,  5,  5.</span><br>The <span class='qs-highlight highlight-given' data-key='mean'>mean is 6</span> books.<br><span class='qs-highlight highlight-find' data-key='missing'>Find the missing value, x</span>.",
               givenN: "n = 5",
               givenValues: "Values = 4, 6, x, 5, 5",
               givenMean: "Mean = 6",
@@ -476,19 +491,7 @@ const DATA = {
                   correct: 0,
                   exp1: {
                     type: "html",
-                    html:
-                      "Mean = " +
-                      '<span class="formula-fraction">' +
-                      '<span class="formula-fraction-top">Sum</span>' +
-                      '<span class="formula-fraction-bar"></span>' +
-                      '<span class="formula-fraction-bottom">Number</span>' +
-                      "</span>" +
-                      " = " +
-                      '<span class="formula-fraction">' +
-                      '<span class="formula-fraction-top">x<sub>1</sub> + x<sub>2</sub> + ⋯ + x<sub>n</sub></span>' +
-                      '<span class="formula-fraction-bar"></span>' +
-                      '<span class="formula-fraction-bottom">n</span>' +
-                      "</span>",
+                    useTermsFormula: true,
                   },
                   implies1: false,
                   implies2: true,
@@ -545,26 +548,43 @@ const DATA = {
     app: {
       start: {
         heading: "Mean: Latihan",
-        textTop: "Kita sudah tahu cara mencari mean suatu kumpulan data.",
-        formulaPrefix: "Mean = ",
-        formulaNumerator: "Jumlah semua nilai",
-        formulaDenominator: "Banyaknya nilai",
+        textTop:
+          "Kita sudah tahu cara mencari nilai rata-rata suatu kumpulan data.",
+        formulaLead: "Rata-rata (<span class='x-overline'>x</span>) = ",
+        formulaSumNumerator: "Jumlah semua nilai",
+        formulaSumDenominator: "Banyaknya nilai data",
+        formulaExpandedNumerator:
+          "x<sub>1</sub> + x<sub>2</sub> + &ctdot; + x<sub>n</sub>",
+        formulaExpandedDenominator: "n",
         textBottom:
           "Ketuk 'Mulai' untuk menyelesaikan beberapa soal dengan rumus ini.",
         buttonText: "Mulai",
       },
+      terms: {
+        mean: "Rata-rata",
+        meanEquals: "Rata-rata =",
+        total: "Jumlah",
+        sumOfAllValues: "Jumlah semua nilai",
+        numberOfDataValues: "Banyaknya nilai data",
+        sumShort: "Jumlah",
+        numberShort: "Banyaknya",
+        values: "Nilai",
+        formulaExpandedNumerator:
+          "x<sub>1</sub> + x<sub>2</sub> + &ctdot; + x<sub>n</sub>",
+        formulaExpandedDenominator: "n",
+      },
       end: {
         heading: "Bagus sekali!",
         textTop:
-          "Setiap soal mean adalah teka-teki tiga bagian yang sama: <y>jumlah nilai data, banyaknya nilai data, dan mean.</y><br>Dua diketahui, satu belum diketahui.<br>Kamu sudah berlatih ketiga bentuk bagian yang belum diketahui itu.",
+          "Setiap soal nilai rata-rata adalah teka-teki tiga bagian yang sama: <y>jumlah nilai data, banyaknya nilai data, dan nilai rata-rata.</y><br>Dua diketahui, satu belum diketahui.<br>Kamu sudah berlatih ketiga bentuk bagian yang belum diketahui itu.",
         textBottom: "Ketuk 'Mulai Lagi' untuk mengulang aktivitas ini.",
         buttonText: "Mulai Lagi",
       },
       labels: {
         givenTitle: "Diketahui:",
         toFindTitle: "Ditanya:",
-        total: "Total",
-        mean: "Mean",
+        total: "Jumlah",
+        mean: "Rata-rata",
       },
       questions: [
         {
@@ -574,7 +594,7 @@ const DATA = {
               navText:
                 "Ketuk » untuk mengenali data yang 'diketahui' dan 'ditanya'.",
               statement:
-                "Dalam suatu tes, 8 siswa memperoleh<br>total nilai 600.<br>Berapa nilai mean-nya?",
+                "Dalam suatu tes, 8 siswa memperoleh<br>jumlah nilai 600.<br>Berapa nilai rata-ratanya?",
             },
             2: {
               keysOrder: ["students", "total", "mean"],
@@ -591,10 +611,10 @@ const DATA = {
               navTextToFind: "Ketuk data yang ditanya",
               navTextDone: "Ketuk » untuk menyelesaikan soal sekarang.",
               statementTemplate:
-                "Dalam suatu tes, <span class='qs-highlight highlight-given' data-key='students'>8 siswa</span> memperoleh<br><span class='qs-highlight highlight-given' data-key='total'>total nilai 600</span>.<br>Berapa <span class='qs-highlight highlight-find' data-key='mean'>nilai mean</span>-nya?",
+                "Dalam suatu tes, <span class='qs-highlight highlight-given' data-key='students'>8 siswa</span> memperoleh<br><span class='qs-highlight highlight-given' data-key='total'>jumlah nilai 600</span>.<br>Berapa <span class='qs-highlight highlight-find' data-key='mean'>nilai rata-rata</span>-nya?",
               givenN: "n = 8",
-              givenTotal: "Total = 600",
-              toFindMean: "Mean = ?",
+              givenTotal: "Jumlah = 600",
+              toFindMean: "Rata-rata = ?",
               revealHint: "Ketuk informasi yang diketahui untuk menampilkannya",
               visual: {
                 studentCount: 8,
@@ -610,7 +630,7 @@ const DATA = {
                 "Persamaan manakah yang menempatkan setiap nilai pada tempat yang benar?",
               navText: "Ketuk persamaan yang benar.",
               navTextDone: "Ketuk » untuk melanjutkan ke tantangan berikutnya.",
-              questionTextDone: "Bagus! Nilai mean-nya adalah 75.",
+              questionTextDone: "Bagus! Nilai rata-ratanya adalah 75.",
               answerSlot: "mean",
               finalAnswer: "75",
               phases: [
@@ -643,7 +663,7 @@ const DATA = {
                   correct: 0,
                   exp1: {
                     type: "mean_formula",
-                    left: "Mean =",
+                    left: "Rata-rata =",
                     numerator: "Jumlah semua nilai",
                     denominator: "Banyaknya nilai data",
                   },
@@ -653,8 +673,7 @@ const DATA = {
                 {
                   q: "Bagus, sekarang selesaikan untuk <ol>x</ol>. Berapa hasil (600/8)?",
                   qWrong: "Salah! Coba lagi.",
-                  qCorrect:
-                    "Benar! Mean dari nilai itu adalah <ol>x</ol> = 75.",
+                  qCorrect: "Benar! Rata-rata nilainya adalah <ol>x</ol> = 75.",
                   options: [
                     { lhs: "<ol>x</ol>", rhs: "65" },
                     { lhs: "<ol>x</ol>", rhs: "75" },
@@ -681,11 +700,11 @@ const DATA = {
           steps: {
             1: {
               questionText:
-                "Baca soal dengan teliti. Sekarang ada twist — mean sudah diketahui.",
+                "Baca soal dengan teliti. Sekarang ada twist — rata-rata sudah diketahui.",
               navText:
                 "Ketuk » untuk mengenali data yang 'diketahui' dan 'ditanya'.",
               statement:
-                "12 tanaman mempunyai<br>tinggi mean 24 cm.<br>Berapa total tingginya?",
+                "12 tanaman mempunyai<br>tinggi rata-rata 24 cm.<br>Berapa jumlah tingginya?",
             },
             2: {
               keysOrder: ["students", "mean", "total"],
@@ -702,35 +721,35 @@ const DATA = {
               navTextToFind: "Ketuk data yang ditanya",
               navTextDone: "Ketuk » untuk menyelesaikan soal sekarang.",
               statementTemplate:
-                "<span class='qs-highlight highlight-given' data-key='students'>12 tanaman</span> mempunyai<br><span class='qs-highlight highlight-given' data-key='mean'>tinggi mean 24 cm</span>.<br>Berapa <span class='qs-highlight highlight-find' data-key='total'>total tinggi</span>-nya?",
+                "<span class='qs-highlight highlight-given' data-key='students'>12 tanaman</span> mempunyai<br><span class='qs-highlight highlight-given' data-key='mean'>tinggi rata-rata 24 cm</span>.<br>Berapa <span class='qs-highlight highlight-find' data-key='total'>jumlah tinggi</span>-nya?",
               givenN: "n = 12",
-              givenMean: "Mean = 24 cm",
-              toFindTotal: "Total = ?",
+              givenMean: "Rata-rata = 24 cm",
+              toFindTotal: "Jumlah = ?",
               revealHint: "Ketuk informasi yang diketahui untuk menampilkannya",
               visual: PLANT_VISUAL_EN,
             },
             3: {
               questionText:
-                "Persamaan manakah yang menempatkan jumlah (total) pada tempat yang benar?",
+                "Persamaan manakah yang menempatkan jumlah pada tempat yang benar?",
               navText: "Ketuk persamaan yang benar.",
               navTextDone: "Ketuk » untuk melanjutkan ke tantangan berikutnya.",
-              questionTextDone: "Bagus! Total tinggi = 288 cm.",
+              questionTextDone: "Bagus! Jumlah tingginya = 288 cm.",
               answerSlot: "total",
               finalAnswer: "288",
               phases: [
                 {
-                  q: "Persamaan manakah yang menempatkan jumlah (total) pada tempat yang benar?",
+                  q: "Persamaan manakah yang menempatkan jumlah pada tempat yang benar?",
                   qWrong: "Salah! Coba lagi.",
                   options: [
                     {
                       lhs: "12",
                       rhsFraction: {
-                        numerator: "Total",
+                        numerator: "Jumlah",
                         denominator: "24",
                       },
                     },
                     {
-                      lhs: "Total",
+                      lhs: "Jumlah",
                       rhsFraction: {
                         numerator: "12",
                         denominator: "24",
@@ -739,7 +758,7 @@ const DATA = {
                     {
                       lhs: "24",
                       rhsFraction: {
-                        numerator: "Total",
+                        numerator: "Jumlah",
                         denominator: "12",
                       },
                     },
@@ -747,7 +766,7 @@ const DATA = {
                   correct: 2,
                   exp1: {
                     type: "mean_formula",
-                    left: "Mean =",
+                    left: "Rata-rata =",
                     numerator: "Jumlah semua nilai",
                     denominator: "Banyaknya nilai data",
                   },
@@ -755,13 +774,13 @@ const DATA = {
                   implies2: true,
                 },
                 {
-                  q: "Untuk mendapatkan Total saja, batalkan pembagian dengan 12.",
+                  q: "Untuk mendapatkan Jumlah saja, batalkan pembagian dengan 12.",
                   qWrong: "Salah! Coba lagi.",
                   options: [
-                    { lhs: "Total", rhs: "24 × 12" },
-                    { lhs: "Total", rhs: "24 + 12" },
+                    { lhs: "Jumlah", rhs: "24 × 12" },
+                    { lhs: "Jumlah", rhs: "24 + 12" },
                     {
-                      lhs: "Total",
+                      lhs: "Jumlah",
                       rhsFraction: {
                         numerator: "24",
                         denominator: "12",
@@ -776,11 +795,11 @@ const DATA = {
                 {
                   q: "Sekarang hitung 24 × 12.",
                   qWrong: "Salah! Coba lagi.",
-                  qCorrect: "Benar! Total tinggi = 288 cm.",
+                  qCorrect: "Benar! Jumlah tingginya = 288 cm.",
                   options: [
-                    { lhs: "Total", rhs: "280" },
-                    { lhs: "Total", rhs: "228" },
-                    { lhs: "Total", rhs: "288" },
+                    { lhs: "Jumlah", rhs: "280" },
+                    { lhs: "Jumlah", rhs: "228" },
+                    { lhs: "Jumlah", rhs: "288" },
                   ],
                   correct: 2,
                   exp1FromPrevious: true,
@@ -800,7 +819,7 @@ const DATA = {
               navText:
                 "Ketuk » untuk mengenali data yang 'diketahui' dan 'ditanya'.",
               statement:
-                "Sekelompok tas mempunyai<br>total berat 360 kg.<br>Berat mean per tas 12 kg.<br>Berapa banyak tasnya?",
+                "Sekelompok tas mempunyai<br>jumlah berat 360 kg.<br>Berat rata-rata per tas 12 kg.<br>Berapa banyak tasnya?",
             },
             2: {
               keysOrder: ["total", "mean", "bags"],
@@ -817,9 +836,9 @@ const DATA = {
               navTextToFind: "Ketuk data yang ditanya",
               navTextDone: "Ketuk » untuk menyelesaikan soal sekarang.",
               statementTemplate:
-                "Sekelompok tas mempunyai<br><span class='qs-highlight highlight-given' data-key='total'>total berat 360 kg</span>.<br><span class='qs-highlight highlight-given' data-key='mean'>Berat mean per tas 12 kg</span>.<br><span class='qs-highlight highlight-find' data-key='bags'>Berapa banyak tasnya?</span>",
-              givenTotal: "Total = 360 kg",
-              givenMean: "Mean = 12 kg",
+                "Sekelompok tas mempunyai<br><span class='qs-highlight highlight-given' data-key='total'>jumlah berat 360 kg</span>.<br><span class='qs-highlight highlight-given' data-key='mean'>Berat rata-rata per tas 12 kg</span>.<br><span class='qs-highlight highlight-find' data-key='bags'>Berapa banyak tasnya?</span>",
+              givenTotal: "Jumlah = 360 kg",
+              givenMean: "Rata-rata = 12 kg",
               toFindN: "n = ?",
               revealHint: "Ketuk informasi yang diketahui untuk menampilkannya",
               visual: BAGS_VISUAL_Q3_EN,
@@ -828,7 +847,7 @@ const DATA = {
               questionText:
                 "Persamaan manakah yang menempatkan setiap nilai dengan benar?",
               navText: "Ketuk persamaan yang benar.",
-              navTextDone: "Kamu telah menyelesaikan tantangan ini.",
+              navTextDone: "Ketuk » untuk melanjutkan ke tantangan berikutnya.",
               questionTextDone: "Bagus! Ada 30 tas dalam kelompok itu.",
               answerSlot: "n",
               finalAnswer: "30",
@@ -862,7 +881,7 @@ const DATA = {
                   correct: 0,
                   exp1: {
                     type: "mean_formula",
-                    left: "Mean =",
+                    left: "Rata-rata =",
                     numerator: "Jumlah semua nilai",
                     denominator: "Banyaknya nilai data",
                   },
@@ -915,7 +934,7 @@ const DATA = {
               navText:
                 "Ketuk » untuk mengenali data yang 'diketahui' dan 'ditanya'.",
               statement:
-                "Lima teman mencatat<br>banyak buku yang mereka baca:  4,  6,  x,  5,  5.<br>Mean-nya 6 buku.<br>Tentukan nilai yang hilang, x.",
+                "Lima teman mencatat<br>banyak buku yang mereka baca:  4,  6,  x,  5,  5.<br>Rata-ratanya 6 buku.<br>Tentukan nilai yang hilang, x.",
             },
             2: {
               keysOrder: ["students", "dataset", "mean", "missing"],
@@ -933,17 +952,16 @@ const DATA = {
               navTextToFind: "Ketuk data yang ditanya",
               navTextDone: "Ketuk » untuk menyelesaikan soal sekarang.",
               statementTemplate:
-                "<span class='qs-highlight highlight-given' data-key='students'>Lima teman</span> mencatat<br><span class='qs-highlight highlight-given' data-key='dataset'>banyak buku yang mereka baca:  4,  6,  x,  5,  5.</span><br><span class='qs-highlight highlight-given' data-key='mean'>Mean-nya 6</span> buku.<br><span class='qs-highlight highlight-find' data-key='missing'>Tentukan nilai yang hilang, x</span>.",
+                "<span class='qs-highlight highlight-given' data-key='students'>Lima teman</span> mencatat<br>banyak buku yang mereka baca: <span class='qs-highlight highlight-given' data-key='dataset'> 4,  6,  x,  5,  5.</span><br><span class='qs-highlight highlight-given' data-key='mean'>Rata-ratanya 6</span> buku.<br><span class='qs-highlight highlight-find' data-key='missing'>Tentukan nilai yang hilang, x</span>.",
               givenN: "n = 5",
               givenValues: "Nilai = 4, 6, x, 5, 5",
-              givenMean: "Mean = 6",
+              givenMean: "Rata-rata = 6",
               toFindX: "x = ?",
               revealHint: "Ketuk informasi yang diketahui untuk menampilkannya",
               visual: MISSING_VALUE_VISUAL_Q4_EN,
             },
             3: {
-              questionText:
-                "Masukkan setiap nilai ke tempatnya dalam rumus.",
+              questionText: "Masukkan setiap nilai ke tempatnya dalam rumus.",
               navText: "Ketuk persamaan yang benar.",
               navTextDone: "Ketuk » untuk menyelesaikan.",
               questionTextDone: "Bagus! Nilai yang hilang adalah x = 10.",
@@ -976,19 +994,7 @@ const DATA = {
                   correct: 0,
                   exp1: {
                     type: "html",
-                    html:
-                      "Mean = " +
-                      '<span class="formula-fraction">' +
-                      '<span class="formula-fraction-top">Jumlah</span>' +
-                      '<span class="formula-fraction-bar"></span>' +
-                      '<span class="formula-fraction-bottom">Banyaknya</span>' +
-                      "</span>" +
-                      " = " +
-                      '<span class="formula-fraction">' +
-                      '<span class="formula-fraction-top">x<sub>1</sub> + x<sub>2</sub> + ⋯ + x<sub>n</sub></span>' +
-                      '<span class="formula-fraction-bar"></span>' +
-                      '<span class="formula-fraction-bottom">n</span>' +
-                      "</span>",
+                    useTermsFormula: true,
                   },
                   implies1: false,
                   implies2: true,

@@ -1,0 +1,265 @@
+.summary-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  color: white;
+  padding: 1.2vw 2vw 8vw;
+  box-sizing: border-box;
+  overflow-y: auto;
+  gap: 1.4vw;
+  position: relative;
+}
+
+.summary-heading {
+  font-weight: bold;
+  font-size: 3.1vw;
+  margin: 0 0 0.6vw;
+  color: #ffb63e;
+  text-align: center;
+}
+
+/* ── Summary data row ── */
+.summary-dr-container {
+  background: rgba(8, 22, 50, 0.72);
+  border-radius: 1.2vw;
+  padding: 4.5vw 2.4vw 1.4vw;
+  display: inline-flex;
+  justify-content: center;
+  max-width: 96%;
+  overflow: visible;
+}
+
+.summary-dr-row {
+  display: flex;
+  gap: 1.5vw;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.summary-num-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.summary-circle-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.summary-circle {
+  width: 6vw;
+  height: 6vw;
+  border-radius: 50%;
+  background: #3c9eda;
+  border: 0.3vw solid #83c3eb;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.summary-circle.summary-circle-mid {
+  background: #e84888;
+  border-color: #f973a8;
+}
+
+.summary-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin-bottom: 0.25vw;
+  min-width: 3.5vw;
+  height: 3.5vw;
+  padding: 0 0.35vw;
+  border-radius: 0.35vw;
+  font-size: 2.5vw;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  box-sizing: border-box;
+  box-shadow: 0 0 0.3vw rgba(0, 0, 0, 0.2);
+}
+
+.summary-badge.bg-tan {
+  background: #d4c8a0;
+  color: #2a3040;
+}
+
+.summary-badge.bg-pink {
+  background: #e84888;
+  color: white;
+}
+
+.summary-badge.summary-badge-frac-host {
+  min-width: 5.8vw;
+  height: 5.4vw;
+  padding: 0.35vw 0.45vw;
+  margin-bottom: -0.15vw;
+  transform: translateX(-50%) translateY(0.65vw);
+  z-index: 6;
+}
+
+.summary-badge.summary-badge-frac-host.bg-tan,
+.summary-badge.summary-badge-frac-host.bg-pink {
+  transform: translateX(-50%) translateY(0.65vw);
+}
+
+.summary-badge.bg-blue {
+  background: #4a90d9;
+  color: white;
+}
+
+/* Mini fraction inside middle badge */
+.summary-badge-frac {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  color: #2a3040;
+}
+
+.summary-badge.bg-pink .summary-badge-frac {
+  color: #1a2030;
+}
+
+.sbf-num {
+  display: flex;
+  align-items: center;
+  font-size: 1.85vw;
+  font-weight: 700;
+  padding-bottom: 0.12vw;
+}
+
+.sbf-n {
+  background: #4a90d9;
+  color: white;
+  padding: 0.1vw 0.5vw;
+  border-radius: 0.28vw;
+  margin-right: 0.15vw;
+  font-size: 1.75vw;
+  font-weight: 700;
+}
+
+.sbf-plus {
+  font-size: 1.75vw;
+  font-weight: 700;
+}
+
+.sbf-line {
+  width: 100%;
+  min-width: 4.2vw;
+  height: 0.2vw;
+  background: currentColor;
+}
+
+.sbf-den {
+  font-size: 1.85vw;
+  font-weight: 700;
+  padding-top: 0.12vw;
+}
+
+/* ── Generalised formula ── */
+.summary-formula-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9vw;
+  text-align: center;
+  width: 100%;
+  max-width: 92%;
+}
+
+.summary-formula-intro,
+.summary-formula-outro {
+  margin: 0;
+  font-size: 2.35vw;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.summary-formula-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+}
+
+.summary-formula-box {
+  background: rgba(120, 40, 80, 0.55);
+  border: 0.22vw solid #e84888;
+  border-radius: 1vw;
+  padding: 0.9vw 1.6vw;
+}
+
+.summary-frac {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-frac-num {
+  display: flex;
+  align-items: center;
+  gap: 0.45vw;
+  font-size: 2.8vw;
+  font-weight: 600;
+  color: white;
+  padding-bottom: 0.3vw;
+}
+
+.summary-n-box {
+  background: #4a90d9;
+  color: white;
+  padding: 0.15vw 0.65vw;
+  border-radius: 0.35vw;
+  font-weight: 700;
+  font-size: 2.8vw;
+}
+
+.summary-frac-op {
+  font-weight: 600;
+}
+
+.summary-frac-line {
+  width: 100%;
+  min-width: 10vw;
+  height: 0.22vw;
+  background: white;
+  border-radius: 0.12vw;
+}
+
+.summary-frac-den {
+  font-size: 2.8vw;
+  font-weight: 600;
+  color: white;
+  padding-top: 0.3vw;
+}
+
+.summary-th {
+  font-size: 3.4vw;
+  font-weight: 700;
+  color: #e84888;
+  align-self: flex-start;
+  margin-top: 0.15vw;
+}
+
+.summary-footer-text {
+  margin: 0.8vw 0 0;
+  font-size: 2.2vw;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.summary-start-over-btn {
+  position: absolute;
+  bottom: 2.6vw;
+}

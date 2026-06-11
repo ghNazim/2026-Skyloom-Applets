@@ -1,0 +1,400 @@
+.main-canvas-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Layout rows ── */
+
+.visual-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 0.5vw;
+  overflow: hidden;
+}
+
+.bottom-row {
+  flex-shrink: 0;
+  flex-basis: 0%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: flex-basis 0.5s ease;
+}
+
+.bottom-row.has-content {
+  flex-basis: 33%;
+}
+
+/* ── Columns ── */
+
+.left-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-column {
+  width: 0;
+  min-width: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.6s ease;
+}
+
+.right-column.visible {
+  width: 40%;
+}
+
+/* ── Info text box (right column) ── */
+
+.info-text-box {
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 25, 55, 0.85);
+  border-radius: 1vw;
+  padding: 1.5vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.2vw;
+  min-width: 20vw;
+  box-sizing: border-box;
+}
+
+.info-text-section,
+.info-data-section {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  font-size: 2.4vw;
+  line-height: 1.45;
+  width: 100%;
+}
+
+.info-text-section.visible,
+.info-data-section.visible {
+  opacity: 1;
+}
+
+.info-data-section {
+  font-size: 2.4vw;
+}
+
+/* ── Frequency table ── */
+
+.freq-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35vw;
+}
+
+.table-row {
+  display: flex;
+}
+
+.table-cell {
+  width: 14vw;
+  height: 3.6vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5vw;
+  font-size: 2.5vw;
+  font-weight: 600;
+  color: white;
+  margin-left: 0.35vw;
+  flex-shrink: 0;
+}
+
+.table-cell:first-child {
+  margin-left: 0;
+}
+
+/* Header cells */
+
+.header-cell {
+  height: 4.6vw;
+  font-size: 2vw;
+  font-weight: 700;
+  background: #d4ccb6;
+  color: #2a3040;
+  height: 5vw;
+}
+
+.cf-header {
+  line-height: 1.15;
+}
+
+/* Data column – progressive gray */
+
+.data-cell-0 { background: #8a9199; }
+.data-cell-1 { background: #7d868f; }
+.data-cell-2 { background: #707b85; }
+.data-cell-3 { background: #63707b; }
+.data-cell-4 { background: #566571; }
+
+/* Frequency column – progressive blue */
+
+.freq-cell-0 { background: #6a9ab8; }
+.freq-cell-1 { background: #5e8eae; }
+.freq-cell-2 { background: #5282a4; }
+.freq-cell-3 { background: #46769a; }
+.freq-cell-4 { background: #3a6a90; }
+
+/* Cumulative frequency column – hidden by default */
+
+.cf-cell,
+.cf-header {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-left: 0;
+  padding: 0;
+  transition: width 0.6s ease, opacity 0.6s ease, margin-left 0.6s ease, padding 0.6s ease;
+}
+
+.cf-cell.visible,
+.cf-header.visible {
+  width: 14vw;
+  opacity: 1;
+  margin-left: 0.35vw;
+  padding: 0 0.4vw;
+}
+
+.cf-cell {
+  background: #5a3858;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 2.4vw;
+  cursor: default;
+}
+
+.cf-cell.active {
+  background: #d65090;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 0 0.8vw rgba(214, 80, 144, 0.5);
+  animation: cf-blink 1s ease-in-out infinite;
+}
+
+@keyframes cf-blink {
+  0%, 100% { box-shadow: 0 0 0.5vw rgba(214, 80, 144, 0.4); outline: 0.2vw solid rgba(255, 255, 255, 0.15); }
+  50% { box-shadow: 0 0 1.2vw rgba(255, 100, 180, 0.75); outline: 0.2vw solid rgba(255, 255, 255, 0.7); }
+}
+
+.cf-cell.filled {
+  background: #e04882;
+  color: white;
+}
+
+/* Step 4 – dim / highlight table rows */
+.table-row.row-dimmed .table-cell {
+  opacity: 0.28;
+  filter: brightness(0.55);
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+
+.table-row.row-highlighted .table-cell {
+  opacity: 1;
+  filter: none;
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+
+.table-row.row-highlighted .cf-cell.filled {
+  box-shadow: 0 0 1vw rgba(224, 72, 130, 0.55);
+}
+
+/* ── Glow effect for animation ── */
+
+.glow-yellow {
+  color: #ffff00 !important;
+  font-weight: bold !important;
+  text-shadow: 0 0 0.5vw #ffff00, 0 0 1vw rgba(255, 255, 0, 0.5) !important;
+}
+
+/* ── Bottom row: data boxes ── */
+
+.data-boxes-container {
+  display: flex;
+  gap: 0.5vw;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-top: 1.8vw;
+  padding-bottom: 2.2vw;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.data-boxes-container.visible {
+  opacity: 1;
+}
+
+.data-box {
+  width: 4.2vw;
+  height: 4.2vw;
+  border-radius: 0.4vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5vw;
+  font-weight: 600;
+  position: relative;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* De-highlighted boxes */
+.data-box.dehighlighted {
+  background: rgba(70, 80, 100, 0.4);
+  color: rgba(180, 160, 100, 0.4);
+}
+
+/* Highlighted boxes – colors match data column rows */
+.data-box.highlighted.val-5 { background: #8a9199; color: white; }
+.data-box.highlighted.val-6 { background: #7d868f; color: white; }
+.data-box.highlighted.val-7 { background: #707b85; color: white; }
+.data-box.highlighted.val-8 { background: #63707b; color: white; }
+.data-box.highlighted.val-9 { background: #566571; color: white; }
+
+/* Box labels (ordinal: 1st, 2nd, …) */
+
+.box-label {
+  position: absolute;
+  top: -3vw;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.8vw;
+  font-weight: 600;
+  white-space: nowrap;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.4s ease, color 0.3s ease;
+}
+
+.box-label sup {
+  font-size: 0.65em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+.box-label.visible {
+  opacity: 1;
+}
+.box-label.id{
+  font-size: 1.5vw !important;
+}
+.box-label.orange {
+  color: #f0a030;
+}
+
+.box-label.always-visible {
+  opacity: 1;
+}
+
+/* Step 4 – single selected box */
+.data-box.step4-default {
+  background: rgba(45, 55, 75, 0.55);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 2.2vw;
+  font-weight: 500;
+  border: 0.2vw solid transparent;
+}
+
+.data-box.step4-selected {
+  background: rgba(70, 80, 100, 0.85);
+  color: white;
+  font-size: 3vw;
+  font-weight: 800;
+  border: 0.28vw solid #f0c030;
+  box-shadow: 0 0 0.6vw rgba(240, 192, 48, 0.55);
+}
+
+.data-boxes-container.step4-mode {
+  padding-bottom: 4.5vw;
+  touch-action: none;
+}
+
+/* Drag pointer (step 4) – tip points upward toward the box */
+.drag-pointer {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 1.82vw solid transparent;
+  border-right: 1.82vw solid transparent;
+  border-bottom: 2.86vw solid #f0a030;
+  transform: translateX(-50%);
+  cursor: grab;
+  z-index: 12;
+  touch-action: none;
+  user-select: none;
+  filter: drop-shadow(0 0.15vw 0.3vw rgba(0, 0, 0, 0.35));
+  transition: left 0.2s ease;
+}
+
+.drag-pointer.dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+/* Arrow indicator (step 2) */
+.box-arrow {
+  position: absolute;
+  width: 3.2vw;
+  height: 4vw;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+}
+
+.box-arrow svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* ── Animation overlay ── */
+
+.animation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Flying clone numbers */
+
+.flying-number {
+  font-size: 2.4vw;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 0 0.6vw rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.flying-number.table-cell-size {
+  font-size: 2.5vw;
+  font-weight: 600;
+}
+
+/* Plus / equals signs in the bounding-rect overlay */
+
+.plus-sign,
+.equals-sign {
+  pointer-events: none;
+  white-space: nowrap;
+}

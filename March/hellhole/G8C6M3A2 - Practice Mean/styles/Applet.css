@@ -1,13 +1,13 @@
 .applet-container {
   aspect-ratio: 16 / 9;
-  width: 99vw;
-  height: calc(99vw * 9 / 16);
-  max-width: 99vw;
-  max-height: 99vh;
+  width: 100vw;
+  height: calc(100vw * 9 / 16);
+  max-width: 100vw;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   margin: auto;
-  gap: 0.45vw;
+  /* gap: 0.45vw; */
   position: relative;
 }
 
@@ -18,7 +18,7 @@
   overflow: hidden;
   border-radius: 1vw;
   background: rgba(7, 28, 67, 0.43);
-  border: 1px solid rgba(175, 195, 235, 0.24);
+  /* border: 1px solid rgba(175, 195, 235, 0.24); */
   padding: 0.5vw;
 }
 
@@ -32,9 +32,10 @@
   height: 6.2vw;
   max-height: 6.2vw;
   min-height: 6.2vw;
-  background: rgba(8, 31, 72, 0.48);
+  /* background: rgba(255, 255, 255, 0.05); */
   border-radius: 0.8vw;
-  padding: 0.5vw;
+  padding: 0 0.5vw;
+
    /* background: rgba(255, 255, 255, 0.355); */
   /* border: 1px solid rgba(175, 195, 235, 0.2); */
 }

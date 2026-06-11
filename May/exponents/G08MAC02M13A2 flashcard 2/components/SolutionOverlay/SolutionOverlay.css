@@ -1,0 +1,111 @@
+.solution-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  animation: overlayFadeIn 0.3s ease;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.solution-overlay-content {
+  background: #ffffff;
+  border-radius: 1.2vw;
+  padding: 1vw 3vw;
+  min-width: 45vw;
+  max-width: 70vw;
+  max-height: 90%;
+  /* overflow-y: auto; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2vw;
+  box-shadow: 0 0.5vw 3vw rgba(0, 0, 0, 0.5);
+  animation: contentSlideIn 0.3s ease;
+}
+
+@keyframes contentSlideIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.solution-steps-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2vw;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.solution-text-step {
+  font-size: 1.7vw;
+  color: #333333;
+  margin: 0.5vw 0;
+  text-align: left;
+  font-weight: 500;
+  width: 100%;
+}
+
+.solution-math-step {
+  text-align: left;
+  margin: 0.3vw 0;
+  width: 100%;
+}
+.solution-math-step .katex-display {
+  margin: 0.5em 0;
+  text-align: left;
+}
+.solution-math-step .katex {
+  font-size: 2.1vw;
+  color: #333333;
+}
+
+.solution-close-btn {
+  /* margin-top: 1.2vw; */
+  padding: 0.7vw 2.5vw;
+  font-size: 1.3vw;
+  font-weight: 600;
+  background: linear-gradient(135deg, #6c63ff, #4834d4);
+  color: #fff;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 0.3vw 1vw rgba(108, 99, 255, 0.3);
+}
+
+.solution-close-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0.4vw 1.5vw rgba(108, 99, 255, 0.5);
+}
+
+.solution-close-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tap-nudge--solution {
+  bottom: -1vw;
+  right: -1.5vw;
+}

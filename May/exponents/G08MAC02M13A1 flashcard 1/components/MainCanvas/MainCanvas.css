@@ -1,0 +1,33 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.canvas-two-col {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 2vw;
+  gap: 2vw;
+}
+
+.left-panel {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.right-panel {
+  flex: 0 0 58%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1vw;
+}
