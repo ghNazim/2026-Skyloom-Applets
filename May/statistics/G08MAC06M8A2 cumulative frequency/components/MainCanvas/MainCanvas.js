@@ -1,5 +1,5 @@
 const MainCanvas = (props) => {
-  const { step, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText } = props;
+  const { step, initialStage, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText } = props;
   const { useState, useEffect, useRef, useCallback } = React;
   const e = React.createElement;
 
@@ -158,8 +158,106 @@ const MainCanvas = (props) => {
     if (overlayRef.current) overlayRef.current.innerHTML = "";
   }
 
+  function clearOverlay() {
+    if (overlayRef.current) overlayRef.current.innerHTML = "";
+  }
+
+  function applyStepFinalState(stepNum) {
+    if (stepNum === 1) {
+      setShowCFColumn(false);
+      setShowRightColumn(false);
+      setShowBottomRow(false);
+      setCfValues([null, null, null, null, null]);
+      setActiveRowIndex(0);
+      activeRowRef.current = 0;
+      setHighlightedUpTo(-1);
+      setOrangeLabels({});
+      setArrowBoxIndex(-1);
+      setTextSectionHtml("");
+      setDataSectionHtml("");
+      setShowTextSection(false);
+      setShowDataSection(false);
+      setIsAnimating(false);
+      isAnimatingRef.current = false;
+      clearOverlay();
+      if (arrowPulseRef.current) { arrowPulseRef.current.kill(); arrowPulseRef.current = null; }
+      onSetNextEnabled(true);
+      return;
+    }
+
+    if (stepNum === 2) {
+      var lastRow = tableData.length - 1;
+      setShowCFColumn(true);
+      setShowRightColumn(true);
+      setShowBottomRow(true);
+      setCfValues(cumulativeFreqs.slice());
+      setActiveRowIndex(lastRow);
+      activeRowRef.current = lastRow;
+      setHighlightedUpTo(sortedData.length - 1);
+      var cfOranges = {};
+      for (var oi = 0; oi < cumulativeFreqs.length; oi++) {
+        cfOranges[cumulativeFreqs[oi] - 1] = true;
+      }
+      setOrangeLabels(cfOranges);
+      setArrowBoxIndex(cumulativeFreqs[lastRow] - 1);
+      setTextSectionHtml(APP_DATA.steps[2].textSectionNext);
+      setDataSectionHtml(APP_DATA.steps[2].dataSections[lastRow]);
+      setShowTextSection(true);
+      setShowDataSection(true);
+      setIsAnimating(false);
+      isAnimatingRef.current = false;
+      clearOverlay();
+      onUpdateQuestionText(APP_DATA.steps[2].questionTextDone);
+      onUpdateNavText(APP_DATA.steps[2].navTextDone);
+      onSetNextEnabled(true);
+      return;
+    }
+
+    if (stepNum === 3) {
+      setShowCFColumn(true);
+      setShowRightColumn(false);
+      setShowTextSection(false);
+      setShowDataSection(false);
+      setCfValues(cumulativeFreqs.slice());
+      setHighlightedUpTo(sortedData.length - 1);
+      var step3Oranges = {};
+      for (var si = 0; si < cumulativeFreqs.length; si++) {
+        step3Oranges[cumulativeFreqs[si] - 1] = true;
+      }
+      setOrangeLabels(step3Oranges);
+      setArrowBoxIndex(-1);
+      setShowBottomRow(true);
+      if (arrowPulseRef.current) { arrowPulseRef.current.kill(); arrowPulseRef.current = null; }
+      onSetNextEnabled(true);
+      return;
+    }
+
+    if (stepNum === 4) {
+      setShowCFColumn(true);
+      setShowRightColumn(false);
+      setShowTextSection(false);
+      setShowDataSection(false);
+      setCfValues(cumulativeFreqs.slice());
+      setHighlightedUpTo(-1);
+      setOrangeLabels({});
+      setArrowBoxIndex(-1);
+      setSelectedBoxIndex(0);
+      selectedBoxRef.current = 0;
+      setShowBottomRow(true);
+      isDraggingRef.current = false;
+      if (arrowPulseRef.current) { arrowPulseRef.current.kill(); arrowPulseRef.current = null; }
+      onUpdateQuestionText(APP_DATA.steps[4].positionQuestions[0]);
+      onSetNextEnabled(true);
+    }
+  }
+
   /* ───── step init ───── */
   useEffect(function () {
+    if (initialStage === "final") {
+      applyStepFinalState(step);
+      return;
+    }
+
     if (step === 1) {
       setShowCFColumn(false);
       setShowRightColumn(false);
@@ -178,6 +276,9 @@ const MainCanvas = (props) => {
       isAnimatingRef.current = false;
       clearOverlay();
       if (arrowPulseRef.current) { arrowPulseRef.current.kill(); arrowPulseRef.current = null; }
+      setTimeout(function () {
+        onSetNextEnabled(true);
+      }, 0);
     }
     if (step === 2) {
       setCfValues([null, null, null, null, null]);
@@ -244,7 +345,7 @@ const MainCanvas = (props) => {
         onSetNextEnabled(true);
       }, 0);
     }
-  }, [step]);
+  }, [step, initialStage]);
 
   /* ───── arrow positioning ───── */
   useEffect(function () {
@@ -622,6 +723,14 @@ const MainCanvas = (props) => {
         rowClass += i === highlightedTableRow ? " row-highlighted" : " row-dimmed";
       }
 
+      var cfCellClass = "table-cell cf-cell" +
+        (showCF ? " visible" : "") +
+        (isActive ? " active" : "") +
+        (isFilled ? " filled" : "");
+      if (step === 4 && i === highlightedTableRow) {
+        cfCellClass += " cf-highlight-blink";
+      }
+
       return e("div", { className: rowClass, key: "tr-" + i },
         e("div", { className: "table-cell data-cell data-cell-" + i }, row.value),
         e("div", {
@@ -629,10 +738,7 @@ const MainCanvas = (props) => {
           ref: function (el) { freqCellRefs.current[i] = el; },
         }, row.frequency),
         e("div", {
-          className: "table-cell cf-cell" +
-            (showCF ? " visible" : "") +
-            (isActive ? " active" : "") +
-            (isFilled ? " filled" : ""),
+          className: cfCellClass,
           ref: function (el) { cfCellRefs.current[i] = el; },
           onClick: step === 2 ? function () { handleCFCellClick(i); } : undefined,
         }, isFilled ? (step === 3 || step === 4 ? cumulativeFreqs[i] : cfValues[i]) : "?")

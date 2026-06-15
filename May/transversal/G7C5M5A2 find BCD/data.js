@@ -50,6 +50,7 @@ const DATA = {
       step7: {
         wrongHint: "Co-interior\nangles add\nup to 180\u00B0!",
         tapAngleC: "Tap angle C to find its measure.",
+        findAngleC: "Let\u2019s find angle <bl>C</bl>!",
       },
       step8: {
         animParallel: "Lines \u2018m\u2019 and \u2018n\u2019 are parallel.",
@@ -65,6 +66,7 @@ const DATA = {
       step9: {
         wrongHint: "Co-interior\nangles add\nup to 180\u00B0!",
         tapAngleD: "Tap angle D to find its measure.",
+        findAngleD: "Let\u2019s find angle <pr>D</pr>!",
       },
       step10: {
         animParallel: "Lines \u2018m\u2019 and \u2018n\u2019 are parallel.",
@@ -80,6 +82,7 @@ const DATA = {
       step11: {
         wrongHint: "Co-interior\nangles add\nup to 180\u00B0!",
         navSummarise: "Tap \u00BB to summarise.",
+        angleDFound: "<pr>\u2220D = 50\u00B0</pr>",
       },
       steps: [
         {
@@ -183,6 +186,7 @@ const DATA = {
       step7: {
         wrongHint: "Sudut dalam sepihak\nberjumlah\n180\u00B0!",
         tapAngleC: "Ketuk sudut C untuk menemukan ukurannya.",
+        findAngleC: "Mari cari sudut <bl>C</bl>!",
       },
       step8: {
         animParallel: "Garis \u2018m\u2019 dan \u2018n\u2019 sejajar.",
@@ -198,6 +202,7 @@ const DATA = {
       step9: {
         wrongHint: "Sudut dalam sepihak\nberjumlah\n180\u00B0!",
         tapAngleD: "Ketuk sudut D untuk menemukan ukurannya.",
+        findAngleD: "Mari cari sudut <pr>D</pr>!",
       },
       step10: {
         animParallel: "Garis \u2018m\u2019 dan \u2018n\u2019 sejajar.",
@@ -213,6 +218,7 @@ const DATA = {
       step11: {
         wrongHint: "Sudut dalam sepihak\nberjumlah\n180\u00B0!",
         navSummarise: "Ketuk \u00BB untuk merangkum.",
+        angleDFound: "<pr>\u2220D = 50\u00B0</pr>",
       },
       steps: [
         {

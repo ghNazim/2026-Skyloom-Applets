@@ -19,9 +19,15 @@ function SchoolCompareCanvas(props) {
   var sampleBarColor = step7Config.barColor || "#5b9bd5";
   var sampleHeading = step7Config.sampleHeading || "Sample";
 
-  var SVG_W = 760, SVG_H = 440;
-  var ML = 50, MR = 30, MT = 10, MB = 30;
-  var XMIN = 0, XMAX = 21, YMAX = 70;
+  var SVG_W = 760,
+    SVG_H = 440;
+  var ML = 50,
+    MR = 30,
+    MT = 10,
+    MB = 30;
+  var XMIN = 0,
+    XMAX = 21,
+    YMAX = 70;
   var pW = SVG_W - ML - MR;
   var pH = SVG_H - MT - MB;
   var xSc = pW / XMAX;
@@ -30,8 +36,12 @@ function SchoolCompareCanvas(props) {
   var AXIS_LABEL_SIZE = 15;
   var Y_TICK_STROKE = 2.5;
 
-  function xP(x) { return ML + (x - XMIN) * xSc; }
-  function yP(y) { return MT + (YMAX - y) * ySc; }
+  function xP(x) {
+    return ML + (x - XMIN) * xSc;
+  }
+  function yP(y) {
+    return MT + (YMAX - y) * ySc;
+  }
   var baseY = yP(0);
 
   function getPathPoints(data, scale) {
@@ -86,15 +96,39 @@ function SchoolCompareCanvas(props) {
   }
 
   function ptsToPathD(pts) {
-    return "M " + pts[0][0] + " " + pts[0][1] +
-      pts.slice(1).map(function (p) { return " L " + p[0] + " " + p[1]; }).join("");
+    return (
+      "M " +
+      pts[0][0] +
+      " " +
+      pts[0][1] +
+      pts
+        .slice(1)
+        .map(function (p) {
+          return " L " + p[0] + " " + p[1];
+        })
+        .join("")
+    );
   }
 
   function fillPathD(pts) {
-    var first = pts[0], last = pts[pts.length - 1];
-    return "M " + first[0] + " " + baseY +
-      pts.map(function (p) { return " L " + p[0] + " " + p[1]; }).join("") +
-      " L " + last[0] + " " + baseY + " Z";
+    var first = pts[0],
+      last = pts[pts.length - 1];
+    return (
+      "M " +
+      first[0] +
+      " " +
+      baseY +
+      pts
+        .map(function (p) {
+          return " L " + p[0] + " " + p[1];
+        })
+        .join("") +
+      " L " +
+      last[0] +
+      " " +
+      baseY +
+      " Z"
+    );
   }
 
   var popPts = getPathPoints(popData, 1);
@@ -105,17 +139,23 @@ function SchoolCompareCanvas(props) {
   var samFillD = fillPathD(samPts);
 
   var _cv = useState(startAtFinal ? "merged" : "split");
-  var compareView = _cv[0], setCompareView = _cv[1];
+  var compareView = _cv[0],
+    setCompareView = _cv[1];
   var _sel = useState(null);
-  var selectedOption = _sel[0], setSelectedOption = _sel[1];
+  var selectedOption = _sel[0],
+    setSelectedOption = _sel[1];
   var _retry = useState(false);
-  var retryMode = _retry[0], setRetryMode = _retry[1];
+  var retryMode = _retry[0],
+    setRetryMode = _retry[1];
   var _locked = useState(false);
-  var mcqFullyLocked = _locked[0], setMcqFullyLocked = _locked[1];
+  var mcqFullyLocked = _locked[0],
+    setMcqFullyLocked = _locked[1];
   var _anim = useState(false);
-  var isAnimating = _anim[0], setIsAnimating = _anim[1];
+  var isAnimating = _anim[0],
+    setIsAnimating = _anim[1];
   var _fb = useState(null);
-  var mcqFeedback = _fb[0], setMcqFeedback = _fb[1];
+  var mcqFeedback = _fb[0],
+    setMcqFeedback = _fb[1];
 
   var animatingRef = useRef(false);
   var cmpBgRef = useRef(null);
@@ -138,6 +178,11 @@ function SchoolCompareCanvas(props) {
   var isYesQuestion = correctAnswer === "Yes" || correctAnswer === "Ya";
   var pathAccentColor = isYesQuestion ? "#7CFC00" : "#ff5252";
   var pathBlinkClass = isYesQuestion ? "blink-green" : "blink-red";
+  var POP_FILL_COLOR = "rgba(195,50,75,0.7)";
+  var POP_STROKE_COLOR = "rgb(224, 83, 109)";
+  var SAM_FILL_COLOR = "rgba(91,155,213,0.7)";
+  var SAM_STROKE_COLOR = "rgba(145,195,245,1)";
+  var PATH_STROKE_WIDTH = 7.5;
 
   function applyStep7FinalState() {
     setCompareView("merged");
@@ -151,10 +196,18 @@ function SchoolCompareCanvas(props) {
     resetCmpAnim();
 
     if (leftSlideRef.current) {
-      gsap.set(leftSlideRef.current, { visibility: "hidden", opacity: 0, clearProps: "x" });
+      gsap.set(leftSlideRef.current, {
+        visibility: "hidden",
+        opacity: 0,
+        clearProps: "x",
+      });
     }
     if (rightSlideRef.current) {
-      gsap.set(rightSlideRef.current, { visibility: "hidden", opacity: 0, clearProps: "x" });
+      gsap.set(rightSlideRef.current, {
+        visibility: "hidden",
+        opacity: 0,
+        clearProps: "x",
+      });
     }
     if (centerRef.current) {
       gsap.set(centerRef.current, { visibility: "visible", opacity: 1 });
@@ -167,22 +220,24 @@ function SchoolCompareCanvas(props) {
         opacity: 1,
         attr: {
           stroke: pathAccentColor,
-          "stroke-width": 4,
+          "stroke-width": PATH_STROKE_WIDTH,
           "stroke-dashoffset": 0,
           "stroke-dasharray": "none",
         },
       });
+      popPath.classList.add(pathBlinkClass);
     }
     if (samPath) {
       gsap.set(samPath, {
         opacity: 1,
         attr: {
           stroke: pathAccentColor,
-          "stroke-width": 4,
+          "stroke-width": PATH_STROKE_WIDTH,
           "stroke-dashoffset": 0,
           "stroke-dasharray": "none",
         },
       });
+      samPath.classList.add(pathBlinkClass);
     }
     if (cmpPopFillRef.current) gsap.set(cmpPopFillRef.current, { opacity: 1 });
     if (cmpSamFillRef.current) gsap.set(cmpSamFillRef.current, { opacity: 1 });
@@ -194,29 +249,36 @@ function SchoolCompareCanvas(props) {
     }
 
     onUpdateQuestionText(null);
-    onUpdateNavText(isLastQuestion ? step7Config.navNextLast : step7Config.navNext);
+    onUpdateNavText(
+      isLastQuestion ? step7Config.navNextLast : step7Config.navNext,
+    );
     onSetNextEnabled(true);
   }
 
-  useEffect(function () {
-    if (step !== 7) return;
-    onUpdateNavText(null);
+  useEffect(
+    function () {
+      if (step !== 7) return;
+      onUpdateNavText(null);
 
-    if (startAtFinal) {
-      setCompareView("merged");
-      var finalTimer = setTimeout(applyStep7FinalState, 80);
-      return function () { clearTimeout(finalTimer); };
-    }
+      if (startAtFinal) {
+        setCompareView("merged");
+        var finalTimer = setTimeout(applyStep7FinalState, 80);
+        return function () {
+          clearTimeout(finalTimer);
+        };
+      }
 
-    setCompareView("split");
-    setSelectedOption(null);
-    setRetryMode(false);
-    setMcqFullyLocked(false);
-    setIsAnimating(false);
-    setMcqFeedback(null);
-    animatingRef.current = false;
-    onSetNextEnabled(false);
-  }, [step, questionIndex, startAtFinal]);
+      setCompareView("split");
+      setSelectedOption(null);
+      setRetryMode(false);
+      setMcqFullyLocked(false);
+      setIsAnimating(false);
+      setMcqFeedback(null);
+      animatingRef.current = false;
+      onSetNextEnabled(false);
+    },
+    [step, questionIndex, startAtFinal],
+  );
 
   function clearWrongEffects() {
     if (cmpBgRef.current) cmpBgRef.current.style.filter = "";
@@ -229,13 +291,15 @@ function SchoolCompareCanvas(props) {
   }
 
   function resetCmpAnim() {
-    [cmpPopFillRef, cmpSamFillRef, cmpPopPathRef, cmpSamPathRef].forEach(function (ref) {
-      if (!ref.current) return;
-      gsap.killTweensOf(ref.current);
-      gsap.set(ref.current, { opacity: 0 });
-      ref.current.classList.remove("blink-green", "blink-red");
-      ref.current.removeAttribute("style");
-    });
+    [cmpPopFillRef, cmpSamFillRef, cmpPopPathRef, cmpSamPathRef].forEach(
+      function (ref) {
+        if (!ref.current) return;
+        gsap.killTweensOf(ref.current);
+        gsap.set(ref.current, { opacity: 0 });
+        ref.current.classList.remove("blink-green", "blink-red");
+        ref.current.removeAttribute("style");
+      },
+    );
     if (cmpBgRef.current) cmpBgRef.current.removeAttribute("style");
     if (cmpPopBarsRef.current) cmpPopBarsRef.current.removeAttribute("style");
     if (cmpSamBarsRef.current) cmpSamBarsRef.current.removeAttribute("style");
@@ -269,9 +333,13 @@ function SchoolCompareCanvas(props) {
       ease: "none",
     });
 
-    tl.call(function () {
-      gsap.set(cmpPopFillRef.current, { opacity: 1 });
-    }, null, "+=0.4");
+    tl.call(
+      function () {
+        gsap.set(cmpPopFillRef.current, { opacity: 1 });
+      },
+      null,
+      "+=0.4",
+    );
 
     tl.to(cmpPopClipRef.current, {
       attr: { height: SVG_H },
@@ -293,9 +361,13 @@ function SchoolCompareCanvas(props) {
       ease: "none",
     });
 
-    tl.call(function () {
-      gsap.set(cmpSamFillRef.current, { opacity: 1 });
-    }, null, "+=0.4");
+    tl.call(
+      function () {
+        gsap.set(cmpSamFillRef.current, { opacity: 1 });
+      },
+      null,
+      "+=0.4",
+    );
 
     tl.to(cmpSamClipRef.current, {
       attr: { height: SVG_H },
@@ -303,32 +375,46 @@ function SchoolCompareCanvas(props) {
       ease: "power2.out",
     });
 
-    tl.call(function () {
-      gsap.to(popPath, { attr: { stroke: pathAccentColor, "stroke-width": 4 }, duration: 0.5 });
-      gsap.to(samPath, { attr: { stroke: pathAccentColor, "stroke-width": 4 }, duration: 0.5 });
-      if (isWrongAnswer) {
-        if (cmpBgRef.current) {
-          cmpBgRef.current.style.transition = "filter 0.6s ease";
-          cmpBgRef.current.style.filter = "blur(5px)";
-        }
-        if (cmpPopBarsRef.current) {
-          cmpPopBarsRef.current.style.transition = "filter 0.6s ease";
-          cmpPopBarsRef.current.style.filter = "blur(5px)";
-        }
-        if (cmpSamBarsRef.current) {
-          cmpSamBarsRef.current.style.transition = "filter 0.6s ease";
-          cmpSamBarsRef.current.style.filter = "blur(5px)";
+    tl.call(
+      function () {
+        gsap.to(popPath, {
+          attr: { stroke: pathAccentColor, "stroke-width": PATH_STROKE_WIDTH },
+          duration: 0.5,
+        });
+        gsap.to(samPath, {
+          attr: { stroke: pathAccentColor, "stroke-width": PATH_STROKE_WIDTH },
+          duration: 0.5,
+        });
+        if (isWrongAnswer) {
+          if (cmpBgRef.current) {
+            cmpBgRef.current.style.transition = "filter 0.6s ease";
+            cmpBgRef.current.style.filter = "blur(5px)";
+          }
+          if (cmpPopBarsRef.current) {
+            cmpPopBarsRef.current.style.transition = "filter 0.6s ease";
+            cmpPopBarsRef.current.style.filter = "blur(5px)";
+          }
+          if (cmpSamBarsRef.current) {
+            cmpSamBarsRef.current.style.transition = "filter 0.6s ease";
+            cmpSamBarsRef.current.style.filter = "blur(5px)";
+          }
         }
         popPath.classList.add(pathBlinkClass);
         samPath.classList.add(pathBlinkClass);
-      }
-    }, null, "+=1.5");
+      },
+      null,
+      "+=1.5",
+    );
 
-    tl.call(function () {
-      animatingRef.current = false;
-      setIsAnimating(false);
-      done();
-    }, null, isWrongAnswer ? "+=0.8" : "+=0.5");
+    tl.call(
+      function () {
+        animatingRef.current = false;
+        setIsAnimating(false);
+        done();
+      },
+      null,
+      isWrongAnswer ? "+=0.8" : "+=0.5",
+    );
   }
 
   function animateMergeThenPaths(isWrongAnswer, done) {
@@ -366,41 +452,61 @@ function SchoolCompareCanvas(props) {
 
       var mergeTl = gsap.timeline();
 
-      mergeTl.to(left, {
-        x: leftDx,
-        duration: 1,
-        ease: "power2.inOut",
-      }, 0);
+      mergeTl.to(
+        left,
+        {
+          x: leftDx,
+          duration: 1,
+          ease: "power2.inOut",
+        },
+        0,
+      );
 
-      mergeTl.to(right, {
-        x: rightDx,
-        duration: 1,
-        ease: "power2.inOut",
-      }, 0);
+      mergeTl.to(
+        right,
+        {
+          x: rightDx,
+          duration: 1,
+          ease: "power2.inOut",
+        },
+        0,
+      );
 
       if (leftHeading && rightHeading) {
-        mergeTl.to([leftHeading, rightHeading], {
+        mergeTl.to(
+          [leftHeading, rightHeading],
+          {
+            opacity: 0,
+            duration: 0.4,
+            ease: "power2.in",
+          },
+          0.4,
+        );
+      }
+
+      mergeTl.to(
+        [left, right],
+        {
           opacity: 0,
           duration: 0.4,
           ease: "power2.in",
-        }, 0.4);
-      }
-
-      mergeTl.to([left, right], {
-        opacity: 0,
-        duration: 0.4,
-        ease: "power2.in",
-        onComplete: function () {
-          gsap.set([left, right], { visibility: "hidden" });
+          onComplete: function () {
+            gsap.set([left, right], { visibility: "hidden" });
+          },
         },
-      }, 1);
+        1,
+      );
 
       mergeTl.set(center, { visibility: "visible" }, 1.05);
-      mergeTl.to(center, {
-        opacity: 1,
-        duration: 0.55,
-        ease: "power2.out",
-      }, 1.05);
+      mergeTl.to(
+        center,
+        {
+          opacity: 1,
+          duration: 0.55,
+          ease: "power2.out",
+        },
+        1.05,
+      );
 
       mergeTl.call(function () {
         runPathRevealAnimation(isWrongAnswer, function () {
@@ -421,7 +527,9 @@ function SchoolCompareCanvas(props) {
 
   function finishCorrect() {
     setMcqFullyLocked(true);
-    onUpdateNavText(isLastQuestion ? step7Config.navNextLast : step7Config.navNext);
+    onUpdateNavText(
+      isLastQuestion ? step7Config.navNextLast : step7Config.navNext,
+    );
     onSetNextEnabled(true);
   }
 
@@ -459,24 +567,73 @@ function SchoolCompareCanvas(props) {
 
   function renderAxesChildren() {
     var items = [];
-    items.push(e("line", { key: "ya", x1: ML, y1: yP(YMAX), x2: ML, y2: baseY, stroke: "white", strokeWidth: 1.5 }));
-    items.push(e("line", { key: "xa", x1: ML, y1: baseY, x2: ML + pW, y2: baseY, stroke: "white", strokeWidth: 1.5 }));
+    items.push(
+      e("line", {
+        key: "ya",
+        x1: ML,
+        y1: yP(YMAX),
+        x2: ML,
+        y2: baseY,
+        stroke: "white",
+        strokeWidth: 1.5,
+      }),
+    );
+    items.push(
+      e("line", {
+        key: "xa",
+        x1: ML,
+        y1: baseY,
+        x2: ML + pW,
+        y2: baseY,
+        stroke: "white",
+        strokeWidth: 1.5,
+      }),
+    );
     for (var yv = 0; yv <= YMAX; yv += 10) {
       var yy = yP(yv);
-      items.push(e("text", {
-        key: "yl" + yv, x: ML - 18, y: yy + 5,
-        textAnchor: "end", fill: "#f0a030", fontSize: AXIS_LABEL_SIZE, fontWeight: 600,
-      }, yv));
-      items.push(e("line", {
-        key: "yt" + yv, x1: ML - 8, y1: yy, x2: ML, y2: yy,
-        stroke: "white", strokeWidth: Y_TICK_STROKE,
-      }));
+      items.push(
+        e(
+          "text",
+          {
+            key: "yl" + yv,
+            x: ML - 18,
+            y: yy + 5,
+            textAnchor: "end",
+            fill: "#f0a030",
+            fontSize: AXIS_LABEL_SIZE,
+            fontWeight: 600,
+          },
+          yv,
+        ),
+      );
+      items.push(
+        e("line", {
+          key: "yt" + yv,
+          x1: ML - 8,
+          y1: yy,
+          x2: ML,
+          y2: yy,
+          stroke: "white",
+          strokeWidth: Y_TICK_STROKE,
+        }),
+      );
     }
     for (var xv = 1; xv <= 21; xv++) {
-      items.push(e("text", {
-        key: "xl" + xv, x: xP(xv), y: baseY + 22,
-        textAnchor: "middle", fill: "#f0a030", fontSize: AXIS_LABEL_SIZE, fontWeight: 600,
-      }, xv));
+      items.push(
+        e(
+          "text",
+          {
+            key: "xl" + xv,
+            x: xP(xv),
+            y: baseY + 22,
+            textAnchor: "middle",
+            fill: "#f0a030",
+            fontSize: AXIS_LABEL_SIZE,
+            fontWeight: 600,
+          },
+          xv,
+        ),
+      );
     }
     return items;
   }
@@ -499,80 +656,166 @@ function SchoolCompareCanvas(props) {
     var id = opts.idSuffix || "school";
 
     var ch = [];
-    ch.push(e("defs", { key: "defs" },
-      e("clipPath", { id: "cmp-pop-clip-" + id },
-        e("rect", { ref: cmpPopClipRef, x: 0, y: 0, width: SVG_W, height: 0 })
+    ch.push(
+      e(
+        "defs",
+        { key: "defs" },
+        e(
+          "clipPath",
+          { id: "cmp-pop-clip-" + id },
+          e("rect", {
+            ref: cmpPopClipRef,
+            x: 0,
+            y: 0,
+            width: SVG_W,
+            height: 0,
+          }),
+        ),
+        e(
+          "clipPath",
+          { id: "cmp-sam-clip-" + id },
+          e("rect", {
+            ref: cmpSamClipRef,
+            x: 0,
+            y: 0,
+            width: SVG_W,
+            height: 0,
+          }),
+        ),
       ),
-      e("clipPath", { id: "cmp-sam-clip-" + id },
-        e("rect", { ref: cmpSamClipRef, x: 0, y: 0, width: SVG_W, height: 0 })
-      )
-    ));
+    );
 
     var bgKids = renderAxesChildren();
-    bgKids.push(e("rect", {
-      key: "underlay",
-      x: ML - 8, y: MT - 4,
-      width: pW + 16, height: baseY - MT + 14,
-      fill: "rgba(12, 22, 48, 0.22)", rx: 10, opacity: 0.9,
-    }));
+    bgKids.push(
+      e("rect", {
+        key: "underlay",
+        x: ML - 8,
+        y: MT - 4,
+        width: pW + 16,
+        height: baseY - MT + 14,
+        fill: "rgba(12, 22, 48, 0.22)",
+        rx: 10,
+        opacity: 0.9,
+      }),
+    );
     ch.push(e("g", { key: "bg", ref: showOverlay ? cmpBgRef : null }, bgKids));
 
     if (showOverlay) {
       /* Layer order: pop fill/bars, then sample fill/bars on top so pink never shows through blue */
-      ch.push(e("path", {
-        key: "pf", ref: cmpPopFillRef,
-        d: popFillD, fill: "rgba(100,25,80,0.7)",
-        opacity: 0, clipPath: "url(#cmp-pop-clip-" + id + ")",
-      }));
-      ch.push(e("g", { key: "pop-bars", ref: cmpPopBarsRef }, renderBars(popData, popConfig.barColor || "#e85a8a")));
-      ch.push(e("path", {
-        key: "sf", ref: cmpSamFillRef,
-        d: samFillD, fill: "rgba(91,155,213,0.7)",
-        opacity: 0, clipPath: "url(#cmp-sam-clip-" + id + ")",
-      }));
-      ch.push(e("g", { key: "sam-bars", ref: cmpSamBarsRef }, renderBars(sampleData, sampleBarColor)));
-      ch.push(e("path", {
-        key: "pp", ref: cmpPopPathRef,
-        d: popPathD, fill: "none",
-        stroke: "rgba(220,180,230,0.9)", strokeWidth: 2.5, opacity: 0,
-      }));
-      ch.push(e("path", {
-        key: "sp", ref: cmpSamPathRef,
-        d: samPathD, fill: "none",
-        stroke: "rgba(180,210,240,0.9)", strokeWidth: 2.5, opacity: 0,
-      }));
+      ch.push(
+        e("path", {
+          key: "pf",
+          ref: cmpPopFillRef,
+          d: popFillD,
+          fill: POP_FILL_COLOR,
+          opacity: 0,
+          clipPath: "url(#cmp-pop-clip-" + id + ")",
+        }),
+      );
+      ch.push(
+        e(
+          "g",
+          { key: "pop-bars", ref: cmpPopBarsRef },
+          renderBars(popData, popConfig.barColor || "#e85a8a"),
+        ),
+      );
+      ch.push(
+        e("path", {
+          key: "sf",
+          ref: cmpSamFillRef,
+          d: samFillD,
+          fill: SAM_FILL_COLOR,
+          opacity: 0,
+          clipPath: "url(#cmp-sam-clip-" + id + ")",
+        }),
+      );
+      ch.push(
+        e(
+          "g",
+          { key: "sam-bars", ref: cmpSamBarsRef },
+          renderBars(sampleData, sampleBarColor),
+        ),
+      );
+      ch.push(
+        e("path", {
+          key: "pp",
+          ref: cmpPopPathRef,
+          d: popPathD,
+          fill: "none",
+          stroke: POP_STROKE_COLOR,
+          strokeWidth: PATH_STROKE_WIDTH,
+          opacity: 0,
+        }),
+      );
+      ch.push(
+        e("path", {
+          key: "sp",
+          ref: cmpSamPathRef,
+          d: samPathD,
+          fill: "none",
+          stroke: SAM_STROKE_COLOR,
+          strokeWidth: PATH_STROKE_WIDTH,
+          opacity: 0,
+        }),
+      );
     } else {
       ch.push.apply(ch, renderBars(opts.data, opts.color));
     }
 
-    return e("svg", {
-      viewBox: "0 0 " + SVG_W + " " + SVG_H,
-      className: "bar-graph-svg",
-      preserveAspectRatio: "xMidYMid meet",
-    }, ch);
+    return e(
+      "svg",
+      {
+        viewBox: "0 0 " + SVG_W + " " + SVG_H,
+        className: "bar-graph-svg",
+        preserveAspectRatio: "xMidYMid meet",
+      },
+      ch,
+    );
   }
 
   function renderSlideChart(data, color, heading) {
     var ch = renderAxesChildren();
     ch.push.apply(ch, renderBars(data, color));
-    return e("div", { className: "compare-panel" },
+    return e(
+      "div",
+      { className: "compare-panel" },
       e("div", { className: "graph-heading" }, heading),
-      e("div", { className: "graph-wrapper compare-graph" },
-        e("svg", {
-          viewBox: "0 0 " + SVG_W + " " + SVG_H,
-          className: "bar-graph-svg",
-          preserveAspectRatio: "xMidYMid meet",
-        }, ch)
-      )
+      e(
+        "div",
+        { className: "graph-wrapper compare-graph" },
+        e(
+          "svg",
+          {
+            viewBox: "0 0 " + SVG_W + " " + SVG_H,
+            className: "bar-graph-svg",
+            preserveAspectRatio: "xMidYMid meet",
+          },
+          ch,
+        ),
+      ),
     );
   }
 
   function renderMergedCenter() {
-    return e("div", { className: "compare-center", ref: centerRef },
-      e("div", { className: "graph-heading compare-heading-spacer", "aria-hidden": true }, "\u00a0"),
-      e("div", { className: "graph-wrapper compare-graph" },
-        renderChartSVG({ showOverlay: true, idSuffix: "merged-" + questionIndex })
-      )
+    return e(
+      "div",
+      { className: "compare-center", ref: centerRef },
+      e(
+        "div",
+        {
+          className: "graph-heading compare-heading-spacer",
+          "aria-hidden": true,
+        },
+        "\u00a0",
+      ),
+      e(
+        "div",
+        { className: "graph-wrapper compare-graph" },
+        renderChartSVG({
+          showOverlay: true,
+          idSuffix: "merged-" + questionIndex,
+        }),
+      ),
     );
   }
 
@@ -586,35 +829,53 @@ function SchoolCompareCanvas(props) {
     }
 
     if (startAtFinal) {
-      return e("div", { className: stageClass, ref: stageRef },
-        renderMergedCenter()
+      return e(
+        "div",
+        { className: stageClass, ref: stageRef },
+        renderMergedCenter(),
       );
     }
 
-    return e("div", { className: stageClass, ref: stageRef },
-      e("div", { className: "compare-slide compare-slide-left", ref: leftSlideRef },
-        renderSlideChart(popData, popConfig.barColor || "#e85a8a", popConfig.populationHeading)
+    return e(
+      "div",
+      { className: stageClass, ref: stageRef },
+      e(
+        "div",
+        { className: "compare-slide compare-slide-left", ref: leftSlideRef },
+        renderSlideChart(
+          popData,
+          popConfig.barColor || "#e85a8a",
+          popConfig.populationHeading,
+        ),
       ),
-      e("div", { className: "compare-slide compare-slide-right", ref: rightSlideRef },
-        renderSlideChart(sampleData, sampleBarColor, sampleHeading)
+      e(
+        "div",
+        { className: "compare-slide compare-slide-right", ref: rightSlideRef },
+        renderSlideChart(sampleData, sampleBarColor, sampleHeading),
       ),
-      renderMergedCenter()
+      renderMergedCenter(),
     );
   }
 
   if (step === 6) {
-    return e("div", { className: "main-canvas-container" },
-      e("div", { className: "visual-row" },
+    return e(
+      "div",
+      { className: "main-canvas-container" },
+      e(
+        "div",
+        { className: "visual-row" },
         e("div", { className: "graph-heading" }, popConfig.populationHeading),
-        e("div", { className: "graph-wrapper" },
+        e(
+          "div",
+          { className: "graph-wrapper" },
           renderChartSVG({
             data: popData,
             color: popConfig.barColor || "#e85a8a",
             showOverlay: false,
-          })
-        )
+          }),
+        ),
       ),
-      e("div", { className: "action-row-container" })
+      e("div", { className: "action-row-container" }),
     );
   }
 
@@ -642,33 +903,67 @@ function SchoolCompareCanvas(props) {
   var visualContent = renderCompareStage();
   var feedbackEl = null;
   if (mcqFeedback === "correct") {
-    feedbackEl = e("div", { className: "compare-mcq-feedback correct" }, currentQuestion.feedbackCorrect);
+    feedbackEl = e(
+      "div",
+      { className: "compare-mcq-feedback correct" },
+      currentQuestion.feedbackCorrect,
+    );
   } else if (mcqFeedback === "wrong") {
-    feedbackEl = e("div", { className: "compare-mcq-feedback wrong" }, currentQuestion.feedbackWrong);
+    feedbackEl = e(
+      "div",
+      { className: "compare-mcq-feedback wrong" },
+      currentQuestion.feedbackWrong,
+    );
   }
 
-  return e("div", { className: "main-canvas-container" },
-    e("div", { className: "visual-row visual-row--step7" },
+  return e(
+    "div",
+    { className: "main-canvas-container" },
+    e(
+      "div",
+      { className: "visual-row visual-row--step7" },
       visualContent,
-      feedbackEl
+      feedbackEl,
     ),
-    e("div", { className: "action-row-container has-content" },
-      e("div", { className: "mcq-action-row" },
+    e(
+      "div",
+      { className: "action-row-container has-content" },
+      e(
+        "div",
+        { className: "mcq-action-row" },
         e("div", { className: "mcq-title" }, stepCopy.mcqTitle),
-        e("div", { className: "mcq-buttons" },
-          e("button", {
-            className: btnClass(opt0),
-            disabled: btnDisabled(opt0),
-            onClick: btnDisabled(opt0) ? undefined : function () { handleMcq(opt0); },
-          }, opt0),
-          e("button", {
-            className: btnClass(opt1),
-            disabled: btnDisabled(opt1),
-            onClick: btnDisabled(opt1) ? undefined : function () { handleMcq(opt1); },
-          }, opt1)
-        )
-      )
-    )
+        e(
+          "div",
+          { className: "mcq-buttons" },
+          e(
+            "button",
+            {
+              className: btnClass(opt0),
+              disabled: btnDisabled(opt0),
+              onClick: btnDisabled(opt0)
+                ? undefined
+                : function () {
+                    handleMcq(opt0);
+                  },
+            },
+            opt0,
+          ),
+          e(
+            "button",
+            {
+              className: btnClass(opt1),
+              disabled: btnDisabled(opt1),
+              onClick: btnDisabled(opt1)
+                ? undefined
+                : function () {
+                    handleMcq(opt1);
+                  },
+            },
+            opt1,
+          ),
+        ),
+      ),
+    ),
   );
 }
 
@@ -684,7 +979,13 @@ const MainCanvas = (props) => {
     });
   }
 
-  const { step, startAtFinal, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText } = props;
+  const {
+    step,
+    startAtFinal,
+    onSetNextEnabled,
+    onUpdateNavText,
+    onUpdateQuestionText,
+  } = props;
   const { useState, useEffect, useRef } = React;
   const e = React.createElement;
 
@@ -699,10 +1000,12 @@ const MainCanvas = (props) => {
   var yRange = graphConfig.yRange;
   var stepCopy = APP_DATA.steps[step] || {};
 
-  var SVG_W = 760, SVG_H = 440;
+  var SVG_W = 760,
+    SVG_H = 440;
   var ML = graphIndex === 0 ? 60 : 58;
   var MR = graphIndex === 0 ? 100 : 88;
-  var MT = 10, MB = 30;
+  var MT = 10,
+    MB = 30;
   var XMIN = xRange.min;
   var XMAX = xRange.max;
   var YMAX = yRange.max;
@@ -715,12 +1018,17 @@ const MainCanvas = (props) => {
   var yLabelStep = yRange.step;
   var xLabelFrom = xRange.labelFrom != null ? xRange.labelFrom : XMIN;
   var xLabelTo = xRange.labelTo != null ? xRange.labelTo : XMAX;
-  var barW = graphIndex === 0
-    ? Math.round(xSc * 0.6)
-    : Math.round(xLabelStep * xSc * 0.52);
+  var barW =
+    graphIndex === 0
+      ? Math.round(xSc * 0.6)
+      : Math.round(xLabelStep * xSc * 0.52);
 
-  function xP(x) { return ML + (x - XMIN) * xSc; }
-  function yP(y) { return MT + (YMAX - y) * ySc; }
+  function xP(x) {
+    return ML + (x - XMIN) * xSc;
+  }
+  function yP(y) {
+    return MT + (YMAX - y) * ySc;
+  }
   var baseY = yP(0);
 
   function getPathPoints(scale) {
@@ -784,15 +1092,39 @@ const MainCanvas = (props) => {
   }
 
   function ptsToPathD(pts) {
-    return "M " + pts[0][0] + " " + pts[0][1] +
-      pts.slice(1).map(function (p) { return " L " + p[0] + " " + p[1]; }).join("");
+    return (
+      "M " +
+      pts[0][0] +
+      " " +
+      pts[0][1] +
+      pts
+        .slice(1)
+        .map(function (p) {
+          return " L " + p[0] + " " + p[1];
+        })
+        .join("")
+    );
   }
 
   function fillPathD(pts) {
-    var first = pts[0], last = pts[pts.length - 1];
-    return "M " + first[0] + " " + baseY +
-      pts.map(function (p) { return " L " + p[0] + " " + p[1]; }).join("") +
-      " L " + last[0] + " " + baseY + " Z";
+    var first = pts[0],
+      last = pts[pts.length - 1];
+    return (
+      "M " +
+      first[0] +
+      " " +
+      baseY +
+      pts
+        .map(function (p) {
+          return " L " + p[0] + " " + p[1];
+        })
+        .join("") +
+      " L " +
+      last[0] +
+      " " +
+      baseY +
+      " Z"
+    );
   }
 
   var popPts = getPathPoints(1);
@@ -807,11 +1139,14 @@ const MainCanvas = (props) => {
   var arrowMarkerId = "sample-arrowhead-" + graphIndex;
 
   var _ap = useState("none");
-  var actionPhase = _ap[0], setActionPhase = _ap[1];
+  var actionPhase = _ap[0],
+    setActionPhase = _ap[1];
   var _dpe = useState(true);
-  var drawPopEnabled = _dpe[0], setDrawPopEnabled = _dpe[1];
+  var drawPopEnabled = _dpe[0],
+    setDrawPopEnabled = _dpe[1];
   var _dse = useState(false);
-  var drawSampleEnabled = _dse[0], setDrawSampleEnabled = _dse[1];
+  var drawSampleEnabled = _dse[0],
+    setDrawSampleEnabled = _dse[1];
 
   var ghostGRef = useRef(null);
   var barRefs = useRef([]);
@@ -830,13 +1165,20 @@ const MainCanvas = (props) => {
   var drawSampleBtnRef = useRef(null);
   var animatingRef = useRef(false);
   var _aa = useState(false);
-  var isActionAnimating = _aa[0], setIsActionAnimating = _aa[1];
+  var isActionAnimating = _aa[0],
+    setIsActionAnimating = _aa[1];
   var _snr = useState(false);
-  var shrinkNudgeReady = _snr[0], setShrinkNudgeReady = _snr[1];
+  var shrinkNudgeReady = _snr[0],
+    setShrinkNudgeReady = _snr[1];
 
   var AXIS_LABEL_SIZE = graphIndex === 0 ? 21 : 17;
   var SAMPLE_LABEL_SIZE = 33;
   var Y_TICK_STROKE = 2.5;
+  var POP_FILL_COLOR = "rgba(175,40,70,0.7)";
+  var POP_STROKE_COLOR = "rgb(175, 40, 70)";
+  var SAM_FILL_COLOR = "rgba(255,105,180,0.7)";
+  var SAM_STROKE_COLOR = "rgb(232, 75, 143)";
+  var PATH_STROKE_WIDTH = 7.5;
 
   function resetSVG() {
     graphData.forEach(function (d, i) {
@@ -848,7 +1190,14 @@ const MainCanvas = (props) => {
       bar.removeAttribute("filter");
     });
 
-    [ghostGRef, popFillRef, samFillRef, popPathRef, samPathRef, sampleLabelGRef].forEach(function (ref) {
+    [
+      ghostGRef,
+      popFillRef,
+      samFillRef,
+      popPathRef,
+      samPathRef,
+      sampleLabelGRef,
+    ].forEach(function (ref) {
       if (!ref.current) return;
       gsap.killTweensOf(ref.current);
       gsap.set(ref.current, { opacity: 0 });
@@ -889,14 +1238,15 @@ const MainCanvas = (props) => {
     });
 
     if (ghostGRef.current) gsap.set(ghostGRef.current, { opacity: 1 });
-    if (sampleLabelGRef.current) gsap.set(sampleLabelGRef.current, { opacity: 0 });
+    if (sampleLabelGRef.current)
+      gsap.set(sampleLabelGRef.current, { opacity: 0 });
 
     if (popPathRef.current) {
       gsap.set(popPathRef.current, {
         opacity: 1,
         attr: {
           stroke: "#7CFC00",
-          "stroke-width": 4,
+          "stroke-width": PATH_STROKE_WIDTH,
           "stroke-dashoffset": 0,
           "stroke-dasharray": "none",
         },
@@ -908,7 +1258,7 @@ const MainCanvas = (props) => {
         opacity: 1,
         attr: {
           stroke: "#7CFC00",
-          "stroke-width": 4,
+          "stroke-width": PATH_STROKE_WIDTH,
           "stroke-dashoffset": 0,
           "stroke-dasharray": "none",
         },
@@ -917,8 +1267,10 @@ const MainCanvas = (props) => {
     }
     if (popFillRef.current) gsap.set(popFillRef.current, { opacity: 1 });
     if (samFillRef.current) gsap.set(samFillRef.current, { opacity: 1 });
-    if (popClipRef.current) gsap.set(popClipRef.current, { attr: { height: SVG_H } });
-    if (samClipRef.current) gsap.set(samClipRef.current, { attr: { height: SVG_H } });
+    if (popClipRef.current)
+      gsap.set(popClipRef.current, { attr: { height: SVG_H } });
+    if (samClipRef.current)
+      gsap.set(samClipRef.current, { attr: { height: SVG_H } });
 
     if (backgroundGRef.current) {
       backgroundGRef.current.style.filter = "blur(5px)";
@@ -935,56 +1287,70 @@ const MainCanvas = (props) => {
     onSetNextEnabled(true);
   }
 
-  useEffect(function () {
-    resetSVG();
-    setIsActionAnimating(false);
+  useEffect(
+    function () {
+      resetSVG();
+      setIsActionAnimating(false);
 
-    if (startAtFinal) {
-      if (step === 1 || step === 3 || step === 6) {
+      if (startAtFinal) {
+        if (step === 1 || step === 3 || step === 6) {
+          setActionPhase("none");
+          setDrawPopEnabled(true);
+          setDrawSampleEnabled(false);
+          onUpdateQuestionText(null);
+          onUpdateNavText(stepCopy.navText);
+          onSetNextEnabled(true);
+          return;
+        }
+        if (step === 2 || step === 4) {
+          setActionPhase("none");
+          setDrawPopEnabled(true);
+          setDrawSampleEnabled(false);
+          var finalTimer = setTimeout(applyGraphFinalStage, 120);
+          return function () {
+            clearTimeout(finalTimer);
+          };
+        }
+        return;
+      }
+
+      if (step === 1 || step === 3) {
         setActionPhase("none");
         setDrawPopEnabled(true);
         setDrawSampleEnabled(false);
-        onUpdateQuestionText(null);
-        onUpdateNavText(stepCopy.navText);
-        onSetNextEnabled(true);
-        return;
       }
       if (step === 2 || step === 4) {
         setActionPhase("none");
         setDrawPopEnabled(true);
         setDrawSampleEnabled(false);
-        var finalTimer = setTimeout(applyGraphFinalStage, 120);
-        return function () { clearTimeout(finalTimer); };
+        setTimeout(function () {
+          setActionPhase("shrink");
+        }, 250);
       }
-      return;
-    }
+    },
+    [step, startAtFinal],
+  );
 
-    if (step === 1 || step === 3) {
-      setActionPhase("none");
-      setDrawPopEnabled(true);
-      setDrawSampleEnabled(false);
-    }
-    if (step === 2 || step === 4) {
-      setActionPhase("none");
-      setDrawPopEnabled(true);
-      setDrawSampleEnabled(false);
-      setTimeout(function () { setActionPhase("shrink"); }, 250);
-    }
-  }, [step, startAtFinal]);
-
-  useEffect(function () {
-    if ((step !== 2 && step !== 4) || actionPhase !== "shrink" || startAtFinal) {
+  useEffect(
+    function () {
+      if (
+        (step !== 2 && step !== 4) ||
+        actionPhase !== "shrink" ||
+        startAtFinal
+      ) {
+        setShrinkNudgeReady(false);
+        return;
+      }
       setShrinkNudgeReady(false);
-      return;
-    }
-    setShrinkNudgeReady(false);
-    var timer = setTimeout(function () {
-      setShrinkNudgeReady(true);
-    }, 1000);
-    return function () {
-      clearTimeout(timer);
-    };
-  }, [step, actionPhase, startAtFinal]);
+      var timer = setTimeout(function () {
+        setShrinkNudgeReady(true);
+      }, 1000);
+      return function () {
+        clearTimeout(timer);
+      };
+    },
+    [step, actionPhase, startAtFinal],
+  );
 
   function getActionNudgeRef() {
     if (step !== 2 && step !== 4) return null;
@@ -1017,11 +1383,15 @@ const MainCanvas = (props) => {
     graphData.forEach(function (d, i) {
       var bar = barRefs.current[i];
       if (!bar) return;
-      tl.to(bar, {
-        attr: { y: yP(d.y / 3), height: (d.y / 3) * ySc },
-        duration: 0.8,
-        ease: "power2.inOut",
-      }, 0.2);
+      tl.to(
+        bar,
+        {
+          attr: { y: yP(d.y / 3), height: (d.y / 3) * ySc },
+          duration: 0.8,
+          ease: "power2.inOut",
+        },
+        0.2,
+      );
     });
 
     tl.call(function () {
@@ -1035,15 +1405,19 @@ const MainCanvas = (props) => {
       tl.to(sampleLabelGRef.current, { opacity: 1, duration: 0.5 });
     }
 
-    tl.call(function () {
-      animatingRef.current = false;
-      setIsActionAnimating(false);
-      setActionPhase("draw");
-      setDrawPopEnabled(true);
-      setDrawSampleEnabled(false);
-      onUpdateQuestionText(stepCopy.afterShrinkQuestion);
-      onUpdateNavText(stepCopy.afterShrinkNav);
-    }, null, "+=0.3");
+    tl.call(
+      function () {
+        animatingRef.current = false;
+        setIsActionAnimating(false);
+        setActionPhase("draw");
+        setDrawPopEnabled(true);
+        setDrawSampleEnabled(false);
+        onUpdateQuestionText(stepCopy.afterShrinkQuestion);
+        onUpdateNavText(stepCopy.afterShrinkNav);
+      },
+      null,
+      "+=0.3",
+    );
   }
 
   function handleDrawPopulation() {
@@ -1081,9 +1455,13 @@ const MainCanvas = (props) => {
         ease: "none",
       });
 
-      tl.call(function () {
-        gsap.set(popFillRef.current, { opacity: 1 });
-      }, null, "+=0.4");
+      tl.call(
+        function () {
+          gsap.set(popFillRef.current, { opacity: 1 });
+        },
+        null,
+        "+=0.4",
+      );
 
       tl.to(popClipRef.current, {
         attr: { height: SVG_H },
@@ -1095,7 +1473,9 @@ const MainCanvas = (props) => {
         animatingRef.current = false;
         setIsActionAnimating(false);
         onUpdateQuestionText(stepCopy.afterPopulationShapeQuestion);
-        onUpdateNavText(stepCopy.afterPopulationShapeNav || stepCopy.afterShrinkNav);
+        onUpdateNavText(
+          stepCopy.afterPopulationShapeNav || stepCopy.afterShrinkNav,
+        );
         setDrawSampleEnabled(true);
       });
     }, 300);
@@ -1126,9 +1506,13 @@ const MainCanvas = (props) => {
       ease: "none",
     });
 
-    tl.call(function () {
-      gsap.set(samFillRef.current, { opacity: 1 });
-    }, null, "+=0.4");
+    tl.call(
+      function () {
+        gsap.set(samFillRef.current, { opacity: 1 });
+      },
+      null,
+      "+=0.4",
+    );
 
     tl.to(samClipRef.current, {
       attr: { height: SVG_H },
@@ -1140,51 +1524,61 @@ const MainCanvas = (props) => {
       onUpdateQuestionText(stepCopy.afterSampleShapeQuestion);
     });
 
-    tl.call(function () {
-      if (backgroundGRef.current) {
-        backgroundGRef.current.style.transition = "filter 0.6s ease";
-        backgroundGRef.current.style.filter = "blur(5px)";
-      }
-      if (barsGRef.current) {
-        barsGRef.current.style.transition = "filter 0.6s ease";
-        barsGRef.current.style.filter = "blur(5px)";
-      }
-      if (popFillRef.current) popFillRef.current.style.filter = "none";
-      if (samFillRef.current) samFillRef.current.style.filter = "none";
+    tl.call(
+      function () {
+        if (backgroundGRef.current) {
+          backgroundGRef.current.style.transition = "filter 0.6s ease";
+          backgroundGRef.current.style.filter = "blur(5px)";
+        }
+        if (barsGRef.current) {
+          barsGRef.current.style.transition = "filter 0.6s ease";
+          barsGRef.current.style.filter = "blur(5px)";
+        }
+        if (popFillRef.current) popFillRef.current.style.filter = "none";
+        if (samFillRef.current) samFillRef.current.style.filter = "none";
 
-      gsap.to(popPathRef.current, {
-        attr: { stroke: "#7CFC00", "stroke-width": 4 },
-        duration: 0.5,
-      });
-      gsap.to(samPathRef.current, {
-        attr: { stroke: "#7CFC00", "stroke-width": 4 },
-        duration: 0.5,
-      });
-
-      popPathRef.current.classList.add("blink-green");
-      samPathRef.current.classList.add("blink-green");
-    }, null, "+=1.5");
-
-    tl.call(function () {
-      animatingRef.current = false;
-      setIsActionAnimating(false);
-
-      var el = actionContentRef.current;
-      if (el) {
-        gsap.to(el, {
-          opacity: 0, y: 10, duration: 0.3,
-          onComplete: function () {
-            setActionPhase("conclusion");
-            onUpdateNavText(stepCopy.conclusionNav);
-            onSetNextEnabled(true);
-          },
+        gsap.to(popPathRef.current, {
+          attr: { stroke: "#7CFC00", "stroke-width": PATH_STROKE_WIDTH },
+          duration: 0.5,
         });
-      } else {
-        setActionPhase("conclusion");
-        onUpdateNavText(stepCopy.conclusionNav);
-        onSetNextEnabled(true);
-      }
-    }, null, "+=0.8");
+        gsap.to(samPathRef.current, {
+          attr: { stroke: "#7CFC00", "stroke-width": PATH_STROKE_WIDTH },
+          duration: 0.5,
+        });
+
+        popPathRef.current.classList.add("blink-green");
+        samPathRef.current.classList.add("blink-green");
+      },
+      null,
+      "+=1.5",
+    );
+
+    tl.call(
+      function () {
+        animatingRef.current = false;
+        setIsActionAnimating(false);
+
+        var el = actionContentRef.current;
+        if (el) {
+          gsap.to(el, {
+            opacity: 0,
+            y: 10,
+            duration: 0.3,
+            onComplete: function () {
+              setActionPhase("conclusion");
+              onUpdateNavText(stepCopy.conclusionNav);
+              onSetNextEnabled(true);
+            },
+          });
+        } else {
+          setActionPhase("conclusion");
+          onUpdateNavText(stepCopy.conclusionNav);
+          onSetNextEnabled(true);
+        }
+      },
+      null,
+      "+=0.8",
+    );
   }
 
   function renderSVG() {
@@ -1192,171 +1586,311 @@ const MainCanvas = (props) => {
     var bgChildren = [];
     var barsChildren = [];
 
-    ch.push(e("defs", { key: "defs" },
-      e("clipPath", { id: popClipId },
-        e("rect", { ref: popClipRef, x: 0, y: 0, width: SVG_W, height: 0 })
+    ch.push(
+      e(
+        "defs",
+        { key: "defs" },
+        e(
+          "clipPath",
+          { id: popClipId },
+          e("rect", { ref: popClipRef, x: 0, y: 0, width: SVG_W, height: 0 }),
+        ),
+        e(
+          "clipPath",
+          { id: samClipId },
+          e("rect", { ref: samClipRef, x: 0, y: 0, width: SVG_W, height: 0 }),
+        ),
+        e(
+          "marker",
+          {
+            id: arrowMarkerId,
+            markerWidth: 10,
+            markerHeight: 10,
+            refX: 10,
+            refY: 5,
+            orient: "auto",
+            markerUnits: "userSpaceOnUse",
+          },
+          e("path", { d: "M0,0 L10,5 L0,10 Z", fill: "#ff69b4" }),
+        ),
       ),
-      e("clipPath", { id: samClipId },
-        e("rect", { ref: samClipRef, x: 0, y: 0, width: SVG_W, height: 0 })
-      ),
-      e("marker", {
-        id: arrowMarkerId,
-        markerWidth: 10,
-        markerHeight: 10,
-        refX: 10,
-        refY: 5,
-        orient: "auto",
-        markerUnits: "strokeWidth",
-      },
-        e("path", { d: "M0,0 L10,5 L0,10 Z", fill: "#ff69b4" })
-      )
-    ));
+    );
 
-    bgChildren.push(e("line", { key: "ya", x1: ML, y1: yP(YMAX), x2: ML, y2: baseY, stroke: "white", strokeWidth: 1.5 }));
-    bgChildren.push(e("line", { key: "xa", x1: ML, y1: baseY, x2: ML + pW, y2: baseY, stroke: "white", strokeWidth: 1.5 }));
+    bgChildren.push(
+      e("line", {
+        key: "ya",
+        x1: ML,
+        y1: yP(YMAX),
+        x2: ML,
+        y2: baseY,
+        stroke: "white",
+        strokeWidth: 1.5,
+      }),
+    );
+    bgChildren.push(
+      e("line", {
+        key: "xa",
+        x1: ML,
+        y1: baseY,
+        x2: ML + pW,
+        y2: baseY,
+        stroke: "white",
+        strokeWidth: 1.5,
+      }),
+    );
 
-    bgChildren.push(e("rect", {
-      key: "blur-underlay",
-      x: ML - 10,
-      y: MT - 6,
-      width: pW + 26,
-      height: baseY - MT + 18,
-      fill: "rgba(12, 22, 48, 0.22)",
-      rx: 14,
-      opacity: 0.9,
-    }));
+    bgChildren.push(
+      e("rect", {
+        key: "blur-underlay",
+        x: ML - 10,
+        y: MT - 6,
+        width: pW + 26,
+        height: baseY - MT + 18,
+        fill: "rgba(12, 22, 48, 0.22)",
+        rx: 14,
+        opacity: 0.9,
+      }),
+    );
 
     for (var yv = 0; yv <= YMAX; yv += yLabelStep) {
       var yy = yP(yv);
-      bgChildren.push(e("text", {
-        key: "yl" + yv, x: ML - 20, y: yy + 6,
-        textAnchor: "end", fill: "#f0a030", fontSize: AXIS_LABEL_SIZE, fontWeight: 600,
-      }, yv));
-      bgChildren.push(e("line", {
-        key: "yt" + yv, x1: ML - 8, y1: yy, x2: ML, y2: yy,
-        stroke: "white", strokeWidth: Y_TICK_STROKE,
-      }));
+      bgChildren.push(
+        e(
+          "text",
+          {
+            key: "yl" + yv,
+            x: ML - 20,
+            y: yy + 6,
+            textAnchor: "end",
+            fill: "#f0a030",
+            fontSize: AXIS_LABEL_SIZE,
+            fontWeight: 600,
+          },
+          yv,
+        ),
+      );
+      bgChildren.push(
+        e("line", {
+          key: "yt" + yv,
+          x1: ML - 8,
+          y1: yy,
+          x2: ML,
+          y2: yy,
+          stroke: "white",
+          strokeWidth: Y_TICK_STROKE,
+        }),
+      );
     }
 
     for (var xv = xLabelFrom; xv <= xLabelTo; xv += xLabelStep) {
-      bgChildren.push(e("text", {
-        key: "xl" + xv, x: xP(xv), y: baseY + 26,
-        textAnchor: "middle", fill: "#f0a030", fontSize: AXIS_LABEL_SIZE, fontWeight: 600,
-      }, xv));
+      bgChildren.push(
+        e(
+          "text",
+          {
+            key: "xl" + xv,
+            x: xP(xv),
+            y: baseY + 26,
+            textAnchor: "middle",
+            fill: "#f0a030",
+            fontSize: AXIS_LABEL_SIZE,
+            fontWeight: 600,
+          },
+          xv,
+        ),
+      );
     }
 
     var ghosts = graphData.map(function (d, i) {
       return e("rect", {
         key: "g" + i,
-        x: xP(d.x) - barW / 2, y: yP(d.y), width: barW, height: d.y * ySc,
+        x: xP(d.x) - barW / 2,
+        y: yP(d.y),
+        width: barW,
+        height: d.y * ySc,
         fill: "rgba(90,40,72,0.45)",
       });
     });
-    bgChildren.push(e("g", { key: "ghosts", ref: ghostGRef, opacity: 0 }, ghosts));
+    bgChildren.push(
+      e("g", { key: "ghosts", ref: ghostGRef, opacity: 0 }, ghosts),
+    );
 
     var lastD = graphData[graphData.length - 1];
     var barRight = xP(lastD.x) + barW / 2;
-    var labelGap = graphIndex === 0 ? 48 : 36;
-    var lx = barRight + labelGap + 8;
-    var ly = yP(lastD.y / 3) - 52;
-    var asx = lx - 6;
-    var asy = ly + 14;
-    var aex = barRight + 24;
-    var aey = yP(lastD.y / 3) - 4;
+    var shrunkBarTop = yP(lastD.y / 3);
+    var labelGap = graphIndex === 0 ? 72 : 56;
+    var arrowBarGap = 8;
+    var lx = barRight + labelGap;
+    var ly = shrunkBarTop - 52;
+    var asx = lx - 10;
+    var asy = ly + 16;
+    var aex = barRight + arrowBarGap;
+    var aey = shrunkBarTop;
 
-    bgChildren.push(e("g", { key: "slg", ref: sampleLabelGRef, opacity: 0 },
-      e("text", {
-        x: lx, y: ly,
-        fill: "#ff69b4", fontSize: SAMPLE_LABEL_SIZE, fontWeight: 700, fontStyle: "italic",
-      }, APP_DATA.sampleLabel),
-      e("path", {
-        d: "M " + asx + " " + asy + " L " + aex + " " + aey,
-        fill: "none", stroke: "#ff69b4", strokeWidth: 2.5,
-        markerEnd: "url(#" + arrowMarkerId + ")",
-      })
-    ));
+    bgChildren.push(
+      e(
+        "g",
+        { key: "slg", ref: sampleLabelGRef, opacity: 0 },
+        e(
+          "text",
+          {
+            x: lx,
+            y: ly,
+            fill: "#ff69b4",
+            fontSize: SAMPLE_LABEL_SIZE,
+            fontWeight: 700,
+            fontStyle: "italic",
+          },
+          APP_DATA.sampleLabel,
+        ),
+        e("path", {
+          d: "M " + asx + " " + asy + " L " + aex + " " + aey,
+          fill: "none",
+          stroke: "#ff69b4",
+          strokeWidth: 2.5,
+          strokeDasharray: "8 6",
+          markerEnd: "url(#" + arrowMarkerId + ")",
+        }),
+      ),
+    );
 
     ch.push(e("g", { key: "bg-layer", ref: backgroundGRef }, bgChildren));
 
-    ch.push(e("path", {
-      key: "pf", ref: popFillRef,
-      d: popFillD, fill: "rgba(100,25,80,0.7)",
-      opacity: 0, clipPath: "url(#" + popClipId + ")",
-    }));
+    ch.push(
+      e("path", {
+        key: "pf",
+        ref: popFillRef,
+        d: popFillD,
+        fill: POP_FILL_COLOR,
+        opacity: 0,
+        clipPath: "url(#" + popClipId + ")",
+      }),
+    );
 
-    ch.push(e("path", {
-      key: "sf", ref: samFillRef,
-      d: samFillD, fill: "rgba(255,105,180,0.7)",
-      opacity: 0, clipPath: "url(#" + samClipId + ")",
-    }));
+    ch.push(
+      e("path", {
+        key: "sf",
+        ref: samFillRef,
+        d: samFillD,
+        fill: SAM_FILL_COLOR,
+        opacity: 0,
+        clipPath: "url(#" + samClipId + ")",
+      }),
+    );
 
     graphData.forEach(function (d, i) {
-      barsChildren.push(e("rect", {
-        key: "b" + i,
-        ref: function (el) { barRefs.current[i] = el; },
-        x: xP(d.x) - barW / 2, y: yP(d.y), width: barW, height: d.y * ySc,
-        fill: "#ff69b4",
-      }));
+      barsChildren.push(
+        e("rect", {
+          key: "b" + i,
+          ref: function (el) {
+            barRefs.current[i] = el;
+          },
+          x: xP(d.x) - barW / 2,
+          y: yP(d.y),
+          width: barW,
+          height: d.y * ySc,
+          fill: "#ff69b4",
+        }),
+      );
     });
     ch.push(e("g", { key: "bars-layer", ref: barsGRef }, barsChildren));
 
-    ch.push(e("path", {
-      key: "pp", ref: popPathRef,
-      d: popPathD, fill: "none",
-      stroke: "rgba(220,180,230,0.9)", strokeWidth: 2.5, opacity: 0,
-    }));
+    ch.push(
+      e("path", {
+        key: "pp",
+        ref: popPathRef,
+        d: popPathD,
+        fill: "none",
+        stroke: POP_STROKE_COLOR,
+        strokeWidth: PATH_STROKE_WIDTH,
+        opacity: 0,
+      }),
+    );
 
-    ch.push(e("path", {
-      key: "sp", ref: samPathRef,
-      d: samPathD, fill: "none",
-      stroke: "rgba(255,180,210,0.9)", strokeWidth: 2.5, opacity: 0,
-    }));
+    ch.push(
+      e("path", {
+        key: "sp",
+        ref: samPathRef,
+        d: samPathD,
+        fill: "none",
+        stroke: SAM_STROKE_COLOR,
+        strokeWidth: PATH_STROKE_WIDTH,
+        opacity: 0,
+      }),
+    );
 
-    return e("svg", {
-      key: "graph-" + graphIndex,
-      viewBox: "0 0 " + SVG_W + " " + SVG_H,
-      className: "bar-graph-svg",
-      preserveAspectRatio: "xMidYMid meet",
-    }, ch);
+    return e(
+      "svg",
+      {
+        key: "graph-" + graphIndex,
+        viewBox: "0 0 " + SVG_W + " " + SVG_H,
+        className: "bar-graph-svg",
+        preserveAspectRatio: "xMidYMid meet",
+      },
+      ch,
+    );
   }
 
   function renderActionContent() {
     if (actionPhase === "shrink") {
-      return e("div", {
-        key: "ac-shrink", className: "action-content", ref: actionContentRef,
-      },
-        e("button", {
-          ref: shrinkBtnRef,
-          className: "action-btn shrink-btn",
-          onClick: handleShrink,
-        }, stepCopy.shrinkButtonText)
+      return e(
+        "div",
+        {
+          key: "ac-shrink",
+          className: "action-content",
+          ref: actionContentRef,
+        },
+        e(
+          "button",
+          {
+            ref: shrinkBtnRef,
+            className: "action-btn shrink-btn",
+            onClick: handleShrink,
+          },
+          stepCopy.shrinkButtonText,
+        ),
       );
     }
 
     if (actionPhase === "draw") {
-      return e("div", {
-        key: "ac-draw", className: "action-content", ref: actionContentRef,
-      },
-        e("button", {
-          ref: drawPopBtnRef,
-          className: "action-btn draw-pop-btn",
-          onClick: drawPopEnabled ? handleDrawPopulation : undefined,
-          disabled: !drawPopEnabled,
-        }, stepCopy.drawPopulationButtonText),
-        e("button", {
-          ref: drawSampleBtnRef,
-          className: "action-btn draw-sample-btn",
-          onClick: drawSampleEnabled ? handleDrawSample : undefined,
-          disabled: !drawSampleEnabled,
-        }, stepCopy.drawSampleButtonText)
+      return e(
+        "div",
+        {
+          key: "ac-draw",
+          className: "action-content",
+          ref: actionContentRef,
+        },
+        e(
+          "button",
+          {
+            ref: drawPopBtnRef,
+            className: "action-btn draw-pop-btn",
+            onClick: drawPopEnabled ? handleDrawPopulation : undefined,
+            disabled: !drawPopEnabled,
+          },
+          stepCopy.drawPopulationButtonText,
+        ),
+        e(
+          "button",
+          {
+            ref: drawSampleBtnRef,
+            className: "action-btn draw-sample-btn",
+            onClick: drawSampleEnabled ? handleDrawSample : undefined,
+            disabled: !drawSampleEnabled,
+          },
+          stepCopy.drawSampleButtonText,
+        ),
       );
     }
 
     if (actionPhase === "conclusion") {
-      return e("div", {
-        key: "ac-conc", className: "action-content", ref: actionContentRef,
-      },
-        e("div", { className: "conclusion-text-box" }, stepCopy.conclusionText)
+      return e(
+        "div",
+        {
+          key: "ac-conc",
+          className: "action-content",
+          ref: actionContentRef,
+        },
+        e("div", { className: "conclusion-text-box" }, stepCopy.conclusionText),
       );
     }
 
@@ -1365,24 +1899,33 @@ const MainCanvas = (props) => {
 
   var hasContent = actionPhase !== "none";
   var actionNudgeRef = getActionNudgeRef();
-  var actionNudgeKey = actionPhase +
+  var actionNudgeKey =
+    actionPhase +
     (actionPhase === "shrink" ? (shrinkNudgeReady ? "-ready" : "-wait") : "") +
     (drawPopEnabled ? "-pop" : drawSampleEnabled ? "-sample" : "");
 
-  return e("div", { className: "main-canvas-container" },
-    e("div", { className: "visual-row" },
+  return e(
+    "div",
+    { className: "main-canvas-container" },
+    e(
+      "div",
+      { className: "visual-row" },
       e("div", { className: "graph-heading" }, graphConfig.populationHeading),
-      e("div", { className: "graph-wrapper" }, renderSVG())
+      e("div", { className: "graph-wrapper" }, renderSVG()),
     ),
-    e("div", {
-      className: "action-row-container" + (hasContent ? " has-content" : ""),
-    }, renderActionContent()),
+    e(
+      "div",
+      {
+        className: "action-row-container" + (hasContent ? " has-content" : ""),
+      },
+      renderActionContent(),
+    ),
     actionNudgeRef
       ? e(Nudge, {
           key: "action-nudge-" + actionNudgeKey,
           targetRef: actionNudgeRef,
           active: true,
         })
-      : null
+      : null,
   );
 };

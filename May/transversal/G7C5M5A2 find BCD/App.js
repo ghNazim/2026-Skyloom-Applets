@@ -116,6 +116,8 @@ const App = () => {
     (angle, navText) => {
       setWaitingForAngle(angle);
       setDynamicNavText(navText);
+      if (angle === "C") setDynamicQuestionText(APP_DATA.step7.findAngleC);
+      if (angle === "D") setDynamicQuestionText(APP_DATA.step9.findAngleD);
       setIsNextDisabled(true);
     },
     [],
@@ -130,6 +132,7 @@ const App = () => {
   }, []);
 
   const handleSummariseReady = useCallback(() => {
+    setDynamicQuestionText(APP_DATA.step11.angleDFound);
     setDynamicNavText(APP_DATA.step11.navSummarise);
     setIsNextDisabled(false);
   }, []);

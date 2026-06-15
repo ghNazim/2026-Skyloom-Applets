@@ -1,5 +1,5 @@
 const Mean = (props) => {
-  const { step, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText } = props;
+  const { step, initialStage, showNudges, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText } = props;
   const { useEffect, useRef, useState } = React;
   const e = React.createElement;
 
@@ -12,6 +12,8 @@ const Mean = (props) => {
   const [filledZones, setFilledZones] = useState({});
   const [availableDraggables, setAvailableDraggables] = useState(dd.draggables.map(function (d) { return d.id; }));
   const [shakeZone, setShakeZone] = useState(null);
+  const [wrongPreview, setWrongPreview] = useState(null);
+  const [hiddenSourceId, setHiddenSourceId] = useState(null);
   const [ddComplete, setDdComplete] = useState(false);
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
@@ -19,31 +21,38 @@ const Mean = (props) => {
   const [hoveredZone, setHoveredZone] = useState(null);
   const [ghostSize, setGhostSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef(null);
+  const sortSlotRefs = useRef([]);
+  const sumSpanRefs = useRef([]);
+  const lastCountBadgeRef = useRef(null);
+  const numBoxRef = useRef(null);
+  const denomBoxRef = useRef(null);
+  const meanBoxRef = useRef(null);
 
-  const [activeField, setActiveField] = useState(null);
-  const [sumInput, setSumInput] = useState("");
-  const [countInput, setCountInput] = useState("");
-  const [meanInput, setMeanInput] = useState("");
   const [sumDone, setSumDone] = useState(false);
   const [countDone, setCountDone] = useState(false);
   const [meanDone, setMeanDone] = useState(false);
-  const [sumWrongCount, setSumWrongCount] = useState(0);
-  const [countWrongCount, setCountWrongCount] = useState(0);
-  const [meanWrongCount, setMeanWrongCount] = useState(0);
-  const [boxState, setBoxState] = useState(null);
   const [showResultBox, setShowResultBox] = useState(false);
-  const [showNumpad, setShowNumpad] = useState(false);
   const [countBadgeCount, setCountBadgeCount] = useState(0);
   const [isCountAnimating, setIsCountAnimating] = useState(false);
   const [glowField, setGlowField] = useState(null);
   const [showFractionNudges, setShowFractionNudges] = useState(true);
-  const numBoxRef = useRef(null);
-  const denomBoxRef = useRef(null);
+  const [activeField, setActiveField] = useState(null);
+  const [sumAnimActive, setSumAnimActive] = useState(false);
+  const [revealedSumTokens, setRevealedSumTokens] = useState({});
+  const [sumShowAnswer, setSumShowAnswer] = useState(false);
+  const [sumBlinking, setSumBlinking] = useState(false);
+  const [isSumAnimating, setIsSumAnimating] = useState(false);
+  const [denomAnimActive, setDenomAnimActive] = useState(false);
+  const [denomBlinking, setDenomBlinking] = useState(false);
+  const [flyingClones, setFlyingClones] = useState([]);
+  const [flyingCountClone, setFlyingCountClone] = useState(null);
 
   function resetDragDrop() {
     setFilledZones({});
     setAvailableDraggables(dd.draggables.map(function (d) { return d.id; }));
     setShakeZone(null);
+    setWrongPreview(null);
+    setHiddenSourceId(null);
     setDdComplete(false);
     setDraggedItem(null);
     setIsDragging(false);
@@ -53,38 +62,72 @@ const Mean = (props) => {
 
   function resetStep9() {
     setActiveField(null);
-    setSumInput("");
-    setCountInput("");
-    setMeanInput("");
     setSumDone(false);
     setCountDone(false);
     setMeanDone(false);
-    setSumWrongCount(0);
-    setCountWrongCount(0);
-    setMeanWrongCount(0);
-    setBoxState(null);
     setShowResultBox(false);
     setGlowField(null);
-    setShowNumpad(false);
     setCountBadgeCount(0);
     setIsCountAnimating(false);
+    setSumAnimActive(false);
+    setRevealedSumTokens({});
+    setSumShowAnswer(false);
+    setSumBlinking(false);
+    setIsSumAnimating(false);
+    setDenomAnimActive(false);
+    setDenomBlinking(false);
+    setFlyingClones([]);
+    setFlyingCountClone(null);
+    sumSpanRefs.current = [];
+    sortSlotRefs.current = [];
+    lastCountBadgeRef.current = null;
+  }
+
+  function restoreStep8Final() {
+    setFilledZones({ left: "mean", num: "sum", denom: "count" });
+    setAvailableDraggables([]);
+    setDdComplete(true);
+    onUpdateQuestionText(step8.completeQuestion);
+    onUpdateNavText(step8.completeNav);
+    onSetNextEnabled(true);
+  }
+
+  function restoreStep9Final() {
+    resetStep9();
+    setSumDone(true);
+    setCountDone(true);
+    setMeanDone(true);
+    setSumShowAnswer(true);
+    setShowResultBox(true);
+    setShowFractionNudges(false);
+    onUpdateQuestionText(step9.completeQuestion);
+    onUpdateNavText(step9.completeNav);
+    onSetNextEnabled(true);
   }
 
   useEffect(function () {
     if (step === 8) {
+      if (initialStage === "final") {
+        restoreStep8Final();
+        return;
+      }
       onSetNextEnabled(false);
       onUpdateQuestionText(step8.questionText);
       onUpdateNavText(step8.navText);
       resetDragDrop();
     }
     if (step === 9) {
+      if (initialStage === "final") {
+        restoreStep9Final();
+        return;
+      }
       onSetNextEnabled(false);
       onUpdateQuestionText(step9.questionText);
       onUpdateNavText(step9.navText);
       resetStep9();
       setShowFractionNudges(true);
     }
-  }, [step]);
+  }, [step, initialStage]);
 
   useEffect(function () {
     if (step !== 8) return;
@@ -100,12 +143,10 @@ const Mean = (props) => {
   }, [filledZones, ddComplete, step]);
 
   useEffect(function () {
-    if (step !== 9 || !sumDone || !countDone || showResultBox) return;
+    if (step !== 9 || initialStage === "final" || !sumDone || !countDone || showResultBox) return;
     const timer = setTimeout(function () {
       setShowResultBox(true);
       setCountBadgeCount(0);
-      setActiveField("mean");
-      setShowNumpad(true);
       onUpdateQuestionText(step9.meanQuestion);
       onUpdateNavText(step9.meanNav);
     }, 1000);
@@ -125,7 +166,9 @@ const Mean = (props) => {
           event.clientY >= rect.top && event.clientY <= rect.bottom
         ) {
           const zoneId = zone.dataset.zoneid;
-          if (!filledZones[zoneId]) nextHover = zoneId;
+          if (!filledZones[zoneId] && !(wrongPreview && wrongPreview.zoneId === zoneId)) {
+            nextHover = zoneId;
+          }
         }
       });
       setHoveredZone(nextHover);
@@ -143,7 +186,11 @@ const Mean = (props) => {
           droppedOn = zone.dataset.zoneid;
         }
       });
-      if (droppedOn) processDrop(draggedItem, droppedOn);
+      if (droppedOn) {
+        processDrop(draggedItem, droppedOn);
+      } else {
+        setHiddenSourceId(null);
+      }
       setDraggedItem(null);
       setIsDragging(false);
       setHoveredZone(null);
@@ -154,7 +201,7 @@ const Mean = (props) => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
-  }, [isDragging, draggedItem, filledZones]);
+  }, [isDragging, draggedItem, filledZones, wrongPreview]);
 
   function getDraggable(id) {
     return dd.draggables.find(function (d) { return d.id === id; });
@@ -167,7 +214,7 @@ const Mean = (props) => {
   }
 
   function processDrop(draggableId, zoneId) {
-    if (!draggableId || filledZones[zoneId]) return;
+    if (!draggableId || filledZones[zoneId] || wrongPreview) return;
     const isCorrect = dd.zoneMap[zoneId] === draggableId;
     if (isCorrect) {
       if (typeof playSound === "function") playSound("correct");
@@ -182,8 +229,14 @@ const Mean = (props) => {
       });
     } else {
       if (typeof playSound === "function") playSound("wrong");
+      setHiddenSourceId(draggableId);
+      setWrongPreview({ zoneId: zoneId, draggableId: draggableId });
       setShakeZone(zoneId);
-      setTimeout(function () { setShakeZone(null); }, 600);
+      setTimeout(function () {
+        setWrongPreview(null);
+        setShakeZone(null);
+        setHiddenSourceId(null);
+      }, 650);
     }
   }
 
@@ -208,18 +261,21 @@ const Mean = (props) => {
   }
 
   function renderDataSortRow() {
-    const showPlus = step === 9 && activeField === "num" && !sumDone;
     const slots = [];
     sortedDataset.forEach(function (value, index) {
-      if (index > 0 && showPlus) {
-        slots.push(e("span", { className: "sort-plus-sign", key: "plus-" + index }, "+"));
-      }
-      const showBadge = step === 9 && countBadgeCount > index && activeField === "denom";
+      const showBadge = step === 9 && countBadgeCount > index &&
+        (isCountAnimating || activeField === "denom");
+      const isLastBadge = showBadge && index === sortedDataset.length - 1 &&
+        countBadgeCount === sortedDataset.length;
       slots.push(e("div", {
         className: "sort-slot filled" + (showBadge ? " sort-has-badge" : ""),
         key: "sort-slot-" + index,
+        ref: function (node) { sortSlotRefs.current[index] = node; },
       },
-        showBadge ? e("span", { className: "mean-count-badge" }, index + 1) : null,
+        showBadge ? e("span", {
+          className: "mean-count-badge",
+          ref: isLastBadge ? function (node) { lastCountBadgeRef.current = node; } : null,
+        }, index + 1) : null,
         value
       ));
     });
@@ -228,24 +284,24 @@ const Mean = (props) => {
     );
   }
 
-  function navForOtherField(completedField) {
-    if (completedField === "num" && !countDone) return step9.sumCompleteNav;
-    if (completedField === "denom" && !sumDone) return step9.countCompleteNav;
-    return null;
-  }
-
   function renderDropZone(zoneId) {
     const isFilled = !!filledZones[zoneId];
+    const isWrongPreview = wrongPreview && wrongPreview.zoneId === zoneId;
     const isShaking = shakeZone === zoneId;
-    const isHovered = hoveredZone === zoneId && !isFilled && draggedItem;
+    const isHovered = hoveredZone === zoneId && !isFilled && !isWrongPreview && draggedItem;
     let className = "mean-dd-zone";
     if (isFilled) className += " correct";
-    if (isShaking) className += " shake wrong";
+    if (isWrongPreview) className += " wrong shake wrong-preview";
+    else if (isShaking) className += " shake";
     if (isHovered) className += " hovered";
+    if (!isFilled && !isWrongPreview) className += " dd-empty";
     if (zoneId === "num" || zoneId === "denom") className += " fraction-zone";
-    const content = isFilled
-      ? renderDraggableText(getDraggable(filledZones[zoneId]).text)
-      : step8.dropPlaceholder;
+    let content = step8.dropPlaceholder;
+    if (isFilled) {
+      content = renderDraggableText(getDraggable(filledZones[zoneId]).text);
+    } else if (isWrongPreview) {
+      content = renderDraggableText(getDraggable(wrongPreview.draggableId).text);
+    }
     return e("span", {
       key: zoneId,
       className: className,
@@ -286,7 +342,7 @@ const Mean = (props) => {
           return e("button", {
             type: "button",
             key: "drag-" + item.id,
-            className: "mean-dd-draggable" + (draggedItem === item.id ? " dragging" : ""),
+            className: "mean-dd-draggable" + (draggedItem === item.id && isDragging ? " dragging" : "") + (hiddenSourceId === item.id ? " source-hidden" : ""),
             onPointerDown: function (ev) { handleDragPointerDown(ev, item.id); },
           }, renderDraggableText(item.text));
         })
@@ -295,61 +351,235 @@ const Mean = (props) => {
     );
   }
 
+  function buildSumTokens() {
+    const tokens = [];
+    sortedDataset.forEach(function (value, index) {
+      if (index > 0) {
+        tokens.push({ type: "plus", id: "plus-" + index, text: "+" });
+      }
+      tokens.push({
+        type: "digit",
+        id: "digit-" + index,
+        text: String(value),
+        sortSlot: index,
+        dataIndex: index,
+      });
+    });
+    return tokens;
+  }
+
+  function getFlyMetrics(node) {
+    const container = containerRef.current;
+    if (!node || !container) return { x: 0, y: 0, fontSize: 16 };
+    const cRect = container.getBoundingClientRect();
+    const rect = node.getBoundingClientRect();
+    const style = window.getComputedStyle(node);
+    return {
+      x: rect.left - cRect.left + rect.width / 2,
+      y: rect.top - cRect.top + rect.height / 2,
+      fontSize: parseFloat(style.fontSize) || rect.height * 0.65,
+    };
+  }
+
+  function renderSumToken(token) {
+    const isVisible = !!revealedSumTokens[token.id];
+    return e("span", {
+      key: token.id,
+      ref: token.type === "digit"
+        ? function (node) { sumSpanRefs.current[token.dataIndex] = node; }
+        : null,
+      className: [
+        "step9-sum-token",
+        token.type === "plus" ? "plus" : "digit",
+        isVisible ? "visible" : "",
+      ].join(" "),
+    }, token.text);
+  }
+
+  function renderSumExpression() {
+    const tokens = buildSumTokens();
+    let digitSeen = 0;
+    let splitIndex = tokens.length;
+    const halfDigits = Math.floor(sortedDataset.length / 2);
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i].type === "digit") {
+        digitSeen += 1;
+        if (digitSeen === halfDigits) {
+          splitIndex = i + 1;
+          break;
+        }
+      }
+    }
+    return e("span", { className: "step9-sum-expression" },
+      e("span", { className: "step9-sum-line" }, tokens.slice(0, splitIndex).map(renderSumToken)),
+      e("span", { className: "step9-sum-line" }, tokens.slice(splitIndex).map(renderSumToken))
+    );
+  }
+
+  function flyDigitToNumerator(token, flyDuration, onComplete) {
+    const fromNode = sortSlotRefs.current[token.sortSlot];
+    const toNode = sumSpanRefs.current[token.dataIndex];
+    if (!fromNode || !toNode) {
+      onComplete();
+      return;
+    }
+    const from = getFlyMetrics(fromNode);
+    const to = getFlyMetrics(toNode);
+    const cloneKey = "fly-" + token.id;
+    setFlyingClones(function (prev) {
+      return prev.concat([{
+        key: cloneKey,
+        value: token.text,
+        from: from,
+        to: to,
+        durationMs: flyDuration,
+      }]);
+    });
+    if (typeof playSound === "function") playSound("tick");
+    setTimeout(function () {
+      setFlyingClones(function (prev) {
+        return prev.filter(function (c) { return c.key !== cloneKey; });
+      });
+      setRevealedSumTokens(function (prev) {
+        const next = {};
+        Object.keys(prev).forEach(function (k) { next[k] = prev[k]; });
+        next[token.id] = true;
+        if (token.dataIndex > 0) next["plus-" + token.dataIndex] = true;
+        return next;
+      });
+      onComplete();
+    }, flyDuration);
+  }
+
+  function runSumAnimation() {
+    setIsSumAnimating(true);
+    setSumAnimActive(true);
+    setActiveField("num");
+    setRevealedSumTokens({});
+    setSumShowAnswer(false);
+    onUpdateQuestionText(step9.sumQuestion);
+    onUpdateNavText("");
+    if (typeof playSound === "function") playSound("click");
+
+    const digitTokens = buildSumTokens().filter(function (t) { return t.type === "digit"; });
+    const totalFlyBudget = 3000;
+    const initialDelay = 200;
+    const flyDuration = Math.max(
+      400,
+      Math.floor((totalFlyBudget - initialDelay) / digitTokens.length) * 2
+    );
+    let index = 0;
+
+    function flyNext() {
+      if (index >= digitTokens.length) {
+        onUpdateNavText("");
+        setTimeout(function () {
+          setSumBlinking(true);
+          if (typeof playSound === "function") playSound("correct");
+          setTimeout(function () {
+            setSumShowAnswer(true);
+            setSumBlinking(false);
+            setSumDone(true);
+            setSumAnimActive(false);
+            setIsSumAnimating(false);
+            setActiveField(null);
+            onUpdateQuestionText(step9.sumCompleteQuestion);
+            onUpdateNavText(countDone ? step9.countCompleteNav : step9.sumCompleteNav);
+          }, 650);
+        }, 1000);
+        return;
+      }
+      flyDigitToNumerator(digitTokens[index], flyDuration, function () {
+        index += 1;
+        flyNext();
+      });
+    }
+
+    setTimeout(flyNext, 200);
+  }
+
+  function flyCountToDenominator() {
+    onUpdateNavText("");
+    const fromNode = lastCountBadgeRef.current;
+    const toNode = denomBoxRef.current;
+    if (!fromNode || !toNode) {
+      finishDenomAnimation();
+      return;
+    }
+    const from = getFlyMetrics(fromNode);
+    const to = getFlyMetrics(toNode);
+    setFlyingCountClone({
+      key: "fly-count-" + Date.now(),
+      value: String(step9.countAnswer),
+      from: from,
+      to: to,
+    });
+    setTimeout(function () {
+      setCountDone(true);
+      setDenomBlinking(true);
+      if (typeof playSound === "function") playSound("correct");
+      requestAnimationFrame(function () {
+        setFlyingCountClone(null);
+      });
+      setTimeout(finishDenomAnimation, 650);
+    }, 580);
+  }
+
+  function finishDenomAnimation() {
+    setDenomAnimActive(false);
+    setDenomBlinking(false);
+    setIsCountAnimating(false);
+    setActiveField(null);
+    setCountBadgeCount(0);
+    onUpdateQuestionText(step9.countCompleteQuestion);
+    onUpdateNavText(sumDone ? step9.countCompleteNav : step9.countCompleteNavAlt);
+  }
+
   function getBoxDisplay(field) {
     if (field === "num") {
-      if (sumDone) return String(step9.sumAnswer);
-      if (sumInput) return sumInput;
-      return labels.sum;
+      if (sumDone || sumShowAnswer) return String(step9.sumAnswer);
+      return null;
     }
     if (field === "denom") {
       if (countDone) return String(step9.countAnswer);
-      if (countInput) return countInput;
-      return labels.count;
-    }
-    if (field === "mean") {
-      if (meanDone) return step9.meanAnswer;
-      if (meanInput) return meanInput;
-      return "\u00A0";
+      return null;
     }
     return labels.mean;
   }
 
   function handleFieldClick(field) {
-    if (step !== 9 || isCountAnimating) return;
-    if (field === "num" && sumDone) return;
-    if (field === "denom" && countDone) return;
+    if (step !== 9 || isCountAnimating || isSumAnimating) return;
+    if (field === "num" && (sumDone || sumAnimActive)) return;
+    if (field === "denom" && (countDone || denomAnimActive)) return;
 
     if (field === "num" || field === "denom") {
       setShowFractionNudges(false);
     }
 
-    setCountBadgeCount(0);
-
     if (field === "num") {
-      setActiveField("num");
-      setShowNumpad(true);
-      setBoxState(null);
-      onUpdateQuestionText(step9.sumQuestion);
-      onUpdateNavText(step9.sumNav);
-      if (typeof playSound === "function") playSound("click");
-    } else if (field === "denom") {
+      runSumAnimation();
+      return;
+    }
+
+    if (field === "denom") {
+      setDenomAnimActive(true);
       setActiveField("denom");
-      setShowNumpad(true);
-      setBoxState(null);
+      setCountBadgeCount(0);
       onUpdateQuestionText(step9.countQuestion);
-      onUpdateNavText(step9.countNav);
+      onUpdateNavText("");
       if (typeof playSound === "function") playSound("click");
+      runCountBadgeAnimation(function () {
+        setTimeout(flyCountToDenominator, 500);
+      });
     }
   }
 
   function runCountBadgeAnimation(onComplete) {
     setIsCountAnimating(true);
-    setShowNumpad(false);
     setCountBadgeCount(0);
     let i = 0;
     function next() {
       if (i >= sortedDataset.length) {
-        setIsCountAnimating(false);
         onComplete();
         return;
       }
@@ -361,181 +591,51 @@ const Mean = (props) => {
     next();
   }
 
-  function playRevealAttention(field) {
-    setTimeout(function () {
-      setGlowField(field);
-      if (typeof playSound === "function") playSound("tick");
-      setTimeout(function () { setGlowField(null); }, 900);
-    }, 80);
-  }
-
-  function applySumComplete() {
-    setSumDone(true);
-    setSumInput("");
-    setBoxState(null);
-    onUpdateQuestionText(step9.sumCompleteQuestion);
-    const otherNav = navForOtherField("num");
-    if (otherNav) onUpdateNavText(otherNav);
-    setActiveField(null);
-    setShowNumpad(false);
-  }
-
-  function revealSumWithAttention() {
-    applySumComplete();
-    playRevealAttention("num");
-  }
-
-  function applyCountComplete() {
-    setCountDone(true);
-    setCountInput("");
-    setBoxState(null);
-    setCountBadgeCount(0);
-    onUpdateQuestionText(step9.countCompleteQuestion);
-    const otherNav = navForOtherField("denom");
-    if (otherNav) onUpdateNavText(otherNav);
-    setActiveField(null);
-    setShowNumpad(false);
-  }
-
-  function revealCountWithAttention() {
-    applyCountComplete();
-    playRevealAttention("denom");
-  }
-
-  function handleWrong(field) {
-    setBoxState("wrong");
-    if (typeof playSound === "function") playSound("wrong");
-    if (field === "num") {
-      const nextWrong = sumWrongCount + 1;
-      setSumWrongCount(nextWrong);
-      if (nextWrong >= 2) {
-        setTimeout(revealSumWithAttention, 1500);
-      } else {
-        setTimeout(function () {
-          setBoxState(null);
-          setSumInput("");
-        }, 700);
-      }
-    } else if (field === "denom") {
-      const nextWrong = countWrongCount + 1;
-      setCountWrongCount(nextWrong);
-      if (nextWrong >= 2) {
-        setTimeout(function () {
-          runCountBadgeAnimation(revealCountWithAttention);
-        }, 1500);
-      } else {
-        setTimeout(function () {
-          setBoxState(null);
-          setCountInput("");
-        }, 700);
-      }
-    } else if (field === "mean") {
-      const nextWrong = meanWrongCount + 1;
-      setMeanWrongCount(nextWrong);
-      setTimeout(function () {
-        setBoxState(null);
-        setMeanInput("");
-      }, 700);
-    }
-  }
-
-  function handleSubmit() {
-    if (activeField === "num" && !sumDone) {
-      if (Number(sumInput) === step9.sumAnswer) {
-        setBoxState("correct");
-        if (typeof playSound === "function") playSound("correct");
-        setTimeout(function () {
-          setBoxState(null);
-          setShowNumpad(false);
-          applySumComplete();
-        }, 500);
-      } else {
-        handleWrong("num");
-      }
-      return;
-    }
-    if (activeField === "denom" && !countDone) {
-      if (Number(countInput) === step9.countAnswer) {
-        setBoxState("correct");
-        if (typeof playSound === "function") playSound("correct");
-        setTimeout(function () {
-          setBoxState(null);
-          setShowNumpad(false);
-          runCountBadgeAnimation(applyCountComplete);
-        }, 500);
-      } else {
-        handleWrong("denom");
-      }
-      return;
-    }
-    if (activeField === "mean" && !meanDone) {
-      if (meanInput === step9.meanAnswer) {
-        setBoxState("correct");
-        if (typeof playSound === "function") playSound("correct");
-        setMeanDone(true);
-        setShowNumpad(false);
-        onUpdateQuestionText(step9.completeQuestion);
-        onUpdateNavText(step9.completeNav);
-        onSetNextEnabled(true);
-      } else {
-        handleWrong("mean");
-      }
-    }
-  }
-
-  function handleNumpadKey(key) {
+  function handleMeanReveal() {
+    if (meanDone || !showResultBox) return;
     if (typeof playSound === "function") playSound("click");
-    setBoxState(null);
-    if (key === "backspace") {
-      if (activeField === "num") setSumInput(function (p) { return p.slice(0, -1); });
-      if (activeField === "denom") setCountInput(function (p) { return p.slice(0, -1); });
-      if (activeField === "mean") setMeanInput(function (p) { return p.slice(0, -1); });
-      return;
-    }
-    if (key === ".") {
-      if (activeField === "mean" && meanInput.indexOf(".") < 0) {
-        setMeanInput(function (p) { return p.length < 3 ? (p || "0") + "." : p; });
-      }
-      return;
-    }
-    const digit = String(key);
-    if (activeField === "num") {
-      setSumInput(function (p) { return p.length >= 3 ? p : p + digit; });
-    } else if (activeField === "denom") {
-      setCountInput(function (p) { return p.length >= 2 ? p : p + digit; });
-    } else if (activeField === "mean") {
-      setMeanInput(function (p) {
-        if (p.length >= 3) return p;
-        if (digit === "." && p.indexOf(".") >= 0) return p;
-        return p + digit;
-      });
-    }
+    onUpdateNavText("");
+    setMeanDone(true);
+    setTimeout(function () {
+      if (typeof playSound === "function") playSound("correct");
+      onUpdateQuestionText(step9.completeQuestion);
+      onUpdateNavText(step9.completeNav);
+      onSetNextEnabled(true);
+    }, 600);
   }
 
   function renderStep9FractionBox(field) {
-    const isActive = activeField === field;
     const isDone = field === "num" ? sumDone : countDone;
-    const hasInput = field === "num" ? !!sumInput : !!countInput;
-    const isLabel = !isDone && !hasInput;
-    const isClickable = (field === "num" && !sumDone && !isCountAnimating) ||
-      (field === "denom" && !countDone && !isCountAnimating);
+    const isAnimating = field === "num"
+      ? (sumAnimActive || isSumAnimating)
+      : (denomAnimActive || isCountAnimating);
+    const isClickable = field === "num"
+      ? (!sumDone && !isSumAnimating && !sumAnimActive)
+      : (!countDone && !isCountAnimating && !denomAnimActive);
+    const isClicked = field === "num" ? sumAnimActive : denomAnimActive;
+    const isBlinking = field === "num" ? sumBlinking : denomBlinking;
+    const showExpression = field === "num" && sumAnimActive && !sumShowAnswer && !sumDone;
+    const showAnswer = field === "num"
+      ? (sumShowAnswer || sumDone)
+      : countDone;
 
+    const showFilled = isDone || showAnswer;
     const classes = [
       "mean-dd-zone",
       "fraction-zone",
-      !isDone && !isActive ? "correct" : "",
-      isDone ? "step9-answered" : "",
-      isClickable ? "step9-clickable" : "",
-      isActive ? "step9-active" : "",
-      isActive && isLabel ? "step9-label-pending" : "",
-      isLabel ? "" : "step9-has-value",
-      glowField === field ? "reveal-attention" : "",
-      isActive && boxState === "wrong" ? "wrong shake" : "",
-      isActive && boxState === "correct" ? "step9-correct-flash" : "",
+      isClickable && !isClicked && !showFilled ? "correct step9-clickable" : "",
+      (isClicked || isAnimating) && !showFilled ? "step9-clicked correct" : "",
+      showFilled ? "step9-static step9-filled step9-has-value" : "",
+      !isClickable && !showFilled && !isClicked && !isAnimating ? "step9-static" : "",
+      isBlinking ? "step9-blink" : "",
     ].join(" ");
 
-    let content = getBoxDisplay(field);
-    if (isLabel) {
+    let content = null;
+    if (showAnswer) {
+      content = getBoxDisplay(field);
+    } else if (showExpression) {
+      content = renderSumExpression();
+    } else if (isClickable && !isClicked) {
       content = renderDraggableText(getDraggable(field === "num" ? "sum" : "count").text);
     }
 
@@ -550,95 +650,74 @@ const Mean = (props) => {
   }
 
   function renderStep9FractionNudges() {
-    if (step !== 9 || !showFractionNudges) return null;
-    if (activeField) return null;
+    if (!showNudges || step !== 9 || !showFractionNudges || activeField || isSumAnimating || isCountAnimating) return null;
     return e(React.Fragment, null,
-      e(Nudge, { targetRef: numBoxRef, show: !sumDone }),
-      e(Nudge, { targetRef: denomBoxRef, show: !countDone })
+      e(Nudge, { targetRef: numBoxRef, show: !sumDone && !isSumAnimating }),
+      e(Nudge, { targetRef: denomBoxRef, show: !countDone && !isCountAnimating })
     );
   }
 
   function renderStep9MeanBox() {
-    const isActive = activeField === "mean";
-    const classes = [
-      "mean-dd-zone",
-      "mean-result-box",
-      isActive ? "step9-active" : "",
-      isActive && !meanInput && !meanDone ? "step9-label-pending" : "",
-      meanInput || meanDone ? "step9-has-value" : "",
-      meanDone || boxState === "correct" ? "step9-mean-correct" : "",
-      isActive && boxState === "wrong" ? "wrong shake" : "",
-      glowField === "mean" ? "reveal-attention" : "",
-    ].join(" ");
-
-    return e("span", {
-      className: classes,
-    }, getBoxDisplay("mean"));
-  }
-
-  function renderNumpadKey(key, options) {
-    const opts = options || {};
-    if (key === "backspace") {
-      return e("button", {
-        type: "button",
-        key: "bs",
-        className: "mean-np-key backspace",
-        onClick: function () { handleNumpadKey("backspace"); },
-      }, "⌫");
-    }
-    if (key === "submit") {
-      return e("button", {
-        type: "button",
-        key: "submit",
-        className: "mean-np-key submit" + (opts.tall ? " submit-tall" : ""),
-        disabled: !opts.hasInput,
-        onClick: handleSubmit,
-      }, "✓");
-    }
-    return e("button", {
-      type: "button",
-      key: "k-" + key,
-      className: "mean-np-key",
-      onClick: function () { handleNumpadKey(key); },
-    }, key);
-  }
-
-  function renderNumpad() {
-    const withDecimal = activeField === "mean";
-    const currentInput = activeField === "num" ? sumInput : activeField === "denom" ? countInput : meanInput;
-    const inputOpts = { hasInput: !!currentInput };
-
-    if (withDecimal) {
-      return e("div", {
-        className: "mean-numpad-wrap " + (showNumpad ? "visible" : ""),
-      },
-        e("div", { className: "mean-numpad-grid with-decimal" },
-          [1, 2, 3, 4, 5, "backspace"].map(function (k) { return renderNumpadKey(k); }),
-          [6, 7, 8, 9, 0, "."].map(function (k) { return renderNumpadKey(k); }),
-          renderNumpadKey("submit", { tall: true, hasInput: !!currentInput })
-        )
-      );
-    }
-
     return e("div", {
-      className: "mean-numpad-wrap " + (showNumpad ? "visible" : ""),
+      className: "mean-flip-card" + (meanDone ? " flipped" : ""),
+      ref: meanBoxRef,
     },
-      e("div", { className: "mean-numpad-grid standard" },
-        [1, 2, 3, 4, 5, "backspace"].map(function (k) { return renderNumpadKey(k); }),
-        [6, 7, 8, 9, 0, "submit"].map(function (k) {
-          return k === "submit"
-            ? renderNumpadKey("submit", inputOpts)
-            : renderNumpadKey(k);
-        })
+      e("div", { className: "mean-flip-card-inner" },
+        e("button", {
+          type: "button",
+          className: "mean-flip-front",
+          disabled: meanDone,
+          onClick: handleMeanReveal,
+        }, step9.revealLabel),
+        e("div", { className: "mean-flip-back" }, step9.meanAnswer)
       )
     );
+  }
+
+  function renderStep9MeanNudge() {
+    if (!showNudges || step !== 9 || !showResultBox || meanDone) return null;
+    return e(Nudge, { targetRef: meanBoxRef, show: true });
+  }
+
+  function renderFlyingClones() {
+    const clones = flyingClones.map(function (clone) {
+      return e("div", {
+        className: "flying-step9-clone",
+        key: clone.key,
+        style: {
+          "--from-x": clone.from.x + "px",
+          "--from-y": clone.from.y + "px",
+          "--to-x": clone.to.x + "px",
+          "--to-y": clone.to.y + "px",
+          "--from-font-size": clone.from.fontSize + "px",
+          "--to-font-size": clone.to.fontSize + "px",
+          "--fly-duration": ((clone.durationMs || 580) / 1000) + "s",
+        },
+      }, clone.value);
+    });
+    if (flyingCountClone) {
+      clones.push(e("div", {
+        className: "flying-step9-clone",
+        key: flyingCountClone.key,
+        style: {
+          "--from-x": flyingCountClone.from.x + "px",
+          "--from-y": flyingCountClone.from.y + "px",
+          "--to-x": flyingCountClone.to.x + "px",
+          "--to-y": flyingCountClone.to.y + "px",
+          "--from-font-size": flyingCountClone.from.fontSize + "px",
+          "--to-font-size": flyingCountClone.to.fontSize + "px",
+        },
+      }, flyingCountClone.value));
+    }
+    if (!clones.length) return null;
+    return e("div", { className: "step9-flying-layer" }, clones);
   }
 
   function renderCalcPanel() {
     return e("div", { className: "mean-dd-panel mean-step9-panel" },
       e("div", { className: "mean-dd-left" },
         e("div", { className: "mean-dd-formula" },
-          e("span", { className: "mean-dd-zone correct" },
+          e("span", { className: "mean-dd-zone step9-static" },
             renderDraggableText(getDraggable("mean").text)
           ),
           e("span", { className: "mean-dd-equals" }, "="),
@@ -654,8 +733,7 @@ const Mean = (props) => {
             renderStep9MeanBox()
           )
         )
-      ),
-      renderNumpad()
+      )
     );
   }
 
@@ -672,7 +750,9 @@ const Mean = (props) => {
       e("div", { className: "mean-row sort-section expanded" }, renderDataSortRow()),
       e("div", { className: "mean-row data-section collapsed" }),
       e("div", { className: "mean-row mean-panel-row" }, renderCalcPanel()),
-      renderStep9FractionNudges()
+      renderFlyingClones(),
+      renderStep9FractionNudges(),
+      renderStep9MeanNudge()
     );
   }
 

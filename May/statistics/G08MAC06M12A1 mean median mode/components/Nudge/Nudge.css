@@ -8,3 +8,8 @@
   object-fit: contain;
   opacity: 0.5;
 }
+
+.nudge-overlay .nudge-tap-gif.vertical-drag {
+  width: 7vw;
+  height: auto;
+}

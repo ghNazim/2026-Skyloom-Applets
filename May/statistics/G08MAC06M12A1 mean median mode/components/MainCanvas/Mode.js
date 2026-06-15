@@ -1,5 +1,5 @@
 const Mode = (props) => {
-  const { onSetNextEnabled, onUpdateNavText, onUpdateQuestionText } = props;
+  const { onSetNextEnabled, onUpdateNavText, onUpdateQuestionText, initialStage, showNudges } = props;
   const { useEffect, useState, useRef } = React;
   const e = React.createElement;
   const stepText = APP_DATA.steps[1];
@@ -19,10 +19,21 @@ const Mode = (props) => {
   const mode1DropdownRef = useRef(null);
 
   useEffect(function () {
+    if (initialStage === "final") {
+      setModeCount(modeValues.length);
+      setAnswers([modeValues[0], modeValues[1]]);
+      setFoundModes(modeValues.slice());
+      setOpenId(null);
+      setModePairNudgesDismissed(true);
+      onUpdateQuestionText(stepText.completeQuestion);
+      onUpdateNavText(stepText.completeNav);
+      onSetNextEnabled(true);
+      return;
+    }
     onSetNextEnabled(false);
     onUpdateQuestionText(stepText.questionText);
     onUpdateNavText(stepText.navText);
-  }, []);
+  }, [initialStage]);
 
   function markWrong(key) {
     setWrongKey(key);
@@ -40,6 +51,13 @@ const Mode = (props) => {
     if (typeof playSound === "function") playSound("correct");
     onUpdateQuestionText(stepText.countCorrectQuestion);
     onUpdateNavText(stepText.countCorrectNav);
+  }
+
+  function getModeOptionsForSlot(slot) {
+    const otherSlot = slot === 0 ? 1 : 0;
+    const otherAnswer = answers[otherSlot];
+    if (otherAnswer === null) return modeOptions;
+    return modeOptions.filter(function (option) { return option !== otherAnswer; });
   }
 
   function handleModeSelect(slot, value) {
@@ -98,7 +116,7 @@ const Mode = (props) => {
         },
       },
         hasValue ? config.value : "",
-        !locked ? e("span", { className: "select-arrow" }, isOpen ? "^" : "v") : null
+        !locked ? e("span", { className: "select-arrow" }, isOpen ? "\u25B2" : "\u25BC") : null
       ),
       isOpen ? e("div", { className: "custom-options" },
         config.options.map(function (option) {
@@ -129,8 +147,8 @@ const Mode = (props) => {
   }
 
   const countComplete = modeCount === modeValues.length;
-  const showCountNudge = !countComplete && openId !== "count";
-  const showModePairNudges = countComplete && !modePairNudgesDismissed;
+  const showCountNudge = showNudges && !countComplete && openId !== "count";
+  const showModePairNudges = showNudges && countComplete && !modePairNudgesDismissed;
 
   return e("div", { className: "main-canvas-container mode-canvas" },
     e("div", { className: "mode-column mode-data-column" }, renderData()),
@@ -153,7 +171,7 @@ const Mode = (props) => {
           id: "mode-0",
           theme: "blue",
           value: answers[0],
-          options: modeOptions,
+          options: getModeOptionsForSlot(0),
           disabled: !countComplete,
           locked: answers[0] !== null,
           buttonRef: mode0DropdownRef,
@@ -163,7 +181,7 @@ const Mode = (props) => {
           id: "mode-1",
           theme: "blue",
           value: answers[1],
-          options: modeOptions,
+          options: getModeOptionsForSlot(1),
           disabled: false,
           locked: answers[1] !== null,
           buttonRef: mode1DropdownRef,

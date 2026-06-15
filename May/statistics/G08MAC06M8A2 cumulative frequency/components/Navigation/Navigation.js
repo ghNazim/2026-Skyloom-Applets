@@ -4,7 +4,12 @@ const Navigation = ({
   isPrevDisabled,
   navText,
   nextSymbol = "»",
+  nextButtonRef,
+  showNextNudge = false,
 }) => {
+  const localNextRef = React.useRef(null);
+  const nextRef = nextButtonRef || localNextRef;
+
   return React.createElement(
     "div",
     { className: "navigation" },
@@ -24,12 +29,17 @@ const Navigation = ({
     React.createElement(
       "button",
       {
+        ref: nextRef,
         className: "nav-chevron",
         onClick: () => onNav("next"),
         disabled: isNextDisabled,
         id: "next-button",
       },
       nextSymbol
-    )
+    ),
+    React.createElement(Nudge, {
+      targetRef: nextRef,
+      active: showNextNudge,
+    })
   );
 };

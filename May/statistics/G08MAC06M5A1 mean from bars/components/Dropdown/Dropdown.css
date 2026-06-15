@@ -1,0 +1,141 @@
+.dropdown-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.2vw;
+  width: 100%;
+  padding: 1vw;
+}
+
+.custom-select-wrap {
+  width: 14vw;
+  position: relative;
+  z-index: 10;
+}
+
+.custom-select-wrap.blue {
+  width: 16vw;
+}
+
+.custom-select-button {
+  width: 100%;
+  min-height: 4.2vw;
+  border: 0;
+  border-radius: 0.8vw;
+  color: white;
+  font-size: 2vw;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+  padding: 0.65vw 2.2vw 0.65vw 0.9vw;
+  text-shadow: 0 0.12vw 0.15vw rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0.35vw 0.45vw rgba(0, 0, 0, 0.28),
+    inset 0 0.08vw 0.12vw rgba(255, 255, 255, 0.35);
+}
+
+.custom-select-button.pink {
+  background: linear-gradient(145deg, #f06bad, #df2a82);
+}
+
+.custom-select-button.blue {
+  background: linear-gradient(145deg, #68c1ed, #4aa6d8);
+}
+
+.custom-select-button.disabled {
+  background: rgba(140, 140, 140, 0.75);
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.custom-select-button.locked {
+  cursor: default;
+}
+
+.select-placeholder {
+  font-style: italic;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.select-value {
+  font-style: normal;
+  font-weight: 700;
+  display: block;
+  line-height: 1.2;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 0.65vw;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.4vw;
+  color: rgba(80, 40, 70, 0.55);
+}
+
+.blue .select-arrow {
+  color: rgba(28, 95, 130, 0.7);
+}
+
+.custom-options {
+  position: absolute;
+  top: calc(100% + 0.15vw);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35vw;
+}
+
+.custom-option {
+  min-height: 3vw;
+  border: 0;
+  color: white;
+  font-size: 2vw;
+  line-height: 1.2;
+  padding: 0.45vw 0.6vw;
+  cursor: pointer;
+  background: #e72586;
+  border-radius: 0.35vw;
+  text-align: left;
+}
+
+.blue .custom-option {
+  background: #5db6e4;
+}
+
+.custom-option:hover {
+  filter: brightness(1.12);
+}
+
+.custom-option.wrong-option,
+.custom-select-button.wrong {
+  animation: dropdown-shake 0.6s ease;
+  background: #d64040;
+}
+
+.blue .custom-option.wrong-option {
+  background: #d64040;
+}
+
+@keyframes dropdown-shake {
+  10%,
+  90% {
+    transform: translateX(-0.1vw);
+  }
+  20%,
+  80% {
+    transform: translateX(0.2vw);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-0.35vw);
+  }
+  40%,
+  60% {
+    transform: translateX(0.35vw);
+  }
+}

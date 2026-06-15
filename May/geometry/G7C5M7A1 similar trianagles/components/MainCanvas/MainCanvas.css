@@ -1,0 +1,201 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.svg-row {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.5vw;
+  border-radius: 1vw;
+  border: 0.25vw solid rgba(141, 141, 141, 0.3);
+  background-color: rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.triangles-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.action-row {
+  flex: 0 0 20%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5vw;
+}
+
+.action-row.has-content {
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(1vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-btn {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border: 1px solid var(--button-border-color);
+  color: var(--white-color);
+  font-size: 2.2vw;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.8vw 3vw;
+  border-radius: 0.8vw;
+  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.action-summary-text {
+  color: white;
+  font-size: 2.2vw;
+  text-align: center;
+  line-height: 1.4;
+  padding: 0.5vw 2vw;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 1vw;
+  max-width: 90%;
+}
+
+.recap-text-box {
+  position: absolute;
+  left: 1vw;
+  top: 25%;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.65);
+  color: white;
+  font-size: 2vw;
+  line-height: 1.45;
+  padding: 1.2vw 1.5vw;
+  border-radius: 0.8vw;
+  pointer-events: none;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Triangle color classes in question panel */
+.tri-abc {
+  color: #4fc3f7;
+}
+
+.tri-def {
+  color: #ffd700;
+}
+
+.ang-abc {
+  color: #4fc3f7;
+}
+
+.ang-def {
+  color: #ffd700;
+}
+
+.ang-equal-fo {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ang-equal-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
+}
+
+.ang-equal-fo--below .ang-equal-text {
+  line-height: 1.2;
+}
+
+/* Hotspot pulsating circles */
+.hotspot-group {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.hotspot-ring {
+  fill: rgba(180, 180, 180, 1);
+  stroke: rgba(220, 220, 220, 1);
+  stroke-width: 1.5;
+  fill-rule: evenodd;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hotspot-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.angle-fly-layer {
+  pointer-events: none;
+}
+
+.angle-fly-text {
+  pointer-events: none;
+}
+
+.ang-equal-fo--appear {
+  animation: angEqualFadeIn 0.25s ease forwards;
+}
+
+@keyframes angEqualFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.triangle-group {
+  transition: transform 0.9s ease;
+}
+
+.vertex-label {
+  pointer-events: none;
+}

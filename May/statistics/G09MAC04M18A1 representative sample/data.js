@@ -309,7 +309,7 @@ const DATA = {
           afterPopulationShapeNav:
             "Ketuk 'Gambar…' untuk menggambar bentuk sampel.",
           afterPopulationShapeQuestion:
-            "Perhatikan bentuk populasi.<br>Lihat bagaimana populasi pertama naik di 2, mencapai puncak di 5, turun, lalu naik lagi hingga 9.",
+            "Perhatikan bentuk populasi. Lihat bagaimana populasi pertama naik di 2, mencapai puncak di 5, turun, lalu naik lagi hingga 9.",
           afterSampleShapeQuestion:
             "Bentuk sampel juga pertama naik di 2, mencapai puncak sekitar 5, lalu turun, dan naik lagi hingga 9 – mirip dengan bentuk populasi.",
           conclusionText:
@@ -338,7 +338,7 @@ const DATA = {
           afterPopulationShapeNav:
             "Ketuk 'Gambar…' untuk menggambar bentuk sampel.",
           afterPopulationShapeQuestion:
-            "Perhatikan bentuk populasi.<br>Lihat bagaimana populasi mencapai puncak sekitar 50 dan 200, lalu turun terus menuju 450.",
+            "Perhatikan bentuk populasi. Lihat bagaimana populasi mencapai puncak sekitar 50 dan 200, lalu turun terus menuju 450.",
           afterSampleShapeQuestion:
             "Bentuk sampel juga mencapai puncak sekitar 50 dan 200, lalu turun menuju 450 – mirip dengan bentuk populasi.",
           conclusionText:

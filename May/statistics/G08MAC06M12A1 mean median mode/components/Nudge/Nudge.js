@@ -1,6 +1,10 @@
 const Nudge = (props) => {
   const targetRef = props.targetRef;
   const show = props.show !== false;
+  const asset = props.asset || "assets/tap.gif";
+  const transform = props.transform || "translate(30%, 0%)";
+  const verticalDrag = props.verticalDrag || false;
+  
   const { useState, useEffect } = React;
   const [position, setPosition] = useState(null);
 
@@ -49,15 +53,15 @@ const Nudge = (props) => {
         position: "fixed",
         left: position.left,
         top: position.top,
-        transform: "translate(30%, 0%)",
+        transform: transform,
         pointerEvents: "none",
         zIndex: 10000,
       },
     },
     React.createElement("img", {
-      src: "assets/tap.gif",
+      src: asset,
       alt: "",
-      className: "nudge-tap-gif",
+      className: "nudge-tap-gif" + (verticalDrag ? " vertical-drag" : ""),
     })
   );
 };

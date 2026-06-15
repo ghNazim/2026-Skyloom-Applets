@@ -201,12 +201,12 @@
 
 .compare-mcq-feedback.correct {
   background: rgba(35, 72, 48, 0.82);
-  border: 2px dashed rgba(130, 220, 150, 0.9);
+  border: .25vw dashed rgba(130, 220, 150, 0.9);
 }
 
 .compare-mcq-feedback.wrong {
   background: rgba(72, 32, 38, 0.85);
-  border: 2px dashed rgba(230, 150, 150, 0.85);
+  border: .25vw dashed rgba(230, 150, 150, 0.85);
 }
 
 /* ── Step 6–7: compare layout ── */
@@ -331,15 +331,15 @@
 /* ── MCQ action row ── */
 
 .mcq-action-row {
-  width: auto;
-  max-width: 92%;
+  /* width: auto; */
+  width: 97%;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 2.8vw;
   padding: 0.75vw 2vw;
-  background: rgba(12, 22, 48, 0.55);
+  background: rgba(251, 196, 94, 0.2);
   border-radius: 0.8vw;
   animation: fadeSlideUp 0.4s ease forwards;
 }

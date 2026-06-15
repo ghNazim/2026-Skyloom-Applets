@@ -3,6 +3,7 @@ const Navigation = ({
   isNextDisabled,
   isPrevDisabled,
   navText,
+  showNextNudge = false,
   nextSymbol = "\u00bb",
 }) => {
   const nextButtonRef = React.useRef(null);
@@ -36,7 +37,7 @@ const Navigation = ({
     ),
     React.createElement(Nudge, {
       targetRef: nextButtonRef,
-      show: !isNextDisabled,
+      show: showNextNudge,
     })
   );
 };

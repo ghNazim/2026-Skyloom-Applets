@@ -1,5 +1,13 @@
 const Median = (props) => {
-  const { step, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText, onGoToStep } = props;
+  const {
+    step,
+    initialStage,
+    showNudges,
+    onSetNextEnabled,
+    onUpdateNavText,
+    onUpdateQuestionText,
+    onGoToStep,
+  } = props;
   const { useEffect, useRef, useState } = React;
   const e = React.createElement;
   const dataset = APP_DATA.dataset;
@@ -19,7 +27,9 @@ const Median = (props) => {
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [hoverIndex, setHoverIndex] = useState(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [ghostSize, setGhostSize] = useState({ width: 0, height: 0 });
+  const [showVerticalDragNudge, setShowVerticalDragNudge] = useState(true);
   const [isStepOneReady, setIsStepOneReady] = useState(false);
   const [sortFilled, setSortFilled] = useState([]);
   const [usedIndexes, setUsedIndexes] = useState({});
@@ -52,7 +62,36 @@ const Median = (props) => {
   const numLeftTargetRef = useRef(null);
   const numRightTargetRef = useRef(null);
   const stepClickNudgeRef = useRef(null);
+  const verticalDragNudgeRef = useRef(null);
+  const dragAnchorXRef = useRef(0);
+  const rowStrideRef = useRef(0);
+  const optionHeightRef = useRef(0);
   const [stepClickNudgeDismissed, setStepClickNudgeDismissed] = useState(false);
+  const [showDataTeeter, setShowDataTeeter] = useState(true);
+  const [showEliminateTeeter, setShowEliminateTeeter] = useState(true);
+  const dataInactivityTimerRef = useRef(null);
+  const eliminateInactivityTimerRef = useRef(null);
+
+  function resetDataTeeterOnInteraction() {
+    setShowDataTeeter(false);
+    if (dataInactivityTimerRef.current) clearTimeout(dataInactivityTimerRef.current);
+    dataInactivityTimerRef.current = setTimeout(function () {
+      setShowDataTeeter(true);
+    }, 7000);
+  }
+
+  function resetEliminateTeeterOnInteraction() {
+    setShowEliminateTeeter(false);
+    if (eliminateInactivityTimerRef.current) clearTimeout(eliminateInactivityTimerRef.current);
+    eliminateInactivityTimerRef.current = setTimeout(function () {
+      setShowEliminateTeeter(true);
+    }, 7000);
+  }
+
+  function restartEliminateTeeterImmediately() {
+    if (eliminateInactivityTimerRef.current) clearTimeout(eliminateInactivityTimerRef.current);
+    setShowEliminateTeeter(true);
+  }
 
   function resetCalcState() {
     setNumeratorLeft(null);
@@ -67,11 +106,103 @@ const Median = (props) => {
     setCalcBoxState(null);
   }
 
+  function buildEliminatedThroughMiddle() {
+    const nextEliminated = {};
+    sortedDataset.forEach(function (_, index) {
+      if (index < middleLeft || index > middleRight) nextEliminated[index] = true;
+    });
+    return nextEliminated;
+  }
+
+  function restoreFinalStage() {
+    if (step === 2) {
+      setOrder(step2.correctOrder.slice());
+      setLockedRows({});
+      setIsStepOneReady(true);
+      setShowVerticalDragNudge(false);
+      onUpdateQuestionText(step2.completeQuestion);
+      onUpdateNavText(step2.completeNav);
+      onSetNextEnabled(true);
+      return;
+    }
+    if (step === 3) {
+      setSortFilled(sortedDataset.slice());
+      const allUsed = {};
+      dataset.forEach(function (_, index) { allUsed[index] = true; });
+      setUsedIndexes(allUsed);
+      setActiveSlot(sortedDataset.length);
+      setCueVisible(false);
+      setSettlingSlots({});
+      setWrongSource(null);
+      setFlyingValue(null);
+      setShowDataTeeter(false);
+      onUpdateQuestionText(step4.questionText);
+      onUpdateNavText(step4.navText);
+      onSetNextEnabled(true);
+      return;
+    }
+    if (step === 4) {
+      setIsStepOneReady(true);
+      setSortFilled(sortedDataset.slice());
+      onUpdateQuestionText(step4.questionText);
+      onUpdateNavText(step4.navText);
+      onSetNextEnabled(true);
+      return;
+    }
+    if (step === 5) {
+      setEliminateLeft(middleLeft);
+      setEliminateRight(middleRight);
+      setEliminatedSlots(buildEliminatedThroughMiddle());
+      setWrongEliminateSlots({});
+      setIsEliminationDone(true);
+      setShowEliminateTeeter(false);
+      onUpdateQuestionText(step5.completeQuestion);
+      onUpdateNavText(step5.completeNav);
+      onSetNextEnabled(true);
+      return;
+    }
+    if (step === 6) {
+      setEliminateLeft(middleLeft);
+      setEliminateRight(middleRight);
+      setEliminatedSlots(buildEliminatedThroughMiddle());
+      setMcqChoice(step6.correctIndex);
+      setMcqFeedback({ type: "correct", text: step6.correctFeedback });
+      onUpdateQuestionText(step6.questionText);
+      onUpdateNavText(step6.completeNav);
+      onSetNextEnabled(true);
+      return;
+    }
+    if (step === 7) {
+      setEliminatedSlots(buildEliminatedThroughMiddle());
+      setNumeratorLeft(sortedDataset[middleLeft]);
+      setNumeratorRight(sortedDataset[middleRight]);
+      setShowCalcPlus(true);
+      setShowCalcDenom(true);
+      setShowCalcEquals(true);
+      setShowNumpad(false);
+      setFlyingCalc(null);
+      const nextDimmed = {};
+      nextDimmed[middleLeft] = true;
+      nextDimmed[middleRight] = true;
+      setDimmedMiddleSlots(nextDimmed);
+      setCalcInput(String(calcCorrectAnswer));
+      setCalcBoxState("correct");
+      onUpdateQuestionText(step7.completeQuestion);
+      onUpdateNavText(step7.completeNav);
+      onSetNextEnabled(true);
+    }
+  }
+
   useEffect(function () {
+    if (initialStage === "final") {
+      restoreFinalStage();
+      return;
+    }
     if (step === 2) {
       onSetNextEnabled(false);
       onUpdateQuestionText(APP_DATA.steps[2].questionText);
       onUpdateNavText(APP_DATA.steps[2].navText);
+      setShowVerticalDragNudge(true);
     }
     if (step === 3) {
       onSetNextEnabled(false);
@@ -84,6 +215,8 @@ const Median = (props) => {
       setSettlingSlots({});
       setWrongSource(null);
       setFlyingValue(null);
+      setShowDataTeeter(true);
+      if (dataInactivityTimerRef.current) clearTimeout(dataInactivityTimerRef.current);
     }
     if (step === 4) {
       onSetNextEnabled(false);
@@ -100,6 +233,8 @@ const Median = (props) => {
       setEliminatedSlots({});
       setWrongEliminateSlots({});
       setIsEliminationDone(false);
+      setShowEliminateTeeter(true);
+      if (eliminateInactivityTimerRef.current) clearTimeout(eliminateInactivityTimerRef.current);
     }
     if (step === 6) {
       onSetNextEnabled(false);
@@ -119,13 +254,9 @@ const Median = (props) => {
       onSetNextEnabled(false);
       onUpdateQuestionText(step7.questionText);
       resetCalcState();
-      const nextEliminated = {};
-      sortedDataset.forEach(function (_, index) {
-        if (index < middleLeft || index > middleRight) nextEliminated[index] = true;
-      });
-      setEliminatedSlots(nextEliminated);
+      setEliminatedSlots(buildEliminatedThroughMiddle());
     }
-  }, [step]);
+  }, [step, initialStage]);
 
   useEffect(function () {
     setStepClickNudgeDismissed(false);
@@ -144,7 +275,14 @@ const Median = (props) => {
   }, [step, isEliminationDone]);
 
   useEffect(function () {
-    if (step !== 7) return undefined;
+    return function () {
+      if (dataInactivityTimerRef.current) clearTimeout(dataInactivityTimerRef.current);
+      if (eliminateInactivityTimerRef.current) clearTimeout(eliminateInactivityTimerRef.current);
+    };
+  }, []);
+
+  useEffect(function () {
+    if (step !== 7 || initialStage === "final") return undefined;
 
     const timers = [];
 
@@ -206,14 +344,34 @@ const Median = (props) => {
     return next;
   }
 
+  function getRowFromPointerY(pointerY) {
+    const firstNode = optionRefs.current[0];
+    if (!firstNode || !rowStrideRef.current) return null;
+    const container = firstNode.parentElement;
+    if (!container) return null;
+    const relativeY = pointerY - container.getBoundingClientRect().top;
+    const row = Math.floor(relativeY / rowStrideRef.current);
+    if (row < 0 || row >= order.length) return null;
+    return row;
+  }
+
   function handlePointerDown(event, index) {
     if (lockedRows[index]) return;
     event.preventDefault();
+    setShowVerticalDragNudge(false);
     const rect = event.currentTarget.getBoundingClientRect();
+    const gapPx = window.innerWidth * 0.0135;
+    dragAnchorXRef.current = event.clientX;
     setDraggedIndex(index);
     setHoverIndex(index);
+    setDragOffset({
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    });
     setDragPosition({ x: event.clientX, y: event.clientY });
     setGhostSize({ width: rect.width, height: rect.height });
+    optionHeightRef.current = rect.height;
+    rowStrideRef.current = rect.height + gapPx;
     if (typeof playSound === "function") playSound("click");
   }
 
@@ -221,20 +379,8 @@ const Median = (props) => {
     if (draggedIndex === null) return undefined;
 
     function onMove(event) {
-      setDragPosition({ x: event.clientX, y: event.clientY });
-      let nextHover = null;
-      optionRefs.current.forEach(function (node, index) {
-        if (!node) return;
-        const rect = node.getBoundingClientRect();
-        if (
-          event.clientX >= rect.left &&
-          event.clientX <= rect.right &&
-          event.clientY >= rect.top &&
-          event.clientY <= rect.bottom
-        ) {
-          nextHover = index;
-        }
-      });
+      setDragPosition({ x: dragAnchorXRef.current, y: event.clientY });
+      const nextHover = getRowFromPointerY(event.clientY);
       if (nextHover !== null && !lockedRows[nextHover]) {
         setHoverIndex(nextHover);
       }
@@ -298,6 +444,7 @@ const Median = (props) => {
 
   function handleSortClick(value, index) {
     if (usedIndexes[index] || flyingValue || !cueVisible) return;
+    resetDataTeeterOnInteraction();
     const expected = sortedDataset[activeSlot];
     if (value !== expected) {
       setWrongSource(index);
@@ -360,6 +507,7 @@ const Median = (props) => {
 
     const isEndpoint = index === eliminateLeft || index === eliminateRight;
     if (!isEndpoint) {
+      resetEliminateTeeterOnInteraction();
       const pairIndex = sortedDataset.length - 1 - index;
       const wrongs = {};
       wrongs[index] = true;
@@ -389,6 +537,7 @@ const Median = (props) => {
       onUpdateNavText(step5.completeNav);
     } else {
       onUpdateNavText(step5.ongoingNav);
+      restartEliminateTeeterImmediately();
     }
   }
 
@@ -444,28 +593,39 @@ const Median = (props) => {
 
   function renderDataRow(options) {
     const opts = options || {};
-    return e("div", { className: "mean-data-row " + (opts.compact ? "compact" : "") },
-      dataset.map(function (value, index) {
-        const isUsed = !!usedIndexes[index];
-        const isClickable = opts.clickable && !isUsed;
-        return e("button", {
-          type: "button",
-          key: "median-source-" + index,
-          ref: function (node) { sourceRefs.current[index] = node; },
-          className: [
-            "mean-data-value",
-            isClickable ? "clickable" : "",
-            isUsed ? "used" : "",
-            wrongSource === index ? "wrong" : "",
-          ].join(" "),
-          disabled: !isClickable,
-          onClick: function () { handleSortClick(value, index); },
-        }, value + (index < dataset.length - 1 ? "," : ""));
-      })
-    );
+    const items = [];
+    dataset.forEach(function (value, index) {
+      const isUsed = !!usedIndexes[index];
+      const isClickable = opts.clickable && !isUsed;
+      items.push(e("button", {
+        type: "button",
+        key: "median-source-" + index,
+        ref: function (node) { sourceRefs.current[index] = node; },
+        className: [
+          "mean-data-value",
+          "median-value-cell",
+          isClickable ? "clickable" : "",
+          isClickable && showNudges && showDataTeeter ? "teeter" : "",
+          isUsed ? "used" : "",
+          wrongSource === index ? "wrong" : "",
+        ].join(" "),
+        disabled: !isClickable,
+        onClick: function () { handleSortClick(value, index); },
+      }, value));
+      if (index < dataset.length - 1) {
+        items.push(e("span", {
+          className: "median-value-comma",
+          key: "data-comma-" + index,
+        }, ","));
+      }
+    });
+    return e("div", {
+      className: "mean-data-row median-values-row " + (opts.compact ? "compact" : ""),
+    }, items);
   }
 
   function renderStepClickNudge() {
+    if (!showNudges) return null;
     const showNudge = (step === 2 && isStepOneReady) ||
       step === 4 ||
       (step === 5 && isEliminationDone);
@@ -476,29 +636,47 @@ const Median = (props) => {
   function renderSteps(options) {
     const opts = options || {};
     const previewOrder = getPreviewOrder();
+    const previewRowById = {};
+    previewOrder.forEach(function (id, rowIndex) {
+      previewRowById[id] = rowIndex;
+    });
+
     return e("div", { className: "mean-steps-panel " + (opts.visible === false ? "collapsed" : "") },
       e("div", { className: "mean-step-labels" },
         step2.stepLabels.map(function (label, index) {
-          return e("div", { className: "mean-step-label", key: "label-" + index }, label);
+          const isLabelCorrect = !!lockedRows[index];
+          return e("div", {
+            className: "mean-step-label" + (isLabelCorrect ? " correct-label" : ""),
+            key: "label-" + index,
+          }, label);
         })
       ),
-      e("div", { className: "mean-step-options" },
-        previewOrder.map(function (id, index) {
+      e("div", { className: "mean-step-options" + (draggedIndex !== null ? " is-dragging" : "") },
+        order.map(function (id, index) {
+          const previewRow = previewRowById[id];
+          const slideDelta = draggedIndex !== null ? previewRow - index : 0;
           const isLocked = !!lockedRows[index] || (opts.highlightStep === index);
           const isReady = opts.highlightStep === index;
+          const isDraggingThis = draggedIndex !== null && index === draggedIndex;
+          const slideStyle = slideDelta !== 0 && rowStrideRef.current
+            ? { transform: "translateY(" + (slideDelta * rowStrideRef.current) + "px)" }
+            : null;
+
           return e("button", {
             type: "button",
             key: "option-" + id,
             ref: function (node) {
               optionRefs.current[index] = node;
               if (opts.clickableStep === index) stepClickNudgeRef.current = node;
+              if (index === 1) verticalDragNudgeRef.current = node;
             },
             className: [
               "mean-step-option" + (current_language === "id" ? " id" : ""),
               isLocked ? "correct" : "",
               isReady ? "ready" : "",
-              draggedIndex === index ? "dragging-source" : "",
+              isDraggingThis ? "dragging-hidden" : "",
             ].join(" "),
+            style: slideStyle,
             disabled: opts.clickableStep !== index && (lockedRows[index] || opts.noDrag),
             onPointerDown: opts.noDrag ? undefined : function (event) { handlePointerDown(event, index); },
             onClick: opts.clickableStep === index ? function () {
@@ -507,7 +685,17 @@ const Median = (props) => {
               onGoToStep(opts.clickToStep);
             } : undefined,
           }, step2.options[id]);
-        })
+        }),
+        draggedIndex !== null && hoverIndex !== null && !lockedRows[hoverIndex] && rowStrideRef.current
+          ? e("div", {
+            className: "mean-step-drop-placeholder",
+            key: "drop-placeholder",
+            style: {
+              top: hoverIndex * rowStrideRef.current + "px",
+              height: optionHeightRef.current + "px",
+            },
+          })
+          : null
       )
     );
   }
@@ -517,39 +705,51 @@ const Median = (props) => {
     return e("div", { className: "sort-row " + (opts.hideCommas ? "hide-commas" : "") },
       e("div", { className: "sort-label sort-smallest" }, step3.smallest),
       e("div", { className: "sort-label sort-largest" }, step3.largest),
-      e("div", { className: "sort-slots" },
-        sortedDataset.map(function (value, index) {
-          const isFilled = opts.final || sortFilled[index] !== undefined;
-          const showCue = cueVisible && activeSlot === index && !isFilled;
-          const isRemoved = !!eliminatedSlots[index];
-          const isEliminateClickable = !!opts.eliminate && !isRemoved && !isEliminationDone;
-          const isWrongEliminate = !!wrongEliminateSlots[index];
-          const isMiddle = index === middleLeft || index === middleRight;
-          const isDimmed = !!dimmedMiddleSlots[index];
-          const displayValue = isFilled
-            ? (sortFilled[index] !== undefined ? sortFilled[index] : sortedDataset[index])
-            : "";
-          return e("div", {
-            className: [
-              "sort-slot",
-              showCue ? "active" : "",
-              isFilled ? "filled" : "",
-              settlingSlots[index] ? "settling" : "",
-              isEliminateClickable ? "eliminate-clickable" : "",
-              isRemoved ? "eliminated" : "",
-              isWrongEliminate ? "wrong-eliminate" : "",
-              opts.highlightMiddle && isMiddle ? "middle-highlight" : "",
-              isDimmed ? "calc-source-dimmed" : "",
-            ].join(" "),
-            key: "sort-slot-" + index,
-            ref: function (node) { slotRefs.current[index] = node; },
-            onClick: isEliminateClickable ? function () { handleEliminateClick(index); } : undefined,
-          },
-            displayValue,
-            index < sortedDataset.length - 1 ? e("span", { className: "slot-comma" }, ",") : null,
-            showCue ? e("div", { className: "slot-arrow" }) : null
-          );
-        })
+      e("div", { className: "sort-slots median-values-row" },
+        (function () {
+          const items = [];
+          sortedDataset.forEach(function (value, index) {
+            const isFilled = opts.final || sortFilled[index] !== undefined;
+            const showCue = cueVisible && activeSlot === index && !isFilled;
+            const isRemoved = !!eliminatedSlots[index];
+            const isEliminateClickable = !!opts.eliminate && !isRemoved && !isEliminationDone;
+            const isWrongEliminate = !!wrongEliminateSlots[index];
+            const isMiddle = index === middleLeft || index === middleRight;
+            const isDimmed = !!dimmedMiddleSlots[index];
+            const displayValue = isFilled
+              ? (sortFilled[index] !== undefined ? sortFilled[index] : sortedDataset[index])
+              : "";
+            const isEndpoint = index === eliminateLeft || index === eliminateRight;
+            items.push(e("div", {
+              className: [
+                "sort-slot",
+                "median-value-cell",
+                showCue ? "active" : "",
+                isFilled ? "filled" : "",
+                settlingSlots[index] ? "settling" : "",
+                isEliminateClickable ? "eliminate-clickable" : "",
+                isEliminateClickable && isEndpoint && showNudges && showEliminateTeeter ? "teeter" : "",
+                isRemoved ? "eliminated" : "",
+                isWrongEliminate ? "wrong-eliminate" : "",
+                opts.highlightMiddle && isMiddle ? "middle-highlight" : "",
+                isDimmed ? "calc-source-dimmed" : "",
+              ].join(" "),
+              key: "sort-slot-" + index,
+              ref: function (node) { slotRefs.current[index] = node; },
+              onClick: isEliminateClickable ? function () { handleEliminateClick(index); } : undefined,
+            },
+              displayValue,
+              showCue ? e("div", { className: "slot-arrow" }) : null
+            ));
+            if (index < sortedDataset.length - 1) {
+              items.push(e("span", {
+                className: "median-value-comma",
+                key: "sort-comma-" + index,
+              }, ","));
+            }
+          });
+          return items;
+        })()
       )
     );
   }
@@ -654,12 +854,23 @@ const Median = (props) => {
   const ghost = draggedIndex !== null ? e("div", {
     className: "mean-drag-ghost" + (current_language === "id" ? " id" : ""),
     style: {
-      left: dragPosition.x,
-      top: dragPosition.y,
+      left: dragPosition.x - dragOffset.x,
+      top: dragPosition.y - dragOffset.y,
       width: ghostSize.width,
       height: ghostSize.height,
     },
   }, step2.options[order[draggedIndex]]) : null;
+
+  function renderVerticalDragNudge() {
+    if (!showNudges || step !== 2 || !showVerticalDragNudge || isStepOneReady) return null;
+    return e(Nudge, {
+      targetRef: verticalDragNudgeRef,
+      show: true,
+      asset: "assets/verticalDrag.gif",
+      transform: "translate(-20%, -40%)",
+      verticalDrag: true,
+    });
+  }
 
   const flying = flyingValue ? e("div", {
     className: "flying-sort-value",
@@ -728,6 +939,7 @@ const Median = (props) => {
     e("div", { className: "mean-row data-section" }, renderDataRow({ compact: true })),
     renderSteps({ highlightStep: isStepOneReady ? 0 : null, clickableStep: isStepOneReady ? 0 : null, clickToStep: 3, noDrag: isStepOneReady }),
     ghost,
+    renderVerticalDragNudge(),
     renderStepClickNudge()
   );
 };

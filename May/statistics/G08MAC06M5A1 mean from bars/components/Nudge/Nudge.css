@@ -1,0 +1,26 @@
+.nudge-overlay {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10050;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.nudge-tap-img {
+  position: absolute;
+  right: -0.35vw;
+  bottom: -0.35vw;
+  width: 5.5vw;
+  height: 5.5vw;
+  object-fit: contain;
+  opacity: 0.5;
+  user-select: none;
+  transform: translate(15%, 15%);
+}
+
+.nudge-tap-img.small{
+  width: 3vw;
+  height: 3vw;
+  right: -0.2vw;
+  bottom: -0.2vw;
+}

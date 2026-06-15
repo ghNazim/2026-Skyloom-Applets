@@ -1,7 +1,8 @@
-const Button = ({ onClick, text, className }) => {
+const Button = ({ onClick, text, className, buttonRef }) => {
   return React.createElement(
     "button",
     {
+      ref: buttonRef,
       className: `btn ${className || ""}`,
       onClick: onClick,
     },
@@ -16,6 +17,7 @@ const Fullscreen = ({
   left = false,
   isFinal = false,
   summaryCards = [],
+  buttonRef,
 }) => {
   const contentArea = React.createElement(
     "div",
@@ -61,6 +63,7 @@ const Fullscreen = ({
       text: buttonText,
       onClick: onButtonClick,
       className: "fullscreen-button",
+      buttonRef: buttonRef,
     })
   );
 };

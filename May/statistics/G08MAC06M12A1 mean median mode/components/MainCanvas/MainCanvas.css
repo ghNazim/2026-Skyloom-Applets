@@ -189,6 +189,7 @@
 
 /* Mean / median steps */
 .mean-canvas {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 1.2vw;
@@ -222,38 +223,64 @@
   opacity: 1;
 }
 
+.median-values-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7vw;
+  width: 100%;
+}
+
+.median-value-cell {
+  flex: 0 0 4.1vw;
+  width: 4.1vw;
+  height: 5.4vw;
+  font-size: 4vw;
+  line-height: 1;
+  color: white;
+  text-shadow: 0 0.25vw 0.3vw rgba(0, 0, 0, 0.38);
+}
+
+.median-value-comma {
+  flex: 0 0 auto;
+  font-size: 4vw;
+  line-height: 1;
+  color: white;
+  text-shadow: 0 0.25vw 0.3vw rgba(0, 0, 0, 0.38);
+  user-select: none;
+  pointer-events: none;
+  transition: opacity 0.65s ease;
+}
+
+.mean-data-row.compact {
+  padding: 0 1vw;
+}
+
 .mean-data-row {
   width: 100%;
   height: 100%;
   border-radius: 0.55vw;
   background: rgba(255, 255, 255, 0.09);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25vw;
-  padding: 0 1vw;
-}
-
-.mean-data-row.compact {
-  gap: 0.8vw;
+  padding: 0 3vw;
 }
 
 .mean-data-value {
   border: 0;
   background: transparent;
-  color: white;
-  font-size: 4vw;
-  line-height: 1;
-  min-width: 4.1vw;
-  height: 5.4vw;
   cursor: default;
-  text-shadow: 0 0.25vw 0.3vw rgba(0, 0, 0, 0.38);
-  transition: opacity 0.25s ease, color 0.25s ease, text-shadow 0.25s ease, transform 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.25s ease, color 0.25s ease;
 }
 
 .mean-data-value.clickable {
   cursor: pointer;
-  animation: value-glow 1.1s ease-in-out infinite;
+}
+
+.mean-data-value.clickable.teeter,
+.sort-slot.eliminate-clickable.teeter {
+  animation: small-teeter 1.15s linear infinite;
 }
 
 .mean-data-value.used {
@@ -267,9 +294,10 @@
   background: transparent;
 }
 
-@keyframes value-glow {
-  0%, 100% { text-shadow: 0 0 0.3vw rgba(255, 255, 255, 0.25);}
-  50% { text-shadow: 0 0 0.9vw rgba(255, 180, 55, 0.8); }
+@keyframes small-teeter {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
 }
 
 .mean-steps-panel {
@@ -291,6 +319,10 @@
   display: grid;
   grid-template-rows: repeat(3, 1fr);
   gap: 1.35vw;
+}
+
+.mean-step-options {
+  position: relative;
 }
 
 .mean-step-label,
@@ -317,6 +349,11 @@
   background: rgba(255, 255, 255, 0.11);
 }
 
+.mean-step-label.correct-label {
+  color: #76bc45;
+  text-shadow: none;
+}
+
 .mean-step-option {
   width: 100%;
   padding: 0 1vw;
@@ -326,6 +363,13 @@
   touch-action: none;
   user-select: none;
   white-space: nowrap;
+  transition: none;
+  position: relative;
+  z-index: 1;
+}
+
+.mean-step-options.is-dragging .mean-step-option:not(.dragging-hidden) {
+  transition: transform 0.28s ease;
 }
 
 .mean-step-option.correct {
@@ -337,8 +381,21 @@
   cursor: pointer;
 }
 
-.mean-step-option.dragging-source {
+.mean-step-option.dragging-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: none;
+}
+
+.mean-step-drop-placeholder {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 0.6vw;
+  background: linear-gradient(145deg, rgba(158, 115, 61, 0.92), rgba(101, 72, 36, 0.92));
   opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .mean-step-option:disabled {
@@ -349,7 +406,6 @@
   position: fixed;
   z-index: 9999;
   pointer-events: none;
-  transform: translate(-50%, -50%);
   border-radius: 0.6vw;
   display: flex;
   align-items: center;
@@ -387,11 +443,11 @@
 }
 
 .sort-smallest {
-  left: 3.3vw;
+  left: 8.2vw;
 }
 
 .sort-largest {
-  right: 3.3vw;
+  right: 8.2vw;
 }
 
 .sort-slots {
@@ -400,6 +456,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.55vw;
+}
+
+.sort-slots.median-values-row {
+  gap: 0.7vw;
 }
 
 .sort-slot {
@@ -413,16 +473,22 @@
   position: relative;
   border-bottom: 0.25vw solid white;
   text-shadow: 0 0.22vw 0.25vw rgba(0, 0, 0, 0.45);
-  transition: border-color 0.25s ease, text-shadow 0.25s ease, transform 0.25s ease;
+  transition: border-color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.sort-slot.median-value-cell {
+  width: 4.1vw;
+  flex: 0 0 4.1vw;
+  text-shadow: 0 0.25vw 0.3vw rgba(0, 0, 0, 0.38);
 }
 
 .sort-slot.active::before {
   content: "";
   position: absolute;
-  width: 4.7vw;
-  height: 4.7vw;
+  width: 4.1vw;
+  height: 4.1vw;
   border-radius: 50%;
-  top: -0.9vw;
+  top: 0vw;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(190, 148, 30, 0.78);
@@ -445,7 +511,6 @@
 
 .sort-slot.eliminate-clickable {
   cursor: pointer;
-  animation: value-glow 1.1s ease-in-out infinite;
 }
 
 
@@ -461,30 +526,20 @@
   text-shadow: 0 0 0.45vw rgba(255, 70, 70, 0.6);
 }
 
-.slot-comma {
-  position: absolute;
-  right: -0.55vw;
-  bottom: 0.55vw;
-  font-size: 2.9vw;
-  color: white;
-  opacity: 1;
-  transition: opacity 0.65s ease;
-}
-
-.sort-row.hide-commas .slot-comma {
+.sort-row.hide-commas .median-value-comma {
   opacity: 0;
 }
 
 .slot-arrow {
   position: absolute;
   left: 50%;
-  top: 4.6vw;
+  top: 5.9vw;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 1.35vw solid transparent;
-  border-right: 1.35vw solid transparent;
-  border-bottom: 3.6vw solid #c59b21;
+  border-left: 1vw solid transparent;
+  border-right: 1vw solid transparent;
+  border-bottom: 2.5vw solid #c59b21;
   filter: drop-shadow(0 0.15vw 0.25vw rgba(0, 0, 0, 0.35));
   opacity: 0;
   animation: cue-fade-in 0.35s ease forwards;
@@ -999,11 +1054,14 @@
   color: rgba(255, 255, 255, 0.45);
   font-size: 2.5vw;
   font-weight: 600;
-  /* font-style: italic; */
   text-align: center;
   line-height: 1.2;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.2);
   transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.mean-dd-zone.dd-empty {
+  font-style: italic;
 }
 
 .mean-dd-zone.correct {
@@ -1015,18 +1073,45 @@
   padding: 0.65vw 1.1vw;
 }
 
+.mean-dd-panel:not(.mean-step9-panel) .mean-dd-zone.correct,
+.mean-dd-draggable,
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-clickable:not(.step9-static):not(.wrong),
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-clicked:not(.wrong) {
+  border: 1px solid var(--button-border-color) !important;
+  border-radius: 0.8vw;
+  color: var(--white-color) !important;
+  text-shadow: 0 0 0.5vw rgba(0, 0, 0, 0.5);
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  ) !important;
+  box-shadow: 0 0.25vw 0.4vw rgba(0, 0, 0, 0.35);
+  font-style: normal;
+  font-weight: 700;
+}
+
 .mean-dd-zone.correct.step9-has-value:not(.step9-answered) {
-  color: white;
-  text-shadow: 0 0.12vw 0.15vw rgba(0, 0, 0, 0.35);
+  color: var(--white-color) !important;
+  text-shadow: 0 0 0.5vw rgba(0, 0, 0, 0.5);
 }
 
 .mean-dd-zone.step9-answered {
-  background: linear-gradient(145deg, #9a6b3a, #7a5230) !important;
-  border-color: rgba(210, 165, 95, 0.95) !important;
-  color: #ffffff !important;
   font-style: normal;
   font-weight: 700;
-  text-shadow: 0 0.12vw 0.15vw rgba(0, 0, 0, 0.35);
+}
+
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-answered:not(.wrong) {
+  border: 1px solid var(--button-border-color) !important;
+  border-radius: 0.8vw;
+  color: var(--white-color) !important;
+  text-shadow: 0 0 0.5vw rgba(0, 0, 0, 0.5);
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  ) !important;
+  box-shadow: 0 0.25vw 0.4vw rgba(0, 0, 0, 0.35);
 }
 
 .mean-dd-zone.step9-answered.step9-active {
@@ -1036,6 +1121,14 @@
 .mean-dd-zone.step9-answered.step9-active.step9-has-value,
 .mean-dd-zone.step9-answered.step9-active.step9-label-pending {
   color: #ffffff !important;
+}
+
+.mean-dd-zone.wrong.wrong-preview {
+  border-color: #ff6666 !important;
+  background: rgba(214, 64, 64, 0.85) !important;
+  color: white !important;
+  font-style: normal;
+  font-weight: 700;
 }
 
 .mean-dd-zone.wrong {
@@ -1068,24 +1161,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: 0.55vw;
   padding: 0.65vw 0.67vw;
   width: 18vw;
   font-size: 2.5vw;
-  font-weight: 700;
   line-height: 1.2;
   text-align: center;
   cursor: grab;
   touch-action: none;
   user-select: none;
-  color: #1a1a2e;
-  background: linear-gradient(145deg, #ffc107, #ff9800);
-  box-shadow: 0 0.25vw 0.4vw rgba(0, 0, 0, 0.35);
 }
 
-.mean-dd-draggable.dragging {
-  opacity: 0.35;
+.mean-dd-draggable.dragging,
+.mean-dd-draggable.source-hidden {
+  opacity: 0;
 }
 
 .mean-dd-ghost {
@@ -1107,11 +1195,25 @@
   flex: 1;
 }
 
-button.mean-dd-zone.step9-clickable {
-  border: 0;
-  font-size: 2.5vw;
-  font-weight: 700;
+.mean-step9-panel .mean-dd-zone.step9-static,
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-filled {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
   font-style: normal;
+  font-weight: 700;
+  text-shadow: 0 0.12vw 0.15vw rgba(0, 0, 0, 0.35);
+  box-shadow: none;
+}
+
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-clickable:not(.step9-static):not(.wrong),
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-clicked:not(.wrong) {
+  border: none !important;
+  box-shadow: 0 0.25vw 0.4vw rgba(0, 0, 0, 0.35);
+}
+
+button.mean-dd-zone.step9-clickable {
+  font-size: 2.5vw;
   line-height: 1.2;
   cursor: pointer;
   appearance: none;
@@ -1122,20 +1224,18 @@ button.mean-dd-zone.step9-clickable:hover {
   filter: brightness(1.08);
 }
 
-.mean-dd-zone.step9-active {
-  background: linear-gradient(145deg, #9a6b3a, #7a5230);
-  border-color: rgba(210, 165, 95, 0.95) !important;
-  color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 0.55vw rgba(120, 80, 40, 0.45);
-  outline : .3vw solid rgb(255, 255, 255) !important;
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-active:not(.wrong) {
+  outline: 0.3vw solid rgb(255, 255, 255);
+  outline-offset: 0.05vw;
 }
 
 .mean-dd-zone.step9-active.step9-has-value {
-  color: #ffffff;
+  color: var(--white-color) !important;
 }
 
 .mean-dd-zone.step9-active.step9-label-pending {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--white-color) !important;
+  opacity: 0.85;
 }
 
 .mean-dd-zone.step9-has-value {
@@ -1208,6 +1308,84 @@ button.mean-dd-zone.step9-clickable:hover {
   filter: brightness(1.15);
 }
 
+.step9-flying-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 120;
+}
+
+.flying-step9-clone {
+  position: absolute;
+  z-index: 121;
+  left: var(--from-x);
+  top: var(--from-y);
+  transform: translate(-50%, -50%);
+  font-size: var(--from-font-size);
+  color: white;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0.12vw 0.15vw rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  animation: fly-step9-clone var(--fly-duration, 0.58s) ease forwards;
+}
+
+@keyframes fly-step9-clone {
+  to {
+    left: var(--to-x);
+    top: var(--to-y);
+    font-size: var(--to-font-size);
+  }
+}
+
+.step9-sum-expression {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2vw;
+  max-width: 100%;
+  font-size: 2.9vw;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.step9-sum-line {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.step9-sum-token {
+  opacity: 0;
+  display: inline-block;
+}
+
+.step9-sum-token.visible {
+  opacity: 1;
+}
+
+button.mean-dd-zone.fraction-zone.step9-clicked {
+  cursor: default;
+  min-height: 7vw;
+}
+
+.mean-dd-zone.step9-blink {
+  animation: step9-value-blink 0.65s ease;
+}
+
+@keyframes step9-value-blink {
+  0%, 100% {
+    filter: brightness(1);
+    box-shadow: none;
+  }
+  50% {
+    filter: brightness(1.45);
+    box-shadow: 0 0 0.85vw rgba(255, 255, 255, 0.75);
+  }
+}
+
 .mean-dd-zone.mean-result-box {
   min-width: 5.5vw;
   width: 5.5vw;
@@ -1220,6 +1398,80 @@ button.mean-dd-zone.step9-clickable:hover {
   color: rgba(255, 255, 255, 0.55);
   border: 0.22vw solid rgba(255, 255, 255, 0.55);
   background: rgba(255, 255, 255, 0.14);
+}
+
+.mean-flip-card {
+  position: relative;
+  background-color: transparent;
+  width: 8.9vw;
+  height: 4.6vw;
+  flex-shrink: 0;
+  perspective: 1000px;
+  perspective-origin: 50% 50%;
+}
+
+.mean-flip-card-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  transition: transform 0.6s ease;
+}
+
+.mean-flip-card.flipped .mean-flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.mean-flip-front,
+.mean-flip-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  border: none;
+  border-radius: 0.55vw;
+  font-size: 2.1vw;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  padding: 0.2vw 0.35vw;
+}
+
+.mean-flip-front {
+  transform: rotateY(0deg);
+  color: var(--white-color);
+  text-shadow: 0 0 0.5vw rgba(0, 0, 0, 0.5);
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  box-shadow: 0 0.25vw 0.4vw rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.mean-flip-front:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.mean-flip-front:disabled {
+  cursor: default;
+}
+
+.mean-flip-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(145deg, #9bd95a, #72bd42);
+  color: #ffffff;
+  text-shadow: 0 0.12vw 0.15vw rgba(0, 0, 0, 0.25);
+  font-size: 2.5vw;
+  font-weight: 800;
 }
 
 .mean-dd-zone.mean-result-box.step9-active {

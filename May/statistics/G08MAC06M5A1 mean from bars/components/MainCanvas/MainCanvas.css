@@ -1,0 +1,388 @@
+.main-canvas-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Two-column layout */
+.canvas-columns {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 0.5vw;
+}
+
+.canvas-col {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.canvas-col-left {
+  padding: 0.5vw;
+  padding-top: 2vw;
+}
+
+.canvas-col-right {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* Calculation Panel */
+.calc-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5vw;
+  padding: 1vw;
+  padding-top: 1.5vw;
+}
+
+.calc-formula-area {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.calc-numpad-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.5vw;
+}
+
+/* Formula Styles */
+.formula-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5vw;
+  background: rgba(30, 50, 80, 0.6);
+  border-radius: 1vw;
+  padding: 1.5vw 2vw;
+  border: 1px solid rgba(200, 220, 255, 0.15);
+}
+
+.formula-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+  font-size: 2.2vw;
+  color: white;
+}
+
+.equation-row {
+  font-size: 2.2vw;
+}
+
+.eq2-row, .eq3-row {
+  animation: fadeSlideUp 0.5s ease forwards;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(0.8vw); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.formula-equals {
+  font-size: 2.5vw;
+  font-weight: 600;
+  color: white;
+}
+
+.formula-op {
+  font-size: 1.8vw;
+  color: white;
+  margin: 0 0.2vw;
+}
+
+.formula-dots {
+  color: white;
+  font-size: 1.8vw;
+}
+
+.formula-dehighlight {
+  opacity: 0.3;
+  transition: opacity 0.5s ease;
+}
+
+/* Var boxes */
+.var-box {
+  background: #e8a020;
+  color: white;
+  font-weight: 700;
+  padding: 0.3vw 0.7vw;
+  border-radius: 0.4vw;
+  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5vw;
+  min-height: 2.5vw;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.var-box sub {
+  font-size: 0.7em;
+  vertical-align: sub;
+  font-style: italic;
+}
+
+.var-box-clickable {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.var-box-clickable:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(232, 160, 32, 0.7);
+}
+
+.mean-box {
+  font-size: inherit;
+  flex-direction: column;
+  padding-top: 0.35vw;
+  padding-bottom: 0.35vw;
+}
+
+.x-bar-char {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.x-bar-line {
+  display: block;
+  width: 0.85em;
+  height: 0.12em;
+  min-height: 2px;
+  background: white;
+  margin-bottom: 0.01em;
+}
+
+.overline {
+  text-decoration: overline;
+  font-style: italic;
+  font-weight: 700;
+}
+
+/* Filled var (no background) */
+.var-filled {
+  color: white;
+  font-weight: 700;
+  font-size: inherit;
+  padding: 0.3vw 0.5vw;
+}
+
+.var-filled-num {
+  color: white;
+  font-weight: 700;
+  font-size: inherit;
+  padding: 0.2vw 0.3vw;
+}
+
+/* Empty box (dashed) */
+.empty-box {
+  border: 0.2vw dashed rgba(255, 255, 255, 1);
+  border-radius: 0.4vw;
+  padding: 0.3vw 0.7vw;
+  min-width: 4vw;
+  height: 3.5vw;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 1);
+  font-size: inherit;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.empty-box-wrong {
+  background: rgba(220, 50, 50, 0.4);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.empty-box-correct {
+  background: rgba(34, 197, 94, 0.35);
+  border-color: #4ade80;
+  color: #bbf7d0;
+}
+
+/* Shake animation */
+@keyframes shakeAnim {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+.shake {
+  animation: shakeAnim 0.5s ease;
+}
+
+/* Fraction */
+.fraction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2vw;
+}
+
+.fraction-num {
+  display: flex;
+  align-items: center;
+  gap: 0.3vw;
+  padding: 0 0.3vw;
+}
+
+.fraction-line {
+  width: 100%;
+  height: 2px;
+  background: #e8a020;
+  min-width: 5vw;
+}
+
+.fraction-den {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2vw 0;
+  font-weight: 700;
+  color: white;
+  font-size: inherit;
+}
+
+/* Reveal box */
+.reveal-box {
+  background: linear-gradient(145deg, #e8a020, #d4920e);
+  color: white;
+  font-weight: 700;
+  padding: 0.4vw 1.2vw;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  font-size: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-block;
+}
+
+.reveal-box:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(232, 160, 32, 0.6);
+}
+
+.reveal-animating {
+  color: white;
+  font-weight: 700;
+  font-size: inherit;
+  animation: glowBlink 0.6s ease;
+}
+
+@keyframes glowBlink {
+  0% { text-shadow: 0 0 5px #fff, 0 0 10px #ffd700; }
+  50% { text-shadow: 0 0 15px #fff, 0 0 25px #ffd700; }
+  100% { text-shadow: 0 0 5px #fff, 0 0 10px #ffd700; }
+}
+
+.eq1-sum-animating .formula-dehighlight {
+  opacity: 0.3;
+}
+
+.eq1-sum-animating .sum-num-highlight {
+  opacity: 1;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.sum-num-source {
+  display: inline-block;
+}
+
+.reveal-target {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5vw;
+  min-height: 3.5vw;
+  padding: 0.2vw 0.6vw;
+  border: 0.2vw dashed rgba(255, 255, 255, 0.55);
+  border-radius: 0.4vw;
+  color: white;
+  font-weight: 700;
+  font-size: inherit;
+}
+
+.reveal-target.glow-blink,
+.fraction.glow-blink .var-filled-num {
+  animation: glowBlink 0.6s ease;
+}
+
+.reveal-slot {
+  display: inline-block;
+  min-width: 1.8vw;
+  min-height: 1.4vw;
+}
+
+.fly-num-clone {
+  pointer-events: none;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+}
+
+.fly-fraction-clone {
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2vw;
+}
+
+.reveal-target.reveal-target-fraction {
+  min-width: 5vw;
+  min-height: 4.5vw;
+}
+
+.mean-result {
+  color: white;
+  font-weight: 700;
+  font-size: inherit;
+  padding: 0.3vw 0.8vw;
+}
+
+.dropdown-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2vw;
+}
+
+.step5-panel .calc-formula-area,
+.step6-panel {
+  width: 100%;
+}
+
+.mean-graph-label {
+  pointer-events: none;
+}
+

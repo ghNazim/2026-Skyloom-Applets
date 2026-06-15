@@ -210,8 +210,19 @@
   transition: opacity 0.35s ease, filter 0.35s ease;
 }
 
-.table-row.row-highlighted .cf-cell.filled {
-  box-shadow: 0 0 1vw rgba(224, 72, 130, 0.55);
+.table-row.row-highlighted .cf-cell.filled.cf-highlight-blink {
+  animation: cf-highlight-blink 1s ease-in-out infinite;
+}
+
+@keyframes cf-highlight-blink {
+  0%, 100% {
+    box-shadow: 0 0 0.5vw rgba(255, 255, 0, 0.35);
+    outline: 0.2vw solid rgba(255, 255, 0, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 1.2vw rgba(255, 255, 0, 0.85);
+    outline: 0.28vw solid #ffff00;
+  }
 }
 
 /* ── Glow effect for animation ── */

@@ -71,7 +71,7 @@ const Fullscreen = (props) => {
       {
         ref: buttonRef,
         type: "button",
-        className: "btn fullscreen-button",
+        className: "nav-chevron fullscreen-button",
         onClick: onButtonClick,
       },
       buttonText

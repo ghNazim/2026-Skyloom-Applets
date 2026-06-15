@@ -1,29 +1,29 @@
 const MainCanvas = (props) => {
-  const { step, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText, onGoToStep } = props;
+  const {
+    step,
+    initialStage,
+    showNudges,
+    onSetNextEnabled,
+    onUpdateNavText,
+    onUpdateQuestionText,
+    onGoToStep,
+  } = props;
   const e = React.createElement;
-
-  if (step === 1) {
-    return e(Mode, {
-      onSetNextEnabled: onSetNextEnabled,
-      onUpdateNavText: onUpdateNavText,
-      onUpdateQuestionText: onUpdateQuestionText,
-    });
-  }
-
-  if (step === 8 || step === 9) {
-    return e(Mean, {
-      step: step,
-      onSetNextEnabled: onSetNextEnabled,
-      onUpdateNavText: onUpdateNavText,
-      onUpdateQuestionText: onUpdateQuestionText,
-    });
-  }
-
-  return e(Median, {
-    step: step,
+  const sharedProps = {
+    initialStage: initialStage || "start",
+    showNudges: showNudges !== false,
     onSetNextEnabled: onSetNextEnabled,
     onUpdateNavText: onUpdateNavText,
     onUpdateQuestionText: onUpdateQuestionText,
-    onGoToStep: onGoToStep,
-  });
+  };
+
+  if (step === 1) {
+    return e(Mode, sharedProps);
+  }
+
+  if (step === 8 || step === 9) {
+    return e(Mean, Object.assign({ step: step }, sharedProps));
+  }
+
+  return e(Median, Object.assign({ step: step, onGoToStep: onGoToStep }, sharedProps));
 };

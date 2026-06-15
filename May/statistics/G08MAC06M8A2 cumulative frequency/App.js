@@ -1,16 +1,30 @@
 const App = () => {
-  const { useState, useEffect, useCallback } = React;
+  const { useState, useEffect, useCallback, useRef } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   const [dynamicNavText, setDynamicNavText] = useState(null);
   const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
   const [resetKey, setResetKey] = useState(0);
+  const [farthestCompletedStep, setFarthestCompletedStep] = useState(0);
+  const [navInitialStage, setNavInitialStage] = useState("start");
+  const [nextNudgeDismissed, setNextNudgeDismissed] = useState(false);
 
-  const isFullscreenStep = currentStep === 0 || currentStep === 5;
+  const fullscreenButtonRef = useRef(null);
+  const nextButtonRef = useRef(null);
+
+  function getNextNavInitialStage(fromStep, toStep, farthest) {
+    if (toStep <= farthest) return "final";
+    return "start";
+  }
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
+    setDynamicNavText(null);
+    setDynamicQuestionText(null);
+    setIsNextDisabled(true);
+    setFarthestCompletedStep(0);
+    setNavInitialStage("start");
     setCurrentStep(1);
   };
 
@@ -20,39 +34,50 @@ const App = () => {
     setDynamicNavText(null);
     setDynamicQuestionText(null);
     setIsNextDisabled(true);
+    setFarthestCompletedStep(0);
+    setNavInitialStage("start");
     setResetKey(function (prev) { return prev + 1; });
   };
 
   useEffect(function () {
-    setDynamicNavText(null);
-    setDynamicQuestionText(null);
-    if (currentStep === 1 || currentStep === 3 || currentStep === 4) {
-      setIsNextDisabled(false);
-    } else if (currentStep === 2) {
-      setIsNextDisabled(true);
-    }
+    setNextNudgeDismissed(false);
   }, [currentStep]);
 
   const handleNext = () => {
     if (isNextDisabled) return;
     if (typeof playSound === "function") playSound("click");
-    if (currentStep < 4) {
-      setCurrentStep(function (prev) { return prev + 1; });
-    } else if (currentStep === 4) {
+    setDynamicNavText(null);
+    setDynamicQuestionText(null);
+    setIsNextDisabled(true);
+
+    if (currentStep === 4) {
       setCurrentStep(5);
+      return;
     }
+
+    var nextStep = currentStep + 1;
+    setNavInitialStage(getNextNavInitialStage(currentStep, nextStep, farthestCompletedStep));
+    setCurrentStep(nextStep);
   };
 
   const handlePrev = () => {
+    if (isNextDisabled || currentStep <= 1) return;
     if (typeof playSound === "function") playSound("click");
-    if (currentStep > 1) {
-      setCurrentStep(function (prev) { return prev - 1; });
-    }
+    setDynamicNavText(null);
+    setDynamicQuestionText(null);
+    setIsNextDisabled(true);
+    setNavInitialStage("final");
+    setCurrentStep(function (prev) { return prev - 1; });
   };
 
   const setNextEnabled = useCallback(function (enabled) {
     setIsNextDisabled(!enabled);
-  }, []);
+    if (enabled) {
+      setFarthestCompletedStep(function (prev) {
+        return Math.max(prev, currentStep);
+      });
+    }
+  }, [currentStep]);
 
   const updateNavText = useCallback(function (nav) {
     setDynamicNavText(nav);
@@ -78,6 +103,11 @@ const App = () => {
     return stepData ? stepData.navText : "";
   };
 
+  var showNextNudge =
+    !isNextDisabled &&
+    currentStep === farthestCompletedStep &&
+    !nextNudgeDismissed;
+
   if (currentStep === 0) {
     return React.createElement(
       "div",
@@ -90,8 +120,14 @@ const App = () => {
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
+          buttonRef: fullscreenButtonRef,
         }),
       ),
+      React.createElement(Nudge, {
+        targetRef: fullscreenButtonRef,
+        active: !nextNudgeDismissed,
+        onDismiss: function () { setNextNudgeDismissed(true); },
+      }),
     );
   }
 
@@ -107,8 +143,14 @@ const App = () => {
           text: APP_DATA.final.text,
           buttonText: APP_DATA.final.buttonText,
           onButtonClick: handleRestart,
+          buttonRef: fullscreenButtonRef,
         }),
       ),
+      React.createElement(Nudge, {
+        targetRef: fullscreenButtonRef,
+        active: !nextNudgeDismissed,
+        onDismiss: function () { setNextNudgeDismissed(true); },
+      }),
     );
   }
 
@@ -122,8 +164,9 @@ const App = () => {
       "div",
       { className: "app-main-content" },
       React.createElement(MainCanvas, {
-        key: resetKey,
+        key: resetKey + "-" + currentStep + "-" + navInitialStage,
         step: currentStep,
+        initialStage: navInitialStage,
         onSetNextEnabled: setNextEnabled,
         onUpdateNavText: updateNavText,
         onUpdateQuestionText: updateQuestionText,
@@ -138,8 +181,10 @@ const App = () => {
           else if (dir === "prev") handlePrev();
         },
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: currentStep <= 1,
+        isPrevDisabled: isNextDisabled || currentStep <= 1,
         navText: getNavText(),
+        nextButtonRef: nextButtonRef,
+        showNextNudge: showNextNudge,
       }),
     ),
   );
