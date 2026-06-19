@@ -1,0 +1,235 @@
+.mirror-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.mirror-main-svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mirror-path-blue {
+  pointer-events: none;
+}
+
+.mirror-path-yellow-static {
+  pointer-events: none;
+}
+
+.mirror-path-yellow-image {
+  pointer-events: none;
+}
+
+.mirror-reflector {
+  cursor: grab;
+}
+
+.mirror-reflector:not(.mirror-reflector--tappable) {
+  touch-action: none;
+}
+
+.mirror-reflector--dragging {
+  cursor: grabbing;
+}
+
+.mirror-reflector--locked {
+  cursor: default;
+  pointer-events: none;
+}
+
+.mirror-reflector--tappable {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.mirror-reflector-line {
+  pointer-events: none;
+}
+
+.mirror-reflector-line--clickable {
+  cursor: pointer;
+  pointer-events: stroke;
+}
+
+.mirror-reflector-line-hit {
+  cursor: pointer;
+  pointer-events: stroke;
+}
+
+.mirror-guide-line {
+  pointer-events: none;
+}
+
+.mirror-surround-rect {
+  pointer-events: none;
+}
+
+.mirror-flip-group {
+  pointer-events: none;
+}
+
+.mirror-summary-stack {
+  position: absolute;
+  top: 6%;
+  right: 4%;
+  width: 42%;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2vw;
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+.mirror-summary-stack--visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.mirror-summary-box {
+  position: relative;
+  border-radius: 1vw;
+  padding: 1vw 2vw;
+  font-size: 2.2vw;
+  text-align: center;
+  line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.mirror-summary-stack--visible .mirror-summary-box {
+  opacity: 1;
+}
+
+.mirror-reveal-btn {
+  display: block;
+  margin: 0;
+  padding: 0.6vw 1.8vw;
+  font-size: 2vw;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mirror-replay-btn {
+  position: absolute;
+  left: 25%;
+  bottom: 2%;
+  transform: translateX(-50%);
+  z-index: 12;
+  padding: 0.55vw 1.6vw;
+  font-size: 1.9vw;
+  font-family: inherit;
+  color: white;
+  background: rgba(30, 35, 40, 0.88);
+  border: 0.2vw solid #ffc107;
+  border-radius: 0.6vw;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.4s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mirror-replay-btn--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mirror-replay-btn:hover {
+  transform: translateX(-50%) scale(1.04);
+}
+
+.mirror-blue-box {
+  margin-top: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mirror-summary-box__typing {
+  display: block;
+  line-height: 1.45;
+}
+
+.mirror-reveal-point {
+  pointer-events: none;
+}
+
+.mirror-distance-rect {
+  pointer-events: none;
+}
+
+.mirror-f-reference {
+  pointer-events: none;
+}
+
+.mirror-reveal-yellow-path {
+  pointer-events: none;
+}
+
+.mirror-feedback {
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  transform: translateX(-50%);
+  z-index: 20;
+  padding: 1vw 2.4vw;
+  font-size: 2vw;
+  font-family: inherit;
+  color: var(--mirror-feedback-text);
+  text-align: center;
+  line-height: 1.45;
+  background: var(--mirror-feedback-bg);
+  border: 0.22vw dashed var(--mirror-feedback-border);
+  border-radius: 1.2vw;
+  text-shadow: var(--mirror-feedback-text-shadow);
+  box-shadow: var(--text-box-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.mirror-feedback--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.mirror-drag-hint {
+  position: absolute;
+  width: 5vw;
+  height: 5vw;
+  pointer-events: none;
+  z-index: 18;
+  opacity: 0.5;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  animation: mirror-drag-hint-slide 1.8s ease-in-out infinite;
+}
+
+@keyframes mirror-drag-hint-slide {
+  0% {
+    transform: translate(-50%, -50%) translateX(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.5;
+  }
+  75% {
+    transform: translate(-50%, -50%) translateX(-16vw);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(-16vw);
+    opacity: 0;
+  }
+}

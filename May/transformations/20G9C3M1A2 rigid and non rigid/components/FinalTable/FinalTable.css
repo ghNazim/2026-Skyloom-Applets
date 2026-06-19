@@ -1,0 +1,91 @@
+.final-table-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1.5vw 2vw 8vw;
+  box-sizing: border-box;
+}
+
+.final-table-cards-row {
+  display: flex;
+  gap: 2.5vw;
+  width: 100%;
+  max-width: 92%;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  /* height: 60%; */
+}
+
+.final-table-card {
+  flex: 1;
+  max-width: 46%;
+  border-radius: 1vw;
+  overflow: hidden;
+  background: #3765af;
+  border: 1px solid #2a4a75;
+  display: flex;
+  flex-direction: column;
+  height: 70%;
+}
+
+.final-table-card-header {
+  background: #243d66;
+  color: #ffffff;
+  text-align: center;
+  font-size: 2.2vw;
+  font-weight: bold;
+  padding: 1.2vw 1.5vw;
+  border-bottom: 1px solid #2a4a75;
+}
+
+.final-table-card-body {
+  flex: 1;
+  padding: 1.2vw;
+  box-sizing: border-box;
+  min-height: 22vw;
+}
+
+.final-table-card-body-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1vw;
+  justify-items: center;
+  align-items: center;
+}
+
+.final-table-card-body-grid .mini-transform-card:last-child {
+  grid-column: 1 / -1;
+  max-width: 35%;
+  justify-self: center;
+}
+
+.final-table-card-body-single {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.final-table-card-body-single .mini-transform-card {
+  width: 38.5%;
+}
+
+.mini-transform-card {
+  width: 90%;
+  aspect-ratio: 350 / 252.9;
+}
+
+.mini-transform-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.final-table-button {
+  position: absolute;
+  bottom: 3vw;
+}
