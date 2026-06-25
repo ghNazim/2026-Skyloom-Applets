@@ -1,0 +1,44 @@
+.lottie-panel {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1vw;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.lottie-panel-clickable {
+  cursor: pointer;
+}
+
+.lottie-container {
+  width: 100%;
+  height: 100%;
+}
+
+.replay-button {
+  position: absolute;
+  bottom: 1.5vw;
+  left: 1.5vw;
+  width: 4.5vw;
+  height: 4.5vw;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  font-size: 2.5vw;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0.12vw 0.15vw 0 0 var(--action-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
+}
+
+.replay-button:hover {
+  filter: brightness(1.05);
+}

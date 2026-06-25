@@ -131,3 +131,7 @@
 .overlay-footer-row.is-hidden {
   opacity: 0;
 }
+
+.overlay-backdrop .nudge-overlay {
+  z-index: 310;
+}

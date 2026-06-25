@@ -1,0 +1,40 @@
+.translation-graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.translation-graph-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.translation-replay-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 1vw;
+  transform: translateX(-50%);
+  padding: 0.45vw 1.4vw;
+  font-size: 2vw;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  background: #ffb74c2a;
+  border: none;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  z-index: 2;
+  border: 0.25vw solid #ffb84c;
+}
+
+.translation-replay-btn:hover {
+  filter: brightness(1.05);
+  background-color: #ffb74c80;
+}

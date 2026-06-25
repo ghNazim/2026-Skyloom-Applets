@@ -1,0 +1,90 @@
+.property-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 2vw 1.5vw;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  box-sizing: border-box;
+}
+
+.property-panel-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.2vw;
+  flex: 1;
+}
+
+.property-btn {
+  width: 100%;
+  padding: 1.4vw 1vw;
+  border: none;
+  border-radius: 0.9vw;
+  background: #156082;
+  color: #ffffff;
+  font-size: 2.5vw;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
+}
+
+.property-btn:hover:not(:disabled) {
+  transform: translateY(-0.15vw);
+  /* border-color: rgba(255, 215, 0, 0.7); */
+  background: #207090;
+}
+
+.property-btn.active {
+  background: #2a8fb0;
+  /* border-color: #5bcdf0; */
+  color: #ffffff;
+}
+
+.property-btn.explored:not(.active) {
+  opacity: 0.9;
+  background: #1a5f7a;
+}
+
+.property-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.property-btn.property-btn.active:disabled{
+  opacity: 1;
+}
+
+.property-summarize-btn {
+  width: 100%;
+  padding: 1vw 1.5vw;
+  border: none;
+  border-radius: var(--action-btn-radius);
+  background: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  font-size: 2.5vw;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  box-shadow:
+    0.12vw 0.15vw 0 0 var(--action-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight);
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.property-summarize-btn:disabled {
+  cursor: default;
+  pointer-events: none;
+}

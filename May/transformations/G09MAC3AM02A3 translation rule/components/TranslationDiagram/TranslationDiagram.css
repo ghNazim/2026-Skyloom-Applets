@@ -1,0 +1,147 @@
+.translation-diagram-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 35, 55, 0.55);
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.translation-diagram-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.translation-diagram-svg .diag-point.color-orange {
+  fill: #ffb84c;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.translation-diagram-svg .diag-point.color-orange.visible {
+  opacity: 1;
+}
+
+.translation-diagram-svg .diag-label-group {
+  transition: opacity 0.4s ease;
+}
+
+.translation-diagram-svg .diag-line {
+  transition: opacity 0.5s ease;
+}
+
+.translation-diagram-svg .diag-dimmable.dimmed,
+.translation-diagram-svg .diag-label-group.diag-dimmable {
+  opacity: 0.32;
+  transition: opacity 0.4s ease;
+}
+
+.translation-diagram-svg .diag-label-group.diag-highlight {
+  opacity: 1 !important;
+}
+
+.translation-diagram-svg .diag-blink {
+  animation: diag-blink 0.6s linear infinite;
+}
+
+@keyframes diag-blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.translation-diagram-svg .diag-arrow-glow.diag-dimmable.dimmed {
+  opacity: 0.32;
+}
+
+.translation-diagram-svg .diag-fly-target {
+  opacity: 0;
+  pointer-events: none;
+  fill: transparent;
+}
+
+.translation-diagram-svg .diag-arrow-glow {
+  filter: drop-shadow(0 0 0.4vw rgba(255, 184, 76, 0));
+  transition: filter 0.8s ease, opacity 0.5s ease;
+}
+
+.translation-diagram-svg .diag-arrow-glow.visible {
+  filter: drop-shadow(0 0 0.7vw rgba(255, 184, 76, 0.95));
+}
+
+.translation-diagram-svg .color-orange {
+  fill: #ffb84c;
+  color: #ffb84c;
+}
+
+.translation-diagram-svg .color-pink {
+  fill: #ff6ec7;
+  color: #ff6ec7;
+}
+
+.translation-diagram-svg .color-yellow {
+  fill: #ffd34d;
+  color: #ffd34d;
+}
+
+.translation-diagram-svg .color-blue {
+  fill: #64c7ff;
+  color: #64c7ff;
+}
+
+.translation-diagram-svg .color-white {
+  fill: #ffffff;
+  color: #ffffff;
+}
+
+.translation-diagram-svg text,
+.translation-diagram-svg .diag-label-text {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 600;
+}
+
+.translation-diagram-svg .slot-hidden {
+  opacity: 0;
+}
+
+.translation-diagram-svg .slot-visible {
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.fly-clone-overlay {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fly-clone-overlay .color-pink {
+  color: #ff6ec7;
+}
+
+.fly-clone-overlay .color-yellow {
+  color: #ffd34d;
+}
+
+.fly-clone-overlay .color-blue {
+  color: #64c7ff;
+}
+
+.fly-clone-overlay .color-white {
+  color: #ffffff;
+}
+

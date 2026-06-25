@@ -28,6 +28,9 @@ const Overlay = ({
   const hasFlownRef = useRef(false);
   const onAnimCompleteRef = useRef(onAnimComplete);
   const gsapTweenRef = useRef(null);
+  const overlayContainerRef = useRef(null);
+  const leftHeaderRef = useRef(null);
+  const rightHeaderRef = useRef(null);
 
   onAnimCompleteRef.current = onAnimComplete;
 
@@ -128,10 +131,11 @@ const Overlay = ({
       operationName
     );
 
-  const renderHeader = (text, clickable, onClick) =>
+  const renderHeader = (text, clickable, onClick, headerRef) =>
     React.createElement(
       "div",
       {
+        ref: headerRef,
         className:
           "overlay-box-header" +
           (clickable ? " overlay-box-header-clickable" : ""),
@@ -143,6 +147,7 @@ const Overlay = ({
   return React.createElement(
     "div",
     {
+      ref: overlayContainerRef,
       className:
         "overlay-backdrop" + (canClose ? " overlay-backdrop-closable" : ""),
       onClick: canClose ? onClose : undefined,
@@ -168,7 +173,7 @@ const Overlay = ({
       React.createElement(
         "div",
         { className: "overlay-box" },
-        renderHeader(leftHeading, leftHeaderClickable, onLeftHeaderClick),
+        renderHeader(leftHeading, leftHeaderClickable, onLeftHeaderClick, leftHeaderRef),
         React.createElement(
           "div",
           { className: "overlay-box-content" },
@@ -185,7 +190,7 @@ const Overlay = ({
       React.createElement(
         "div",
         { className: "overlay-box" },
-        renderHeader(rightHeading, rightHeaderClickable, onRightHeaderClick),
+        renderHeader(rightHeading, rightHeaderClickable, onRightHeaderClick, rightHeaderRef),
         React.createElement(
           "div",
           { className: "overlay-box-content" },
@@ -222,6 +227,20 @@ const Overlay = ({
           },
         },
         operationName
-      )
+      ),
+    leftHeaderClickable &&
+      React.createElement(NudgeAtTarget, {
+        targetRef: leftHeaderRef,
+        active: true,
+        containerRef: overlayContainerRef,
+        className: "nudge-overlay",
+      }),
+    rightHeaderClickable &&
+      React.createElement(NudgeAtTarget, {
+        targetRef: rightHeaderRef,
+        active: true,
+        containerRef: overlayContainerRef,
+        className: "nudge-overlay",
+      })
   );
 };

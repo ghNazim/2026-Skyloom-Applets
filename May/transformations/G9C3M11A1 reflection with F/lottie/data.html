@@ -1,0 +1,206 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <meta charset="UTF-8" />
+  <head>
+    <style>
+      body {
+        background-color: #4d3939;
+        margin: 0px;
+        height: 100%;
+        overflow: hidden;
+      }
+      #lottie {
+        background-color: #4d3939;
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: hidden;
+        transform: translate3d(0, 0, 0);
+        text-align: center;
+        opacity: 1;
+      }
+
+      #markerControls {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font:
+          700 16px/1 Arial,
+          sans-serif;
+        pointer-events: auto;
+      }
+      #markerControls button {
+        appearance: none;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        background: #ffffff;
+        color: #111111;
+        border-radius: 6px;
+        padding: 12px 16px;
+        font: inherit;
+        cursor: pointer;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+      }
+      #markerControls button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      #frameDisplay {
+        min-width: 92px;
+        border-radius: 6px;
+        padding: 12px 14px;
+        background: rgba(0, 0, 0, 0.78);
+        color: #ffffff;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <script src="lottie.min.js"></script>
+    <script src="data.js"></script>
+
+    <div id="lottie"></div>
+    <div id="markerControls">
+      <button id="previousMarkerButton" type="button">Previous</button>
+      <span id="frameDisplay">Frame 0</span>
+      <button id="nextMarkerButton" type="button">Next</button>
+    </div>
+
+    <script>
+      var animationData = data;
+      var params = {
+        container: document.getElementById("lottie"),
+        renderer: "html",
+        loop: false,
+        autoplay: false,
+        animationData: animationData,
+      };
+
+      var anim;
+
+      anim = lottie.loadAnimation(params);
+
+      var markerFrames = animationData.markers
+        .map(function (marker) {
+          return marker.tm;
+        })
+        .sort(function (a, b) {
+          return a - b;
+        });
+
+      var currentMarkerIndex = 0;
+      var isAnimating = false;
+      var markerControls = document.getElementById("markerControls");
+      var frameDisplay = document.getElementById("frameDisplay");
+      var previousMarkerButton = document.getElementById("previousMarkerButton");
+      var nextMarkerButton = document.getElementById("nextMarkerButton");
+      var markerButtons = [];
+
+      markerFrames.forEach(function(frame, index) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "Scene" + String.fromCharCode(65 + index); // A, B, C, etc.
+        btn.addEventListener("click", function() {
+          animateToMarker(index);
+        });
+        markerControls.insertBefore(btn, frameDisplay);
+        markerButtons.push(btn);
+      });
+
+      function getFrameForMarkerIndex(markerIndex) {
+        return markerFrames[markerIndex];
+      }
+
+      function updateFrameDisplay(frame) {
+        frameDisplay.textContent = "Frame " + Math.round(frame);
+      }
+
+      function updateControls() {
+        markerButtons.forEach(function(btn, index) {
+          btn.disabled = isAnimating;
+        });
+        previousMarkerButton.disabled = isAnimating || currentMarkerIndex <= 0;
+        nextMarkerButton.disabled = isAnimating || markerFrames.length === 0;
+      }
+
+      function stopAtFrame(frame) {
+        anim.goToAndStop(Math.round(frame), true);
+        updateFrameDisplay(frame);
+      }
+
+      function animateToMarker(targetMarkerIndex) {
+        if (
+          isAnimating ||
+          targetMarkerIndex < 0 ||
+          targetMarkerIndex >= markerFrames.length
+        ) {
+          return;
+        }
+
+        var startIndex = targetMarkerIndex > 0 ? targetMarkerIndex - 1 : 0;
+        var fromFrame = getFrameForMarkerIndex(startIndex);
+        var toFrame = getFrameForMarkerIndex(targetMarkerIndex);
+        var distance = Math.abs(toFrame - fromFrame);
+
+        if (distance === 0) {
+          currentMarkerIndex = targetMarkerIndex;
+          stopAtFrame(toFrame);
+          updateControls();
+          return;
+        }
+
+        isAnimating = true;
+        updateControls();
+        
+        stopAtFrame(fromFrame);
+
+        var startedAt = performance.now();
+        var duration = (distance / animationData.fr) * 1000;
+
+        function tick(now) {
+          var progress = Math.min((now - startedAt) / duration, 1);
+          var frame = fromFrame + (toFrame - fromFrame) * progress;
+          stopAtFrame(frame);
+
+          if (progress < 1) {
+            requestAnimationFrame(tick);
+            return;
+          }
+
+          currentMarkerIndex = targetMarkerIndex;
+          stopAtFrame(toFrame);
+          isAnimating = false;
+          updateControls();
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      anim.addEventListener("DOMLoaded", function () {
+        stopAtFrame(getFrameForMarkerIndex(currentMarkerIndex));
+        updateControls();
+      });
+
+      nextMarkerButton.addEventListener("click", function () {
+        var targetMarkerIndex = currentMarkerIndex + 1;
+        if (targetMarkerIndex >= markerFrames.length) {
+          targetMarkerIndex = 0;
+          currentMarkerIndex = 0;
+          stopAtFrame(getFrameForMarkerIndex(0));
+          updateControls();
+          return;
+        }
+        animateToMarker(targetMarkerIndex);
+      });
+
+      previousMarkerButton.addEventListener("click", function () {
+        animateToMarker(currentMarkerIndex - 1);
+      });
+
+      updateFrameDisplay(0);
+      updateControls();
+    </script>
+  </body>
+</html>

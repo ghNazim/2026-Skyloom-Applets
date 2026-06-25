@@ -1,12 +1,34 @@
 const App = () => {
-  const { useState, useCallback } = React;
+  const { useState, useCallback, useRef, useEffect } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
   const [navText, setNavText] = useState("");
   const [resetKey, setResetKey] = useState(0);
+  const [showFullscreenNudge, setShowFullscreenNudge] = useState(true);
+
+  const appletRef = useRef(null);
+  const fullscreenBtnRef = useRef(null);
+
+  const fullscreenNudgePosition = useNudgePosition(
+    fullscreenBtnRef,
+    showFullscreenNudge && (currentStep === 0 || currentStep === 7),
+    appletRef,
+    currentStep
+  );
+
+  useEffect(function () {
+    if (currentStep === 0 || currentStep === 7) {
+      setShowFullscreenNudge(true);
+    }
+  }, [currentStep]);
+
+  const dismissFullscreenNudge = useCallback(function () {
+    setShowFullscreenNudge(false);
+  }, []);
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
+    dismissFullscreenNudge();
     setCurrentStep(1);
     setNavText(APP_DATA.steps[1].navText);
   };
@@ -16,6 +38,7 @@ const App = () => {
     setResetKey((prev) => prev + 1);
     setCurrentStep(0);
     setNavText("");
+    setShowFullscreenNudge(true);
   };
 
   const handleStepChange = useCallback((nextStep) => {
@@ -34,14 +57,24 @@ const App = () => {
 
   const handleSummarize = () => {
     if (typeof playSound === "function") playSound("click");
+    dismissFullscreenNudge();
     setCurrentStep(8);
     setNavText("");
   };
 
+  const renderFullscreenNudge = () =>
+    showFullscreenNudge &&
+    fullscreenNudgePosition &&
+    React.createElement(Nudge, {
+      visible: true,
+      top: fullscreenNudgePosition.top,
+      left: fullscreenNudgePosition.left,
+    });
+
   if (currentStep === 0) {
     return React.createElement(
       "div",
-      { className: "applet-container" },
+      { className: "applet-container", ref: appletRef },
       React.createElement(
         "div",
         { className: "app-main-content", style: { position: "relative" } },
@@ -50,7 +83,9 @@ const App = () => {
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
-        })
+          buttonRef: fullscreenBtnRef,
+        }),
+        renderFullscreenNudge()
       )
     );
   }
@@ -58,7 +93,7 @@ const App = () => {
   if (currentStep === 7) {
     return React.createElement(
       "div",
-      { className: "applet-container" },
+      { className: "applet-container", ref: appletRef },
       React.createElement(
         "div",
         { className: "app-main-content", style: { position: "relative" } },
@@ -67,7 +102,9 @@ const App = () => {
           text: APP_DATA.steps[7].text,
           buttonText: APP_DATA.steps[7].buttonText,
           onButtonClick: handleSummarize,
-        })
+          buttonRef: fullscreenBtnRef,
+        }),
+        renderFullscreenNudge()
       )
     );
   }

@@ -1,0 +1,304 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  /* background-color: rgba(0, 0, 0, 0.2); */
+  border-radius: 1vw;
+  overflow: hidden;
+  /* backdrop-filter: blur(10px); */
+}
+
+.main-canvas-left {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.main-canvas-right {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5vw 1.2vw;
+  /* background: rgba(12, 35, 55, 0.55); */
+  border-radius: 0.8vw;
+  margin: 0.4vw;
+  gap: 5vw;
+  padding-top: 5vw;
+}
+
+.action-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6vw;
+  flex-wrap: wrap;
+}
+
+.action-coord {
+  font-size: 2.5vw;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.action-coord .x-val {
+  color: #90ee90;
+}
+
+.action-coord .change-val {
+  color: #ffd700;
+}
+
+.action-coord .y-val {
+  color: #90ee90;
+}
+
+.action-coord .change-val-y {
+  color: #ff6ec7;
+}
+
+.action-arrow-block {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  width: 20vw;
+  gap: 0.2vw;
+  position: relative;
+}
+
+.action-arrow-label {
+  font-size: 2vw;
+  font-weight: 700;
+  color: #ffd700;
+  white-space: nowrap;
+  position: absolute;
+  top: -140%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.action-arrow-svg {
+  width: 100%;
+  height: 1.8vw;
+  display: block;
+  flex-shrink: 0;
+}
+
+.general-rule-btn {
+  margin-top: 0.5vw;
+  font-family: inherit;
+}
+
+.rule-text-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6vw;
+  margin-top: 0.5vw;
+}
+
+.rule-intro {
+  font-size: 2.5vw;
+  color: #ffffff;
+  text-align: center;
+}
+
+.rule-intro .highlight-a {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.rule-intro .highlight-b {
+  color: #ff6ec7;
+  font-weight: 700;
+}
+
+.rule-formula-box {
+  background: rgba(44, 93, 117, 0.85);
+  border-radius: 0.6vw;
+  padding: 0.7vw 1.4vw;
+  font-size: 2.5vw;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: system-ui, sans-serif;
+}
+
+.rule-formula-box .x-val, .rule-formula-box .y-val {
+  color: #90ee90;
+}
+
+.rule-formula-box .change-val-y {
+  color: #ff6ec7;
+}
+
+.rule-formula-box .change-val {
+  color: #ffd700;
+}
+
+/* Step 5 — combined general rule */
+.main-canvas-container.step5-layout {
+  justify-content: center;
+  align-items: center;
+  background: rgba(12, 35, 55, 0.55);
+  margin: 0.4vw;
+  border-radius: 0.8vw;
+}
+
+.formula-column {
+  width: 100%;
+  max-width: 72vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5vw;
+  padding: 2vw 3vw;
+  background: rgba(44, 93, 117, 0.35);
+  border-radius: 2vw;
+}
+
+.formula-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9vw;
+}
+
+.formula-row-label {
+  font-size: 2.5vw;
+  color: #ffffff;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 58vw;
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.formula-row-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+  flex-wrap: wrap;
+  background: rgba(44, 93, 117, 0.85);
+  border-radius: 0.6vw;
+  padding: 0.9vw 1.6vw;
+  width: 100%;
+  /* max-width: 58vw; */
+}
+
+.formula-coord {
+  font-size: 2.5vw;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.formula-coord .x-val,
+.formula-coord .y-val {
+  color: #90ee90;
+}
+
+.formula-coord .change-val {
+  color: #ffd700;
+}
+
+.formula-coord .change-val-y {
+  color: #ff6ec7;
+}
+
+.formula-arrow {
+  width: 14vw;
+  min-width: 8vw;
+  flex-shrink: 0;
+}
+
+.formula-row-combined {
+  margin-top: 4vw;
+}
+
+.combine-btn {
+  margin-top: 0.5vw;
+}
+
+.combined-formula-box {
+  /* max-width: 62vw; */
+  height: 10vw;
+}
+
+.combined-part {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.combined-part.visible {
+  opacity: 1;
+}
+
+.combined-arrow-wrap .action-arrow-label {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+  color: #ffffff;
+}
+
+.combined-arrow .action-arrow-label .change-val {
+  color: #ffd700;
+}
+
+.combined-arrow .action-arrow-label .change-val-y {
+  color: #ff6ec7;
+}
+
+.combined-arrow.label-visible .action-arrow-label {
+  opacity: 1;
+}
+
+.combined-dest {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.combined-xa,
+.combined-yb {
+  display: inline;
+}
+
+.fly-clone {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  font-size: 2.5vw;
+  font-weight: 600;
+  font-family: system-ui, sans-serif;
+  white-space: nowrap;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fly-clone .x-val,
+.fly-clone .y-val {
+  color: #90ee90;
+}
+
+.fly-clone .change-val {
+  color: #ffd700;
+}
+
+.fly-clone .change-val-y {
+  color: #ff6ec7;
+}

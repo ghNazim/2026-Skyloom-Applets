@@ -1,0 +1,140 @@
+.describe-rotation-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1vw;
+  padding: 1.2vw 1.4vw;
+  overflow-y: auto;
+}
+
+.describe-feedback-slot {
+  min-height: 4.8vw;
+  border-radius: 0.8vw;
+  border: 0.18vw dashed transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6vw 1vw;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.describe-feedback-slot.has-feedback {
+  opacity: 1;
+}
+
+.describe-feedback-slot.is-wrong {
+  background: rgba(180, 50, 45, 0.88);
+  border-color: rgba(255, 120, 110, 0.9);
+}
+
+.describe-feedback-slot.is-correct {
+  background: rgba(40, 140, 70, 0.88);
+  border-color: rgba(120, 220, 150, 0.9);
+}
+
+.describe-feedback-text {
+  font-size: 2.3vw;
+  line-height: 1.4;
+  color: #ffffff;
+  text-align: center;
+  font-weight: 600;
+}
+
+.describe-rotation-title {
+  font-size: 2.5vw;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+}
+
+.describe-rotation-card {
+  background: rgba(12, 35, 55, 0.88);
+  border-radius: 1vw;
+  padding: 1.1vw 1.2vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1vw;
+}
+
+.describe-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45vw;
+}
+
+.describe-row-label {
+  font-size: 2vw;
+  color: #ffb84c;
+  font-weight: 600;
+}
+
+.describe-row-value {
+  font-size: 2.2vw;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.describe-direction-btns {
+  display: flex;
+  flex-direction: row;
+  gap: 0.7vw;
+}
+
+.describe-dir-btn {
+  flex: 1;
+  padding: 0.7vw 0.8vw;
+  font-size: 2vw;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(44, 93, 117, 0.95);
+  color: #ffffff;
+  border: 0.2vw solid transparent;
+  border-radius: 0.7vw;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.describe-dir-btn.selected {
+  border-color: #ffd700;
+}
+
+.describe-dir-btn:disabled,
+.describe-dir-btn.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.describe-dir-btn:not(:disabled):not(.disabled):hover {
+  border-color: rgba(255, 215, 0, 0.55);
+}
+
+.describe-action-btn {
+  margin-top: auto;
+  padding: 0.9vw 1.2vw;
+  font-size: 2.5vw;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: #c4a021;
+  color: #1a1a1a;
+  border: none;
+  border-radius: var(--action-btn-radius);
+  box-shadow:
+    0.12vw 0.15vw 0 0 #8a7018,
+    inset 0.1vw 0.1vw 0 0 rgba(255, 255, 255, 0.25),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
+}
+
+.describe-action-btn:disabled,
+.describe-action-btn.disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.describe-action-btn:not(:disabled):not(.disabled):hover {
+  transform: scale(1.02);
+}

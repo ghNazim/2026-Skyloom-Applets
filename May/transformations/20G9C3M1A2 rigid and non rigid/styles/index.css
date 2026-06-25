@@ -11,6 +11,12 @@
   --button-border-color: #6c757d;
   --button-hover-border-color: #ffc107;
 
+    --action-btn-bg: #ffb84c;
+  --action-btn-text: #0c2432;
+  --action-btn-shadow: #c8872e;
+  --action-btn-highlight: rgba(255, 255, 255, 0.35);
+  --action-btn-radius: 0.8vw;
+  
   /* Other colors */
   --white-color: #ffffff;
   --transparent-black-20: rgba(0, 0, 0, 0.2);

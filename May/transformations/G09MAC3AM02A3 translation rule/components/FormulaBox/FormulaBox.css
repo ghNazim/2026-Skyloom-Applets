@@ -1,0 +1,196 @@
+.formula-box {
+  position: absolute;
+  top: 1vw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  height: 9vw;
+  background: #374151;
+  border-radius: 0.8vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  padding: 0.6vw 1.2vw;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.formula-box.visible {
+  opacity: 1;
+}
+
+.formula-box.two-line {
+  justify-content: space-evenly;
+  padding: 0.8vw 1.2vw;
+}
+
+.formula-box.line2-only {
+  justify-content: center;
+}
+
+.formula-box.line3-only {
+  justify-content: center;
+}
+
+.formula-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 0.45vw;
+  font-size: 2.5vw;
+  font-weight: 600;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  white-space: nowrap;
+  width: 100%;
+  transition: opacity 0.65s ease, transform 0.65s ease, max-height 0.65s ease,
+    margin 0.65s ease;
+}
+
+.formula-line.line-1,
+.formula-line.line-2,
+.formula-line.line-3 {
+  max-height: 4.5vw;
+}
+
+.formula-line.line-1.line-1-exit,
+.formula-line.line-2.line-2-exit {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  transform: translateY(-1.2vw);
+  pointer-events: none;
+}
+
+.formula-line.line-1.shifted,
+.formula-line.line-2.shifted {
+  transform: translateY(-0.4vw);
+}
+
+.formula-line.greyed .formula-part.revealed,
+.formula-line.greyed .formula-word.revealed {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.formula-line.greyed .formula-part.revealed.color-orange,
+.formula-line.greyed .formula-part.revealed.color-pink,
+.formula-line.greyed .formula-part.revealed.color-yellow,
+.formula-line.greyed .formula-word.revealed.color-orange,
+.formula-line.greyed .formula-word.revealed.color-pink,
+.formula-line.greyed .formula-word.revealed.color-yellow {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.formula-line.greyed .formula-word-highlight.color-yellow {
+  color: #ffd34d !important;
+  opacity: 1 !important;
+}
+
+.formula-line.greyed .formula-word-highlight.color-orange {
+  color: #ffb84c !important;
+  opacity: 1 !important;
+}
+
+.formula-line.greyed .formula-word-highlight.color-pink {
+  color: #ff6ec7 !important;
+  opacity: 1 !important;
+}
+
+.formula-part {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.formula-part.revealed {
+  opacity: 1;
+}
+
+.formula-part.fading-out {
+  opacity: 0 !important;
+}
+
+.formula-part.revealing {
+  opacity: 0;
+}
+
+.formula-part.revealing.revealed {
+  opacity: 1;
+}
+
+.formula-part.coord-suppressed {
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.formula-morph-slot {
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  transition: width 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.formula-slot-inner {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.formula-word-layer {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.formula-word-layer.revealed {
+  position: relative;
+  top: auto;
+  transform: none;
+  pointer-events: auto;
+}
+
+.formula-op {
+  color: #ffffff;
+}
+
+.formula-box .color-pink {
+  color: #ff6ec7;
+}
+
+.formula-box .color-yellow {
+  color: #ffd34d;
+}
+
+.formula-box .color-orange {
+  color: #ffb84c;
+}
+
+.formula-box .color-blue {
+  color: #64c7ff;
+}
+
+.formula-box .color-white {
+  color: #ffffff;
+}
+
+.equation-prompt {
+  transition: opacity 0.45s ease;
+}
+
+.equation-prompt.fade-out {
+  opacity: 0;
+}

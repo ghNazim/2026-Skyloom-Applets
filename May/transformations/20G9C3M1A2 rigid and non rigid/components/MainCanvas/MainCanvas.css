@@ -98,3 +98,7 @@
   line-height: 1.45;
   font-weight: 500;
 }
+
+.nudge-anchor {
+  z-index: 20;
+}

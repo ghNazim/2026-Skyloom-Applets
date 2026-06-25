@@ -9,6 +9,8 @@
   margin: auto;
   gap: 0;
   position: relative;
+  background: #0f3c53c1;
+  /* backdrop-filter: blur(0.5vw); */
 }
 
 .app-main-content {

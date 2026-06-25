@@ -118,6 +118,23 @@ const MainCanvas = (props) => {
   const overlayOpKeyRef = useRef(null);
   const finalAnimDoneRef = useRef(false);
 
+  const canvasContainerRef = useRef(null);
+  const triNudgeAnchorRef = useRef(null);
+  const greenNudgeTranslationRef = useRef(null);
+  const greenNudgeReflectionRef = useRef(null);
+  const greenNudgeBottomRightRef = useRef(null);
+  const greenNudgeBottomLeftRef = useRef(null);
+
+  const greenNudgeRefs = {
+    translation: greenNudgeTranslationRef,
+    reflection: greenNudgeReflectionRef,
+    bottomRight: greenNudgeBottomRightRef,
+    bottomLeft: greenNudgeBottomLeftRef,
+  };
+
+  const [triNudgeDismissed, setTriNudgeDismissed] = useState(false);
+  const [greenNudgesDismissed, setGreenNudgesDismissed] = useState(false);
+
   const gsapTweenRef = useRef(null);
 
   const killTween = () => {
@@ -222,6 +239,74 @@ const MainCanvas = (props) => {
     triPoints(ox, oy, leg)
       .map((p) => p.x + "," + p.y)
       .join(" ");
+
+  const getTriCentroid = (ox, oy, leg) => ({
+    x: ox + leg / 3,
+    y: oy - leg / 3,
+  });
+
+  const getPointsCentroid = (pts) => ({
+    x: (pts[0].x + pts[1].x + pts[2].x) / 3,
+    y: (pts[0].y + pts[1].y + pts[2].y) / 3,
+  });
+
+  const getNudgeAnchorStyle = (point) => ({
+    position: "absolute",
+    left: (point.x / VB_W) * 100 + "%",
+    top: (point.y / VB_H) * 100 + "%",
+    width: 0,
+    height: 0,
+    pointerEvents: "none",
+  });
+
+  const getActiveTriangleNudgePoint = () => {
+    if (step === 1 && !bigCardsVisible) {
+      const origin = getTriOriginCentered(CENTER_X, CENTER_Y, TRI_LEG);
+      return getTriCentroid(origin.x, origin.y, TRI_LEG);
+    }
+    if (step === 2 && bigTrianglesVisible && !translationDone) {
+      const cx = CARD_CENTERS.translation.x;
+      const cy = CARD_CENTERS.translation.y;
+      const origin = getTriOriginCentered(cx, cy, TRI_LEG);
+      return getTriCentroid(origin.x, origin.y, TRI_LEG);
+    }
+    if (step === 3 && bigTrianglesVisible && !reflectionDone) {
+      const cx = CARD_CENTERS.reflection.x;
+      const cy = CARD_CENTERS.reflection.y;
+      const origin = getTriOriginCentered(cx, cy, TRI_LEG);
+      return getTriCentroid(origin.x, origin.y, TRI_LEG);
+    }
+    if (step === 4 && bigTrianglesVisible && !rotationDone) {
+      const cx = CARD_CENTERS.bottomRight.x;
+      const cy = CARD_CENTERS.bottomRight.y;
+      const origin = getTriOriginCentered(cx, cy, TRI_LEG);
+      return getTriCentroid(origin.x, origin.y, TRI_LEG);
+    }
+    if (step === 5 && bigTrianglesVisible && !dilationDone) {
+      const cx = CARD_CENTERS.bottomLeft.x;
+      const cy = CARD_CENTERS.bottomLeft.y;
+      const origin = getTriOriginCentered(cx, cy, TRI_LEG);
+      return getTriCentroid(origin.x, origin.y, TRI_LEG);
+    }
+    return null;
+  };
+
+  const dismissTriNudge = () => setTriNudgeDismissed(true);
+  const dismissGreenNudges = () => setGreenNudgesDismissed(true);
+
+  const showTriNudge =
+    !triNudgeDismissed &&
+    !isAnimating &&
+    step >= 1 &&
+    step <= 5 &&
+    !!getActiveTriangleNudgePoint();
+
+  const showGreenNudges =
+    step === 6 &&
+    !greenNudgesDismissed &&
+    !compareKey &&
+    !isAnimating &&
+    !overlayVisible;
 
   const reflectTriPointsHoriz = (ox, oy, leg, axisX) => {
     return triPoints(ox, oy, leg).map((p) => ({
@@ -336,6 +421,7 @@ const MainCanvas = (props) => {
   const handleCenterTap = () => {
     if (step !== 1 || bigCardsVisible || isAnimating) return;
     if (typeof playSound === "function") playSound("click");
+    dismissTriNudge();
 
     setInstructionPhase("leaving");
     setBigCardsVisible(true);
@@ -365,6 +451,7 @@ const MainCanvas = (props) => {
   const handleTranslationTap = () => {
     if (step !== 2 || translationDone || isAnimating) return;
     if (typeof playSound === "function") playSound("click");
+    dismissTriNudge();
 
     setAnimating(true);
 
@@ -411,6 +498,7 @@ const MainCanvas = (props) => {
   const handleReflectionTap = () => {
     if (step !== 3 || reflectionDone || isAnimating) return;
     if (typeof playSound === "function") playSound("click");
+    dismissTriNudge();
 
     setAnimating(true);
 
@@ -461,6 +549,7 @@ const MainCanvas = (props) => {
   const handleRotationTap = () => {
     if (step !== 4 || rotationDone || isAnimating) return;
     if (typeof playSound === "function") playSound("click");
+    dismissTriNudge();
 
     setAnimating(true);
 
@@ -515,6 +604,7 @@ const MainCanvas = (props) => {
   const handleDilationTap = () => {
     if (step !== 5 || dilationDone || isAnimating) return;
     if (typeof playSound === "function") playSound("click");
+    dismissTriNudge();
 
     setAnimating(true);
 
@@ -649,6 +739,7 @@ const MainCanvas = (props) => {
     )
       return;
     if (typeof playSound === "function") playSound("click");
+    dismissGreenNudges();
 
     const sourcePts = getGreenPointsForCard(key);
     const targetPts = getCompareTargetPoints(key);
@@ -770,6 +861,13 @@ const MainCanvas = (props) => {
   useEffect(() => {
     return killTween;
   }, []);
+
+  useEffect(() => {
+    setTriNudgeDismissed(false);
+    if (step === 6) {
+      setGreenNudgesDismissed(false);
+    }
+  }, [step]);
 
   useEffect(() => {
     if (step === 1 && !bigCardsVisible) {
@@ -1383,9 +1481,52 @@ const MainCanvas = (props) => {
     }
   };
 
+  const activeTriNudgePoint = getActiveTriangleNudgePoint();
+
+  const renderTriNudge = () => {
+    if (!showTriNudge || !activeTriNudgePoint) return null;
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement("div", {
+        ref: triNudgeAnchorRef,
+        className: "nudge-anchor",
+        style: getNudgeAnchorStyle(activeTriNudgePoint),
+      }),
+      React.createElement(NudgeAtTarget, {
+        targetRef: triNudgeAnchorRef,
+        active: true,
+        containerRef: canvasContainerRef,
+        updateKey: step + "-" + activeTriNudgePoint.x + "-" + activeTriNudgePoint.y,
+      })
+    );
+  };
+
+  const renderGreenNudges = () => {
+    if (!showGreenNudges) return null;
+    return BIG_CARD_KEYS.map(function (key) {
+      var centroid = getPointsCentroid(getGreenPointsForCard(key));
+      return React.createElement(
+        React.Fragment,
+        { key: "green-nudge-" + key },
+        React.createElement("div", {
+          ref: greenNudgeRefs[key],
+          className: "nudge-anchor",
+          style: getNudgeAnchorStyle(centroid),
+        }),
+        React.createElement(NudgeAtTarget, {
+          targetRef: greenNudgeRefs[key],
+          active: true,
+          containerRef: canvasContainerRef,
+          updateKey: key,
+        })
+      );
+    });
+  };
+
   return React.createElement(
     "div",
-    { className: "main-canvas-container" },
+    { className: "main-canvas-container", ref: canvasContainerRef },
     instructionPhase !== "hidden" &&
       React.createElement("div", {
         className: instructionClassName,
@@ -1406,6 +1547,8 @@ const MainCanvas = (props) => {
       renderCloneTriangles(),
       renderCompareLayer()
     ),
+    renderTriNudge(),
+    renderGreenNudges(),
     showCompareText &&
       compareKey &&
       React.createElement("div", {

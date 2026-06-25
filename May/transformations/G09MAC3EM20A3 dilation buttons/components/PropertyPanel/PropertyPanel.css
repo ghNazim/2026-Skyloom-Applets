@@ -1,0 +1,58 @@
+.property-panel {
+  width: 25%;
+  height: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.2vw;
+  padding: 2vw 1.5vw;
+  background: rgba(80, 50, 90, 0.45);
+  border-radius: 1vw;
+  border: 0.15vw solid rgba(255, 255, 255, 0.12);
+}
+
+.property-btn {
+  width: 100%;
+  padding: 1.4vw 1vw;
+  border: 0.2vw solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.9vw;
+  background: rgba(180, 140, 90, 0.75);
+  color: #1a1a1a;
+  font-size: 1.55vw;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
+}
+
+.property-btn:hover:not(:disabled) {
+  transform: translateY(-0.15vw);
+  border-color: rgba(255, 215, 0, 0.7);
+}
+
+.property-btn.active {
+  background: #ffd34d;
+  border-color: #ffd34d;
+  color: #1a1a1a;
+}
+
+.property-btn.explored:not(.active) {
+  opacity: 0.85;
+  background: rgba(140, 110, 70, 0.65);
+}
+
+.property-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.property-btn.property-btn.active:disabled{
+  opacity: 1;
+}

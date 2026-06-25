@@ -1,0 +1,130 @@
+.mcq-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 1.2vw;
+  padding: 1.5vw;
+}
+
+.mcq-panel-title {
+  font-size: 2.5vw;
+  line-height: 1.45;
+  color: #ffd34d;
+  text-align: center;
+  font-weight: 600;
+}
+
+.mcq-panel-options {
+  display: flex;
+  gap: 0.9vw;
+  width: 100%;
+}
+
+.mcq-options-column {
+  flex-direction: column;
+}
+
+.mcq-options-row {
+  flex-direction: row;
+}
+
+.mcq-options-row .mcq-option {
+  flex: 1;
+}
+
+.mcq-option {
+  padding: 0.85vw 1.2vw;
+  font-size: 2.5vw;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: #c4a021;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--action-btn-radius);
+  box-shadow:
+    0.12vw 0.15vw 0 0 #8a7018,
+    inset 0.1vw 0.1vw 0 0 rgba(255, 255, 255, 0.25),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  text-align: center;
+}
+
+.mcq-option:hover:not(:disabled):not(.wrong):not(.correct):not(.dimmed) {
+  transform: scale(1.02);
+}
+
+.mcq-option.wrong {
+  background-color: #c62828 !important;
+  color: #ffffff;
+  animation: mcq-shake 0.5s ease;
+}
+
+.mcq-option.correct {
+  background-color: #2e7d32 !important;
+  color: #ffffff;
+}
+
+.mcq-option.dimmed {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.mcq-option:disabled {
+  cursor: default;
+}
+
+.mcq-feedback-box {
+  margin-top: 0.5vw;
+  padding: 1vw 1.2vw;
+  border-radius: 0.8vw;
+  font-size: 2.3vw;
+  line-height: 1.3;
+  color: #ffffff;
+  text-align: center;
+  border: 0.18vw dashed rgba(255, 255, 255, 0.85);
+  animation: mcq-feedback-in 0.35s ease;
+}
+
+.mcq-feedback-box.is-wrong {
+  background: rgba(180, 50, 45, 0.88);
+  border-color: rgba(255, 120, 110, 0.9);
+}
+
+.mcq-feedback-box.is-correct {
+  background: rgba(40, 140, 70, 0.88);
+  border-color: rgba(120, 220, 150, 0.9);
+}
+
+@keyframes mcq-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes mcq-feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

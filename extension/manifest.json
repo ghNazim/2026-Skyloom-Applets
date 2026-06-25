@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "ClassRoots Feedback Button",
+  "version": "1.0",
+  "description": "Adds Feedback button to task pages",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://content.classrootsedu.com/developer/tasks/*"
+      ],
+      "js": ["content.js"]
+    }
+  ]
+}

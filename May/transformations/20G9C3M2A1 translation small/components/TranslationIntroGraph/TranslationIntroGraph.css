@@ -1,0 +1,39 @@
+.translation-intro-svg,
+.translation-properties-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.translation-graph-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background: rgba(8, 28, 42, 0.55); */
+  border-radius: 1vw;
+  /* border: 0.12vw solid rgba(255, 255, 255, 0.08); */
+  overflow: hidden;
+}
+
+.translation-shape-clone {
+  pointer-events: none;
+}
+
+.translation-red-stroke {
+  fill: none;
+  stroke: #e74c3c;
+  stroke-width: 0.55;
+  stroke-linejoin: round;
+}
+
+.translation-angle-mark {
+  fill: rgba(192, 132, 252, 0.55);
+  stroke: none;
+}
+
+.translation-callout {
+  pointer-events: none;
+}

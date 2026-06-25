@@ -1,0 +1,49 @@
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 99vw;
+  height: calc(99vw * 9 / 16);
+  max-width: 99vw;
+  max-height: 99vh;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: .5vw;
+  position: relative;
+  background: #0f3c53c1;
+  /* backdrop-filter: blur(0.5vw); */
+}
+
+.app-main-content {
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    overflow: hidden;
+    gap: 1rem;
+    /* padding: 1rem; */
+    /* background-color: var(--panel-background-color); */
+    border-radius: 1vw;
+    /* border: 1px solid var(--panel-border-color); */
+}
+
+.lower-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--white-color);
+  font-size: calc(0.25rem + 1.75vw);
+  gap: 2vh;
+  flex-direction: column;
+  height: 7vw;
+  padding: 0vw 1vw;
+  background: rgba(12, 35, 55, 0.65);
+}
+
+.lower-panel.navigation2-panel {
+  height: 8vw;
+  padding: 0.5vw 1vw;
+}
+
+.bulb-small {
+  width: 2vw;
+  height: 2vw;
+}

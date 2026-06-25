@@ -1,0 +1,67 @@
+.splash-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+  backdrop-filter: blur(1vw);
+  padding: 2vw;
+  gap: 1.5vw;
+}
+
+.splash-heading {
+  flex: 0 0 auto;
+  text-align: center;
+  color: var(--accent-color);
+  font-size: 4vw;
+  font-weight: 600;
+}
+
+.splash-content-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 3vw;
+}
+
+.splash-left {
+  flex: 0 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-img {
+  height: 100%;
+  width: auto;
+  /* max-width: 100%; */
+  object-fit: contain;
+}
+
+.splash-img.step1 {
+  /* width: 80%; */
+}
+
+.splash-img.step2 {
+  width: 90%;
+}
+
+.splash-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 1vw;
+  padding-left: 2vw;
+}
+
+.splash-text {
+  color: var(--white-color);
+  font-size: 2.5vw;
+  line-height: 1.5;
+  white-space: pre-line;
+}

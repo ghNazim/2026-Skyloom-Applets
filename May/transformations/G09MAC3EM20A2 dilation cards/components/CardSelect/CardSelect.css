@@ -1,0 +1,73 @@
+.card-select-page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5vw;
+  padding: 2vw 3vw;
+}
+
+.select-card {
+  flex: 1;
+  max-width: 22vw;
+  height: 72%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.2vw;
+  padding: 1.4vw 1.2vw 1.6vw;
+  border: 0.25vw solid rgba(255, 255, 255, 0.25);
+  border-radius: 1.2vw;
+  background: rgba(139, 90, 43, 0.45);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
+  font-family: inherit;
+  color: #ffffff;
+}
+
+.select-card:hover {
+  transform: translateY(-0.3vw);
+  border-color: rgba(126, 200, 227, 0.85);
+}
+
+.select-card.explored {
+  opacity: 0.72;
+  background: rgba(70, 55, 40, 0.55);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.select-card.explored:hover {
+  opacity: 0.9;
+}
+
+.select-card-diagram {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.select-card-diagram .select-card-img {
+  width: 100%;
+  height: 100%;
+  max-height: 18vw;
+  object-fit: contain;
+  display: block;
+}
+
+.select-card-title {
+  font-size: 1.65vw;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.35;
+  margin: 0;
+}

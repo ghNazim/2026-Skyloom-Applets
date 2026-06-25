@@ -1,0 +1,70 @@
+.activity-completed-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  color: white;
+  padding: 2vw 2vw 10vw;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.activity-completed-heading {
+  font-weight: bold;
+  font-size: 4.5vw;
+  margin: 0 0 3vw;
+  color: #ffb84c;
+  text-align: center;
+}
+
+.activity-completed-formulas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4vw;
+  width: 100%;
+  flex: 1;
+}
+
+.summary-formula-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 0.55vw;
+  width: 95%;
+  min-height: 5.5vw;
+  padding: 0.9vw 1.4vw;
+  background: #374151;
+  border-radius: 0.8vw;
+  font-size: 2.35vw;
+  font-weight: 600;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.summary-formula-box .summary-op {
+  color: #ffffff;
+}
+
+.summary-formula-box .color-image {
+  color: #fcd34d;
+}
+
+.summary-formula-box .color-preimage {
+  color: #f472b6;
+}
+
+.summary-formula-box .color-translation {
+  color: #a3e635;
+}
+
+.activity-completed-button {
+  position: absolute;
+  bottom: 3vw;
+}
