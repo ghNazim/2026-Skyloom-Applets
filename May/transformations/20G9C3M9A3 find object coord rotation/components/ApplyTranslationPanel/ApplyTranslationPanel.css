@@ -1,0 +1,42 @@
+.apply-translation-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  padding: 1.5vw;
+  box-sizing: border-box;
+}
+
+.apply-translation-text {
+  font-size: 2.3vw;
+  font-weight: 600;
+  color: #ffb84c;
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.apply-translation-btn {
+  padding: 0.85vw 2.5vw;
+  font-size: 2.5vw;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  border: none;
+  border-radius: var(--action-btn-radius);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.apply-translation-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.apply-translation-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}

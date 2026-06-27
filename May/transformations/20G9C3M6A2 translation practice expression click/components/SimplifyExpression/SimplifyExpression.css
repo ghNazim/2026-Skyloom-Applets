@@ -1,0 +1,115 @@
+.simplify-expression-box {
+  width: 100%;
+  background: rgba(12, 35, 55, 0.75);
+  border: 0.15vw solid rgba(180, 200, 220, 0.45);
+  border-radius: 1vw;
+  padding: 2.5vw 2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 13vw;
+}
+
+.simplify-expression-box.conclusion {
+  padding: 3vw 2.5vw;
+  border-color: #4caf50;
+  box-shadow:
+    0 0 0.6vw rgba(76, 175, 80, 0.45),
+    0 0.4vw 1.2vw rgba(76, 175, 80, 0.25);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.simplify-expression-inner {
+  font-size: 3vw;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35vw;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+
+.simplify-expression-inner.conclusion-text {
+  font-size: 2.6vw;
+  line-height: 1.5;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.simplify-expression-inner.conclusion-text.is-visible {
+  opacity: 1;
+}
+
+.simplify-highlight {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15vw 0.5vw;
+  border: 0.18vw dashed rgba(255, 255, 255, 0.9);
+  border-radius: 0.35vw;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    padding 0.25s ease;
+  box-sizing: border-box;
+  animation: highlight-border-in 0.35s ease;
+}
+
+@keyframes highlight-border-in {
+  from {
+    border-color: rgba(255, 255, 255, 0);
+  }
+  to {
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.simplify-highlight:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.simplify-highlight.is-removing {
+  border-color: transparent;
+  background: transparent;
+}
+
+.simplify-highlight.is-disabled {
+  pointer-events: none;
+}
+
+.highlight-inner {
+  display: inline-block;
+  opacity: 1;
+  transition: opacity 0.32s ease;
+}
+
+.highlight-inner.is-swapping {
+  opacity: 0;
+}
+
+.highlight-inner.is-visible {
+  opacity: 1;
+}
+
+.simplify-plain {
+  display: inline;
+}
+
+.simplify-expression-inner.final-expression.is-blinking {
+  animation: final-expression-blink calc(2s / 3) ease-in-out 3 forwards;
+}
+
+@keyframes final-expression-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}

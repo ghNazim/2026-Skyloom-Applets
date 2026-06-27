@@ -1,0 +1,203 @@
+.rule-dnd-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5vw;
+  padding: 1vw;
+  box-sizing: border-box;
+  touch-action: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.rule-dnd-panel.is-visible-panel {
+  opacity: 1;
+}
+
+.rule-dnd-title-wrap {
+  overflow: hidden;
+  max-height: 12vw;
+  transition: max-height 0.45s ease, opacity 0.35s ease, margin 0.45s ease;
+  text-align: center;
+}
+
+.rule-dnd-title-wrap.is-hidden {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.rule-dnd-title {
+  font-size: 2.2vw;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1.45;
+  padding: 0 0.5vw;
+}
+
+.rule-dnd-blue-box {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4vw;
+  padding: 1.2vw 1vw;
+  background: rgba(30, 80, 120, 0.85);
+  border-radius: 0.8vw;
+  box-sizing: border-box;
+  /* height: 10vw; */
+}
+
+.rule-dnd-math {
+  
+  /* font-style: italic; */
+  font-size: 3vw;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.rule-dnd-drop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5vw;
+  min-height: 5vw;
+  /* padding: 0.3vw 0.6vw; */
+  border: 0.18vw dashed #ffd34d;
+  border-radius: 0.4vw;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.rule-dnd-drop.is-hovered {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rule-dnd-drop.is-correct {
+  border-style: solid;
+  border-color: #2e7d32;
+  background: rgba(46, 125, 50, 0.35);
+}
+
+.rule-dnd-drop.is-wrong {
+  border-color: #c62828;
+  background: rgba(198, 40, 40, 0.25);
+}
+
+.rule-dnd-placed {
+  
+  /* font-style: italic; */
+  font-size: 3vw;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.rule-dnd-placed.is-wrong-chip {
+  color: #ffffff;
+  animation: rule-dnd-shake 0.5s ease;
+}
+
+.rule-dnd-source {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8vw;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.rule-dnd-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4vw;
+  min-height: 4vw;
+  /* padding: 0.7vw 1.2vw; */
+  
+  /* font-style: italic; */
+  font-size: 3vw;
+  font-weight: 600;
+  text-align: center;
+  border-radius: var(--action-btn-radius);
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  cursor: grab;
+  box-shadow:
+    0.12vw 0.15vw 0 0 var(--action-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
+  box-sizing: border-box;
+  touch-action: none;
+}
+
+.rule-dnd-chip:active {
+  cursor: grabbing;
+}
+
+.rule-dnd-chip.is-dragging {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rule-dnd-ghost {
+  cursor: grabbing;
+  opacity: 0.98;
+  box-shadow:
+    0.12vw 0.15vw 0 0 var(--action-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight),
+    0 0.5vw 1.2vw rgba(0, 0, 0, 0.45);
+}
+
+.rule-dnd-result-box {
+  width: 100%;
+  padding: 1.2vw 1vw;
+  border-radius: 0.8vw;
+  
+  /* font-style: italic; */
+  font-size: 3vw;
+  font-weight: 600;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color 0.45s ease, color 0.45s ease;
+}
+
+.rule-dnd-result-box.is-styled {
+  background: rgba(70, 80, 90, 0.92);
+  color: #ffffff;
+}
+
+.rule-dnd-result-box .rule-object {
+  color: #e97132;
+}
+
+.rule-dnd-result-box .rule-image {
+  color: #45c6ce;
+}
+
+@keyframes rule-dnd-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}

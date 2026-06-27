@@ -1,0 +1,125 @@
+.math-dnd-box {
+  width: 100%;
+  background: rgba(12, 35, 55, 0.75);
+  border: 0.15vw solid rgba(180, 200, 220, 0.45);
+  border-radius: 1vw;
+  padding: 2.5vw 2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  height: 13vw;
+}
+
+.math-dnd-box.is-visible {
+  opacity: 1;
+}
+
+.math-dnd-expression {
+  font-size: 3vw;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4vw;
+  font-family: system-ui, sans-serif;
+}
+
+.expr-dnd-drop-zone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15.5vw;
+  min-height: 5.2vw;
+  padding-bottom: 0.5vw;
+  /* padding: 0.3vw 0.8vw; */
+  border: 0.18vw dashed rgba(255, 255, 255, 0.85);
+  border-radius: 0.4vw;
+  box-sizing: border-box;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.expr-dnd-drop-zone.is-hovered {
+  border-color: #ffd34d;
+  background: rgba(255, 211, 77, 0.12);
+}
+
+.expr-dnd-drop-zone.is-filled {
+  border: 0.18vw dashed rgba(255, 255, 255, 0.85);
+  background: #2e7d32;
+}
+
+.expr-dnd-drop-zone.is-wrong-drop {
+  border-color: #ef5350;
+  background: rgba(198, 40, 40, 0.35);
+  animation: expr-zone-shake 0.5s ease;
+}
+
+.expr-dnd-drop-zone .placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: normal;
+}
+
+.expr-dnd-drop-zone .placed-label {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.expr-dnd-drop-zone .wrong-return-chip {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.feedback-box {
+  width: 100%;
+  margin-top: 1.2vw;
+  padding: 1.2vw 1.5vw;
+  background: rgba(80, 30, 30, 0.55);
+  border: 0.18vw dashed #c62828;
+  border-radius: 0.8vw;
+  font-size: 2vw;
+  line-height: 1.5;
+  color: #ffffff;
+  text-align: center;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.feedback-box.is-visible {
+  opacity: 1;
+}
+
+.math-column-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5vw;
+  box-sizing: border-box;
+  height: 80%;
+}
+
+@keyframes expr-zone-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}

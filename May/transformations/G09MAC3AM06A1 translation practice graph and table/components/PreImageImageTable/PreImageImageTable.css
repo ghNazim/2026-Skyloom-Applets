@@ -1,0 +1,185 @@
+.piit-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  padding: 2vw;
+  box-sizing: border-box;
+}
+
+.piit-wrap.is-visible {
+  opacity: 1;
+}
+
+.piit-table {
+  width: 100%;
+  max-width: 48vw;
+}
+
+.piit-columns {
+  display: flex;
+  flex-direction: row;
+  gap: 1.2vw;
+  width: 100%;
+  align-items: stretch;
+}
+
+.piit-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vw;
+  min-width: 0;
+  transition: opacity 0.4s ease;
+}
+
+.piit-column.is-content-hidden,
+.piit-column.is-source-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.piit-col-trans {
+  flex: 0 1 0;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    flex 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    max-width 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s ease 0.55s;
+}
+
+.piit-table.has-translation .piit-col-trans.is-present {
+  display: flex;
+}
+
+.piit-table.has-translation.is-trans-open .piit-col-trans.is-open {
+  flex: 1;
+  max-width: none;
+  opacity: 1;
+}
+
+.piit-row {
+  display: contents;
+}
+
+.piit-header-row {
+  margin-bottom: 0.4vw;
+}
+
+.piit-header {
+  font-size: 2.1vw;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.piit-cell {
+  padding: 1.2vw 0.6vw;
+  font-size: 1.9vw;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 0;
+  height: 5.8vw;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.35s ease, background-color 0.35s ease;
+}
+
+.piit-trans-cell.is-hidden-cell {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.piit-trans-expr .piit-expr-num,
+.piit-trans-expr .piit-expr-op {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.piit-trans-expr {
+  transition: opacity 0.45s ease;
+}
+
+.piit-trans-expr .piit-expr-num.is-shown,
+.piit-trans-expr .piit-expr-op.is-shown {
+  opacity: 1;
+}
+
+.piit-trans-expr.is-hidden {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.piit-fill-stage {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100%;
+}
+
+.piit-expr-paren {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.piit-expr-paren.is-shown {
+  opacity: 1;
+}
+
+.piit-trans-final {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.piit-trans-final.is-shown {
+  opacity: 1;
+}
+
+.piit-trans-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.piit-table.is-two-col .piit-columns {
+  gap: 1.2vw;
+}
+
+.piit-fly-column-clone {
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.piit-wrap.is-compact {
+  padding: 1vw;
+}
+
+.piit-wrap.is-compact:not(.is-visible) {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+
+.piit-wrap.is-compact .piit-table {
+  max-width: 100%;
+}
+
+.piit-fill-brackets {
+  letter-spacing: 0.15em;
+}
