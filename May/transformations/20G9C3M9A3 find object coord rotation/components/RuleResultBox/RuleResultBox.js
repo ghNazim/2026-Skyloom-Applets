@@ -1,4 +1,12 @@
-const RuleResultBox = ({ ruleState, coordRefs, visible }) => {
+const RuleResultBox = ({ ruleState, coordRefs, visible, variant }) => {
+  if (variant === "180") {
+    return React.createElement(RuleResultBox180, {
+      ruleState: ruleState,
+      coordRefs: coordRefs,
+      visible: visible,
+    });
+  }
+
   const rp = APP_DATA.rulePanel;
 
   const imgNegY = ruleState.imgNegY;
@@ -122,14 +130,9 @@ const RuleResultBox = ({ ruleState, coordRefs, visible }) => {
   return React.createElement(
     "div",
     {
-      className:
-        "rule-result-box" + (visible ? " is-visible" : ""),
+      className: "rule-result-box" + (visible ? " is-visible" : ""),
     },
-    React.createElement(
-      "span",
-      { className: "rule-result-paren" },
-      "( ",
-    ),
+    React.createElement("span", { className: "rule-result-paren" }, "( "),
     React.createElement(
       "span",
       { className: "rule-object-group" },
@@ -137,11 +140,7 @@ const RuleResultBox = ({ ruleState, coordRefs, visible }) => {
       React.createElement("span", { className: "rule-comma" }, " , "),
       renderObjY(),
     ),
-    React.createElement(
-      "span",
-      { className: "rule-result-paren" },
-      " ) \u2192 ( ",
-    ),
+    React.createElement("span", { className: "rule-result-paren" }, " ) \u2192 ( "),
     React.createElement(
       "span",
       { className: "rule-image-group" },
@@ -149,10 +148,147 @@ const RuleResultBox = ({ ruleState, coordRefs, visible }) => {
       React.createElement("span", { className: "rule-comma" }, " , "),
       renderImgX(),
     ),
+    React.createElement("span", { className: "rule-result-paren" }, " )"),
+  );
+};
+
+const RuleResultBox180 = ({ ruleState, coordRefs, visible }) => {
+  const rp = APP_DATA.rulePanel2;
+
+  const imgNegX = ruleState.imgNegX;
+  const imgNegY = ruleState.imgNegY;
+  const objX = ruleState.objX;
+  const objY = ruleState.objY;
+
+  const renderImgNegX = () => {
+    if (!imgNegX) {
+      return React.createElement(
+        "span",
+        {
+          id: "rule-ref-img-neg-x",
+          className: "rule-val rule-image-val",
+          ref: (el) => {
+            if (coordRefs) coordRefs.current.imgNegX = el;
+          },
+        },
+        rp.genericNegX,
+      );
+    }
+    return React.createElement(
+      "span",
+      {
+        id: "rule-src-img-x-num",
+        className: "rule-val rule-num rule-image-val",
+        ref: (el) => {
+          if (coordRefs) coordRefs.current.imgNegXNum = el;
+        },
+      },
+      imgNegX,
+    );
+  };
+
+  const renderImgNegY = () => {
+    if (!imgNegY) {
+      return React.createElement(
+        "span",
+        {
+          id: "rule-ref-img-neg-y",
+          className: "rule-val rule-image-val",
+          ref: (el) => {
+            if (coordRefs) coordRefs.current.imgNegY = el;
+          },
+        },
+        rp.genericNegY,
+      );
+    }
+    return React.createElement(
+      "span",
+      {
+        id: "rule-src-img-y-num",
+        className: "rule-val rule-num rule-image-val",
+        ref: (el) => {
+          if (coordRefs) coordRefs.current.imgNegYNum = el;
+        },
+      },
+      imgNegY,
+    );
+  };
+
+  const renderObjX = () => {
+    if (!objX) {
+      return React.createElement(
+        "span",
+        {
+          id: "rule-ref-obj-x",
+          className: "rule-val rule-object-val",
+          ref: (el) => {
+            if (coordRefs) coordRefs.current.objX = el;
+          },
+        },
+        rp.genericObjX,
+      );
+    }
+    return React.createElement(
+      "span",
+      {
+        id: "rule-ref-obj-x",
+        className: "rule-val rule-num rule-object-val",
+        ref: (el) => {
+          if (coordRefs) coordRefs.current.objXNum = el;
+        },
+      },
+      objX,
+    );
+  };
+
+  const renderObjY = () => {
+    if (!objY) {
+      return React.createElement(
+        "span",
+        {
+          id: "rule-ref-obj-y",
+          className: "rule-val rule-object-val",
+          ref: (el) => {
+            if (coordRefs) coordRefs.current.objY = el;
+          },
+        },
+        rp.genericObjY,
+      );
+    }
+    return React.createElement(
+      "span",
+      {
+        id: "rule-ref-obj-y",
+        className: "rule-val rule-num rule-object-val",
+        ref: (el) => {
+          if (coordRefs) coordRefs.current.objYNum = el;
+        },
+      },
+      objY,
+    );
+  };
+
+  return React.createElement(
+    "div",
+    {
+      className: "rule-result-box" + (visible ? " is-visible" : ""),
+    },
+    React.createElement("span", { className: "rule-result-paren" }, "( "),
     React.createElement(
       "span",
-      { className: "rule-result-paren" },
-      " )",
+      { className: "rule-object-group" },
+      renderObjX(),
+      React.createElement("span", { className: "rule-comma" }, " , "),
+      renderObjY(),
     ),
+    React.createElement("span", { className: "rule-result-paren" }, " ) \u2192 ( "),
+    React.createElement(
+      "span",
+      { className: "rule-image-group" },
+      renderImgNegX(),
+      React.createElement("span", { className: "rule-comma" }, " , "),
+      renderImgNegY(),
+    ),
+    React.createElement("span", { className: "rule-result-paren" }, " )"),
   );
 };

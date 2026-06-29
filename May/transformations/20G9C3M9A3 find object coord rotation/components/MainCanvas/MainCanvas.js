@@ -358,7 +358,7 @@ const MainCanvas = ({
       onStep6PhaseChange("rotating");
     }
 
-    const clonePoints = IMAGE_POINTS.map((pt) => ({
+    const clonePoints = OBJECT_POINT_DEFS.map((pt) => ({
       id: pt.key,
       x: pt.x,
       y: pt.y,
@@ -375,9 +375,9 @@ const MainCanvas = ({
       points: clonePoints,
       segments: [
         {
-          from: { x: -2, y: 3 },
-          to: { x: -4, y: 1 },
-          color: TRANSLATION_GRAPH_COLORS.image,
+          from: { x: 3, y: 2 },
+          to: { x: 1, y: 4 },
+          color: TRANSLATION_GRAPH_COLORS.preimage,
         },
       ],
     });
@@ -391,7 +391,7 @@ const MainCanvas = ({
         const t = Math.min(1, (now - startTime) / duration);
         const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
         setRotationOverlay((prev) =>
-          prev ? { ...prev, angle: eased * -270 } : prev,
+          prev ? { ...prev, angle: eased * 270 } : prev,
         );
         if (t < 1) requestAnimationFrame(tick);
         else resolve();
@@ -584,6 +584,7 @@ const MainCanvas = ({
         coordXRefKey: pt.coordXRefKey,
         coordYRefKey: pt.coordYRefKey,
         clickable: clickable,
+        showClickPulse: clickable,
         clickId: pt.clickId,
         onClick: pt.key === "APrime" ? handleAPrimeClick : handleBPrimeClick,
       };

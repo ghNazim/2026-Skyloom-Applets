@@ -29,7 +29,7 @@ const DATA = {
         labelQPrimeUnknown: "Q\u2019 (?,?)",
       },
       table: {
-        preImage: "PRE-IMAGE",
+        preImage: "OBJECT",
         translation: "TRANSLATION",
         image: "IMAGE",
         p: "P",
@@ -155,7 +155,7 @@ const DATA = {
         labelQPrimeUnknown: "Q\u2019 (?,?)",
       },
       table: {
-        preImage: "BANGUN AWAL",
+        preImage: "OBJEK",
         translation: "TRANSLASI",
         image: "BAYANGAN",
         p: "P",

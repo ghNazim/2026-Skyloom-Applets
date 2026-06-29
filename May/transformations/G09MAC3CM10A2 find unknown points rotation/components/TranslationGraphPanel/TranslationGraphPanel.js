@@ -28,10 +28,7 @@ const COLOR_IMAGE = "#45C6CE";
 const TranslationGraphPanel = ({
   points,
   segments,
-  polygons,
   labelRefs,
-  coordRefs,
-  rotationOverlay,
 }) => {
   const { useCallback, useMemo } = React;
 
@@ -244,63 +241,20 @@ const TranslationGraphPanel = ({
     return { x: pos.x, y: pos.y - pointLabelOffsetY, anchor: "middle" };
   };
 
-  const renderPoint = (pt, options = {}) => {
+  const renderPoint = (pt) => {
     const pos = toSvg(pt.x, pt.y);
     const labelPos = getLabelPosition(pt, pos);
     const radius = pt.radius || pointRadius;
-    const circleOpacity =
-      pt.circleOpacity != null
-        ? pt.circleOpacity
-        : pt.opacity != null
-          ? pt.opacity
-          : 1;
+    const opacity = pt.opacity != null ? pt.opacity : 1;
     const showLabel = pt.showLabel !== false && pt.label;
-    const isClickable = pt.clickable && !options.isClone;
-    const showClickPulse = pt.showClickPulse && isClickable;
-    const pulseRadius = pt.pulseRadius || radius * 2.4;
-    const prefixKey = pt.labelPrefix || pt.label;
-
-    const renderLabelContent = () => {
-      if (pt.coordParts) {
-        const cp = pt.coordParts;
-        return React.createElement(
-          React.Fragment,
-          null,
-          prefixKey + " (",
-          React.createElement(
-            "tspan",
-            {
-              ref: (el) => {
-                if (coordRefs && pt.coordXRefKey) {
-                  coordRefs.current[pt.coordXRefKey] = el;
-                }
-              },
-            },
-            cp.x,
-          ),
-          ",",
-          React.createElement(
-            "tspan",
-            {
-              ref: (el) => {
-                if (coordRefs && pt.coordYRefKey) {
-                  coordRefs.current[pt.coordYRefKey] = el;
-                }
-              },
-            },
-            cp.y,
-          ),
-          ")",
-        );
-      }
-      return pt.label;
-    };
 
     return React.createElement(
       "g",
       {
-        key: (options.keySuffix || "") + pt.id,
+        key: pt.id,
         className: "tgp-placed-point",
+        opacity: opacity,
+        style: pt.opacity === 0 ? { pointerEvents: "none" } : undefined,
       },
       showLabel
         ? React.createElement(
@@ -315,61 +269,23 @@ const TranslationGraphPanel = ({
               fontFamily: "system-ui, sans-serif",
               opacity: pt.labelOpacity != null ? pt.labelOpacity : 1,
               ref: (el) => {
-                if (labelRefs && pt.labelRefKey && !pt.coordParts) {
-                  labelRefs.current[pt.labelRefKey] = el;
-                }
-                if (labelRefs && pt.labelRefKey && pt.coordParts) {
+                if (labelRefs && pt.labelRefKey) {
                   labelRefs.current[pt.labelRefKey] = el;
                 }
               },
             },
-            renderLabelContent(),
+            pt.label,
           )
         : null,
-      showClickPulse
-        ? React.createElement("circle", {
-            className: "tgp-click-pulse",
-            id: pt.clickId || undefined,
-            cx: pos.x,
-            cy: pos.y,
-            r: pulseRadius,
-            onClick: pt.onClick,
-          })
-        : null,
       React.createElement("circle", {
-        className:
-          "tgp-point-circle" + (isClickable ? " is-clickable" : ""),
-        id: showClickPulse ? undefined : pt.clickId || undefined,
         cx: pos.x,
         cy: pos.y,
         r: radius,
         fill: pt.color,
         stroke: "#ffffff",
         strokeWidth: 1.5,
-        opacity: circleOpacity,
-        onClick: isClickable ? pt.onClick : undefined,
-        style: isClickable ? { pointerEvents: "all", cursor: "pointer" } : undefined,
       }),
     );
-  };
-
-  const renderPolygon = (poly, index) => {
-    const pointsStr = poly.vertices
-      .map((v) => {
-        const p = toSvg(v.x, v.y);
-        return p.x + "," + p.y;
-      })
-      .join(" ");
-    return React.createElement("polygon", {
-      key: "poly-" + index,
-      className: "tgp-polygon",
-      points: pointsStr,
-      fill: poly.color,
-      fillOpacity: poly.fillOpacity != null ? poly.fillOpacity : 0.7,
-      stroke: poly.noStroke ? "none" : poly.stroke != null ? poly.stroke : poly.color,
-      strokeWidth: poly.noStroke ? 0 : poly.strokeWidth || 2.5,
-      opacity: poly.opacity != null ? poly.opacity : 1,
-    });
   };
 
   const renderSegment = (seg, index) => {
@@ -394,11 +310,9 @@ const TranslationGraphPanel = ({
   const gridTop = PAD_TOP;
   const gridBottom = PAD_TOP + GRID_H;
   const AXIS_STROKE = 2;
-  /* Marker path tip is at x=6 with markerUnits=strokeWidth; inset so tip lands on grid edge. */
   const AXIS_ARROW_INSET = AXIS_STROKE * 6;
   const pointList = points || [];
   const segmentList = segments || [];
-  const polygonList = polygons || [];
 
   return React.createElement(
     "div",
@@ -476,43 +390,10 @@ const TranslationGraphPanel = ({
         markerEnd: "url(#tgp-arrow-end)",
       }),
       axisLabels,
-      polygonList.map(renderPolygon),
       segmentList.map(renderSegment),
-      pointList.map((pt) => renderPoint(pt)),
-      rotationOverlay && rotationOverlay.active
-        ? React.createElement(
-            "g",
-            {
-              className: "tgp-rotation-clone",
-              transform:
-                "rotate(" +
-                rotationOverlay.angle +
-                " " +
-                ORIGIN_X +
-                " " +
-                ORIGIN_Y +
-                ")",
-              opacity: rotationOverlay.opacity != null ? rotationOverlay.opacity : 1,
-            },
-            (rotationOverlay.segments || []).map(renderSegment),
-            (rotationOverlay.polygons || []).map(renderPolygon),
-            (rotationOverlay.points || []).map((pt) =>
-              renderPoint(pt, { isClone: true, keySuffix: "clone-" }),
-            ),
-          )
-        : null,
+      pointList.map(renderPoint),
     ),
   );
-};
-
-const ROTATION_GRAPH_ORIGIN = {
-  getOrigin: () => {
-    const cfg = ROTATION_GRAPH_CONFIG;
-    return {
-      x: cfg.padLeft + (0 - cfg.xMin) * cfg.unit,
-      y: cfg.padTop + (cfg.yMax - 0) * cfg.unit,
-    };
-  },
 };
 
 const TRANSLATION_GRAPH_COLORS = {

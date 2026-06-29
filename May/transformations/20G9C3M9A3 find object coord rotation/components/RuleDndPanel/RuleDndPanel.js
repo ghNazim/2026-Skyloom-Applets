@@ -1,4 +1,9 @@
-const RuleDndPanel = ({ phase, onComplete }) => {
+const RuleDndPanel = ({
+  phase,
+  onComplete,
+  dndConfig,
+  rulePanelConfig,
+}) => {
   const { useState, useEffect, useRef, useCallback } = React;
 
   const [slots, setSlots] = useState({ slot1: null, slot2: null });
@@ -16,8 +21,9 @@ const RuleDndPanel = ({ phase, onComplete }) => {
   const isDraggingRef = useRef(false);
   const completeCalledRef = useRef(false);
 
-  const items = APP_DATA.dnd.items;
-  const correct = APP_DATA.dnd.correctSlots;
+  const dnd = dndConfig || APP_DATA.dnd;
+  const items = dnd.items;
+  const correct = dnd.correctSlots;
   const sourceIds = ["x", "negX", "y", "negY"];
 
   const usedIds = [slots.slot1, slots.slot2].filter(Boolean);
@@ -202,7 +208,7 @@ const RuleDndPanel = ({ phase, onComplete }) => {
     );
   };
 
-  const panel = APP_DATA.rulePanel;
+  const panel = rulePanelConfig || APP_DATA.rulePanel;
 
   return React.createElement(
     "div",

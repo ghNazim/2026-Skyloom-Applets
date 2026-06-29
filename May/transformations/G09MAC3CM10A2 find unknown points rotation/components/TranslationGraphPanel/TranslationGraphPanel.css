@@ -19,37 +19,6 @@
 
 .tgp-placed-point {
   pointer-events: none;
-}
-
-.tgp-point-circle.is-clickable {
-  pointer-events: all;
-  cursor: pointer;
-}
-
-.tgp-click-pulse {
-  fill: rgba(255, 255, 255, 0.3);
-  stroke: #ffffff;
-  stroke-width: 3.5;
-  pointer-events: all;
-  cursor: pointer;
-  animation: tgp-pulse-blink 1.1s ease-in-out infinite;
-}
-
-@keyframes tgp-pulse-blink {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.tgp-rotation-clone {
-  pointer-events: none;
-}
-
-.tgp-point-circle {
   transition: opacity 0.5s ease;
 }
 

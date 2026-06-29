@@ -106,3 +106,17 @@
   white-space: nowrap;
   padding: 0 0.5vw;
 }
+
+.question-visual.is-rect {
+  width: 95%;
+  gap: 0.5vw;
+}
+
+.question-visual.is-rect .qv-box {
+  width: 8vw;
+  font-size: 2.1vw;
+}
+
+.question-visual.is-rect .qv-arrow-text {
+  font-size: 1.6vw;
+}

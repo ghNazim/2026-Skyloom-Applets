@@ -1,21 +1,29 @@
-const RotatePanel = ({ visible, contentVisible, onRotate, disabled }) => {
-  const rp = APP_DATA.rotatePanel;
+const RotatePanel = ({
+  visible,
+  contentVisible,
+  onRotate,
+  disabled,
+  panelConfig,
+  ruleVariant,
+}) => {
+  const rp = panelConfig || APP_DATA.rotatePanel;
+  const genericRule =
+    ruleVariant === "180" ? GENERIC_RULE_180 : GENERIC_RULE;
 
   return React.createElement(
     "div",
     {
-      className:
-        "rotate-panel" + (visible ? " is-visible" : ""),
+      className: "rotate-panel" + (visible ? " is-visible" : ""),
     },
     React.createElement(
       "div",
       {
-        className:
-          "rotate-panel-old" + (contentVisible ? " is-hidden" : ""),
+        className: "rotate-panel-old" + (contentVisible ? " is-hidden" : ""),
       },
       React.createElement(RuleResultBox, {
-        ruleState: GENERIC_RULE,
+        ruleState: genericRule,
         visible: true,
+        variant: ruleVariant,
       }),
     ),
     React.createElement(
