@@ -1,0 +1,61 @@
+.graph-panel.reflection-graph-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0;
+}
+
+.reflection-graph-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.reflection-coordinate-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.reflection-coordinate-svg.is-clickable {
+  cursor: crosshair;
+}
+
+.rg-grow-line {
+  animation: rg-line-grow 0.55s ease forwards;
+}
+
+@keyframes rg-line-grow {
+  from {
+    stroke-dashoffset: var(--rg-line-len, 100px);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.rg-unit-line-rotate {
+  animation: rg-unit-flip 0.75s ease-in-out forwards;
+}
+
+@keyframes rg-unit-flip {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+.rg-unit-label-final {
+  transition: all 0.5s ease;
+}
+
+.rg-x-axis-target {
+  pointer-events: stroke;
+}

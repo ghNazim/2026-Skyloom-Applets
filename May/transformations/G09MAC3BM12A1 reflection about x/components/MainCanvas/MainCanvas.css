@@ -1,0 +1,160 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  border-radius: 1vw;
+  overflow: hidden;
+  padding: 0 0.8vw;
+  gap: 1vw;
+}
+
+.main-canvas-left {
+  width: 60%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #0a2b3f;
+  border-radius: 1vw;
+}
+
+.left-top-text-row {
+  flex-shrink: 0;
+  height: 7vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.5vw;
+  background: rgba(21, 96, 130, 0.34);
+  border-radius: 1vw 1vw 0 0;
+}
+
+.left-top-text-content {
+  color: #ffffff;
+  font-size: 2.2vw;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.left-graph-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0.5vw;
+  background: rgba(8, 28, 42, 0.45);
+}
+
+.main-canvas-right {
+  width: 40%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2vw 1.5vw;
+  border-radius: 1vw;
+  box-sizing: border-box;
+  background-color: #0f4967;
+}
+
+.right-panel-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5vw;
+}
+
+.right-panel-text {
+  font-size: 2.3vw;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.4;
+  width: 100%;
+}
+
+.feedback-box {
+  width: 100%;
+  padding: 1.6vw 1.4vw;
+  border-radius: 1.2vw;
+  border: 0.25vw dashed transparent;
+  font-size: 2.2vw;
+  line-height: 1.45;
+  color: #ffffff;
+  text-align: center;
+  box-sizing: border-box;
+  animation: feedback-in 0.35s ease;
+}
+
+.feedback-box.is-wrong {
+  background: rgba(110, 38, 42, 0.95);
+  border-color: rgba(255, 155, 150, 0.9);
+}
+
+.feedback-box.is-correct {
+  background: rgba(38, 95, 52, 0.95);
+  border-color: rgba(140, 220, 165, 0.9);
+}
+
+.action-btn {
+  font-family: inherit;
+  margin-top: 0.5vw;
+}
+
+.property-cards {
+  gap: 1.8vw;
+  padding-top: 1vw;
+}
+
+.property-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vw;
+}
+
+.property-card-title {
+  font-size: 2.2vw;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.property-card-box {
+  width: 100%;
+  padding: 1.2vw 1.4vw;
+  border-radius: 1vw;
+  background: rgba(8, 28, 42, 0.75);
+  border: 0.15vw solid rgba(255, 255, 255, 0.12);
+  font-size: 2vw;
+  line-height: 1.45;
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.property-card-box.is-static {
+  cursor: default;
+}
+
+.property-card-box:hover:not(.is-static) {
+  background: rgba(12, 40, 58, 0.9);
+}
+
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
