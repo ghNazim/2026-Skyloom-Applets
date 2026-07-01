@@ -1,0 +1,115 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.main-canvas-left {
+  flex: 0 0 60%;
+  width: 60%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 1vw;
+  border: 0.2vw solid rgba(141, 141, 141, 0.25);
+  position: relative;
+}
+
+.main-canvas-right {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2vw 1.5vw 2.5vw;
+  background: rgba(44, 93, 117, 0.45);
+  border-radius: 1vw;
+  margin-left: 0.6vw;
+}
+
+.diagrams-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.shape-group {
+  transition: opacity 0.2s ease;
+}
+
+.shape-polygon {
+  transition: stroke 0.25s ease, stroke-width 0.25s ease;
+}
+
+.shape-side-label {
+  transition: fill 0.25s ease;
+}
+
+.feedback-area {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 1vw;
+}
+
+.feedback-box {
+  width: 100%;
+  max-width: 28vw;
+  padding: 1.4vw 1.6vw;
+  border-radius: 1.2vw;
+  border: 0.25vw dashed rgba(255, 255, 255, 0.85);
+  color: #ffffff;
+  font-size: 1.9vw;
+  line-height: 1.45;
+  text-align: center;
+  animation: feedbackFadeIn 0.35s ease forwards;
+}
+
+.feedback-box b {
+  font-weight: 700;
+}
+
+.feedback-box--correct {
+  background: rgba(34, 139, 87, 0.92);
+}
+
+.feedback-box--wrong {
+  background: rgba(200, 80, 110, 0.88);
+}
+
+@keyframes feedbackFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.check-btn {
+  width: 100%;
+  max-width: 22vw;
+  font-family: inherit;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.check-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.check-btn:not(:disabled):hover {
+  filter: brightness(1.06);
+}

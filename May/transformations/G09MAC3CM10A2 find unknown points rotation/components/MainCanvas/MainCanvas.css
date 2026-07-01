@@ -56,6 +56,11 @@
   opacity: 1;
 }
 
+.main-canvas-right.is-step4 {
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
 .main-canvas-left.is-hiding {
   opacity: 0;
   pointer-events: none;
@@ -69,12 +74,14 @@
   position: fixed;
   z-index: 10000;
   pointer-events: none;
-  font-size: 2.2vw;
   font-weight: 600;
   color: #ffffff;
   font-family: system-ui, sans-serif;
   white-space: nowrap;
-  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center center;
+  transition:
+    transform 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+    font-size 0.75s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fly-clone-text.is-cell-clone {
@@ -93,6 +100,71 @@
 
 .fly-clone-text.is-yellow {
   color: #ffb84c;
+}
+
+.fly-clone-column {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: transform 0.92s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top left;
+}
+
+.fly-clone-column > .piit-column {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.fly-clone-column.is-rotation-col {
+  overflow: visible;
+}
+
+.fly-clone-column.is-rotation-col .piit-col-trans,
+.fly-clone-column .piit-table.is-trans-open .piit-col-trans {
+  flex: 1 1 auto !important;
+  max-width: none !important;
+  width: 100% !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  display: flex !important;
+}
+
+.fly-clone-column.is-rotation-col .piit-table,
+.fly-clone-column.is-rotation-col .piit-columns {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.fly-clone-column.is-rotation-col .piit-trans-cell:not(.is-hidden-cell) {
+  opacity: 1 !important;
+}
+
+.fly-clone-table {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: transform 0.92s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top left;
+}
+
+.fly-clone-table .piit-wrap {
+  opacity: 1 !important;
+  width: 100%;
+  height: 100%;
+  padding: 2vw;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.fly-clone-table .piit-table {
+  max-width: none;
+  width: 100%;
 }
 
 .main-canvas-splash {

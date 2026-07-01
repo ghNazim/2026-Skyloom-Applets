@@ -291,17 +291,27 @@ const TranslationGraphPanel = ({
   const renderSegment = (seg, index) => {
     const from = toSvg(seg.from.x, seg.from.y);
     const to = toSvg(seg.to.x, seg.to.y);
+    const lineLen = Math.hypot(to.x - from.x, to.y - from.y);
+    const growing = seg.animateGrow;
+    const lineStyle = growing
+      ? {
+          strokeDasharray: lineLen,
+          strokeDashoffset: lineLen,
+          animation: "tgp-line-grow 0.9s ease forwards",
+        }
+      : undefined;
     return React.createElement("line", {
-      key: "seg-" + index,
-      className: "tgp-segment",
+      key: (seg.segKey || "seg") + "-" + index,
+      className: "tgp-segment" + (growing ? " is-growing" : ""),
       x1: from.x,
       y1: from.y,
       x2: to.x,
       y2: to.y,
       stroke: seg.color,
       strokeWidth: seg.strokeWidth || 2.5,
-      strokeDasharray: seg.dashed ? "8 6" : undefined,
+      strokeDasharray: growing ? undefined : seg.dashed ? "8 6" : undefined,
       opacity: seg.opacity != null ? seg.opacity : 1,
+      style: lineStyle,
     });
   };
 

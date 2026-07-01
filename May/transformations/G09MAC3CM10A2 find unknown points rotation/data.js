@@ -14,9 +14,11 @@ const DATA = {
       },
       question: {
         text:
-          'Triangle PQR is transformed to produce the image P\u2019Q\u2019R\u2019.<br>Given <span id="highlight-p" class="orange-bg fly-source">P (2,1)</span>, <span id="highlight-q" class="orange-bg fly-source">Q (4,3)</span>, <span id="highlight-p-prime" class="cyan-bg fly-source">P\u2019 (1,-2)</span>, and <span id="highlight-r-prime" class="cyan-bg fly-source">R\u2019 (4,-3)</span>.<br>Determine the coordinates of <span id="highlight-r-solve" class="orange-bg">R</span> and <span id="highlight-qprime-solve" class="cyan-bg">Q\u2019</span>.',
+          'Triangle PQR is transformed to produce the image P\u2019Q\u2019R\u2019. Given <span id="highlight-p" class="orange-bg fly-source">P (2,1)</span>, <span id="highlight-q" class="orange-bg fly-source">Q (4,3)</span>, <span id="highlight-p-prime" class="cyan-bg fly-source">P\u2019 (1,-2)</span>, and <span id="highlight-r-prime" class="cyan-bg fly-source">R\u2019 (4,-3)</span>. Determine the coordinates of <span id="highlight-r-solve" class="orange-bg">R</span> and <span id="highlight-qprime-solve" class="cyan-bg">Q\u2019</span>.',
         textPlain:
           "Triangle PQR is transformed to produce the image P\u2019Q\u2019R\u2019. Given P (2,1), Q (4,3), P\u2019 (1,-2), and R\u2019 (4,-3). Determine the coordinates of R and Q\u2019.",
+        textStep9:
+          "Triangle PQR is transformed to produce the image P\u2019Q\u2019R\u2019. Given P (2,1), Q (4,3), P\u2019 (1,-2), and R\u2019 (4,-3). <span id=\"highlight-solve-phrase\" class=\"purple-bg\">Determine the coordinates of R and Q\u2019.</span>",
       },
       graph: {
         labelP: "P (2,1)",
@@ -25,6 +27,8 @@ const DATA = {
         labelRPrime: "R\u2019 (4,-3)",
         labelRUnknown: "R (?,?)",
         labelQPrimeUnknown: "Q\u2019 (?,?)",
+        labelRKnown: "R (3,4)",
+        labelQPrimeKnown: "Q\u2019 (3,-4)",
       },
       table: {
         preImage: "OBJECT",
@@ -39,7 +43,7 @@ const DATA = {
         unknown: "(?,?)",
         rotationValue: "90\u00b0 Clockwise",
         qPrimeValue: "(3,-4)",
-        rValue: "(2,4)",
+        rValue: "(3,4)",
       },
       formula: {
         objNumeric: "(2,1)",
@@ -63,6 +67,7 @@ const DATA = {
           title: "This rule corresponds to which rotation.",
           options: ["90\u00b0 clockwise", "90\u00b0 anticlockwise"],
           correctIndex: 0,
+          feedbackWrong: "That is not the correct rotation for this rule.",
         },
       },
       applyPanel: {
@@ -91,6 +96,14 @@ const DATA = {
           navText: "Tap to apply the rotation to all points",
           navTextDone: "Tap \u00bb to find Q\u2019",
         },
+        7: {
+          navText: "Tap the rule to find Q\u2019",
+          navTextDone: "Tap \u00bb to find R",
+        },
+        8: {
+          navText: "Tap the rule to find R",
+          navTextDone: "Tap \u00bb to see it on the graph",
+        },
       },
       final: {
         heading: "",
@@ -113,6 +126,8 @@ const DATA = {
           'Segitiga PQR ditransformasi untuk menghasilkan bayangan P\u2019Q\u2019R\u2019.<br>Diberikan <span id="highlight-p" class="orange-bg fly-source">P (2,1)</span>, <span id="highlight-q" class="orange-bg fly-source">Q (4,3)</span>, <span id="highlight-p-prime" class="cyan-bg fly-source">P\u2019 (1,-2)</span>, dan <span id="highlight-r-prime" class="cyan-bg fly-source">R\u2019 (4,-3)</span>.<br>Tentukan koordinat <span id="highlight-r-solve" class="orange-bg">R</span> dan <span id="highlight-qprime-solve" class="cyan-bg">Q\u2019</span>.',
         textPlain:
           "Segitiga PQR ditransformasi untuk menghasilkan bayangan P\u2019Q\u2019R\u2019. Diberikan P (2,1), Q (4,3), P\u2019 (1,-2), dan R\u2019 (4,-3). Tentukan koordinat R dan Q\u2019.",
+        textStep9:
+          "Segitiga PQR ditransformasi untuk menghasilkan bayangan P\u2019Q\u2019R\u2019. Diberikan P (2,1), Q (4,3), P\u2019 (1,-2), dan R\u2019 (4,-3). <span id=\"highlight-solve-phrase\" class=\"purple-bg\">Tentukan koordinat R dan Q\u2019.</span>",
       },
       graph: {
         labelP: "P (2,1)",
@@ -121,6 +136,8 @@ const DATA = {
         labelRPrime: "R\u2019 (4,-3)",
         labelRUnknown: "R (?,?)",
         labelQPrimeUnknown: "Q\u2019 (?,?)",
+        labelRKnown: "R (3,4)",
+        labelQPrimeKnown: "Q\u2019 (3,-4)",
       },
       table: {
         preImage: "OBJEK",
@@ -135,7 +152,7 @@ const DATA = {
         unknown: "(?,?)",
         rotationValue: "90\u00b0 Searah Jarum Jam",
         qPrimeValue: "(3,-4)",
-        rValue: "(2,4)",
+        rValue: "(3,4)",
       },
       formula: {
         objNumeric: "(2,1)",
@@ -159,6 +176,7 @@ const DATA = {
           title: "Aturan ini sesuai dengan rotasi yang mana.",
           options: ["90\u00b0 searah jarum jam", "90\u00b0 berlawanan jarum jam"],
           correctIndex: 0,
+          feedbackWrong: "Itu bukan rotasi yang benar untuk aturan ini.",
         },
       },
       applyPanel: {
@@ -188,6 +206,14 @@ const DATA = {
         6: {
           navText: "Ketuk untuk menerapkan rotasi ke semua titik",
           navTextDone: "Ketuk \u00bb untuk mencari Q\u2019",
+        },
+        7: {
+          navText: "Ketuk aturan untuk mencari Q\u2019",
+          navTextDone: "Ketuk \u00bb untuk mencari R",
+        },
+        8: {
+          navText: "Ketuk aturan untuk mencari R",
+          navTextDone: "Ketuk \u00bb untuk melihatnya pada grafik",
         },
       },
       final: {

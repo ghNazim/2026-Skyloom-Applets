@@ -89,6 +89,30 @@
   opacity: 0;
 }
 
+.navigation-start-over {
+  justify-content: center;
+}
+
+.nav-start-over-btn {
+  font-size: 2.5vw;
+  cursor: pointer;
+  padding: 1vw 2.5vw;
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  border: none;
+  font-weight: 700;
+  font-family: inherit;
+  border-radius: var(--action-btn-radius);
+  box-shadow:
+    0.12vw 0.15vw 0 0 var(--action-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
+}
+
+.nav-start-over-btn:hover {
+  transform: scale(1.02);
+}
+
 .lower-panel-text {
   text-align: center;
   font-size: 2.5vw;

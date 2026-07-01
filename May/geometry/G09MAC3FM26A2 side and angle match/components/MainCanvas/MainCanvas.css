@@ -1,0 +1,245 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.svg-row {
+  flex: 1;
+  min-height: 0;
+  height: 85%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1vw;
+  border: 0.25vw solid rgba(141, 141, 141, 0.3);
+  background-color: rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.triangles-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.action-row {
+  flex: 0 0 15%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5vw;
+}
+
+.action-row.has-content {
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(1vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-row .btn {
+  font-family: inherit;
+}
+
+.action-row .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-summary-text {
+  color: white;
+  font-size: 2.2vw;
+  text-align: center;
+  line-height: 1.4;
+  padding: 0.8vw 2.5vw;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 1vw;
+  max-width: 92%;
+}
+
+.overlap-feedback-box {
+  position: absolute;
+  right: 3vw;
+  top: 10vw;
+  z-index: 10;
+  background: rgba(100, 180, 220, 0.85);
+  color: white;
+  font-size: 1.9vw;
+  line-height: 1.45;
+  padding: 1.2vw 1.5vw;
+  border-radius: 0.8vw;
+  border: 0.2vw dashed white;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  max-width: 28vw;
+  text-align: center;
+}
+
+.overlap-feedback-box--visible {
+  opacity: 1;
+}
+
+.tri-abc {
+  color: #5aa6b6;
+}
+
+.tri-def {
+  color: #6c7890;
+}
+
+.ang-abc {
+  color: #00ffff;
+}
+
+.ang-def {
+  color: #ff00ff;
+}
+
+.ang-equal-fo {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ang-equal-text {
+  font-size: 29px;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
+}
+
+.hotspot-group {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.hotspot-ring {
+  fill: rgba(180, 180, 180, 1);
+  stroke: rgba(220, 220, 220, 1);
+  stroke-width: 1.5;
+  fill-rule: evenodd;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hotspot-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.angle-fly-layer {
+  pointer-events: none;
+}
+
+.ang-equal-fo--appear {
+  animation: angEqualFadeIn 0.25s ease forwards;
+}
+
+@keyframes angEqualFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.vertex-label {
+  pointer-events: none;
+  font-family: system-ui, sans-serif;
+}
+
+.triangle-def-clickable .def-triangle-top {
+  filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.5));
+}
+
+.highlight-line {
+  transition: opacity 0.4s ease;
+}
+
+.angle-arc {
+  transition: opacity 0.4s ease;
+}
+
+.angle-arc-blink {
+  animation: arcBlink 0.5s ease-in-out 5;
+}
+
+@keyframes arcBlink {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.side-abc {
+  color: #00ffff;
+}
+
+.side-def {
+  color: #ff00ff;
+}
+
+.side-eq {
+  color: #ffffff;
+}
+
+.side-equal-fo {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.side-equal-text {
+  font-size: 29px;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
+}
+
+.side-equal-text--build {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15em;
+}
+
+.side-fly-layer {
+  pointer-events: none;
+}
+
+.cm-label-blink text {
+  animation: cmBlink 0.5s ease-in-out 5;
+}
+
+@keyframes cmBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}

@@ -1,10 +1,16 @@
 const QuestionPanel = ({ html, activeHighlightId = null }) => {
   const content = html || "";
 
+  const activeIds = Array.isArray(activeHighlightId)
+    ? activeHighlightId
+    : activeHighlightId
+      ? [activeHighlightId]
+      : [];
+
   const processedHtml = content.replace(
     /id="(highlight-[^"]+)" class="((?:orange|cyan|purple)-bg)([^"]*)"/g,
     (match, id, colorClass, extra) => {
-      const visible = activeHighlightId === id;
+      const visible = activeIds.indexOf(id) !== -1;
       return (
         'id="' +
         id +

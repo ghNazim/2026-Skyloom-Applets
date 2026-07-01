@@ -1,0 +1,150 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.main-canvas-left {
+  width: 47%;
+  flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  position: relative;
+}
+
+.main-canvas-right {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw 3vw;
+}
+
+.canvas-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.right-panel-text {
+  font-size: 2.6vw;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.7;
+  transition: opacity 0.35s ease;
+}
+
+@keyframes marked-point-stroke-blink {
+  0%,
+  100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0;
+  }
+}
+
+.marked-point-circle {
+  animation: marked-point-stroke-blink 1s ease-in-out infinite;
+}
+
+@keyframes arc-trace-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.arc-trace-blink {
+  animation: arc-trace-blink 0.75s ease-in-out infinite;
+}
+
+.svg-deemphasized .deemphasizable {
+  opacity: 0.2;
+  transition: opacity 0.5s ease;
+}
+
+@keyframes centre-point-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.centre-point-blink {
+  animation: centre-point-blink 1s ease-in-out infinite;
+}
+
+.main-canvas-container.step5-layout {
+  flex-direction: column;
+  position: relative;
+}
+
+.page-5-title {
+  position: absolute;
+  top: 1vw;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.4vw;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.4;
+  z-index: 2;
+  width: 90%;
+  pointer-events: none;
+}
+
+.step5-panels {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+
+.step5-panel {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.step5-panel .canvas-svg {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.step5-footer {
+  position: absolute;
+  bottom: 1vw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  font-size: 2vw;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.5;
+  pointer-events: none;
+}

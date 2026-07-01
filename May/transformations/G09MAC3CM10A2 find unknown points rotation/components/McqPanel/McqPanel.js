@@ -8,30 +8,13 @@ const McqPanel = ({
   feedbackText,
   feedbackType,
   disabled,
+  feedbackCompact,
+  alignTop,
   onSelect,
 }) => {
-  if (showFeedback && feedbackText) {
-    return React.createElement(
-      "div",
-      { className: "mcq-panel mcq-panel-feedback-only" },
-      React.createElement(
-        "div",
-        {
-          className:
-            "mcq-feedback-box" +
-            (feedbackType === "correct" ? " is-correct" : " is-wrong"),
-        },
-        React.createElement("div", {
-          className: "mcq-feedback-text",
-          dangerouslySetInnerHTML: { __html: handleComma(feedbackText) },
-        }),
-      ),
-    );
-  }
-
   return React.createElement(
     "div",
-    { className: "mcq-panel" },
+    { className: "mcq-panel" + (alignTop ? " is-align-top" : "") },
     title
       ? React.createElement(
           "div",
@@ -48,7 +31,6 @@ const McqPanel = ({
       },
       options.map((opt, index) => {
         let cls = "mcq-option";
-        const isDisabled = disabled || selectedIndex !== null;
         const showResult = selectedIndex === index && resultState;
         if (showResult && resultState === "wrong") cls += " wrong";
         if (showResult && resultState === "correct") cls += " correct";
@@ -57,14 +39,29 @@ const McqPanel = ({
           {
             key: index,
             className: cls,
-            disabled: isDisabled,
+            disabled: disabled,
             onClick: () => {
-              if (!isDisabled && typeof onSelect === "function") onSelect(index);
+              if (!disabled && typeof onSelect === "function") onSelect(index);
             },
           },
           opt,
         );
       }),
     ),
+    showFeedback && feedbackText
+      ? React.createElement(
+          "div",
+          {
+            className:
+              "mcq-feedback-box is-inline" +
+              (feedbackType === "correct" ? " is-correct" : " is-wrong") +
+              (feedbackCompact ? " is-compact" : ""),
+          },
+          React.createElement("div", {
+            className: "mcq-feedback-text",
+            dangerouslySetInnerHTML: { __html: handleComma(feedbackText) },
+          }),
+        )
+      : null,
   );
 };

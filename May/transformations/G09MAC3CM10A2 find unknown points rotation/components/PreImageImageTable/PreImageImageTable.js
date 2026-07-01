@@ -33,6 +33,10 @@ const PreImageImageTable = ({
   rotationFirstDashed,
   hideFlySources = false,
   hideRotationColumn = false,
+  wrapRefKey,
+  prepInvisible = false,
+  cellHighlight,
+  hideUnknownBorders = false,
 }) => {
   const t = APP_DATA.table;
   const rp = refPrefix;
@@ -209,13 +213,18 @@ const PreImageImageTable = ({
 
     const revealed = isCellRevealed(key);
     const isBlinking = blinkCell === key;
+    const isStep9Highlight = cellHighlight === key;
 
     const bg = isGreen ? TABLE_COLORS.correct : color + "66";
-    const border = isUnknown
-      ? "2px dashed " + color
-      : isGreen
-        ? "2px solid " + TABLE_COLORS.correctBorder
-        : "2px solid transparent";
+    const noUnknownBorder =
+      hideUnknownBorders && (key === "pre-r" || key === "img-q");
+    const border = noUnknownBorder
+      ? "2px solid transparent"
+      : isUnknown
+        ? "2px dashed " + color
+        : isGreen
+          ? "2px solid " + TABLE_COLORS.correctBorder
+          : "2px solid transparent";
 
     const style = {
       backgroundColor: bg,
@@ -269,8 +278,9 @@ const PreImageImageTable = ({
         key: key,
         className:
           "piit-cell" +
-          (isUnknown && !fillExpr ? " is-unknown" : "") +
-          (isBlinking ? " is-blinking" : ""),
+          (isUnknown && !fillExpr && !noUnknownBorder ? " is-unknown" : "") +
+          (isBlinking ? " is-blinking" : "") +
+          (isStep9Highlight ? " is-step9-highlight" : ""),
         style: style,
         ref: (el) => {
           if (cellRefs) cellRefs.current[refKey(key)] = el;
@@ -281,13 +291,15 @@ const PreImageImageTable = ({
   };
 
   const renderRotationCell = (rowIndex) => {
+    const rotMiddleIndex = rotationMerged ? 1 : 0;
     const rotDimDefault = dehighlightQR && rowIndex > 0 && !allHighlighted;
     const isDimmed = rowHighlight
-      ? rowIndex !== 0 || !rotMiddleHighlight
+      ? rowIndex !== rotMiddleIndex || !rotMiddleHighlight
         ? rotDimDefault
         : false
       : rotDimDefault;
-    const rotBright = rowHighlight && rotMiddleHighlight && rowIndex === 0;
+    const rotBright =
+      rowHighlight && rotMiddleHighlight && rowIndex === rotMiddleIndex;
 
     const color = TABLE_COLORS.rotation;
     const cellValue = rotationMerged
@@ -336,10 +348,11 @@ const PreImageImageTable = ({
       (hideRotBottom && rowIndex === 2) ||
       (rotationMerged && rowIndex !== 1);
 
-    return React.createElement(
+    const showArrow = rotationMerged && rowIndex === 1 && !hideCell;
+
+    const cellEl = React.createElement(
       "div",
       {
-        key: "rot-" + rowIndex,
         className:
           "piit-cell piit-trans-cell" +
           (hideCell ? " is-hidden-cell" : ""),
@@ -349,6 +362,45 @@ const PreImageImageTable = ({
         },
       },
       content,
+    );
+
+    if (!showArrow) {
+      return React.createElement(
+        "div",
+        { key: "rot-" + rowIndex },
+        cellEl,
+      );
+    }
+
+    return React.createElement(
+      "div",
+      {
+        key: "rot-" + rowIndex,
+        className: "piit-rot-cell-slot",
+      },
+      cellEl,
+      React.createElement(
+        "svg",
+        {
+          className: "piit-rot-arrow",
+          viewBox: "0 0 120 14",
+          xmlns: "http://www.w3.org/2000/svg",
+          "aria-hidden": "true",
+        },
+        React.createElement("line", {
+          x1: 4,
+          y1: 7,
+          x2: 102,
+          y2: 7,
+          stroke: "#ffffff",
+          strokeWidth: 2,
+          strokeLinecap: "round",
+        }),
+        React.createElement("polygon", {
+          points: "102,2 118,7 102,12",
+          fill: "#ffffff",
+        }),
+      ),
     );
   };
 
@@ -420,7 +472,7 @@ const PreImageImageTable = ({
       pre: renderCoordCell({
         refKey: "pre-r",
         prefix: t.r,
-        x: rKnown ? 2 : null,
+        x: rKnown ? 3 : null,
         y: rKnown ? 4 : null,
         color: TABLE_COLORS.preimage,
         isUnknown: !rKnown && !rFill,
@@ -501,7 +553,12 @@ const PreImageImageTable = ({
     showRotationColumn && !twoColumnOnly
       ? React.createElement(
           "div",
-          { className: "piit-column " + rotColClass },
+          {
+            className: "piit-column " + rotColClass,
+            ref: (el) => {
+              if (cellRefs) cellRefs.current[refKey("col-rot")] = el;
+            },
+          },
           React.createElement(
             "div",
             {
@@ -520,7 +577,11 @@ const PreImageImageTable = ({
       className:
         "piit-wrap" +
         (visible ? " is-visible" : "") +
+        (prepInvisible ? " is-prep-invisible" : "") +
         (compact ? " is-compact" : ""),
+      ref: (el) => {
+        if (cellRefs && wrapRefKey) cellRefs.current[wrapRefKey] = el;
+      },
     },
     React.createElement(
       "div",
@@ -529,6 +590,7 @@ const PreImageImageTable = ({
           "piit-table" +
           (showRotationColumn && !twoColumnOnly ? " has-translation" : "") +
           (rotationColumnOpen ? " is-trans-open" : "") +
+          (rotationMerged ? " is-rot-merged" : "") +
           (twoColumnOnly ? " is-two-col" : ""),
       },
       React.createElement(

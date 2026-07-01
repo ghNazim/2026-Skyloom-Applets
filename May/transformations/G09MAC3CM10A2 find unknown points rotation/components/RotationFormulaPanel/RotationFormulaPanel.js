@@ -3,26 +3,31 @@ const RotationFormulaPanel = ({
   formulaRefs,
   step5Phase,
   step5Selected,
+  step5Feedback,
   onStep5Select,
   step6Phase,
   onStep6Apply,
+  onFormulaClick,
 }) => {
   const f = APP_DATA.formula;
   const mcq = APP_DATA.mcq.step5;
   const apply = APP_DATA.applyPanel;
   const fs = formulaState || {};
 
-  const showApply = step6Phase != null;
+  const showApply = step6Phase != null && step6Phase !== "done-phase";
   const showMcq =
     !showApply &&
+    step5Phase != null &&
     (step5Phase === "mcq" ||
       step5Phase === "selected" ||
+      step5Phase === "wrong" ||
       step5Phase === "rotationFly" ||
       step5Phase === "done");
-  const mcqDisabled =
-    step5Phase === "rotationFly" || step5Phase === "done" || step5Selected !== null;
 
-  const renderFormulaPart = (visibleKey, refKey, text, className) => {
+  const mcqLocked =
+    step5Phase === "rotationFly" || step5Phase === "done";
+
+  const renderLegacyPart = (visibleKey, refKey, text, className) => {
     const visible = fs[visibleKey];
     return React.createElement(
       "span",
@@ -40,30 +45,143 @@ const RotationFormulaPanel = ({
     );
   };
 
-  const objText = fs.useGeneric ? f.objGeneric : f.objNumeric;
-  const imgText = fs.useGeneric ? f.imgGeneric : f.imgNumeric;
+  const renderCoordSlot = (refKey, value, className, visible) => {
+    return React.createElement(
+      "span",
+      {
+        className:
+          "rfp-coord-slot " +
+          className +
+          (visible !== false ? " is-visible" : ""),
+        ref: (el) => {
+          if (formulaRefs) formulaRefs.current[refKey] = el;
+        },
+      },
+      value,
+    );
+  };
+
+  const renderObjectGroup = () => {
+    const visible = fs.formulaObj !== false;
+    return React.createElement(
+      "span",
+      {
+        className:
+          "rfp-part rfp-coord-group rfp-object" +
+          (visible ? " is-visible" : "") +
+          (fs.switching === "formulaObj" ? " is-switching" : ""),
+        ref: (el) => {
+          if (formulaRefs) formulaRefs.current["formula-obj"] = el;
+        },
+      },
+      "(",
+      renderCoordSlot("formula-obj-x", fs.objX || "x", "rfp-object", visible),
+      ",",
+      renderCoordSlot("formula-obj-y", fs.objY || "y", "rfp-object", visible),
+      ")",
+    );
+  };
+
+  const renderImageGroup = () => {
+    const visible = fs.formulaImg !== false;
+    const negate = fs.imgNegate !== false;
+    return React.createElement(
+      "span",
+      {
+        className:
+          "rfp-part rfp-coord-group rfp-image" +
+          (visible ? " is-visible" : "") +
+          (fs.switching === "formulaImg" ? " is-switching" : ""),
+        ref: (el) => {
+          if (formulaRefs) formulaRefs.current["formula-img"] = el;
+        },
+      },
+      "(",
+      renderCoordSlot(
+        "formula-img-y",
+        fs.imgSlot1 || "y",
+        "rfp-image",
+        visible,
+      ),
+      ",",
+      negate
+        ? React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("span", { className: "rfp-coord-minus" }, "-"),
+            renderCoordSlot(
+              "formula-img-x",
+              fs.imgSlot2 || "x",
+              "rfp-image",
+              visible,
+            ),
+          )
+        : renderCoordSlot(
+            "formula-img-x",
+            fs.imgSlot2 || "x",
+            "rfp-image",
+            visible,
+          ),
+      ")",
+    );
+  };
+
+  const renderLegacyFormula = () => {
+    const objText =
+      fs.objGeneric || fs.useGeneric ? f.objGeneric : f.objNumeric;
+    const imgText =
+      fs.imgGeneric || fs.useGeneric ? f.imgGeneric : f.imgNumeric;
+    return React.createElement(
+      React.Fragment,
+      null,
+      renderLegacyPart("formulaObj", "formula-obj", objText, "rfp-object"),
+      renderLegacyPart("formulaArrow", "formula-arrow", "\u2192", "rfp-arrow"),
+      renderLegacyPart("formulaImg", "formula-img", imgText, "rfp-image"),
+    );
+  };
+
+  const renderSplitFormula = () => {
+    return React.createElement(
+      React.Fragment,
+      null,
+      renderObjectGroup(),
+      renderLegacyPart("formulaArrow", "formula-arrow", "\u2192", "rfp-arrow"),
+      renderImageGroup(),
+    );
+  };
 
   const picked =
     step5Selected !== null &&
     (step5Phase === "selected" ||
+      step5Phase === "wrong" ||
       step5Phase === "rotationFly" ||
       step5Phase === "done");
-  const isCorrect = step5Selected === mcq.correctIndex && picked;
+
+  const panelClass =
+    "rotation-formula-panel" +
+    (fs.panelVisible ? " is-visible" : "") +
+    (fs.movedUp ? " is-moved-up" : "") +
+    (fs.centered ? " is-centered" : "");
+
+  const formulaBoxClass =
+    "rfp-formula-box" +
+    (fs.clickable ? " is-clickable" : "");
 
   return React.createElement(
     "div",
-    {
-      className:
-        "rotation-formula-panel" +
-        (fs.panelVisible ? " is-visible" : "") +
-        (fs.movedUp ? " is-moved-up" : ""),
-    },
+    { className: panelClass },
     React.createElement(
       "div",
-      { className: "rfp-formula-box" },
-      renderFormulaPart("formulaObj", "formula-obj", objText, "rfp-object"),
-      renderFormulaPart("formulaArrow", "formula-arrow", "\u2192", "rfp-arrow"),
-      renderFormulaPart("formulaImg", "formula-img", imgText, "rfp-image"),
+      {
+        className: formulaBoxClass,
+        id: fs.clickable ? "rotation-formula-box" : undefined,
+        onClick:
+          fs.clickable && typeof onFormulaClick === "function"
+            ? onFormulaClick
+            : undefined,
+        role: fs.clickable ? "button" : undefined,
+      },
+      fs.splitCoords ? renderSplitFormula() : renderLegacyFormula(),
     ),
     showMcq && !showApply
       ? React.createElement(
@@ -88,9 +206,9 @@ const RotationFormulaPanel = ({
                   key: index,
                   id: "rotation-mcq-opt-" + index,
                   className: cls,
-                  disabled: mcqDisabled,
+                  disabled: mcqLocked,
                   onClick: () => {
-                    if (!mcqDisabled && typeof onStep5Select === "function") {
+                    if (!mcqLocked && typeof onStep5Select === "function") {
                       onStep5Select(index);
                     }
                   },

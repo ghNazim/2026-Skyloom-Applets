@@ -9,6 +9,13 @@
   padding: 1.5vw;
 }
 
+.mcq-panel.is-align-top {
+  height: auto;
+  flex: 0 0 auto;
+  align-self: stretch;
+  justify-content: flex-start;
+}
+
 .mcq-panel-feedback-only {
   justify-content: center;
 }
@@ -98,6 +105,18 @@
   justify-content: center;
   animation: mcq-feedback-in 0.35s ease;
   box-sizing: border-box;
+}
+
+.mcq-feedback-box.is-inline {
+  margin-top: 0.4vw;
+}
+
+.mcq-feedback-box.is-compact {
+  padding: 0.7vw 1vw;
+  font-size: 1.55vw;
+  line-height: 1.25;
+  border-radius: 0.8vw;
+  border-width: 0.18vw;
 }
 
 .mcq-feedback-box.is-wrong {

@@ -25,3 +25,9 @@
 .tgp-segment {
   transition: opacity 0.3s ease;
 }
+
+@keyframes tgp-line-grow {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

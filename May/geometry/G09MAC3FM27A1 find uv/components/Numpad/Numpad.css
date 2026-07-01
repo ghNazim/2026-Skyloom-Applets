@@ -1,0 +1,74 @@
+/* ===== NUMPAD ===== */
+.numpad-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.numpad-container.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55vw;
+  background: #2c4a6a;
+  padding: 0.75vw;
+  border-radius: 1vw;
+  border: 0.12vw solid rgba(255, 255, 255, 0.18);
+  width: fit-content;
+}
+
+.numpad-button {
+  width: 3.4vw;
+  height: 3.4vw;
+  min-width: 2.4rem;
+  min-height: 2.4rem;
+  font-size: 1.75vw;
+  font-weight: 700;
+  color: #ffffff;
+  border: 0.12vw solid rgba(255, 255, 255, 0.28);
+  border-radius: 0.55vw;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0.28vw 0.45vw rgba(0, 0, 0, 0.38);
+  padding: 0;
+  font-family: inherit;
+}
+
+.numpad-button:hover:not(:disabled) {
+  transform: translateY(-0.08vw);
+  box-shadow: 0 0.38vw 0.55vw rgba(0, 0, 0, 0.42);
+}
+
+.numpad-button:active:not(:disabled) {
+  transform: translateY(0.06vw);
+  box-shadow: 0 0.12vw 0.22vw rgba(0, 0, 0, 0.32);
+}
+
+.numpad-button:disabled {
+  cursor: not-allowed;
+}
+
+.numpad-button.digit-button {
+  background: #5a8ec9;
+  border-color: rgba(180, 210, 245, 0.55);
+}
+
+.numpad-button.clear-button {
+  background: #d67060;
+  border-color: rgba(255, 190, 180, 0.55);
+  font-size: 1.55vw;
+}
+
+.numpad-button.submit-button {
+  background: #7fbc7f;
+  border-color: rgba(200, 240, 200, 0.55);
+  font-size: 1.9vw;
+  font-weight: 800;
+}

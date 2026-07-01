@@ -5,6 +5,9 @@ const Navigation = ({
   navText,
   navTextHidden = false,
   nextSymbol = "»",
+  showStartOver = false,
+  onStartOver,
+  startOverText = "START OVER",
 }) => {
   const { useState, useEffect, useRef } = React;
   const [displayText, setDisplayText] = useState(navText || "");
@@ -45,6 +48,22 @@ const Navigation = ({
     }, 280);
     return () => clearTimeout(t);
   }, [navText, navTextHidden]);
+
+  if (showStartOver) {
+    return React.createElement(
+      "div",
+      { className: "navigation navigation-start-over" },
+      React.createElement(
+        "button",
+        {
+          className: "nav-start-over-btn",
+          id: "start-over-button",
+          onClick: onStartOver,
+        },
+        startOverText,
+      ),
+    );
+  }
 
   return React.createElement(
     "div",

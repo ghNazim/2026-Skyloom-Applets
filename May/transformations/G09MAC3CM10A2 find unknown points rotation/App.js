@@ -1,7 +1,7 @@
 const App = () => {
   const { useState, useMemo, useEffect, useCallback } = React;
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
   const [step2Phase, setStep2Phase] = useState("initial");
   const [step3Phase, setStep3Phase] = useState("initial");
   const [activeHighlight, setActiveHighlight] = useState(null);
@@ -14,8 +14,13 @@ const App = () => {
 
   const [step5Phase, setStep5Phase] = useState("entering");
   const [step5Selected, setStep5Selected] = useState(null);
+  const [step5Feedback, setStep5Feedback] = useState(null);
 
   const [step6Phase, setStep6Phase] = useState("initial");
+  const [step7Phase, setStep7Phase] = useState("waiting");
+  const [step8Phase, setStep8Phase] = useState("waiting");
+  const [step8ExitPhase, setStep8ExitPhase] = useState("idle");
+  const [step9Phase, setStep9Phase] = useState("initial");
 
   const [navAnimating, setNavAnimating] = useState(false);
 
@@ -31,12 +36,17 @@ const App = () => {
     setBlinkCell(null);
     setStep5Phase("entering");
     setStep5Selected(null);
+    setStep5Feedback(null);
     setStep6Phase("initial");
+    setStep7Phase("waiting");
+    setStep8Phase("waiting");
+    setStep8ExitPhase("idle");
+    setStep9Phase("initial");
     setNavAnimating(false);
   }, []);
 
   const resetEverything = useCallback(() => {
-    setCurrentStep(0);
+    setCurrentStep(1);
     setStep2Phase("initial");
     setStep3Phase("initial");
     setActiveHighlight(null);
@@ -60,9 +70,11 @@ const App = () => {
 
   const handleStep4Select = useCallback(
     (index) => {
+      if (step4Phase === "correct") return;
       const mcq = APP_DATA.mcq.step4;
       setStep4Selected(index);
       setStep4Phase("selected");
+      setStep4Feedback(null);
       const isCorrect = index === mcq.correctIndex;
       if (typeof playSound === "function") {
         playSound(isCorrect ? "correct" : "wrong");
@@ -81,26 +93,32 @@ const App = () => {
         }
       }, 500);
     },
-    [blinkTableCell],
+    [blinkTableCell, step4Phase],
   );
 
-  const handleStep5Select = useCallback((index) => {
-    const mcq = APP_DATA.mcq.step5;
-    setStep5Selected(index);
-    setStep5Phase("selected");
-    const isCorrect = index === mcq.correctIndex;
-    if (typeof playSound === "function") {
-      playSound(isCorrect ? "correct" : "wrong");
-    }
-    setTimeout(() => {
-      if (isCorrect) {
-        setStep5Phase("rotationFly");
-        setNavAnimating(true);
-      } else {
-        setStep5Phase("wrong");
+  const handleStep5Select = useCallback(
+    (index) => {
+      if (step5Phase === "rotationFly" || step5Phase === "done") return;
+      const mcq = APP_DATA.mcq.step5;
+      setStep5Selected(index);
+      setStep5Phase("selected");
+      setStep5Feedback(null);
+      const isCorrect = index === mcq.correctIndex;
+      if (typeof playSound === "function") {
+        playSound(isCorrect ? "correct" : "wrong");
       }
-    }, 500);
-  }, []);
+      setTimeout(() => {
+        if (isCorrect) {
+          setStep5Phase("rotationFly");
+          setNavAnimating(true);
+        } else {
+          setStep5Feedback({ type: "wrong", text: mcq.feedbackWrong });
+          setStep5Phase("wrong");
+        }
+      }, 500);
+    },
+    [step5Phase],
+  );
 
   const handleStep6Apply = useCallback(() => {
     if (typeof playSound === "function") playSound("click");
@@ -108,11 +126,28 @@ const App = () => {
     setStep6Phase("applying");
   }, []);
 
+  const handleStep8TransitionComplete = useCallback(() => {
+    setStep8ExitPhase("idle");
+    setCurrentStep(9);
+    setStep9Phase("initial");
+  }, []);
+
+  const handleStartOver = useCallback(() => {
+    if (typeof playSound === "function") playSound("click");
+    resetEverything();
+  }, [resetEverything]);
+
   const questionHtml = useMemo(() => {
     if (currentStep < 1) return "";
     if (currentStep === 2) return APP_DATA.question.text;
+    if (currentStep === 9) return APP_DATA.question.textStep9;
     return APP_DATA.question.textPlain;
   }, [currentStep]);
+
+  const questionHighlightId = useMemo(() => {
+    if (currentStep === 9) return "highlight-solve-phrase";
+    return activeHighlight;
+  }, [currentStep, activeHighlight]);
 
   const navText = useMemo(() => {
     if (navAnimating) return "";
@@ -125,20 +160,41 @@ const App = () => {
       return step3Phase === "done" ? APP_DATA.steps[3].navTextDone : "";
     }
     if (currentStep === 4) {
-      if (step4Phase === "wrong") return APP_DATA.steps[4].navTextWrong;
       if (step4Phase === "correct") return APP_DATA.steps[4].navTextDone;
-      return APP_DATA.steps[4].navText;
+      if (
+        step4Phase === "mcq" ||
+        step4Phase === "wrong" ||
+        step4Phase === "selected"
+      ) {
+        return APP_DATA.steps[4].navText;
+      }
+      return "";
     }
     if (currentStep === 5) {
-      if (step5Phase === "wrong") return APP_DATA.steps[5].navTextWrong;
       if (step5Phase === "done") return APP_DATA.steps[5].navTextDone;
-      if (step5Phase === "mcq") return APP_DATA.steps[5].navText;
+      if (
+        step5Phase === "mcq" ||
+        step5Phase === "wrong" ||
+        step5Phase === "selected"
+      ) {
+        return APP_DATA.steps[5].navText;
+      }
       return "";
     }
     if (currentStep === 6) {
       return step6Phase === "done"
         ? APP_DATA.steps[6].navTextDone
         : APP_DATA.steps[6].navText;
+    }
+    if (currentStep === 7) {
+      return step7Phase === "done"
+        ? APP_DATA.steps[7].navTextDone
+        : APP_DATA.steps[7].navText;
+    }
+    if (currentStep === 8) {
+      return step8Phase === "done"
+        ? APP_DATA.steps[8].navTextDone
+        : APP_DATA.steps[8].navText;
     }
     return "";
   }, [
@@ -148,6 +204,8 @@ const App = () => {
     step4Phase,
     step5Phase,
     step6Phase,
+    step7Phase,
+    step8Phase,
     navAnimating,
   ]);
 
@@ -158,19 +216,21 @@ const App = () => {
       (step5Phase === "entering" ||
         step5Phase === "formulaAnim" ||
         step5Phase === "rotationFly")) ||
-    navAnimating;
+    navAnimating ||
+    currentStep === 9;
 
   const isNextDisabled =
     (currentStep === 2 && step2Phase !== "done") ||
     (currentStep === 3 && step3Phase !== "done") ||
     (currentStep === 4 && step4Phase !== "correct") ||
     (currentStep === 5 && step5Phase !== "done") ||
-    (currentStep === 6 && step6Phase !== "done");
+    (currentStep === 6 && step6Phase !== "done") ||
+    (currentStep === 7 && step7Phase !== "done") ||
+    (currentStep === 8 && step8Phase !== "done") ||
+    step8ExitPhase === "transitioning" ||
+    currentStep === 9;
 
-  const isPrevDisabled =
-    currentStep <= 1 ||
-    (currentStep === 4 && step4Phase !== "wrong") ||
-    (currentStep === 5 && step5Phase !== "wrong");
+  const isPrevDisabled =isNextDisabled || currentStep<=1;
 
   const handleNext = () => {
     if (typeof playSound === "function") playSound("click");
@@ -192,12 +252,20 @@ const App = () => {
     } else if (currentStep === 4) {
       setStep5Phase("entering");
       setStep5Selected(null);
+      setStep5Feedback(null);
       setCurrentStep(5);
     } else if (currentStep === 5) {
       setStep6Phase("initial");
       setCurrentStep(6);
     } else if (currentStep === 6) {
+      setStep7Phase("waiting");
       setCurrentStep(7);
+    } else if (currentStep === 7) {
+      setStep8Phase("waiting");
+      setCurrentStep(8);
+    } else if (currentStep === 8) {
+      setNavAnimating(true);
+      setStep8ExitPhase("transitioning");
     }
   };
 
@@ -205,18 +273,6 @@ const App = () => {
     if (typeof playSound === "function") playSound("click");
     setNudgePositions([]);
 
-    if (currentStep === 4 && step4Phase === "wrong") {
-      setStep4Phase("mcq");
-      setStep4Selected(null);
-      setStep4Feedback(null);
-      setBlinkCell(null);
-      return;
-    }
-    if (currentStep === 5 && step5Phase === "wrong") {
-      setStep5Phase("mcq");
-      setStep5Selected(null);
-      return;
-    }
     if (currentStep === 2) {
       setStep2Phase("initial");
       setActiveHighlight(null);
@@ -239,6 +295,12 @@ const App = () => {
     } else if (currentStep === 6) {
       setStep5Phase("done");
       setCurrentStep(5);
+    } else if (currentStep === 7) {
+      setStep6Phase("done");
+      setCurrentStep(6);
+    } else if (currentStep === 8) {
+      setStep7Phase("done");
+      setCurrentStep(7);
     } else if (currentStep === 1) {
       resetEverything();
     }
@@ -258,7 +320,12 @@ const App = () => {
         addNudgeFor("start-button");
       } else if (currentStep === 6 && step6Phase === "initial") {
         addNudgeFor("apply-rotation-btn");
-      } else if (!isNextDisabled) {
+      } else if (
+        (currentStep === 7 && step7Phase === "waiting") ||
+        (currentStep === 8 && step8Phase === "waiting")
+      ) {
+        addNudgeFor("rotation-formula-box");
+      } else if (!isNextDisabled && currentStep !== 9) {
         addNudgeFor("next-button");
       }
 
@@ -271,7 +338,14 @@ const App = () => {
       clearTimeout(timeoutId);
       window.removeEventListener("resize", updateNudges);
     };
-  }, [currentStep, isNextDisabled, step2Phase, step6Phase]);
+  }, [
+    currentStep,
+    isNextDisabled,
+    step2Phase,
+    step6Phase,
+    step7Phase,
+    step8Phase,
+  ]);
 
   const renderNudges = () =>
     nudgePositions.map((position, index) =>
@@ -301,56 +375,12 @@ const App = () => {
     );
   }
 
-  if (currentStep >= 7) {
-    return React.createElement(
-      "div",
-      { className: "applet-container" },
-      React.createElement(QuestionPanel, {
-        html: APP_DATA.question.textPlain,
-        activeHighlightId: null,
-      }),
-      React.createElement(
-        "div",
-        { className: "app-main-content" },
-        React.createElement(MainCanvas, {
-          step: 7,
-          step2Phase: "done",
-          step3Phase: "done",
-          step4Phase: "correct",
-          step4Selected: APP_DATA.mcq.step4.correctIndex,
-          step4Feedback: null,
-          step5Phase: "done",
-          step5Selected: APP_DATA.mcq.step5.correctIndex,
-          step6Phase: "done",
-          blinkCell: null,
-        }),
-      ),
-      React.createElement(
-        "div",
-        { className: "lower-panel" },
-        React.createElement(Navigation, {
-          onNav: (dir) => {
-            if (dir === "prev") {
-              if (typeof playSound === "function") playSound("click");
-              setCurrentStep(6);
-              setStep6Phase("done");
-            }
-          },
-          isNextDisabled: true,
-          isPrevDisabled: false,
-          navText: "",
-          navTextHidden: false,
-        }),
-      ),
-    );
-  }
-
   return React.createElement(
     "div",
     { className: "applet-container" },
     React.createElement(QuestionPanel, {
       html: questionHtml,
-      activeHighlightId: activeHighlight,
+      activeHighlightId: questionHighlightId,
     }),
     React.createElement(
       "div",
@@ -369,25 +399,46 @@ const App = () => {
         blinkCell: blinkCell,
         step5Phase: step5Phase,
         step5Selected: step5Selected,
+        step5Feedback: step5Feedback,
         onStep5Select: handleStep5Select,
         onStep5PhaseChange: setStep5Phase,
         onNavAnimating: setNavAnimating,
         step6Phase: step6Phase,
         onStep6Apply: handleStep6Apply,
         onStep6PhaseChange: setStep6Phase,
+        step7Phase: step7Phase,
+        onStep7PhaseChange: setStep7Phase,
+        step8Phase: step8Phase,
+        onStep8PhaseChange: setStep8Phase,
+        step8ExitPhase: step8ExitPhase,
+        onStep8TransitionComplete: handleStep8TransitionComplete,
+        step9Phase: step9Phase,
+        onStep9PhaseChange: setStep9Phase,
       }),
     ),
     React.createElement(
       "div",
       { className: "lower-panel" },
-      React.createElement(Navigation, {
-        onNav: (dir) =>
-          dir === "next" ? handleNext() : dir === "prev" ? handlePrev() : null,
-        isNextDisabled: isNextDisabled,
-        isPrevDisabled: isPrevDisabled,
-        navText: navText,
-        navTextHidden: navTextHidden,
-      }),
+      currentStep === 9
+        ? step9Phase === "done"
+          ? React.createElement(Navigation, {
+              showStartOver: true,
+              onStartOver: handleStartOver,
+              startOverText: APP_DATA.final.buttonText,
+            })
+          : null
+        : React.createElement(Navigation, {
+            onNav: (dir) =>
+              dir === "next"
+                ? handleNext()
+                : dir === "prev"
+                  ? handlePrev()
+                  : null,
+            isNextDisabled: isNextDisabled,
+            isPrevDisabled: isPrevDisabled,
+            navText: navText,
+            navTextHidden: navTextHidden,
+          }),
     ),
     renderNudges(),
   );
