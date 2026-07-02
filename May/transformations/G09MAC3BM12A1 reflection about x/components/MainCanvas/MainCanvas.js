@@ -14,6 +14,7 @@ const MainCanvas = (props) => {
     unitLabelText,
     unitLabelFinal,
     highlightFour,
+    showQ1FourUnitsLabel,
     unitLineRotating,
     showDashedDistance,
     onGridClick,
@@ -21,6 +22,31 @@ const MainCanvas = (props) => {
     onRevealClick,
     onPropertiesClick,
     onProperty1Click,
+    onProperty2Click,
+    step5Phase,
+    prop1Done,
+    prop2Done,
+    p1LineVisible,
+    p1LineFadeReady,
+    p1RightAngleVisible,
+    p1RightAngleFadeReady,
+    cloneVisible,
+    cloneY,
+    cloneOpacity,
+    calloutVisible,
+    calloutFadeReady,
+    calloutPos,
+    calloutMode,
+    calloutPrevMode,
+    calloutTextNextReady,
+    calloutLoading,
+    showMeasureLine,
+    measureLineUnits,
+    measureLineGrowing,
+    unitLabelOverride,
+    showApost,
+    apostFadeReady,
+    step5DoneTextVisible,
   } = props;
 
   const topText =
@@ -109,6 +135,9 @@ const MainCanvas = (props) => {
 
     if (step === 5) {
       const s5 = APP_DATA.steps[5];
+      const prop2Enabled = step5Phase === "prop2-ready" || step5Phase === "prop2-running" || prop2Done;
+      const prop1Dimmed =
+        (step5Phase === "prop2-ready" || step5Phase === "prop2-running") && !prop2Done;
       return React.createElement(
         "div",
         { className: "right-panel-content property-cards" },
@@ -116,16 +145,35 @@ const MainCanvas = (props) => {
           "div",
           { className: "property-card" },
           React.createElement(
-            "p",
-            { className: "property-card-title" },
-            s5.property1Title,
+            "div",
+            { className: "property-card-title-row" },
+            React.createElement(
+              "p",
+              { className: "property-card-title" },
+              s5.property1Title,
+            ),
+            prop1Done
+              ? React.createElement("img", {
+                  src: "assets/tick.svg",
+                  alt: "",
+                  className: "property-tick is-visible",
+                })
+              : React.createElement("img", {
+                  src: "assets/tick.svg",
+                  alt: "",
+                  className: "property-tick",
+                }),
           ),
           React.createElement(
             "button",
             {
-              className: "property-card-box",
+              className:
+                "property-card-box" +
+                (prop1Done ? " is-complete" : "") +
+                (prop1Dimmed ? " is-dimmed" : ""),
               id: "property-1-button",
               onClick: onProperty1Click,
+              disabled: prop1Done || step5Phase === "prop1-running",
             },
             React.createElement("div", {
               dangerouslySetInnerHTML: {
@@ -138,13 +186,36 @@ const MainCanvas = (props) => {
           "div",
           { className: "property-card" },
           React.createElement(
-            "p",
-            { className: "property-card-title" },
-            s5.property2Title,
+            "div",
+            { className: "property-card-title-row" },
+            React.createElement(
+              "p",
+              { className: "property-card-title" },
+              s5.property2Title,
+            ),
+            prop2Done
+              ? React.createElement("img", {
+                  src: "assets/tick.svg",
+                  alt: "",
+                  className: "property-tick is-visible",
+                })
+              : React.createElement("img", {
+                  src: "assets/tick.svg",
+                  alt: "",
+                  className: "property-tick",
+                }),
           ),
           React.createElement(
-            "div",
-            { className: "property-card-box is-static" },
+            "button",
+            {
+              className:
+                "property-card-box" +
+                (prop1Done ? "" : " is-dimmed") +
+                (prop2Done ? " is-complete" : ""),
+              id: "property-2-button",
+              onClick: onProperty2Click,
+              disabled: !prop2Enabled || prop2Done,
+            },
             React.createElement("div", {
               dangerouslySetInnerHTML: {
                 __html: handleComma(s5.property2Text),
@@ -152,6 +223,13 @@ const MainCanvas = (props) => {
             }),
           ),
         ),
+        prop2Done && step5DoneTextVisible
+          ? React.createElement(
+              "div",
+              { className: "step5-done-text is-visible" },
+              s5.doneText,
+            )
+          : React.createElement("div", { className: "step5-done-text" }, ""),
       );
     }
 
@@ -189,8 +267,32 @@ const MainCanvas = (props) => {
           unitLabelText: unitLabelText,
           unitLabelFinal: unitLabelFinal,
           highlightFour: highlightFour,
+          showQ1FourUnitsLabel: showQ1FourUnitsLabel,
           unitLineRotating: unitLineRotating,
           showDashedDistance: showDashedDistance,
+          step5Phase: step5Phase,
+          prop1Done: prop1Done,
+          prop2Done: prop2Done,
+          p1LineVisible: p1LineVisible,
+          p1LineFadeReady: p1LineFadeReady,
+          p1RightAngleVisible: p1RightAngleVisible,
+          p1RightAngleFadeReady: p1RightAngleFadeReady,
+          cloneVisible: cloneVisible,
+          cloneY: cloneY,
+          cloneOpacity: cloneOpacity,
+          calloutVisible: calloutVisible,
+          calloutFadeReady: calloutFadeReady,
+          calloutPos: calloutPos,
+          calloutMode: calloutMode,
+          calloutPrevMode: calloutPrevMode,
+          calloutTextNextReady: calloutTextNextReady,
+          calloutLoading: calloutLoading,
+          showMeasureLine: showMeasureLine,
+          measureLineUnits: measureLineUnits,
+          measureLineGrowing: measureLineGrowing,
+          unitLabelOverride: unitLabelOverride,
+          showApost: showApost,
+          apostFadeReady: apostFadeReady,
           onGridClick: onGridClick,
           onXAxisClick: onXAxisClick,
         }),

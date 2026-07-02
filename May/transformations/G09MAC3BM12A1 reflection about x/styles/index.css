@@ -88,8 +88,7 @@ cm {
 
 cy {
   display: inline;
-  background-color: rgba(69, 198, 206, 0.45);
+  background-color: rgba(4, 200, 214, 0.8);
   color: #ffffff;
-  padding: 0.1em 0.25em;
-  border-radius: 0.2em;
+  padding: 0.1vw 0.2vw;
 }

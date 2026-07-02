@@ -19,8 +19,39 @@ const App = () => {
   const [unitLabelText, setUnitLabelText] = useState("");
   const [unitLabelFinal, setUnitLabelFinal] = useState(false);
   const [highlightFour, setHighlightFour] = useState(false);
+  const [showQ1FourUnitsLabel, setShowQ1FourUnitsLabel] = useState(false);
   const [unitLineRotating, setUnitLineRotating] = useState(false);
   const [nudgePositions, setNudgePositions] = useState([]);
+
+  // Step 5 (properties) state machine
+  const [step5Phase, setStep5Phase] = useState("prop1-ready"); // prop1-ready | prop1-running | prop2-ready | prop2-running | done
+  const [prop1Done, setProp1Done] = useState(false);
+  const [prop2Done, setProp2Done] = useState(false);
+
+  // Step 5 graph overlays
+  const [p1LineVisible, setP1LineVisible] = useState(false);
+  const [p1LineFadeReady, setP1LineFadeReady] = useState(false);
+  const [p1RightAngleVisible, setP1RightAngleVisible] = useState(false);
+  const [p1RightAngleFadeReady, setP1RightAngleFadeReady] = useState(false);
+  const [cloneVisible, setCloneVisible] = useState(false);
+  const [cloneY, setCloneY] = useState(4);
+  const [cloneOpacity, setCloneOpacity] = useState(1);
+
+  const [calloutVisible, setCalloutVisible] = useState(false);
+  const [calloutFadeReady, setCalloutFadeReady] = useState(false);
+  const [calloutPos, setCalloutPos] = useState("q4"); // q4 | q1
+  const [calloutMode, setCalloutMode] = useState(null); // prop1 | prop2A | prop2B
+  const [calloutPrevMode, setCalloutPrevMode] = useState(null);
+  const [calloutTextNextReady, setCalloutTextNextReady] = useState(true);
+  const [calloutLoading, setCalloutLoading] = useState(false);
+
+  const [showMeasureLine, setShowMeasureLine] = useState(false);
+  const [measureLineUnits, setMeasureLineUnits] = useState(0);
+  const [measureLineGrowing, setMeasureLineGrowing] = useState(false);
+  const [unitLabelOverride, setUnitLabelOverride] = useState(null); // {x,y} in math coords
+  const [showApost, setShowApost] = useState(false);
+  const [apostFadeReady, setApostFadeReady] = useState(false);
+  const [step5DoneTextVisible, setStep5DoneTextVisible] = useState(false);
 
   const timersRef = useRef([]);
 
@@ -50,7 +81,33 @@ const App = () => {
     setUnitLabelText("");
     setUnitLabelFinal(false);
     setHighlightFour(false);
+    setShowQ1FourUnitsLabel(false);
     setUnitLineRotating(false);
+
+    setStep5Phase("prop1-ready");
+    setProp1Done(false);
+    setProp2Done(false);
+    setP1LineVisible(false);
+    setP1LineFadeReady(false);
+    setP1RightAngleVisible(false);
+    setP1RightAngleFadeReady(false);
+    setCloneVisible(false);
+    setCloneY(4);
+    setCloneOpacity(1);
+    setCalloutVisible(false);
+    setCalloutFadeReady(false);
+    setCalloutPos("q4");
+    setCalloutMode(null);
+    setCalloutPrevMode(null);
+    setCalloutTextNextReady(true);
+    setCalloutLoading(false);
+    setShowMeasureLine(false);
+    setMeasureLineUnits(0);
+    setMeasureLineGrowing(false);
+    setUnitLabelOverride(null);
+    setShowApost(false);
+    setApostFadeReady(false);
+    setStep5DoneTextVisible(false);
   }, []);
 
   const resetEverything = useCallback(() => {
@@ -109,18 +166,19 @@ const App = () => {
     schedule(() => {
       setShowReflectionLabel(false);
       schedule(() => setCurrentStep(4), 300);
-    }, 1000);
+    }, 2000);
   }, [currentStep, xAxisHighlighted, schedule]);
 
   const runDistanceAnimation = useCallback(() => {
     const s4 = APP_DATA.steps[4];
     const ROTATE_MS = 750;
-    const GAP_MS = 400;
+    const GAP_MS = 300;
+    const PAUSE_BEFORE_UNIT_MS = 1000;
 
     setUnitLineY1(4);
     setUnitLineY2(3);
-    setShowUnitLine(true);
-    setUnitLabelText(s4.unitSingular);
+    setShowUnitLine(false);
+    setUnitLabelText("");
     setUnitLabelFinal(false);
     setUnitLineRotating(false);
 
@@ -133,6 +191,8 @@ const App = () => {
     };
 
     schedule(() => {
+      setShowUnitLine(true);
+      setUnitLabelText(s4.unitSingular);
       setUnitLineRotating(true);
       schedule(() => {
         afterRotate(3, 2, s4.unitPlural.replace("{n}", "2"), () => {
@@ -146,6 +206,7 @@ const App = () => {
                     setShowUnitLine(false);
                     setUnitLabelFinal(true);
                     setUnitLabelText(s4.unitPlural.replace("{n}", "4"));
+                    setShowQ1FourUnitsLabel(true);
                     schedule(() => {
                       setHighlightFour(true);
                       setStep4Phase("done");
@@ -157,7 +218,7 @@ const App = () => {
           }, ROTATE_MS);
         });
       }, ROTATE_MS);
-    }, 600);
+    }, PAUSE_BEFORE_UNIT_MS);
   }, [schedule]);
 
   const handleRevealClick = useCallback(() => {
@@ -176,13 +237,193 @@ const App = () => {
     if (typeof playSound === "function") playSound("click");
     setStep4Phase("properties-ready");
     setHighlightFour(false);
+    setStep5Phase("prop1-ready");
+    setProp1Done(false);
+    setProp2Done(false);
     schedule(() => setCurrentStep(5), 200);
   }, [currentStep, step4Phase, schedule]);
 
+  const runProp1Sequence = useCallback(() => {
+    const LINE_FADE_MS = 550;
+    const SQUARE_FADE_MS = 550;
+    const AFTER_RIGHT_ANGLE_MS = 600;
+
+    setStep5Phase("prop1-running");
+    setP1LineVisible(true);
+    setP1LineFadeReady(false);
+    setP1RightAngleVisible(false);
+    setP1RightAngleFadeReady(false);
+    setCalloutVisible(false);
+    setCalloutFadeReady(false);
+    setCloneVisible(false);
+    setCloneOpacity(1);
+    setCloneY(4);
+
+    schedule(() => setP1LineFadeReady(true), 50);
+
+    schedule(() => {
+      setP1RightAngleVisible(true);
+      schedule(() => setP1RightAngleFadeReady(true), 50);
+    }, LINE_FADE_MS);
+
+    schedule(() => {
+      setCalloutVisible(true);
+      setCalloutMode("prop1");
+      setCalloutPos("q4");
+      setCalloutLoading(false);
+      schedule(() => setCalloutFadeReady(true), 50);
+    }, LINE_FADE_MS + SQUARE_FADE_MS);
+
+    const cloneStart = LINE_FADE_MS + AFTER_RIGHT_ANGLE_MS;
+
+    schedule(() => {
+      setCloneVisible(true);
+      setCloneOpacity(1);
+      setCloneY(4);
+    }, cloneStart);
+
+    const move = (y, offset) =>
+      schedule(() => {
+        setCloneY(y);
+      }, cloneStart + offset);
+
+    move(-2, 250);
+    move(-5, 850);
+    move(-3, 1450);
+    move(-4, 2050);
+    move(-10, 2700);
+    schedule(() => setCloneOpacity(0), cloneStart + 3000);
+
+    schedule(() => {
+      setCloneVisible(false);
+      setProp1Done(true);
+      setStep5Phase("prop2-ready");
+    }, cloneStart + 3400);
+  }, [schedule]);
+
   const handleProperty1Click = useCallback(() => {
     if (currentStep !== 5) return;
+    if (prop1Done || step5Phase !== "prop1-ready") return;
     if (typeof playSound === "function") playSound("click");
-  }, [currentStep]);
+    runProp1Sequence();
+  }, [currentStep, prop1Done, step5Phase, runProp1Sequence]);
+
+  const runProp2Sequence = useCallback(() => {
+    const s4 = APP_DATA.steps[4];
+    const PAUSE_BEFORE_Q1_MOVE_MS = 500;
+    const READ_Q1_MS = 2500;
+    const PAUSE_AFTER_Q4_MS = 1000;
+    const ROTATE_MS = 750;
+    const GAP_MS = 700;
+    const CALLOUT_CROSSFADE_MS = 600;
+    const APOST_FADE_MS = 550;
+    const LABEL_MOVE_DELAY_MS = 550;
+
+    const crossfadeCallout = (prevMode, nextMode, nextPos, onDone) => {
+      setCalloutPrevMode(prevMode);
+      setCalloutMode(nextMode);
+      setCalloutTextNextReady(false);
+      setCalloutPos(nextPos);
+      schedule(() => setCalloutTextNextReady(true), 50);
+      schedule(() => {
+        setCalloutPrevMode(null);
+        setCalloutTextNextReady(true);
+        if (onDone) onDone();
+      }, CALLOUT_CROSSFADE_MS);
+    };
+
+    setStep5Phase("prop2-running");
+    setCalloutLoading(false);
+    setShowMeasureLine(false);
+    setMeasureLineUnits(0);
+    setUnitLabelOverride(null);
+    setShowApost(false);
+    setApostFadeReady(false);
+    setShowUnitLine(false);
+    setUnitLineY1(0);
+    setUnitLineY2(-1);
+    setUnitLabelText("");
+    setUnitLineRotating(false);
+
+    const setMeasureExtent = (units) => {
+      setMeasureLineUnits(units);
+      setShowMeasureLine(true);
+    };
+
+    const moveToQ4At = PAUSE_BEFORE_Q1_MOVE_MS + READ_Q1_MS;
+    const startUnitsAt = moveToQ4At + PAUSE_AFTER_Q4_MS + CALLOUT_CROSSFADE_MS;
+
+    schedule(() => {
+      crossfadeCallout("prop1", "prop2A", "q1");
+    }, PAUSE_BEFORE_Q1_MOVE_MS);
+
+    schedule(() => {
+      crossfadeCallout("prop2A", "prop2B", "q4", () => {
+        setCalloutLoading(true);
+      });
+    }, moveToQ4At);
+
+    schedule(() => {
+      const afterRotate = (y1, y2, label, units, next) => {
+        setUnitLineRotating(false);
+        setUnitLineY1(y1);
+        setUnitLineY2(y2);
+        setUnitLabelText(label);
+        setMeasureExtent(units);
+        schedule(next, GAP_MS);
+      };
+
+      setShowUnitLine(true);
+      setUnitLabelText(s4.unitSingular);
+      setMeasureExtent(1);
+
+      setUnitLineRotating(true);
+      schedule(() => {
+        afterRotate(-1, -2, s4.unitPlural.replace("{n}", "2"), 2, () => {
+          setUnitLineRotating(true);
+          schedule(() => {
+            afterRotate(-2, -3, s4.unitPlural.replace("{n}", "3"), 3, () => {
+              setUnitLineRotating(true);
+              schedule(() => {
+                afterRotate(-3, -4, s4.unitPlural.replace("{n}", "4"), 4, () => {
+                  schedule(() => {
+                    setShowUnitLine(false);
+                    setUnitLabelText(s4.unitPlural.replace("{n}", "4"));
+
+                    setCalloutVisible(false);
+                    setCalloutFadeReady(false);
+                    setCalloutLoading(false);
+                    setCalloutPrevMode(null);
+
+                    setShowApost(true);
+                    schedule(() => setApostFadeReady(true), 50);
+
+                    schedule(() => {
+                      setUnitLabelOverride({ x: 2, y: -2 });
+                    }, LABEL_MOVE_DELAY_MS);
+
+                    schedule(() => {
+                      setProp2Done(true);
+                      setStep5Phase("done");
+                      schedule(() => setStep5DoneTextVisible(true), 2500);
+                    }, LABEL_MOVE_DELAY_MS + 500);
+                  }, GAP_MS);
+                });
+              }, ROTATE_MS);
+            });
+          }, ROTATE_MS);
+        });
+      }, ROTATE_MS);
+    }, startUnitsAt);
+  }, [schedule]);
+
+  const handleProperty2Click = useCallback(() => {
+    if (currentStep !== 5) return;
+    if (!prop1Done || prop2Done) return;
+    if (step5Phase !== "prop2-ready") return;
+    if (typeof playSound === "function") playSound("click");
+    runProp2Sequence();
+  }, [currentStep, prop1Done, prop2Done, step5Phase, runProp2Sequence]);
 
   const navText = useMemo(() => {
     if (currentStep === 1) return handleComma(APP_DATA.steps[1].navText);
@@ -200,15 +441,24 @@ const App = () => {
       }
       return handleComma(s4.navTextReveal);
     }
-    if (currentStep === 5) return handleComma(APP_DATA.steps[5].navText);
+    if (currentStep === 5) {
+      const s5 = APP_DATA.steps[5];
+      if (step5Phase === "prop2-ready" || step5Phase === "prop2-running") {
+        return handleComma(s5.navTextProp2);
+      }
+      if (step5Phase === "done") {
+        return handleComma(s5.navTextDone);
+      }
+      return handleComma(s5.navTextProp1);
+    }
     return "";
-  }, [currentStep, step2Feedback, step4Phase]);
+  }, [currentStep, step2Feedback, step4Phase, step5Phase]);
 
   const isNextDisabled =
     currentStep === 2 ||
     currentStep === 3 ||
     currentStep === 4 ||
-    currentStep === 5;
+    (currentStep === 5 && step5Phase !== "done");
 
   const isPrevDisabled = currentStep <= 1;
 
@@ -256,7 +506,9 @@ const App = () => {
       } else if (currentStep === 4 && step4Phase === "done") {
         addNudgeFor("properties-button");
       } else if (currentStep === 5) {
-        addNudgeFor("property-1-button");
+        if (step5Phase === "prop1-ready") addNudgeFor("property-1-button");
+        else if (step5Phase === "prop2-ready") addNudgeFor("property-2-button");
+        else if (step5Phase === "done") addNudgeFor("next-button");
       }
 
       setNudgePositions(positions);
@@ -267,7 +519,7 @@ const App = () => {
       clearTimeout(timeoutId);
       window.removeEventListener("resize", updateNudges);
     };
-  }, [currentStep, isNextDisabled, step4Phase, xAxisHighlighted]);
+  }, [currentStep, isNextDisabled, step4Phase, xAxisHighlighted, step5Phase]);
 
   const renderNudges = () =>
     nudgePositions.map((position, index) =>
@@ -314,6 +566,7 @@ const App = () => {
         unitLabelText: unitLabelText,
         unitLabelFinal: unitLabelFinal,
         highlightFour: highlightFour,
+        showQ1FourUnitsLabel: showQ1FourUnitsLabel,
         unitLineRotating: unitLineRotating,
         showDashedDistance: showDashedDistance,
         onGridClick: handleGridClick,
@@ -321,6 +574,31 @@ const App = () => {
         onRevealClick: handleRevealClick,
         onPropertiesClick: handlePropertiesClick,
         onProperty1Click: handleProperty1Click,
+        onProperty2Click: handleProperty2Click,
+        step5Phase: step5Phase,
+        prop1Done: prop1Done,
+        prop2Done: prop2Done,
+        p1LineVisible: p1LineVisible,
+        p1LineFadeReady: p1LineFadeReady,
+        p1RightAngleVisible: p1RightAngleVisible,
+        p1RightAngleFadeReady: p1RightAngleFadeReady,
+        cloneVisible: cloneVisible,
+        cloneY: cloneY,
+        cloneOpacity: cloneOpacity,
+        calloutVisible: calloutVisible,
+        calloutFadeReady: calloutFadeReady,
+        calloutPos: calloutPos,
+        calloutMode: calloutMode,
+        calloutPrevMode: calloutPrevMode,
+        calloutTextNextReady: calloutTextNextReady,
+        calloutLoading: calloutLoading,
+        showMeasureLine: showMeasureLine,
+        measureLineUnits: measureLineUnits,
+        measureLineGrowing: measureLineGrowing,
+        unitLabelOverride: unitLabelOverride,
+        showApost: showApost,
+        apostFadeReady: apostFadeReady,
+        step5DoneTextVisible: step5DoneTextVisible,
       }),
     ),
     React.createElement(
