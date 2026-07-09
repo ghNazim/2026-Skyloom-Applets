@@ -11,6 +11,8 @@ const FLY_POSITIONS = {
 
 const ANSWER_FLY_POSITION = { x: 86, y: 370 };
 
+const LAYOUT_TRANSITION_MS = 600;
+
 const GIVEN_COUNT = APP_DATA.problem.statement.filter(
   (p) => p.type === "given",
 ).length;
@@ -81,7 +83,8 @@ const MainCanvas = (props) => {
   const [eq3, setEq3] = useState({ result: false });
   const [mathPhase, setMathPhase] = useState("eq1");
   const [activeBox, setActiveBox] = useState("eq1-d");
-  const [step5Complete, setStep5Complete] = useState(false);
+  const [step5ShowInfoPanel, setStep5ShowInfoPanel] = useState(false);
+  const [step5Ready, setStep5Ready] = useState(false);
 
   const problemParts = APP_DATA.problem.statement;
   const step4Data = APP_DATA.step4Substeps;
@@ -351,7 +354,8 @@ const MainCanvas = (props) => {
     setEq3({ result: false });
     setMathPhase("eq1");
     setActiveBox("eq1-d");
-    setStep5Complete(false);
+    setStep5ShowInfoPanel(false);
+    setStep5Ready(false);
     onSetNextEnabled(false);
     onSetNextHidden(true);
     onSetNextLabel("\u00BB");
@@ -482,12 +486,17 @@ const MainCanvas = (props) => {
     );
 
     setVisualImage("assets/ans.svg");
-    setStep5Complete(true);
     onUpdateTexts(
       APP_DATA.steps[5].questionComplete,
       APP_DATA.steps[5].navComplete,
     );
     onSetNextLabel(APP_DATA.steps[5].nextText);
+
+    await new Promise((r) => setTimeout(r, LAYOUT_TRANSITION_MS));
+    setStep5ShowInfoPanel(true);
+
+    await new Promise((r) => setTimeout(r, LAYOUT_TRANSITION_MS));
+    setStep5Ready(true);
     onSetNextEnabled(true);
     onSetNextHidden(false);
     registerNextNudge();
@@ -507,10 +516,10 @@ const MainCanvas = (props) => {
   ]);
 
   const tryAdvanceStep5 = useCallback(() => {
-    if (step !== 5 || !step5Complete) return false;
+    if (step !== 5 || !step5Ready) return false;
     onRestart();
     return true;
-  }, [step, step5Complete, onRestart]);
+  }, [step, step5Ready, onRestart]);
 
   useEffect(() => {
     if (!advanceRef) return;
@@ -533,22 +542,29 @@ const MainCanvas = (props) => {
   ]);
 
   // ── Layout widths ──
-  const infoWidth = step === 1 ? "100%" : step === 2 ? "45%" : "0%";
+  const infoWidth =
+    step === 1
+      ? "100%"
+      : step === 2 || (step === 5 && step5ShowInfoPanel)
+        ? "45%"
+        : "0%";
   const visualWidth = step === 1 ? "0%" : "55%";
-  const mathWidth = step === 5 ? "45%" : "0%";
-  const visualMarginLeft = step === 3 || step === 4 ? "22.5%" : "0%";
+  const mathWidth = step === 5 && !step5ShowInfoPanel ? "45%" : "0%";
   const visualCentering = step === 3 || step === 4;
   const actionRowHeight = step === 4 ? "15%" : "0%";
-  const infoVisible = step === 1 || step === 2;
-  const mathVisible = step === 5;
+  const infoVisible =
+    step === 1 || step === 2 || (step === 5 && step5ShowInfoPanel);
+  const mathVisible = step === 5 && !step5ShowInfoPanel;
 
   const renderProblemText = () => {
     const activeIdx =
-      step2Substep < GIVEN_COUNT
-        ? step2Substep
-        : step2Substep === GIVEN_COUNT
-          ? GIVEN_COUNT
-          : -1;
+      step === 5 && step5ShowInfoPanel
+        ? GIVEN_COUNT
+        : step2Substep < GIVEN_COUNT
+          ? step2Substep
+          : step2Substep === GIVEN_COUNT
+            ? GIVEN_COUNT
+            : -1;
 
     return problemParts.map((part, i) => {
       let className = "problem-muted";
@@ -630,7 +646,7 @@ const MainCanvas = (props) => {
     { className: "main-canvas-container" },
     React.createElement(
       "div",
-      { className: "main-row" },
+      { className: "main-row" + (visualCentering ? " visual-centered" : "") },
       React.createElement(
         "div",
         {
@@ -651,13 +667,8 @@ const MainCanvas = (props) => {
       React.createElement(
         "div",
         {
-          className:
-            "canvas-column visual-column" +
-            (visualCentering ? " visual-centering" : ""),
-          style: {
-            width: visualWidth,
-            marginLeft: visualMarginLeft,
-          },
+          className: "canvas-column visual-column",
+          style: { width: visualWidth },
         },
         visualImage &&
           React.createElement("img", {

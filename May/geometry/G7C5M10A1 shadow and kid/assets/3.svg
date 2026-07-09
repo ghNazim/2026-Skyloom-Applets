@@ -1,18 +1,65 @@
 <svg width="814" height="637" viewBox="0 0 814 637" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<style>
+.grow-line {
+  stroke-dasharray: 565;
+  stroke-dashoffset: 565;
+  transform: translate(-132px, -85px);
+
+  animation:
+    drawLine 0.8s linear forwards,
+    moveLine 0.8s ease-out forwards;
+    animation-delay: 1s;
+
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes moveLine {
+  from {
+    transform: translate(-132px, -85px);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+.delay0{
+  opacity: 0;
+  animation: appear 0.5s ease forwards;
+  animation-delay: 0.3s;
+}
+.delay1 {
+  opacity: 0;
+  animation: appear 0.5s ease forwards;
+  animation-delay: 2s;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+</style>
 <line x1="30" y1="567" x2="796.01" y2="567" stroke="white" stroke-width="2"/>
 <rect width="60" height="60" fill="url(#pattern0_98_559)"/>
-<rect x="210" y="562" width="256" height="11" fill="black"/>
+<rect x="210" y="562" width="256" height="11" fill="black" class="delay1"/>
 <rect x="559" y="366" width="85" height="202" fill="url(#pattern1_98_559)"/>
 <path d="M441 92.1543L748.628 565.422" stroke="#FFEA00" stroke-width="6"/>
-<path d="M159 95L466.628 568.267" stroke="#FFEA00" stroke-width="6"/>
+<path d="M159 95L466.628 568.267" stroke="#FFEA00" stroke-width="6" class="grow-line"/>
 <rect x="60" y="166" width="277" height="416" fill="url(#pattern2_98_559)"/>
 <path d="M556.5 368.969L547.84 383.969H565.16L556.5 368.969ZM556.5 565.033L565.16 550.033H547.84L556.5 565.033ZM556.5 382.469H555V551.533H556.5H558V382.469H556.5Z" fill="white"/>
 <path d="M620 587L630 592.774V581.226L620 587ZM749 587L739 581.226V592.774L749 587ZM629 587V588H740V587V586H629V587Z" fill="white"/>
-<path d="M210 582L220 587.774V576.226L210 582ZM466 582L456 576.226V587.774L466 582ZM219 582V583L457 583V582V581L219 581V582Z" fill="white"/>
+<path d="M210 582L220 587.774V576.226L210 582ZM466 582L456 576.226V587.774L466 582ZM219 582V583L457 583V582V581L219 581V582Z" fill="white" class="delay1"/>
 <text fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="439" y="478.136">150 cm</tspan></text>
 <text fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="630" y="629.136">100 cm</tspan></text>
-<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="288" y="624.136">300 cm</tspan></text>
-<text transform="translate(350.677 298) rotate(56.9149)" fill="#FFEA00" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="0" y="31.1364">Sun ray</tspan></text>
+<text fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em" class="delay1"><tspan x="288" y="624.136">300 cm</tspan></text>
+<text class="delay1" transform="translate(350.677 298) rotate(56.9149)" fill="#FFEA00" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="0" y="31.1364">Sun ray</tspan></text>
 <text transform="translate(601.677 240) rotate(56.9149)" fill="#FFEA00" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="0" y="31.1364">Sun ray</tspan></text>
 <rect x="617" y="555" width="133" height="16" fill="url(#pattern3_98_559)"/>
 <defs>
@@ -23,7 +70,7 @@
 <use xlink:href="#image1_98_559" transform="matrix(0.00270977 0 0 0.00114025 -0.00401771 0)"/>
 </pattern>
 <pattern id="pattern2_98_559" patternContentUnits="objectBoundingBox" width="1" height="1">
-<use xlink:href="#image2_98_559" transform="matrix(0.000977738 0 0 0.000651042 -0.000601685 0)"/>
+<use xlink:href="#image2_98_559" transform="matrix(0.000977738 0 0 0.000651042 -0.000601685 0)" class="delay0"/>
 </pattern>
 <pattern id="pattern3_98_559" patternContentUnits="objectBoundingBox" width="1" height="1">
 <use xlink:href="#image3_98_559" transform="scale(0.0018797 0.015625)"/>

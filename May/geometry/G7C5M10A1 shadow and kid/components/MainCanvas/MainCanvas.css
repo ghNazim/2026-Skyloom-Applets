@@ -16,11 +16,15 @@
   overflow: hidden;
 }
 
+.main-row.visual-centered {
+  justify-content: center;
+}
+
 .canvas-column {
   height: 100%;
   overflow: hidden;
   flex-shrink: 0;
-  transition: width 0.6s ease, margin-left 0.6s ease, opacity 0.4s ease;
+  transition: width 0.6s ease, opacity 0.4s ease;
 }
 
 /* ── Info column ── */
@@ -109,10 +113,6 @@
 
 .visual-overlay-btn:hover {
   filter: brightness(1.05);
-}
-
-.visual-column.visual-centering {
-  transition: width 0.6s ease, margin-left 0.6s ease 0.25s;
 }
 
 .visual-image {

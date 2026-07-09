@@ -1,4 +1,18 @@
 <svg width="814" height="637" viewBox="0 0 814 637" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<style>
+.blink {
+  animation: blink 0.5s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+</style>
 <line x1="30" y1="567" x2="796.01" y2="567" stroke="white" stroke-width="2"/>
 <rect width="60" height="60" fill="url(#pattern0_98_586)"/>
 <rect x="210" y="562" width="256" height="11" fill="black"/>
@@ -13,7 +27,7 @@
 <text fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="630" y="629.136">100 cm</tspan></text>
 <text fill="white" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="288" y="624.136">300 cm</tspan></text>
 <path d="M164 178L155.34 193H172.66L164 178ZM164 565.11L172.66 550.11H155.34L164 565.11ZM164 191.5H162.5L162.5 551.61H164H165.5L165.5 191.5H164Z" fill="white"/>
-<text fill="#E70B0B" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="52" font-weight="600" letter-spacing="0em"><tspan x="115" y="382.409">h</tspan></text>
+<text class="blink" fill="#E70B0B" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="52" font-weight="600" letter-spacing="0em"><tspan x="115" y="382.409">h</tspan></text>
 <text transform="translate(350.677 298) rotate(56.9149)" fill="#FFEA00" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="0" y="31.1364">Sun ray</tspan></text>
 <text transform="translate(601.677 240) rotate(56.9149)" fill="#FFEA00" style="white-space: pre" xml:space="preserve" font-family="Inter" font-size="32" letter-spacing="0em"><tspan x="0" y="31.1364">Sun ray</tspan></text>
 <rect x="617" y="555" width="133" height="16" fill="url(#pattern3_98_586)"/>
