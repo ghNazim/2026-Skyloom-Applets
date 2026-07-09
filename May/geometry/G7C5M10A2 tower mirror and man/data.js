@@ -75,7 +75,7 @@ const DATA = {
           btn: "Shout out what can we say about the angles formed at the mirror.",
           img: "assets/6blink.svg",
           textAfter:
-            "Measures of these angles are equal<br><span class=\"text-after-sub\">(Angle of incidence = Angle of reflection)</span>",
+            'Measures of these angles are equal<br><span class="text-after-sub">(Angle of incidence = Angle of reflection)</span>',
           imgAfter: "assets/6.svg",
           navAfter:
             "Tap \u00BB to see the angles formed by the triangles at the mirror.",
@@ -88,17 +88,15 @@ const DATA = {
           navAfter: "Tap \u00BB to see the relationship between the triangles",
         },
         {
-          btn:
-            "The two triangles have two equal corresponding angles. Shout out what do we call such triangles",
-          img: "assets/8.svg",
+          btn: "The two triangles have two equal corresponding angles. Shout out what do we call such triangles",
+          img: "assets/8blink.svg",
           imgAfter: "assets/8.svg",
           textAfter: "Similar Triangles",
           navAfter:
             "Tap \u00BB to see how sides are related in similar triangles.",
         },
         {
-          btn:
-            "Shout out how are the corresponding sides related in similar triangles",
+          btn: "Shout out how are the corresponding sides related in similar triangles",
           img: "assets/8.svg",
           imgAfter: "assets/8.svg",
           textAfter: "Corresponding sides are proportional",
@@ -126,7 +124,8 @@ const DATA = {
         2: {
           navText:
             "Ketuk \u00BB untuk mengidentifikasi informasi \u2018diketahui\u2019",
-          navToFind: "Ketuk \u00BB untuk mengidentifikasi apa yang harus dicari",
+          navToFind:
+            "Ketuk \u00BB untuk mengidentifikasi apa yang harus dicari",
           navFindH: "Ketuk \u00BB untuk mencari \u2018h\u2019",
         },
         3: {
@@ -185,11 +184,10 @@ const DATA = {
             "Ketuk \u00BB untuk memeriksa sudut yang terbentuk di cermin",
         },
         {
-          btn:
-            "Sebutkan apa yang dapat kita katakan tentang sudut yang terbentuk di cermin.",
+          btn: "Sebutkan apa yang dapat kita katakan tentang sudut yang terbentuk di cermin.",
           img: "assets/6blink.svg",
           textAfter:
-            "Besar sudut-sudut ini sama<br><span class=\"text-after-sub\">(Sudut datang = Sudut pantul)</span>",
+            'Besar sudut-sudut ini sama<br><span class="text-after-sub">(Sudut datang = Sudut pantul)</span>',
           imgAfter: "assets/6.svg",
           navAfter:
             "Ketuk \u00BB untuk melihat sudut yang terbentuk oleh segitiga di cermin.",
@@ -203,17 +201,15 @@ const DATA = {
             "Ketuk \u00BB untuk melihat hubungan antara segitiga-segitiga",
         },
         {
-          btn:
-            "Kedua segitiga memiliki dua sudut yang bersesuaian sama. Sebutkan apa nama segitiga seperti ini",
-          img: "assets/8.svg",
+          btn: "Kedua segitiga memiliki dua sudut yang bersesuaian sama. Sebutkan apa nama segitiga seperti ini",
+          img: "assets/8blink.svg",
           imgAfter: "assets/8.svg",
           textAfter: "Segitiga Sebangun",
           navAfter:
             "Ketuk \u00BB untuk melihat bagaimana sisi-sisi berhubungan pada segitiga sebangun.",
         },
         {
-          btn:
-            "Sebutkan bagaimana sisi-sisi yang bersesuaian berhubungan pada segitiga sebangun",
+          btn: "Sebutkan bagaimana sisi-sisi yang bersesuaian berhubungan pada segitiga sebangun",
           img: "assets/8.svg",
           imgAfter: "assets/8.svg",
           textAfter: "Sisi-sisi yang bersesuaian berbanding senilai",
