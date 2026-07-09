@@ -9,12 +9,12 @@ const DATA = {
       start: {
         heading: "Sides and Angles in similar triangles",
         text:
-          "We say ∆ABC and ∆DEF are similar to each other<br>" +
+          "We say <y>∆ABC and ∆DEF are similar</y> to each other<br>" +
           "when their shapes are the same<br>" +
           "and they can fit into one another.<br><br>" +
-          "What does this mean mathematically?<br>" +
+          "What does this mean <y>mathematically?</y><br>" +
           "Let's explore their angles and side measures<br>" +
-          "to understand what same shape means.",
+          "to understand what <y>same shape</y> means.",
         buttonText: "Start",
       },
       steps: {
@@ -50,6 +50,36 @@ const DATA = {
             "Corresponding angles of similar triangles are equal in measure!",
           nextText: "Explore",
         },
+        4: {
+          questionText:
+            "Sides in <span class='tri-abc'>∆ABC</span> ~ <span class='tri-def'>∆DEF</span>",
+          navText:
+            "Tap any side to see the relationship between corresponding sides",
+          navCompare: "Tap 'compare' to take a ratio of sides",
+          navSimplify: "Tap to simplify",
+          actionCompare: "Compare<br>side lengths",
+          navComplete:
+            "Tap » to explore side ratios for different similar triangles",
+          actionSummary:
+            "Corresponding sides<br>of similar triangles<br>are proportional<br>(equal in ratio)!",
+        },
+        5: {
+          questionText:
+            "Sides in <span class='tri-abc'>∆ABC</span> ~ <span class='tri-def'>∆DEF</span>",
+          navText: "Move the slider and notice the ratio of sides",
+          navComplete: "Tap » to summarize",
+        },
+      },
+      final: {
+        heading: "Sides and Angles in similar triangles",
+        text:
+          "We say <y>∆ABC and ∆DEF are similar</y> to each other<br>" +
+          "when their shapes are the same<br>" +
+          "and they can fit into one another.<br><br>" +
+          "Mathematically, this means<br>" +
+          "<bl>CORRESPONDING ANGLES</bl> have the <bl>same measure</bl><br>" +
+          "and <y>CORRESPONDING SIDES</y> are <y>proportional</y>.",
+        buttonText: "Start over",
       },
     },
   },
@@ -100,6 +130,36 @@ const DATA = {
             "Sudut-sudut yang bersesuaian pada segitiga sebangun sama besar!",
           nextText: "Explore",
         },
+        4: {
+          questionText:
+            "Sisi pada <span class='tri-abc'>∆ABC</span> ~ <span class='tri-def'>∆DEF</span>",
+          navText:
+            "Ketuk sisi mana saja untuk melihat hubungan sisi yang bersesuaian",
+          navCompare: "Ketuk 'compare' untuk membandingkan panjang sisi",
+          navSimplify: "Ketuk untuk menyederhanakan",
+          actionCompare: "Bandingkan<br>panjang sisi",
+          navComplete:
+            "Ketuk » untuk menjelajahi rasio sisi segitiga sebangun lainnya",
+          actionSummary:
+            "Sisi-sisi yang bersesuaian<br>pada segitiga sebangun<br>berproporsi<br>(sama rasio)!",
+        },
+        5: {
+          questionText:
+            "Sisi pada <span class='tri-abc'>∆ABC</span> ~ <span class='tri-def'>∆DEF</span>",
+          navText: "Geser slider dan perhatikan rasio sisi-sisinya",
+          navComplete: "Ketuk » untuk merangkum",
+        },
+      },
+      final: {
+        heading: "Sisi dan Sudut pada segitiga sebangun",
+        text:
+          "Kita mengatakan ∆ABC dan ∆DEF sebangun<br>" +
+          "ketika bentuknya sama<br>" +
+          "dan keduanya dapat saling muat.<br><br>" +
+          "Secara matematis, ini berarti<br>" +
+          "<strong>SUDUT YANG BERSESUAIAN</strong> sama besar<br>" +
+          "dan <strong>SISI YANG BERSESUAIAN</strong> berproporsi.",
+        buttonText: "Mulai lagi",
       },
     },
   },

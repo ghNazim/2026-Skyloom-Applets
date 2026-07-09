@@ -1,0 +1,12 @@
+.nudge-overlay {
+  pointer-events: none;
+}
+
+.nudge-overlay .nudge-tap-gif {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  width: 5vw;
+  height: 5vw;
+  transform: translate(-50%, -10%);
+}

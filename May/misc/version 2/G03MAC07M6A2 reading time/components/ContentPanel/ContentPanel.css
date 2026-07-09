@@ -1,0 +1,109 @@
+.content-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.main-row {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--panel-background-color);
+  border-radius: 2vw;
+  border: 1px solid var(--panel-border-color);
+  backdrop-filter: blur(1vw);
+}
+
+.main-visual {
+  height: 85%;
+  display: flex;
+  gap: 1vw;
+  /* padding: 1vw; */
+}
+
+/* With right panel (steps 1, 6, 10): left 60%, right 40% (table shrunk by 20%) */
+.main-visual.with-right .main-visual-left {
+  flex: 0 0 55%;
+  min-width: 0;
+}
+.main-visual.with-right .main-visual-right {
+  flex: 0 0 45%;
+  min-width: 0;
+}
+
+.main-visual-left,
+.main-visual-right {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Center table in right panel (with-character steps) */
+.main-visual-right-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.main-visual-right-inner .shapes-table-wrapper {
+  align-self: center;
+  width: 90%;
+}
+
+
+/* Left visual: make div (house_svg) and its SVG fill container on all with-character steps */
+.main-visual-left > div {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.main-visual-left > div svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.main-button {
+  height: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-row {
+  height: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white-color);
+  font-size: 2.5vw;
+}
+
+/* Timeline mode: visual takes full space, no button */
+.main-row.timeline-main .main-visual {
+  height: 100%;
+}
+
+.main-row.timeline-main .main-button {
+  display: none;
+}
+
+.main-visual.timeline-visual .main-visual-left {
+  flex: 1;
+  width: 100%;
+}

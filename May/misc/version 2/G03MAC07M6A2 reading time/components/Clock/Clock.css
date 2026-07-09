@@ -1,0 +1,103 @@
+.clock-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  container-type: size;
+}
+
+.clock-container {
+  width: 73%;
+  aspect-ratio: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.clock-body {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  object-fit: contain;
+}
+
+.clock-hand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  
+  /* translate property independent from transform */
+  
+}
+
+.hour-hand {
+  height: 28%;
+  /* opacity: 0; */
+  transform-origin: 50% 90%;
+  translate: -50% -90%;
+}
+
+.minute-hand {
+  height: 40%;
+  /* opacity: 0; */
+  transform-origin: 50% 95%;
+  translate: -50% -95%;
+}
+
+.clock-circle {
+  position: absolute;
+  width: 12%;
+  height: 12%;
+  background-color: white;
+  border: 0.4vw solid #4267B2;
+  border-radius: 50%;
+  color: rgb(255, 0, 238);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.8vw;
+  font-family: sans-serif;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.num-circle {
+ 
+  position: absolute;
+  width: 13%;
+  height: 13%;
+  background-color: rgb(226 251 38 / 28%);
+  border: 0.28vw dashed #ffe6a9;
+  border-radius: 50%;
+  color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.6vw;
+  font-family: sans-serif;
+  transform: translate(-50%, -50%);
+  z-index: 12;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 0 0.7vw rgba(0, 255, 255, 0.35);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, scale 0.2s ease;
+}
+
+.num-circle:hover {
+  background-color: rgba(0, 255, 255, 0.18);
+  box-shadow: 0 0 1vw rgba(0, 255, 255, 0.6);
+  scale: 1.06;
+}
+
+.num-circle.wrong {
+  background-color: rgba(244, 67, 54, 0.32);
+  border-color: #ff5b5b;
+  box-shadow: 0 0 1vw rgba(244, 67, 54, 0.7);
+}

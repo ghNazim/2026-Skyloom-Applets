@@ -8,6 +8,7 @@ const App = () => {
   const [resetKey, setResetKey] = useState(0);
   const [showNudge, setShowNudge] = useState(false);
   const [nudgePosition, setNudgePosition] = useState(null);
+  const [nudgeTargetVersion, setNudgeTargetVersion] = useState(0);
   const nudgeTargetRef = useRef(null);
   const nudgeTimeoutRef = useRef(null);
 
@@ -49,7 +50,15 @@ const App = () => {
       return;
     }
     if (currentStep === 3) {
-      // Future steps — placeholder for now
+      setCurrentStep(4);
+      return;
+    }
+    if (currentStep === 4) {
+      setCurrentStep(5);
+      return;
+    }
+    if (currentStep === 5) {
+      setCurrentStep(6);
       return;
     }
     if (currentStep < 3) {
@@ -68,6 +77,7 @@ const App = () => {
 
   const registerNudgeTarget = useCallback((rect) => {
     nudgeTargetRef.current = rect;
+    setNudgeTargetVersion((v) => v + 1);
   }, []);
 
   const getQuestionText = () => {
@@ -109,6 +119,11 @@ const App = () => {
     if (currentStep === 0) return;
 
     const updateNudge = () => {
+      if (dynamicNavText === " ") {
+        hideNudge();
+        return;
+      }
+
       if (currentStep === 3 && !isNextDisabled) {
         const nextBtn = document.getElementById("next-button");
         if (nextBtn) {
@@ -118,7 +133,30 @@ const App = () => {
         return;
       }
 
-      if (currentStep === 1 || currentStep === 2) {
+      if (currentStep === 4 && !isNextDisabled) {
+        const nextBtn = document.getElementById("next-button");
+        if (nextBtn) {
+          setNudgePosition(nextBtn.getBoundingClientRect());
+          setShowNudge(true);
+        }
+        return;
+      }
+
+      if (currentStep === 5 && !isNextDisabled) {
+        const nextBtn = document.getElementById("next-button");
+        if (nextBtn) {
+          setNudgePosition(nextBtn.getBoundingClientRect());
+          setShowNudge(true);
+        }
+        return;
+      }
+
+      if (
+        currentStep === 1 ||
+        currentStep === 2 ||
+        currentStep === 4 ||
+        currentStep === 5
+      ) {
         const rect = nudgeTargetRef.current;
         if (rect) {
           setNudgePosition(rect);
@@ -138,7 +176,31 @@ const App = () => {
       clearTimeout(timeoutId);
       window.removeEventListener("resize", updateNudge);
     };
-  }, [currentStep, isNextDisabled, dynamicNavText, hideNudge, resetKey]);
+  }, [
+    currentStep,
+    isNextDisabled,
+    dynamicNavText,
+    hideNudge,
+    resetKey,
+    nudgeTargetVersion,
+  ]);
+
+  if (currentStep === 6) {
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(Fullscreen, {
+          heading: APP_DATA.final.heading,
+          text: APP_DATA.final.text,
+          buttonText: APP_DATA.final.buttonText,
+          onButtonClick: handleRestart,
+        })
+      )
+    );
+  }
 
   if (currentStep === 0) {
     return React.createElement(

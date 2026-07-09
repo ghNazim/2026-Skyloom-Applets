@@ -57,6 +57,11 @@ y {
   display: inline;
 }
 
+bl{
+  font-weight: 600;
+  color: #00e1ff;
+  display: inline;
+}
 
 cm {
   --font-family-comma: Georgia, sans-serif;
