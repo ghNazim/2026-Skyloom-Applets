@@ -1,0 +1,38 @@
+.rule-result-box {
+  width: 100%;
+  padding: 1.2vw 1vw;
+  border-radius: 0.8vw;
+  
+  font-size: 3vw;
+  font-weight: 600;
+  text-align: center;
+  box-sizing: border-box;
+  background: rgba(70, 80, 90, 0.92);
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.rule-result-box.is-visible {
+  opacity: 1;
+}
+
+.rule-object-val,
+.rule-object-group .rule-num {
+  color: #e97132;
+}
+
+.rule-image-val,
+.rule-image-group .rule-num,
+.rule-image-group .rule-sign {
+  color: #45c6ce;
+}
+
+.rule-comma,
+.rule-result-paren {
+  color: #ffffff;
+}
+
+.rule-sign {
+  color: #45c6ce;
+}

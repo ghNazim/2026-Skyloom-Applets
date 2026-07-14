@@ -1,0 +1,113 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  border-radius: 1vw;
+  overflow: hidden;
+  padding: 0 1vw;
+  gap: 1vw;
+}
+
+.main-canvas-left {
+  /* flex: 0 0 60%; */
+  width: 60%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  background-color: #0a2b3f;
+  border-radius: 1vw;
+}
+
+.main-canvas-left.is-visible {
+  opacity: 1;
+}
+
+.main-canvas-left.is-hidden-step1,
+.main-canvas-right.is-hidden-step1 {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.main-canvas-right {
+  /* flex: 0 0 40%; */
+  width: 40%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5vw 1.2vw;
+  border-radius: 1vw;
+  /* margin: 0.4vw 0.4vw 0.4vw 0; */
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  background-color: #0f4967;
+}
+
+.main-canvas-right.is-visible {
+  opacity: 1;
+}
+
+.main-canvas-right-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.main-canvas-left.is-hiding {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.main-canvas-right.is-transition-panel {
+  opacity: 1;
+}
+
+.fly-clone-text {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  font-size: 2.2vw;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: system-ui, sans-serif;
+  white-space: nowrap;
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fly-clone-text.is-cell-clone {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: system-ui, sans-serif;
+  box-sizing: border-box;
+  transition: transform 0.78s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate(0, 0);
+}
+
+.fly-clone-text.is-yellow {
+  color: #ffb84c;
+}
+
+.main-canvas-splash {
+  background-color: #0a2b3f;
+  border-radius: 1vw;
+  padding: 0 1vw;
+  box-sizing: border-box;
+}

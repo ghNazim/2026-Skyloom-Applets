@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "ClassRoots Feedback Button",
-  "version": "1.0",
-  "description": "Adds Feedback button to task pages",
+  "name": "ClassRoots Navigation Buttons",
+  "version": "1.1",
+  "description": "Adds navigation buttons between task and feedback pages",
   "content_scripts": [
     {
       "matches": [
-        "https://content.classrootsedu.com/developer/tasks/*"
+        "https://content.classrootsedu.com/developer/tasks/*",
+        "https://content.classrootsedu.com/developer/applets/*/feedback"
       ],
       "js": ["content.js"]
     }
