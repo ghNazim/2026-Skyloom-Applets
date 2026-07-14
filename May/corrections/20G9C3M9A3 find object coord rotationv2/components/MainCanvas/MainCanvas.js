@@ -129,9 +129,9 @@ const MainCanvas = ({
   }, []);
 
   const setQuestionVisual = useCallback(
-    (show, visible) => {
+    (show, visible, phase) => {
       if (typeof onQuestionVisualChange === "function") {
-        onQuestionVisualChange(show, visible);
+        onQuestionVisualChange(show, visible, phase);
       }
     },
     [onQuestionVisualChange],
@@ -494,10 +494,8 @@ const MainCanvas = ({
       setImageSegmentOpacity(1);
       await delay(500);
 
-      setQuestionVisual(true, false);
-      await delay(80);
-      setQuestionVisual(true, true);
-      await delay(500);
+      setQuestionVisual(true, false, "forming");
+      await delay(900);
 
       if (typeof onStep2AnimComplete === "function") onStep2AnimComplete();
     };

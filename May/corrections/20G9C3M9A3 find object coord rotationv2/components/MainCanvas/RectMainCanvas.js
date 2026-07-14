@@ -194,9 +194,9 @@ const RectMainCanvas = ({
   }, []);
 
   const setQuestionVisual = useCallback(
-    (show, visible) => {
+    (show, visible, phase) => {
       if (typeof onQuestionVisualChange === "function") {
-        onQuestionVisualChange(show, visible);
+        onQuestionVisualChange(show, visible, phase);
       }
     },
     [onQuestionVisualChange],
@@ -580,9 +580,11 @@ const RectMainCanvas = ({
     step8AnimRef.current = true;
 
     const runStep8Anim = async () => {
+      setQuestionVisual(true, false, "forming");
+      await delay(900);
+      if (isCancelled()) return;
+
       setupImageGraph();
-      setQuestionVisual(true, false);
-      await delay(80);
       setQuestionVisual(true, true);
       await delay(500);
 

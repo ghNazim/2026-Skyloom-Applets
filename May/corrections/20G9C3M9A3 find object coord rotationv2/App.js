@@ -88,6 +88,8 @@ const App = () => {
   const [questionVisualVisible, setQuestionVisualVisible] = useState(
     part2BootSync ? part2BootSync.questionVisualVisible : false,
   );
+  const [questionVisualForming, setQuestionVisualForming] = useState(false);
+  const [questionVisualClones, setQuestionVisualClones] = useState([]);
   const [visualMode, setVisualMode] = useState(
     part2BootSync ? part2BootSync.visualMode : "segment",
   );
@@ -141,6 +143,8 @@ const App = () => {
     setVisibleHighlights([]);
     setShowQuestionVisual(false);
     setQuestionVisualVisible(false);
+    setQuestionVisualForming(false);
+    setQuestionVisualClones([]);
     setVisualMode("segment");
     setObjectBoxA(null);
     setObjectBoxB(null);
@@ -189,9 +193,15 @@ const App = () => {
     );
   }, []);
 
-  const handleQuestionVisualChange = useCallback((show, visible) => {
+  const handleQuestionVisualChange = useCallback((show, visible, phase) => {
     setShowQuestionVisual(show);
     setQuestionVisualVisible(visible);
+    if (phase === "forming") {
+      setQuestionVisualForming(true);
+    } else if (!show) {
+      setQuestionVisualForming(false);
+      setQuestionVisualClones([]);
+    }
   }, []);
 
   const handleObjectBoxChange = useCallback((key, text) => {
@@ -300,13 +310,115 @@ const App = () => {
   }, [currentStep, step9Phase]);
 
   const questionHtml = useMemo(() => {
-    if (currentStep < 1 || showQuestionVisual) return "";
+    if (currentStep < 1 || (showQuestionVisual && !questionVisualForming)) {
+      return "";
+    }
     if (currentStep === 1) return APP_DATA.question.textPlain;
     if (currentStep >= 7 && currentStep <= 14) {
       return APP_DATA.question2.textPlain;
     }
     return APP_DATA.question.text;
-  }, [currentStep, showQuestionVisual]);
+  }, [currentStep, showQuestionVisual, questionVisualForming]);
+
+  useEffect(() => {
+    if (
+      !questionVisualForming ||
+      (currentStep !== 2 && currentStep !== 8)
+    ) {
+      return undefined;
+    }
+
+    const cloneConfigs =
+      currentStep === 8
+        ? [
+            {
+              sourceId: "highlight-rect-rotation",
+              targetId: "qv-arrow-text",
+              text: APP_DATA.questionVisual2.rotation,
+            },
+          ]
+        : [
+            {
+              sourceId: "highlight-rotation",
+              targetId: "qv-arrow-text",
+              text: APP_DATA.questionVisual.rotation,
+            },
+            {
+              sourceId: "highlight-a-prime",
+              targetId: "qv-image-a-text",
+              text: APP_DATA.questionVisual.imageA,
+            },
+            {
+              sourceId: "highlight-b-prime",
+              targetId: "qv-image-b-text",
+              text: APP_DATA.questionVisual.imageB,
+            },
+          ];
+
+    let timeoutId = null;
+    let rafId = null;
+    let secondRafId = null;
+
+    const finish = () => {
+      setQuestionVisualClones([]);
+      setQuestionVisualForming(false);
+      setQuestionVisualVisible(true);
+    };
+
+    rafId = requestAnimationFrame(() => {
+      setQuestionVisualVisible(true);
+
+      const clones = cloneConfigs.map((config) => {
+        const sourceEl = document.getElementById(config.sourceId);
+        const targetEl = document.getElementById(config.targetId);
+        if (!sourceEl || !targetEl) return null;
+
+        const src = sourceEl.getBoundingClientRect();
+        const tgt = targetEl.getBoundingClientRect();
+        const style = window.getComputedStyle(sourceEl);
+
+        return {
+          id: config.sourceId + "-to-" + config.targetId,
+          text: config.text,
+          startX: src.left + src.width / 2,
+          startY: src.top + src.height / 2,
+          dx: tgt.left + tgt.width / 2 - (src.left + src.width / 2),
+          dy: tgt.top + tgt.height / 2 - (src.top + src.height / 2),
+          animating: false,
+          style: {
+            fontFamily: style.fontFamily,
+            fontSize: style.fontSize,
+            fontWeight: style.fontWeight,
+            lineHeight: style.lineHeight,
+            color: style.color,
+            backgroundColor: style.backgroundColor,
+            borderRadius: style.borderRadius,
+            padding: style.padding,
+          },
+        };
+      });
+
+      if (clones.some((clone) => clone == null)) {
+        finish();
+        return;
+      }
+
+      setQuestionVisualClones(clones);
+      secondRafId = requestAnimationFrame(() => {
+        setQuestionVisualClones((prev) =>
+          prev.map((clone) => ({ ...clone, animating: true })),
+        );
+      });
+
+      timeoutId = setTimeout(finish, 820);
+    });
+
+    return () => {
+      if (rafId != null) cancelAnimationFrame(rafId);
+      if (secondRafId != null) cancelAnimationFrame(secondRafId);
+      if (timeoutId != null) clearTimeout(timeoutId);
+    };
+  }, [currentStep, questionVisualForming]);
 
   const navText = useMemo(() => {
     if (currentStep === 1) return APP_DATA.steps[1].navText;
@@ -543,12 +655,35 @@ const App = () => {
       visibleHighlights: visibleHighlights,
       showQuestionVisual: showQuestionVisual,
       questionVisualVisible: questionVisualVisible,
+      questionVisualForming: questionVisualForming,
       visualMode: visualMode,
       objectBoxA: objectBoxA,
       objectBoxB: objectBoxB,
       rectObjectBoxes: rectObjectBoxes,
       rectImageBoxes: rectImageBoxes,
     }),
+    questionVisualClones.map((clone) =>
+      React.createElement(
+        "div",
+        {
+          key: clone.id,
+          className: "qv-forming-clone",
+          style: {
+            ...clone.style,
+            left: clone.startX + "px",
+            top: clone.startY + "px",
+            transform: clone.animating
+              ? "translate(calc(-50% + " +
+                clone.dx +
+                "px), calc(-50% + " +
+                clone.dy +
+                "px))"
+              : "translate(-50%, -50%)",
+          },
+        },
+        clone.text,
+      ),
+    ),
     React.createElement(
       "div",
       { className: "app-main-content" },

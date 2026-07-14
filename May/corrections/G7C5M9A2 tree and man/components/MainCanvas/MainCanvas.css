@@ -1,0 +1,40 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.diagram-group text {
+  pointer-events: none;
+  user-select: none;
+}
+
+.calc-panel-group text {
+  user-select: none;
+}
+
+#conclude-button-svg {
+  cursor: pointer;
+}
+
+#blue-triangle-fill {
+  cursor: pointer;
+}
+
+#yellow-angle-sector {
+  cursor: pointer;
+}
+
+#right-angle-square-d,
+#right-angle-square-b {
+  cursor: pointer;
+}
