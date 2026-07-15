@@ -1,0 +1,34 @@
+.rotation-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.rotation-red-stroke {
+  fill: none;
+  stroke: #e74c3c;
+  stroke-width: 0.55;
+  stroke-linejoin: round;
+}
+
+.rotation-size-stroke {
+  stroke-width: 0.7;
+}
+
+.rotation-angle-mark {
+  fill: #a00000;
+  stroke: none;
+}
+
+.rotation-callout {
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.rotation-purple-arrow {
+  pointer-events: none;
+}
+
+.rotation-shape-group {
+  pointer-events: none;
+}

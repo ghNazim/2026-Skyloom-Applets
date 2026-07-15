@@ -1,0 +1,27 @@
+.translation-graph-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8vw;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.translation-graph-panel .translation-graph-svg {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0.8vw;
+}
+
+.tgp-placed-point {
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.tgp-segment {
+  transition: opacity 0.3s ease;
+}

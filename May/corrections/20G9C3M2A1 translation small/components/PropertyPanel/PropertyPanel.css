@@ -1,0 +1,58 @@
+.property-panel {
+  width: 25%;
+  height: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.2vw;
+  padding: 2vw 1.5vw;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+}
+
+.property-btn {
+  width: 100%;
+  padding: 1.4vw 1vw;
+  border: none;
+  border-radius: 0.9vw;
+  background: #156082;
+  color: #ffffff;
+  font-size: 2.5vw;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
+}
+
+.property-btn:hover:not(:disabled) {
+  transform: translateY(-0.15vw);
+  /* border-color: rgba(255, 215, 0, 0.7); */
+  background: #207090;
+}
+
+.property-btn.active {
+  background: #2a8fb0;
+  /* border-color: #5bcdf0; */
+  color: #ffffff;
+}
+
+.property-btn.explored:not(.active) {
+  opacity: 0.9;
+  background: #1a5f7a;
+}
+
+.property-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.property-btn.property-btn.active:disabled{
+  opacity: 1;
+}

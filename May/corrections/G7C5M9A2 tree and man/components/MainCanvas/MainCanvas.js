@@ -55,7 +55,8 @@ const ARROW_HEAD_HALF = 3.5;
 const ARROW_TIP_OVERLAP = 1.5;
 
 function playSnd(name) {
-  if (typeof playSound === "function") playSound(name);
+  if (typeof playSound === "function") 
+    playSound(name);
 }
 
 function getDiagramLayout() {
@@ -598,6 +599,7 @@ const MainCanvas = (props) => {
         resolve();
         return;
       }
+      setTimeout(() => playSnd("swoosh"), 200);
       setFlyingClones((prev) => [
         ...prev,
         { id, text, from, to, color, t: 0, fontSize: POINT_LABEL_SIZE },
@@ -818,6 +820,7 @@ const MainCanvas = (props) => {
     await new Promise((r) => setTimeout(r, 500));
 
     const floatAnim = { y: 0 };
+    setTimeout(() => playSnd("swoosh"), 200);
     await new Promise((resolve) => {
       gsap.to(floatAnim, {
         y: YELLOW_FLOAT_OFFSET,
@@ -933,6 +936,7 @@ const MainCanvas = (props) => {
     await flyLettersSimultaneous(line2Fly2, setLine2Opacity, "angle2");
 
     const floatAnim = { y: yellowOffsetY };
+    setTimeout(() => playSnd("swoosh"), 200);
     await new Promise((resolve) => {
       gsap.to(floatAnim, {
         y: 0,
@@ -1090,6 +1094,7 @@ const MainCanvas = (props) => {
     await new Promise((r) => setTimeout(r, 200));
 
     const floatAnim = { y: 0 };
+    playSnd("swoosh");
     await new Promise((resolve) => {
       gsap.to(floatAnim, {
         y: YELLOW_FLOAT_OFFSET,
@@ -1346,6 +1351,7 @@ const MainCanvas = (props) => {
     );
 
     const floatAnim = { y: yellowOffsetY };
+    setTimeout(() => playSnd("swoosh"), 200);
     await new Promise((resolve) => {
       gsap.to(floatAnim, {
         y: 0,

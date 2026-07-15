@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Properties of Translation</title>
+
+    <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="styles/Applet.css" />
+    <link rel="stylesheet" href="components/Navigation/Navigation.css" />
+    <link rel="stylesheet" href="components/Navigation2/Navigation2.css" />
+    <link rel="stylesheet" href="components/Nudge/Nudge.css" />
+    <link rel="stylesheet" href="components/PropertyPanel/PropertyPanel.css" />
+    <link rel="stylesheet" href="components/Fullscreen/Fullscreen.css" />
+    <link rel="stylesheet" href="components/Step1Canvas/Step1Canvas.css" />
+    <link rel="stylesheet" href="components/Step2Canvas/Step2Canvas.css" />
+    <link rel="stylesheet" href="components/TranslationIntroGraph/TranslationIntroGraph.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="packages/react.development.js"></script>
+    <script src="packages/react-dom.development.js"></script>
+    <script src="packages/gsap.min.js"></script>
+
+    <script>
+      const current_language = "id";
+    </script>
+    <script src="data.js"></script>
+    <script src="translationConfig.js"></script>
+    <script src="utility.js"></script>
+
+    <script src="components/Nudge/Nudge.js"></script>
+    <script src="components/Navigation/Navigation.js"></script>
+    <script src="components/Navigation2/Navigation2.js"></script>
+    <script src="components/Fullscreen/Fullscreen.js"></script>
+    <script src="components/PropertyPanel/PropertyPanel.js"></script>
+    <script src="components/TranslationIntroGraph/TranslationIntroGraph.js"></script>
+    <script src="components/TranslationPropertiesGraph/TranslationPropertiesGraph.js"></script>
+    <script src="components/Step1Canvas/Step1Canvas.js"></script>
+    <script src="components/Step2Canvas/Step2Canvas.js"></script>
+
+    <script src="App.js"></script>
+
+    <script>
+      ReactDOM.render(
+        React.createElement(App),
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>

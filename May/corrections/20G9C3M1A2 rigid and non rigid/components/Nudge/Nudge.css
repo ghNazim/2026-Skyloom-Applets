@@ -1,0 +1,10 @@
+.nudge {
+  position: absolute;
+  width: 5vw;
+  height: 5vw;
+  pointer-events: none;
+  z-index: 200;
+  transform: translate(-50%, 0%);
+  object-fit: contain;
+  opacity: 0.5;
+}

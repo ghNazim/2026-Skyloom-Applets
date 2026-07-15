@@ -13,6 +13,7 @@ const App = () => {
   const [farthestCompletedStep, setFarthestCompletedStep] = useState(0);
   const [isReviewingCompletedStep, setIsReviewingCompletedStep] = useState(false);
   const [isAnimationBusy, setIsAnimationBusy] = useState(false);
+  const [step5Phase, setStep5Phase] = useState(1);
 
   const hideNudge = useCallback(() => {
     setShowNudge(false);
@@ -27,6 +28,13 @@ const App = () => {
   const handleNext = () => {
     if (typeof playSound === "function") playSound("click");
     hideNudge();
+    if (currentStep === 5 && step5Phase === 1 && !isReviewingCompletedStep) {
+      setStep5Phase(2);
+      setIsNextDisabled(true);
+      setDynamicNavText("");
+      setDynamicQuestionText(null);
+      return;
+    }
     setFarthestCompletedStep((s) => Math.max(s, currentStep));
     if (currentStep === 8) {
       setCurrentStep(1);
@@ -36,6 +44,7 @@ const App = () => {
       setDynamicQuestionText(null);
       setFarthestCompletedStep(0);
       setIsReviewingCompletedStep(false);
+      setStep5Phase(1);
       return;
     }
     if (currentStep < 8) {
@@ -44,6 +53,7 @@ const App = () => {
       setIsReviewingCompletedStep(nextStep <= farthestCompletedStep);
       setDynamicNavText(null);
       setDynamicQuestionText(null);
+      setStep5Phase(1);
     }
   };
 
@@ -55,14 +65,15 @@ const App = () => {
     setIsReviewingCompletedStep(true);
     setDynamicNavText(null);
     setDynamicQuestionText(null);
+    setStep5Phase(2);
   };
 
   const setNextEnabled = useCallback((enabled) => {
     setIsNextDisabled(!enabled);
-    if (enabled) {
+    if (enabled && !(currentStep === 5 && step5Phase === 1)) {
       setFarthestCompletedStep((s) => Math.max(s, currentStep));
     }
-  }, [currentStep]);
+  }, [currentStep, step5Phase]);
 
   const updateTexts = useCallback((question, nav) => {
     if (question !== undefined) setDynamicQuestionText(question);
@@ -82,12 +93,14 @@ const App = () => {
   };
 
   useEffect(() => {
-    setDynamicNavText(null);
-    setDynamicQuestionText(null);
     setNudgeTarget(null);
     setIsAnimationBusy(false);
+  }, [currentStep, isReviewingCompletedStep, step5Phase]);
 
+  useEffect(() => {
     if (isReviewingCompletedStep || currentStep <= farthestCompletedStep) {
+      setIsNextDisabled(false);
+    } else if (currentStep === 5 && step5Phase === 1) {
       setIsNextDisabled(false);
     } else if ([1, 2].indexOf(currentStep) !== -1) {
       setIsNextDisabled(false);
@@ -100,7 +113,7 @@ const App = () => {
     } else {
       setNextButtonText("\u00BB");
     }
-  }, [currentStep, farthestCompletedStep, isReviewingCompletedStep]);
+  }, [currentStep, farthestCompletedStep, isReviewingCompletedStep, step5Phase]);
 
   useEffect(() => {
     const updateNudge = () => {
@@ -143,7 +156,8 @@ const App = () => {
       React.createElement(MainCanvas, {
         key: resetKey,
         step: currentStep,
-        isCompletedView: isReviewingCompletedStep || currentStep <= farthestCompletedStep,
+        step5Phase: step5Phase,
+        isCompletedView: isReviewingCompletedStep || currentStep < farthestCompletedStep,
         onSetNextEnabled: setNextEnabled,
         onSetAnimationBusy: setIsAnimationBusy,
         onUpdateTexts: updateTexts,

@@ -1,0 +1,121 @@
+.mcq-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.2vw;
+  padding: 1.5vw;
+}
+
+.mcq-panel-feedback-only {
+  justify-content: center;
+}
+
+.mcq-panel-options {
+  display: flex;
+  gap: 0.9vw;
+  width: 100%;
+}
+
+.mcq-options-column {
+  flex-direction: column;
+}
+
+.mcq-option {
+  padding: 0.85vw 1.2vw;
+  font-size: 2.5vw;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  border: none;
+  border-radius: var(--action-btn-radius);
+  /* box-shadow:
+    0.12vw 0.15vw 0 0 var(--action-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22); */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  text-align: center;
+}
+
+.mcq-option:hover:not(:disabled):not(.wrong):not(.correct) {
+  transform: scale(1.02);
+}
+
+.mcq-option.wrong {
+  background-color: #c62828 !important;
+  color: #ffffff;
+  animation: mcq-shake 0.5s ease;
+}
+
+.mcq-option.correct {
+  background-color: #2e7d32 !important;
+  color: #ffffff;
+}
+
+.mcq-option:disabled {
+  cursor: default;
+}
+
+.mcq-feedback-box {
+  width: 100%;
+  padding: 1.6vw 1.4vw;
+  border-radius: 1.2vw;
+  border: 0.25vw dashed transparent;
+  font-size: 2.3vw;
+  line-height: 1.4;
+  color: #ffffff;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: mcq-feedback-in 0.35s ease;
+  box-sizing: border-box;
+}
+
+.mcq-feedback-box.is-wrong {
+  background: rgba(110, 38, 42, 0.95);
+  border-color: rgba(255, 155, 150, 0.9);
+}
+
+.mcq-feedback-box.is-correct {
+  background: rgba(38, 95, 52, 0.95);
+  border-color: rgba(140, 220, 165, 0.9);
+}
+
+.mcq-feedback-text {
+  width: 100%;
+}
+
+@keyframes mcq-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes mcq-feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -29,6 +29,7 @@ const DATA = {
         },
         5: {
           questionText: "Let's find the unknown angles in trapezoid PQRS.",
+          identifySecondPartNav: "Tap \u00BB to identify what to find in the second part of the question.",
           navText: "Tap \u00BB to solve the second part.",
         },
         6: {
@@ -50,7 +51,8 @@ const DATA = {
           allFoundNav: "Tap \u00BB to summarize",
         },
         8: {
-          navText: "Activity Completed",
+          questionText: "We found all unknown side lengths and angles.",
+          navText: "Tap 'Start Over' to restart the activity",
           startOver: "Start Over",
         },
       },
@@ -87,6 +89,7 @@ const DATA = {
         },
         5: {
           questionText: "Mari temukan sudut-sudut yang belum diketahui pada trapesium PQRS.",
+          identifySecondPartNav: "Ketuk \u00BB untuk mengidentifikasi apa yang dicari di bagian kedua pertanyaan.",
           navText: "Ketuk \u00BB untuk menyelesaikan bagian kedua.",
         },
         6: {
@@ -108,7 +111,8 @@ const DATA = {
           allFoundNav: "Ketuk \u00BB untuk merangkum",
         },
         8: {
-          navText: "Aktivitas Selesai",
+          questionText: "Kita telah menemukan semua panjang sisi dan sudut yang belum diketahui.",
+          navText: "Ketuk 'Mulai Lagi' untuk memulai ulang aktivitas",
           startOver: "Mulai Lagi",
         },
       },

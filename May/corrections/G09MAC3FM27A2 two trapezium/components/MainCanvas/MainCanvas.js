@@ -230,6 +230,7 @@ var MainCanvas = function (props) {
   var onHideNudge = props.onHideNudge;
   var onShowNudge = props.onShowNudge;
   var isCompletedView = props.isCompletedView;
+  var step5Phase = props.step5Phase || 1;
 
   var useState = React.useState;
   var useEffect = React.useEffect;
@@ -374,10 +375,16 @@ var MainCanvas = function (props) {
       setShowCorrespCues(false);
       setStep5KnownAngles([]);
       setStep5VisibleCues([]);
-      if (onSetNextEnabled) onSetNextEnabled(false);
-      onUpdateTexts(undefined, "");
-      setAnimationBusy(true);
-      addTimer(function () { runStep5Intro(); }, 600);
+      if (step5Phase === 1) {
+        if (onSetNextEnabled) onSetNextEnabled(true);
+        onUpdateTexts(undefined, APP_DATA.steps[5].identifySecondPartNav);
+        setAnimationBusy(false);
+      } else {
+        if (onSetNextEnabled) onSetNextEnabled(false);
+        onUpdateTexts(undefined, "");
+        setAnimationBusy(true);
+        addTimer(function () { runStep5Intro(); }, 600);
+      }
     }
 
     if (step === 6) {
@@ -400,7 +407,7 @@ var MainCanvas = function (props) {
     }
 
     return clearTimers;
-  }, [step, isCompletedView]);
+  }, [step, isCompletedView, step5Phase]);
 
   function applyCompletedStepState(completedStep) {
     setStep3HighlightSide(null);
@@ -838,6 +845,7 @@ var MainCanvas = function (props) {
     if (step === 1) return "problem-line";
     if (step === 2) return partIdx === 0 ? "problem-line problem-highlight" : "problem-line problem-dim";
     if (step === 3) return partIdx === 1 ? "problem-line problem-highlight" : "problem-line problem-dim";
+    if (step === 5 && step5Phase === 1) return partIdx === 2 ? "problem-line" : "problem-line problem-dim";
     if (step === 5) return partIdx === 2 ? "problem-line problem-highlight" : "problem-line problem-dim";
     if (step === 8) return partIdx === 0 ? "problem-line problem-dim" : "problem-line problem-highlight";
     return "problem-line";

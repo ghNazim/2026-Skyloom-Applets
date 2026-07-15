@@ -1,0 +1,69 @@
+.main-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  border-radius: 1vw;
+  overflow: hidden;
+}
+
+.main-canvas-left {
+  flex: 0 0 60%;
+  width: 60%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+}
+
+.main-canvas-right {
+  flex: 0 0 40%;
+  width: 40%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5vw 1.2vw;
+  border-radius: 0.8vw;
+  margin: 0.4vw 0.4vw 0.4vw 0;
+  box-sizing: border-box;
+}
+
+.main-canvas-right.is-empty {
+  visibility: hidden;
+}
+
+.drag-guide-hand {
+  position: absolute;
+  width: 3.8vw;
+  min-width: 32px;
+  pointer-events: none;
+  z-index: 20;
+  transform: translate(-50%, -50%);
+  animation: drag-guide-hand-path 1.8s ease-in-out infinite;
+}
+
+@keyframes drag-guide-hand-path {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.96);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -50%)
+      translate(var(--drag-hint-x), var(--drag-hint-y)) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%)
+      translate(var(--drag-hint-x), var(--drag-hint-y)) scale(1);
+    opacity: 0;
+  }
+}
