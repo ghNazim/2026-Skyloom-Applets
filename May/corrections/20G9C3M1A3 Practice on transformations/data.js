@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Practice on Transformations",
         text:
-          "Let's solve a few questions on Transformations.<br><br>Click START to begin!",
+          "Let's solve a few questions on Transformations.<br><br><br><br>Click START to begin!",
         buttonText: "START",
       },
       replay: "REPLAY",

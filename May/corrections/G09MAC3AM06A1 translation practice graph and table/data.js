@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Practice: Translation",
         text:
-          "Let's solve a question on Translation.<br><br>Click START to begin!",
+          "Let's solve a question on Translation.<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       question: {

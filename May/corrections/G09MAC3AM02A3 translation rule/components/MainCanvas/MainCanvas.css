@@ -127,9 +127,10 @@
   white-space: nowrap;
   z-index: 2;
   pointer-events: none;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(30, 137, 186, 0.25);
   padding: 1vw;
-  border-radius: 1vw;
+  /* border-radius: 1vw; */
+  width:100%;
 }
 
 .fly-clone-overlay {

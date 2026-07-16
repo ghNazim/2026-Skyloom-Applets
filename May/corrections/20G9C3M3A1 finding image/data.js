@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Finding Image Coordinates",
         text:
-          "Given the coordinates of an object and the<br>movement (translation), let's see how to find the<br>coordinates of its image.<br><br>Click START to begin!",
+          "Given the coordinates of an object and the<br>movement (translation), let's see how to find the<br>coordinates of its image.<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       question: {

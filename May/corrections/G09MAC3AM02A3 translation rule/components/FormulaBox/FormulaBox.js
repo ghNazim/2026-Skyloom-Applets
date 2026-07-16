@@ -66,11 +66,11 @@ const FormulaBox = (props) => {
       "span",
       { className: "formula-slot-inner" },
       React.createElement("span", { className: "color-blue" }, lbl.openParen),
-      React.createElement("span", { className: "color-pink" }, lbl.x),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.x),
       React.createElement("span", { className: "color-white" }, lbl.plus),
       React.createElement("span", { className: "color-yellow" }, lbl.a),
-      React.createElement("span", { className: "color-blue" }, lbl.comma + " "),
-      React.createElement("span", { className: "color-pink" }, lbl.y),
+      React.createElement("span", { className: "color-blue" }, lbl.comma + "\u00A0"),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.y),
       React.createElement("span", { className: "color-white" }, lbl.plus),
       React.createElement("span", { className: "color-yellow" }, lbl.b),
       React.createElement("span", { className: "color-blue" }, lbl.closeParen),
@@ -81,9 +81,9 @@ const FormulaBox = (props) => {
       "span",
       { className: "formula-slot-inner" },
       React.createElement("span", { className: "color-pink" }, lbl.openParen),
-      React.createElement("span", { className: "color-pink" }, lbl.x),
-      React.createElement("span", { className: "color-pink" }, lbl.comma + " "),
-      React.createElement("span", { className: "color-pink" }, lbl.y),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.x),
+      React.createElement("span", { className: "color-pink" }, lbl.comma + "\u00A0"),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.y),
       React.createElement("span", { className: "color-pink" }, lbl.closeParen),
     );
 
@@ -219,7 +219,7 @@ const FormulaBox = (props) => {
                 React.createElement(
                   "span",
                   { ref: slotCommaRef, className: "color-yellow" },
-                  lbl.comma + " ",
+                  lbl.comma + "\u00A0",
                 ),
                 React.createElement(
                   "span",

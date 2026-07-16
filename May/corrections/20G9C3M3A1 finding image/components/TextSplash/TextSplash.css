@@ -15,4 +15,6 @@
   color: #ffffff;
   text-align: center;
   white-space: pre-line;
+  position: relative;
+  bottom: 3vw;
 }

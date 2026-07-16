@@ -57,6 +57,106 @@ const DATA = {
           calloutProp2B: "Locating the image at the same distance on the other side",
           doneText: "We have found the image using properties of reflection.",
         },
+        6: {
+          rightTextDone:
+            "We located the image of<br><y>A(2, 4)</y> at <y>A&rsquo;(2, -4)</y>.",
+          navTextDone: "Tap &raquo; to deduce the pattern.",
+        },
+        7: {
+          topText: "<y>Compare the coordinates of point and its image.</y>",
+          title: "Which of these observations is correct?",
+          optionX: "x-coordinate changed",
+          optionY: "y-coordinate changed",
+          navTextInitial: "Tap the correct option.",
+          navTextDone: "Tap &raquo; to continue.",
+          feedbackWrong:
+            "No, look again!<br>The x-coordinate of point and its image is same.",
+          feedbackCorrect:
+            "That&rsquo;s correct!<br>y-coordinates of point and its image have opposite signs.",
+        },
+        8: {
+          topTextInitial: "<y>Compare the coordinates of point and its image.</y>",
+          topTextRule: "Rule for reflection across x-axis.",
+          navTextInitial: "Tap 'Reveal' for the x-axis rule.",
+          navTextDone: "Tap &raquo; to see applications of this rule.",
+          observationTitle: "Observation",
+          observationX: "x-coordinate:",
+          observationXValue: "No change",
+          observationY: "y-coordinate:",
+          observationYValue: "Sign changed",
+          bodyText:
+            "This pattern works for all<br>points reflected<br>across the x-axis.<br><br>Let&rsquo;s see the general rule.",
+          revealBtn: "Reveal",
+        },
+        9: {
+          questions: [
+            {
+              point: "A",
+              x: "3",
+              y: "4",
+              imageX: "3",
+              imageY: "-4",
+              topText:
+                "Find coordinates of image when point A(3, 4) is reflected across x-axis.",
+              options: ["3", "-3", "4", "-4"],
+            },
+            {
+              point: "B",
+              x: "0",
+              y: "-3",
+              imageX: "0",
+              imageY: "3",
+              topText:
+                "Find coordinates of image when point B(0, -3) is reflected across x-axis.",
+              options: ["0", "3", "-3"],
+            },
+            {
+              point: "C",
+              x: "-3",
+              y: "-2",
+              imageX: "-3",
+              imageY: "2",
+              topText:
+                "Find coordinates of image when point C(-3, -2) is reflected across x-axis.",
+              options: ["3", "-3", "2", "-2"],
+            },
+          ],
+          formulaText: "A(x, y) \u2192 A&rsquo;(x, -y)",
+          pointLabel: "Point",
+          imageLabel: "Image",
+          navTextInitial: "Tap the correct option.",
+          navTextXDone: "Tap &raquo; to continue.",
+          navTextYDone: "Tap &raquo; for another challenge.",
+          navTextFinalDone: "Tap &raquo; to complete the activity.",
+          questionX: "What is the <y>x-coordinate</y> of the image?",
+          questionY: "What is the <y>y-coordinate</y> of the image?",
+          xWrongNeg3:
+            "Oops! The sign of the x-coordinate should not change as per the rule.",
+          xWrongOther:
+            "Oops! x-coordinate doesn&rsquo;t change, it remains the same.",
+          xCorrect:
+            "That is correct!<br>Sign of x-coordinate of image does not change.",
+          yWrong3:
+            "Oops!<br>x-coordinate and y-coordinate do not get swapped.",
+          yWrongNeg3:
+            "Oops!<br>Only the sign of the y-coordinate reverses.",
+          yWrong4:
+            "Oops!<br>The sign of the y-coordinate should reverse as per the rule.",
+          yCorrect:
+            "That is correct!<br>Sign of y-coordinate changes as per the given rule.",
+          hintX: "unchanged",
+          hintY: "sign reversed",
+        },
+        10: {
+          heading: "Activity Completed!",
+          ruleTitle: "Reflection of a Point Across x-axis",
+          ruleLabel: "Rule:",
+          ruleFormula: "A( x, y ) \u2192 A&rsquo;( x, -y )",
+          body:
+            "You can now find the coordinates of the image of a point<br>reflected across x-axis using the above rule.",
+          restartPrompt: "Tap <y>START OVER</y> to repeat this activity!",
+          buttonText: "START OVER",
+        },
       },
       graph: {
         pointLabel: "A({x}, {y})",
@@ -68,7 +168,7 @@ const DATA = {
       start: {
         heading: "Refleksi Sebuah Titik",
         text:
-          "Kita melihat bahwa ketika sebuah titik direfleksikan melintasi sumbu-x, bayangannya muncul di <y>sisi berlawanan</y> – pada <y>jarak yang sama</y> dari garis.<br>Sekarang coba sendiri dan lihat di mana bayangannya berada.",
+          "Kita melihat bahwa ketika sebuah titik direfleksikan melintasi sumbu-x,<br> bayangannya muncul di <y>sisi berlawanan</y> – pada <y>jarak yang sama</y> dari garis.<br>Sekarang coba sendiri dan lihat di mana bayangannya berada.",
         buttonText: "MULAI",
       },
       steps: {
@@ -115,6 +215,106 @@ const DATA = {
           calloutProp2A: "Titik A berjarak 4 satuan dari garis refleksi",
           calloutProp2B: "Menentukan bayangan pada jarak yang sama di sisi lain",
           doneText: "Kita telah menemukan bayangan menggunakan sifat-sifat refleksi.",
+        },
+        6: {
+          rightTextDone:
+            "We located the image of<br><y>A(2, 4)</y> at <y>A&rsquo;(2, -4)</y>.",
+          navTextDone: "Tap &raquo; to deduce the pattern.",
+        },
+        7: {
+          topText: "<y>Compare the coordinates of point and its image.</y>",
+          title: "Which of these observations is correct?",
+          optionX: "x-coordinate changed",
+          optionY: "y-coordinate changed",
+          navTextInitial: "Tap the correct option.",
+          navTextDone: "Tap &raquo; to continue.",
+          feedbackWrong:
+            "No, look again!<br>The x-coordinate of point and its image is same.",
+          feedbackCorrect:
+            "That&rsquo;s correct!<br>y-coordinates of point and its image have opposite signs.",
+        },
+        8: {
+          topTextInitial: "<y>Compare the coordinates of point and its image.</y>",
+          topTextRule: "Rule for reflection across x-axis.",
+          navTextInitial: "Tap 'Reveal' for the x-axis rule.",
+          navTextDone: "Tap &raquo; to see applications of this rule.",
+          observationTitle: "Observation",
+          observationX: "x-coordinate:",
+          observationXValue: "No change",
+          observationY: "y-coordinate:",
+          observationYValue: "Sign changed",
+          bodyText:
+            "This pattern works for all<br>points reflected<br>across the x-axis.<br><br>Let&rsquo;s see the general rule.",
+          revealBtn: "Reveal",
+        },
+        9: {
+          questions: [
+            {
+              point: "A",
+              x: "3",
+              y: "4",
+              imageX: "3",
+              imageY: "-4",
+              topText:
+                "Find coordinates of image when point A(3, 4) is reflected across x-axis.",
+              options: ["3", "-3", "4", "-4"],
+            },
+            {
+              point: "B",
+              x: "0",
+              y: "-3",
+              imageX: "0",
+              imageY: "3",
+              topText:
+                "Find coordinates of image when point B(0, -3) is reflected across x-axis.",
+              options: ["0", "3", "-3"],
+            },
+            {
+              point: "C",
+              x: "-3",
+              y: "-2",
+              imageX: "-3",
+              imageY: "2",
+              topText:
+                "Find coordinates of image when point C(-3, -2) is reflected across x-axis.",
+              options: ["3", "-3", "2", "-2"],
+            },
+          ],
+          formulaText: "A(x, y) \u2192 A&rsquo;(x, -y)",
+          pointLabel: "Point",
+          imageLabel: "Image",
+          navTextInitial: "Tap the correct option.",
+          navTextXDone: "Tap &raquo; to continue.",
+          navTextYDone: "Tap &raquo; for another challenge.",
+          navTextFinalDone: "Tap &raquo; to complete the activity.",
+          questionX: "What is the <y>x-coordinate</y> of the image?",
+          questionY: "What is the <y>y-coordinate</y> of the image?",
+          xWrongNeg3:
+            "Oops! The sign of the x-coordinate should not change as per the rule.",
+          xWrongOther:
+            "Oops! x-coordinate doesn&rsquo;t change, it remains the same.",
+          xCorrect:
+            "That is correct!<br>Sign of x-coordinate of image does not change.",
+          yWrong3:
+            "Oops!<br>x-coordinate and y-coordinate do not get swapped.",
+          yWrongNeg3:
+            "Oops!<br>Only the sign of the y-coordinate reverses.",
+          yWrong4:
+            "Oops!<br>The sign of the y-coordinate should reverse as per the rule.",
+          yCorrect:
+            "That is correct!<br>Sign of y-coordinate changes as per the given rule.",
+          hintX: "unchanged",
+          hintY: "sign reversed",
+        },
+        10: {
+          heading: "Activity Completed!",
+          ruleTitle: "Reflection of a Point Across x-axis",
+          ruleLabel: "Rule:",
+          ruleFormula: "A( x, y ) \u2192 A&rsquo;( x, -y )",
+          body:
+            "You can now find the coordinates of the image of a point<br>reflected across x-axis using the above rule.",
+          restartPrompt: "Tap <y>START OVER</y> to repeat this activity!",
+          buttonText: "START OVER",
         },
       },
       graph: {

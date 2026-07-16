@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(12, 35, 55, 0.85);
+  background: #0a2b3f;
   border-radius: 1.2vw;
   padding: 0.5vw;
   overflow: hidden;
@@ -34,7 +34,7 @@
   display: flex;
   align-items: stretch;
   justify-content: center;
-  background: rgba(44, 69, 84, 0.92);
+  background: rgba(30, 137, 186, 0.25);
   border-radius: 1.2vw;
 }
 

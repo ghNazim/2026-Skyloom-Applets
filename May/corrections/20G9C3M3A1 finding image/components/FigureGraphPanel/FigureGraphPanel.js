@@ -64,7 +64,7 @@ const FigureGraphPanel = ({
 
   const GRID_COLOR = "#3a6d8c";
   const AXIS_COLOR = "#ffffff";
-  const BG_COLOR = "#0a1520";
+  const BG_COLOR = "none";
   const OBJECT_COLOR = APP_COLORS.object;
   const IMAGE_COLOR = APP_COLORS.image;
 
@@ -177,11 +177,13 @@ const FigureGraphPanel = ({
       setDragPos(null);
     };
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [
     isDragging,
@@ -369,7 +371,8 @@ const FigureGraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "O",
       ),
@@ -385,7 +388,8 @@ const FigureGraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "X",
       ),
@@ -401,7 +405,8 @@ const FigureGraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "Y",
       ),
@@ -450,7 +455,7 @@ const FigureGraphPanel = ({
       isDraggable
         ? {
             style: { cursor: "grab" },
-            onMouseDown: (e) => handlePointPointerDown(id, e),
+            onPointerDown: (e) => handlePointPointerDown(id, e),
           }
         : { pointerEvents: "none" },
     );
@@ -509,7 +514,7 @@ const FigureGraphPanel = ({
         className: "graph-coordinate-svg",
         viewBox: "0 0 " + SVG_W + " " + SVG_H,
         preserveAspectRatio: "xMidYMid meet",
-        style: { cursor: cursorStyle },
+        style: { cursor: cursorStyle, touchAction: "none" },
       },
       React.createElement("rect", {
         x: 0,

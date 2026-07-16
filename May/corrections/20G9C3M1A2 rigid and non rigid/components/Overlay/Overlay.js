@@ -152,21 +152,24 @@ const Overlay = ({
         "overlay-backdrop" + (canClose ? " overlay-backdrop-closable" : ""),
       onClick: canClose ? onClose : undefined,
     },
-    showHeading &&
+    React.createElement(
+      "div",
+      {
+        className:
+          "overlay-heading-row" + (showHeading ? "" : " is-hidden"),
+        "aria-hidden": !showHeading,
+      },
+      headingBefore,
       React.createElement(
-        "div",
-        { className: "overlay-heading-row" },
-        headingBefore,
-        React.createElement(
-          "span",
-          {
-            ref: headingOpRef,
-            className: "overlay-op-name",
-          },
-          operationName
-        ),
-        headingAfter
+        "span",
+        {
+          ref: headingOpRef,
+          className: "overlay-op-name",
+        },
+        operationName
       ),
+      headingAfter
+    ),
     React.createElement(
       "div",
       { className: "overlay-boxes-row" },

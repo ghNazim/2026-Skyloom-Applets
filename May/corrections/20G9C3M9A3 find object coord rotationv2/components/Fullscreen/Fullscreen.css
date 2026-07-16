@@ -12,6 +12,7 @@
     padding-bottom: 10vw;
     box-sizing: border-box;
     /* backdrop-filter: blur(5vw); */
+    padding-top:0;
 }
 .btn {
   font-size: 2.5vw;
@@ -45,6 +46,8 @@
     font-size: 4.5vw;
     margin-bottom: 4vw;
     color: #ffb84c;
+    position: relative;
+    top:-5vw;
 }
 
 .fullscreen-button{

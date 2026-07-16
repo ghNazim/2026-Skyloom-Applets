@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Properties of Rotation",
         text:
-          "Explore the properties of rotation<br>by rotating figures about a fixed point.<br><br>Click START to begin!",
+          "Explore the properties of rotation<br>by rotating figures about a fixed point.<br><br><br><br>Click START to begin!",
         buttonText: "START",
       },
       finish: {

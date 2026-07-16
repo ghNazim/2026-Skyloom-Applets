@@ -1,5 +1,5 @@
 const ReflectionGraph = ({ showGray = true, animProgress = 0 }) => {
-  const imageFill = animProgress >= 1 ? COLORS.yellow : COLORS.gray;
+  const imageFill = animProgress >= 0.5 ? COLORS.yellow : COLORS.gray;
   const grayPoints = REFLECTION_TRIANGLE;
   const yellowPoints = flipPointsAcrossVerticalAxis(
     REFLECTION_TRIANGLE,

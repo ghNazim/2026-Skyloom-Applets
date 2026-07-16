@@ -380,6 +380,11 @@ const MainCanvas = ({
       BPrime: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
     });
     setImageSegmentOpacity(0.22);
+    setObjectPointStates({
+      A: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
+      B: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
+    });
+    setObjectSegmentOpacity(0.22);
 
     const clonePoints = OBJECT_POINT_DEFS.map((pt) => ({
       id: pt.key,
@@ -447,6 +452,11 @@ const MainCanvas = ({
       BPrime: { circleOpacity: 1, labelVisible: true },
     });
     setImageSegmentOpacity(1);
+    setObjectPointStates({
+      A: { circleOpacity: 1, labelVisible: true },
+      B: { circleOpacity: 1, labelVisible: true },
+    });
+    setObjectSegmentOpacity(1);
     rotationAnimRef.current = false;
     if (typeof onStep6PhaseChange === "function") {
       onStep6PhaseChange("done");
@@ -551,6 +561,9 @@ const MainCanvas = ({
           setRightVisible(true);
           if (typeof onStep3PhaseChange === "function") {
             onStep3PhaseChange("entering");
+            setTimeout(() => {
+              onStep3PhaseChange("ready");
+            }, 500);
           }
         }, 80);
       } else {
@@ -665,7 +678,12 @@ const MainCanvas = ({
         labelPrefix: pt.labelPrefix,
         labelPlacement: pt.labelPlacement,
         circleOpacity: state.circleOpacity,
-        labelOpacity: state.labelVisible ? 1 : 0,
+        labelOpacity:
+          state.labelOpacity != null
+            ? state.labelOpacity
+            : state.labelVisible
+              ? 1
+              : 0,
         showLabel: true,
         labelRefKey: pt.labelRefKey,
       });

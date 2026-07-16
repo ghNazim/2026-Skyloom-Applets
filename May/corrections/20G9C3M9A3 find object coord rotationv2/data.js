@@ -94,7 +94,7 @@ const DATA = {
       rulePanel: {
         title:
           "Which rule should be applied to rotate a point <y>270\u00b0 clockwise</y> about the origin?",
-        rulePrefix: "(x,y) \u2192 (",
+        rulePrefix: "(x, y) \u2192 (",
         ruleSuffix: ")",
         resultRule:
           '( <span class="rule-object"><span class="math-var">x</span> , <span class="math-var">y</span></span> ) \u2192 ( <span class="rule-image">-<span class="math-var">y</span> , <span class="math-var">x</span></span> )',
@@ -106,7 +106,7 @@ const DATA = {
       rulePanel2: {
         title:
           "Which rule should be applied to rotate a point <y>180\u00b0 clockwise</y> about the origin?",
-        rulePrefix: "(x,y) \u2192 (",
+        rulePrefix: "(x, y) \u2192 (",
         ruleSuffix: ")",
         resultRule:
           '( <span class="rule-object"><span class="math-var">x</span> , <span class="math-var">y</span></span> ) \u2192 ( <span class="rule-image">-<span class="math-var">x</span> , -<span class="math-var">y</span></span> )',
@@ -277,7 +277,7 @@ const DATA = {
       rulePanel: {
         title:
           "Aturan mana yang harus diterapkan untuk merotasi titik <y>270\u00b0 searah jarum jam</y> terhadap titik asal?",
-        rulePrefix: "(x,y) \u2192 (",
+        rulePrefix: "(x, y) \u2192 (",
         ruleSuffix: ")",
         resultRule:
           '( <span class="rule-object"><span class="math-var">x</span> , <span class="math-var">y</span></span> ) \u2192 ( <span class="rule-image">-<span class="math-var">y</span> , <span class="math-var">x</span></span> )',
@@ -289,7 +289,7 @@ const DATA = {
       rulePanel2: {
         title:
           "Aturan mana yang harus diterapkan untuk merotasi titik <y>180\u00b0 searah jarum jam</y> terhadap titik asal?",
-        rulePrefix: "(x,y) \u2192 (",
+        rulePrefix: "(x, y) \u2192 (",
         ruleSuffix: ")",
         resultRule:
           '( <span class="rule-object"><span class="math-var">x</span> , <span class="math-var">y</span></span> ) \u2192 ( <span class="rule-image">-<span class="math-var">x</span> , -<span class="math-var">y</span></span> )',

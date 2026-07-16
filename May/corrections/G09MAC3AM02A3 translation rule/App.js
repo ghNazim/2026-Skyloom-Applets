@@ -31,6 +31,16 @@ const App = () => {
   }, []);
 
   const handleNav = (direction) => {
+    if (isAnimating) return;
+
+    if (direction === "prev" && currentStep > 1) {
+      if (typeof playSound === "function") playSound("click");
+      setCurrentStep((prev) => prev - 1);
+      setIsAnimating(false);
+      setStep6Complete(false);
+      return;
+    }
+
     if (direction === "next" && currentStep === 6 && step6Complete) {
       if (typeof playSound === "function") playSound("click");
       setCurrentStep(7);
@@ -46,6 +56,7 @@ const App = () => {
   }, [currentStep, isAnimating, step6Complete]);
 
   const isNextDisabled = !(currentStep === 6 && step6Complete && !isAnimating);
+  const isPrevDisabled = isAnimating || currentStep <= 1;
 
   useEffect(() => {
     const updateNudges = () => {
@@ -130,7 +141,7 @@ const App = () => {
       "div",
       { className: "app-main-content" },
       React.createElement(MainCanvas, {
-        key: sessionKey,
+        key: sessionKey + "-" + currentStep,
         step: currentStep,
         onAnimatingChange: setIsAnimating,
         onStepComplete: handleStepComplete,
@@ -143,7 +154,7 @@ const App = () => {
       React.createElement(Navigation, {
         onNav: handleNav,
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: true,
+        isPrevDisabled: isPrevDisabled,
         navText: navText,
       }),
     ),

@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Translation Rule",
         text:
-          "Let's learn how the image coordinates, object coordinates<br> and translation are related. <br><br>Click START to begin!",
+          "Let's learn how the image coordinates, object coordinates<br> and translation are related. <br><br><br>Click START to begin!",
         buttonText: "START",
       },
       buttons: {
@@ -84,7 +84,7 @@ const DATA = {
       sideText: {
         preimage: "P (x, y)",
         translation: "(a, b)",
-        imagePlaceholder: "P'(__, __)",
+        imagePlaceholder: "P'( __, __ )",
       },
       equationPrompt: "Mari tulis setiap suku sebagai persamaan",
       steps: {

@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Properties of Translation",
         text:
-          "Let\u2019s explore the properties of a translation.<br><br>Click START to begin!",
+          "Let\u2019s explore the properties of a translation.<br><br><br><br>Click START to begin!",
         buttonText: "START",
       },
       finish: {

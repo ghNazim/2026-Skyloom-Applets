@@ -59,6 +59,11 @@
   opacity: 1;
 }
 
+.coord-table-cell .cell-text.coord-table-math-var {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+}
+
 .coord-table-cell .cell-text.is-object-text,
 .fly-clone-text.is-object-text {
   color: #fb9b5b;

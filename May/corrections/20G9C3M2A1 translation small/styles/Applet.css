@@ -34,13 +34,15 @@
   /* gap: 2vh; */
   flex-direction: column;
   height: 7vw;
-  /* padding: 0vw 1vw; */
-  /* background: rgba(12, 35, 55, 0.65); */
+  padding: 0vw 1vw;
+  background: rgba(255, 255, 255, 0.13);
 }
 
 .lower-panel.navigation2-panel {
   height: 8vw;
   /* padding: 0.5vw 1vw; */
+  padding: 0;
+  background: none;
 }
 
 .bulb-small {

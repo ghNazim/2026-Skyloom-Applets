@@ -81,7 +81,7 @@ const GraphPanel = ({
 
   const GRID_COLOR = "#3a6d8c";
   const AXIS_COLOR = "#ffffff";
-  const BG_COLOR = "#0a1520";
+  const BG_COLOR = "none";
 
   const toSvg = useCallback(
     (gx, gy) => ({
@@ -333,6 +333,14 @@ const GraphPanel = ({
   const axisLabels = useMemo(() => {
     const els = [];
     const gridRight = PAD_LEFT + GRID_W;
+    const mathAxisTextProps = {
+      fill: AXIS_COLOR,
+      fontSize: axisNameFontSize,
+      fontWeight: "700",
+      textAnchor: "middle",
+      fontFamily: '"Times New Roman", Times, serif',
+      fontStyle: "italic",
+    };
 
     for (let i = 1; i <= 11; i++) {
       const px = ORIGIN_X + i * UNIT;
@@ -379,11 +387,7 @@ const GraphPanel = ({
           key: "origin-o",
           x: ORIGIN_X - 20,
           y: ORIGIN_Y + 24,
-          fill: AXIS_COLOR,
-          fontSize: axisNameFontSize,
-          fontWeight: "700",
-          textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          ...mathAxisTextProps,
         },
         "O",
       ),
@@ -393,13 +397,9 @@ const GraphPanel = ({
         "text",
         {
           key: "axis-x",
-          x: gridRight + 10,
+          x: gridRight + 14,
           y: ORIGIN_Y + 6,
-          fill: AXIS_COLOR,
-          fontSize: axisNameFontSize,
-          fontWeight: "700",
-          textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          ...mathAxisTextProps,
         },
         "X",
       ),
@@ -411,11 +411,7 @@ const GraphPanel = ({
           key: "axis-y",
           x: ORIGIN_X - 4,
           y: PAD_TOP - 8,
-          fill: AXIS_COLOR,
-          fontSize: axisNameFontSize,
-          fontWeight: "700",
-          textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          ...mathAxisTextProps,
         },
         "Y",
       ),

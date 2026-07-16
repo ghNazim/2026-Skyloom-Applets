@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Practice:<br>Translation of a Straight Line",
         text:
-          "Let's solve a few questions on translation of a straight line.<br><br>Click START to begin!",
+          "Let's solve a few questions on translation of a straight line.<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       textSplash: {

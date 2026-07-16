@@ -1,0 +1,39 @@
+.parking-svg image {
+  pointer-events: none;
+}
+
+.parking-danger-callout {
+  pointer-events: none;
+}
+
+.parking-crash-effect {
+  pointer-events: none;
+}
+
+.parking-crash-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.parking-crash-effect .ring-1 {
+  animation: parking-crash-pulse 0.75s ease-out infinite;
+}
+
+.parking-crash-effect .ring-2 {
+  animation: parking-crash-pulse 0.75s ease-out 0.15s infinite;
+}
+
+.parking-crash-effect .ring-3 {
+  animation: parking-crash-pulse 0.75s ease-out 0.3s infinite;
+}
+
+@keyframes parking-crash-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}

@@ -90,14 +90,11 @@ const TranslationDiagram = (props) => {
           className: "diag-label-text diag-fly-target",
           ...svgLabelTextProps(DIAG.pX, pLabelY),
         },
-        labels.pLabel +
-          " " +
-          labels.openParen +
-          labels.x +
-          labels.comma +
-          " " +
-          labels.y +
-          labels.closeParen,
+        React.createElement("tspan", null, labels.pLabel + " " + labels.openParen),
+        React.createElement("tspan", { className: "math-var" }, labels.x),
+        React.createElement("tspan", null, labels.comma + "\u00A0"),
+        React.createElement("tspan", { className: "math-var" }, labels.y),
+        React.createElement("tspan", null, labels.closeParen),
       ),
       React.createElement(
         "text",
@@ -160,13 +157,13 @@ const TranslationDiagram = (props) => {
           " " + labels.openParen,
           React.createElement(
             "tspan",
-            { className: "color-pink", "data-char": "x" },
+            { className: "color-pink math-var", "data-char": "x" },
             labels.x,
           ),
-          React.createElement("tspan", { className: "color-pink" }, labels.comma + " "),
+          React.createElement("tspan", { className: "color-pink" }, labels.comma + "\u00A0"),
           React.createElement(
             "tspan",
-            { className: "color-pink", "data-char": "y" },
+            { className: "color-pink math-var", "data-char": "y" },
             labels.y,
           ),
           React.createElement("tspan", { className: "color-pink" }, labels.closeParen),
@@ -221,7 +218,7 @@ const TranslationDiagram = (props) => {
                 "tspan",
                 {
                   ref: pPrimeSlotXRef,
-                  className: "color-pink slot-hidden",
+                  className: "color-pink math-var slot-hidden",
                   "data-char": "x",
                 },
                 labels.x,
@@ -243,12 +240,12 @@ const TranslationDiagram = (props) => {
                 },
                 labels.a,
               ),
-              React.createElement("tspan", { className: "color-blue" }, labels.comma + " "),
+              React.createElement("tspan", { className: "color-blue" }, labels.comma + "\u00A0"),
               React.createElement(
                 "tspan",
                 {
                   ref: pPrimeSlotYRef,
-                  className: "color-pink slot-hidden",
+                  className: "color-pink math-var slot-hidden",
                   "data-char": "y",
                 },
                 labels.y,

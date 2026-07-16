@@ -17,6 +17,7 @@ const CoordinateTable = ({
   cellRefs,
 }) => {
   const t = APP_DATA.table;
+  const mathHeaderClass = "cell-text coord-table-math-var";
 
   const renderDropZone = (zoneId) => {
     const placed = dndPlacements[zoneId];
@@ -162,7 +163,7 @@ const CoordinateTable = ({
           },
           React.createElement(
             "span",
-            { className: textClass(headerVisible) },
+            { className: mathHeaderClass + " " + textClass(headerVisible) },
             t.x,
           ),
         ),
@@ -176,7 +177,7 @@ const CoordinateTable = ({
           },
           React.createElement(
             "span",
-            { className: textClass(headerVisible) },
+            { className: mathHeaderClass + " " + textClass(headerVisible) },
             t.y,
           ),
         ),

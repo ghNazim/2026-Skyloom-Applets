@@ -53,7 +53,7 @@
   font-weight: 700;
   color: #e9c46a;
   text-align: center;
-  background: #4a4e54;
+  background: #2e83c4a6;
   flex-shrink: 0;
 }
 
@@ -64,7 +64,7 @@
   align-items: stretch;
   gap: 0.7vw;
   padding: 0.9vw;
-  background: #2d333b;
+  background: #5db2e733;
   min-height: 0;
   box-sizing: border-box;
 }

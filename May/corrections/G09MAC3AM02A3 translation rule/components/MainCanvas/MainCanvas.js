@@ -1,56 +1,178 @@
+const getMainCanvasSnapshot = (step) => {
+  const base = {
+    showPinkPoint: false,
+    showPinkLabel: false,
+    showHorizontalLine: false,
+    showVerticalLine: false,
+    showLabelA: false,
+    showLabelB: false,
+    imageLabelMode: "hidden",
+    showYellowPoint: false,
+    showHypotenuseArrow: false,
+    arrowLineDrawing: false,
+    arrowGrowProgress: 0,
+    arrowHeadVisible: false,
+    arrowGlow: false,
+    formulaSlotsVisible: false,
+    showEquationPrompt: false,
+    equationPromptFading: false,
+    showFormulaBox: false,
+    formulaRevealed: {},
+    formulaWords: {},
+    formulaMorph: {},
+    morphWidths: {},
+    formulaTwoLine: false,
+    formulaThreeLine: false,
+    formulaLine1Grey: false,
+    formulaLine1Shifted: false,
+    formulaLine2Grey: false,
+    formulaLine2Shifted: false,
+    formulaLine2: {},
+    formulaLine3: {},
+    highlightTopTerm: null,
+    highlightLine2Term: null,
+    formulaLine1Hidden: false,
+    formulaLine2Hidden: false,
+    svgDimmed: false,
+    blinkTranslationLines: false,
+    highlightPPrimeLabel: false,
+    blinkPPrimeLabel: false,
+    highlightPLabel: false,
+    blinkPLabel: false,
+    step4FormulaDone: false,
+    step5FormulaDone: false,
+    step6FormulaDone: false,
+    hideSidePreimage: false,
+    hideSideTranslation: false,
+    hideSideImage: false,
+    flyClones: [],
+    localAnimating: false,
+  };
+
+  if (step >= 2) {
+    base.showPinkPoint = true;
+    base.showPinkLabel = true;
+    base.hideSidePreimage = true;
+  }
+
+  if (step >= 3) {
+    base.showHorizontalLine = true;
+    base.showVerticalLine = true;
+    base.showLabelA = true;
+    base.showLabelB = true;
+    base.hideSideTranslation = true;
+  }
+
+  if (step >= 4) {
+    base.imageLabelMode = "formula";
+    base.showYellowPoint = true;
+    base.showHypotenuseArrow = true;
+    base.arrowLineDrawing = true;
+    base.arrowGrowProgress = 1;
+    base.arrowHeadVisible = true;
+    base.arrowGlow = true;
+    base.formulaSlotsVisible = true;
+    base.hideSideImage = true;
+  }
+
+  if (step === 4) {
+    base.showEquationPrompt = true;
+  }
+
+  if (step >= 5) {
+    base.showFormulaBox = true;
+    base.formulaRevealed = {
+      image: true,
+      equals: true,
+      preimage: true,
+      plus: true,
+      translation: true,
+    };
+    base.formulaWords = {
+      image: true,
+      preimage: true,
+      translation: true,
+    };
+    base.formulaMorph = {
+      image: "done",
+      preimage: "done",
+      translation: "done",
+    };
+    base.step4FormulaDone = true;
+  }
+
+  if (step >= 6) {
+    base.formulaTwoLine = true;
+    base.formulaLine1Grey = true;
+    base.formulaLine1Shifted = true;
+    base.formulaLine1Hidden = true;
+    base.formulaLine2 = {
+      translation: true,
+      equals: true,
+      image: true,
+      minus: true,
+      preimage: true,
+    };
+    base.step5FormulaDone = true;
+  }
+
+  return base;
+};
+
 const MainCanvas = (props) => {
   const { useState, useRef, useEffect, useCallback } = React;
   const { step, onAnimatingChange, onStepComplete, onStep6Complete } = props;
+  const snapshot = getMainCanvasSnapshot(step);
 
-  const [showPinkPoint, setShowPinkPoint] = useState(false);
-  const [showPinkLabel, setShowPinkLabel] = useState(false);
-  const [showHorizontalLine, setShowHorizontalLine] = useState(false);
-  const [showVerticalLine, setShowVerticalLine] = useState(false);
-  const [showLabelA, setShowLabelA] = useState(false);
-  const [showLabelB, setShowLabelB] = useState(false);
-  const [imageLabelMode, setImageLabelMode] = useState("hidden");
-  const [showYellowPoint, setShowYellowPoint] = useState(false);
-  const [showHypotenuseArrow, setShowHypotenuseArrow] = useState(false);
-  const [arrowLineDrawing, setArrowLineDrawing] = useState(false);
-  const [arrowGrowProgress, setArrowGrowProgress] = useState(0);
-  const [arrowHeadVisible, setArrowHeadVisible] = useState(false);
-  const [arrowGlow, setArrowGlow] = useState(false);
-  const [formulaSlotsVisible, setFormulaSlotsVisible] = useState(false);
+  const [showPinkPoint, setShowPinkPoint] = useState(snapshot.showPinkPoint);
+  const [showPinkLabel, setShowPinkLabel] = useState(snapshot.showPinkLabel);
+  const [showHorizontalLine, setShowHorizontalLine] = useState(snapshot.showHorizontalLine);
+  const [showVerticalLine, setShowVerticalLine] = useState(snapshot.showVerticalLine);
+  const [showLabelA, setShowLabelA] = useState(snapshot.showLabelA);
+  const [showLabelB, setShowLabelB] = useState(snapshot.showLabelB);
+  const [imageLabelMode, setImageLabelMode] = useState(snapshot.imageLabelMode);
+  const [showYellowPoint, setShowYellowPoint] = useState(snapshot.showYellowPoint);
+  const [showHypotenuseArrow, setShowHypotenuseArrow] = useState(snapshot.showHypotenuseArrow);
+  const [arrowLineDrawing, setArrowLineDrawing] = useState(snapshot.arrowLineDrawing);
+  const [arrowGrowProgress, setArrowGrowProgress] = useState(snapshot.arrowGrowProgress);
+  const [arrowHeadVisible, setArrowHeadVisible] = useState(snapshot.arrowHeadVisible);
+  const [arrowGlow, setArrowGlow] = useState(snapshot.arrowGlow);
+  const [formulaSlotsVisible, setFormulaSlotsVisible] = useState(snapshot.formulaSlotsVisible);
 
-  const [showEquationPrompt, setShowEquationPrompt] = useState(false);
-  const [equationPromptFading, setEquationPromptFading] = useState(false);
-  const [showFormulaBox, setShowFormulaBox] = useState(false);
-  const [formulaRevealed, setFormulaRevealed] = useState({});
-  const [formulaWords, setFormulaWords] = useState({});
-  const [formulaMorph, setFormulaMorph] = useState({});
-  const [morphWidths, setMorphWidths] = useState({});
-  const [formulaTwoLine, setFormulaTwoLine] = useState(false);
-  const [formulaThreeLine, setFormulaThreeLine] = useState(false);
-  const [formulaLine1Grey, setFormulaLine1Grey] = useState(false);
-  const [formulaLine1Shifted, setFormulaLine1Shifted] = useState(false);
-  const [formulaLine2Grey, setFormulaLine2Grey] = useState(false);
-  const [formulaLine2Shifted, setFormulaLine2Shifted] = useState(false);
-  const [formulaLine2, setFormulaLine2] = useState({});
-  const [formulaLine3, setFormulaLine3] = useState({});
-  const [highlightTopTerm, setHighlightTopTerm] = useState(null);
-  const [highlightLine2Term, setHighlightLine2Term] = useState(null);
-  const [formulaLine1Hidden, setFormulaLine1Hidden] = useState(false);
-  const [formulaLine2Hidden, setFormulaLine2Hidden] = useState(false);
-  const [svgDimmed, setSvgDimmed] = useState(false);
-  const [blinkTranslationLines, setBlinkTranslationLines] = useState(false);
-  const [highlightPPrimeLabel, setHighlightPPrimeLabel] = useState(false);
-  const [blinkPPrimeLabel, setBlinkPPrimeLabel] = useState(false);
-  const [highlightPLabel, setHighlightPLabel] = useState(false);
-  const [blinkPLabel, setBlinkPLabel] = useState(false);
-  const [step4FormulaDone, setStep4FormulaDone] = useState(false);
-  const [step5FormulaDone, setStep5FormulaDone] = useState(false);
-  const [step6FormulaDone, setStep6FormulaDone] = useState(false);
+  const [showEquationPrompt, setShowEquationPrompt] = useState(snapshot.showEquationPrompt);
+  const [equationPromptFading, setEquationPromptFading] = useState(snapshot.equationPromptFading);
+  const [showFormulaBox, setShowFormulaBox] = useState(snapshot.showFormulaBox);
+  const [formulaRevealed, setFormulaRevealed] = useState(snapshot.formulaRevealed);
+  const [formulaWords, setFormulaWords] = useState(snapshot.formulaWords);
+  const [formulaMorph, setFormulaMorph] = useState(snapshot.formulaMorph);
+  const [morphWidths, setMorphWidths] = useState(snapshot.morphWidths);
+  const [formulaTwoLine, setFormulaTwoLine] = useState(snapshot.formulaTwoLine);
+  const [formulaThreeLine, setFormulaThreeLine] = useState(snapshot.formulaThreeLine);
+  const [formulaLine1Grey, setFormulaLine1Grey] = useState(snapshot.formulaLine1Grey);
+  const [formulaLine1Shifted, setFormulaLine1Shifted] = useState(snapshot.formulaLine1Shifted);
+  const [formulaLine2Grey, setFormulaLine2Grey] = useState(snapshot.formulaLine2Grey);
+  const [formulaLine2Shifted, setFormulaLine2Shifted] = useState(snapshot.formulaLine2Shifted);
+  const [formulaLine2, setFormulaLine2] = useState(snapshot.formulaLine2);
+  const [formulaLine3, setFormulaLine3] = useState(snapshot.formulaLine3);
+  const [highlightTopTerm, setHighlightTopTerm] = useState(snapshot.highlightTopTerm);
+  const [highlightLine2Term, setHighlightLine2Term] = useState(snapshot.highlightLine2Term);
+  const [formulaLine1Hidden, setFormulaLine1Hidden] = useState(snapshot.formulaLine1Hidden);
+  const [formulaLine2Hidden, setFormulaLine2Hidden] = useState(snapshot.formulaLine2Hidden);
+  const [svgDimmed, setSvgDimmed] = useState(snapshot.svgDimmed);
+  const [blinkTranslationLines, setBlinkTranslationLines] = useState(snapshot.blinkTranslationLines);
+  const [highlightPPrimeLabel, setHighlightPPrimeLabel] = useState(snapshot.highlightPPrimeLabel);
+  const [blinkPPrimeLabel, setBlinkPPrimeLabel] = useState(snapshot.blinkPPrimeLabel);
+  const [highlightPLabel, setHighlightPLabel] = useState(snapshot.highlightPLabel);
+  const [blinkPLabel, setBlinkPLabel] = useState(snapshot.blinkPLabel);
+  const [step4FormulaDone, setStep4FormulaDone] = useState(snapshot.step4FormulaDone);
+  const [step5FormulaDone, setStep5FormulaDone] = useState(snapshot.step5FormulaDone);
+  const [step6FormulaDone, setStep6FormulaDone] = useState(snapshot.step6FormulaDone);
 
-  const [hideSidePreimage, setHideSidePreimage] = useState(false);
-  const [hideSideTranslation, setHideSideTranslation] = useState(false);
-  const [hideSideImage, setHideSideImage] = useState(false);
-  const [flyClones, setFlyClones] = useState([]);
-  const [localAnimating, setLocalAnimating] = useState(false);
+  const [hideSidePreimage, setHideSidePreimage] = useState(snapshot.hideSidePreimage);
+  const [hideSideTranslation, setHideSideTranslation] = useState(snapshot.hideSideTranslation);
+  const [hideSideImage, setHideSideImage] = useState(snapshot.hideSideImage);
+  const [flyClones, setFlyClones] = useState(snapshot.flyClones);
+  const [localAnimating, setLocalAnimating] = useState(snapshot.localAnimating);
 
   const preimageTextRef = useRef(null);
   const translationTextRef = useRef(null);
@@ -134,11 +256,11 @@ const MainCanvas = (props) => {
       "span",
       null,
       React.createElement("span", { className: "color-blue" }, lbl.openParen),
-      React.createElement("span", { className: "color-pink" }, lbl.x),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.x),
       React.createElement("span", { className: "color-white" }, lbl.plus),
       React.createElement("span", { className: "color-yellow" }, lbl.a),
-      React.createElement("span", { className: "color-blue" }, lbl.comma + " "),
-      React.createElement("span", { className: "color-pink" }, lbl.y),
+      React.createElement("span", { className: "color-blue" }, lbl.comma + "\u00A0"),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.y),
       React.createElement("span", { className: "color-white" }, lbl.plus),
       React.createElement("span", { className: "color-yellow" }, lbl.b),
       React.createElement("span", { className: "color-blue" }, lbl.closeParen),
@@ -151,12 +273,23 @@ const MainCanvas = (props) => {
       "span",
       null,
       React.createElement("span", { className: "color-pink" }, lbl.openParen),
-      React.createElement("span", { className: "color-pink" }, lbl.x),
-      React.createElement("span", { className: "color-pink" }, lbl.comma + " "),
-      React.createElement("span", { className: "color-pink" }, lbl.y),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.x),
+      React.createElement("span", { className: "color-pink" }, lbl.comma + "\u00A0"),
+      React.createElement("span", { className: "color-pink math-var" }, lbl.y),
       React.createElement("span", { className: "color-pink" }, lbl.closeParen),
     );
   };
+
+  const buildPreimageSideText = () =>
+    React.createElement(
+      React.Fragment,
+      null,
+      React.createElement("span", null, "P ("),
+      React.createElement("span", { className: "math-var" }, APP_DATA.svgLabels.x),
+      React.createElement("span", null, ",\u00A0"),
+      React.createElement("span", { className: "math-var" }, APP_DATA.svgLabels.y),
+      React.createElement("span", null, ")"),
+    );
 
   const morphWord = useCallback(
     async (key, wordRef) => {
@@ -493,11 +626,7 @@ const MainCanvas = (props) => {
     await flyClone(
       preimageTextRef.current,
       pLabelFlyTargetRef.current,
-      React.createElement(
-        "span",
-        { className: "color-pink" },
-        APP_DATA.sideText.preimage,
-      ),
+      React.createElement("span", { className: "color-pink" }, buildPreimageSideText()),
     );
 
     setShowPinkPoint(true);
@@ -599,12 +728,12 @@ const MainCanvas = (props) => {
       flyClone(
         srcX,
         pPrimeSlotXRef.current,
-        React.createElement("span", { className: "color-pink" }, "x"),
+        React.createElement("span", { className: "color-pink math-var" }, "x"),
       ),
       flyClone(
         srcY,
         pPrimeSlotYRef.current,
-        React.createElement("span", { className: "color-pink" }, "y"),
+        React.createElement("span", { className: "color-pink math-var" }, "y"),
       ),
       flyClone(
         srcA,
@@ -722,6 +851,8 @@ const MainCanvas = (props) => {
             React.createElement("span", { "data-char": "b" }, "b"),
             React.createElement("span", null, ")"),
           )
+        : type === "preimage"
+          ? buildPreimageSideText()
         : text;
 
     return React.createElement(
@@ -742,13 +873,6 @@ const MainCanvas = (props) => {
   const btn1 = getButtonState(1);
   const btn2 = getButtonState(2);
   const btn3 = getButtonState(3);
-
-  useEffect(() => {
-    if (step === 4 && !step4FormulaDone) {
-      setShowEquationPrompt(true);
-      setEquationPromptFading(false);
-    }
-  }, [step, step4FormulaDone]);
 
   useEffect(() => {
     if (pPrimeSlotPlus1Ref.current && formulaSlotsVisible) {

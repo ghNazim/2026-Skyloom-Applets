@@ -91,10 +91,10 @@
 }
 /* Color-coded formula on final screen (match step 6/7) */
 .fullscreen-text-col .highlight-green {
-    color: #10b981;
+    color: #46c5ce;
 }
 .fullscreen-text-col .highlight-blue {
-    color: #00ffff;
+    color: #fb9b5b;
 }
 .fullscreen-text-col .highlight-yellow {
     color: #facc15;
@@ -103,11 +103,11 @@
     color: #ff9800;
 }
 .fullscreen-text-col .highlight-cyan {
-    color: #00ffff;
+    color: #46c5ce;
 }
 .fullscreen-content .highlight-orange {
     color: #ff9800;
 }
 .fullscreen-content .highlight-cyan {
-    color: #00ffff;
+    color: #46c5ce;
 }

@@ -34,6 +34,7 @@
 
   /* Typography */
   --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --math-font-family: "Times New Roman", Times, serif;
 }
 html {
   font-size: 1.5vw;
@@ -107,4 +108,10 @@ cm {
 
 .purple-bg.is-visible {
   background-color: var(--trans-color);
+}
+
+.math-var {
+  font-family: var(--math-font-family);
+  font-style: italic;
+  font-weight: 400;
 }

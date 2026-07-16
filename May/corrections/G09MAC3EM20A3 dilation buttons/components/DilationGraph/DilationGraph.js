@@ -24,8 +24,8 @@ const DilationGraph = (props) => {
   } = props;
 
   const GRID_COLOR = "#1a4b6d";
-  const PRE_IMAGE_FILL = "rgba(52, 152, 219, 0.75)";
-  const IMAGE_FILL = "rgba(46, 204, 113, 0.75)";
+  const PRE_IMAGE_FILL = "rgba(251, 155, 91, 0.75)";
+  const IMAGE_FILL = "rgba(70, 197, 206, 0.75)";
   const WHITE = "#ffffff";
   const YELLOW = "#f1c40f";
 

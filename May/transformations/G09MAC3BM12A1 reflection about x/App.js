@@ -53,6 +53,45 @@ const App = () => {
   const [apostFadeReady, setApostFadeReady] = useState(false);
   const [step5DoneTextVisible, setStep5DoneTextVisible] = useState(false);
 
+  // Step 6 coordinate reveal
+  const [step6Phase, setStep6Phase] = useState("idle"); // idle | running | done
+  const [step6ShowVerticalLine, setStep6ShowVerticalLine] = useState(false);
+  const [step6VerticalLineGrowing, setStep6VerticalLineGrowing] = useState(false);
+  const [step6HighlightX2, setStep6HighlightX2] = useState(false);
+  const [step6ShowCoordLabel, setStep6ShowCoordLabel] = useState(false);
+  const [step6ShowCoordX, setStep6ShowCoordX] = useState(false);
+  const [step6XCloneVisible, setStep6XCloneVisible] = useState(false);
+  const [step6XCloneFlying, setStep6XCloneFlying] = useState(false);
+  const [step6ShowHorizontalLine, setStep6ShowHorizontalLine] = useState(false);
+  const [step6HorizontalLineGrowing, setStep6HorizontalLineGrowing] = useState(false);
+  const [step6HighlightYNeg4, setStep6HighlightYNeg4] = useState(false);
+  const [step6ShowCoordY, setStep6ShowCoordY] = useState(false);
+  const [step6YCloneVisible, setStep6YCloneVisible] = useState(false);
+  const [step6YCloneFlying, setStep6YCloneFlying] = useState(false);
+
+  // Step 7 observation MCQ
+  const [step7Answer, setStep7Answer] = useState(null); // null | wrong | correct
+  const [step7WrongCloneVisible, setStep7WrongCloneVisible] = useState(false);
+  const [step7WrongCloneFlying, setStep7WrongCloneFlying] = useState(false);
+
+  // Step 8 rule reveal
+  const [step8Phase, setStep8Phase] = useState("idle"); // idle | x-blink | x-stable | y-blink | done
+  const [step8ShowFormula, setStep8ShowFormula] = useState(false);
+  const [step8XActive, setStep8XActive] = useState(false);
+  const [step8XBlink, setStep8XBlink] = useState(false);
+  const [step8YActive, setStep8YActive] = useState(false);
+  const [step8YBlink, setStep8YBlink] = useState(false);
+
+  // Step 9 challenge
+  const [step9QuestionIndex, setStep9QuestionIndex] = useState(0);
+  const [step9Part, setStep9Part] = useState("x"); // x | y
+  const [step9XAnswer, setStep9XAnswer] = useState("");
+  const [step9XStatus, setStep9XStatus] = useState(null); // null | wrong | correct
+  const [step9XFeedback, setStep9XFeedback] = useState("");
+  const [step9YAnswer, setStep9YAnswer] = useState("");
+  const [step9YStatus, setStep9YStatus] = useState(null); // null | wrong | correct
+  const [step9YFeedback, setStep9YFeedback] = useState("");
+
   const timersRef = useRef([]);
 
   const clearTimers = useCallback(() => {
@@ -108,6 +147,41 @@ const App = () => {
     setShowApost(false);
     setApostFadeReady(false);
     setStep5DoneTextVisible(false);
+
+    setStep6Phase("idle");
+    setStep6ShowVerticalLine(false);
+    setStep6VerticalLineGrowing(false);
+    setStep6HighlightX2(false);
+    setStep6ShowCoordLabel(false);
+    setStep6ShowCoordX(false);
+    setStep6XCloneVisible(false);
+    setStep6XCloneFlying(false);
+    setStep6ShowHorizontalLine(false);
+    setStep6HorizontalLineGrowing(false);
+    setStep6HighlightYNeg4(false);
+    setStep6ShowCoordY(false);
+    setStep6YCloneVisible(false);
+    setStep6YCloneFlying(false);
+
+    setStep7Answer(null);
+    setStep7WrongCloneVisible(false);
+    setStep7WrongCloneFlying(false);
+
+    setStep8Phase("idle");
+    setStep8ShowFormula(false);
+    setStep8XActive(false);
+    setStep8XBlink(false);
+    setStep8YActive(false);
+    setStep8YBlink(false);
+
+    setStep9Part("x");
+    setStep9QuestionIndex(0);
+    setStep9XAnswer("");
+    setStep9XStatus(null);
+    setStep9XFeedback("");
+    setStep9YAnswer("");
+    setStep9YStatus(null);
+    setStep9YFeedback("");
   }, []);
 
   const resetEverything = useCallback(() => {
@@ -425,6 +499,231 @@ const App = () => {
     runProp2Sequence();
   }, [currentStep, prop1Done, prop2Done, step5Phase, runProp2Sequence]);
 
+  const resetStep6State = useCallback(() => {
+    setStep6Phase("idle");
+    setStep6ShowVerticalLine(false);
+    setStep6VerticalLineGrowing(false);
+    setStep6HighlightX2(false);
+    setStep6ShowCoordLabel(false);
+    setStep6ShowCoordX(false);
+    setStep6XCloneVisible(false);
+    setStep6XCloneFlying(false);
+    setStep6ShowHorizontalLine(false);
+    setStep6HorizontalLineGrowing(false);
+    setStep6HighlightYNeg4(false);
+    setStep6ShowCoordY(false);
+    setStep6YCloneVisible(false);
+    setStep6YCloneFlying(false);
+  }, []);
+
+  const resetStep7State = useCallback(() => {
+    setStep7Answer(null);
+    setStep7WrongCloneVisible(false);
+    setStep7WrongCloneFlying(false);
+  }, []);
+
+  const resetStep8State = useCallback(() => {
+    setStep8Phase("idle");
+    setStep8ShowFormula(false);
+    setStep8XActive(false);
+    setStep8XBlink(false);
+    setStep8YActive(false);
+    setStep8YBlink(false);
+  }, []);
+
+  const resetStep9State = useCallback(() => {
+    setStep9Part("x");
+    setStep9XAnswer("");
+    setStep9XStatus(null);
+    setStep9XFeedback("");
+    setStep9YAnswer("");
+    setStep9YStatus(null);
+    setStep9YFeedback("");
+  }, []);
+
+  const resetStep9Answers = useCallback(() => {
+    setStep9Part("x");
+    setStep9XAnswer("");
+    setStep9XStatus(null);
+    setStep9XFeedback("");
+    setStep9YAnswer("");
+    setStep9YStatus(null);
+    setStep9YFeedback("");
+  }, []);
+
+  const runStep6Sequence = useCallback(() => {
+    resetStep6State();
+    setCurrentStep(6);
+    setStep6Phase("running");
+
+    schedule(() => {
+      setStep6ShowVerticalLine(true);
+      setStep6VerticalLineGrowing(true);
+    }, 300);
+
+    schedule(() => {
+      setStep6VerticalLineGrowing(false);
+      setStep6HighlightX2(true);
+    }, 1100);
+
+    schedule(() => {
+      setStep6ShowCoordLabel(true);
+    }, 1400);
+
+    schedule(() => {
+      setStep6XCloneVisible(true);
+      setStep6XCloneFlying(false);
+      schedule(() => setStep6XCloneFlying(true), 50);
+    }, 1700);
+
+    schedule(() => {
+      setStep6XCloneVisible(false);
+      setStep6ShowCoordX(true);
+    }, 2550);
+
+    schedule(() => {
+      setStep6ShowHorizontalLine(true);
+      setStep6HorizontalLineGrowing(true);
+    }, 2850);
+
+    schedule(() => {
+      setStep6HorizontalLineGrowing(false);
+      setStep6HighlightYNeg4(true);
+    }, 3650);
+
+    schedule(() => {
+      setStep6YCloneVisible(true);
+      setStep6YCloneFlying(false);
+      schedule(() => setStep6YCloneFlying(true), 50);
+    }, 3950);
+
+    schedule(() => {
+      setStep6YCloneVisible(false);
+      setStep6ShowCoordY(true);
+    }, 4800);
+
+    schedule(() => {
+      setStep6Phase("done");
+    }, 5400);
+  }, [resetStep6State, schedule]);
+
+  const startStep7 = useCallback(() => {
+    resetStep7State();
+    resetStep8State();
+    setCurrentStep(7);
+  }, [resetStep7State, resetStep8State]);
+
+  const startStep8 = useCallback(() => {
+    resetStep8State();
+    resetStep9State();
+    setCurrentStep(8);
+  }, [resetStep8State, resetStep9State]);
+
+  const startStep9 = useCallback(() => {
+    setStep9QuestionIndex(0);
+    resetStep9State();
+    setCurrentStep(9);
+  }, [resetStep9State]);
+
+  const handleStep7Option = useCallback(
+    (choice) => {
+      if (currentStep !== 7) return;
+      if (choice === "y") {
+        if (typeof playSound === "function") playSound("correct");
+        setStep7WrongCloneVisible(false);
+        setStep7WrongCloneFlying(false);
+        setStep7Answer("correct");
+        return;
+      }
+
+      if (typeof playSound === "function") playSound("wrong");
+      setStep7Answer("wrong");
+      setStep7WrongCloneVisible(true);
+      setStep7WrongCloneFlying(false);
+      schedule(() => setStep7WrongCloneFlying(true), 50);
+      schedule(() => {
+        setStep7WrongCloneVisible(false);
+        setStep7WrongCloneFlying(false);
+      }, 950);
+    },
+    [currentStep, schedule],
+  );
+
+  const handleStep8Reveal = useCallback(() => {
+    if (currentStep !== 8 || step8Phase !== "idle") return;
+    if (typeof playSound === "function") playSound("click");
+
+    setStep8ShowFormula(true);
+    setStep8Phase("x-blink");
+
+    schedule(() => {
+      setStep8XActive(true);
+      setStep8XBlink(true);
+    }, 250);
+
+    schedule(() => {
+      setStep8XBlink(false);
+      setStep8Phase("x-stable");
+    }, 2750);
+
+    schedule(() => {
+      setStep8YActive(true);
+      setStep8YBlink(true);
+      setStep8Phase("y-blink");
+    }, 3350);
+
+    schedule(() => {
+      setStep8YBlink(false);
+      setStep8Phase("done");
+    }, 5850);
+  }, [currentStep, step8Phase, schedule]);
+
+  const handleStep9Option = useCallback(
+    (value) => {
+      if (currentStep !== 9) return;
+      const s9 = APP_DATA.steps[9];
+      const question = s9.questions[step9QuestionIndex] || s9.questions[0];
+
+      if (step9Part === "x") {
+        if (step9XStatus === "correct") return;
+        const isCorrect = value === question.imageX;
+        if (typeof playSound === "function") {
+          playSound(isCorrect ? "correct" : "wrong");
+        }
+        setStep9XAnswer(value);
+        if (isCorrect) {
+          setStep9XStatus("correct");
+          setStep9XFeedback(s9.xCorrect);
+        } else {
+          setStep9XStatus("wrong");
+          const changedSign =
+            Number(value) === -Number(question.x) && Number(question.x) !== 0;
+          setStep9XFeedback(
+            changedSign ? s9.xWrongNeg3 : s9.xWrongOther,
+          );
+        }
+        return;
+      }
+
+      if (step9YStatus === "correct") return;
+      const isCorrect = value === question.imageY;
+      if (typeof playSound === "function") {
+        playSound(isCorrect ? "correct" : "wrong");
+      }
+      setStep9YAnswer(value);
+      if (isCorrect) {
+        setStep9YStatus("correct");
+        setStep9YFeedback(s9.yCorrect);
+      } else {
+        setStep9YStatus("wrong");
+        if (value === question.x) setStep9YFeedback(s9.yWrong3);
+        else if (value === question.y) setStep9YFeedback(s9.yWrong4);
+        else setStep9YFeedback(s9.yWrongNeg3);
+      }
+    },
+    [currentStep, step9Part, step9QuestionIndex, step9XStatus, step9YStatus],
+  );
+
   const navText = useMemo(() => {
     if (currentStep === 1) return handleComma(APP_DATA.steps[1].navText);
     if (currentStep === 2) {
@@ -451,14 +750,67 @@ const App = () => {
       }
       return handleComma(s5.navTextProp1);
     }
+    if (currentStep === 6) {
+      return step6Phase === "done"
+        ? handleComma(APP_DATA.steps[6].navTextDone)
+        : "";
+    }
+    if (currentStep === 7) {
+      const s7 = APP_DATA.steps[7];
+      return handleComma(
+        step7Answer === "correct" ? s7.navTextDone : s7.navTextInitial,
+      );
+    }
+    if (currentStep === 8) {
+      const s8 = APP_DATA.steps[8];
+      return handleComma(
+        step8Phase === "done" ? s8.navTextDone : s8.navTextInitial,
+      );
+    }
+    if (currentStep === 9) {
+      const s9 = APP_DATA.steps[9];
+      if (step9Part === "x") {
+        return handleComma(
+          step9XStatus === "correct" ? s9.navTextXDone : s9.navTextInitial,
+        );
+      }
+      const isLastQuestion = step9QuestionIndex >= s9.questions.length - 1;
+      return handleComma(
+        step9YStatus === "correct"
+          ? isLastQuestion
+            ? s9.navTextFinalDone
+            : s9.navTextYDone
+          : s9.navTextInitial,
+      );
+    }
     return "";
-  }, [currentStep, step2Feedback, step4Phase, step5Phase]);
+  }, [
+    currentStep,
+    step2Feedback,
+    step4Phase,
+    step5Phase,
+    step6Phase,
+    step7Answer,
+    step8Phase,
+    step9Part,
+    step9QuestionIndex,
+    step9XStatus,
+    step9YStatus,
+  ]);
 
   const isNextDisabled =
     currentStep === 2 ||
     currentStep === 3 ||
     currentStep === 4 ||
-    (currentStep === 5 && step5Phase !== "done");
+    (currentStep === 5 && step5Phase !== "done") ||
+    (currentStep === 6 && step6Phase !== "done") ||
+    (currentStep === 7 && step7Answer !== "correct") ||
+    (currentStep === 8 && step8Phase !== "done") ||
+    (currentStep === 9 &&
+      !(
+        (step9Part === "x" && step9XStatus === "correct") ||
+        (step9Part === "y" && step9YStatus === "correct")
+      ));
 
   const isPrevDisabled = currentStep <= 1;
 
@@ -470,6 +822,39 @@ const App = () => {
       setStep2Phase("initial");
       setStep2Feedback(null);
       setPlottedPoint(null);
+      return;
+    }
+    if (currentStep === 5 && step5Phase === "done") {
+      runStep6Sequence();
+      return;
+    }
+    if (currentStep === 6 && step6Phase === "done") {
+      startStep7();
+      return;
+    }
+    if (currentStep === 7 && step7Answer === "correct") {
+      startStep8();
+      return;
+    }
+    if (currentStep === 8 && step8Phase === "done") {
+      startStep9();
+      return;
+    }
+    if (currentStep === 9 && step9Part === "x" && step9XStatus === "correct") {
+      setStep9Part("y");
+      setStep9YAnswer("");
+      setStep9YStatus(null);
+      setStep9YFeedback("");
+      return;
+    }
+    if (currentStep === 9 && step9Part === "y" && step9YStatus === "correct") {
+      const lastQuestionIndex = APP_DATA.steps[9].questions.length - 1;
+      if (step9QuestionIndex < lastQuestionIndex) {
+        setStep9QuestionIndex((index) => index + 1);
+        resetStep9Answers();
+      } else {
+        setCurrentStep(10);
+      }
     }
   };
 
@@ -509,6 +894,22 @@ const App = () => {
         if (step5Phase === "prop1-ready") addNudgeFor("property-1-button");
         else if (step5Phase === "prop2-ready") addNudgeFor("property-2-button");
         else if (step5Phase === "done") addNudgeFor("next-button");
+      } else if (currentStep === 6 && step6Phase === "done") {
+        addNudgeFor("next-button");
+      } else if (currentStep === 7) {
+        if (step7Answer === "correct") addNudgeFor("next-button");
+      } else if (currentStep === 8) {
+        if (step8Phase === "idle") addNudgeFor("step8-reveal-button");
+        else if (step8Phase === "done") addNudgeFor("next-button");
+      } else if (currentStep === 9) {
+        if (
+          (step9Part === "x" && step9XStatus === "correct") ||
+          (step9Part === "y" && step9YStatus === "correct")
+        ) {
+          addNudgeFor("next-button");
+        }
+      } else if (currentStep === 10) {
+        addNudgeFor("start-over-button");
       }
 
       setNudgePositions(positions);
@@ -519,7 +920,20 @@ const App = () => {
       clearTimeout(timeoutId);
       window.removeEventListener("resize", updateNudges);
     };
-  }, [currentStep, isNextDisabled, step4Phase, xAxisHighlighted, step5Phase]);
+  }, [
+    currentStep,
+    isNextDisabled,
+    step4Phase,
+    xAxisHighlighted,
+    step5Phase,
+    step6Phase,
+    step7Answer,
+    step8Phase,
+    step9Part,
+    step9QuestionIndex,
+    step9XStatus,
+    step9YStatus,
+  ]);
 
   const renderNudges = () =>
     nudgePositions.map((position, index) =>
@@ -540,6 +954,63 @@ const App = () => {
           onButtonClick: handleStart,
           buttonId: "start-button",
         }),
+      ),
+      renderNudges(),
+    );
+  }
+
+  if (currentStep === 10) {
+    const s10 = APP_DATA.steps[10];
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(
+          "div",
+          { className: "fullscreen-panel completion-panel" },
+          React.createElement("h1", { className: "completion-heading" }, s10.heading),
+          React.createElement(
+            "div",
+            { className: "completion-rule-card" },
+            React.createElement(
+              "div",
+              { className: "completion-rule-title" },
+              s10.ruleTitle,
+            ),
+            React.createElement(
+              "div",
+              { className: "completion-rule-row" },
+              React.createElement(
+                "span",
+                { className: "completion-rule-label" },
+                s10.ruleLabel,
+              ),
+              React.createElement("span", {
+                className: "completion-rule-formula",
+                dangerouslySetInnerHTML: { __html: handleComma(s10.ruleFormula) },
+              }),
+            ),
+          ),
+          React.createElement("div", {
+            className: "completion-body",
+            dangerouslySetInnerHTML: { __html: handleComma(s10.body) },
+          }),
+          React.createElement("div", {
+            className: "completion-restart-prompt",
+            dangerouslySetInnerHTML: { __html: handleComma(s10.restartPrompt) },
+          }),
+          React.createElement(
+            "button",
+            {
+              id: "start-over-button",
+              className: "btn completion-start-over-button",
+              onClick: resetEverything,
+            },
+            s10.buttonText,
+          ),
+        ),
       ),
       renderNudges(),
     );
@@ -599,6 +1070,40 @@ const App = () => {
         showApost: showApost,
         apostFadeReady: apostFadeReady,
         step5DoneTextVisible: step5DoneTextVisible,
+        step6Phase: step6Phase,
+        step6ShowVerticalLine: step6ShowVerticalLine,
+        step6VerticalLineGrowing: step6VerticalLineGrowing,
+        step6HighlightX2: step6HighlightX2,
+        step6ShowCoordLabel: step6ShowCoordLabel,
+        step6ShowCoordX: step6ShowCoordX,
+        step6XCloneVisible: step6XCloneVisible,
+        step6XCloneFlying: step6XCloneFlying,
+        step6ShowHorizontalLine: step6ShowHorizontalLine,
+        step6HorizontalLineGrowing: step6HorizontalLineGrowing,
+        step6HighlightYNeg4: step6HighlightYNeg4,
+        step6ShowCoordY: step6ShowCoordY,
+        step6YCloneVisible: step6YCloneVisible,
+        step6YCloneFlying: step6YCloneFlying,
+        step7Answer: step7Answer,
+        step7WrongCloneVisible: step7WrongCloneVisible,
+        step7WrongCloneFlying: step7WrongCloneFlying,
+        onStep7Option: handleStep7Option,
+        step8Phase: step8Phase,
+        step8ShowFormula: step8ShowFormula,
+        step8XActive: step8XActive,
+        step8XBlink: step8XBlink,
+        step8YActive: step8YActive,
+        step8YBlink: step8YBlink,
+        onStep8Reveal: handleStep8Reveal,
+        step9Part: step9Part,
+        step9QuestionIndex: step9QuestionIndex,
+        step9XAnswer: step9XAnswer,
+        step9XStatus: step9XStatus,
+        step9XFeedback: step9XFeedback,
+        step9YAnswer: step9YAnswer,
+        step9YStatus: step9YStatus,
+        step9YFeedback: step9YFeedback,
+        onStep9Option: handleStep9Option,
       }),
     ),
     React.createElement(

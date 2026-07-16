@@ -80,7 +80,7 @@ const GraphPanel = ({
 
   const GRID_COLOR = "#3a6d8c";
   const AXIS_COLOR = "#ffffff";
-  const BG_COLOR = "#0a1520";
+  const BG_COLOR = "none";
 
   const toSvg = useCallback(
     (gx, gy) => ({
@@ -222,11 +222,13 @@ const GraphPanel = ({
       setDragClone(null);
     };
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [
     isDragging,
@@ -364,7 +366,8 @@ const GraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "O",
       ),
@@ -380,7 +383,8 @@ const GraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "X",
       ),
@@ -396,7 +400,8 @@ const GraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "Y",
       ),
@@ -612,7 +617,7 @@ const GraphPanel = ({
         viewBox: "0 0 " + SVG_W + " " + SVG_H,
         preserveAspectRatio: "xMidYMid meet",
         onClick: handleClick,
-        style: { cursor: cursorStyle },
+        style: { cursor: cursorStyle, touchAction: "none" },
       },
       React.createElement("rect", {
         x: 0,
@@ -719,7 +724,7 @@ const GraphPanel = ({
             stroke: "transparent",
             strokeWidth: 20,
             style: { cursor: "grab" },
-            onMouseDown: handleSegmentPointerDown,
+            onPointerDown: handleSegmentPointerDown,
           })
         : null,
     ),

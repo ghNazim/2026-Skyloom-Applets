@@ -64,7 +64,7 @@ const TriangleDragGraphPanel = ({
 
   const GRID_COLOR = "#3a6d8c";
   const AXIS_COLOR = "#ffffff";
-  const BG_COLOR = "#0a1520";
+  const BG_COLOR = "none";
   const GHOST_COLOR = "#9aa8b3";
 
   const toSvg = useCallback(
@@ -184,11 +184,13 @@ const TriangleDragGraphPanel = ({
       setDragOffset({ dx: 0, dy: 0 });
     };
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [isDragging, vertices, clientToGrid, clampOffset, onDragMove, onFigureDrop]);
 
@@ -391,7 +393,8 @@ const TriangleDragGraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "O",
       ),
@@ -407,7 +410,8 @@ const TriangleDragGraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "X",
       ),
@@ -423,7 +427,8 @@ const TriangleDragGraphPanel = ({
           fontSize: axisNameFontSize,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: '"Times New Roman", Times, serif',
+          fontStyle: "italic",
         },
         "Y",
       ),
@@ -497,7 +502,7 @@ const TriangleDragGraphPanel = ({
         className: "graph-coordinate-svg",
         viewBox: "0 0 " + SVG_W + " " + SVG_H,
         preserveAspectRatio: "xMidYMid meet",
-        style: { cursor: cursorStyle },
+        style: { cursor: cursorStyle, touchAction: "none" },
       },
       React.createElement("rect", {
         x: 0,
@@ -587,7 +592,7 @@ const TriangleDragGraphPanel = ({
         dragEnabled && !isDragging && !snapBackActive
           ? {
               style: { cursor: "grab" },
-              onMouseDown: handlePointerDown,
+              onPointerDown: handlePointerDown,
             }
           : { pointerEvents: dragEnabled ? "all" : "none" },
         1,

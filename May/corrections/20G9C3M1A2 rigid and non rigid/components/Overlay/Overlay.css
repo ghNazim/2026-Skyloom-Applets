@@ -31,6 +31,13 @@
   line-height: 1.5;
   margin-bottom: 3vw;
   max-width: 90%;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.overlay-heading-row.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .overlay-heading-row .overlay-op-name {
@@ -52,12 +59,12 @@
   max-width: 48%;
   border-radius: 1vw;
   overflow: hidden;
-  background: #1c3358;
-  border: 1px solid #2a4a75;
+  background: #33526fff;
+  /* border: 1px solid #2a4a75; */
 }
 
 .overlay-box-header {
-  background: #243d66;
+  background: #2e83c4ae;
   color: #ffffff;
   text-align: center;
   font-size: 2vw;

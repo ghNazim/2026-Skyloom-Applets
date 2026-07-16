@@ -148,7 +148,7 @@ const CoordinateTable = ({
           },
           React.createElement(
             "span",
-            { className: textClass(headerVisible) },
+            { className: textClass(headerVisible) + " math-var" },
             t.x,
           ),
         ),
@@ -162,7 +162,7 @@ const CoordinateTable = ({
           },
           React.createElement(
             "span",
-            { className: textClass(headerVisible) },
+            { className: textClass(headerVisible) + " math-var" },
             t.y,
           ),
         ),

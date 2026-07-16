@@ -1017,7 +1017,12 @@ const MainCanvas = ({
       await delay(500);
 
       setStep10Graph((g) => ({ ...g, showR: true }));
-      await delay(60);
+      await delay(80);
+      await animateFly(
+        cellRefs.current["right-pre-r"],
+        labelRefs.current.R,
+        { text: APP_DATA.graph.labelR },
+      );
       setStep10Graph((g) => ({ ...g, rFadeIn: true }));
       await delay(500);
       setStep10OutlinedCells((cells) => ({ ...cells, r: true }));
@@ -1036,7 +1041,12 @@ const MainCanvas = ({
       await delay(800);
 
       setStep10Graph((g) => ({ ...g, showQPrime: true }));
-      await delay(60);
+      await delay(80);
+      await animateFly(
+        cellRefs.current["right-img-q"],
+        labelRefs.current.QPrime,
+        { text: APP_DATA.graph.labelQPrime },
+      );
       setStep10Graph((g) => ({ ...g, qPrimeFadeIn: true }));
       await delay(500);
       setStep10OutlinedCells((cells) => ({ ...cells, qPrime: true }));
@@ -1056,7 +1066,7 @@ const MainCanvas = ({
       if (typeof onNavAnimating === "function") onNavAnimating(false);
     };
     runStep10();
-  }, [step, step10Phase, animateColumnFly, onStep10PhaseChange, onNavAnimating]);
+  }, [step, step10Phase, animateColumnFly, animateFly, onStep10PhaseChange, onNavAnimating]);
 
   const dynamicLabelPlacement = (y) => (y > 4 ? "above" : "below");
 
@@ -1232,9 +1242,10 @@ const MainCanvas = ({
         color: TRANSLATION_GRAPH_COLORS.preimage,
         label: APP_DATA.graph.labelR,
         labelPlacement: "above",
-        opacity: step10Graph.rFadeIn ? 1 : 0,
+        opacity: 1,
         labelOpacity: step10Graph.rFadeIn ? 1 : 0,
         showLabel: true,
+        labelRefKey: "R",
       });
     }
     if (step10Graph.showQPrime) {
@@ -1245,9 +1256,10 @@ const MainCanvas = ({
         color: TRANSLATION_GRAPH_COLORS.image,
         label: APP_DATA.graph.labelQPrime,
         labelPlacement: "below",
-        opacity: step10Graph.qPrimeFadeIn ? 1 : 0,
+        opacity: 1,
         labelOpacity: step10Graph.qPrimeFadeIn ? 1 : 0,
         showLabel: true,
+        labelRefKey: "QPrime",
       });
     }
     return pts;

@@ -450,6 +450,13 @@ const RectMainCanvas = ({
       DPrime: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
     });
     setImageRectOpacity(0.22);
+    setObjectPointStates({
+      A: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
+      B: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
+      C: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
+      D: { circleOpacity: 0.22, labelVisible: true, labelOpacity: 0.22 },
+    });
+    setObjectRectOpacity(0.22);
 
     const clonePoints = RECT_OBJECT_POINTS.map((pt) => ({
       id: pt.key,
@@ -520,6 +527,13 @@ const RectMainCanvas = ({
       DPrime: { circleOpacity: 1, labelVisible: true },
     });
     setImageRectOpacity(1);
+    setObjectPointStates({
+      A: { circleOpacity: 1, labelVisible: true },
+      B: { circleOpacity: 1, labelVisible: true },
+      C: { circleOpacity: 1, labelVisible: true },
+      D: { circleOpacity: 1, labelVisible: true },
+    });
+    setObjectRectOpacity(1);
     rotationAnimRef.current = false;
     if (typeof onStep14PhaseChange === "function") {
       onStep14PhaseChange("done");
@@ -681,6 +695,9 @@ const RectMainCanvas = ({
           setRightVisible(true);
           if (typeof onStep9PhaseChange === "function") {
             onStep9PhaseChange("entering");
+            setTimeout(() => {
+              onStep9PhaseChange("ready");
+            }, 500);
           }
         }, 80);
       } else {
@@ -795,7 +812,12 @@ const RectMainCanvas = ({
         labelPrefix: pt.key,
         labelPlacement: pt.labelPlacement,
         circleOpacity: state.circleOpacity,
-        labelOpacity: state.labelVisible ? 1 : 0,
+        labelOpacity:
+          state.labelOpacity != null
+            ? state.labelOpacity
+            : state.labelVisible
+              ? 1
+              : 0,
         showLabel: true,
         labelRefKey: pt.labelRefKey,
       });

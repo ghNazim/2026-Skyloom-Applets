@@ -64,7 +64,7 @@ const DATA = {
       finalTable: {
         leftHeading: "RIGID TRANSFORMATIONS",
         rightHeading: "NON-RIGID TRANSFORMATIONS",
-        buttonText: "Start Over",
+        buttonText: "START OVER",
       },
       labels: {
         translation: "TRANSLATION",
@@ -135,7 +135,7 @@ const DATA = {
       finalTable: {
         leftHeading: "TRANSFORMASI KAKU",
         rightHeading: "TRANSFORMASI TIDAK KAKU",
-        buttonText: "Ulangi dari Awal",
+        buttonText: "MULAI LAGI",
       },
       labels: {
         translation: "TRANSLASI",

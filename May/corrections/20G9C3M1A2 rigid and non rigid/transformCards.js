@@ -21,10 +21,10 @@ const TransformCards = (function () {
   };
 
   const COLORS = {
-    card: "#1c3358",
-    cardStroke: "#2a4a75",
-    triBlue: "#6ecfff",
-    triGreen: "#8ef58e",
+    card: "#0c5c7e",
+    cardStroke: "#0c5c7e",
+    triBlue: "#fb9b5b",
+    triGreen: "#46c5ce",
     axisPurple: "#c77dff",
     heading: "#f5c542",
   };
@@ -294,13 +294,13 @@ const TransformCards = (function () {
         DILATION_SCALE
       );
       elements.push(
-        renderTriangle(blueEnd.x, blueEnd.y, TRI_LEG, COLORS.triBlue, "blue"),
         React.createElement("polygon", {
           key: "green",
           points: reflectPointsStr(greenPts),
           fill: COLORS.triGreen,
           fillOpacity: 0.5,
         }),
+        renderTriangle(blueEnd.x, blueEnd.y, TRI_LEG, COLORS.triBlue, "blue"),
         renderPivotDot(anchor.x, anchor.y, "pivot"),
         renderHeading(key, headingText)
       );

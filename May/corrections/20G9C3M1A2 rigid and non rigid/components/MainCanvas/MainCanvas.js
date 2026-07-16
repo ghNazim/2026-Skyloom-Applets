@@ -827,6 +827,26 @@ const MainCanvas = (props) => {
     return {};
   };
 
+  const getBlueStep6CompareProps = (key) => {
+    if (
+      key === "bottomLeft" &&
+      step === 6 &&
+      !exploredCardKeys.includes(key) &&
+      !compareKey &&
+      !isAnimating &&
+      !overlayVisible
+    ) {
+      return {
+        onClick: (e) => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          handleGreenCompareClick(key);
+        },
+        style: { cursor: "pointer" },
+      };
+    }
+    return {};
+  };
+
   useEffect(() => {
     return killTween;
   }, []);
@@ -1244,27 +1264,15 @@ const MainCanvas = (props) => {
 
     if (key === "bottomLeft") {
       const blueEnd = getCardBlueOrigin(key);
-
-      const blueOx = dilationDone
-        ? blueEnd.x
-        : blueEnd.x;
-      const blueOy = dilationDone
-        ? blueEnd.y
-        : blueEnd.y;
+      const blueOx = blueEnd.x;
+      const blueOy = blueEnd.y;
 
       const anchor = { x: blueOx, y: blueOy };
-      const elements = [
-        renderTriangle(
-          blueOx,
-          blueOy,
-          TRI_LEG,
-          COLORS.triBlue,
-          "dil-blue",
-          !dilationDone && !dilGreenVisible
-            ? triClickProps
-            : {}
-        ),
-      ];
+      const dilBlueProps =
+        !dilationDone && !dilGreenVisible
+          ? triClickProps
+          : getBlueStep6CompareProps("bottomLeft");
+      const elements = [];
 
       if (dilGreenVisible || dilationDone) {
         const scale = dilationDone
@@ -1288,6 +1296,17 @@ const MainCanvas = (props) => {
           );
         }
       }
+
+      elements.push(
+        renderTriangle(
+          blueOx,
+          blueOy,
+          TRI_LEG,
+          COLORS.triBlue,
+          "dil-blue",
+          dilBlueProps
+        )
+      );
 
       if (dilPivotT > 0 || dilationDone) {
         elements.push(
