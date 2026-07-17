@@ -1,0 +1,132 @@
+.recipe-paper {
+  width: min(38vw, 100%);
+  min-width: 0;
+  background: #fff9b8;
+  color: #2f250d;
+  border-radius: 1.1vw;
+  box-shadow: 0.25vw 0.35vw 0.5vw rgba(0, 0, 0, 0.35);
+  padding: 1.6vw 1.4vw 1.2vw;
+  font-family: var(--font-family);
+}
+
+.recipe-title {
+  font-size: 3vw;
+  line-height: 1;
+  font-weight: 800;
+  margin-left: 1.5vw;
+}
+
+.recipe-subtitle {
+  color: #a26065;
+  font-size: 2vw;
+  font-style: italic;
+  line-height: 1.25;
+  margin: 0.55vw 0 0.45vw 1.5vw;
+}
+
+.recipe-rule {
+  height: 0.35vw;
+  border-top: 0.14vw solid #a26065;
+  border-bottom: 0.14vw solid #a26065;
+  margin: 0 0.2vw 0.45vw;
+}
+
+.recipe-header,
+.recipe-row {
+  display: grid;
+  grid-template-columns: 47% 23% 30%;
+  align-items: center;
+}
+
+.recipe-header {
+  font-size: 1.8vw;
+  font-weight: 800;
+  font-style: italic;
+  line-height: 1;
+  padding: 0.2vw 0.35vw 0.4vw;
+}
+
+.recipe-header-actual,
+.recipe-actual {
+  color: #f39a18;
+}
+
+.recipe-header-estimate,
+.recipe-estimate {
+  color: #287625;
+}
+
+.recipe-row {
+  min-height: 4.35vw;
+  border-top: 0.18vw dotted #aa6a6a;
+  padding: 0.35vw 0.6vw;
+  transition: opacity 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recipe-row:last-child {
+  border-bottom: 0.18vw dotted #aa6a6a;
+}
+
+.recipe-row-highlight {
+  outline: 0.12vw solid #ffa21d;
+  background: rgba(241, 195, 65, 0.14);
+  box-shadow: 0.25vw 0.25vw 0.35vw rgba(0, 0, 0, 0.12);
+}
+
+.recipe-row-faded {
+  opacity: 0.38;
+  filter: grayscale(0.35);
+}
+
+.recipe-name {
+  font-size: 1.95vw;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.recipe-actual,
+.recipe-estimate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45vw;
+  font-size: 1.75vw;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.recipe-estimate {
+  font-size: 2.2vw;
+}
+
+.recipe-unit {
+  margin-left: 0.35vw;
+  font-family: Georgia, serif;
+}
+
+.fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 0.86;
+  font-weight: 800;
+  margin: 0 0.1em;
+}
+
+.fraction-num,
+.fraction-den {
+  display: block;
+}
+
+.fraction-bar {
+  display: block;
+  width: 1.15em;
+  border-top: 0.09em solid currentColor;
+  margin: 0.08em 0;
+}
+
+.recipe-fraction {
+  color: #f39a18;
+}

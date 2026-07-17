@@ -300,6 +300,11 @@
   animation: fadeIn 0.5s ease forwards;
 }
 
+.recap-text-box.id{
+  left:1vw;
+  top: 18%;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

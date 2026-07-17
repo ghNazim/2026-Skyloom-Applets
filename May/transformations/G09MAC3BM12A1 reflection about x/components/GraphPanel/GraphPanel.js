@@ -116,11 +116,15 @@ const GraphPanel = (props) => {
 
   const GRID_COLOR = "#1a4b6d";
   const AXIS_COLOR = "#ffffff";
-  const AXIS_HIGHLIGHT = "#ff9800";
-  const PURPLE_HIGHLIGHT = "#db73f5";
-  const YELLOW = "#ffd700";
-  const PINK = "#e85d7a";
+  const OBJECT_COLOR = "#fb9b5b";
+  const IMAGE_COLOR = "#46c5ce";
+  const AXIS_HIGHLIGHT = "#5da6f4";
+  const STEP8_X_HIGHLIGHT = "#f561a3";
+  const STEP8_Y_HIGHLIGHT = "#5da6f4";
+  const YELLOW = "#ffd34d";
+  const WRONG_COLOR = "#a01822";
   const WHITE = "#ffffff";
+  const MATH_FONT = '"Times New Roman", Times, serif';
 
   const AXIS_NUM_FONT = 19;
   const AXIS_NAME_FONT = 20;
@@ -308,9 +312,9 @@ const GraphPanel = (props) => {
             x: px,
             y: ORIGIN_Y + 24,
             fill: isWrongPlotHighlight
-              ? PINK
+              ? WRONG_COLOR
               : isCoordinateHighlight
-                ? AXIS_HIGHLIGHT
+                ? YELLOW
                 : AXIS_COLOR,
             fontSize: AXIS_NUM_FONT,
             fontWeight: "600",
@@ -340,9 +344,9 @@ const GraphPanel = (props) => {
             x: ORIGIN_X - 18,
             y: py + 5,
             fill: isWrongPlotHighlight
-              ? PINK
+              ? WRONG_COLOR
               : isCoordinateHighlight
-                ? AXIS_HIGHLIGHT
+                ? YELLOW
                 : AXIS_COLOR,
             fontSize: AXIS_NUM_FONT,
             fontWeight: "600",
@@ -380,7 +384,8 @@ const GraphPanel = (props) => {
           fontSize: AXIS_NAME_FONT,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: MATH_FONT,
+          fontStyle: "italic",
         },
         "X",
       ),
@@ -396,7 +401,8 @@ const GraphPanel = (props) => {
           fontSize: AXIS_NAME_FONT,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: MATH_FONT,
+          fontStyle: "italic",
         },
         "X\u2032",
       ),
@@ -412,7 +418,8 @@ const GraphPanel = (props) => {
           fontSize: AXIS_NAME_FONT,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: MATH_FONT,
+          fontStyle: "italic",
         },
         "Y",
       ),
@@ -428,7 +435,8 @@ const GraphPanel = (props) => {
           fontSize: AXIS_NAME_FONT,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: MATH_FONT,
+          fontStyle: "italic",
         },
         "Y\u2032",
       ),
@@ -499,8 +507,8 @@ const GraphPanel = (props) => {
 
   const pointColor =
     step2Phase === "correct" || step2Phase === "done" || step >= 3
-      ? YELLOW
-      : PINK;
+      ? OBJECT_COLOR
+      : WRONG_COLOR;
 
   const pointCoords =
     step2Phase === "correct" || step2Phase === "done" || step >= 3
@@ -563,7 +571,7 @@ const GraphPanel = (props) => {
       React.createElement(
         "tspan",
         {
-          fill: highlightStep7X || highlightStep8X ? AXIS_HIGHLIGHT : WHITE,
+          fill: highlightStep7X ? YELLOW : highlightStep8X ? STEP8_X_HIGHLIGHT : WHITE,
           fontWeight: highlightStep7X || highlightStep8X ? "700" : "600",
           className: step8XBlink ? "rg-blink-text" : undefined,
         },
@@ -575,9 +583,9 @@ const GraphPanel = (props) => {
         {
           fill:
             showHighlightY || highlightStep7Y
-              ? AXIS_HIGHLIGHT
+              ? YELLOW
               : highlightStep8Y
-                ? PURPLE_HIGHLIGHT
+                ? STEP8_Y_HIGHLIGHT
                 : WHITE,
           fontWeight:
             showHighlightY || highlightStep7Y || highlightStep8Y ? "700" : "600",
@@ -652,7 +660,7 @@ const GraphPanel = (props) => {
             null,
             React.createElement(
               "tspan",
-              { fill: AXIS_HIGHLIGHT, fontWeight: "700" },
+              { fill: YELLOW, fontWeight: "700" },
               numPart,
             ),
             React.createElement("tspan", null, restPart),
@@ -691,7 +699,7 @@ const GraphPanel = (props) => {
             null,
             React.createElement(
               "tspan",
-              { fill: AXIS_HIGHLIGHT, fontWeight: "700" },
+              { fill: YELLOW, fontWeight: "700" },
               numPart,
             ),
             React.createElement("tspan", null, restPart),
@@ -762,7 +770,7 @@ const GraphPanel = (props) => {
       React.createElement(
         "tspan",
         {
-          fill: highlightX ? AXIS_HIGHLIGHT : WHITE,
+          fill: highlightX ? (step === 8 ? STEP8_X_HIGHLIGHT : YELLOW) : WHITE,
           opacity: step === 6 && !step6ShowCoordX ? 0 : 1,
           className: step8XBlink ? "rg-blink-text" : undefined,
         },
@@ -772,7 +780,12 @@ const GraphPanel = (props) => {
       React.createElement(
         "tspan",
         {
-          fill: step === 8 && step8YActive ? PURPLE_HIGHLIGHT : highlightY ? AXIS_HIGHLIGHT : WHITE,
+          fill:
+            step === 8 && step8YActive
+              ? STEP8_Y_HIGHLIGHT
+              : highlightY
+                ? YELLOW
+                : WHITE,
           opacity: step === 6 && !step6ShowCoordY ? 0 : 1,
           className: step8YBlink ? "rg-blink-text" : undefined,
         },
@@ -802,7 +815,7 @@ const GraphPanel = (props) => {
                 (step6XCloneFlying ? " is-flying" : ""),
               x: xSource.x,
               y: xSource.y,
-              fill: AXIS_HIGHLIGHT,
+              fill: YELLOW,
               fontSize: AXIS_NUM_FONT,
               fontWeight: "700",
               textAnchor: "middle",
@@ -824,7 +837,7 @@ const GraphPanel = (props) => {
                 (step6YCloneFlying ? " is-flying" : ""),
               x: ySource.x,
               y: ySource.y,
-              fill: AXIS_HIGHLIGHT,
+              fill: YELLOW,
               fontSize: AXIS_NUM_FONT,
               fontWeight: "700",
               textAnchor: "middle",
@@ -862,7 +875,7 @@ const GraphPanel = (props) => {
               (step7WrongCloneFlying ? " is-flying" : ""),
             x: source.x,
             y: source.y,
-            fill: AXIS_HIGHLIGHT,
+            fill: YELLOW,
             fontSize: POINT_LABEL_FONT,
             fontWeight: "700",
             textAnchor: "middle",
@@ -899,6 +912,22 @@ const GraphPanel = (props) => {
 
   const unitLinePt1 = toSvg(TARGET_A.x, unitLineY1);
   const unitLinePt2 = toSvg(TARGET_A.x, unitLineY2);
+  const reflectionLabelText = APP_DATA.steps[3].reflectionLabel || "";
+  const reflectionLabelParts = reflectionLabelText.includes("x-axis")
+    ? {
+        before: reflectionLabelText.split("x-axis")[0],
+        after: reflectionLabelText.split("x-axis").slice(1).join("x-axis"),
+        prefix: "",
+        suffix: "-axis",
+      }
+    : reflectionLabelText.includes("sumbu-x")
+      ? {
+          before: reflectionLabelText.split("sumbu-x")[0],
+          after: reflectionLabelText.split("sumbu-x").slice(1).join("sumbu-x"),
+          prefix: "sumbu-",
+          suffix: "",
+        }
+      : null;
 
   const xAxisStroke = xAxisHighlighted ? AXIS_HIGHLIGHT : AXIS_COLOR;
   const xAxisWidth = xAxisHighlighted ? 4 : 2;
@@ -1182,7 +1211,7 @@ const GraphPanel = (props) => {
                 toSvg(plottedPoint.x, plottedPoint.y).y,
                 toSvg(plottedPoint.x, 0).x,
                 toSvg(plottedPoint.x, 0).y,
-                PINK,
+                WRONG_COLOR,
                 true,
                 lineAnimPhase === "v",
                 "guide-v",
@@ -1194,13 +1223,24 @@ const GraphPanel = (props) => {
                     toSvg(plottedPoint.x, plottedPoint.y).y,
                     toSvg(0, plottedPoint.y).x,
                     toSvg(0, plottedPoint.y).y,
-                    PINK,
+                    WRONG_COLOR,
                     true,
                     lineAnimPhase === "h",
                     "guide-h",
                   )
                 : null,
             )
+          : null,
+        step === 2 && step2Phase !== "correct" && step2Phase !== "done"
+          ? React.createElement("circle", {
+              id: "step2-target-nudge",
+              cx: toSvg(TARGET_A.x, TARGET_A.y).x,
+              cy: toSvg(TARGET_A.x, TARGET_A.y).y,
+              r: POINT_RADIUS + 14,
+              fill: "transparent",
+              stroke: "transparent",
+              pointerEvents: "none",
+            })
           : null,
         showPointA && pointCoords
           ? React.createElement("circle", {
@@ -1231,7 +1271,7 @@ const GraphPanel = (props) => {
                 cx: cloneBase.x,
                 cy: cloneBase.y,
                 r: POINT_RADIUS,
-                fill: YELLOW,
+                fill: IMAGE_COLOR,
               }),
             )
           : null,
@@ -1243,7 +1283,7 @@ const GraphPanel = (props) => {
               cx: aPrimePt.x,
               cy: aPrimePt.y,
               r: POINT_RADIUS,
-              fill: YELLOW,
+              fill: IMAGE_COLOR,
               className:
                 step === 5
                   ? "rg-fade-in" +
@@ -1267,10 +1307,29 @@ const GraphPanel = (props) => {
                 fill: AXIS_HIGHLIGHT,
                 fontSize: REFLECTION_LABEL_FONT,
                 fontWeight: "600",
-                fontStyle: "italic",
                 fontFamily: "system-ui, sans-serif",
               },
-              APP_DATA.steps[3].reflectionLabel,
+              reflectionLabelParts
+                ? React.createElement(
+                    React.Fragment,
+                    null,
+                    React.createElement(
+                      "tspan",
+                      null,
+                      reflectionLabelParts.before + reflectionLabelParts.prefix,
+                    ),
+                    React.createElement(
+                      "tspan",
+                      { fontFamily: MATH_FONT, fontStyle: "italic" },
+                      "x",
+                    ),
+                    React.createElement(
+                      "tspan",
+                      null,
+                      reflectionLabelParts.suffix + reflectionLabelParts.after,
+                    ),
+                  )
+                : reflectionLabelText,
             )
           : null,
         calloutVisible && calloutMode

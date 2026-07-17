@@ -884,6 +884,8 @@ const App = () => {
         addNudgeFor("start-button");
       } else if (currentStep === 1 && !isNextDisabled) {
         addNudgeFor("next-button");
+      } else if (currentStep === 2 && step2Phase !== "correct" && step2Phase !== "done") {
+        addNudgeFor("step2-target-nudge");
       } else if (currentStep === 3 && !xAxisHighlighted) {
         addNudgeFor("x-axis-hit");
       } else if (currentStep === 4 && step4Phase === "initial") {
@@ -929,6 +931,7 @@ const App = () => {
     step6Phase,
     step7Answer,
     step8Phase,
+    step2Phase,
     step9Part,
     step9QuestionIndex,
     step9XStatus,

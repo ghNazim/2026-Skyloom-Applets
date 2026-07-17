@@ -106,7 +106,7 @@ const App = () => {
   }, []);
 
   const getQuestionText = () => {
-    if (currentStep === 9) return "<strong>Activity Completed!!</strong>";
+    if (currentStep === 9) return `<b>${APP_DATA.final.heading}</b>` ;
     if (dynamicQuestionText !== null) return dynamicQuestionText;
     const stepData = APP_DATA.steps[currentStep];
     return stepData ? stepData.questionText : "";

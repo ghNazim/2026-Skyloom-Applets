@@ -94,13 +94,13 @@
 }
 
 .feedback-box.is-wrong {
-  background: rgba(110, 38, 42, 0.95);
-  border-color: rgba(255, 155, 150, 0.9);
+  background: var(--status-wrong-bg);
+  border-color: var(--status-wrong-border);
 }
 
 .feedback-box.is-correct {
-  background: rgba(38, 95, 52, 0.95);
-  border-color: rgba(140, 220, 165, 0.9);
+  background: var(--status-correct-bg);
+  border-color: var(--status-correct-border);
 }
 
 .action-btn {
@@ -161,7 +161,7 @@
 }
 
 .property-card-box.is-complete {
-  border-color: rgba(140, 220, 165, 0.95);
+  border-color: var(--status-correct-border);
 }
 
 .property-tick {
@@ -250,12 +250,12 @@
 }
 
 .step7-option.is-wrong {
-  background: rgba(150, 10, 10, 0.95);
+  background: var(--status-wrong-solid);
   color: white;
 }
 
 .step7-option.is-correct {
-  background: rgba(20, 118, 32, 0.95);
+  background: var(--status-correct-solid);
   color: white;
 }
 
@@ -312,11 +312,11 @@
 }
 
 .step8-observation-row.is-active-x .step8-observation-value {
-  color: #ff8a3d;
+  color: var(--theme-pink);
 }
 
 .step8-observation-row.is-active-y .step8-observation-value {
-  color: #db73f5;
+  color: var(--theme-blue);
 }
 
 .step8-observation-row.is-blinking .step8-observation-value {
@@ -340,6 +340,7 @@
   font-size: 3.9vw;
   line-height: 1.2;
   font-weight: 500;
+  font-family: "Times New Roman", Times, serif;
   opacity: 0;
   transform: translateY(0.5vw);
   transition: opacity 0.35s ease, transform 0.35s ease;
@@ -354,15 +355,16 @@
 .step8-formula .formula-y,
 .step8-formula .formula-neg-y {
   color: inherit;
+  font-style: italic;
 }
 
 .step8-formula.has-x-active .formula-x {
-  color: #ff8a3d;
+  color: var(--theme-pink);
 }
 
 .step8-formula.has-y-active .formula-y,
 .step8-formula.has-y-active .formula-neg-y {
-  color: #db73f5;
+  color: var(--theme-blue);
 }
 
 .step8-formula.has-x-blink .formula-x,
@@ -433,7 +435,7 @@
   font-size: 64px;
   line-height: 1;
   font-weight: 500;
-  font-family: inherit;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .step9-hint-path {
@@ -544,13 +546,14 @@
 }
 
 .step9-answer-box.is-wrong {
-  background: #ffffff;
-  border-color: #c65b83;
+  background: var(--status-wrong-soft);
+  border-color: var(--status-wrong-solid);
   color: #111111;
 }
 
 .step9-answer-box.is-correct {
-  background: rgba(73, 141, 101, 0.92);
+  background: var(--status-correct-soft);
+  border-color: var(--status-correct-solid);
   color: #ffffff;
 }
 

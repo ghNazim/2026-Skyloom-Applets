@@ -1989,7 +1989,7 @@ const MainCanvas = (props) => {
       { className: "svg-row" },
       showRecapText &&
       React.createElement("div", {
-        className: "recap-text-box",
+        className: "recap-text-box " + current_language,
         dangerouslySetInnerHTML: { __html: APP_DATA.steps[1].recapText },
       }),
       React.createElement(

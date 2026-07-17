@@ -87,22 +87,22 @@
   color: #10b981;
 }
 .fullscreen-text-col .highlight-blue {
-  color: #00ffff;
+  color: var(--theme-blue);
 }
 .fullscreen-text-col .highlight-yellow {
-  color: #facc15;
+  color: var(--theme-yellow);
 }
 .fullscreen-text-col .highlight-orange {
-  color: #ff9800;
+  color: var(--object-color);
 }
 .fullscreen-text-col .highlight-cyan {
-  color: #00ffff;
+  color: var(--image-color);
 }
 .fullscreen-content .highlight-orange {
-  color: #ff9800;
+  color: var(--object-color);
 }
 .fullscreen-content .highlight-cyan {
-  color: #00ffff;
+  color: var(--image-color);
 }
 
 .completion-panel {

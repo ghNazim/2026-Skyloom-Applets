@@ -190,6 +190,8 @@ const MainCanvas = (props) => {
                 ref: (el) => {
                   formulaTokenRefs.current.leftX = el;
                 },
+                fontFamily: '"Times New Roman", Times, serif',
+                fontStyle: "italic",
                 fill: isXPart && currentStatus === "wrong" ? formulaAccent : "#ffffff",
               },
               "x",
@@ -201,6 +203,8 @@ const MainCanvas = (props) => {
                 ref: (el) => {
                   formulaTokenRefs.current.leftY = el;
                 },
+                fontFamily: '"Times New Roman", Times, serif',
+                fontStyle: "italic",
                 fill: !isXPart && currentStatus === "wrong" ? formulaAccent : "#ffffff",
               },
               "y",
@@ -232,6 +236,8 @@ const MainCanvas = (props) => {
                 ref: (el) => {
                   formulaTokenRefs.current.rightX = el;
                 },
+                fontFamily: '"Times New Roman", Times, serif',
+                fontStyle: "italic",
                 fill: isXPart && currentStatus === "wrong" ? formulaAccent : "#ffffff",
               },
               "x",
@@ -243,6 +249,8 @@ const MainCanvas = (props) => {
                 ref: (el) => {
                   formulaTokenRefs.current.rightY = el;
                 },
+                fontFamily: '"Times New Roman", Times, serif',
+                fontStyle: "italic",
                 fill: !isXPart && currentStatus === "wrong" ? formulaAccent : "#ffffff",
               },
               "-y",
@@ -740,13 +748,13 @@ const MainCanvas = (props) => {
                   (step8YBlink ? " has-y-blink" : ""),
               },
               React.createElement("span", null, "A("),
-              React.createElement("span", { className: "formula-x" }, "x"),
+              React.createElement("span", { className: "math-var formula-x" }, "x"),
               React.createElement("span", null, ", "),
-              React.createElement("span", { className: "formula-y" }, "y"),
+              React.createElement("span", { className: "math-var formula-y" }, "y"),
               React.createElement("span", null, ") \u2192 A\u2032("),
-              React.createElement("span", { className: "formula-x" }, "x"),
+              React.createElement("span", { className: "math-var formula-x" }, "x"),
               React.createElement("span", null, ", "),
-              React.createElement("span", { className: "formula-neg-y" }, "-y"),
+              React.createElement("span", { className: "math-var formula-neg-y" }, "-y"),
               React.createElement("span", null, ")"),
             ),
       );

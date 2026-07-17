@@ -121,7 +121,8 @@ const DATA = {
               options: ["3", "-3", "2", "-2"],
             },
           ],
-          formulaText: "A(x, y) \u2192 A&rsquo;(x, -y)",
+          formulaText:
+            "A(<span class=\"math-var\">x</span>, <span class=\"math-var\">y</span>) \u2192 A&rsquo;(<span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span>)",
           pointLabel: "Point",
           imageLabel: "Image",
           navTextInitial: "Tap the correct option.",
@@ -151,7 +152,8 @@ const DATA = {
           heading: "Activity Completed!",
           ruleTitle: "Reflection of a Point Across x-axis",
           ruleLabel: "Rule:",
-          ruleFormula: "A( x, y ) \u2192 A&rsquo;( x, -y )",
+          ruleFormula:
+            "A( <span class=\"math-var\">x</span>, <span class=\"math-var\">y</span> ) \u2192 A&rsquo;( <span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span> )",
           body:
             "You can now find the coordinates of the image of a point<br>reflected across x-axis using the above rule.",
           restartPrompt: "Tap <y>START OVER</y> to repeat this activity!",
@@ -280,7 +282,8 @@ const DATA = {
               options: ["3", "-3", "2", "-2"],
             },
           ],
-          formulaText: "A(x, y) \u2192 A&rsquo;(x, -y)",
+          formulaText:
+            "A(<span class=\"math-var\">x</span>, <span class=\"math-var\">y</span>) \u2192 A&rsquo;(<span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span>)",
           pointLabel: "Point",
           imageLabel: "Image",
           navTextInitial: "Tap the correct option.",
@@ -310,7 +313,8 @@ const DATA = {
           heading: "Activity Completed!",
           ruleTitle: "Reflection of a Point Across x-axis",
           ruleLabel: "Rule:",
-          ruleFormula: "A( x, y ) \u2192 A&rsquo;( x, -y )",
+          ruleFormula:
+            "A( <span class=\"math-var\">x</span>, <span class=\"math-var\">y</span> ) \u2192 A&rsquo;( <span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span> )",
           body:
             "You can now find the coordinates of the image of a point<br>reflected across x-axis using the above rule.",
           restartPrompt: "Tap <y>START OVER</y> to repeat this activity!",

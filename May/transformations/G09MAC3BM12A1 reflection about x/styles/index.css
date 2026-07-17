@@ -1,8 +1,21 @@
 :root {
   /* Color Palette */
-  --accent-color: #f97315;
-  --panel-border-color: #c9a4ff90;
+  --accent-color: #5da6f4;
+  --panel-border-color: rgba(93, 166, 244, 0.45);
   --light-text-color: rgba(255, 255, 255, 0.87);
+  --object-color: #fb9b5b;
+  --image-color: #46c5ce;
+  --theme-pink: #f561a3;
+  --theme-blue: #5da6f4;
+  --theme-yellow: #ffd34d;
+  --status-wrong-bg: rgba(110, 38, 42, 0.95);
+  --status-wrong-border: rgba(255, 155, 150, 0.9);
+  --status-wrong-solid: #a01822;
+  --status-wrong-soft: #ffb1b1;
+  --status-correct-bg: rgba(38, 95, 52, 0.95);
+  --status-correct-border: rgba(140, 220, 165, 0.9);
+  --status-correct-solid: rgba(20, 118, 32, 0.95);
+  --status-correct-soft: rgba(73, 141, 101, 0.92);
 
   /* Button styles */
   --start-button-gradient-start: #ff9800;
@@ -65,19 +78,24 @@ body {
 
 y {
   font-weight: 600;
-  color: #ff9800;
+  color: var(--theme-yellow);
   display: inline;
 }
 
 yl{
-  color: #FFD34D;
+  color: var(--theme-yellow);
   display: inline;
   font-weight: 600;
 }
 bl{
-  color: #64C7FF;
+  color: var(--theme-blue);
   display: inline;
   font-weight: 600;
+}
+
+.math-var {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
 }
 
 cm {
