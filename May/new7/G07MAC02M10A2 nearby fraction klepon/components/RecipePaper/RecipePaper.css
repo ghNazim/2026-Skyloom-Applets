@@ -1,5 +1,5 @@
 .recipe-paper {
-  width: min(38vw, 100%);
+  width: 100%;
   min-width: 0;
   background: #fff9b8;
   color: #2f250d;
@@ -34,7 +34,7 @@
 .recipe-header,
 .recipe-row {
   display: grid;
-  grid-template-columns: 47% 23% 30%;
+  grid-template-columns: 40% 30% 30%;
   align-items: center;
 }
 
@@ -56,6 +56,10 @@
   color: #287625;
 }
 
+.recipe-header-estimate{
+  text-align: center;
+}
+
 .recipe-row {
   min-height: 4.35vw;
   border-top: 0.18vw dotted #aa6a6a;
@@ -68,7 +72,6 @@
 }
 
 .recipe-row-highlight {
-  outline: 0.12vw solid #ffa21d;
   background: rgba(241, 195, 65, 0.14);
   box-shadow: 0.25vw 0.25vw 0.35vw rgba(0, 0, 0, 0.12);
 }
@@ -88,7 +91,7 @@
 .recipe-estimate {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.45vw;
   font-size: 1.75vw;
   font-weight: 800;
@@ -96,7 +99,8 @@
 }
 
 .recipe-estimate {
-  font-size: 2.2vw;
+  font-size: 1.75vw;
+  justify-content: center;
 }
 
 .recipe-unit {

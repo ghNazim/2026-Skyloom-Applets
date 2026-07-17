@@ -26,9 +26,9 @@ const RecipePaper = ({ highlightIndex = null, fadedExceptIndex = null, estimates
       "div",
       { className: "recipe-rows" },
       recipe.items.map((item, index) => {
-        const faded = fadedExceptIndex !== null && index !== fadedExceptIndex;
         const highlighted = highlightIndex === index;
         const estimate = estimates[item.key];
+        const faded = fadedExceptIndex !== null && index > fadedExceptIndex && !estimate;
         return React.createElement(
           "div",
           {

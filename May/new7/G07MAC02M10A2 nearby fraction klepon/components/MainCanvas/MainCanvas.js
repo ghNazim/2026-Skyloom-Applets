@@ -13,6 +13,13 @@ function xForNumber(value) {
   return NL_START + NL_LEN * value;
 }
 
+function interpolateYAtX(x, start, end) {
+  const dx = end.x - start.x;
+  if (Math.abs(dx) < 0.001) return start.y;
+  const t = Math.max(0, Math.min(1, (x - start.x) / dx));
+  return start.y + (end.y - start.y) * t;
+}
+
 function labelForBenchmark(value) {
   if (value === 0) return "0";
   if (value === 1) return "1";
@@ -66,9 +73,9 @@ function FractionSvg({ x, y, num, den, color = ORANGE, fontSize = 42 }) {
   );
 }
 
-function NumberLine({ y, color = LINE_TAN, fullTenths = true, benchmarkValues = null }) {
+function NumberLine({ y, color = LINE_TAN, fullTenths = true, benchmarkValues = null, showEndLabels = true, divisions = 10 }) {
   const ticks = fullTenths
-    ? Array.from({ length: 11 }, (_, i) => i / 10)
+    ? Array.from({ length: divisions + 1 }, (_, i) => i / divisions)
     : benchmarkValues;
 
   return React.createElement(
@@ -95,7 +102,7 @@ function NumberLine({ y, color = LINE_TAN, fullTenths = true, benchmarkValues = 
         strokeWidth: 3,
       }),
     ),
-    React.createElement(
+    showEndLabels ? React.createElement(
       "text",
       {
         x: xForNumber(0),
@@ -107,8 +114,8 @@ function NumberLine({ y, color = LINE_TAN, fullTenths = true, benchmarkValues = 
         textAnchor: "middle",
       },
       "0",
-    ),
-    React.createElement(
+    ) : null,
+    showEndLabels ? React.createElement(
       "text",
       {
         x: xForNumber(1),
@@ -120,12 +127,13 @@ function NumberLine({ y, color = LINE_TAN, fullTenths = true, benchmarkValues = 
         textAnchor: "middle",
       },
       "1",
-    ),
+    ) : null,
   );
 }
 
 const MainCanvas = ({
   step,
+  ingredientIndex = 0,
   onSetNextEnabled,
   onUpdateTexts,
   onCompleteTenthsPlacement,
@@ -137,6 +145,8 @@ const MainCanvas = ({
   const dragRef = useRef(false);
   const correctTimerRef = useRef(null);
   const animationTimerRef = useRef(null);
+  const cloneTimerRef = useRef(null);
+  const cloneFrameRef = useRef(null);
 
   const [mark, setMark] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -147,6 +157,12 @@ const MainCanvas = ({
   const [benchmarkFeedback, setBenchmarkFeedback] = useState(null);
   const [isBenchmarkAnimating, setIsBenchmarkAnimating] = useState(false);
   const [animationDone, setAnimationDone] = useState(false);
+  const [clonePoint, setClonePoint] = useState(null);
+  const flow = APP_DATA.ingredientFlows[ingredientIndex] || APP_DATA.ingredientFlows[0];
+  const isLocateStep = (step - 1) % 3 === 1;
+  const isBenchmarkStep = (step - 1) % 3 === 2;
+  const fractionValue = flow.numerator / flow.denominator;
+  const isLastIngredient = ingredientIndex >= APP_DATA.ingredientFlows.length - 1;
 
   const playSnd = (name) => {
     if (typeof playSound === "function") playSound(name);
@@ -165,14 +181,16 @@ const MainCanvas = ({
   }, []);
 
   const snapToMark = useCallback((x) => {
-    const raw = Math.round(((x - NL_START) / NL_LEN) * 10);
-    return Math.max(0, Math.min(10, raw));
-  }, []);
+    const raw = Math.round(((x - NL_START) / NL_LEN) * flow.denominator);
+    return Math.max(0, Math.min(flow.denominator, raw));
+  }, [flow.denominator]);
 
   useEffect(() => {
     window.clearTimeout(correctTimerRef.current);
     window.clearTimeout(animationTimerRef.current);
-    setMark(step === 3 ? 9 : 0);
+    window.clearTimeout(cloneTimerRef.current);
+    window.cancelAnimationFrame(cloneFrameRef.current);
+    setMark(isBenchmarkStep ? flow.numerator : 0);
     setIsDragging(false);
     setHasDropped(false);
     setFeedback(null);
@@ -181,22 +199,25 @@ const MainCanvas = ({
     setBenchmarkFeedback(null);
     setIsBenchmarkAnimating(false);
     setAnimationDone(false);
+    setClonePoint(null);
 
-    if (step === 2) {
+    if (isLocateStep) {
       onSetNextEnabled(false);
-      onUpdateTexts(APP_DATA.steps[2].questionText, APP_DATA.steps[2].navText);
+      onUpdateTexts(flow.placeQuestion, flow.placeNav);
     }
 
-    if (step === 3) {
+    if (isBenchmarkStep) {
       onSetNextEnabled(false);
-      onUpdateTexts(APP_DATA.steps[3].questionText, APP_DATA.steps[3].navText);
+      onUpdateTexts(flow.benchmarkQuestion, APP_DATA.steps[3].navText);
     }
 
     return () => {
       window.clearTimeout(correctTimerRef.current);
       window.clearTimeout(animationTimerRef.current);
+      window.clearTimeout(cloneTimerRef.current);
+      window.cancelAnimationFrame(cloneFrameRef.current);
     };
-  }, [step, onSetNextEnabled, onUpdateTexts]);
+  }, [flow, isBenchmarkStep, isLocateStep, onSetNextEnabled, onUpdateTexts, step]);
 
   useEffect(() => {
     if (!isDragging) return undefined;
@@ -215,13 +236,13 @@ const MainCanvas = ({
       const nextMark = snapToMark(pt.x);
       setMark(nextMark);
       setHasDropped(true);
-      if (nextMark === 9) {
+      if (nextMark === flow.numerator) {
         playSnd("correct");
-        setFeedback({ type: "correct", text: APP_DATA.steps[2].correctFeedback });
+        setFeedback({ type: "correct", text: flow.placeCorrect });
         if (onCompleteTenthsPlacement) onCompleteTenthsPlacement();
       } else {
         playSnd("wrong");
-        setFeedback({ type: "wrong", text: APP_DATA.steps[2].wrongFeedback });
+        setFeedback({ type: "wrong", text: flow.placeWrong });
       }
     };
     window.addEventListener("pointermove", onMove, { passive: false });
@@ -230,10 +251,10 @@ const MainCanvas = ({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
-  }, [isDragging, snapToMark, svgPoint, onCompleteTenthsPlacement]);
+  }, [flow, isDragging, snapToMark, svgPoint, onCompleteTenthsPlacement]);
 
   const startDrag = (e) => {
-    if (step !== 2) return;
+    if (!isLocateStep) return;
     e.preventDefault();
     dragRef.current = true;
     setIsDragging(true);
@@ -246,19 +267,18 @@ const MainCanvas = ({
     setBenchmarkFeedback(null);
     if (onHideNudge) onHideNudge();
     onUpdateTexts(undefined, APP_DATA.steps[3].navChoose);
-    window.setTimeout(() => {
-      if (onShowNudgeAtElement) onShowNudgeAtElement("benchmark-1");
-    }, 250);
   };
 
   const handleBenchmarkClick = (value) => {
     if (isBenchmarkAnimating || animationDone) return;
     setSelectedBenchmark(value);
-    if (value !== 1) {
+    if (Math.abs(value - flow.correctBenchmark) > 0.0001) {
       playSnd("wrong");
+      const halfwayWrong =
+        flow.halfwayRoundUp && Math.abs(value - 0.5) < 0.0001 && flow.halfwayWrong;
       setBenchmarkFeedback({
         type: "wrong",
-        text: value === 0 ? APP_DATA.steps[3].wrongZero : APP_DATA.steps[3].wrongOther,
+        text: halfwayWrong || (value === 0 ? APP_DATA.steps[3].wrongZero : APP_DATA.steps[3].wrongOther),
       });
       return;
     }
@@ -267,11 +287,49 @@ const MainCanvas = ({
     if (onHideNudge) onHideNudge();
     setBenchmarkFeedback(null);
     setIsBenchmarkAnimating(true);
+    setClonePoint(null);
+    cloneTimerRef.current = window.setTimeout(() => {
+      const pathPoints = clonePathPoints;
+      const segments = pathPoints.slice(1).map((pt, index) => {
+        const from = pathPoints[index];
+        return {
+          from,
+          to: pt,
+          length: Math.hypot(pt.x - from.x, pt.y - from.y),
+        };
+      });
+      const totalLength = segments.reduce((sum, segment) => sum + segment.length, 0);
+      const duration = 850;
+      const startTime = performance.now();
+      const moveClone = (now) => {
+        const t = Math.min(1, (now - startTime) / duration);
+        let remaining = totalLength * t;
+        let current = segments[segments.length - 1];
+        for (const segment of segments) {
+          if (remaining <= segment.length) {
+            current = segment;
+            break;
+          }
+          remaining -= segment.length;
+        }
+        const localT = current.length === 0 ? 1 : Math.min(1, remaining / current.length);
+        setClonePoint({
+          x: current.from.x + (current.to.x - current.from.x) * localT,
+          y: current.from.y + (current.to.y - current.from.y) * localT,
+        });
+        if (t < 1) {
+          cloneFrameRef.current = window.requestAnimationFrame(moveClone);
+        }
+      };
+      setClonePoint({ x: topFractionX, y: topY });
+      cloneFrameRef.current = window.requestAnimationFrame(moveClone);
+    }, 1500);
     animationTimerRef.current = window.setTimeout(() => {
       setAnimationDone(true);
       setIsBenchmarkAnimating(false);
-      setBenchmarkFeedback({ type: "correct", text: APP_DATA.steps[3].correctFeedback });
-      onUpdateTexts(undefined, APP_DATA.steps[3].navDone);
+      setClonePoint(null);
+      setBenchmarkFeedback({ type: "correct", text: flow.benchmarkCorrect });
+      onUpdateTexts(undefined, isLastIngredient ? APP_DATA.steps[3].navFinish : APP_DATA.steps[3].navDone);
       onSetNextEnabled(true);
       if (onShowNudgeAtElement) {
         window.setTimeout(() => onShowNudgeAtElement("next-button"), 200);
@@ -287,27 +345,27 @@ const MainCanvas = ({
         "marker",
         {
           id: "arrow-end",
-          markerWidth: 13,
-          markerHeight: 13,
-          refX: 10,
-          refY: 5,
+          markerWidth: 6,
+          markerHeight: 6,
+          refX: 3.4,
+          refY: 3,
           orient: "auto",
           markerUnits: "strokeWidth",
         },
-        React.createElement("path", { d: "M0,0 L10,5 L0,10 Z", fill: "context-stroke" }),
+        React.createElement("path", { d: "M0,0.7 L5,3 L0,5.3 Z", fill: "context-stroke" }),
       ),
       React.createElement(
         "marker",
         {
           id: "arrow-start",
-          markerWidth: 13,
-          markerHeight: 13,
-          refX: 0,
-          refY: 5,
+          markerWidth: 6,
+          markerHeight: 6,
+          refX: 1.6,
+          refY: 3,
           orient: "auto",
           markerUnits: "strokeWidth",
         },
-        React.createElement("path", { d: "M10,0 L0,5 L10,10 Z", fill: "context-stroke" }),
+        React.createElement("path", { d: "M5,0.7 L0,3 L5,5.3 Z", fill: "context-stroke" }),
       ),
     );
 
@@ -322,7 +380,7 @@ const MainCanvas = ({
         fill: "rgba(255, 246, 0, 0.22)",
       }),
       React.createElement("circle", {
-        id: step === 2 ? "tenths-dot" : undefined,
+        id: isLocateStep ? "tenths-dot" : undefined,
         cx: x,
         cy: y,
         r: 13,
@@ -336,16 +394,20 @@ const MainCanvas = ({
 
   const renderStep2 = () => {
     const y = 302;
-    const x = xForNumber(mark / 10);
-    const showFraction = mark > 0 && mark < 10;
+    const x = xForNumber(mark / flow.denominator);
+    const showFraction = mark > 0 && mark < flow.denominator;
     const boxColor = feedback && feedback.type === "correct" ? GREEN : "#ff2626";
+    const fractionText = flow.numerator + "/" + flow.denominator;
+    const topText =
+      APP_DATA.steps[2].topLead.replace("{splitName}", flow.splitName) + "<br>" +
+      "<y>" + APP_DATA.steps[2].topQuestion.replace("{fraction}", fractionText) + "</y>";
 
     return React.createElement(
       React.Fragment,
       null,
       React.createElement("div", {
         className: "canvas-top-text",
-        dangerouslySetInnerHTML: { __html: formatFractionsInText(APP_DATA.steps[2].topText) },
+        dangerouslySetInnerHTML: { __html: formatFractionsInText(topText) },
       }),
       React.createElement(
         "svg",
@@ -356,7 +418,7 @@ const MainCanvas = ({
           preserveAspectRatio: "none",
         },
         renderDefs(),
-        React.createElement(NumberLine, { y, color: LINE_TAN, fullTenths: true }),
+        React.createElement(NumberLine, { y, color: LINE_TAN, fullTenths: true, divisions: flow.denominator }),
         showFraction && hasDropped
           ? React.createElement("rect", {
               x: x - 40,
@@ -374,7 +436,7 @@ const MainCanvas = ({
               x,
               y: y - 75,
               num: mark,
-              den: 10,
+              den: flow.denominator,
               color: hasDropped ? boxColor : ORANGE,
               fontSize: 42,
             })
@@ -390,22 +452,69 @@ const MainCanvas = ({
     );
   };
 
-  const benchmarkValues = [0, 0.25, 1 / 3, 0.5, 1];
+  const benchmarkValues = flow.benchmarkValues || [0, 0.25, 1 / 3, 0.5, 1];
   const topY = 125;
   const bottomY = 365;
-  const nineX = xForNumber(0.9);
-  const threeQuarterX = xForNumber(0.75);
-  const halfX = xForNumber(0.5);
-  const oneX = xForNumber(1);
-  const yellowPath = `M ${nineX} ${topY} L ${nineX} 215 L ${oneX - 12} 294 L ${oneX - 12} ${bottomY}`;
+  const topFractionX = xForNumber(fractionValue);
+  const pairIndex = benchmarkValues.findIndex((value, index) => {
+    const next = benchmarkValues[index + 1];
+    return next !== undefined && fractionValue >= value && fractionValue <= next;
+  });
+  const lowerBenchmark = pairIndex >= 0 ? benchmarkValues[pairIndex] : benchmarkValues[benchmarkValues.length - 2];
+  const upperBenchmark = pairIndex >= 0 ? benchmarkValues[pairIndex + 1] : benchmarkValues[benchmarkValues.length - 1];
+  const comparisonA = xForNumber(lowerBenchmark);
+  const comparisonB = xForNumber(upperBenchmark);
+  const comparisonMidX = lowerBenchmark === 0
+    ? xForNumber(0)
+    : xForNumber((lowerBenchmark + upperBenchmark) / 2);
+  const targetBenchmarkX = xForNumber(flow.correctBenchmark);
+  const comparisonStart = { x: comparisonMidX, y: topY + 8 };
+  const comparisonEndForTarget = {
+    x: targetBenchmarkX,
+    y: bottomY - 45,
+  };
+  const comparisonTargetY = interpolateYAtX(targetBenchmarkX, comparisonStart, comparisonEndForTarget);
+  const yellowPathGap = 16;
+  const isHalfwayRoundUp = !!flow.halfwayRoundUp;
+  const yellowPathBend = {
+    x: topFractionX,
+    y: interpolateYAtX(topFractionX, comparisonStart, comparisonEndForTarget) - yellowPathGap,
+  };
+  const yellowPathBeforeDrop = {
+    x: targetBenchmarkX,
+    y: comparisonTargetY - yellowPathGap,
+  };
+  const comparisonSlope =
+    Math.abs(targetBenchmarkX - comparisonStart.x) < 0.001
+      ? 0
+      : (comparisonEndForTarget.y - comparisonStart.y) / (targetBenchmarkX - comparisonStart.x);
+  const halfwayPathBend = {
+    x: targetBenchmarkX,
+    y: topY + comparisonSlope * (targetBenchmarkX - topFractionX),
+  };
+  const yellowPath = isHalfwayRoundUp
+    ? `M ${topFractionX} ${topY} L ${halfwayPathBend.x} ${halfwayPathBend.y} L ${targetBenchmarkX} ${bottomY}`
+    : `M ${topFractionX} ${topY} L ${yellowPathBend.x} ${yellowPathBend.y} L ${yellowPathBeforeDrop.x} ${yellowPathBeforeDrop.y} L ${targetBenchmarkX} ${bottomY}`;
+  const clonePathPoints = isHalfwayRoundUp
+    ? [
+        { x: topFractionX, y: topY },
+        halfwayPathBend,
+        { x: targetBenchmarkX, y: bottomY },
+      ]
+    : [
+        { x: topFractionX, y: topY },
+        yellowPathBend,
+        yellowPathBeforeDrop,
+        { x: targetBenchmarkX, y: bottomY },
+      ];
 
   const renderBenchmarkBox = (value) => {
     const x = xForNumber(value);
     const label = labelForBenchmark(value);
     const isSelected = selectedBenchmark === value;
-    const isCorrectSelected = animationDone && value === 1;
-    const dimmed = animationDone && value !== 1;
-    const id = value === 1 ? "benchmark-1" : undefined;
+    const isCorrectSelected = animationDone && Math.abs(value - flow.correctBenchmark) < 0.0001;
+    const dimmed = animationDone && Math.abs(value - flow.correctBenchmark) > 0.0001;
+    const id = Math.abs(value - flow.correctBenchmark) < 0.0001 ? "benchmark-correct" : undefined;
     const isFraction = label.indexOf("/") > -1;
     const parts = isFraction ? label.split("/") : null;
 
@@ -417,10 +526,10 @@ const MainCanvas = ({
         className:
           "benchmark-box" +
           (isSelected ? " selected" : "") +
-          (isSelected && value === 1 && isBenchmarkAnimating ? " pending-correct" : "") +
+          (isSelected && Math.abs(value - flow.correctBenchmark) < 0.0001 && isBenchmarkAnimating ? " pending-correct" : "") +
           (isCorrectSelected ? " correct" : "") +
           (dimmed ? " dimmed" : ""),
-        style: { left: `calc(${(x / KLEPON_VB_W) * 100}% - 3.2vw)` },
+        style: { left: `calc(${(x / KLEPON_VB_W) * 100}% - 2.72vw)` },
         onClick: () => handleBenchmarkClick(value),
       },
       isFraction
@@ -444,22 +553,27 @@ const MainCanvas = ({
           preserveAspectRatio: "none",
         },
         renderDefs(),
-        React.createElement(NumberLine, { y: topY, color: LINE_TAN, fullTenths: true }),
-        React.createElement(FractionSvg, {
-          x: nineX,
-          y: topY - 78,
-          num: 9,
-          den: 10,
-          color: ORANGE,
-          fontSize: 42,
-        }),
-        renderDot(nineX, topY, false),
+        React.createElement(
+          "g",
+          { className: "top-number-line-group" },
+          React.createElement(NumberLine, { y: topY, color: LINE_TAN, fullTenths: true, divisions: flow.denominator }),
+          React.createElement(FractionSvg, {
+            x: topFractionX,
+            y: topY - 78,
+            num: flow.numerator,
+            den: flow.denominator,
+            color: ORANGE,
+            fontSize: 42,
+          }),
+          renderDot(topFractionX, topY, false),
+        ),
         showBenchmarks
           ? React.createElement(NumberLine, {
               y: bottomY,
               color: GREEN,
               fullTenths: false,
               benchmarkValues,
+              showEndLabels: false,
             })
           : null,
         (isBenchmarkAnimating || animationDone)
@@ -468,22 +582,34 @@ const MainCanvas = ({
               { className: "benchmark-animation-layer" },
               React.createElement("line", {
                 className: "comparison-line comparison-line-left",
-                x1: threeQuarterX,
+                x1: comparisonMidX,
                 y1: topY + 8,
-                x2: halfX + 28,
+                x2: comparisonA,
                 y2: bottomY - 45,
                 stroke: "rgba(185, 185, 185, 0.72)",
                 strokeWidth: 3,
               }),
               React.createElement("line", {
                 className: "comparison-line comparison-line-right",
-                x1: threeQuarterX,
+                x1: comparisonMidX,
                 y1: topY + 8,
-                x2: oneX - 28,
+                x2: comparisonB,
                 y2: bottomY - 45,
                 stroke: "rgba(185, 185, 185, 0.72)",
                 strokeWidth: 3,
               }),
+              React.createElement(
+                "mask",
+                { id: "nearest-path-mask", maskUnits: "userSpaceOnUse" },
+                React.createElement("path", {
+                  className: "nearest-path-mask-line",
+                  d: yellowPath,
+                  fill: "none",
+                  stroke: "#ffffff",
+                  strokeWidth: 10,
+                  pathLength: 1,
+                }),
+              ),
               React.createElement("path", {
                 className: "nearest-path",
                 d: yellowPath,
@@ -491,20 +617,29 @@ const MainCanvas = ({
                 stroke: YELLOW,
                 strokeWidth: 3,
                 strokeDasharray: "8 9",
+                mask: "url(#nearest-path-mask)",
               }),
-              isBenchmarkAnimating
+              clonePoint
                 ? React.createElement(
-                    "circle",
-                    { r: 12, fill: YELLOW },
-                    React.createElement("animateMotion", {
-                      dur: "1.75s",
-                      begin: "0.8s",
-                      fill: "freeze",
-                      path: yellowPath,
+                    "g",
+                    { className: "moving-clone-dot" },
+                    React.createElement("circle", {
+                      cx: clonePoint.x,
+                      cy: clonePoint.y,
+                      r: 22,
+                      fill: "rgba(255, 246, 0, 0.22)",
+                    }),
+                    React.createElement("circle", {
+                      cx: clonePoint.x,
+                      cy: clonePoint.y,
+                      r: 13,
+                      fill: YELLOW,
+                      stroke: "rgba(255, 246, 0, 0.55)",
+                      strokeWidth: 3,
                     }),
                   )
                 : null,
-              animationDone ? renderDot(oneX, bottomY, false) : null,
+              animationDone ? renderDot(targetBenchmarkX, bottomY, false) : null,
             )
           : null,
       ),
@@ -538,6 +673,6 @@ const MainCanvas = ({
   return React.createElement(
     "div",
     { className: "main-canvas-container" },
-    step === 2 ? renderStep2() : renderStep3(),
+    isLocateStep ? renderStep2() : renderStep3(),
   );
 };

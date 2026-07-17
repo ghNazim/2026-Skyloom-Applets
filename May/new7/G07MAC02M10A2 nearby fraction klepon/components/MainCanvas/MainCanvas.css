@@ -46,15 +46,15 @@
   width: 88%;
   min-height: 5.8vw;
   z-index: 6;
-  display: flex;
+  /* display: flex; */
   align-items: center;
   justify-content: center;
   padding: 1vw 2vw;
   color: #ffffff;
-  font-size: 2.45vw;
+  font-size: 2.4vw;
   line-height: 1.25;
   text-align: center;
-  border-radius: 0.45vw;
+  border-radius: 1vw;
   text-shadow: 0.1vw 0.12vw 0.2vw rgba(0, 0, 0, 0.35);
 }
 
@@ -69,7 +69,10 @@
 }
 
 .benchmark-feedback {
+  font-size: 2vw;
   bottom: 0.55vw;
+  padding: 0.5vw 1.2vw;
+  /* border-radius: 1vw; */
 }
 
 .show-benchmarks-button {
@@ -107,15 +110,15 @@
 
 .benchmark-box {
   position: absolute;
-  top: 57%;
-  width: 6.4vw;
-  height: 7.1vw;
+  top: 61.5%;
+  width: 5.45vw;
+  height: 6.05vw;
   border: 0.12vw solid #ff9f19;
   border-radius: 0.8vw;
   background: linear-gradient(135deg, rgba(34, 67, 78, 0.94), rgba(9, 24, 32, 0.97));
   color: #ffffff;
   font-family: Georgia, serif;
-  font-size: 2.4vw;
+  font-size: 2.15vw;
   font-weight: 800;
   cursor: pointer;
   display: flex;
@@ -141,6 +144,19 @@
   opacity: 0.42;
 }
 
+.top-number-line-group {
+  animation: slideNumberLineUp 0.72s ease-out both;
+}
+
+@keyframes slideNumberLineUp {
+  from {
+    transform: translateY(177px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 .benchmark-animation-layer .comparison-line {
   stroke-dasharray: 680;
   stroke-dashoffset: 680;
@@ -152,9 +168,13 @@
 }
 
 .nearest-path {
-  stroke-dasharray: 940;
-  stroke-dashoffset: 940;
-  animation: growPath 1.55s ease 0.62s forwards;
+  pointer-events: none;
+}
+
+.nearest-path-mask-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: growPath 0.7s ease 0.62s forwards;
 }
 
 @keyframes growLine {
@@ -170,5 +190,9 @@
 }
 
 .svg-fraction {
+  pointer-events: none;
+}
+
+.moving-clone-dot {
   pointer-events: none;
 }

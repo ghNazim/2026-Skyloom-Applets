@@ -86,6 +86,11 @@
   margin: 0 0.15vw;
 }
 
+.nav-text-container .fraction {
+  margin-left: 0.28em;
+  margin-right: 0.28em;
+}
+
 .nav-text-container.panel-fade-in {
   animation: panelFadeIn 0.5s ease forwards;
 }
