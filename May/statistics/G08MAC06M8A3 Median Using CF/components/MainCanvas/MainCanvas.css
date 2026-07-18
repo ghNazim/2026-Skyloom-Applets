@@ -232,7 +232,7 @@ button.median-table-cell:not(:disabled) {
 
 .cf-cell.active {
   opacity: 1;
-  background: rgba(84, 47, 89, 0.95);
+  background: #e75d9e;
   color: #fff;
   box-shadow: 0 0 0 0.18vw #ffce54, 0 0 0.55vw rgba(255, 206, 84, 0.7);
 }

@@ -1,0 +1,70 @@
+.custom-slider {
+  position: relative;
+  width: 70%;
+  height: 4vw;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.slider-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0.45vw;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.3vw;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.slider-fill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 0.3vw;
+  transition: width 0.15s ease;
+}
+
+.slider-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 3.8vw;
+  height: 3.8vw;
+  background: rgba(10, 25, 50, 0.92);
+  border: 0.28vw solid #e8b830;
+  border-radius: 0.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  box-shadow: 0 0.2vw 0.8vw rgba(0, 0, 0, 0.4);
+  transition: left 0.15s ease;
+  overflow: visible;
+}
+
+.slider-thumb-value {
+  position: relative;
+  z-index: 2;
+  font-size: 2.2vw;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.slider-drag-hint {
+  position: absolute;
+  left: 50%;
+  top: 80%;
+  transform: translate(-50%, 0%);
+  width: 10vw;
+  max-width: none;
+  height: auto;
+  pointer-events: none;
+  z-index: 1;
+  object-fit: contain;
+  opacity: 0.5;
+}

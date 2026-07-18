@@ -1,0 +1,106 @@
+const DATA = {
+  en: {
+    app: {
+      dataset: [5, 3, 7, 6, 6, 9, 8, 6, 9, 8],
+      sortedDataset: [3, 5, 6, 6, 6, 7, 8, 8, 9, 9],
+      sortMapping: [1, 0, 5, 2, 3, 8, 6, 4, 9, 7],
+      start: {
+        heading: "Practice: Finding Median",
+        text: "We practiced finding median of the data set by<br>eliminating pairs and reaching the middle<br>value.<br>Let us now practice finding median directly by<br>using the middle position formula.<br>Tap 'Start' to begin.",
+        buttonText: "Start",
+      },
+      steps: {
+        1: {
+          questionText: "Put the steps of finding median in correct order.",
+          navText: "Move the options at correct steps.",
+          completeQuestion: "All the steps are in correct order.",
+          completeNav: "Tap \u00BB to begin finding median of a data set.",
+          stepLabels: ["Step 1", "Step 2", "Step 3", "Step 4"],
+          initialOrder: ["middle", "median", "count", "sort"],
+          correctOrder: ["sort", "count", "middle", "median"],
+          options: {
+            sort: "Sort the data",
+            count: "Count <mi>n</mi>",
+            middle: "Find middle position(s)",
+            median: "Find Median",
+          },
+        },
+        2: {
+          questionText: "To find the median, the first most step is to sort the data.",
+          navText: "",
+          sortReadyNav: "Tap Step 1 to start sorting the data.",
+          sortingQuestion: "",
+          sortingNav: "",
+          sortedQuestion: "Data set is sorted. Let's move ahead with the next step.",
+          sortedNav: "Tap Step 2.",
+          countQuestion: "Next step is to count the number of data values (<mi>n</mi>).",
+          countNav: "Tap on each data value to count it.",
+          countCompleteQuestion: "The data set have 10 values. Let's move ahead with the next step.",
+          countCompleteNav: "Tap Step 3.",
+          smallest: "Smallest",
+          largest: "Largest",
+          countSymbol: "n",
+          actionButtons: [
+            "Step 1:<br>Sort the data",
+            "Step 2:<br>Count <mi>n</mi>",
+            "Step 3:<br>Find Middle Position(s)",
+            "Step 4:<br>Find Median",
+          ],
+        },
+      },
+    },
+  },
+  id: {
+    app: {
+      dataset: [5, 3, 7, 6, 6, 9, 8, 6, 9, 8],
+      sortedDataset: [3, 5, 6, 6, 6, 7, 8, 8, 9, 9],
+      sortMapping: [1, 0, 5, 2, 3, 8, 6, 4, 9, 7],
+      start: {
+        heading: "Latihan: Menemukan Median",
+        text: "Kita telah berlatih menemukan median dari kumpulan data<br>dengan menghilangkan pasangan dan mencapai nilai<br>tengah.<br>Sekarang mari berlatih menemukan median secara langsung<br>dengan menggunakan rumus posisi tengah.<br>Ketuk 'Mulai' untuk memulai.",
+        buttonText: "Mulai",
+      },
+      steps: {
+        1: {
+          questionText: "Susun langkah-langkah menemukan median dalam urutan yang benar.",
+          navText: "Pindahkan pilihan ke langkah yang benar.",
+          completeQuestion: "Semua langkah sudah dalam urutan yang benar.",
+          completeNav: "Ketuk \u00BB untuk mulai menemukan median dari kumpulan data.",
+          stepLabels: ["Langkah 1", "Langkah 2", "Langkah 3", "Langkah 4"],
+          initialOrder: ["middle", "median", "count", "sort"],
+          correctOrder: ["sort", "count", "middle", "median"],
+          options: {
+            sort: "Urutkan data",
+            count: "Hitung <mi>n</mi>",
+            middle: "Temukan posisi tengah",
+            median: "Temukan Median",
+          },
+        },
+        2: {
+          questionText: "Untuk menemukan median, langkah pertama adalah mengurutkan data.",
+          navText: "",
+          sortReadyNav: "Ketuk Langkah 1 untuk mulai mengurutkan data.",
+          sortingQuestion: "",
+          sortingNav: "",
+          sortedQuestion: "Kumpulan data sudah terurut. Mari lanjut ke langkah berikutnya.",
+          sortedNav: "Ketuk Langkah 2.",
+          countQuestion: "Langkah berikutnya adalah menghitung banyaknya nilai data (<mi>n</mi>).",
+          countNav: "Ketuk setiap nilai data untuk menghitungnya.",
+          countCompleteQuestion: "Kumpulan data memiliki 10 nilai. Mari lanjut ke langkah berikutnya.",
+          countCompleteNav: "Ketuk Langkah 3.",
+          smallest: "Terkecil",
+          largest: "Terbesar",
+          countSymbol: "n",
+          actionButtons: [
+            "Langkah 1:<br>Urutkan data",
+            "Langkah 2:<br>Hitung <mi>n</mi>",
+            "Langkah 3:<br>Temukan Posisi Tengah",
+            "Langkah 4:<br>Temukan Median",
+          ],
+        },
+      },
+    },
+  },
+};
+
+const APP_DATA = DATA[current_language].app;

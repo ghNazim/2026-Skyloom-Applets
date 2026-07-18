@@ -1,5 +1,5 @@
 const MainCanvas = (props) => {
-  const { step, initialStage, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText, onAutoAdvance } = props;
+  const { step, initialStage, onSetNextEnabled, onUpdateNavText, onUpdateQuestionText, onAutoAdvance, tableDirection, onSetTableDirection } = props;
   const { useState, useEffect, useRef, useCallback } = React;
   const e = React.createElement;
 
@@ -79,8 +79,64 @@ const MainCanvas = (props) => {
     return copy;
   }
 
+  function getActiveDirection() {
+    return direction || tableDirection || "asc";
+  }
+
+  function getRowsForDirection(dir) {
+    return getOrderedRows(dir).map(function (row) {
+      return { value: row.value, frequency: row.frequency };
+    });
+  }
+
+  function getCumulativeValuesForDirection(dir) {
+    var total = 0;
+    return getOrderedRows(dir).map(function (row) {
+      total += row.frequency;
+      return total;
+    });
+  }
+
+  function getTotalFrequency() {
+    var cumulativeValues = getCumulativeValuesForDirection(getActiveDirection());
+    return cumulativeValues[cumulativeValues.length - 1];
+  }
+
   function getExpectedRow(rowIndex) {
-    return getOrderedRows(direction || "asc")[rowIndex];
+    return getOrderedRows(getActiveDirection())[rowIndex];
+  }
+
+  function getOrderedFilledRows() {
+    return getRowsForDirection(getActiveDirection());
+  }
+
+  function getOrderedCumulativeValues() {
+    return getCumulativeValuesForDirection(getActiveDirection());
+  }
+
+  function fillTableForDirection(dir, includeCumulative) {
+    setDirection(dir);
+    setRows(getRowsForDirection(dir));
+    setCfValues(includeCumulative ? getCumulativeValuesForDirection(dir) : tableData.map(function () { return null; }));
+  }
+
+  function getOrdinalHtml(value) {
+    if (current_language === "id") return "ke-" + value;
+    var mod100 = value % 100;
+    var suffix = "th";
+    if (mod100 < 11 || mod100 > 13) {
+      if (value % 10 === 1) suffix = "st";
+      if (value % 10 === 2) suffix = "nd";
+      if (value % 10 === 3) suffix = "rd";
+    }
+    return value + "<sup>" + suffix + "</sup>";
+  }
+
+  function getPositionRangeHtml(index) {
+    var cumulativeValues = getOrderedCumulativeValues();
+    var start = index === 0 ? 1 : cumulativeValues[index - 1] + 1;
+    var end = cumulativeValues[index];
+    return getOrdinalHtml(start) + " - " + getOrdinalHtml(end);
   }
 
   function play(name) {
@@ -140,7 +196,7 @@ const MainCanvas = (props) => {
         markWrong(value, APP_DATA.feedback.orderReminder);
       } else {
         var previousValue = rows[activeRow - 1].value;
-        var feedbackTemplate = direction === "desc" ? APP_DATA.feedback.nextLargest : APP_DATA.feedback.nextSmallest;
+        var feedbackTemplate = getActiveDirection() === "desc" ? APP_DATA.feedback.nextLargest : APP_DATA.feedback.nextSmallest;
         markWrong(value, replaceValue(feedbackTemplate, previousValue));
       }
       return;
@@ -150,6 +206,7 @@ const MainCanvas = (props) => {
     if (activeRow === 0) {
       nextDirection = value === dataOptions[0] ? "asc" : "desc";
       setDirection(nextDirection);
+      if (onSetTableDirection) onSetTableDirection(nextDirection);
     }
 
     var nextRows = rows.slice();
@@ -228,7 +285,9 @@ const MainCanvas = (props) => {
 
   function handleNumpadSubmit() {
     if (step !== 3 || activeCfRow >= tableData.length) return;
-    var answer = tableData[activeCfRow].cumulativeFrequency;
+    var orderedRows = getOrderedRows(getActiveDirection());
+    var cumulativeValues = getOrderedCumulativeValues();
+    var answer = cumulativeValues[activeCfRow];
     var value = parseInt(cfInput, 10);
 
     if (value !== answer) {
@@ -260,7 +319,7 @@ const MainCanvas = (props) => {
     var nextRow = activeCfRow + 1;
     setActiveCfRow(nextRow);
     onUpdateQuestionText(APP_DATA.steps[3].questionTextOngoing);
-    onUpdateNavText(replaceValue(APP_DATA.steps[3].navTextDynamic, tableData[nextRow].value));
+    onUpdateNavText(replaceValue(APP_DATA.steps[3].navTextDynamic, orderedRows[nextRow].value));
   }
 
   function handleFlatNumpadNumber(num) {
@@ -289,7 +348,7 @@ const MainCanvas = (props) => {
 
   function handleFlatNumpadSubmit() {
     if (step !== 4 || step4Mode !== "count" || nComplete) return;
-    var answer = tableData[tableData.length - 1].cumulativeFrequency;
+    var answer = getTotalFrequency();
     var value = parseInt(nInput, 10);
 
     if (value !== answer) {
@@ -506,6 +565,7 @@ const MainCanvas = (props) => {
   }, [updateFormulaOverlay]);
 
   useEffect(function () {
+    var savedDirection = tableDirection || "asc";
     if (initialStage === "final") {
       if (step === 1) {
         setRightRevealed(false);
@@ -517,10 +577,7 @@ const MainCanvas = (props) => {
         setRightRevealed(true);
         setCfLayoutActive(false);
         setCfActionVisible(false);
-        setRows(tableData.map(function (row) {
-          return { value: row.value, frequency: row.frequency };
-        }));
-        setDirection("asc");
+        fillTableForDirection(savedDirection, false);
         setActiveRow(tableData.length);
         setActiveField("data");
         setDropdown(null);
@@ -533,10 +590,7 @@ const MainCanvas = (props) => {
         setRightRevealed(true);
         setCfLayoutActive(true);
         setCfActionVisible(true);
-        setRows(tableData.map(function (row) {
-          return { value: row.value, frequency: row.frequency };
-        }));
-        setCfValues(tableData.map(function (row) { return row.cumulativeFrequency; }));
+        fillTableForDirection(savedDirection, true);
         setActiveCfRow(tableData.length);
         setCfInput("");
         setCfFeedbackHtml("");
@@ -549,13 +603,10 @@ const MainCanvas = (props) => {
         setRightRevealed(true);
         setCfLayoutActive(true);
         setCfActionVisible(true);
-        setRows(tableData.map(function (row) {
-          return { value: row.value, frequency: row.frequency };
-        }));
-        setCfValues(tableData.map(function (row) { return row.cumulativeFrequency; }));
+        fillTableForDirection(savedDirection, true);
         setActiveCfRow(tableData.length);
         setStep4Mode("formula");
-        setNInput(String(tableData[tableData.length - 1].cumulativeFrequency));
+        setNInput(String(getTotalFrequency()));
         setNError(false);
         setNComplete(true);
         setStep4FeedbackHtml("");
@@ -564,18 +615,15 @@ const MainCanvas = (props) => {
         setSelectedFormulaId("odd");
         onUpdateQuestionText(APP_DATA.steps[4].questionTextFormula);
         onUpdateNavText(APP_DATA.steps[4].navTextFormula);
-        onSetNextEnabled(false);
+        onSetNextEnabled(true);
       }
       if (step === 5) {
         setRightRevealed(true);
         setCfLayoutActive(true);
         setCfActionVisible(true);
-        setRows(tableData.map(function (row) {
-          return { value: row.value, frequency: row.frequency };
-        }));
-        setCfValues(tableData.map(function (row) { return row.cumulativeFrequency; }));
+        fillTableForDirection(savedDirection, true);
         setActiveCfRow(tableData.length);
-        setNInput(String(tableData[tableData.length - 1].cumulativeFrequency));
+        setNInput(String(getTotalFrequency()));
         setNComplete(true);
         setFormulaStage("13");
         setFormulaBoxVisible(true);
@@ -592,10 +640,7 @@ const MainCanvas = (props) => {
         onSetNextEnabled(true);
       }
       if (step === 6) {
-        setRows(tableData.map(function (row) {
-          return { value: row.value, frequency: row.frequency };
-        }));
-        setCfValues(tableData.map(function (row) { return row.cumulativeFrequency; }));
+        fillTableForDirection(savedDirection, true);
         setActiveCfRow(tableData.length);
         setShowRangeColumn(false);
         setRangeVisibleCount(0);
@@ -658,10 +703,7 @@ const MainCanvas = (props) => {
       setRightRevealed(true);
       setCfLayoutActive(false);
       setCfActionVisible(false);
-      setRows(tableData.map(function (row) {
-        return { value: row.value, frequency: row.frequency };
-      }));
-      setDirection("asc");
+      fillTableForDirection(savedDirection, false);
       setDropdown(null);
       setFeedbackHtml("");
       setFocusedGridValue(null);
@@ -674,7 +716,7 @@ const MainCanvas = (props) => {
       setFormulaOverlay(null);
       setTimeout(function () {
         onUpdateQuestionText(APP_DATA.steps[3].questionText);
-        onUpdateNavText(APP_DATA.steps[3].navText);
+        onUpdateNavText(replaceValue(APP_DATA.steps[3].navTextDynamic, getOrderedRows(savedDirection)[0].value));
         onSetNextEnabled(false);
       }, 0);
       setTimeout(function () {
@@ -689,14 +731,10 @@ const MainCanvas = (props) => {
       setRightRevealed(true);
       setCfLayoutActive(true);
       setCfActionVisible(true);
-      setRows(tableData.map(function (row) {
-        return { value: row.value, frequency: row.frequency };
-      }));
-      setDirection("asc");
+      fillTableForDirection(savedDirection, true);
       setDropdown(null);
       setFeedbackHtml("");
       setFocusedGridValue(null);
-      setCfValues(tableData.map(function (row) { return row.cumulativeFrequency; }));
       setActiveCfRow(tableData.length);
       setCfInput("");
       setCfFeedbackHtml("");
@@ -722,14 +760,10 @@ const MainCanvas = (props) => {
       setRightRevealed(true);
       setCfLayoutActive(true);
       setCfActionVisible(true);
-      setRows(tableData.map(function (row) {
-        return { value: row.value, frequency: row.frequency };
-      }));
-      setDirection("asc");
+      fillTableForDirection(savedDirection, true);
       setDropdown(null);
       setFeedbackHtml("");
       setFocusedGridValue(null);
-      setCfValues(tableData.map(function (row) { return row.cumulativeFrequency; }));
       setActiveCfRow(tableData.length);
       setCfInput("");
       setCfFeedbackHtml("");
@@ -737,7 +771,7 @@ const MainCanvas = (props) => {
       setShowFormulaOverlay(false);
       setFormulaOverlay(null);
       setStep4Mode("formula");
-      setNInput(String(tableData[tableData.length - 1].cumulativeFrequency));
+      setNInput(String(getTotalFrequency()));
       setNError(false);
       setNComplete(true);
       setStep4FeedbackHtml("");
@@ -777,10 +811,7 @@ const MainCanvas = (props) => {
     if (step === 6) {
       setFinalSettled(false);
       setFinalArrow(null);
-      setRows(tableData.map(function (row) {
-        return { value: row.value, frequency: row.frequency };
-      }));
-      setCfValues(tableData.map(function (row) { return row.cumulativeFrequency; }));
+      fillTableForDirection(savedDirection, true);
       setActiveCfRow(tableData.length);
       setShowRangeColumn(false);
       setRangeVisibleCount(0);
@@ -825,6 +856,7 @@ const MainCanvas = (props) => {
   function getCellText(rowIndex, field) {
     if (field === "data") {
       if (rows[rowIndex].value !== null) return rows[rowIndex].value;
+      if (step !== 2) return getOrderedRows(getActiveDirection())[rowIndex].value;
       if (step === 2 && activeRow === rowIndex && activeField === "data") {
         return dropdown && dropdown.type === "data" ? prompts.inProgress : prompts.chooseDataPoint;
       }
@@ -832,6 +864,7 @@ const MainCanvas = (props) => {
     }
 
     if (rows[rowIndex].frequency !== null) return rows[rowIndex].frequency;
+    if (step !== 2) return getOrderedRows(getActiveDirection())[rowIndex].frequency;
     if (step === 2 && activeRow === rowIndex && activeField === "freq") {
       return dropdown && dropdown.type === "freq" ? prompts.inProgress : prompts.chooseFrequency;
     }
@@ -895,6 +928,7 @@ const MainCanvas = (props) => {
           }) : null
         ),
         tableData.map(function (row, index) {
+          var rowForDisplay = step === 2 ? rows[index] : (rows[index].value !== null ? rows[index] : getOrderedFilledRows()[index]);
           var dataActive = step === 2 && activeRow === index && activeField === "data" && rows[index].value === null;
           var freqActive = step === 2 && activeRow === index && activeField === "freq" && rows[index].frequency === null;
           var cfActive = step === 3 && activeCfRow === index;
@@ -902,6 +936,7 @@ const MainCanvas = (props) => {
           var cfDisplay = cfActive ? (cfInput || prompts.unknown) : (cfFilled ? cfValues[index] : prompts.unknown);
           var totalHintLast = step === 4 && showTotalHint && index === tableData.length - 1;
           var totalHintDim = step === 4 && showTotalHint && index !== tableData.length - 1;
+          var medianRangeHint = showRange && rowForDisplay && rowForDisplay.value === 15;
 
           return e("div", { className: "median-table-row", key: "row-" + index },
             e("button", {
@@ -935,8 +970,8 @@ const MainCanvas = (props) => {
             showRange ? e("div", {
               className: "median-table-cell range-cell" +
                 (rangeVisibleCount > index ? " range-visible" : "") +
-                (index === 2 ? " median-range-highlight" : ""),
-              dangerouslySetInnerHTML: { __html: APP_DATA.steps[5].positionRanges[index] },
+                (medianRangeHint ? " median-range-highlight" : ""),
+              dangerouslySetInnerHTML: { __html: getPositionRangeHtml(index) },
             }) : null
           );
         })
@@ -1182,6 +1217,8 @@ const MainCanvas = (props) => {
   }
 
   function renderFinalTable() {
+    var finalRows = getOrderedRows(getActiveDirection());
+    var finalCumulativeValues = getOrderedCumulativeValues();
     return e("div", { className: "final-table-wrap", ref: finalWrapRef },
       e("div", { className: "median-table final-table with-cf" },
         e("div", { className: "median-table-row header-row" },
@@ -1198,7 +1235,7 @@ const MainCanvas = (props) => {
             dangerouslySetInnerHTML: { __html: APP_DATA.tableHeaders.cumulativeFrequency },
           })
         ),
-        tableData.map(function (row, index) {
+        finalRows.map(function (row, index) {
           var isMedianRow = row.value === 15;
           return e("div", { className: "median-table-row", key: "final-row-" + index },
             e("div", {
@@ -1206,7 +1243,7 @@ const MainCanvas = (props) => {
               ref: isMedianRow ? finalMedianCellRef : undefined,
             }, row.value),
             e("div", { className: "median-table-cell freq-cell" }, row.frequency),
-            e("div", { className: "median-table-cell cf-cell filled" }, row.cumulativeFrequency)
+            e("div", { className: "median-table-cell cf-cell filled" }, finalCumulativeValues[index])
           );
         })
       ),
