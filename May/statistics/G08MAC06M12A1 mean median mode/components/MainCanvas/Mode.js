@@ -165,7 +165,7 @@ const Mode = (props) => {
       })
     ),
     e("div", { className: "mode-column mode-identify-column" },
-      e("h3", null, countComplete && foundModes.length > 0 ? stepText.modePromptSingular : stepText.identifyPrompt),
+      e("h3", { className: countComplete ? "" : "prompt-disabled" }, stepText.identifyPrompt),
       e("div", { className: "mode-answer-row " + (countComplete ? "two-selects" : "") },
         renderDropdown({
           id: "mode-0",

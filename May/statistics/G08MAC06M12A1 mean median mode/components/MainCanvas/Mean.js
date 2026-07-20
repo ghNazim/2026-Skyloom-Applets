@@ -46,6 +46,8 @@ const Mean = (props) => {
   const [denomBlinking, setDenomBlinking] = useState(false);
   const [flyingClones, setFlyingClones] = useState([]);
   const [flyingCountClone, setFlyingCountClone] = useState(null);
+  const [step9CollapseStarted, setStep9CollapseStarted] = useState(false);
+  const [step9NudgesReady, setStep9NudgesReady] = useState(false);
 
   function resetDragDrop() {
     setFilledZones({});
@@ -78,6 +80,8 @@ const Mean = (props) => {
     setDenomBlinking(false);
     setFlyingClones([]);
     setFlyingCountClone(null);
+    setStep9CollapseStarted(false);
+    setStep9NudgesReady(false);
     sumSpanRefs.current = [];
     sortSlotRefs.current = [];
     lastCountBadgeRef.current = null;
@@ -94,6 +98,8 @@ const Mean = (props) => {
 
   function restoreStep9Final() {
     resetStep9();
+    setStep9CollapseStarted(true);
+    setStep9NudgesReady(false);
     setSumDone(true);
     setCountDone(true);
     setMeanDone(true);
@@ -130,6 +136,31 @@ const Mean = (props) => {
   }, [step, initialStage]);
 
   useEffect(function () {
+    if (step !== 9 || initialStage === "final") return undefined;
+    setStep9CollapseStarted(false);
+    setStep9NudgesReady(false);
+    let secondFrame = null;
+    const firstFrame = requestAnimationFrame(function () {
+      secondFrame = requestAnimationFrame(function () {
+        setStep9CollapseStarted(true);
+      });
+    });
+    return function () {
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame !== null) cancelAnimationFrame(secondFrame);
+    };
+  }, [step, initialStage]);
+
+  useEffect(function () {
+    if (step !== 9 || initialStage === "final") return undefined;
+    setStep9NudgesReady(false);
+    const timer = setTimeout(function () {
+      setStep9NudgesReady(true);
+    }, 1000);
+    return function () { clearTimeout(timer); };
+  }, [step, initialStage]);
+
+  useEffect(function () {
     if (step !== 8) return;
     const zones = ["left", "num", "denom"];
     const allFilled = zones.every(function (z) { return filledZones[z]; });
@@ -143,15 +174,34 @@ const Mean = (props) => {
   }, [filledZones, ddComplete, step]);
 
   useEffect(function () {
-    if (step !== 9 || initialStage === "final" || !sumDone || !countDone || showResultBox) return;
+    if (
+      step !== 9 ||
+      initialStage === "final" ||
+      !sumDone ||
+      !countDone ||
+      showResultBox ||
+      sumAnimActive ||
+      isSumAnimating ||
+      denomAnimActive ||
+      isCountAnimating
+    ) return;
     const timer = setTimeout(function () {
       setShowResultBox(true);
       setCountBadgeCount(0);
       onUpdateQuestionText(step9.meanQuestion);
       onUpdateNavText(step9.meanNav);
-    }, 1000);
+    }, 1500);
     return function () { clearTimeout(timer); };
-  }, [sumDone, countDone, showResultBox, step]);
+  }, [
+    sumDone,
+    countDone,
+    showResultBox,
+    step,
+    sumAnimActive,
+    isSumAnimating,
+    denomAnimActive,
+    isCountAnimating,
+  ]);
 
   useEffect(function () {
     if (!isDragging) return undefined;
@@ -322,7 +372,7 @@ const Mean = (props) => {
 
     return e("div", { className: "mean-dd-panel" },
       e("div", { className: "mean-dd-left" },
-        e("div", { className: "mean-dd-formula" },
+        e("div", { className: "mean-dd-formula step8" },
           renderDropZone("left"),
           e("span", { className: "mean-dd-equals" }, "="),
           e("div", { className: "mean-dd-fraction" },
@@ -336,7 +386,7 @@ const Mean = (props) => {
           )
         )
       ),
-      e("div", { className: "mean-dd-right" },
+      e("div", { className: "mean-dd-right step8" },
         dd.draggables.map(function (item) {
           if (!availableDraggables.includes(item.id)) return null;
           return e("button", {
@@ -650,7 +700,7 @@ const Mean = (props) => {
   }
 
   function renderStep9FractionNudges() {
-    if (!showNudges || step !== 9 || !showFractionNudges || activeField || isSumAnimating || isCountAnimating) return null;
+    if (!showNudges || step !== 9 || !step9NudgesReady || !showFractionNudges || activeField || isSumAnimating || isCountAnimating) return null;
     return e(React.Fragment, null,
       e(Nudge, { targetRef: numBoxRef, show: !sumDone && !isSumAnimating }),
       e(Nudge, { targetRef: denomBoxRef, show: !countDone && !isCountAnimating })
@@ -716,7 +766,7 @@ const Mean = (props) => {
   function renderCalcPanel() {
     return e("div", { className: "mean-dd-panel mean-step9-panel" },
       e("div", { className: "mean-dd-left" },
-        e("div", { className: "mean-dd-formula" },
+        e("div", { className: "mean-dd-formula step9" },
           e("span", { className: "mean-dd-zone step9-static" },
             renderDraggableText(getDraggable("mean").text)
           ),
@@ -733,7 +783,10 @@ const Mean = (props) => {
             renderStep9MeanBox()
           )
         )
-      )
+      ),
+      e("div", {
+        className: "mean-dd-right step9-collapse " + (step9CollapseStarted ? "collapsed" : ""),
+      })
     );
   }
 

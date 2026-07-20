@@ -1,5 +1,6 @@
 var MainCanvas = function (props) {
   var step = props.step;
+  var challengeIndex = props.challengeIndex || 0;
   var onSetNextEnabled = props.onSetNextEnabled;
   var onUpdateNavText = props.onUpdateNavText;
   var onUpdateQuestionText = props.onUpdateQuestionText;
@@ -9,10 +10,23 @@ var MainCanvas = function (props) {
   var e = React.createElement;
 
   var S1 = APP_DATA.steps[1];
-  var S2 = APP_DATA.steps[2];
-  var dataset = APP_DATA.dataset;
-  var sortedDataset = APP_DATA.sortedDataset;
-  var sortMapping = APP_DATA.sortMapping;
+  var baseStep2 = APP_DATA.steps[2];
+  var challenge = APP_DATA.challenges && APP_DATA.challenges[challengeIndex]
+    ? APP_DATA.challenges[challengeIndex]
+    : APP_DATA;
+  var S2 = {};
+  Object.keys(baseStep2).forEach(function (key) {
+    S2[key] = baseStep2[key];
+  });
+  Object.keys(challenge.texts || {}).forEach(function (key) {
+    S2[key] = challenge.texts[key];
+  });
+  if (challenge.medianAnswer) S2.medianAnswer = challenge.medianAnswer;
+  var dataset = challenge.dataset || APP_DATA.dataset;
+  var sortedDataset = challenge.sortedDataset || APP_DATA.sortedDataset;
+  var sortMapping = challenge.sortMapping || APP_DATA.sortMapping;
+  var middleCorrectOption = challenge.middleCorrectOption !== undefined ? challenge.middleCorrectOption : 1;
+  var middlePositions = challenge.middlePositions || [5, 6];
   var N = dataset.length;
 
   var _order = useState(S1.initialOrder.slice());
@@ -82,6 +96,42 @@ var MainCanvas = function (props) {
   var _badgeMode = useState("normal");
   var badgeMode = _badgeMode[0];
   var setBadgeMode = _badgeMode[1];
+  var _showMiddlePanel = useState(false);
+  var showMiddlePanel = _showMiddlePanel[0];
+  var setShowMiddlePanel = _showMiddlePanel[1];
+  var _middleChoice = useState(null);
+  var middleChoice = _middleChoice[0];
+  var setMiddleChoice = _middleChoice[1];
+  var _middleChoiceState = useState(null);
+  var middleChoiceState = _middleChoiceState[0];
+  var setMiddleChoiceState = _middleChoiceState[1];
+  var _showCorrectOnly = useState(false);
+  var showCorrectOnly = _showCorrectOnly[0];
+  var setShowCorrectOnly = _showCorrectOnly[1];
+  var _expressionStage = useState(0);
+  var expressionStage = _expressionStage[0];
+  var setExpressionStage = _expressionStage[1];
+  var _selectedPositions = useState({});
+  var selectedPositions = _selectedPositions[0];
+  var setSelectedPositions = _selectedPositions[1];
+  var _positionFeedback = useState({});
+  var positionFeedback = _positionFeedback[0];
+  var setPositionFeedback = _positionFeedback[1];
+  var _showPositionUpdown = useState(false);
+  var showPositionUpdown = _showPositionUpdown[0];
+  var setShowPositionUpdown = _showPositionUpdown[1];
+  var _showMedianPanel = useState(false);
+  var showMedianPanel = _showMedianPanel[0];
+  var setShowMedianPanel = _showMedianPanel[1];
+  var _medianInput = useState("");
+  var medianInput = _medianInput[0];
+  var setMedianInput = _medianInput[1];
+  var _medianAnswerState = useState(null);
+  var medianAnswerState = _medianAnswerState[0];
+  var setMedianAnswerState = _medianAnswerState[1];
+  var _medianFreshAfterWrong = useState(false);
+  var medianFreshAfterWrong = _medianFreshAfterWrong[0];
+  var setMedianFreshAfterWrong = _medianFreshAfterWrong[1];
 
   var containerRef = useRef(null);
   var overlayRef = useRef(null);
@@ -89,6 +139,8 @@ var MainCanvas = function (props) {
   var optionRefById = useRef({});
   var actionRefs = useRef([]);
   var circleRefs = useRef([]);
+  var countBoxRef = useRef(null);
+  var expressionNRef = useRef(null);
   var rowStrideRef = useRef(0);
   var optionHeightRef = useRef(0);
   var dragAnchorXRef = useRef(0);
@@ -110,6 +162,60 @@ var MainCanvas = function (props) {
 
   function renderMarkup(text) {
     return { __html: text };
+  }
+
+  function ordinalSuffix(num) {
+    var mod100 = num % 100;
+    if (mod100 >= 11 && mod100 <= 13) return "th";
+    if (num % 10 === 1) return "st";
+    if (num % 10 === 2) return "nd";
+    if (num % 10 === 3) return "rd";
+    return "th";
+  }
+
+  function ordinalHtml(num) {
+    return String(num) + "<sup>" + ordinalSuffix(num) + "</sup>";
+  }
+
+  function fillPositionText(text, position, nextPosition) {
+    return text
+      .replace(/\{position\}/g, ordinalHtml(position))
+      .replace(/\{nextPosition\}/g, ordinalHtml(nextPosition));
+  }
+
+  function renderFractionExpression(kind) {
+    var numerator = kind === "odd" ? e(React.Fragment, null, e("mi", null, "n"), "+1") : e("mi", null, "n");
+    return e(
+      "span",
+      { className: "middle-fraction-wrap" },
+      e("span", { className: "middle-paren" }, "("),
+      e(
+        "span",
+        { className: "middle-fraction" },
+        e("span", { className: "middle-frac-num" }, numerator),
+        e("span", { className: "middle-frac-bar" }),
+        e("span", { className: "middle-frac-den" }, "2"),
+      ),
+      e("span", { className: "middle-paren" }, ")"),
+      e("sup", null, "th"),
+    );
+  }
+
+  function renderMiddleOptionContent(index) {
+    if (index === 0) {
+      return e(
+        React.Fragment,
+        null,
+        renderFractionExpression("odd"),
+        e("span", { className: "middle-option-text" }, " " + S2.valueText),
+      );
+    }
+    return e(
+      React.Fragment,
+      null,
+      renderFractionExpression("even"),
+      e("span", { className: "middle-option-text" }, " " + S2.nextValueText),
+    );
   }
 
   function relativeRect(node) {
@@ -145,6 +251,18 @@ var MainCanvas = function (props) {
     setCountComplete(false);
     setShowUpdown(false);
     setBadgeMode("normal");
+    setShowMiddlePanel(false);
+    setMiddleChoice(null);
+    setMiddleChoiceState(null);
+    setShowCorrectOnly(false);
+    setExpressionStage(0);
+    setSelectedPositions({});
+    setPositionFeedback({});
+    setShowPositionUpdown(false);
+    setShowMedianPanel(false);
+    setMedianInput("");
+    setMedianAnswerState(null);
+    setMedianFreshAfterWrong(false);
     clearOverlay();
     clearTimer(idleTimerRef);
     clearTimer(animationTimerRef);
@@ -161,6 +279,13 @@ var MainCanvas = function (props) {
       setActionVisible(false);
       setShowData(false);
       setShowCountRow(false);
+      setShowMiddlePanel(false);
+      setSelectedPositions({});
+      setPositionFeedback({});
+      setShowMedianPanel(false);
+      setMedianInput("");
+      setMedianAnswerState(null);
+      setMedianFreshAfterWrong(false);
       clearOverlay();
       onSetNextEnabled(false);
       onUpdateQuestionText(S1.questionText);
@@ -170,7 +295,15 @@ var MainCanvas = function (props) {
       resetPracticeState();
       onSetNextEnabled(false);
       onUpdateQuestionText(S2.questionText);
-      onUpdateNavText(S2.navText);
+      onUpdateNavText(challengeIndex > 0 ? S2.sortReadyNav : S2.navText);
+      if (challengeIndex > 0) {
+        setShowStepPanel(false);
+        setActionVisible(true);
+        setShowData(true);
+        setActiveAction(0);
+        setPhase("sortReady");
+        return undefined;
+      }
       animationTimerRef.current = setTimeout(function () {
         animateOptionsToActionButtons();
       }, 180);
@@ -466,7 +599,239 @@ var MainCanvas = function (props) {
     }, 330);
   }
 
+  function beginMiddlePosition() {
+    if (phase !== "middleReady") return;
+    if (typeof playSound === "function") playSound("click");
+    setActiveAction(null);
+    setInProgressAction(2);
+    setPhase("middleIntro");
+    onUpdateQuestionText(S2.middleQuestion);
+    onUpdateNavText(S2.middleInitialNav);
+    setBadgeMode("shrinking");
+    setShowUpdown(false);
+    clearTimer(idleTimerRef);
+    animationTimerRef.current = setTimeout(function () {
+      setCountByIndex({});
+      setShowMiddlePanel(true);
+      setMiddleChoice(null);
+      setMiddleChoiceState(null);
+      setShowCorrectOnly(false);
+      setExpressionStage(0);
+      setPhase("middleMcq");
+      onUpdateNavText(S2.middleChoiceNav);
+    }, 360);
+  }
+
+  function handleMiddleChoice(index) {
+    if (phase !== "middleMcq" || middleChoiceState === "correct") return;
+    setMiddleChoice(index);
+    if (index !== middleCorrectOption) {
+      setMiddleChoiceState("wrong");
+      onUpdateQuestionText(S2.wrongMiddleQuestion);
+      if (typeof playSound === "function") playSound("wrong");
+      setTimeout(function () {
+        setMiddleChoice(null);
+        setMiddleChoiceState(null);
+      }, 520);
+      return;
+    }
+
+    setMiddleChoiceState("correct");
+    if (typeof playSound === "function") playSound("correct");
+    setTimeout(function () {
+      setShowCorrectOnly(true);
+      onUpdateQuestionText(S2.correctMiddleQuestion);
+      onUpdateNavText("");
+      setTimeout(function () {
+        animateCountIntoExpression();
+      }, 620);
+    }, 700);
+  }
+
+  function animateCountIntoExpression() {
+    var fromNode = countBoxRef.current;
+    var toNode = expressionNRef.current;
+    if (!fromNode || !toNode || !overlayRef.current || typeof gsap !== "object") {
+      setExpressionStage(1);
+      simplifyMiddleExpression();
+      return;
+    }
+
+    var from = relativeRect(fromNode);
+    var to = relativeRect(toNode);
+    var clone = document.createElement("div");
+    clone.className = "middle-count-clone";
+    clone.textContent = String(N);
+    clone.style.left = from.left + "px";
+    clone.style.top = from.top + "px";
+    clone.style.width = from.width + "px";
+    clone.style.height = from.height + "px";
+    overlayRef.current.appendChild(clone);
+
+    gsap.to(clone, {
+      left: to.left,
+      top: to.top,
+      width: to.width,
+      height: to.height,
+      duration: 0.72,
+      ease: "power2.inOut",
+      onComplete: function () {
+        clone.remove();
+        setExpressionStage(1);
+        setTimeout(simplifyMiddleExpression, 1000);
+      },
+    });
+  }
+
+  function simplifyMiddleExpression() {
+    setExpressionStage(2);
+    setTimeout(function () {
+      setExpressionStage(3);
+      setTimeout(function () {
+        setExpressionStage(4);
+        setPhase("selectMiddle");
+        setShowPositionUpdown(true);
+        onUpdateQuestionText(S2.simplifiedMiddleQuestion);
+        onUpdateNavText(S2.selectMiddleNav);
+      }, 1000);
+    }, 1000);
+  }
+
+  function schedulePositionHint() {
+    clearTimer(idleTimerRef);
+    idleTimerRef.current = setTimeout(function () {
+      setShowPositionUpdown(true);
+    }, 5000);
+  }
+
+  function areAllMiddlePositionsSelected(nextSelected) {
+    return middlePositions.every(function (position) {
+      return !!nextSelected[position - 1];
+    });
+  }
+
+  function getNextMiddlePosition(nextSelected) {
+    for (var i = 0; i < middlePositions.length; i++) {
+      if (!nextSelected[middlePositions[i] - 1]) return middlePositions[i];
+    }
+    return null;
+  }
+
+  function handleMiddleCircleClick(index) {
+    if (phase !== "selectMiddle") return;
+    if (selectedPositions[index]) return;
+
+    var position = index + 1;
+    var isCorrect = middlePositions.indexOf(position) >= 0;
+    setShowPositionUpdown(false);
+
+    if (!isCorrect) {
+      var wrongFeedback = {};
+      wrongFeedback[index] = "wrong";
+      setPositionFeedback(wrongFeedback);
+      if (typeof playSound === "function") playSound("wrong");
+      setTimeout(function () {
+        setPositionFeedback(function (prev) {
+          var next = copyObject(prev);
+          if (next[index] === "wrong") delete next[index];
+          return next;
+        });
+      }, 650);
+      schedulePositionHint();
+      return;
+    }
+
+    var nextSelected = copyObject(selectedPositions);
+    nextSelected[index] = true;
+    setSelectedPositions(nextSelected);
+    var correctFeedback = copyObject(positionFeedback);
+    correctFeedback[index] = "correct";
+    setPositionFeedback(correctFeedback);
+    if (typeof playSound === "function") playSound("correct");
+
+    if (areAllMiddlePositionsSelected(nextSelected)) {
+      clearTimer(idleTimerRef);
+      setPhase("finalStepReady");
+      setActiveAction(3);
+      setInProgressAction(null);
+      setExploredActions({ 0: true, 1: true, 2: true });
+      onUpdateQuestionText(S2.foundBothQuestion);
+      onUpdateNavText(S2.foundBothNav);
+      return;
+    }
+
+    var found = position;
+    var next = getNextMiddlePosition(nextSelected);
+    onUpdateQuestionText(fillPositionText(S2.foundFirstQuestion, found, next));
+    onUpdateNavText(fillPositionText(S2.foundFirstNav, found, next));
+    schedulePositionHint();
+  }
+
+  function beginMedianEntry() {
+    if (phase !== "finalStepReady") return;
+    if (typeof playSound === "function") playSound("click");
+    setPhase("medianEntry");
+    setActiveAction(null);
+    setInProgressAction(3);
+    setShowMedianPanel(true);
+    setMedianInput("");
+    setMedianAnswerState(null);
+    setMedianFreshAfterWrong(false);
+    onUpdateQuestionText(S2.medianQuestion);
+    onUpdateNavText(S2.medianNav);
+    onSetNextEnabled(false);
+  }
+
+  function handleMedianDigit(key) {
+    if (phase === "medianDone") return;
+    if (typeof playSound === "function") playSound("click");
+    setMedianAnswerState(null);
+    setMedianInput(function (prev) {
+      var base = medianFreshAfterWrong ? "" : prev;
+      if (key === "." && base.indexOf(".") >= 0) return base;
+      if (base.length >= 3) return base;
+      if (key === "." && base === "") return "0.";
+      return (base + String(key)).slice(0, 3);
+    });
+    setMedianFreshAfterWrong(false);
+  }
+
+  function handleMedianClear() {
+    if (phase === "medianDone") return;
+    if (typeof playSound === "function") playSound("click");
+    setMedianInput("");
+    setMedianAnswerState(null);
+    setMedianFreshAfterWrong(false);
+  }
+
+  function handleMedianSubmit() {
+    if (phase === "medianDone" || !medianInput) return;
+    if (Number(medianInput) === Number(S2.medianAnswer)) {
+      setMedianInput(S2.medianAnswer);
+      setMedianAnswerState("correct");
+      setMedianFreshAfterWrong(false);
+      setPhase("medianDone");
+      setInProgressAction(null);
+      setExploredActions({ 0: true, 1: true, 2: true, 3: true });
+      onUpdateQuestionText(S2.medianCorrectQuestion);
+      onUpdateNavText(S2.medianCorrectNav);
+      onSetNextEnabled(true);
+      if (typeof playSound === "function") playSound("correct");
+      return;
+    }
+
+    setMedianAnswerState("wrong");
+    setMedianFreshAfterWrong(true);
+    onUpdateQuestionText(S2.medianWrongQuestion);
+    onUpdateNavText(S2.medianWrongNav);
+    if (typeof playSound === "function") playSound("wrong");
+  }
+
   function handleCircleClick(index) {
+    if (phase === "selectMiddle") {
+      handleMiddleCircleClick(index);
+      return;
+    }
     if (phase !== "counting" || countByIndex[index]) return;
     var nextCount = Object.keys(countByIndex).length + 1;
     var nextCounts = copyObject(countByIndex);
@@ -485,9 +850,8 @@ var MainCanvas = function (props) {
   function handleActionClick(index) {
     if (index === 0) beginSorting();
     if (index === 1) beginCounting();
-    if (index === 2 && phase === "middleReady" && typeof playSound === "function") {
-      playSound("click");
-    }
+    if (index === 2) beginMiddlePosition();
+    if (index === 3) beginMedianEntry();
   }
 
   function renderStepsPanel() {
@@ -612,10 +976,22 @@ var MainCanvas = function (props) {
         { className: "median-data-row" },
         displayData.map(function (value, index) {
           var counted = countByIndex[index];
-          var clickable = phase === "counting" && !counted;
+          var positionState = positionFeedback[index];
+          var isMiddleSelected = !!selectedPositions[index];
+          var clickable =
+            (phase === "counting" && !counted) ||
+            (phase === "selectMiddle" && !isMiddleSelected);
           var cls = "median-num-circle";
           if (clickable && showUpdown) cls += " updown";
+          if (phase === "selectMiddle" && clickable && showPositionUpdown) cls += " updown";
           if (counted) cls += " counted";
+          if (positionState === "wrong") cls += " position-wrong";
+          if (positionState === "correct") cls += " position-correct";
+          if (
+            (phase === "finalStepReady" || phase === "medianEntry" || phase === "medianDone") &&
+            !isMiddleSelected
+          ) cls += " dimmed-final";
+          if (isMiddleSelected) cls += " position-correct";
           return e(
             "button",
             {
@@ -630,6 +1006,14 @@ var MainCanvas = function (props) {
                 handleCircleClick(index);
               },
             },
+            positionState || isMiddleSelected
+              ? e("span", {
+                className:
+                  "position-label " +
+                  (positionState === "wrong" ? "wrong" : "correct"),
+                dangerouslySetInnerHTML: renderMarkup(ordinalHtml(index + 1)),
+              })
+              : null,
             counted
               ? e(
                 "span",
@@ -647,17 +1031,212 @@ var MainCanvas = function (props) {
     );
   }
 
-  function renderCountRow() {
+  function renderMiddleExpression() {
+    if (expressionStage === 2) {
+      if (middleCorrectOption === 0) {
+        return e(
+          "span",
+          { className: "middle-simplified-expression fading" },
+          e("span", { className: "middle-paren" }, "("),
+          e(
+            "span",
+            { className: "middle-fraction" },
+            e("span", { className: "middle-frac-num" }, "10"),
+            e("span", { className: "middle-frac-bar" }),
+            e("span", { className: "middle-frac-den" }, "2"),
+          ),
+          e("span", { className: "middle-paren" }, ")"),
+          e("sup", null, "th"),
+          e("span", { className: "middle-option-text" }, " " + S2.valueText),
+        );
+      }
+      return e("span", {
+        className: "middle-simplified-expression fading",
+        dangerouslySetInnerHTML: renderMarkup(S2.simplifiedExpressions[1]),
+      });
+    }
+    if (expressionStage >= 3) {
+      return e("span", {
+        className: "middle-simplified-expression",
+        dangerouslySetInnerHTML: renderMarkup(S2.simplifiedExpressions[2]),
+      });
+    }
+    if (middleCorrectOption === 0) {
+      return e(
+        "span",
+        { className: "middle-correct-expression" },
+        e("span", { className: "middle-paren" }, "("),
+        e(
+          "span",
+          { className: "middle-fraction" },
+          e(
+            "span",
+            { className: "middle-frac-num" },
+            e("span", {
+              className: "middle-expression-n",
+              ref: expressionNRef,
+            }, expressionStage >= 1 ? String(N) : e("mi", null, "n")),
+            "+1",
+          ),
+          e("span", { className: "middle-frac-bar" }),
+          e("span", { className: "middle-frac-den" }, "2"),
+        ),
+        e("span", { className: "middle-paren" }, ")"),
+        e("sup", null, "th"),
+        e("span", { className: "middle-option-text" }, " " + S2.valueText),
+      );
+    }
+    return e(
+      "span",
+      { className: "middle-correct-expression" },
+      e("span", { className: "middle-paren" }, "("),
+      e(
+        "span",
+        { className: "middle-fraction" },
+        e("span", {
+          className: "middle-frac-num",
+          ref: expressionNRef,
+        }, expressionStage >= 1 ? String(N) : e("mi", null, "n")),
+        e("span", { className: "middle-frac-bar" }),
+        e("span", { className: "middle-frac-den" }, "2"),
+      ),
+      e("span", { className: "middle-paren" }, ")"),
+      e("sup", null, "th"),
+      e("span", { className: "middle-option-text" }, " " + S2.nextValueText),
+    );
+  }
+
+  function renderMiddlePanel() {
+    if (!showMiddlePanel) return null;
+    return e(
+      "div",
+      { className: "middle-position" },
+      e("div", { className: "middle-title" }, S2.middlePositionTitle),
+      e(
+        "div",
+        {
+          className:
+            "middle-options" +
+            (showCorrectOnly ? " correct-only" : "") +
+            (expressionStage > 0 ? " simplifying" : ""),
+        },
+        [0, 1].map(function (index) {
+          if (showCorrectOnly && index !== middleCorrectOption) {
+            return e("button", {
+              type: "button",
+              key: "middle-option-" + index,
+              className: "middle-option removed",
+              disabled: true,
+              "aria-hidden": true,
+            });
+          }
+          var cls = "middle-option";
+          if (middleChoice === index && middleChoiceState === "wrong") cls += " wrong";
+          if (middleChoice === index && middleChoiceState === "correct") cls += " correct";
+          if (showCorrectOnly && index === middleCorrectOption) cls += " kept";
+          return e(
+            "button",
+            {
+              type: "button",
+              key: "middle-option-" + index,
+              className: cls,
+              disabled: phase !== "middleMcq" || middleChoiceState === "correct" || showCorrectOnly,
+              onClick: function () {
+                handleMiddleChoice(index);
+              },
+            },
+            showCorrectOnly && index === middleCorrectOption ? renderMiddleExpression() : renderMiddleOptionContent(index),
+          );
+        }),
+      ),
+    );
+  }
+
+  function renderNumpadKey(key) {
+    if (key === "submit") {
+      return e("button", {
+        type: "button",
+        key: "median-submit",
+        className: "median-numpad-key submit",
+        disabled: phase === "medianDone" || !medianInput,
+        onClick: handleMedianSubmit,
+      }, "\u2713");
+    }
+    if (key === "clear") {
+      return e(
+        "button",
+        {
+          type: "button",
+          key: "median-clear",
+          className: "median-numpad-key clear",
+          disabled: phase === "medianDone",
+          onClick: handleMedianClear,
+        },
+        "\u232b",
+      );
+    }
+    return e("button", {
+      type: "button",
+      key: "median-key-" + key,
+      className: "median-numpad-key",
+      disabled: phase === "medianDone",
+      onClick: function () {
+        handleMedianDigit(key);
+      },
+    }, key);
+  }
+
+  function renderMedianPanel() {
+    if (!showMedianPanel) return null;
+    return e(
+      "div",
+      { className: "median-value" },
+      e(
+        "div",
+        { className: "median-answer-row" },
+        e("span", { className: "median-answer-label" }, S2.medianLabel),
+        e("span", {
+          className:
+            "median-answer-box" +
+            (medianAnswerState === "wrong" ? " wrong" : "") +
+            (medianAnswerState === "correct" ? " correct" : ""),
+        }, medianInput || "\u00A0"),
+      ),
+      phase !== "medianDone"
+        ? e(
+          "div",
+          { className: "median-numpad" },
+          ["1", "2", "3", "4", "5", ".", "6", "7", "8", "9", "0", "clear", "submit"].map(renderNumpadKey),
+        )
+        : null,
+    );
+  }
+
+  function renderBottomParent() {
     if (!showCountRow) return null;
     return e(
       "div",
-      { className: "median-count-panel" },
+      {
+        className:
+          "bottom-parent" +
+          (showMiddlePanel ? " has-middle" : "") +
+          (showMedianPanel ? " has-median" : ""),
+      },
       e(
         "div",
-        { className: "median-count-expression" },
-        e("span", { className: "median-count-symbol" }, S2.countSymbol + " ="),
-        e("span", { className: "median-count-box" + (countComplete ? " complete" : "") }, countBoxValue),
+        { className: "median-count-panel" + (showMiddlePanel ? " compact" : "") },
+        e(
+          "div",
+          { className: "median-count-expression" },
+          e("span", { className: "median-count-symbol" }, S2.countSymbol + " ="),
+          e("span", {
+            className: "median-count-box" + (countComplete ? " complete" : ""),
+            ref: countBoxRef,
+          }, countBoxValue),
+        ),
       ),
+      renderMiddlePanel(),
+      renderMedianPanel(),
     );
   }
 
@@ -685,7 +1264,7 @@ var MainCanvas = function (props) {
       { className: "median-visual-row" },
       showStepPanel ? renderStepsPanel() : null,
       renderDataRow(),
-      renderCountRow(),
+      renderBottomParent(),
     ),
     renderActionButtons(),
     ghost,

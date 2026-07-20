@@ -107,6 +107,7 @@ const MainCanvas = (props) => {
   const [showRedStroke, setShowRedStroke] = useState(false);
   const [redScaleT, setRedScaleT] = useState(0);
   const [showCompareText, setShowCompareText] = useState(false);
+  const [overlayMounted, setOverlayMounted] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayOpKey, setOverlayOpKey] = useState(null);
   const [overlayMode, setOverlayMode] = useState("standard");
@@ -117,6 +118,7 @@ const MainCanvas = (props) => {
   const overlayFinalRef = useRef(false);
   const overlayOpKeyRef = useRef(null);
   const finalAnimDoneRef = useRef(false);
+  const overlayCloseTimerRef = useRef(null);
 
   const canvasContainerRef = useRef(null);
   const triNudgeAnchorRef = useRef(null);
@@ -141,6 +143,13 @@ const MainCanvas = (props) => {
     if (gsapTweenRef.current) {
       gsapTweenRef.current.kill();
       gsapTweenRef.current = null;
+    }
+  };
+
+  const clearOverlayCloseTimer = () => {
+    if (overlayCloseTimerRef.current) {
+      clearTimeout(overlayCloseTimerRef.current);
+      overlayCloseTimerRef.current = null;
     }
   };
 
@@ -626,8 +635,10 @@ const MainCanvas = (props) => {
   };
 
   const openCompareOverlay = (key) => {
+    clearOverlayCloseTimer();
     overlayOpKeyRef.current = key;
     setOverlayOpKey(key);
+    setOverlayMounted(true);
     setOverlayVisible(true);
     setShowOverlayHeading(true);
     setLeftHeaderRevealed(false);
@@ -642,6 +653,23 @@ const MainCanvas = (props) => {
       setOverlayMode("standard");
     }
     onUpdateNavText(" ");
+  };
+
+  const finalizeOverlayClose = (nextStep) => {
+    overlayOpKeyRef.current = null;
+    setOverlayOpKey(null);
+    setOverlayMounted(false);
+    setOverlayMode("standard");
+    overlayFinalRef.current = false;
+    finalAnimDoneRef.current = false;
+    setSummaryPhase(null);
+    setShowOverlayHeading(true);
+    setLeftHeaderRevealed(false);
+    setRightHeaderRevealed(false);
+
+    if (typeof nextStep === "number") {
+      onStepChange(nextStep);
+    }
   };
 
   const handleOverlayAnimComplete = () => {
@@ -760,17 +788,11 @@ const MainCanvas = (props) => {
     if (overlayMode === "final") {
       if (summaryPhase !== "complete") return;
       setOverlayVisible(false);
-      setOverlayMode("standard");
-      overlayFinalRef.current = false;
-      overlayOpKeyRef.current = null;
-      setOverlayOpKey(null);
-      finalAnimDoneRef.current = false;
-      setSummaryPhase(null);
-      setShowOverlayHeading(true);
-      setLeftHeaderRevealed(false);
-      setRightHeaderRevealed(false);
+      clearOverlayCloseTimer();
+      overlayCloseTimerRef.current = setTimeout(() => {
+        finalizeOverlayClose(7);
+      }, 350);
       setAnimating(false);
-      onStepChange(7);
       return;
     }
 
@@ -794,8 +816,10 @@ const MainCanvas = (props) => {
     }
 
     setOverlayVisible(false);
-    overlayOpKeyRef.current = null;
-    setOverlayOpKey(null);
+    clearOverlayCloseTimer();
+    overlayCloseTimerRef.current = setTimeout(() => {
+      finalizeOverlayClose();
+    }, 350);
     setCompareKey(null);
     setCompareMoveT(0);
     setCompareSourcePts(null);
@@ -848,7 +872,10 @@ const MainCanvas = (props) => {
   };
 
   useEffect(() => {
-    return killTween;
+    return () => {
+      killTween();
+      clearOverlayCloseTimer();
+    };
   }, []);
 
   useEffect(() => {
@@ -1288,7 +1315,7 @@ const MainCanvas = (props) => {
                   key: "dil-green",
                   points: reflectPointsStr(greenPts),
                   fill: COLORS.triGreen,
-                  fillOpacity: 0.5,
+                  fillOpacity: 1,
                 },
                 getGreenStep6Props("bottomLeft")
               )
@@ -1351,7 +1378,7 @@ const MainCanvas = (props) => {
         key: "compare-green",
         points: reflectPointsStr(pts),
         fill: COLORS.triGreen,
-        fillOpacity: compareKey === "bottomLeft" ? 0.5 : 1,
+        fillOpacity: compareKey === "bottomLeft" ? 0.45 : 1,
       }),
     ];
 
@@ -1528,7 +1555,7 @@ const MainCanvas = (props) => {
             : APP_DATA.steps[6].overlapTextNo,
         },
       }),
-    overlayVisible &&
+    overlayMounted &&
       overlayOpKey &&
       React.createElement(Overlay, {
         key:
@@ -1560,6 +1587,7 @@ const MainCanvas = (props) => {
         showFooter: overlayMode === "standard" || summaryPhase === "complete",
         allowClose:
           overlayMode === "standard" || summaryPhase === "complete",
+        visible: overlayVisible,
         leftHeaderClickable: summaryPhase === "left-prompt",
         rightHeaderClickable: summaryPhase === "right-prompt",
         onLeftHeaderClick: handleLeftHeaderClick,

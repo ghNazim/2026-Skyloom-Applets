@@ -8,13 +8,11 @@ const DATA = {
     app: {
       start: {
         heading: "Finding Object",
-        text:
-          "Given the image coordinates and the<br>translation (units of movement), find the<br>object coordinates.<br><br>Click START to begin!",
+        text: "Given the image coordinates and the<br>translation (units of movement), find the<br>object coordinates.<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       question: {
-        text:
-          'A point is translated <span class="purple-bg">4 units to the right and 3 units downward</span>.<br>The image point is <span id="fly-point-q" class="fly-source">Q\'</span>(<span id="fly-x" class="fly-source">7</span>,<span id="fly-y" class="fly-source">2</span>). Find the object Q.',
+        text: 'A point is translated <span class="purple-bg">4 units to the right and 3 units downward</span>.<br>The image point is <span id="fly-point-q" class="fly-source">Q\'</span>(<span id="fly-x" class="fly-source">7</span>,<span id="fly-y" class="fly-source">2</span>). Find the object Q.',
         textPlain:
           'A point is translated 4 units to the right and 3 units downward.<br>The image point is <span id="fly-point-q" class="fly-source">Q\'</span>(<span id="fly-x" class="fly-source">7</span>,<span id="fly-y" class="fly-source">2</span>). Find the object Q.',
       },
@@ -46,8 +44,7 @@ const DATA = {
         correct: { x: "+4", y: "-3" },
       },
       rightPanel: {
-        step2Question:
-          "How does the given translation affect the coordinates?",
+        step2Question: "How does the given translation affect the coordinates?",
         step3Instruction:
           "Simply subtract the translation from the image coordinate.",
         step3Result: "The object coordinates of Point Q is (3,5).",
@@ -97,14 +94,12 @@ const DATA = {
           navText: "Drag the figure to the object position",
           navTextDone: "Tap » to conclude",
           feedbackWrong: "Try again",
-          feedbackCorrect:
-            "Well done! You have found the object coordinates",
+          feedbackCorrect: "Well done! You have found the object coordinates",
         },
       },
       final: {
         heading: "",
-        text:
-          "Great job! You can now find the object when the<br>image coordinates and units of movement are given.",
+        text: "Great job! You can now find the object when the<br>image coordinates and units of movement are given.",
         buttonText: "START OVER",
       },
     },
@@ -113,13 +108,11 @@ const DATA = {
     app: {
       start: {
         heading: "Mencari Bangun Awal",
-        text:
-          "Diberikan koordinat bayangan dan<br>translasi (satuan pergerakan), temukan<br>koordinat bangun awalnya.<br><br>Ketuk MULAI untuk memulai!",
+        text: "Diberikan koordinat bayangan dan<br>translasi (satuan pergerakan), temukan<br>koordinat bangun awalnya.<br><br><br>Ketuk MULAI untuk memulai!",
         buttonText: "MULAI",
       },
       question: {
-        text:
-          'Sebuah titik ditranslasi <span class="purple-bg">4 satuan ke kanan dan 3 satuan ke bawah</span>.<br>Titik bayangannya adalah <span id="fly-point-q" class="fly-source">Q\'</span>(<span id="fly-x" class="fly-source">7</span>,<span id="fly-y" class="fly-source">2</span>). Temukan bangun awal Q.',
+        text: 'Sebuah titik ditranslasi <span class="purple-bg">4 satuan ke kanan dan 3 satuan ke bawah</span>.<br>Titik bayangannya adalah <span id="fly-point-q" class="fly-source">Q\'</span>(<span id="fly-x" class="fly-source">7</span>,<span id="fly-y" class="fly-source">2</span>). Temukan bangun awal Q.',
         textPlain:
           'Sebuah titik ditranslasi 4 satuan ke kanan dan 3 satuan ke bawah.<br>Titik bayangannya adalah <span id="fly-point-q" class="fly-source">Q\'</span>(<span id="fly-x" class="fly-source">7</span>,<span id="fly-y" class="fly-source">2</span>). Temukan bangun awal Q.',
       },
@@ -162,8 +155,7 @@ const DATA = {
           navText: "Ketuk » untuk mulai menyelesaikan",
         },
         2: {
-          navTextDrag:
-            "Seret koordinat ke dalam tabel dengan benar",
+          navTextDrag: "Seret koordinat ke dalam tabel dengan benar",
           navTextDone: "Ketuk » untuk mencari koordinat bangun awal",
         },
         3: {
@@ -203,14 +195,12 @@ const DATA = {
           navText: "Seret bangun ke posisi bangun awal",
           navTextDone: "Ketuk » untuk lanjut",
           feedbackWrong: "Coba lagi",
-          feedbackCorrect:
-            "Bagus! Kamu telah menemukan koordinat bangun awal",
+          feedbackCorrect: "Bagus! Kamu telah menemukan koordinat bangun awal",
         },
       },
       final: {
         heading: "",
-        text:
-          "Bagus! Sekarang kamu dapat menemukan bangun awal ketika<br>koordinat bayangan dan satuan pergerakannya diberikan.",
+        text: "Bagus! Sekarang kamu dapat menemukan bangun awal ketika<br>koordinat bayangan dan satuan pergerakannya diberikan.",
         buttonText: "MULAI LAGI",
       },
     },

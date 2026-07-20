@@ -108,16 +108,33 @@ const TranslationPropertiesGraph = (props) => {
       }),
     );
 
+  const renderPositionConnector = (from, to) => {
+    if (!from || !to) return null;
+    return React.createElement("line", {
+      x1: from.x,
+      y1: from.y,
+      x2: to.x,
+      y2: to.y,
+      stroke: COLORS.purplePoint,
+      strokeWidth: 0.44,
+      strokeDasharray: "1.4 1",
+      markerEnd: "url(#position-arrowhead)",
+      opacity: positionPointOpacity * 0.75,
+      style: { transition: "opacity 0.05s linear" },
+    });
+  };
+
   const renderCallout = (anchor, text, key, side) => {
     if (!text) return null;
     const lines = text.split("<br>");
     const align = side || "right";
 
-    const boxW = 46;
-    const lineH = 3.2;
-    const boxH = lines.length * lineH + 2.4;
+    const boxW = 64;
+    const lineH = 4.8;
+    const boxH = lines.length * lineH + 5.2;
     const boxY = anchor.y - boxH - 4;
     const midY = boxY + boxH / 2;
+    const firstLineY = midY - ((lines.length - 1) * lineH) / 2;
 
     let boxX;
     let leaderPath;
@@ -163,9 +180,9 @@ const TranslationPropertiesGraph = (props) => {
           {
             key: "line-" + i,
             x: boxX + boxW / 2,
-            y: boxY + 2.8 + i * lineH,
+            y: firstLineY + i * lineH,
             fill: "#fff",
-            fontSize: 2.7,
+            fontSize: 4.05,
             textAnchor: "middle",
             dominantBaseline: "middle",
           },
@@ -243,6 +260,7 @@ const TranslationPropertiesGraph = (props) => {
   };
 
   const purpleAnchor = topVertex(yellowPoints);
+  const purpleGhostAnchor = topVertex(sourceGrayPoints);
   const calloutText =
     positionCallout === "original"
       ? APP_DATA.steps[2].positionCalloutOriginal
@@ -284,6 +302,22 @@ const TranslationPropertiesGraph = (props) => {
           fill: COLORS.arrow,
         }),
       ),
+      React.createElement(
+        "marker",
+        {
+          id: "position-arrowhead",
+          markerWidth: 4,
+          markerHeight: 4,
+          refX: 3.5,
+          refY: 2,
+          orient: "auto",
+          markerUnits: "strokeWidth",
+        },
+        React.createElement("path", {
+          d: "M0,0 L4,2 L0,4 Z",
+          fill: COLORS.purplePoint,
+        }),
+      ),
     ),
     React.createElement("polygon", {
       points: grayPoints.map((p) => p.x + "," + p.y).join(" "),
@@ -304,16 +338,31 @@ const TranslationPropertiesGraph = (props) => {
     renderShapeClone(),
     renderOrientationArrows(),
     positionShowPurplePoint
-      ? React.createElement("circle", {
-          cx: purpleAnchor.x,
-          cy: purpleAnchor.y,
-          r: pointR,
-          fill: COLORS.purplePoint,
-          stroke: "#fff",
-          strokeWidth: 0.12,
-          opacity: positionPointOpacity,
-          style: { transition: "opacity 0.05s linear" },
-        })
+      ? React.createElement(
+          React.Fragment,
+          null,
+          renderPositionConnector(purpleGhostAnchor, purpleAnchor),
+          React.createElement("circle", {
+            cx: purpleGhostAnchor.x,
+            cy: purpleGhostAnchor.y,
+            r: pointR,
+            fill: COLORS.purplePoint,
+            stroke: "#fff",
+            strokeWidth: 0.12,
+            opacity: positionPointOpacity * 0.5,
+            style: { transition: "opacity 0.05s linear" },
+          }),
+          React.createElement("circle", {
+            cx: purpleAnchor.x,
+            cy: purpleAnchor.y,
+            r: pointR,
+            fill: COLORS.purplePoint,
+            stroke: "#fff",
+            strokeWidth: 0.12,
+            opacity: positionPointOpacity,
+            style: { transition: "opacity 0.05s linear" },
+          }),
+        )
       : null,
     positionCallout
       ? renderCallout(

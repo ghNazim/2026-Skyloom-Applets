@@ -25,7 +25,7 @@ const MainCanvas = (props) => {
 
   /* ───── state ───── */
   const [showCFColumn, setShowCFColumn] = useState(false);
-  const [showRightColumn, setShowRightColumn] = useState(false);
+  const [showRightColumn, setShowRightColumn] = useState(step === 3 && initialStage !== "final");
   const [cfValues, setCfValues] = useState([null, null, null, null, null]);
   const [activeRowIndex, setActiveRowIndex] = useState(0);
   const [highlightedUpTo, setHighlightedUpTo] = useState(-1);
@@ -38,6 +38,7 @@ const MainCanvas = (props) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showBottomRow, setShowBottomRow] = useState(false);
   const [selectedBoxIndex, setSelectedBoxIndex] = useState(0);
+  const [hasDraggedPointer, setHasDraggedPointer] = useState(false);
 
   /* ───── refs ───── */
   const containerRef = useRef(null);
@@ -243,6 +244,7 @@ const MainCanvas = (props) => {
       setArrowBoxIndex(-1);
       setSelectedBoxIndex(0);
       selectedBoxRef.current = 0;
+      setHasDraggedPointer(true);
       setShowBottomRow(true);
       isDraggingRef.current = false;
       if (arrowPulseRef.current) { arrowPulseRef.current.kill(); arrowPulseRef.current = null; }
@@ -311,7 +313,7 @@ const MainCanvas = (props) => {
     }
     if (step === 3) {
       setShowCFColumn(true);
-      setShowRightColumn(false);
+      setShowRightColumn(true);
       setShowTextSection(false);
       setShowDataSection(false);
       setCfValues(cumulativeFreqs.slice());
@@ -324,7 +326,12 @@ const MainCanvas = (props) => {
       setArrowBoxIndex(-1);
       setShowBottomRow(true);
       if (arrowPulseRef.current) { arrowPulseRef.current.kill(); arrowPulseRef.current = null; }
-      onSetNextEnabled(true);
+      setTimeout(function () {
+        setShowRightColumn(false);
+      }, 60);
+      setTimeout(function () {
+        onSetNextEnabled(true);
+      }, 660);
     }
     if (step === 4) {
       setShowCFColumn(true);
@@ -337,12 +344,13 @@ const MainCanvas = (props) => {
       setArrowBoxIndex(-1);
       setSelectedBoxIndex(0);
       selectedBoxRef.current = 0;
+      setHasDraggedPointer(false);
       setShowBottomRow(true);
       isDraggingRef.current = false;
       if (arrowPulseRef.current) { arrowPulseRef.current.kill(); arrowPulseRef.current = null; }
       setTimeout(function () {
         onUpdateQuestionText(APP_DATA.steps[4].positionQuestions[0]);
-        onSetNextEnabled(true);
+        onSetNextEnabled(false);
       }, 0);
     }
   }, [step, initialStage]);
@@ -428,11 +436,15 @@ const MainCanvas = (props) => {
       selectedBoxRef.current = boxIndex;
       setSelectedBoxIndex(boxIndex);
       updateQuestionForBox(boxIndex);
+      if (boxIndex === sortedData.length - 1) {
+        onSetNextEnabled(true);
+      }
     }
 
     function onStart(e) {
       e.preventDefault();
       isDraggingRef.current = true;
+      setHasDraggedPointer(true);
       pointer.classList.add("dragging");
       selectBox(getNearestBoxIndex(getClientX(e)), false);
     }
@@ -823,7 +835,14 @@ const MainCanvas = (props) => {
       ref: boxesContainerRef,
     },
       boxes,
-      e("div", { className: "drag-pointer", ref: dragPointerRef })
+      e("div", { className: "drag-pointer", ref: dragPointerRef }),
+      e(Nudge, {
+        targetRef: dragPointerRef,
+        active: !hasDraggedPointer,
+        src: "assets/drag.gif",
+        imageWidth: "10vw",
+        imageClassName: "nudge-drag-img",
+      })
     );
   }
 

@@ -223,11 +223,15 @@ const Median = (props) => {
       onUpdateQuestionText(APP_DATA.steps[4].questionText);
       onUpdateNavText(APP_DATA.steps[4].navText);
       setIsStepOneReady(true);
+      setOrder(step2.correctOrder.slice());
+      setLockedRows({});
     }
     if (step === 5) {
       onSetNextEnabled(false);
       onUpdateQuestionText(step5.questionText);
       onUpdateNavText(step5.navText);
+      setOrder(step2.correctOrder.slice());
+      setLockedRows({});
       setEliminateLeft(0);
       setEliminateRight(sortedDataset.length - 1);
       setEliminatedSlots({});
@@ -457,6 +461,12 @@ const Median = (props) => {
     const to = relCenter(slotRefs.current[activeSlot]);
     const filledSlot = activeSlot;
     setCueVisible(false);
+    setUsedIndexes(function (prev) {
+      const next = {};
+      Object.keys(prev).forEach(function (key) { next[key] = prev[key]; });
+      next[index] = true;
+      return next;
+    });
     setFlyingValue({ value: value, from: from, to: to });
     if (typeof playSound === "function") playSound("correct");
 
@@ -473,13 +483,6 @@ const Median = (props) => {
         next[filledSlot] = true;
         return next;
       });
-      setUsedIndexes(function (prev) {
-        const next = {};
-        Object.keys(prev).forEach(function (key) { next[key] = prev[key]; });
-        next[index] = true;
-        return next;
-      });
-
       const nextSlot = filledSlot + 1;
       if (nextSlot >= sortedDataset.length) {
         if (typeof playSound === "function") playSound("congrats");
@@ -635,7 +638,8 @@ const Median = (props) => {
 
   function renderSteps(options) {
     const opts = options || {};
-    const previewOrder = getPreviewOrder();
+    const displayOrder = opts.orderOverride || order;
+    const previewOrder = opts.orderOverride ? displayOrder : getPreviewOrder();
     const previewRowById = {};
     previewOrder.forEach(function (id, rowIndex) {
       previewRowById[id] = rowIndex;
@@ -652,7 +656,7 @@ const Median = (props) => {
         })
       ),
       e("div", { className: "mean-step-options" + (draggedIndex !== null ? " is-dragging" : "") },
-        order.map(function (id, index) {
+        displayOrder.map(function (id, index) {
           const previewRow = previewRowById[id];
           const slideDelta = draggedIndex !== null ? previewRow - index : 0;
           const isLocked = !!lockedRows[index] || (opts.highlightStep === index);
@@ -904,7 +908,7 @@ const Median = (props) => {
     return e("div", { className: "main-canvas-container mean-canvas", ref: containerRef },
       e("div", { className: "mean-row sort-section expanded" }, renderSortRow({ final: true, hideCommas: true })),
       e("div", { className: "mean-row data-section collapsed" }),
-      renderSteps({ noDrag: true, highlightStep: 1, clickableStep: 1, clickToStep: 5 }),
+      renderSteps({ noDrag: true, orderOverride: step2.correctOrder, highlightStep: 1, clickableStep: 1, clickToStep: 5 }),
       renderStepClickNudge()
     );
   }
@@ -913,7 +917,7 @@ const Median = (props) => {
     return e("div", { className: "main-canvas-container mean-canvas", ref: containerRef },
       e("div", { className: "mean-row sort-section expanded" }, renderSortRow({ final: true, hideCommas: true, eliminate: true })),
       e("div", { className: "mean-row data-section collapsed" }),
-      isEliminationDone ? renderSteps({ noDrag: true, highlightStep: 2, clickableStep: 2, clickToStep: 6 }) : null,
+      isEliminationDone ? renderSteps({ noDrag: true, orderOverride: step2.correctOrder, highlightStep: 2, clickableStep: 2, clickToStep: 6 }) : null,
       renderStepClickNudge()
     );
   }

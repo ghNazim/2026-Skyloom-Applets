@@ -1,7 +1,7 @@
 .custom-slider {
   position: relative;
-  width: 70%;
-  height: 4vw;
+  width: 100%;
+  height: 4.2vw;
   cursor: pointer;
   touch-action: none;
   user-select: none;
@@ -14,17 +14,20 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 0.45vw;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 0.3vw;
+  height: 0.8vw;
+  background: white;
+  border-radius: 999px;
   top: 50%;
   transform: translateY(-50%);
+  box-shadow:
+    inset 0 0.12vw 0.28vw rgba(0, 0, 0, 0.16),
+    0 0.16vw 0.35vw rgba(0, 0, 0, 0.16);
 }
 
 .slider-fill {
   height: 100%;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 0.3vw;
+  background: #f4c233;
+  border-radius: 999px;
   transition: width 0.15s ease;
 }
 
@@ -34,14 +37,16 @@
   transform: translate(-50%, -50%);
   width: 3.8vw;
   height: 3.8vw;
-  background: rgba(10, 25, 50, 0.92);
-  border: 0.28vw solid #e8b830;
-  border-radius: 0.5vw;
+  background: white;
+  border: 0.34vw solid #f4c233;
+  border-radius: 0.65vw;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 5;
-  box-shadow: 0 0.2vw 0.8vw rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0.25vw 0.75vw rgba(0, 0, 0, 0.28),
+    inset 0 0.08vw 0 rgba(255, 255, 255, 0.8);
   transition: left 0.15s ease;
   overflow: visible;
 }
@@ -51,7 +56,7 @@
   z-index: 2;
   font-size: 2.2vw;
   font-weight: 700;
-  color: white;
+  color: #111827;
   line-height: 1;
 }
 

@@ -3,12 +3,20 @@ const App = () => {
 
   const TARGET_X = 2;
   const TARGET_Y = 4;
+  const STEP2_NUDGE_POINTS = [
+    { x: 1, y: 4 },
+    { x: 2, y: 5 },
+    { x: 2, y: 3 },
+    { x: 3, y: 5 },
+    { x: 2, y: 4 },
+  ];
 
   const [currentStep, setCurrentStep] = useState(0);
   const [step2Phase, setStep2Phase] = useState("initial");
   const [step2Feedback, setStep2Feedback] = useState(null);
   const [plottedPoint, setPlottedPoint] = useState(null);
   const [lineAnimPhase, setLineAnimPhase] = useState(null);
+  const [step2NudgeIndex, setStep2NudgeIndex] = useState(0);
   const [xAxisHighlighted, setXAxisHighlighted] = useState(false);
   const [showReflectionLabel, setShowReflectionLabel] = useState(false);
   const [step4Phase, setStep4Phase] = useState("initial");
@@ -34,7 +42,7 @@ const App = () => {
   const [p1RightAngleVisible, setP1RightAngleVisible] = useState(false);
   const [p1RightAngleFadeReady, setP1RightAngleFadeReady] = useState(false);
   const [cloneVisible, setCloneVisible] = useState(false);
-  const [cloneY, setCloneY] = useState(4);
+  const [cloneY, setCloneY] = useState(0);
   const [cloneOpacity, setCloneOpacity] = useState(1);
 
   const [calloutVisible, setCalloutVisible] = useState(false);
@@ -93,10 +101,12 @@ const App = () => {
   const [step9YFeedback, setStep9YFeedback] = useState("");
 
   const timersRef = useRef([]);
+  const prop1OscillationActiveRef = useRef(false);
 
   const clearTimers = useCallback(() => {
     timersRef.current.forEach(clearTimeout);
     timersRef.current = [];
+    prop1OscillationActiveRef.current = false;
   }, []);
 
   const schedule = useCallback((fn, ms) => {
@@ -108,6 +118,7 @@ const App = () => {
   const resetStepState = useCallback(() => {
     setStep2Phase("initial");
     setStep2Feedback(null);
+    setStep2NudgeIndex(0);
     setPlottedPoint(null);
     setLineAnimPhase(null);
     setXAxisHighlighted(false);
@@ -131,7 +142,7 @@ const App = () => {
     setP1RightAngleVisible(false);
     setP1RightAngleFadeReady(false);
     setCloneVisible(false);
-    setCloneY(4);
+    setCloneY(0);
     setCloneOpacity(1);
     setCalloutVisible(false);
     setCalloutFadeReady(false);
@@ -232,6 +243,21 @@ const App = () => {
     [currentStep, step2Phase, schedule],
   );
 
+  useEffect(() => {
+    if (currentStep !== 2 || step2Phase === "correct" || step2Phase === "done") {
+      setStep2NudgeIndex(0);
+      return undefined;
+    }
+
+    const id = setTimeout(() => {
+      setStep2NudgeIndex(
+        (index) => (index + 1) % STEP2_NUDGE_POINTS.length,
+      );
+    }, 1600);
+
+    return () => clearTimeout(id);
+  }, [currentStep, step2Phase, step2NudgeIndex]);
+
   const handleXAxisClick = useCallback(() => {
     if (currentStep !== 3 || xAxisHighlighted) return;
     if (typeof playSound === "function") playSound("click");
@@ -318,11 +344,15 @@ const App = () => {
   }, [currentStep, step4Phase, schedule]);
 
   const runProp1Sequence = useCallback(() => {
-    const LINE_FADE_MS = 550;
+    const LINE_GROW_MS = 800;
+    const WAIT_AFTER_LINE_MS = 300;
     const SQUARE_FADE_MS = 550;
-    const AFTER_RIGHT_ANGLE_MS = 600;
+    const OSCILLATION_STEP_MS = 650;
+    const FIRST_LOOP_OSCILLATION_POINTS = [4, -2, -5, -3, -4];
+    const REPEATING_OSCILLATION_POINTS = [0, -2, -5, -3, -4];
 
     setStep5Phase("prop1-running");
+    prop1OscillationActiveRef.current = false;
     setP1LineVisible(true);
     setP1LineFadeReady(false);
     setP1RightAngleVisible(false);
@@ -338,7 +368,7 @@ const App = () => {
     schedule(() => {
       setP1RightAngleVisible(true);
       schedule(() => setP1RightAngleFadeReady(true), 50);
-    }, LINE_FADE_MS);
+    }, LINE_GROW_MS + WAIT_AFTER_LINE_MS);
 
     schedule(() => {
       setCalloutVisible(true);
@@ -346,33 +376,36 @@ const App = () => {
       setCalloutPos("q4");
       setCalloutLoading(false);
       schedule(() => setCalloutFadeReady(true), 50);
-    }, LINE_FADE_MS + SQUARE_FADE_MS);
-
-    const cloneStart = LINE_FADE_MS + AFTER_RIGHT_ANGLE_MS;
+    }, LINE_GROW_MS + WAIT_AFTER_LINE_MS + SQUARE_FADE_MS);
 
     schedule(() => {
+      prop1OscillationActiveRef.current = true;
       setCloneVisible(true);
       setCloneOpacity(1);
       setCloneY(4);
-    }, cloneStart);
+      let useAxisBoundaryLoop = false;
 
-    const move = (y, offset) =>
-      schedule(() => {
-        setCloneY(y);
-      }, cloneStart + offset);
+      const oscillate = (index) => {
+        if (!prop1OscillationActiveRef.current) return;
+        const points = useAxisBoundaryLoop
+          ? REPEATING_OSCILLATION_POINTS
+          : FIRST_LOOP_OSCILLATION_POINTS;
+        const nextIndex = (index + 1) % points.length;
+        const isLoopRestart = nextIndex === 0;
 
-    move(-2, 250);
-    move(-5, 850);
-    move(-3, 1450);
-    move(-4, 2050);
-    move(-10, 2700);
-    schedule(() => setCloneOpacity(0), cloneStart + 3000);
+        if (isLoopRestart && !useAxisBoundaryLoop) {
+          useAxisBoundaryLoop = true;
+          setCloneY(REPEATING_OSCILLATION_POINTS[0]);
+        } else {
+          setCloneY(points[nextIndex]);
+        }
+        schedule(() => oscillate(nextIndex), OSCILLATION_STEP_MS);
+      };
 
-    schedule(() => {
-      setCloneVisible(false);
+      schedule(() => oscillate(0), OSCILLATION_STEP_MS);
       setProp1Done(true);
       setStep5Phase("prop2-ready");
-    }, cloneStart + 3400);
+    }, LINE_GROW_MS + WAIT_AFTER_LINE_MS + SQUARE_FADE_MS);
   }, [schedule]);
 
   const handleProperty1Click = useCallback(() => {
@@ -496,6 +529,8 @@ const App = () => {
     if (!prop1Done || prop2Done) return;
     if (step5Phase !== "prop2-ready") return;
     if (typeof playSound === "function") playSound("click");
+    prop1OscillationActiveRef.current = false;
+    setCloneVisible(false);
     runProp2Sequence();
   }, [currentStep, prop1Done, prop2Done, step5Phase, runProp2Sequence]);
 
@@ -550,6 +585,131 @@ const App = () => {
     setStep9YStatus(null);
     setStep9YFeedback("");
   }, []);
+
+  const setStep2Completed = useCallback(() => {
+    setCurrentStep(2);
+    setStep2Phase("done");
+    setStep2Feedback("correct");
+    setStep2NudgeIndex(0);
+    setPlottedPoint({ x: TARGET_X, y: TARGET_Y });
+    setLineAnimPhase(null);
+  }, []);
+
+  const setStep3Completed = useCallback(() => {
+    setStep2Completed();
+    setCurrentStep(3);
+    setXAxisHighlighted(true);
+    setShowReflectionLabel(false);
+  }, [setStep2Completed]);
+
+  const setStep4Completed = useCallback(() => {
+    const s4 = APP_DATA.steps[4];
+    setStep3Completed();
+    setCurrentStep(4);
+    setStep4Phase("done");
+    setShowDashedDistance(true);
+    setShowUnitLine(false);
+    setUnitLineY1(1);
+    setUnitLineY2(0);
+    setUnitLabelText(s4.unitPlural.replace("{n}", "4"));
+    setUnitLabelFinal(true);
+    setHighlightFour(true);
+    setShowQ1FourUnitsLabel(true);
+    setUnitLineRotating(false);
+  }, [setStep3Completed]);
+
+  const setStep5Completed = useCallback(() => {
+    const s4 = APP_DATA.steps[4];
+    setStep4Completed();
+    setCurrentStep(5);
+    setStep5Phase("done");
+    setProp1Done(true);
+    setProp2Done(true);
+    setP1LineVisible(true);
+    setP1LineFadeReady(true);
+    setP1RightAngleVisible(true);
+    setP1RightAngleFadeReady(true);
+    setCloneVisible(false);
+    setCloneOpacity(1);
+    setCloneY(0);
+    setCalloutVisible(false);
+    setCalloutFadeReady(false);
+    setCalloutMode(null);
+    setCalloutPrevMode(null);
+    setCalloutTextNextReady(true);
+    setCalloutLoading(false);
+    setShowMeasureLine(true);
+    setMeasureLineUnits(4);
+    setMeasureLineGrowing(false);
+    setShowUnitLine(false);
+    setUnitLineY1(-3);
+    setUnitLineY2(-4);
+    setUnitLabelText(s4.unitPlural.replace("{n}", "4"));
+    setUnitLabelOverride({ x: 2, y: -2 });
+    setShowApost(true);
+    setApostFadeReady(true);
+    setStep5DoneTextVisible(true);
+    setHighlightFour(false);
+  }, [setStep4Completed]);
+
+  const setStep6Completed = useCallback(() => {
+    setStep5Completed();
+    setCurrentStep(6);
+    setStep6Phase("done");
+    setStep6ShowVerticalLine(true);
+    setStep6VerticalLineGrowing(false);
+    setStep6HighlightX2(true);
+    setStep6ShowCoordLabel(true);
+    setStep6ShowCoordX(true);
+    setStep6XCloneVisible(false);
+    setStep6XCloneFlying(false);
+    setStep6ShowHorizontalLine(true);
+    setStep6HorizontalLineGrowing(false);
+    setStep6HighlightYNeg4(true);
+    setStep6ShowCoordY(true);
+    setStep6YCloneVisible(false);
+    setStep6YCloneFlying(false);
+  }, [setStep5Completed]);
+
+  const setStep7Completed = useCallback(() => {
+    setStep5Completed();
+    setCurrentStep(7);
+    setStep7Answer("correct");
+    setStep7WrongCloneVisible(false);
+    setStep7WrongCloneFlying(false);
+    resetStep8State();
+  }, [resetStep8State, setStep5Completed]);
+
+  const setStep8Completed = useCallback(() => {
+    setStep5Completed();
+    setCurrentStep(8);
+    resetStep7State();
+    setStep8Phase("done");
+    setStep8ShowFormula(true);
+    setStep8XActive(true);
+    setStep8XBlink(false);
+    setStep8YActive(true);
+    setStep8YBlink(false);
+    resetStep9State();
+  }, [resetStep7State, resetStep9State, setStep5Completed]);
+
+  const setStep9QuestionCompleted = useCallback(
+    (questionIndex) => {
+      const question =
+        APP_DATA.steps[9].questions[questionIndex] || APP_DATA.steps[9].questions[0];
+      setStep8Completed();
+      setCurrentStep(9);
+      setStep9QuestionIndex(questionIndex);
+      setStep9Part("y");
+      setStep9XAnswer(question.imageX);
+      setStep9XStatus("correct");
+      setStep9XFeedback(APP_DATA.steps[9].xCorrect);
+      setStep9YAnswer(question.imageY);
+      setStep9YStatus("correct");
+      setStep9YFeedback(APP_DATA.steps[9].yCorrect);
+    },
+    [setStep8Completed],
+  );
 
   const runStep6Sequence = useCallback(() => {
     resetStep6State();
@@ -798,10 +958,31 @@ const App = () => {
     step9YStatus,
   ]);
 
+  const isAnimationRunning =
+    (currentStep === 2 &&
+      (step2Phase === "correct" ||
+        (step2Phase === "wrong" && lineAnimPhase !== "done"))) ||
+    (currentStep === 3 && showReflectionLabel) ||
+    (currentStep === 4 &&
+      (step4Phase === "revealing" ||
+        step4Phase === "animating" ||
+        step4Phase === "properties-ready")) ||
+    (currentStep === 5 &&
+      (step5Phase === "prop1-running" || step5Phase === "prop2-running")) ||
+    (currentStep === 6 && step6Phase === "running") ||
+    (currentStep === 7 &&
+      (step7WrongCloneVisible || step7WrongCloneFlying)) ||
+    (currentStep === 8 &&
+      (step8Phase === "x-blink" ||
+        step8Phase === "x-stable" ||
+        step8Phase === "y-blink"));
+
   const isNextDisabled =
-    currentStep === 2 ||
-    currentStep === 3 ||
-    currentStep === 4 ||
+    (currentStep === 2 && step2Phase !== "done") ||
+    (currentStep === 3 && !xAxisHighlighted) ||
+    (currentStep === 4 &&
+      step4Phase !== "done" &&
+      step4Phase !== "properties-ready") ||
     (currentStep === 5 && step5Phase !== "done") ||
     (currentStep === 6 && step6Phase !== "done") ||
     (currentStep === 7 && step7Answer !== "correct") ||
@@ -812,7 +993,7 @@ const App = () => {
         (step9Part === "y" && step9YStatus === "correct")
       ));
 
-  const isPrevDisabled = currentStep <= 1;
+  const isPrevDisabled = currentStep <= 1 || isAnimationRunning;
 
   const handleNext = () => {
     if (typeof playSound === "function") playSound("click");
@@ -822,6 +1003,35 @@ const App = () => {
       setStep2Phase("initial");
       setStep2Feedback(null);
       setPlottedPoint(null);
+      return;
+    }
+    if (currentStep === 2 && step2Phase === "done") {
+      setCurrentStep(3);
+      setXAxisHighlighted(false);
+      setShowReflectionLabel(false);
+      return;
+    }
+    if (currentStep === 3 && xAxisHighlighted) {
+      setCurrentStep(4);
+      setStep4Phase("initial");
+      setShowDashedDistance(false);
+      setShowUnitLine(false);
+      setUnitLabelText("");
+      setUnitLabelFinal(false);
+      setHighlightFour(false);
+      setShowQ1FourUnitsLabel(false);
+      return;
+    }
+    if (
+      currentStep === 4 &&
+      (step4Phase === "done" || step4Phase === "properties-ready")
+    ) {
+      setStep4Phase("properties-ready");
+      setHighlightFour(false);
+      setStep5Phase("prop1-ready");
+      setProp1Done(false);
+      setProp2Done(false);
+      setCurrentStep(5);
       return;
     }
     if (currentStep === 5 && step5Phase === "done") {
@@ -859,7 +1069,9 @@ const App = () => {
   };
 
   const handlePrev = () => {
+    if (isPrevDisabled) return;
     if (typeof playSound === "function") playSound("click");
+    clearTimers();
     if (currentStep === 1) {
       resetEverything();
       return;
@@ -867,6 +1079,43 @@ const App = () => {
     if (currentStep === 2) {
       setCurrentStep(1);
       resetStepState();
+      return;
+    }
+    if (currentStep === 3) {
+      setStep2Completed();
+      return;
+    }
+    if (currentStep === 4) {
+      setStep3Completed();
+      return;
+    }
+    if (currentStep === 5) {
+      setStep4Completed();
+      return;
+    }
+    if (currentStep === 6) {
+      setStep5Completed();
+      return;
+    }
+    if (currentStep === 7) {
+      setStep6Completed();
+      return;
+    }
+    if (currentStep === 8) {
+      setStep7Completed();
+      return;
+    }
+    if (currentStep === 9) {
+      if (step9QuestionIndex > 0) {
+        setStep9QuestionCompleted(step9QuestionIndex - 1);
+      } else {
+        setStep8Completed();
+      }
+      return;
+    }
+    if (currentStep === 10) {
+      const lastQuestionIndex = APP_DATA.steps[9].questions.length - 1;
+      setStep9QuestionCompleted(lastQuestionIndex);
     }
   };
 
@@ -932,6 +1181,7 @@ const App = () => {
     step7Answer,
     step8Phase,
     step2Phase,
+    step2NudgeIndex,
     step9Part,
     step9QuestionIndex,
     step9XStatus,
@@ -1028,6 +1278,7 @@ const App = () => {
       React.createElement(MainCanvas, {
         step: currentStep,
         step2Phase: step2Phase,
+        step2NudgePoint: STEP2_NUDGE_POINTS[step2NudgeIndex],
         step2Feedback: step2Feedback,
         plottedPoint: plottedPoint,
         lineAnimPhase: lineAnimPhase,

@@ -265,13 +265,7 @@ var MainCanvas = function (props) {
       var delay = 0;
       pairs.forEach(function (pair) {
         setTimeout(function () {
-          crossedSoFar = crossedSoFar.concat([pair[0]]);
-          setCrossed(crossedSoFar.slice());
-          if (typeof playSound === "function") playSound("click");
-        }, delay);
-        delay += 450;
-        setTimeout(function () {
-          crossedSoFar = crossedSoFar.concat([pair[1]]);
+          crossedSoFar = crossedSoFar.concat([pair[0], pair[1]]);
           setCrossed(crossedSoFar.slice());
           if (typeof playSound === "function") playSound("click");
         }, delay);
@@ -548,6 +542,17 @@ var MainCanvas = function (props) {
     else if (p === 4) handleRelation();
   }
 
+  function renderCalloutArrow(colorClass, src) {
+    return e(
+      "img",
+      {
+        className: "callout-arrow " + colorClass,
+        src: src || "assets/arrow.svg",
+        alt: "",
+      },
+    );
+  }
+
   /* ═══════════════════════════════════════════════════
      RENDER: DATA ROW with inline callouts
      ═══════════════════════════════════════════════════ */
@@ -595,30 +600,13 @@ var MainCanvas = function (props) {
       var crossSvg = null;
       if (isCrossed) {
         crossSvg = e(
-          "div",
-          { className: "cross-mark", key: "x" + i },
-          e(
-            "svg",
-            { viewBox: "0 0 40 40", xmlns: "http://www.w3.org/2000/svg" },
-            e("line", {
-              x1: "8",
-              y1: "8",
-              x2: "32",
-              y2: "32",
-              stroke: "#d32f2f",
-              strokeWidth: "5.5",
-              strokeLinecap: "round",
-            }),
-            e("line", {
-              x1: "32",
-              y1: "8",
-              x2: "8",
-              y2: "32",
-              stroke: "#d32f2f",
-              strokeWidth: "5.5",
-              strokeLinecap: "round",
-            }),
-          ),
+          "img",
+          {
+            className: "cross-mark",
+            key: "x" + i,
+            src: "assets/cross.png",
+            alt: "",
+          },
         );
       }
 
@@ -628,22 +616,7 @@ var MainCanvas = function (props) {
         callout = e(
           "div",
           { className: "inline-callout median-callout" },
-          e(
-            "div",
-            { className: "callout-arrow pink-arrow-anim" },
-            e(
-              "svg",
-              { viewBox: "0 0 30 44", xmlns: "http://www.w3.org/2000/svg" },
-              e("path", {
-                d: "M15 44 L15 10 M5 20 L15 4 L25 20",
-                fill: "none",
-                stroke: "#e84888",
-                strokeWidth: "3.5",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-              }),
-            ),
-          ),
+          renderCalloutArrow("pink-arrow-anim"),
           e("div", {
             className: "callout-box pink-bg",
             dangerouslySetInnerHTML: { __html: S1.medianText },
@@ -654,22 +627,7 @@ var MainCanvas = function (props) {
         callout = e(
           "div",
           { className: "inline-callout count-mid-callout" },
-          e(
-            "div",
-            { className: "callout-arrow pink-arrow-anim" },
-            e(
-              "svg",
-              { viewBox: "0 0 30 44", xmlns: "http://www.w3.org/2000/svg" },
-              e("path", {
-                d: "M15 44 L15 10 M5 20 L15 4 L25 20",
-                fill: "none",
-                stroke: "#e84888",
-                strokeWidth: "3.5",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-              }),
-            ),
-          ),
+          renderCalloutArrow("pink-arrow-anim"),
           e(
             "div",
             { className: "callout-box pink-bg" },
@@ -686,22 +644,7 @@ var MainCanvas = function (props) {
         calloutBlue = e(
           "div",
           { className: "inline-callout count-total-callout" },
-          e(
-            "div",
-            { className: "callout-arrow blue-arrow-anim" },
-            e(
-              "svg",
-              { viewBox: "0 0 30 44", xmlns: "http://www.w3.org/2000/svg" },
-              e("path", {
-                d: "M15 44 L15 10 M5 20 L15 4 L25 20",
-                fill: "none",
-                stroke: "#5b9bd5",
-                strokeWidth: "3.5",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-              }),
-            ),
-          ),
+          renderCalloutArrow("blue-arrow-anim", "assets/arrow2.svg"),
           e(
             "div",
             { className: "callout-box blue-bg" },
@@ -730,8 +673,8 @@ var MainCanvas = function (props) {
               },
             },
             e("span", { className: "circle-val" }, val),
-            crossSvg,
           ),
+          crossSvg,
         ),
         callout,
         calloutBlue,
@@ -801,6 +744,7 @@ var MainCanvas = function (props) {
     if (btnState === "disabled" || btnState === "fading")
       cls += " bsb-disabled";
     if (btnState === "fading") cls += " bsb-fading";
+    if (showMedianCallout || showCountCallouts) cls += " bsb-callout-offset";
     return e(
       React.Fragment,
       null,

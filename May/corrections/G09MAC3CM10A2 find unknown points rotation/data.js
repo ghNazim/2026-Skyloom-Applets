@@ -64,7 +64,7 @@ const DATA = {
             "Since the object coordinates of point R is not given, we can\u2019t use it to find the rotation.",
         },
         step5: {
-          title: "This rule corresponds to which rotation.",
+          title: "This rule corresponds to which rotation?",
           options: [
             "90\u00b0 clockwise or\n270\u00b0 anticlockwise",
             "90\u00b0 anticlockwise\nor 270\u00b0 clockwise",
@@ -121,7 +121,7 @@ const DATA = {
       start: {
         heading: "Latihan: Rotasi",
         text:
-          "Mari selesaikan soal tentang Rotasi.<br><br>Ketuk MULAI untuk memulai!",
+          "Mari selesaikan soal tentang Rotasi.<br><br><br>Ketuk MULAI untuk memulai!",
         buttonText: "MULAI",
       },
       question: {
@@ -177,7 +177,7 @@ const DATA = {
             "Karena koordinat objek titik R tidak diketahui, kita tidak dapat menggunakannya untuk mencari rotasi.",
         },
         step5: {
-          title: "Aturan ini sesuai dengan rotasi yang mana.",
+          title: "Aturan ini sesuai dengan rotasi yang mana?",
           options: [
             "90\u00b0 searah jarum jam atau\n270\u00b0 berlawanan jarum jam",
             "90\u00b0 berlawanan jarum jam\natau 270\u00b0 searah jarum jam",

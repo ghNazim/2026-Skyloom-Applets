@@ -39,10 +39,6 @@
   cursor: not-allowed;
 }
 
-.nav-chevron.prev {
-  display: none;
-}
-
 .pagination-dots {
   display: flex;
   align-items: center;

@@ -63,7 +63,7 @@ const DATA = {
       finish: {
         heading: "Aktivitas Selesai!",
         text:
-          "Dalam rotasi,<br><r>Orientasi berubah</r><br><r>Posisi berubah</r><br><g>Bentuk tetap sama</g><br><g>Ukuran tetap sama</g>",
+          "Dalam rotasi,<br><r>Orientasi berubah</r><r>Posisi berubah</r><g>Bentuk tetap sama</g><g>Ukuran tetap sama</g>",
         buttonText: "MULAI LAGI",
       },
       steps: {

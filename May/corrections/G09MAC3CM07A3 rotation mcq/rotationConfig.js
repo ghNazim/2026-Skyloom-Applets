@@ -16,7 +16,7 @@ const COLORS = {
   blue: "#4ec3ca",
   anchor: "#ffffff",
   guideLine: "rgba(255, 211, 77, 0.75)",
-  rotationGuide: "rgba(160, 160, 160, 0.9)",
+  rotationGuide: "#77767696",
   yellow: "#fdd835",
   purple: "#e91e63",
   clockwiseArrow: "#fdd835",
@@ -105,13 +105,6 @@ function rotatePoints(points, center, angleDeg) {
 
 function pointsToPolygonAttr(points) {
   return points.map((p) => p.x + "," + p.y).join(" ");
-}
-
-function getShapeGuidePoint(points) {
-  if (!points || !points.length) return ANCHOR;
-  return points.reduce((closest, point) =>
-    distFromAnchor(point) < distFromAnchor(closest) ? point : closest,
-  );
 }
 
 function distFromAnchor(point) {

@@ -45,9 +45,11 @@ const Summary = function (props) {
   }
 
   function renderFormulaBlock() {
+    var isIndonesian = typeof current_language !== "undefined" && current_language === "id";
     return e("div", { className: "summary-formula-block" },
       e("p", { className: "summary-formula-intro" }, F.summaryIntro),
       e("div", { className: "summary-formula-row" },
+        isIndonesian ? e("span", { className: "summary-ke" }, "ke-") : null,
         e("div", { className: "summary-formula-box" },
           e("div", { className: "summary-frac" },
             e("div", { className: "summary-frac-num" },
@@ -58,7 +60,7 @@ const Summary = function (props) {
             e("div", { className: "summary-frac-den" }, "2")
           )
         ),
-        e("span", { className: "summary-th" }, "th")
+        isIndonesian ? null : e("span", { className: "summary-th" }, "th")
       ),
       e("p", { className: "summary-formula-outro" }, F.summaryOutro)
     );

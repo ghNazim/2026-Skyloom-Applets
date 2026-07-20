@@ -6,15 +6,18 @@ const App = () => {
   const [dynamicNavText, setDynamicNavText] = useState(null);
   const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
   const [resetKey, setResetKey] = useState(0);
+  const [challengeIndex, setChallengeIndex] = useState(0);
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
     setCurrentStep(1);
+    setChallengeIndex(0);
   };
 
   const handleRestart = () => {
     if (typeof playSound === "function") playSound("click");
     setCurrentStep(0);
+    setChallengeIndex(0);
     setDynamicNavText(null);
     setDynamicQuestionText(null);
     setIsNextDisabled(true);
@@ -32,6 +35,19 @@ const App = () => {
     if (typeof playSound === "function") playSound("click");
     if (currentStep < 2) {
       setCurrentStep(function (prev) { return prev + 1; });
+      return;
+    }
+    if (currentStep === 2) {
+      var challenges = APP_DATA.challenges || [];
+      if (challengeIndex < challenges.length - 1) {
+        setChallengeIndex(function (prev) { return prev + 1; });
+        setDynamicNavText(null);
+        setDynamicQuestionText(null);
+        setIsNextDisabled(true);
+        setResetKey(function (prev) { return prev + 1; });
+      } else {
+        setCurrentStep(3);
+      }
     }
   };
 
@@ -87,6 +103,23 @@ const App = () => {
     );
   }
 
+  if (currentStep === 3) {
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(Fullscreen, {
+          heading: APP_DATA.finalScreen.heading,
+          text: APP_DATA.finalScreen.text,
+          buttonText: APP_DATA.finalScreen.buttonText,
+          onButtonClick: handleRestart,
+        })
+      )
+    );
+  }
+
   return React.createElement(
     "div",
     { className: "applet-container" },
@@ -97,8 +130,9 @@ const App = () => {
       "div",
       { className: "app-main-content" },
       React.createElement(MainCanvas, {
-        key: String(resetKey),
+        key: String(resetKey) + "-" + String(challengeIndex),
         step: currentStep,
+        challengeIndex: challengeIndex,
         onSetNextEnabled: setNextEnabled,
         onUpdateNavText: updateNavText,
         onUpdateQuestionText: updateQuestionText,

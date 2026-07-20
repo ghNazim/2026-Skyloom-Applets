@@ -95,7 +95,9 @@
   color: #ffffff;
   border: 0.2vw solid transparent;
   border-radius: 0.7vw;
-  transition: border-color 0.2s ease, opacity 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .describe-dir-btn.selected {
@@ -129,6 +131,9 @@
   border: none;
   border-radius: var(--action-btn-radius);
   box-shadow: none;
+  width: 50%;
+  
+  align-self: center;
 }
 
 .describe-action-btn:disabled,

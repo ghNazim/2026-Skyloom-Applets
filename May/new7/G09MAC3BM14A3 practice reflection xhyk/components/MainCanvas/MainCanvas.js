@@ -23,11 +23,17 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     y: String(challenge.point.y),
     param: String(challenge.line.value),
   };
-  const draggableValues = [
-    String(challenge.point.x),
-    String(challenge.line.value),
-    String(challenge.point.y),
-  ];
+  const draggableItemsByKey = {
+    x: { key: "x", value: String(challenge.point.x), colorClass: "drag-x" },
+    y: { key: "y", value: String(challenge.point.y), colorClass: "drag-y" },
+    param: { key: "param", value: String(challenge.line.value), colorClass: "drag-param" },
+  };
+  const draggableOrder = challenge.draggableOrder || ["x", "y", "param"];
+  const draggableItems = draggableOrder
+    .map((key) => draggableItemsByKey[key])
+    .filter(Boolean);
+  const draggableValues = draggableItems.map((item) => item.value);
+  const mcqOptionOrder = challenge.mcqOptionOrder || [0, 1, 2, 3];
   const correctOptionIndex = isHorizontal ? 1 : 3;
 
   const [typedChars, setTypedChars] = useState(0);
@@ -39,20 +45,29 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
   const [wrongOptions, setWrongOptions] = useState([]);
   const [correctOption, setCorrectOption] = useState(false);
   const [mcqFeedback, setMcqFeedback] = useState("");
+  const [feedbackPanelMode, setFeedbackPanelMode] = useState(null);
   const [flyClones, setFlyClones] = useState([]);
+  const [hintVisible, setHintVisible] = useState(false);
+  const [hintBlinkKey, setHintBlinkKey] = useState(0);
+  const [hintBlinking, setHintBlinking] = useState(false);
 
   const [rowStage, setRowStage] = useState(0);
   const [visibleParts, setVisibleParts] = useState(0);
   const [dropValues, setDropValues] = useState({ x: "", y: "", param: "" });
   const [hiddenValues, setHiddenValues] = useState([]);
   const [shakeZone, setShakeZone] = useState(null);
+  const [hoverDropZone, setHoverDropZone] = useState(null);
   const [dragging, setDragging] = useState(null);
+  const [dragStarted, setDragStarted] = useState(false);
+  const [dragNudgePath, setDragNudgePath] = useState(null);
   const [substituteDone, setSubstituteDone] = useState(false);
 
   const [activeBox, setActiveBox] = useState(null);
   const [answerInputs, setAnswerInputs] = useState({ x: "", y: "" });
   const [answerStatus, setAnswerStatus] = useState({ x: "", y: "" });
   const [answerAdvancing, setAnswerAdvancing] = useState(false);
+  const [answerNudgesDismissed, setAnswerNudgesDismissed] = useState(false);
+  const [answerNudgePositions, setAnswerNudgePositions] = useState([]);
   const [answersPlain, setAnswersPlain] = useState(false);
   const [finalStage, setFinalStage] = useState(0);
   const [finalImageVisible, setFinalImageVisible] = useState(false);
@@ -65,12 +80,23 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
   const rightLineRef = useRef(null);
   const finalImageRef = useRef(null);
   const row3FinalRef = useRef(null);
+  const dragValueRefs = {
+    x: useRef(null),
+    y: useRef(null),
+    param: useRef(null),
+  };
+  const answerBoxRefs = {
+    x: useRef(null),
+    y: useRef(null),
+  };
   const zoneRefs = {
     x: useRef(null),
     y: useRef(null),
     param: useRef(null),
   };
+  const draggingRef = useRef(null);
   const timeoutsRef = useRef([]);
+  const hintBlinkTimerRef = useRef(null);
 
   const clearTimers = useCallback(() => {
     timeoutsRef.current.forEach((id) => clearTimeout(id));
@@ -114,18 +140,27 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       wrongOptions: [],
       correctOption: false,
       mcqFeedback: "",
+      feedbackPanelMode: null,
       flyClones: [],
+      hintVisible: false,
+      hintBlinkKey: 0,
+      hintBlinking: false,
       rowStage: 0,
       visibleParts: 0,
       dropValues: { x: "", y: "", param: "" },
       hiddenValues: [],
       shakeZone: null,
+      hoverDropZone: null,
       dragging: null,
+      dragStarted: false,
+      dragNudgePath: null,
       substituteDone: false,
       activeBox: null,
       answerInputs: { x: "", y: "" },
       answerStatus: { x: "", y: "" },
       answerAdvancing: false,
+      answerNudgesDismissed: false,
+      answerNudgePositions: [],
       answersPlain: false,
       finalStage: 0,
       finalImageVisible: false,
@@ -144,6 +179,8 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         step1OptionsEnabled: true,
         correctOption: true,
         mcqFeedback: d.correctFeedback,
+        feedbackPanelMode: "hint",
+        hintVisible: true,
         navText: d.nav.substitute,
         nextEnabled: true,
       };
@@ -158,6 +195,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         visibleParts: 9,
         dropValues: dropAnswers,
         hiddenValues: draggableValues.slice(),
+        dragStarted: true,
         substituteDone: true,
         navText: d.nav.simplify,
         nextEnabled: true,
@@ -172,9 +210,11 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       visibleParts: 9,
       dropValues: dropAnswers,
       hiddenValues: draggableValues.slice(),
+      dragStarted: true,
       substituteDone: true,
       answerInputs: { x: String(challenge.answer.x), y: String(challenge.answer.y) },
       answerStatus: { x: "correct", y: "correct" },
+      answerNudgesDismissed: true,
       answersPlain: true,
       finalStage: 1,
       finalImageVisible: true,
@@ -196,18 +236,27 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       setWrongOptions(completed.wrongOptions);
       setCorrectOption(completed.correctOption);
       setMcqFeedback(completed.mcqFeedback);
+      setFeedbackPanelMode(completed.feedbackPanelMode);
       setFlyClones(completed.flyClones);
+      setHintVisible(completed.hintVisible);
+      setHintBlinkKey(completed.hintBlinkKey);
+      setHintBlinking(completed.hintBlinking);
       setRowStage(completed.rowStage);
       setVisibleParts(completed.visibleParts);
       setDropValues(completed.dropValues);
       setHiddenValues(completed.hiddenValues);
       setShakeZone(completed.shakeZone);
+      setHoverDropZone(completed.hoverDropZone);
       setDragging(completed.dragging);
+      setDragStarted(completed.dragStarted);
+      setDragNudgePath(completed.dragNudgePath);
       setSubstituteDone(completed.substituteDone);
       setActiveBox(completed.activeBox);
       setAnswerInputs(completed.answerInputs);
       setAnswerStatus(completed.answerStatus);
       setAnswerAdvancing(completed.answerAdvancing);
+      setAnswerNudgesDismissed(completed.answerNudgesDismissed);
+      setAnswerNudgePositions(completed.answerNudgePositions);
       setAnswersPlain(completed.answersPlain);
       setFinalStage(completed.finalStage);
       setFinalImageVisible(completed.finalImageVisible);
@@ -237,6 +286,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       const dx = dst.left + dst.width / 2 - startX;
       const dy = dst.top + dst.height / 2 - startY;
       const computed = window.getComputedStyle(sourceEl);
+      const targetComputed = window.getComputedStyle(targetEl);
 
       setFlyClones((clones) =>
         clones.concat({
@@ -248,6 +298,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           dy,
           duration,
           fontSize: computed.fontSize,
+          targetFontSize: targetComputed.fontSize || computed.fontSize,
           fontWeight: computed.fontWeight || "500",
           active: false,
         }),
@@ -281,25 +332,35 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     setWrongOptions([]);
     setCorrectOption(false);
     setMcqFeedback("");
+    setFeedbackPanelMode(null);
     setFlyClones([]);
+    setHintVisible(false);
+    setHintBlinkKey(0);
+    setHintBlinking(false);
     setRowStage(0);
     setVisibleParts(0);
     setDropValues({ x: "", y: "", param: "" });
     setHiddenValues([]);
     setShakeZone(null);
+    setHoverDropZone(null);
+    draggingRef.current = null;
     setDragging(null);
+    setDragStarted(false);
+    setDragNudgePath(null);
     setSubstituteDone(false);
     setActiveBox(null);
     setAnswerInputs({ x: "", y: "" });
     setAnswerStatus({ x: "", y: "" });
     setAnswerAdvancing(false);
+    setAnswerNudgesDismissed(false);
+    setAnswerNudgePositions([]);
     setAnswersPlain(false);
     setFinalStage(0);
     setFinalImageVisible(false);
     setFinalBoxed(false);
     setFinalizing(false);
     if (startCompleted) {
-      setTimeout(() => applyCompletedState(step), 0);
+      applyCompletedState(step);
     }
     return clearTimers;
   }, [step, questionText, startCompleted, applyCompletedState]);
@@ -343,17 +404,6 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         setVisualStage(i);
         await delay(260);
       }
-      await delay(1500);
-      setRightSliding(true);
-      await delay(520);
-      setRightMode("hint");
-      setRightStage(0);
-      setMcqFeedback("");
-      setRightSliding(false);
-      await delay(520);
-      setRightStage(1);
-      await delay(200);
-      setRightStage(2);
       setStep1OptionsEnabled(true);
       nav(d.nav.chooseOption, false, false);
     };
@@ -398,9 +448,104 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     if (step === 3 && !startCompleted) {
       setRightMode("calculate");
       setRightStage(1);
+      setAnswerNudgesDismissed(false);
       nav(d.nav.tapBox, false, false);
     }
   }, [step, startCompleted]);
+
+  useEffect(() => {
+    const shouldShow =
+      step === 3 &&
+      !startCompleted &&
+      !answerNudgesDismissed &&
+      !activeBox &&
+      !answersPlain &&
+      !finalizing &&
+      !finalImageVisible;
+
+    const updateNudges = () => {
+      if (!shouldShow) {
+        setAnswerNudgePositions([]);
+        return;
+      }
+
+      const nudgeBox =
+        answerStatus.x !== "correct"
+          ? "x"
+          : answerStatus.y !== "correct"
+            ? "y"
+            : null;
+      const positions = nudgeBox
+        ? [answerBoxRefs[nudgeBox].current]
+            .filter(Boolean)
+            .map((el) => el.getBoundingClientRect())
+        : [];
+      setAnswerNudgePositions(positions);
+    };
+
+    const id = setTimeout(updateNudges, 0);
+    window.addEventListener("resize", updateNudges);
+    return () => {
+      clearTimeout(id);
+      window.removeEventListener("resize", updateNudges);
+    };
+  }, [step, startCompleted, answerNudgesDismissed, activeBox, answersPlain, finalizing, finalImageVisible, answerStatus]);
+
+  useEffect(() => {
+    const shouldShow =
+      step === 2 &&
+      rowStage >= 3 &&
+      !dragStarted &&
+      !dragging &&
+      !substituteDone;
+
+    const updatePath = () => {
+      if (!shouldShow) {
+        setDragNudgePath(null);
+        return;
+      }
+      const fromEl = dragValueRefs.x.current;
+      const toEl = zoneRefs.x.current;
+      if (!fromEl || !toEl) {
+        setDragNudgePath(null);
+        return;
+      }
+      const from = fromEl.getBoundingClientRect();
+      const to = toEl.getBoundingClientRect();
+      setDragNudgePath({
+        startX: from.left + from.width / 2,
+        startY: from.top + from.height / 2,
+        dx: to.left + to.width / 2 - (from.left + from.width / 2),
+        dy: to.top + to.height / 2 - (from.top + from.height / 2),
+      });
+    };
+
+    const id = setTimeout(updatePath, 0);
+    window.addEventListener("resize", updatePath);
+    return () => {
+      clearTimeout(id);
+      window.removeEventListener("resize", updatePath);
+    };
+  }, [step, rowStage, dragStarted, dragging, substituteDone]);
+
+  const toggleHintPanel = useCallback(async () => {
+    if (rightSliding || rightMode !== "given" && rightMode !== "hint") return;
+    play("tick");
+    setMcqFeedback("");
+    setFeedbackPanelMode(null);
+    setRightSliding(true);
+    await delay(520);
+    if (rightMode === "given") {
+      setRightMode("hint");
+      setRightStage(2);
+      setHintVisible(true);
+    } else {
+      setRightMode("given");
+      setRightStage(5);
+      setHintVisible(false);
+    }
+    setRightSliding(false);
+  }, [delay, rightMode, rightSliding]);
 
   useEffect(() => {
     if (step !== 2 || substituteDone) return;
@@ -439,6 +584,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
   useEffect(() => {
     if (
       step === 3 &&
+      !startCompleted &&
       !finalizing &&
       answerStatus.x === "correct" &&
       answerStatus.y === "correct" &&
@@ -447,27 +593,12 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     ) {
       finalizeStep3();
     }
-  }, [answerStatus, step, finalizing, answerAdvancing, finalImageVisible, finalizeStep3]);
+  }, [answerStatus, step, startCompleted, finalizing, answerAdvancing, finalImageVisible, finalizeStep3]);
 
   useEffect(() => {
     if (!dragging) return undefined;
 
-    const move = (event) => {
-      event.preventDefault();
-      setDragging((drag) =>
-        drag
-          ? {
-              ...drag,
-              x: event.clientX,
-              y: event.clientY,
-            }
-          : drag,
-      );
-    };
-
-    const up = (event) => {
-      event.preventDefault();
-      const answers = dropAnswers;
+    const getHitKey = (event) => {
       let hitKey = null;
       Object.keys(zoneRefs).forEach((key) => {
         const el = zoneRefs[key].current;
@@ -482,10 +613,33 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           hitKey = key;
         }
       });
+      return hitKey;
+    };
 
-      if (hitKey && answers[hitKey] === dragging.value) {
-        setDropValues((values) => ({ ...values, [hitKey]: dragging.value }));
-        setHiddenValues((values) => values.concat(dragging.value));
+    const move = (event) => {
+      event.preventDefault();
+      setHoverDropZone(getHitKey(event));
+      setDragging((drag) => {
+        if (!drag) return drag;
+        const nextDrag = {
+          ...drag,
+          x: event.clientX,
+          y: event.clientY,
+        };
+        draggingRef.current = nextDrag;
+        return nextDrag;
+      });
+    };
+
+    const up = (event) => {
+      event.preventDefault();
+      const answers = dropAnswers;
+      const hitKey = getHitKey(event);
+      const droppedItem = draggingRef.current;
+
+      if (hitKey && droppedItem && answers[hitKey] === droppedItem.value) {
+        setDropValues((values) => ({ ...values, [hitKey]: droppedItem.value }));
+        setHiddenValues((values) => values.concat(droppedItem.value));
         play("correct");
       } else {
         if (hitKey) {
@@ -494,6 +648,8 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         }
         play("wrong");
       }
+      setHoverDropZone(null);
+      draggingRef.current = null;
       setDragging(null);
     };
 
@@ -503,13 +659,37 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
     };
-  }, [dragging]);
+  }, [!!dragging]);
+
+  const numberToken = (value, className) =>
+    h("span", { className: "question-number " + className }, String(value));
+
+  const renderPointToken = () =>
+    h(
+      React.Fragment,
+      null,
+      "A(",
+      numberToken(challenge.point.x, "color-x"),
+      ",",
+      numberToken(challenge.point.y, "color-y"),
+      ")",
+    );
+
+  const renderLineToken = () =>
+    h(
+      React.Fragment,
+      null,
+      math(lineAxis),
+      " = ",
+      numberToken(challenge.line.value, "color-k"),
+    );
 
   const renderSegmentedQuestion = () => {
     const beforePoint = questionText.split(pointText)[0];
     const afterPoint = questionText.split(pointText)[1] || "";
     const beforeLine = afterPoint.split(lineText)[0];
     const afterLine = afterPoint.split(lineText)[1] || "";
+    const colorQuestionNumbers = step >= 2;
     const parts = [
       { text: beforePoint },
       { text: pointText, ref: questionPointRef },
@@ -530,17 +710,51 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           ref: shown.length === part.text.length ? part.ref : null,
           className: part.ref ? "question-source-token" : "",
         },
-        part.line && shown.length === part.text.length
-          ? [math(lineAxis), " = " + challenge.line.value]
-          : shown,
+        part.ref && shown.length === part.text.length && colorQuestionNumbers
+          ? part.line
+            ? renderLineToken()
+            : renderPointToken()
+          : part.line && shown.length === part.text.length
+            ? [math(lineAxis), " = " + challenge.line.value]
+            : shown,
       );
     });
   };
+
+  const renderHintBulbButton = (visible, label) =>
+    h(
+      "button",
+      {
+        className:
+          "hint-bulb-button fade-step " +
+          (visible ? "show " : "") +
+          (hintBlinking ? "blink-hint" : ""),
+        onClick: toggleHintPanel,
+        disabled: !visible || rightSliding,
+        key: "hint-bulb-" + hintBlinkKey,
+        "aria-label": label,
+      },
+      h("img", {
+        className: "hint-bulb",
+        src: "assets/bulb.png",
+        alt: "",
+      }),
+    );
+
+  const renderMcqFeedback = (panelMode) =>
+    mcqFeedback && feedbackPanelMode === panelMode
+      ? h("div", {
+          className:
+            "mcq-feedback " + (correctOption ? "correct-feedback" : "wrong-feedback"),
+          dangerouslySetInnerHTML: { __html: mcqFeedback },
+        })
+      : null;
 
   const renderGivenPanel = () =>
     h(
       "div",
       { className: "given-panel" },
+      renderHintBulbButton(step1OptionsEnabled, "Show hint panel"),
       h("div", { className: "given-title fade-step " + (rightStage >= 1 ? "show" : "") }, d.givenPointTitle),
       h(
         "div",
@@ -569,32 +783,23 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         math(parameterVar),
         " )",
       ),
+      renderMcqFeedback("given"),
     );
 
   const renderHintPanel = () =>
     h(
       "div",
       { className: "hint-panel" },
-      h("img", {
-        className: "hint-bulb fade-step " + (rightStage >= 1 ? "show" : ""),
-        src: "assets/bulb.png",
-        alt: "",
-      }),
+      renderHintBulbButton(rightStage >= 1, "Show given panel"),
       h(
         "div",
-        { className: "hint-box fade-step " + (rightStage >= 2 ? "show" : "") },
+        { className: "hint-box fade-step " + (rightMode === "hint" && hintVisible ? "show" : "") },
         h("div", null, d.hintTitle),
         h("div", null, math(lineAxis), " = ", math(parameterVar), ","),
         h("div", null, d.hint[orientation].body1),
         h("div", null, d.hint[orientation].body2),
       ),
-      mcqFeedback
-        ? h("div", {
-            className:
-              "mcq-feedback " + (correctOption ? "correct-feedback" : "wrong-feedback"),
-            dangerouslySetInnerHTML: { __html: mcqFeedback },
-          })
-        : null,
+      renderMcqFeedback("hint"),
     );
 
   const renderSubstitutePanel = () =>
@@ -684,12 +889,14 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         style: {
           left: clone.startX + "px",
           top: clone.startY + "px",
-          fontSize: clone.fontSize,
           fontWeight: clone.fontWeight,
           transition:
             "transform " +
             clone.duration +
+            "ms cubic-bezier(0.35, 0, 0.15, 1), font-size " +
+            clone.duration +
             "ms cubic-bezier(0.35, 0, 0.15, 1)",
+          fontSize: clone.active ? clone.targetFontSize : clone.fontSize,
           transform: clone.active
             ? "translate(calc(-50% + " +
               clone.dx +
@@ -740,11 +947,22 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     if (index === correctOptionIndex) {
       setCorrectOption(true);
       setMcqFeedback(d.correctFeedback);
+      setFeedbackPanelMode(rightMode);
       play("correct");
       nav(d.nav.substitute, true, false);
     } else {
       setWrongOptions((items) => (items.indexOf(index) >= 0 ? items : items.concat(index)));
       setMcqFeedback(d.hint[orientation].wrong);
+      setFeedbackPanelMode(rightMode);
+      setHintBlinkKey((key) => key + 1);
+      setHintBlinking(true);
+      if (hintBlinkTimerRef.current) clearTimeout(hintBlinkTimerRef.current);
+      const blinkId = setTimeout(() => {
+        setHintBlinking(false);
+        hintBlinkTimerRef.current = null;
+      }, 1700);
+      hintBlinkTimerRef.current = blinkId;
+      timeoutsRef.current.push(blinkId);
       play("wrong");
     }
   };
@@ -767,23 +985,23 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       h(
         "div",
         { className: "mcq-options" },
-        [0, 1, 2, 3].map((index) => {
-          const visible = visualStage >= index + 2;
+        mcqOptionOrder.map((optionIndex, displayIndex) => {
+          const visible = visualStage >= displayIndex + 2;
           const classes = [
             "mcq-option",
             visible ? "visible" : "",
-            wrongOptions.indexOf(index) >= 0 ? "wrong" : "",
-            correctOption && index === correctOptionIndex ? "correct" : "",
+            wrongOptions.indexOf(optionIndex) >= 0 ? "wrong" : "",
+            correctOption && optionIndex === correctOptionIndex ? "correct" : "",
           ].join(" ");
           return h(
             "button",
             {
-              key: index,
+              key: optionIndex,
               className: classes,
-              onClick: () => handleOption(index),
+              onClick: () => handleOption(optionIndex),
               disabled: !visible || !step1OptionsEnabled,
             },
-            optionFormula(index),
+            optionFormula(optionIndex),
           );
         }),
       ),
@@ -831,6 +1049,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           "drop-box " +
           "drop-" + key + " " +
           (dropValues[key] ? "filled " : "") +
+          (hoverDropZone === key ? "hovered " : "") +
           (shakeZone === key ? "shake" : ""),
       },
       dropValues[key],
@@ -876,28 +1095,37 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           ],
         );
 
-  const startDrag = (event, value) => {
-    if (hiddenValues.indexOf(value) >= 0 || substituteDone) return;
+  const startDrag = (event, item) => {
+    if (hiddenValues.indexOf(item.value) >= 0 || substituteDone) return;
     event.preventDefault();
     play("click");
-    setDragging({ value, x: event.clientX, y: event.clientY });
+    setDragStarted(true);
+    const nextDrag = {
+      value: item.value,
+      colorClass: item.colorClass,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    draggingRef.current = nextDrag;
+    setDragging(nextDrag);
   };
 
   const renderDraggables = () =>
     h(
       "div",
       { className: "draggable-row" },
-      draggableValues.map((value) =>
-        hiddenValues.indexOf(value) >= 0 || (dragging && dragging.value === value)
-          ? h("span", { key: value, className: "drag-placeholder" })
+      draggableItems.map((item) =>
+        hiddenValues.indexOf(item.value) >= 0 || (dragging && dragging.value === item.value)
+          ? h("span", { key: item.key, className: "drag-placeholder" })
           : h(
               "button",
               {
-                key: value,
-                className: "drag-value",
-                onPointerDown: (event) => startDrag(event, value),
+                key: item.key,
+                ref: dragValueRefs[item.key],
+                className: "drag-value " + item.colorClass,
+                onPointerDown: (event) => startDrag(event, item),
               },
-              value,
+              item.value,
             ),
       ),
     );
@@ -913,11 +1141,24 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         ? h(
             "div",
             {
-              className: "drag-ghost",
+              className: "drag-ghost " + (dragging.colorClass || ""),
               style: { left: dragging.x + "px", top: dragging.y + "px" },
             },
             dragging.value,
           )
+        : null,
+      dragNudgePath
+        ? h("img", {
+            className: "drag-path-nudge",
+            src: "assets/tap.png",
+            alt: "",
+            style: {
+              left: dragNudgePath.startX + "px",
+              top: dragNudgePath.startY + "px",
+              "--drag-nudge-x": dragNudgePath.dx + "px",
+              "--drag-nudge-y": dragNudgePath.dy + "px",
+            },
+          })
         : null,
     );
 
@@ -965,13 +1206,14 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       setAnswerStatus((status) => ({ ...status, [activeBox]: "correct" }));
       setAnswerAdvancing(true);
       setTimeout(() => {
-        setActiveBox((box) =>
-          currentBox === "x" && answerStatus.y !== "correct"
-            ? "y"
-            : currentBox === "y" && answerStatus.x !== "correct"
-              ? "x"
-              : null,
-        );
+        setActiveBox(null);
+        if (
+          currentBox === "x" && answerStatus.y !== "correct" ||
+          currentBox === "y" && answerStatus.x !== "correct"
+        ) {
+          setAnswerNudgesDismissed(false);
+          nav(d.nav.tapBox, false, false);
+        }
         setAnswerAdvancing(false);
       }, 800);
     } else {
@@ -989,6 +1231,8 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
 
   const activateAnswerBox = (box) => {
     if (finalizing || finalImageVisible || answerStatus[box] === "correct") return;
+    if (box === "y" && answerStatus.x !== "correct") return;
+    setAnswerNudgesDismissed(true);
     setActiveBox(box);
     nav(d.nav.useNumpad, false, false);
   };
@@ -999,10 +1243,13 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       : h(
           "button",
           {
+            ref: answerBoxRefs[box],
             className:
               "answer-box " +
               (activeBox === box ? "active " : "") +
+              (box === "y" && answerStatus.x !== "correct" ? "disabled " : "") +
               (answerStatus[box] || ""),
+            disabled: box === "y" && answerStatus.x !== "correct",
             onClick: () => activateAnswerBox(box),
           },
           answerInputs[box],
@@ -1085,5 +1332,8 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     ),
     renderRightPanel(),
     renderFlyClones(),
+    answerNudgePositions.map((position, index) =>
+      h(Nudge, { key: "answer-nudge-" + index, show: true, position }),
+    ),
   );
 };

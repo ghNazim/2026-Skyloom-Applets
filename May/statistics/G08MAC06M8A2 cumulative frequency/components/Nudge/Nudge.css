@@ -17,3 +17,7 @@
   user-select: none;
   transform: translate(15%, 15%);
 }
+
+.nudge-drag-img {
+  transform: translate(25%, 65%);
+}

@@ -40,7 +40,7 @@ function handleComma(sentence) {
   if (current_language !== "id" || !sentence) {
     return sentence;
   }
-  return sentence.replace(/,/g, "<cm>,</cm>");
+  return sentence;
 }
 
 function renderAppTextHtml(html) {

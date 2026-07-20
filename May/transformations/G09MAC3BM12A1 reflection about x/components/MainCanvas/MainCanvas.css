@@ -126,7 +126,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1vw;
+  gap: 0;
 }
 
 .property-card-title {
@@ -165,14 +165,20 @@
 }
 
 .property-tick {
-  width: 2.8vw;
+  width: 0;
+  min-width: 0;
   height: 2.8vw;
+  margin-left: 0;
   transform: scale(0);
   opacity: 0;
-  transition: transform 0.35s ease, opacity 0.35s ease;
+  flex: 0 0 0;
+  transition: flex-basis 0.35s ease, width 0.35s ease, transform 0.35s ease, opacity 0.35s ease;
 }
 
 .property-tick.is-visible {
+  width: 2.8vw;
+  flex-basis: 2.8vw;
+  margin-left: 1vw;
   transform: scale(1);
   opacity: 1;
 }

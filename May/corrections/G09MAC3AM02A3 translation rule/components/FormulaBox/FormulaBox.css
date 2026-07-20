@@ -1,6 +1,6 @@
 .formula-box {
   position: absolute;
-  top: 1vw;
+  top: 0vw;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;

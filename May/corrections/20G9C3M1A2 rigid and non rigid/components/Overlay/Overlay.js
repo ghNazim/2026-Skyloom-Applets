@@ -13,6 +13,7 @@ const Overlay = ({
   showHeading,
   showFooter,
   allowClose,
+  visible,
   leftHeaderClickable,
   rightHeaderClickable,
   onLeftHeaderClick,
@@ -31,6 +32,7 @@ const Overlay = ({
   const overlayContainerRef = useRef(null);
   const leftHeaderRef = useRef(null);
   const rightHeaderRef = useRef(null);
+  const [entered, setEntered] = useState(false);
 
   onAnimCompleteRef.current = onAnimComplete;
 
@@ -48,6 +50,23 @@ const Overlay = ({
       if (gsapTweenRef.current) gsapTweenRef.current.kill();
     };
   }, []);
+
+  useEffect(() => {
+    let frameId = null;
+
+    if (visible) {
+      setEntered(false);
+      frameId = window.requestAnimationFrame(() => {
+        setEntered(true);
+      });
+    } else {
+      setEntered(false);
+    }
+
+    return () => {
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
+  }, [visible]);
 
   useEffect(() => {
     if (!showHeading) {
@@ -149,72 +168,81 @@ const Overlay = ({
     {
       ref: overlayContainerRef,
       className:
-        "overlay-backdrop" + (canClose ? " overlay-backdrop-closable" : ""),
+        "overlay-backdrop" +
+        (entered ? " overlay-backdrop-visible" : "") +
+        (canClose ? " overlay-backdrop-closable" : ""),
       onClick: canClose ? onClose : undefined,
     },
     React.createElement(
       "div",
       {
         className:
-          "overlay-heading-row" + (showHeading ? "" : " is-hidden"),
-        "aria-hidden": !showHeading,
+          "overlay-panel" + (entered ? " overlay-panel-visible" : ""),
       },
-      headingBefore,
       React.createElement(
-        "span",
+        "div",
         {
-          ref: headingOpRef,
-          className: "overlay-op-name",
+          className:
+            "overlay-heading-row" + (showHeading ? "" : " is-hidden"),
+          "aria-hidden": !showHeading,
         },
-        operationName
+        headingBefore,
+        React.createElement(
+          "span",
+          {
+            ref: headingOpRef,
+            className: "overlay-op-name",
+          },
+          operationName
+        ),
+        headingAfter
       ),
-      headingAfter
-    ),
-    React.createElement(
-      "div",
-      { className: "overlay-boxes-row" },
       React.createElement(
         "div",
-        { className: "overlay-box" },
-        renderHeader(leftHeading, leftHeaderClickable, onLeftHeaderClick, leftHeaderRef),
+        { className: "overlay-boxes-row" },
         React.createElement(
           "div",
-          { className: "overlay-box-content" },
-          leftItems.map((item, i) =>
-            React.createElement(
-              "div",
-              { key: "left-" + i, className: "overlay-box-item" },
-              item
-            )
-          ),
-          targetSide === "left" && showTargetSlot && renderTargetSlot()
+          { className: "overlay-box" },
+          renderHeader(leftHeading, leftHeaderClickable, onLeftHeaderClick, leftHeaderRef),
+          React.createElement(
+            "div",
+            { className: "overlay-box-content" },
+            leftItems.map((item, i) =>
+              React.createElement(
+                "div",
+                { key: "left-" + i, className: "overlay-box-item" },
+                item
+              )
+            ),
+            targetSide === "left" && showTargetSlot && renderTargetSlot()
+          )
+        ),
+        React.createElement(
+          "div",
+          { className: "overlay-box" },
+          renderHeader(rightHeading, rightHeaderClickable, onRightHeaderClick, rightHeaderRef),
+          React.createElement(
+            "div",
+            { className: "overlay-box-content" },
+            rightItems.map((item, i) =>
+              React.createElement(
+                "div",
+                { key: "right-" + i, className: "overlay-box-item" },
+                item
+              )
+            ),
+            targetSide === "right" && showTargetSlot && renderTargetSlot()
+          )
         )
       ),
       React.createElement(
         "div",
-        { className: "overlay-box" },
-        renderHeader(rightHeading, rightHeaderClickable, onRightHeaderClick, rightHeaderRef),
-        React.createElement(
-          "div",
-          { className: "overlay-box-content" },
-          rightItems.map((item, i) =>
-            React.createElement(
-              "div",
-              { key: "right-" + i, className: "overlay-box-item" },
-              item
-            )
-          ),
-          targetSide === "right" && showTargetSlot && renderTargetSlot()
-        )
+        {
+          className:
+            "overlay-footer-row" + (footerVisible ? "" : " is-hidden"),
+        },
+        footerText
       )
-    ),
-    React.createElement(
-      "div",
-      {
-        className:
-          "overlay-footer-row" + (footerVisible ? "" : " is-hidden"),
-      },
-      footerText
     ),
     flyStyle &&
       showHeading &&

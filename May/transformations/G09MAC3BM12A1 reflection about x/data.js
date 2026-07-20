@@ -8,8 +8,7 @@ const DATA = {
     app: {
       start: {
         heading: "Reflection of a Point",
-        text:
-          "We saw that when a point is reflected across the x-axis,<br> its image appears on the <y>opposite side</y> – at the <y>same distance</y> from the line.<br><br>Now try it yourself and see where the image lands.",
+        text: "We saw that when a point is reflected across the x-axis,<br> its image appears on the <y>opposite side</y> – at the <y>same distance</y> from the line.<br><br>Now try it yourself and see where the image lands.",
         buttonText: "START",
       },
       steps: {
@@ -54,39 +53,40 @@ const DATA = {
             "The point and its image are at <cy>equal distance</cy> from the line of reflection.",
           calloutProp1: "The image should be somewhere along this line",
           calloutProp2A: "Point A is 4 units away from line of reflection",
-          calloutProp2B: "Locating the image at the same distance on the other side",
+          calloutProp2B:
+            "Locating the image at the same distance on the other side",
           doneText: "We have found the image using properties of reflection.",
         },
         6: {
           rightTextDone:
-            "We located the image of<br><y>A(2, 4)</y> at <y>A&rsquo;(2, -4)</y>.",
-          navTextDone: "Tap &raquo; to deduce the pattern.",
+            "Kita menemukan bayangan dari<br><y>A(2, 4)</y> di <y>A&rsquo;(2, -4)</y>.",
+          navTextDone: "Ketuk &raquo; untuk menyimpulkan polanya.",
         },
         7: {
-          topText: "<y>Compare the coordinates of point and its image.</y>",
-          title: "Which of these observations is correct?",
-          optionX: "x-coordinate changed",
-          optionY: "y-coordinate changed",
-          navTextInitial: "Tap the correct option.",
-          navTextDone: "Tap &raquo; to continue.",
+          topText: "<y>Bandingkan koordinat titik dan bayangannya.</y>",
+          title: "Pengamatan mana yang benar?",
+          optionX: "koordinat-x berubah",
+          optionY: "koordinat-y berubah",
+          navTextInitial: "Ketuk pilihan yang benar.",
+          navTextDone: "Ketuk &raquo; untuk melanjutkan.",
           feedbackWrong:
-            "No, look again!<br>The x-coordinate of point and its image is same.",
+            "Belum tepat, coba perhatikan lagi!<br>Koordinat-x titik dan bayangannya sama.",
           feedbackCorrect:
-            "That&rsquo;s correct!<br>y-coordinates of point and its image have opposite signs.",
+            "Benar!<br>Koordinat-y titik dan bayangannya memiliki tanda yang berlawanan.",
         },
         8: {
-          topTextInitial: "<y>Compare the coordinates of point and its image.</y>",
-          topTextRule: "Rule for reflection across x-axis.",
-          navTextInitial: "Tap 'Reveal' for the x-axis rule.",
-          navTextDone: "Tap &raquo; to see applications of this rule.",
-          observationTitle: "Observation",
-          observationX: "x-coordinate:",
-          observationXValue: "No change",
-          observationY: "y-coordinate:",
-          observationYValue: "Sign changed",
+          topTextInitial: "<y>Bandingkan koordinat titik dan bayangannya.</y>",
+          topTextRule: "Aturan refleksi terhadap sumbu-x.",
+          navTextInitial: "Ketuk 'Tampilkan' untuk melihat aturan sumbu-x.",
+          navTextDone: "Ketuk &raquo; untuk melihat penerapan aturan ini.",
+          observationTitle: "Pengamatan",
+          observationX: "koordinat-x:",
+          observationXValue: "Tidak berubah",
+          observationY: "koordinat-y:",
+          observationYValue: "Tanda berubah",
           bodyText:
-            "This pattern works for all<br>points reflected<br>across the x-axis.<br><br>Let&rsquo;s see the general rule.",
-          revealBtn: "Reveal",
+            "Pola ini berlaku untuk semua<br>titik yang direfleksikan<br>terhadap sumbu-x.<br><br>Mari kita lihat aturan umumnya.",
+          revealBtn: "Tampilkan",
         },
         9: {
           questions: [
@@ -97,7 +97,7 @@ const DATA = {
               imageX: "3",
               imageY: "-4",
               topText:
-                "Find coordinates of image when point A(3, 4) is reflected across x-axis.",
+                "Tentukan koordinat bayangan ketika titik A(3, 4) direfleksikan terhadap sumbu-x.",
               options: ["3", "-3", "4", "-4"],
             },
             {
@@ -107,7 +107,7 @@ const DATA = {
               imageX: "0",
               imageY: "3",
               topText:
-                "Find coordinates of image when point B(0, -3) is reflected across x-axis.",
+                "Tentukan koordinat bayangan ketika titik B(0, -3) direfleksikan terhadap sumbu-x.",
               options: ["0", "3", "-3"],
             },
             {
@@ -117,12 +117,12 @@ const DATA = {
               imageX: "-3",
               imageY: "2",
               topText:
-                "Find coordinates of image when point C(-3, -2) is reflected across x-axis.",
+                "Tentukan koordinat bayangan ketika titik C(-3, -2) direfleksikan terhadap sumbu-x.",
               options: ["3", "-3", "2", "-2"],
             },
           ],
           formulaText:
-            "A(<span class=\"math-var\">x</span>, <span class=\"math-var\">y</span>) \u2192 A&rsquo;(<span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span>)",
+            'A(<span class="math-var">x</span>, <span class="math-var">y</span>) \u2192 A&rsquo;(<span class="math-var">x</span>, -<span class="math-var">y</span>)',
           pointLabel: "Point",
           imageLabel: "Image",
           navTextInitial: "Tap the correct option.",
@@ -137,10 +137,9 @@ const DATA = {
             "Oops! x-coordinate doesn&rsquo;t change, it remains the same.",
           xCorrect:
             "That is correct!<br>Sign of x-coordinate of image does not change.",
-          yWrong3:
-            "Oops!<br>x-coordinate and y-coordinate do not get swapped.",
+          yWrong3: "Oops!<br>x-coordinate and y-coordinate do not get swapped.",
           yWrongNeg3:
-            "Oops!<br>Only the sign of the y-coordinate reverses.",
+            "Oops!<br>x-coordinate and y-coordinate do not get swapped.",
           yWrong4:
             "Oops!<br>The sign of the y-coordinate should reverse as per the rule.",
           yCorrect:
@@ -153,9 +152,8 @@ const DATA = {
           ruleTitle: "Reflection of a Point Across x-axis",
           ruleLabel: "Rule:",
           ruleFormula:
-            "A( <span class=\"math-var\">x</span>, <span class=\"math-var\">y</span> ) \u2192 A&rsquo;( <span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span> )",
-          body:
-            "You can now find the coordinates of the image of a point<br>reflected across x-axis using the above rule.",
+            'A( <span class="math-var">x</span>, <span class="math-var">y</span> ) \u2192 A&rsquo;( <span class="math-var">x</span>, -<span class="math-var">y</span> )',
+          body: "You can now find the coordinates of the image of a point<br>reflected across x-axis using the above rule.",
           restartPrompt: "Tap <y>START OVER</y> to repeat this activity!",
           buttonText: "START OVER",
         },
@@ -169,31 +167,30 @@ const DATA = {
     app: {
       start: {
         heading: "Refleksi Sebuah Titik",
-        text:
-          "Kita melihat bahwa ketika sebuah titik direfleksikan melintasi sumbu-x,<br> bayangannya muncul di <y>sisi berlawanan</y> – pada <y>jarak yang sama</y> dari garis.<br>Sekarang coba sendiri dan lihat di mana bayangannya berada.",
+        text: "Kita telah melihat bahwa ketika sebuah titik direfleksikan terhadap sumbu-x,<br> bayangannya muncul di <y>sisi yang berlawanan</y> &ndash; pada <y>jarak yang sama</y> dari garis.<br><br>Sekarang coba sendiri dan lihat di mana bayangannya berada.",
         buttonText: "MULAI",
       },
       steps: {
         1: {
           topText:
-            "Mari plot titik A(2, 4) dan temukan koordinat bayangannya setelah refleksi melintasi sumbu-x.",
-          navText: "Ketuk » untuk mulai memplot detail yang diberikan.",
+            "Mari kita tandai titik A(2, 4) dan tentukan koordinat bayangannya setelah direfleksikan terhadap sumbu-x.",
+          navText:
+            "Ketuk &raquo; untuk mulai menandai informasi yang diberikan.",
         },
         2: {
-          rightText: "Plot Titik <y>A(2, 4)</y>",
-          navTextInitial: "Ketuk bidang kartesius untuk memplot titik.",
-          navTextRetry: "Ketuk lagi bidang kartesius untuk memplot titik.",
+          rightText: "Letakkan titik <y>A(2, 4)</y>",
+          navTextInitial: "Ketuk bidang Kartesius untuk menandai titik.",
+          navTextRetry: "Ketuk lagi bidang Kartesius untuk menandai titik.",
           feedbackWrong: "Ups!<br>Itu tidak benar.",
-          feedbackCorrect: "Bagus!<br>Kamu memplot titik A dengan benar.",
+          feedbackCorrect: "Bagus!<br>Kamu menandai titik A dengan benar.",
         },
         3: {
-          rightText: "Plot <y>garis refleksi</y>",
+          rightText: "Tampilkan <y>garis refleksi</y>",
           navText: "Ketuk 'sumbu-x' untuk menyorot garis refleksi.",
           reflectionLabel: "Garis refleksi: sumbu-x",
         },
         4: {
-          rightTextInitial:
-            "Mari cari jarak titik A dari garis refleksi.",
+          rightTextInitial: "Mari cari jarak titik A dari garis refleksi.",
           revealBtn: "Tampilkan",
           navTextReveal: "Ketuk 'Tampilkan'.",
           unitSingular: "1 satuan",
@@ -206,7 +203,7 @@ const DATA = {
         5: {
           navTextProp1: "Ketuk Sifat 1 untuk menerapkannya.",
           navTextProp2: "Sekarang, ketuk Sifat 2 untuk menerapkannya.",
-          navTextDone: "Ketuk » untuk menemukan koordinat bayangan.",
+          navTextDone: "Ketuk &raquo; untuk menemukan koordinat bayangan.",
           property1Title: "Sifat 1",
           property1Text:
             "Garis yang menghubungkan titik dan bayangannya <cy>tegak lurus terhadap garis refleksi</cy>.",
@@ -215,39 +212,41 @@ const DATA = {
             "Titik dan bayangannya berada pada <cy>jarak yang sama</cy> dari garis refleksi.",
           calloutProp1: "Bayangan harus berada di sepanjang garis ini",
           calloutProp2A: "Titik A berjarak 4 satuan dari garis refleksi",
-          calloutProp2B: "Menentukan bayangan pada jarak yang sama di sisi lain",
-          doneText: "Kita telah menemukan bayangan menggunakan sifat-sifat refleksi.",
+          calloutProp2B:
+            "Menentukan bayangan pada jarak yang sama di sisi lain",
+          doneText:
+            "Kita telah menemukan bayangan menggunakan sifat-sifat refleksi.",
         },
         6: {
           rightTextDone:
-            "We located the image of<br><y>A(2, 4)</y> at <y>A&rsquo;(2, -4)</y>.",
-          navTextDone: "Tap &raquo; to deduce the pattern.",
+            "Kita menemukan bayangan dari<br><y>A(2, 4)</y> di <y>A&rsquo;(2, -4)</y>.",
+          navTextDone: "Ketuk &raquo; untuk menyimpulkan polanya.",
         },
         7: {
-          topText: "<y>Compare the coordinates of point and its image.</y>",
-          title: "Which of these observations is correct?",
-          optionX: "x-coordinate changed",
-          optionY: "y-coordinate changed",
-          navTextInitial: "Tap the correct option.",
-          navTextDone: "Tap &raquo; to continue.",
+          topText: "<y>Bandingkan koordinat titik dan bayangannya.</y>",
+          title: "Pengamatan mana yang benar?",
+          optionX: "koordinat-x berubah",
+          optionY: "koordinat-y berubah",
+          navTextInitial: "Ketuk pilihan yang benar.",
+          navTextDone: "Ketuk &raquo; untuk melanjutkan.",
           feedbackWrong:
-            "No, look again!<br>The x-coordinate of point and its image is same.",
+            "Belum tepat, coba perhatikan lagi!<br>Koordinat-x titik dan bayangannya sama.",
           feedbackCorrect:
-            "That&rsquo;s correct!<br>y-coordinates of point and its image have opposite signs.",
+            "Benar!<br>Koordinat-y titik dan bayangannya memiliki tanda yang berlawanan.",
         },
         8: {
-          topTextInitial: "<y>Compare the coordinates of point and its image.</y>",
-          topTextRule: "Rule for reflection across x-axis.",
-          navTextInitial: "Tap 'Reveal' for the x-axis rule.",
-          navTextDone: "Tap &raquo; to see applications of this rule.",
-          observationTitle: "Observation",
-          observationX: "x-coordinate:",
-          observationXValue: "No change",
-          observationY: "y-coordinate:",
-          observationYValue: "Sign changed",
+          topTextInitial: "<y>Bandingkan koordinat titik dan bayangannya.</y>",
+          topTextRule: "Aturan refleksi terhadap sumbu-x.",
+          navTextInitial: "Ketuk 'Tampilkan' untuk melihat aturan sumbu-x.",
+          navTextDone: "Ketuk &raquo; untuk melihat penerapan aturan ini.",
+          observationTitle: "Pengamatan",
+          observationX: "koordinat-x:",
+          observationXValue: "Tidak berubah",
+          observationY: "koordinat-y:",
+          observationYValue: "Tanda berubah",
           bodyText:
-            "This pattern works for all<br>points reflected<br>across the x-axis.<br><br>Let&rsquo;s see the general rule.",
-          revealBtn: "Reveal",
+            "Pola ini berlaku untuk semua<br>titik yang direfleksikan<br>terhadap sumbu-x.<br><br>Mari kita lihat aturan umumnya.",
+          revealBtn: "Tampilkan",
         },
         9: {
           questions: [
@@ -258,7 +257,7 @@ const DATA = {
               imageX: "3",
               imageY: "-4",
               topText:
-                "Find coordinates of image when point A(3, 4) is reflected across x-axis.",
+                "Tentukan koordinat bayangan ketika titik A(3, 4) direfleksikan terhadap sumbu-x.",
               options: ["3", "-3", "4", "-4"],
             },
             {
@@ -268,7 +267,7 @@ const DATA = {
               imageX: "0",
               imageY: "3",
               topText:
-                "Find coordinates of image when point B(0, -3) is reflected across x-axis.",
+                "Tentukan koordinat bayangan ketika titik B(0, -3) direfleksikan terhadap sumbu-x.",
               options: ["0", "3", "-3"],
             },
             {
@@ -278,47 +277,43 @@ const DATA = {
               imageX: "-3",
               imageY: "2",
               topText:
-                "Find coordinates of image when point C(-3, -2) is reflected across x-axis.",
+                "Tentukan koordinat bayangan ketika titik C(-3, -2) direfleksikan terhadap sumbu-x.",
               options: ["3", "-3", "2", "-2"],
             },
           ],
           formulaText:
-            "A(<span class=\"math-var\">x</span>, <span class=\"math-var\">y</span>) \u2192 A&rsquo;(<span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span>)",
-          pointLabel: "Point",
-          imageLabel: "Image",
-          navTextInitial: "Tap the correct option.",
-          navTextXDone: "Tap &raquo; to continue.",
-          navTextYDone: "Tap &raquo; for another challenge.",
-          navTextFinalDone: "Tap &raquo; to complete the activity.",
-          questionX: "What is the <y>x-coordinate</y> of the image?",
-          questionY: "What is the <y>y-coordinate</y> of the image?",
+            'A(<span class="math-var">x</span>, <span class="math-var">y</span>) \u2192 A&rsquo;(<span class="math-var">x</span>, -<span class="math-var">y</span>)',
+          pointLabel: "Titik",
+          imageLabel: "Bayangan",
+          navTextInitial: "Ketuk pilihan yang benar.",
+          navTextXDone: "Ketuk &raquo; untuk melanjutkan.",
+          navTextYDone: "Ketuk &raquo; untuk tantangan berikutnya.",
+          navTextFinalDone: "Ketuk &raquo; untuk menyelesaikan aktivitas.",
+          questionX: "Berapa <y>koordinat-x</y> bayangannya?",
+          questionY: "Berapa <y>koordinat-y</y> bayangannya?",
           xWrongNeg3:
-            "Oops! The sign of the x-coordinate should not change as per the rule.",
-          xWrongOther:
-            "Oops! x-coordinate doesn&rsquo;t change, it remains the same.",
-          xCorrect:
-            "That is correct!<br>Sign of x-coordinate of image does not change.",
-          yWrong3:
-            "Oops!<br>x-coordinate and y-coordinate do not get swapped.",
+            "Ups! Sesuai aturan, tanda koordinat-x tidak boleh berubah.",
+          xWrongOther: "Ups! Koordinat-x tidak berubah; nilainya tetap sama.",
+          xCorrect: "Benar!<br>Tanda koordinat-x bayangan tidak berubah.",
+          yWrong3: "Ups!<br>Koordinat-x dan koordinat-y tidak saling bertukar.",
           yWrongNeg3:
-            "Oops!<br>Only the sign of the y-coordinate reverses.",
-          yWrong4:
-            "Oops!<br>The sign of the y-coordinate should reverse as per the rule.",
+            "Ups!<br>Koordinat-x dan koordinat-y tidak saling bertukar.",
+          yWrong4: "Ups!<br>Sesuai aturan, tanda koordinat-y harus berbalik.",
           yCorrect:
-            "That is correct!<br>Sign of y-coordinate changes as per the given rule.",
-          hintX: "unchanged",
-          hintY: "sign reversed",
+            "Benar!<br>Tanda koordinat-y berubah sesuai aturan yang diberikan.",
+          hintX: "tidak berubah",
+          hintY: "tanda berbalik",
         },
         10: {
-          heading: "Activity Completed!",
-          ruleTitle: "Reflection of a Point Across x-axis",
-          ruleLabel: "Rule:",
+          heading: "Aktivitas Selesai!",
+          ruleTitle: "Refleksi Sebuah Titik terhadap sumbu-x",
+          ruleLabel: "Aturan:",
           ruleFormula:
-            "A( <span class=\"math-var\">x</span>, <span class=\"math-var\">y</span> ) \u2192 A&rsquo;( <span class=\"math-var\">x</span>, -<span class=\"math-var\">y</span> )",
-          body:
-            "You can now find the coordinates of the image of a point<br>reflected across x-axis using the above rule.",
-          restartPrompt: "Tap <y>START OVER</y> to repeat this activity!",
-          buttonText: "START OVER",
+            'A( <span class="math-var">x</span>, <span class="math-var">y</span> ) \u2192 A&rsquo;( <span class="math-var">x</span>, -<span class="math-var">y</span> )',
+          body: "Sekarang kamu dapat menentukan koordinat bayangan sebuah titik<br>yang direfleksikan terhadap sumbu-x menggunakan aturan di atas.",
+          restartPrompt:
+            "Ketuk <y>MULAI LAGI</y> untuk mengulang aktivitas ini!",
+          buttonText: "MULAI LAGI",
         },
       },
       graph: {

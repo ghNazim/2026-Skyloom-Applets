@@ -42,6 +42,10 @@
   text-align: center;
 }
 
+.mode-column h3.prompt-disabled {
+  opacity: 0.42;
+}
+
 .mode-data-grid {
   width: 100%;
   display: grid;
@@ -280,7 +284,7 @@
 
 .mean-data-value.clickable.teeter,
 .sort-slot.eliminate-clickable.teeter {
-  animation: small-teeter 1.15s linear infinite;
+  animation: clickable-hop-glow 0.72s ease-in-out infinite;
 }
 
 .mean-data-value.used {
@@ -294,10 +298,20 @@
   background: transparent;
 }
 
-@keyframes small-teeter {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-8deg); }
-  75% { transform: rotate(8deg); }
+@keyframes clickable-hop-glow {
+  0%, 100% {
+    transform: translateY(0);
+    color: white;
+    text-shadow: 0 0.25vw 0.3vw rgba(0, 0, 0, 0.38);
+  }
+  45% {
+    transform: translateY(-0.7vw);
+    color: #fff7b8;
+    text-shadow:
+      0 0 0.45vw rgba(255, 245, 120, 0.95),
+      0 0 1.05vw rgba(255, 196, 30, 0.75),
+      0 0.25vw 0.3vw rgba(0, 0, 0, 0.35);
+  }
 }
 
 .mean-steps-panel {
@@ -855,13 +869,16 @@
 .median-numpad-key {
   min-height: 4.2vw;
   border: 0;
-  border-radius: 0.5vw;
+  border-radius: 0.6vw;
   color: white;
   font-size: 2.1vw;
   font-weight: 800;
   cursor: pointer;
-  background: linear-gradient(145deg, #5db6e4, #3d9ecf);
-  box-shadow: 0 0.25vw 0.4vw rgba(0, 0, 0, 0.35), inset 0 0.08vw 0.12vw rgba(255, 255, 255, 0.35);
+  background: linear-gradient(145deg, #4d4b50, #2f2d32);
+  box-shadow:
+    0 0.25vw 0.4vw rgba(0, 0, 0, 0.35),
+    inset 0 0.08vw 0.18vw rgba(255, 255, 255, 0.18),
+    inset 0 -0.08vw 0.16vw rgba(0, 0, 0, 0.28);
   text-shadow: 0 0.18vw 0.22vw rgba(0, 0, 0, 0.4);
   transition: filter 0.2s ease, transform 0.2s ease;
 }
@@ -872,12 +889,12 @@
 }
 
 .median-numpad-key.backspace {
-  background: linear-gradient(145deg, #ffb13e, #f1950f);
+  background: linear-gradient(145deg, #4d4b50, #2f2d32);
   font-size: 1.9vw;
 }
 
 .median-numpad-key.submit {
-  background: linear-gradient(145deg, #9bd95a, #72bd42);
+  background: linear-gradient(145deg, #ffb43a, #f19a12);
   font-size: 2.4vw;
 }
 
@@ -937,15 +954,15 @@
 
 .sort-slot .mean-count-badge {
   position: absolute;
-  top: -1.4vw;
+  top: -3.4vw;
   left: 50%;
   transform: translateX(-50%);
-  width: 2.1vw;
-  height: 2.1vw;
+  width: 3vw;
+  height: 3vw;
   border-radius: 50%;
   background: linear-gradient(145deg, #ffb13e, #f1950f);
   color: white;
-  font-size: 1.35vw;
+  font-size: 2.5vw;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -970,7 +987,7 @@
 }
 
 .mean-dd-left {
-  flex: 1;
+  width: 43vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1000,6 +1017,37 @@
   align-items: center;
   gap: 1vw;
   flex-wrap: nowrap;
+}
+
+.mean-dd-formula.step8 {
+  /* position: relative;
+  right: -7vw; */
+}
+
+.mean-dd-right.step8 {
+  /* position: relative;
+  left: -10vw; */
+}
+
+.mean-dd-right.step9-collapse {
+  width: 28vw;
+  min-width: 0;
+  padding-left: 1.2vw;
+  padding-right: 1.2vw;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    width 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    padding-left 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    padding-right 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s ease;
+}
+
+.mean-dd-right.step9-collapse.collapsed {
+  width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
 }
 
 .mean-dd-equals {
@@ -1049,19 +1097,20 @@
   max-width: 16vw;
   min-height: 3.8vw;
   padding: 0.65vw 1.1vw;
-  border: 0.22vw dashed rgba(255, 255, 255, 0.55);
-  border-radius: 0.55vw;
-  color: rgba(255, 255, 255, 0.45);
+  border: 0.24vw dashed rgba(230, 234, 238, 0.88);
+  border-radius: 1.2vw;
+  color: rgba(255, 255, 255, 0.82);
   font-size: 2.5vw;
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(62, 82, 109, 0.66);
   transition: border-color 0.25s ease, background 0.25s ease;
 }
 
 .mean-dd-zone.dd-empty {
   font-style: italic;
+  box-shadow: inset 0 0 1.6vw rgba(255, 255, 255, 0.04);
 }
 
 .mean-dd-zone.correct {
@@ -1162,7 +1211,7 @@
   align-items: center;
   justify-content: center;
   padding: 0.65vw 0.67vw;
-  width: 18vw;
+  width: 22vw;
   font-size: 2.5vw;
   line-height: 1.2;
   text-align: center;
@@ -1210,6 +1259,11 @@
 .mean-step9-panel button.mean-dd-zone.fraction-zone.step9-clicked:not(.wrong) {
   border: none !important;
   box-shadow: 0 0.25vw 0.4vw rgba(0, 0, 0, 0.35);
+}
+
+.mean-step9-panel button.mean-dd-zone.fraction-zone.step9-clicked:not(.wrong) {
+  border: 0.25vw solid #f39a12 !important;
+  background: rgba(243, 154, 18, 0.3) !important;
 }
 
 button.mean-dd-zone.step9-clickable {
@@ -1403,7 +1457,7 @@ button.mean-dd-zone.fraction-zone.step9-clicked {
 .mean-flip-card {
   position: relative;
   background-color: transparent;
-  width: 8.9vw;
+  width: 14.9vw;
   height: 4.6vw;
   flex-shrink: 0;
   perspective: 1000px;
@@ -1435,7 +1489,7 @@ button.mean-dd-zone.fraction-zone.step9-clicked {
   transform-origin: 50% 50%;
   border: none;
   border-radius: 0.55vw;
-  font-size: 2.1vw;
+  font-size: 2.5vw;
   font-weight: 700;
   line-height: 1.1;
   text-align: center;
@@ -1518,12 +1572,26 @@ button.mean-dd-zone.fraction-zone.step9-clicked {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  width: 0;
 }
 
 .mean-calc-result.visible {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+
+}
+
+.mean-step9-panel .mean-calc-result {
+  width: 0;
+  gap: 0;
+  overflow: hidden;
+  transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, gap 0.55s ease;
+}
+
+.mean-step9-panel .mean-calc-result.visible {
+  width: 18.4vw;
+  gap: 0.65vw;
 }
 
 /* Numpad step 9 */

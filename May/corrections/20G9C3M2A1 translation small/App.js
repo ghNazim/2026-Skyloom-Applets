@@ -102,6 +102,51 @@ const App = () => {
     setIsAnimating(false);
   }, [resetPropertyVisuals]);
 
+  const restoreStep1Phase = useCallback(
+    (phase) => {
+      cancelAnimations();
+
+      if (phase === "initial") {
+        resetStep1();
+        return;
+      }
+
+      setShowGray(true);
+      setYellowProgress(1);
+      setArrowProgress(1);
+      setIsAnimating(false);
+
+      if (phase === "merged") {
+        setArrowMerge(1);
+        setShowArrowLabels(true);
+        setShowPreimagePoints(false);
+        setShowImagePoints(false);
+        setShowPillLabels(false);
+        setPillLabelsOpacity(0);
+        setStep1TextHtml(APP_DATA.steps[1].introText);
+      } else if (phase === "preimageLabeled") {
+        setArrowMerge(0);
+        setShowArrowLabels(false);
+        setShowPreimagePoints(true);
+        setShowImagePoints(false);
+        setShowPillLabels(true);
+        setPillLabelsOpacity(1);
+        setStep1TextHtml(APP_DATA.steps[1].textPreimage);
+      } else if (phase === "complete") {
+        setArrowMerge(0);
+        setShowArrowLabels(false);
+        setShowPreimagePoints(true);
+        setShowImagePoints(true);
+        setShowPillLabels(true);
+        setPillLabelsOpacity(1);
+        setStep1TextHtml(APP_DATA.steps[1].textImage);
+      }
+
+      setStep1Phase(phase);
+    },
+    [cancelAnimations, resetStep1],
+  );
+
   const resetEverything = useCallback(() => {
     cancelAnimations();
     resetStep1();
@@ -436,9 +481,14 @@ const App = () => {
   const handlePrev = () => {
     if (typeof playSound === "function") playSound("click");
     if (currentStep === 1) {
-      cancelAnimations();
-      resetStep1();
-      setCurrentStep(0);
+      if (isAnimating) return;
+      if (step1Phase === "complete") {
+        restoreStep1Phase("preimageLabeled");
+      } else if (step1Phase === "preimageLabeled") {
+        restoreStep1Phase("merged");
+      } else {
+        restoreStep1Phase("initial");
+      }
     }
   };
 
@@ -458,7 +508,8 @@ const App = () => {
   }, [currentStep, isAnimating, step1Phase]);
 
   const isNextDisabled = currentStep !== 1 || step1Phase !== "complete";
-  const isPrevDisabled = currentStep <= 1;
+  const isPrevDisabled =
+    currentStep !== 1 || isAnimating || step1Phase === "initial";
   const step2ButtonsDisabled = isAnimating || !step2IntroDone;
   const allPropertiesComplete =
     completedProperties.length >= PROPERTY_IDS.length;

@@ -69,6 +69,27 @@
   opacity: 0.5;
 }
 
+.rg-p1-line-grow {
+  opacity: 0;
+  transform: scaleY(0);
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+
+.rg-p1-line-grow.is-visible {
+  opacity: 1;
+  animation: rg-p1-line-grow 0.8s ease forwards;
+}
+
+@keyframes rg-p1-line-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 .rg-fade-in {
   opacity: 0;
   transition: opacity 0.55s ease;
@@ -109,6 +130,10 @@
 
 .rg-callout.is-visible {
   opacity: 1;
+}
+
+.rg-callout.is-dimmed-copy {
+  opacity: 0.6;
 }
 
 .rg-callout-body {

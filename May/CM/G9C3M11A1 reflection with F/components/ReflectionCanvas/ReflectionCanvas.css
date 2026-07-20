@@ -1,0 +1,68 @@
+.reflection-canvas .reflection-text-column {
+  transition: opacity 0.4s ease;
+}
+
+.reflection-canvas .reflection-text-column.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reflection-canvas .reflection-text-column.visible {
+  opacity: 1;
+}
+
+.reflection-text-box {
+  flex-direction: column;
+  gap: 1.5vw;
+}
+
+.reflection-action-btn {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  transition: opacity 0.4s ease;
+}
+
+.reflection-action-btn.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reflection-action-btn.visible {
+  opacity: 1;
+}
+
+.reflection-action-btn .btn.fullscreen-button {
+  position: relative;
+  bottom: auto;
+}
+
+.reflection-visual-slot {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+}
+
+.reflection-visual-slot .step3-line-label {
+  position: absolute;
+  top: 1vw;
+  right: 35vw;
+  z-index: 2;
+  font-size: 2vw;
+  font-weight: 600;
+  color: var(--white-color);
+  pointer-events: none;
+}
+
+.reflection-visual-slot .step3-curve-image {
+  position: absolute;
+  top: 2vw;
+  right: 29vw;
+  width: 5vw;
+  height: 5vw;
+  z-index: 2;
+  object-fit: contain;
+  pointer-events: none;
+}

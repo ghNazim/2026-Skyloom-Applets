@@ -59,10 +59,12 @@
   color: var(--trans-color, #bd78dd);
 }
 
-.coord-table-header {
+.coord-table-header{
   background: rgba(46, 131, 196, 0.68);
 }
-
+.coord-table-header .math-var {
+  font-weight: 700;
+}
 .coord-table-cell .cell-text {
   opacity: 0;
   transition: opacity 0.45s ease;

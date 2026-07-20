@@ -45,7 +45,7 @@ const DATA = {
           feedbackOrientation:
             "Every point moves the same distance in the same direction.<br>In a translation, orientation stays the same.",
           positionCalloutOriginal:
-            "Original position of a<br>point on the figure",
+            "Original position of a<br>point on the object",
           positionCalloutFinal: "Final position of the<br>same point",
         },
       },

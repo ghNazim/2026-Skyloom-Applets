@@ -100,7 +100,7 @@ const BarGraph = ({
         "text",
         {
           key: "ylabel-" + i,
-          x: ML - 30,
+          x: ML -15,
           y: yy + 6,
           textAnchor: "end",
           fill: "#f0a030",
@@ -122,7 +122,7 @@ const BarGraph = ({
   });
 
   // Y axis label text (rotated) — sits in extended viewBox left margin
-  var yTagX = 22;
+  var yTagX = 34;
   var yTagY = SVG_H / 2 - 10;
   children.push(
     e(

@@ -84,6 +84,7 @@
 }
 
 .given-panel {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
@@ -135,8 +136,12 @@
   font-family: var(--font-family);
   font-weight: 500;
   transform: translate(-50%, -50%);
-  transition: transform 0.85s cubic-bezier(0.35, 0, 0.15, 1), opacity 0.85s ease;
+  transition: transform 0.85s cubic-bezier(0.35, 0, 0.15, 1), font-size 0.85s cubic-bezier(0.35, 0, 0.15, 1), opacity 0.85s ease;
   white-space: nowrap;
+}
+
+.question-number {
+  font-weight: 700;
 }
 
 .mcq-wrap {
@@ -212,12 +217,39 @@
   color: #ffffff;
 }
 
-.hint-bulb {
+.hint-bulb-button {
   position: absolute;
   top: 1.4vw;
   right: 1.3vw;
   width: 5.4vw;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.hint-bulb-button:disabled {
+  cursor: default;
+}
+
+.hint-bulb {
+  display: block;
+  width: 100%;
   height: auto;
+}
+
+.hint-bulb-button.blink-hint .hint-bulb {
+  animation: bulb-filter-blink 0.28s ease-in-out 0s 6 alternate;
+}
+
+@keyframes bulb-filter-blink {
+  from {
+    filter: brightness(1) saturate(1);
+  }
+  to {
+    filter: brightness(2.1) saturate(2.2) drop-shadow(0 0 1.1vw #ffe66b);
+  }
 }
 
 .hint-box {
@@ -236,13 +268,20 @@
   font-size: 2.35vw;
   line-height: 1.38;
   padding: 1.3vw;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.55vw);
+}
+
+.hint-box.show {
+  visibility: visible;
 }
 
 .mcq-feedback {
   position: absolute;
   left: 2.2vw;
   right: 2.2vw;
-  bottom: 2.1vw;
+  bottom: 0.5vw;
   min-height: 6.2vw;
   border-radius: 0.65vw;
   display: flex;
@@ -350,6 +389,11 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+.drop-box.hovered {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 0.12vw rgba(255, 255, 255, 0.35);
+}
+
 .drop-box.shake {
   animation: zone-shake 0.42s ease;
   background: rgba(192, 86, 122, 0.3);
@@ -392,6 +436,38 @@
     0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
 }
 
+.drag-value.drag-x,
+.drag-ghost.drag-x {
+  /* --drag-btn-bg: #13bce8;
+  --drag-btn-shadow: #087ca0; */
+}
+
+.drag-value.drag-y,
+.drag-ghost.drag-y {
+  /* --drag-btn-bg: #ff7734;
+  --drag-btn-shadow: #b44b1d; */
+}
+
+.drag-value.drag-param,
+.drag-ghost.drag-param {
+  /* --drag-btn-bg: #00bf6f;
+  --drag-btn-shadow: #087a4b; */
+}
+
+.drag-value.drag-x,
+.drag-value.drag-y,
+.drag-value.drag-param,
+.drag-ghost.drag-x,
+.drag-ghost.drag-y,
+.drag-ghost.drag-param {
+  /* background: var(--drag-btn-bg); */
+  /* color: #ffffff; */
+  /* box-shadow:
+    0.12vw 0.15vw 0 0 var(--drag-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 rgba(255, 255, 255, 0.32),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22); */
+}
+
 .drag-ghost {
   position: fixed;
   z-index: 10001;
@@ -414,6 +490,35 @@
     0.12vw 0.15vw 0 0 var(--action-btn-shadow),
     inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight),
     0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
+}
+
+.drag-path-nudge {
+  position: fixed;
+  z-index: 10002;
+  width: 5vw;
+  height: 5vw;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: drag-path-nudge 1.55s ease-in-out infinite;
+  opacity: 0.78;
+}
+
+@keyframes drag-path-nudge {
+  0% {
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.78;
+  }
+  72% {
+    transform: translate(calc(-50% + var(--drag-nudge-x)), calc(-50% + var(--drag-nudge-y)));
+    opacity: 0.78;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--drag-nudge-x)), calc(-50% + var(--drag-nudge-y)));
+    opacity: 0;
+  }
 }
 
 .substitute-panel,
@@ -485,6 +590,11 @@
 .answer-box.active {
   border-style: solid;
   background: rgba(255, 196, 0, 0.12);
+}
+
+.answer-box.disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .answer-box.correct {

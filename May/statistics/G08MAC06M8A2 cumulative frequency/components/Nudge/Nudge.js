@@ -7,6 +7,8 @@ const Nudge = ({
   active,
   onDismiss,
   src = "assets/tap.gif",
+  imageWidth,
+  imageClassName,
 }) => {
   const { useState, useEffect, createElement: e } = React;
 
@@ -94,10 +96,11 @@ const Nudge = ({
         },
       },
       e("img", {
-        className: "nudge-tap-img",
+        className: "nudge-tap-img" + (imageClassName ? " " + imageClassName : ""),
         src,
         alt: "",
         draggable: false,
+        style: imageWidth ? { width: imageWidth, height: "auto" } : undefined,
       }),
     ),
     document.body,

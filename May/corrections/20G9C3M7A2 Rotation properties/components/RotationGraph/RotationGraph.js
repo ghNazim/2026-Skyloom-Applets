@@ -85,14 +85,47 @@ const RotationGraph = (props) => {
     );
   };
 
+  const getPositionArcPath = (startPoint, endPoint) => {
+    if (!startPoint || !endPoint) return "";
+    const radius = Math.hypot(startPoint.x - ANCHOR.x, startPoint.y - ANCHOR.y);
+    if (!radius) return "";
+    const startAngle = Math.atan2(
+      startPoint.y - ANCHOR.y,
+      startPoint.x - ANCHOR.x,
+    );
+    let endAngle = Math.atan2(endPoint.y - ANCHOR.y, endPoint.x - ANCHOR.x);
+    while (endAngle < startAngle) endAngle += Math.PI * 2;
+    const sweep = endAngle - startAngle;
+    if (sweep <= 0.001) return "";
+    const largeArc = sweep > Math.PI ? 1 : 0;
+    return (
+      "M " +
+      startPoint.x +
+      "," +
+      startPoint.y +
+      " A " +
+      radius +
+      "," +
+      radius +
+      " 0 " +
+      largeArc +
+      " 1 " +
+      endPoint.x +
+      "," +
+      endPoint.y
+    );
+  };
+
   const renderCallout = (anchor, text, key, side) => {
     if (!text) return null;
     const lines = text.split("<br>");
-    const boxW = 44;
-    const lineH = 3.2;
-    const boxH = lines.length * lineH + 2.4;
+    const boxW = 60;
+    const lineH = 4.8;
+    const fontSize = 3.9;
+    const boxH = lines.length * lineH + 4;
     const boxY = anchor.y - boxH - 5;
     const midY = boxY + boxH / 2;
+    const firstLineY = midY - ((lines.length - 1) * lineH) / 2;
     let boxX;
     let leaderPath;
     const topEdgeY = anchor.y - POINT_RADIUS;
@@ -141,9 +174,9 @@ const RotationGraph = (props) => {
           {
             key: "line-" + i,
             x: boxX + boxW / 2,
-            y: boxY + 2.8 + i * lineH,
+            y: firstLineY + i * lineH,
             fill: "#fff",
-            fontSize: 2.6,
+            fontSize: fontSize,
             textAnchor: "middle",
             dominantBaseline: "middle",
           },
@@ -153,12 +186,12 @@ const RotationGraph = (props) => {
     );
   };
 
-  const positionPoint = positionMode
-    ? topLeftVertex(
-        positionBlueProgress > 0
-          ? bluePts
-          : orangePts,
-      )
+  const originalPositionPoint = positionMode ? topLeftVertex(orangePts) : null;
+  const movingPositionPoint = positionMode ? topLeftVertex(bluePts) : null;
+  const positionCalloutAnchor = positionMode
+    ? positionCallout === "final"
+      ? movingPositionPoint
+      : originalPositionPoint
     : null;
 
   const calloutText =
@@ -184,6 +217,10 @@ const RotationGraph = (props) => {
     PURPLE_ARC_RADIUS,
     purpleArrowDrawProgress,
   );
+  const positionArc =
+    positionMode && positionPointOpacity > 0
+      ? getPositionArcPath(originalPositionPoint, movingPositionPoint)
+      : "";
 
   return React.createElement(
     "svg",
@@ -275,10 +312,32 @@ const RotationGraph = (props) => {
       fill: COLORS.anchor,
       stroke: "none",
     }),
-    positionMode && positionPointOpacity > 0
+    positionArc
+      ? React.createElement("path", {
+          d: positionArc,
+          fill: "none",
+          stroke: COLORS.redPoint,
+          strokeWidth: 0.3,
+          strokeLinecap: "round",
+          strokeDasharray: "0.9 0.9",
+          opacity: 0.9,
+        })
+      : null,
+    positionMode && originalPositionPoint && positionPointOpacity > 0
       ? React.createElement("circle", {
-          cx: positionPoint.x,
-          cy: positionPoint.y,
+          cx: originalPositionPoint.x,
+          cy: originalPositionPoint.y,
+          r: POINT_RADIUS,
+          fill: COLORS.redPoint,
+          stroke: "#fff",
+          strokeWidth: 0.15,
+          opacity: 0.6,
+        })
+      : null,
+    positionMode && movingPositionPoint && positionPointOpacity > 0
+      ? React.createElement("circle", {
+          cx: movingPositionPoint.x,
+          cy: movingPositionPoint.y,
           r: POINT_RADIUS,
           fill: COLORS.redPoint,
           stroke: "#fff",
@@ -288,7 +347,7 @@ const RotationGraph = (props) => {
       : null,
     positionCallout
       ? renderCallout(
-          positionPoint || topLeftVertex(orangePts),
+          positionCalloutAnchor || topLeftVertex(orangePts),
           calloutText,
           "position-callout",
           positionCallout === "final" ? "left" : "right",

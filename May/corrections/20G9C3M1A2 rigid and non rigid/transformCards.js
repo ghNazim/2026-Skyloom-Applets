@@ -298,7 +298,7 @@ const TransformCards = (function () {
           key: "green",
           points: reflectPointsStr(greenPts),
           fill: COLORS.triGreen,
-          fillOpacity: 0.5,
+          fillOpacity: 1,
         }),
         renderTriangle(blueEnd.x, blueEnd.y, TRI_LEG, COLORS.triBlue, "blue"),
         renderPivotDot(anchor.x, anchor.y, "pivot"),

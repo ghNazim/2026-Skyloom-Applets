@@ -13,6 +13,8 @@
   align-items: center;
   justify-content: center;
   padding-left: 1.2vw;
+  position: relative;
+  bottom: -2vw
 }
 
 .bar-graph-wrapper .bar-graph-svg {
@@ -52,9 +54,11 @@
 @keyframes xlabelGlow {
   0%, 100% {
     filter: drop-shadow(0 0 3px #ffcc00) drop-shadow(0 0 6px rgba(255, 204, 0, 0.5));
+    opacity: 1;
   }
   50% {
     filter: drop-shadow(0 0 1px #ffcc00) drop-shadow(0 0 2px rgba(255, 204, 0, 0.2));
+    opacity: 0.2;
   }
 }
 

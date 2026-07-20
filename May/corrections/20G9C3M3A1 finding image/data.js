@@ -124,7 +124,7 @@ const DATA = {
           questionText:
             "Given figure translates 4 units to the left and 2 units upward. Find the image.",
           navText: "Drag the figure to the image position",
-          navTextDone: "Tap » to continue",
+          navTextDone: "Tap » to conclude",
           feedbackWrong: "Try again",
           feedbackCorrect:
             "Well done! You have translated the figure correctly.",

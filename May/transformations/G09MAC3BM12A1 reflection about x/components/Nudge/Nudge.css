@@ -1,5 +1,6 @@
 .nudge-overlay {
   pointer-events: none;
+  transition: left 0.45s ease, top 0.45s ease;
 }
 
 .nudge-overlay .nudge-tap-gif {

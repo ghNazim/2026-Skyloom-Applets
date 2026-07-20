@@ -31,7 +31,7 @@ const Fullscreen = (props) => {
           )
         ),
         e("div", { className: "start-instructions completion-text" },
-          e("p", null, completionText)
+          e("p", {dangerouslySetInnerHTML: { __html: completionText || "" }})
         )
       )
     : dataset && introLines

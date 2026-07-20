@@ -61,10 +61,10 @@ const DATA = {
           options: ["Object + Image", "Image - Object", "Object - Image"],
           correctIndex: 1,
           feedbackWrong:
-            "To find translation, subtract object coordinates from image coordinates",
+            "To find translation, subtract\n object coordinates from \nimage coordinates",
         },
         step8: {
-          title: "Choose the correct way to find Q\u2019?",
+          title: "Choose the correct way\n to find Q\u2019?",
           options: [
             "Object + Translation",
             "Object - Translation",
@@ -72,10 +72,10 @@ const DATA = {
           ],
           correctIndex: 0,
           feedbackWrong:
-            "To find image coordinates, add translation to the object coordinates",
+            "To find image coordinates, add translation to the\n object coordinates",
         },
         step9: {
-          title: "Choose the correct way to find R?",
+          title: "Choose the correct way,\n to find R?",
           options: [
             "Translation + Image",
             "Image - Translation",
@@ -83,7 +83,7 @@ const DATA = {
           ],
           correctIndex: 1,
           feedbackWrong:
-            "To find object coordinates, subtract translation from image coordinates",
+            "To find object coordinates, subtract translation from\n image coordinates",
         },
       },
       applyPanel: {

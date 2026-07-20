@@ -3,6 +3,7 @@ const MainCanvas = (props) => {
   const {
     step,
     step2Phase,
+    step2NudgePoint,
     step2Feedback,
     plottedPoint,
     lineAnimPhase,
@@ -842,6 +843,7 @@ const MainCanvas = (props) => {
           : React.createElement(GraphPanel, {
               step: step,
               step2Phase: step2Phase,
+              step2NudgePoint: step2NudgePoint,
               plottedPoint: plottedPoint,
               lineAnimPhase: lineAnimPhase,
               xAxisHighlighted: xAxisHighlighted,

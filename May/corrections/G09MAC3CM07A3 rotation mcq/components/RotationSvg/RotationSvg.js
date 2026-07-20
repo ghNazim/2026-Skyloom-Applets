@@ -29,9 +29,6 @@ const RotationSvg = ({
   const yellowBlue = rotatePointAround(YELLOW_TRACK_LOCAL, ANCHOR, blueAngle);
   const purpleOrange = rotatePointAround(PURPLE_TRACK_LOCAL, ANCHOR, orangeAngle);
   const purpleBlue = rotatePointAround(PURPLE_TRACK_LOCAL, ANCHOR, blueAngle);
-  const objectGuidePoint = getShapeGuidePoint(orangePts);
-  const imageGuidePoint = getShapeGuidePoint(bluePts);
-
   const guideLen = 6;
   const rotationArc =
     showRotationArrow && arrowDrawProgress > 0
@@ -103,26 +100,32 @@ const RotationSvg = ({
     React.createElement(
       "g",
       { className: "rotation-anchor-guides", key: "anchor-guides" },
-      React.createElement("line", {
-        x1: ANCHOR.x,
-        y1: ANCHOR.y,
-        x2: objectGuidePoint.x,
-        y2: objectGuidePoint.y,
-        stroke: COLORS.rotationGuide,
-        strokeWidth: 0.35,
-        strokeDasharray: "1.5 1.2",
-        strokeLinecap: "round",
-      }),
-      React.createElement("line", {
-        x1: ANCHOR.x,
-        y1: ANCHOR.y,
-        x2: imageGuidePoint.x,
-        y2: imageGuidePoint.y,
-        stroke: COLORS.rotationGuide,
-        strokeWidth: 0.35,
-        strokeDasharray: "1.5 1.2",
-        strokeLinecap: "round",
-      }),
+      orangePts.map((point, index) =>
+        React.createElement("line", {
+          key: "object-guide-" + index,
+          x1: ANCHOR.x,
+          y1: ANCHOR.y,
+          x2: point.x,
+          y2: point.y,
+          stroke: COLORS.rotationGuide,
+          strokeWidth: 0.35,
+          strokeDasharray: "1.5 1.2",
+          strokeLinecap: "round",
+        }),
+      ),
+      bluePts.map((point, index) =>
+        React.createElement("line", {
+          key: "image-guide-" + index,
+          x1: ANCHOR.x,
+          y1: ANCHOR.y,
+          x2: point.x,
+          y2: point.y,
+          stroke: COLORS.rotationGuide,
+          strokeWidth: 0.35,
+          strokeDasharray: "1.5 1.2",
+          strokeLinecap: "round",
+        }),
+      ),
     ),
     showPathFeedback
       ? React.createElement(

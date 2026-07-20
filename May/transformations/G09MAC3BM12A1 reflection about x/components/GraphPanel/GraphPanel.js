@@ -21,6 +21,7 @@ const GraphPanel = (props) => {
   const {
     step,
     step2Phase,
+    step2NudgePoint,
     plottedPoint,
     lineAnimPhase,
     xAxisHighlighted,
@@ -118,7 +119,10 @@ const GraphPanel = (props) => {
   const AXIS_COLOR = "#ffffff";
   const OBJECT_COLOR = "#fb9b5b";
   const IMAGE_COLOR = "#46c5ce";
-  const AXIS_HIGHLIGHT = "#5da6f4";
+  const AXIS_HIGHLIGHT = "#ff69c8";
+  const AXIS_DIM_OPACITY = 0.5;
+  const COORD_DIM_OPACITY = 0.6;
+  const COORD_ORANGE = "#ff9f1c";
   const STEP8_X_HIGHLIGHT = "#f561a3";
   const STEP8_Y_HIGHLIGHT = "#5da6f4";
   const YELLOW = "#ffd34d";
@@ -291,7 +295,7 @@ const GraphPanel = (props) => {
   }, [COLS, ROWS, UNIT, PAD_LEFT, PAD_TOP, plotLeft, plotRight, plotTop, plotBottom]);
 
   const axisLabels = useMemo(() => {
-    // ELEMENT: axis-labels — origin O, axis names X/X′/Y/Y′, and numeric tick labels
+    // ELEMENT: axis-labels — origin O, axis names x/y, and numeric tick labels
     const els = [];
     for (let i = X_MIN + 1; i < X_MAX; i++) {
       if (i === 0) continue;
@@ -304,6 +308,7 @@ const GraphPanel = (props) => {
       const isCoordinateHighlight =
         (step === 6 && step6HighlightX2 && i === 2) ||
         (step === 7 && step7Answer === "wrong" && i === 2);
+      const isAxisNumberHighlight = isWrongPlotHighlight || isCoordinateHighlight;
       els.push(
         React.createElement(
           "text",
@@ -316,7 +321,8 @@ const GraphPanel = (props) => {
               : isCoordinateHighlight
                 ? YELLOW
                 : AXIS_COLOR,
-            fontSize: AXIS_NUM_FONT,
+            opacity: isAxisNumberHighlight ? 1 : AXIS_DIM_OPACITY,
+            fontSize: isCoordinateHighlight ? AXIS_NUM_FONT * 1.2 : AXIS_NUM_FONT,
             fontWeight: "600",
             textAnchor: "middle",
             fontFamily: "system-ui, sans-serif",
@@ -336,6 +342,7 @@ const GraphPanel = (props) => {
       const isCoordinateHighlight =
         (step === 6 && step6HighlightYNeg4 && j === -4) ||
         (step === 7 && step7Answer === "correct" && (j === 4 || j === -4));
+      const isAxisNumberHighlight = isWrongPlotHighlight || isCoordinateHighlight;
       els.push(
         React.createElement(
           "text",
@@ -348,7 +355,8 @@ const GraphPanel = (props) => {
               : isCoordinateHighlight
                 ? YELLOW
                 : AXIS_COLOR,
-            fontSize: AXIS_NUM_FONT,
+            opacity: isAxisNumberHighlight ? 1 : AXIS_DIM_OPACITY,
+            fontSize: isCoordinateHighlight ? AXIS_NUM_FONT * 1.2 : AXIS_NUM_FONT,
             fontWeight: "600",
             textAnchor: "middle",
             fontFamily: "system-ui, sans-serif",
@@ -368,7 +376,8 @@ const GraphPanel = (props) => {
           fontSize: ORIGIN_FONT,
           fontWeight: "700",
           textAnchor: "middle",
-          fontFamily: "system-ui, sans-serif",
+          fontFamily: MATH_FONT,
+          fontStyle: "italic",
         },
         "O",
       ),
@@ -386,27 +395,30 @@ const GraphPanel = (props) => {
           textAnchor: "middle",
           fontFamily: MATH_FONT,
           fontStyle: "italic",
+          opacity: 1,
         },
-        "X",
+        "x",
       ),
     );
-    els.push(
-      React.createElement(
-        "text",
-        {
-          key: "axis-x-neg",
-          x: plotLeft - 14,
-          y: ORIGIN_Y + 5,
-          fill: xAxisHighlighted ? AXIS_HIGHLIGHT : AXIS_COLOR,
-          fontSize: AXIS_NAME_FONT,
-          fontWeight: "700",
-          textAnchor: "middle",
-          fontFamily: MATH_FONT,
-          fontStyle: "italic",
-        },
-        "X\u2032",
-      ),
-    );
+    // X′ label hidden for now.
+    // els.push(
+    //   React.createElement(
+    //     "text",
+    //     {
+    //       key: "axis-x-neg",
+    //       x: plotLeft - 14,
+    //       y: ORIGIN_Y + 5,
+    //       fill: xAxisHighlighted ? AXIS_HIGHLIGHT : AXIS_COLOR,
+    //       fontSize: AXIS_NAME_FONT,
+    //       fontWeight: "700",
+    //       textAnchor: "middle",
+    //       fontFamily: MATH_FONT,
+    //       fontStyle: "italic",
+    //       opacity: 1,
+    //     },
+    //     "x\u2032",
+    //   ),
+    // );
     els.push(
       React.createElement(
         "text",
@@ -420,27 +432,30 @@ const GraphPanel = (props) => {
           textAnchor: "middle",
           fontFamily: MATH_FONT,
           fontStyle: "italic",
+          opacity: xAxisHighlighted ? AXIS_DIM_OPACITY : 1,
         },
-        "Y",
+        "y",
       ),
     );
-    els.push(
-      React.createElement(
-        "text",
-        {
-          key: "axis-y-neg",
-          x: ORIGIN_X + 4,
-          y: plotBottom + 20,
-          fill: AXIS_COLOR,
-          fontSize: AXIS_NAME_FONT,
-          fontWeight: "700",
-          textAnchor: "middle",
-          fontFamily: MATH_FONT,
-          fontStyle: "italic",
-        },
-        "Y\u2032",
-      ),
-    );
+    // Y′ label hidden for now.
+    // els.push(
+    //   React.createElement(
+    //     "text",
+    //     {
+    //       key: "axis-y-neg",
+    //       x: ORIGIN_X + 4,
+    //       y: plotBottom + 20,
+    //       fill: AXIS_COLOR,
+    //       fontSize: AXIS_NAME_FONT,
+    //       fontWeight: "700",
+    //       textAnchor: "middle",
+    //       fontFamily: MATH_FONT,
+    //       fontStyle: "italic",
+    //       opacity: xAxisHighlighted ? AXIS_DIM_OPACITY : 1,
+    //     },
+    //     "y\u2032",
+    //   ),
+    // );
     return els;
   }, [
     ORIGIN_X,
@@ -486,7 +501,7 @@ const GraphPanel = (props) => {
       x2: x2,
       y2: y2,
       stroke: color,
-      strokeWidth: 2.5,
+      strokeWidth: extraStyle && extraStyle.strokeWidth ? extraStyle.strokeWidth : 2.5,
       strokeDasharray: dashed ? (growing ? len + " " + len : "7 5") : undefined,
       strokeDashoffset: growing ? len : 0,
       className:
@@ -567,23 +582,26 @@ const GraphPanel = (props) => {
         fontFamily: "system-ui, sans-serif",
         className: step6DimFirstQuadrant ? "rg-dehighlight" : undefined,
       },
-      React.createElement("tspan", null, "A("),
+      React.createElement("tspan", { opacity: highlightStep7Y ? COORD_DIM_OPACITY : 1 }, "A("),
       React.createElement(
         "tspan",
         {
           fill: highlightStep7X ? YELLOW : highlightStep8X ? STEP8_X_HIGHLIGHT : WHITE,
           fontWeight: highlightStep7X || highlightStep8X ? "700" : "600",
+          opacity: highlightStep7Y ? COORD_DIM_OPACITY : 1,
           className: step8XBlink ? "rg-blink-text" : undefined,
         },
         String(pointCoords.x),
       ),
-      React.createElement("tspan", null, ", "),
+      React.createElement("tspan", { opacity: highlightStep7Y ? COORD_DIM_OPACITY : 1 }, ", "),
       React.createElement(
         "tspan",
         {
           fill:
             showHighlightY || highlightStep7Y
-              ? YELLOW
+              ? highlightStep7Y
+                ? COORD_ORANGE
+                : YELLOW
               : highlightStep8Y
                 ? STEP8_Y_HIGHLIGHT
                 : WHITE,
@@ -593,7 +611,7 @@ const GraphPanel = (props) => {
         },
         String(pointCoords.y),
       ),
-      React.createElement("tspan", null, ")"),
+      React.createElement("tspan", { opacity: highlightStep7Y ? COORD_DIM_OPACITY : 1 }, ")"),
     );
   };
 
@@ -766,17 +784,17 @@ const GraphPanel = (props) => {
         fontWeight: "700",
         fontFamily: "system-ui, sans-serif",
       },
-      React.createElement("tspan", null, "A\u2032("),
+      React.createElement("tspan", { opacity: highlightY ? COORD_DIM_OPACITY : 1 }, "A\u2032("),
       React.createElement(
         "tspan",
         {
           fill: highlightX ? (step === 8 ? STEP8_X_HIGHLIGHT : YELLOW) : WHITE,
-          opacity: step === 6 && !step6ShowCoordX ? 0 : 1,
+          opacity: step === 6 && !step6ShowCoordX ? 0 : highlightY ? COORD_DIM_OPACITY : 1,
           className: step8XBlink ? "rg-blink-text" : undefined,
         },
         "2",
       ),
-      React.createElement("tspan", null, ", "),
+      React.createElement("tspan", { opacity: highlightY ? COORD_DIM_OPACITY : 1 }, ", "),
       React.createElement(
         "tspan",
         {
@@ -784,14 +802,14 @@ const GraphPanel = (props) => {
             step === 8 && step8YActive
               ? STEP8_Y_HIGHLIGHT
               : highlightY
-                ? YELLOW
+                ? COORD_ORANGE
                 : WHITE,
           opacity: step === 6 && !step6ShowCoordY ? 0 : 1,
           className: step8YBlink ? "rg-blink-text" : undefined,
         },
         "-4",
       ),
-      React.createElement("tspan", null, ")"),
+      React.createElement("tspan", { opacity: highlightY ? COORD_DIM_OPACITY : 1 }, ")"),
     );
   };
 
@@ -898,9 +916,9 @@ const GraphPanel = (props) => {
     return "";
   };
 
-  const renderCalloutDots = () =>
+  const renderCalloutDots = (mode = calloutMode, pos = calloutPos, loading = calloutLoading) =>
     // ELEMENT: callout-loading-dots — animated ●●● after yellow callout text
-    calloutLoading && calloutMode === "prop2B" && calloutPos === "q4"
+    loading && mode === "prop2B" && pos === "q4"
       ? React.createElement(
           "span",
           { className: "rg-callout-dots", "aria-hidden": "true" },
@@ -909,6 +927,86 @@ const GraphPanel = (props) => {
           React.createElement("span", { className: "rg-dot dot3" }, "\u25cf"),
         )
       : null;
+
+  const getCalloutTransform = (pos) =>
+    pos === "q1"
+      ? "translate(" + (ORIGIN_X + 4 * UNIT) + "px," + (ORIGIN_Y - 4.8 * UNIT) + "px)"
+      : "translate(" + (ORIGIN_X + 4.4 * UNIT) + "px," + (ORIGIN_Y + 1.5 * UNIT) + "px)";
+
+  const renderCalloutBox = (mode, pos, options) => {
+    const opts = options || {};
+    const isTallCallout = mode === "prop2B" && pos === "q4";
+    const id = opts.id || "callout-box";
+    const prevMode = opts.prevMode || null;
+    const textReady = opts.textReady !== false;
+
+    return React.createElement(
+      "g",
+      {
+        id: id,
+        className:
+          "rg-callout" +
+          (opts.visible === false ? " is-hidden" : " is-visible") +
+          (opts.dimmed ? " is-dimmed-copy" : ""),
+        style: {
+          transform: getCalloutTransform(pos),
+        },
+      },
+      React.createElement("path", {
+        id: id + "-background",
+        d: isTallCallout
+          ? "M18,18 h220 a16,16 0 0 1 16,16 v104 a16,16 0 0 1 -16,16 h-220 a16,16 0 0 1 -16,-16 v-104 a16,16 0 0 1 16,-16 z"
+          : "M18,18 h220 a16,16 0 0 1 16,16 v80 a16,16 0 0 1 -16,16 h-220 a16,16 0 0 1 -16,-16 v-80 a16,16 0 0 1 16,-16 z",
+        fill: "rgba(12, 60, 80, 0.85)",
+        stroke: "rgba(255,255,255,0.08)",
+        strokeWidth: 2,
+      }),
+      React.createElement("polygon", {
+        id: id + "-pointer",
+        points: isTallCallout
+          ? "18,94 -18,104 18,114"
+          : "18,82 -18,92 18,102",
+        fill: "rgba(12, 60, 80, 0.85)",
+      }),
+      React.createElement(
+        "foreignObject",
+        {
+          id: id + "-text-area",
+          x: 20,
+          y: 24,
+          width: 216,
+          height: isTallCallout ? 120 : 96,
+        },
+        React.createElement(
+          "div",
+          {
+            xmlns: "http://www.w3.org/1999/xhtml",
+            className: "rg-callout-text-wrap",
+          },
+          prevMode
+            ? React.createElement(
+                "div",
+                {
+                  className: "rg-callout-body is-prev is-fading",
+                },
+                getCalloutText(prevMode),
+              )
+            : null,
+          React.createElement(
+            "div",
+            {
+              className:
+                "rg-callout-body is-next" +
+                (textReady ? " is-visible" : "") +
+                (mode === "prop2B" && pos === "q4" ? " is-yellow" : ""),
+            },
+            getCalloutText(mode),
+            renderCalloutDots(mode, pos, opts.loading === true),
+          ),
+        ),
+      ),
+    );
+  };
 
   const unitLinePt1 = toSvg(TARGET_A.x, unitLineY1);
   const unitLinePt2 = toSvg(TARGET_A.x, unitLineY2);
@@ -931,6 +1029,7 @@ const GraphPanel = (props) => {
 
   const xAxisStroke = xAxisHighlighted ? AXIS_HIGHLIGHT : AXIS_COLOR;
   const xAxisWidth = xAxisHighlighted ? 4 : 2;
+  const yAxisOpacity = xAxisHighlighted ? AXIS_DIM_OPACITY : 1;
   const xTip = xArrowDims.tip;
   const yTip = yArrowDims.tip;
 
@@ -939,7 +1038,7 @@ const GraphPanel = (props) => {
     (step === 5 && (showApost || prop2Done)) || step === 6 || step === 7 || step === 8;
 
   const cloneBase = toSvg(2, 4);
-  const cloneDest = toSvg(2, cloneY == null ? 4 : cloneY);
+  const cloneDest = toSvg(2, cloneY == null ? 0 : cloneY);
   const cloneDx = cloneDest.x - cloneBase.x;
   const cloneDy = cloneDest.y - cloneBase.y;
 
@@ -973,6 +1072,7 @@ const GraphPanel = (props) => {
           stroke: xAxisStroke,
           strokeWidth: xAxisWidth,
           strokeLinecap: "butt",
+          opacity: 1,
           className: step === 3 && !xAxisHighlighted ? "rg-x-axis-target" : undefined,
           onClick: step === 3 && !xAxisHighlighted ? handleXAxisClick : undefined,
           style: step === 3 && !xAxisHighlighted ? { cursor: "pointer" } : undefined,
@@ -1004,10 +1104,15 @@ const GraphPanel = (props) => {
           stroke: AXIS_COLOR,
           strokeWidth: 2,
           strokeLinecap: "butt",
+          opacity: yAxisOpacity,
         }),
         // ELEMENT: y-axis-arrow-up / y-axis-arrow-down — arrowheads on y-axis
-        renderAxisArrow(ORIGIN_X, plotTop, "up", AXIS_COLOR, yArrowDims),
-        renderAxisArrow(ORIGIN_X, plotBottom, "down", AXIS_COLOR, yArrowDims),
+        React.createElement(
+          "g",
+          { opacity: yAxisOpacity },
+          renderAxisArrow(ORIGIN_X, plotTop, "up", AXIS_COLOR, yArrowDims),
+          renderAxisArrow(ORIGIN_X, plotBottom, "down", AXIS_COLOR, yArrowDims),
+        ),
         axisLabels,
         showProp1Overlays && p1LineVisible
           ? React.createElement("line", {
@@ -1017,12 +1122,12 @@ const GraphPanel = (props) => {
               y1: plotTop,
               x2: toSvg(2, 0).x,
               y2: plotBottom,
-              stroke: YELLOW,
+              stroke: WHITE,
               strokeWidth: 2.5,
-              strokeDasharray: "0 8",
+              strokeDasharray: "7 5",
               strokeLinecap: "round",
               className:
-                "rg-p1-line-fade" +
+                "rg-p1-line-grow" +
                 (p1LineFadeReady || prop1Done || prop2Done ? " is-visible" : ""),
             })
           : null,
@@ -1052,7 +1157,7 @@ const GraphPanel = (props) => {
               x2: toSvg(2, -measureLineUnits).x,
               y2: toSvg(2, -measureLineUnits).y,
               stroke: YELLOW,
-              strokeWidth: 2.5,
+              strokeWidth: 4,
               strokeDasharray: "7 5",
             })
           : null,
@@ -1068,6 +1173,7 @@ const GraphPanel = (props) => {
               step4Phase === "revealing",
               "dist-dash",
               step6DimFirstQuadrant ? "rg-dehighlight" : "",
+              { strokeWidth: 4 },
             )
           : null,
         step === 6 && step6ShowVerticalLine
@@ -1080,6 +1186,8 @@ const GraphPanel = (props) => {
               true,
               step6VerticalLineGrowing,
               "step6-aprime-to-x",
+              "",
+              { strokeWidth: 4 },
             )
           : null,
         step === 6 && step6ShowHorizontalLine
@@ -1105,10 +1213,10 @@ const GraphPanel = (props) => {
                 axisFoot.y,
                 YELLOW,
                 true,
-                false,
-                "step7-a-to-x",
-                "",
-                { opacity: 0.5 },
+              false,
+              "step7-a-to-x",
+              "",
+                { opacity: 0.5, strokeWidth: 4 },
               ),
               renderGrowLine(
                 aPrimePt.x,
@@ -1117,10 +1225,10 @@ const GraphPanel = (props) => {
                 aPrimeAxisFoot.y,
                 YELLOW,
                 true,
-                false,
-                "step7-aprime-to-x",
-                "",
-                { opacity: 0.5 },
+              false,
+              "step7-aprime-to-x",
+              "",
+                { opacity: 0.5, strokeWidth: 4 },
               ),
             )
           : null,
@@ -1135,10 +1243,10 @@ const GraphPanel = (props) => {
                 yAxisFootA.y,
                 YELLOW,
                 true,
-                false,
-                "step7-a-to-y",
-                "",
-                { opacity: 0.5 },
+              false,
+              "step7-a-to-y",
+              "",
+                { opacity: 0.5, strokeWidth: 4 },
               ),
               renderGrowLine(
                 aPrimePt.x,
@@ -1147,10 +1255,10 @@ const GraphPanel = (props) => {
                 yAxisFootAPrime.y,
                 YELLOW,
                 true,
-                false,
-                "step7-aprime-to-y",
-                "",
-                { opacity: 0.5 },
+              false,
+              "step7-aprime-to-y",
+              "",
+                { opacity: 0.5, strokeWidth: 4 },
               ),
             )
           : null,
@@ -1165,9 +1273,11 @@ const GraphPanel = (props) => {
                 axisFoot.y,
                 YELLOW,
                 true,
-                false,
-                "step8-a-to-x",
-              ),
+              false,
+              "step8-a-to-x",
+              "",
+              { strokeWidth: 4 },
+            ),
               renderGrowLine(
                 aPrimePt.x,
                 aPrimePt.y,
@@ -1175,9 +1285,11 @@ const GraphPanel = (props) => {
                 aPrimeAxisFoot.y,
                 YELLOW,
                 true,
-                false,
-                "step8-aprime-to-x",
-              ),
+              false,
+              "step8-aprime-to-x",
+              "",
+              { strokeWidth: 4 },
+            ),
             )
           : null,
         showUnitLine
@@ -1234,8 +1346,14 @@ const GraphPanel = (props) => {
         step === 2 && step2Phase !== "correct" && step2Phase !== "done"
           ? React.createElement("circle", {
               id: "step2-target-nudge",
-              cx: toSvg(TARGET_A.x, TARGET_A.y).x,
-              cy: toSvg(TARGET_A.x, TARGET_A.y).y,
+              cx: toSvg(
+                (step2NudgePoint || TARGET_A).x,
+                (step2NudgePoint || TARGET_A).y,
+              ).x,
+              cy: toSvg(
+                (step2NudgePoint || TARGET_A).x,
+                (step2NudgePoint || TARGET_A).y,
+              ).y,
               r: POINT_RADIUS + 14,
               fill: "transparent",
               stroke: "transparent",
@@ -1331,6 +1449,12 @@ const GraphPanel = (props) => {
                   )
                 : reflectionLabelText,
             )
+          : null,
+        calloutVisible && calloutMode === "prop2B" && calloutPos === "q4"
+          ? renderCalloutBox("prop2A", "q1", {
+              id: "callout-box-q1-copy",
+              dimmed: true,
+            })
           : null,
         calloutVisible && calloutMode
           ? (() => {

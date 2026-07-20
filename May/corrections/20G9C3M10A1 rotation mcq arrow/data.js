@@ -8,7 +8,7 @@ const DATA = {
     app: {
       start: {
         heading: "Practice on Rotation",
-        text: "Let's practice what we have learned so far<br>about rotation.<br><br>Tap 'START' to begin.",
+        text: "Let's practice what we have learned so far<br>about rotation.<br><br><br>Tap 'START' to begin.",
         buttonText: "START",
       },
       end: {
@@ -18,7 +18,7 @@ const DATA = {
       },
       navText: "Tap the correct option",
       navCorrect: "Tap » for next question",
-      navLast: "Tap » to summarise",
+      navLast: "Tap » to conclude",
       navRetry: "Tap « to answer again",
       headings: {
         image: "Find the image coordinates",
@@ -38,30 +38,30 @@ const DATA = {
         },
         {
           findType: "image",
-          object: "A (3,2)",
+          object: "B (3,2)",
           transformation: "90° clockwise",
           image: null,
-          options: ["A' (2,3)", "A' (-3,-2)", "A' (2,-3)", "A' (-2,-3)"],
+          options: ["B' (2,3)", "B' (-3,-2)", "B' (2,-3)", "B' (-2,-3)"],
           correct: [2],
           feedback:
             "The rule for 90° clockwise rotation is<br>(x, y) → (y, -x)",
         },
         {
           findType: "image",
-          object: "A (4,-1)",
+          object: "C (4,-1)",
           transformation: "270° anticlockwise",
           image: null,
-          options: ["A' (-1,-4)", "A' (1,4)", "A' (-4,1)", "A' (1,-4)"],
+          options: ["C' (-1,-4)", "C' (1,4)", "C' (-4,1)", "C' (1,-4)"],
           correct: [0],
           feedback:
             "The rule for 270° anticlockwise rotation is<br>(x, y) → (y, -x)",
         },
         {
           findType: "image",
-          object: "A (3,2)",
+          object: "D (3,2)",
           transformation: "270° clockwise",
           image: null,
-          options: ["A' (2,-3)", "A' (-2,3)", "A' (-3,-2)", "A' (3,-2)"],
+          options: ["D' (2,-3)", "D' (-2,3)", "D' (-3,-2)", "D' (3,-2)"],
           correct: [1],
           feedback:
             "The rule for 270° clockwise rotation is<br>(x, y) → (-y, x)",
@@ -69,10 +69,10 @@ const DATA = {
 
         {
           findType: "image",
-          object: "A (-2,5)",
+          object: "E (-2,5)",
           transformation: "90° anticlockwise",
           image: null,
-          options: ["A' (5,2)", "A' (-5,-2)", "A' (-5,2)", "A' (2,5)"],
+          options: ["E' (5,2)", "E' (-5,-2)", "E' (-5,2)", "E' (2,5)"],
           correct: [1],
           feedback:
             "The rule for 90° anticlockwise rotation is<br>(x, y) → (-y, x)",
@@ -162,7 +162,7 @@ const DATA = {
           object: null,
           transformation: "90° clockwise",
           image: "A' (4,-2)",
-          options: ["(-2, 4)", "(4, 2)", "(-4, 2)", "(2, 4)"],
+          options: ["A (-2, 4)", "A (4, 2)", "A (-4, 2)", "A (2, 4)"],
           correct: [3],
           feedback:
             "The rule for 90° clockwise rotation is<br>(x, y) → (y, -x)",
@@ -172,7 +172,7 @@ const DATA = {
           object: null,
           transformation: "270° clockwise",
           image: "C' (6,1)",
-          options: ["(-1, 6)", "(1, 6)", "(1, -6)", "(-6, 1)"],
+          options: ["C (-1, 6)", "C (1, 6)", "C (1, -6)", "C (-6, 1)"],
           correct: [2],
           feedback:
             "The rule for 270° clockwise rotation is<br>(x, y) → (-y, x)",
@@ -182,7 +182,7 @@ const DATA = {
           object: null,
           transformation: "90° anticlockwise",
           image: "D' (-2,-7)",
-          options: ["(-7, 2)", "(7, 2)", "(2, -7)", "(7, -2)"],
+          options: ["D (-7, 2)", "D (7, 2)", "D (2, -7)", "D (7, -2)"],
           correct: [0],
           feedback:
             "The rule for 90° anticlockwise rotation is<br>(x, y) → (-y, x)",
@@ -192,7 +192,7 @@ const DATA = {
           object: null,
           transformation: "270° clockwise",
           image: "G' (-7,-2)",
-          options: ["(-2, 7)", "(2, -7)", "(-2, -7)", "(7, 2)"],
+          options: ["G (-2, 7)", "G (2, -7)", "G (-2, -7)", "G (7, 2)"],
           correct: [0],
           feedback:
             "The rule for 270° clockwise rotation is<br>(x, y) → (-y, x)",
@@ -203,7 +203,7 @@ const DATA = {
           object: null,
           transformation: "180° rotation",
           image: "B' (-3,5)",
-          options: ["(-3, -5)", "(3, -5)", "(5, 3)", "(-5, 3)"],
+          options: ["B (-3, -5)", "B (3, -5)", "B (5, 3)", "B (-5, 3)"],
           correct: [1],
           feedback: "The rule for 180° rotation is<br>(x, y) → (-x, -y)",
         },
@@ -243,40 +243,40 @@ const DATA = {
         },
         {
           findType: "image",
-          object: "A (3,2)",
+          object: "B (3,2)",
           transformation: "90° searah jarum jam",
           image: null,
-          options: ["A' (2,3)", "A' (-3,-2)", "A' (2,-3)", "A' (-2,-3)"],
+          options: ["B' (2,3)", "B' (-3,-2)", "B' (2,-3)", "B' (-2,-3)"],
           correct: [2],
           feedback:
             "Aturan untuk rotasi 90° searah jarum jam adalah<br>(x, y) → (y, -x)",
         },
         {
           findType: "image",
-          object: "A (4,-1)",
+          object: "C (4,-1)",
           transformation: "270° berlawanan arah jarum jam",
           image: null,
-          options: ["A' (-1,-4)", "A' (1,4)", "A' (-4,1)", "A' (1,-4)"],
+          options: ["C' (-1,-4)", "C' (1,4)", "C' (-4,1)", "C' (1,-4)"],
           correct: [0],
           feedback:
             "Aturan untuk rotasi 270° berlawanan arah jarum jam adalah<br>(x, y) → (y, -x)",
         },
         {
           findType: "image",
-          object: "A (3,2)",
+          object: "D (3,2)",
           transformation: "270° searah jarum jam",
           image: null,
-          options: ["A' (2,-3)", "A' (-2,3)", "A' (-3,-2)", "A' (3,-2)"],
+          options: ["D' (2,-3)", "D' (-2,3)", "D' (-3,-2)", "D' (3,-2)"],
           correct: [1],
           feedback:
             "Aturan untuk rotasi 270° searah jarum jam adalah<br>(x, y) → (-y, x)",
         },
         {
           findType: "image",
-          object: "A (-2,5)",
+          object: "E (-2,5)",
           transformation: "90° berlawanan arah jarum jam",
           image: null,
-          options: ["A' (5,2)", "A' (-5,-2)", "A' (-5,2)", "A' (2,5)"],
+          options: ["E' (5,2)", "E' (-5,-2)", "E' (-5,2)", "E' (2,5)"],
           correct: [1],
           feedback:
             "Aturan untuk rotasi 90° berlawanan arah jarum jam adalah<br>(x, y) → (-y, x)",
@@ -365,7 +365,7 @@ const DATA = {
           object: null,
           transformation: "90° searah jarum jam",
           image: "A' (4,-2)",
-          options: ["(-2, 4)", "(4, 2)", "(-4, 2)", "(2, 4)"],
+          options: ["A (-2, 4)", "A (4, 2)", "A (-4, 2)", "A (2, 4)"],
           correct: [3],
           feedback:
             "Aturan untuk rotasi 90° searah jarum jam adalah<br>(x, y) → (y, -x)",
@@ -375,7 +375,7 @@ const DATA = {
           object: null,
           transformation: "270° searah jarum jam",
           image: "C' (6,1)",
-          options: ["(-1, 6)", "(1, 6)", "(1, -6)", "(-6, 1)"],
+          options: ["C (-1, 6)", "C (1, 6)", "C (1, -6)", "C (-6, 1)"],
           correct: [2],
           feedback:
             "Aturan untuk rotasi 270° searah jarum jam adalah<br>(x, y) → (-y, x)",
@@ -385,7 +385,7 @@ const DATA = {
           object: null,
           transformation: "90° berlawanan arah jarum jam",
           image: "D' (-2,-7)",
-          options: ["(-7, 2)", "(7, 2)", "(2, -7)", "(7, -2)"],
+          options: ["D (-7, 2)", "D (7, 2)", "D (2, -7)", "D (7, -2)"],
           correct: [0],
           feedback:
             "Aturan untuk rotasi 90° berlawanan arah jarum jam adalah<br>(x, y) → (-y, x)",
@@ -395,7 +395,7 @@ const DATA = {
           object: null,
           transformation: "270° searah jarum jam",
           image: "G' (-7,-2)",
-          options: ["(-2, 7)", "(2, -7)", "(-2, -7)", "(7, 2)"],
+          options: ["G (-2, 7)", "G (2, -7)", "G (-2, -7)", "G (7, 2)"],
           correct: [0],
           feedback:
             "Aturan untuk rotasi 270° searah jarum jam adalah<br>(x, y) → (-y, x)",
@@ -405,7 +405,7 @@ const DATA = {
           object: null,
           transformation: "Rotasi 180°",
           image: "B' (-3,5)",
-          options: ["(-3, -5)", "(3, -5)", "(5, 3)", "(-5, 3)"],
+          options: ["B (-3, -5)", "B (3, -5)", "B (5, 3)", "B (-5, 3)"],
           correct: [1],
           feedback: "Aturan untuk rotasi 180° adalah<br>(x, y) → (-x, -y)",
         },

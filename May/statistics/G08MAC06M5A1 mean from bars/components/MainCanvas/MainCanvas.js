@@ -316,6 +316,7 @@ const MainCanvas = (props) => {
       setInputValue(num);
     } else {
       setInputValue(function (prev) {
+        if (prev.length >= 2) return prev;
         return prev + num;
       });
     }
@@ -354,7 +355,7 @@ const MainCanvas = (props) => {
         onUpdateQuestionText(step2Data.questionAfterCorrect);
         onUpdateNavText(step2Data.navAfterCorrect);
         onSetNextEnabled(true);
-      }, 1200);
+      }, 500);
     } else {
       playSound("wrong");
       setBoxState("wrong");
@@ -407,6 +408,7 @@ const MainCanvas = (props) => {
             .replace("VALUE", String(correctVal));
           onUpdateQuestionText(qText);
           onUpdateNavText(step3Data.navAfterOneCorrect);
+          setVarNudgesDismissed(false);
           setPhase("waitingClick");
         }
       }, 1200);
@@ -548,7 +550,7 @@ const MainCanvas = (props) => {
       e(
         "div",
         { className: "formula-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "div",
@@ -556,21 +558,21 @@ const MainCanvas = (props) => {
           e(
             "div",
             { className: "fraction-num" },
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "1"))),
+            e("span", { className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "1"))),
             e("span", { className: "formula-op" }, "+"),
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "2"))),
+            e("span", { className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "2"))),
             e("span", { className: "formula-op" }, "+"),
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "3"))),
+            e("span", { className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "3"))),
             e("span", { className: "formula-op" }, "+"),
             e("span", { className: "formula-dots" }, "..."),
             e("span", { className: "formula-op" }, "+"),
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "n")))
+            e("span", { className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "n")))
           ),
           e("div", { className: "fraction-line" }),
           e(
             "div",
             { className: "fraction-den" },
-            e("span", { className: "var-box" }, "n")
+            e("span", { className: "var-box var-box-non-button" }, "n")
           )
         )
       )
@@ -580,6 +582,7 @@ const MainCanvas = (props) => {
   // ---------- RENDER FORMULA (step 2) ----------
   function renderFormulaStep2() {
     var nContent;
+    var numContent;
     if (nBoxState === "var") {
       nContent = e(
         "span",
@@ -603,30 +606,46 @@ const MainCanvas = (props) => {
       nContent = e("span", { className: "var-filled" }, "5");
     }
 
+    if (nBoxState === "filled") {
+      numContent = [];
+      for (var i = 0; i < 5; i++) {
+        if (i > 0) {
+          numContent.push(e("span", { key: "op" + i, className: "formula-op" }, "+"));
+        }
+        numContent.push(
+          e(
+            "span",
+            { key: "x" + i, className: "var-box var-box-non-button" },
+            e("span", null, "x", e("sub", null, String(i + 1)))
+          )
+        );
+      }
+    } else {
+      numContent = [
+        e("span", { key: "x1", className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "1"))),
+        e("span", { key: "op1", className: "formula-op" }, "+"),
+        e("span", { key: "x2", className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "2"))),
+        e("span", { key: "op2", className: "formula-op" }, "+"),
+        e("span", { key: "x3", className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "3"))),
+        e("span", { key: "op3", className: "formula-op" }, "+"),
+        e("span", { key: "dots", className: "formula-dots" }, "..."),
+        e("span", { key: "opn", className: "formula-op" }, "+"),
+        e("span", { key: "xn", className: "var-box var-box-non-button" }, e("span", null, "x", e("sub", null, "n"))),
+      ];
+    }
+
     return e(
       "div",
       { className: "formula-container" },
       e(
         "div",
         { className: "formula-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "div",
           { className: "fraction" },
-          e(
-            "div",
-            { className: "fraction-num" },
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "1"))),
-            e("span", { className: "formula-op" }, "+"),
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "2"))),
-            e("span", { className: "formula-op" }, "+"),
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "3"))),
-            e("span", { className: "formula-op" }, "+"),
-            e("span", { className: "formula-dots" }, "..."),
-            e("span", { className: "formula-op" }, "+"),
-            e("span", { className: "var-box" }, e("span", null, "x", e("sub", null, "n")))
-          ),
+          e("div", { className: "fraction-num" }, numContent),
           e("div", { className: "fraction-line" }),
           e("div", { className: "fraction-den" }, nContent)
         )
@@ -675,7 +694,7 @@ const MainCanvas = (props) => {
       e(
         "div",
         { className: "formula-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "div",
@@ -719,7 +738,7 @@ const MainCanvas = (props) => {
     var eq1 = e(
       "div",
       { className: "formula-row equation-row eq1-row" + (sumAnimating ? " eq1-sum-animating" : "") },
-      e("span", { className: "var-box mean-box" + eq1DehClass }, renderXBar()),
+      e("span", { className: "var-box var-box-non-button mean-box" + eq1DehClass }, renderXBar()),
       e("span", { className: "formula-equals" + eq1DehClass }, "="),
       e(
         "div",
@@ -738,7 +757,7 @@ const MainCanvas = (props) => {
           "span",
           {
             ref: revealSumRef,
-            className: "reveal-target" + (revealBlinking ? " glow-blink" : ""),
+            className: "reveal-target reveal-sum-control" + (revealBlinking ? " glow-blink" : ""),
           },
           sumRevealText || ""
         );
@@ -747,7 +766,7 @@ const MainCanvas = (props) => {
           "span",
           {
             ref: revealSumRef,
-            className: "reveal-box",
+            className: "reveal-box reveal-sum-control",
             onClick: handleRevealSum,
           },
           step4Data.revealText
@@ -757,7 +776,7 @@ const MainCanvas = (props) => {
       eq2 = e(
         "div",
         { className: "formula-row equation-row eq2-row" },
-        e("span", { className: "var-box mean-box" + (sumAnimating ? " formula-dehighlight" : "") }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" + (sumAnimating ? " formula-dehighlight" : "") }, renderXBar()),
         e("span", { className: "formula-equals" + (sumAnimating ? " formula-dehighlight" : "") }, "="),
         e(
           "div",
@@ -771,7 +790,7 @@ const MainCanvas = (props) => {
       eq2 = e(
         "div",
         { className: "formula-row equation-row eq2-row" },
-        e("span", { className: "var-box mean-box" + eqPrefixDehClass }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" + eqPrefixDehClass }, renderXBar()),
         e("span", { className: "formula-equals" + eqPrefixDehClass }, "="),
         e(
           "div",
@@ -796,7 +815,7 @@ const MainCanvas = (props) => {
       eq3 = e(
         "div",
         { className: "formula-row equation-row eq3-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "span",
@@ -813,7 +832,7 @@ const MainCanvas = (props) => {
         eq3 = e(
           "div",
           { className: "formula-row equation-row eq3-row" },
-          e("span", { className: "var-box mean-box" }, renderXBar()),
+          e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
           e("span", { className: "formula-equals" }, "="),
           e("span", { className: "mean-result" }, "6.4")
         );
@@ -821,7 +840,7 @@ const MainCanvas = (props) => {
         eq3 = e(
           "div",
           { className: "formula-row equation-row eq3-row" },
-          e("span", { className: "var-box mean-box" }, renderXBar()),
+          e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
           e("span", { className: "formula-equals" }, "="),
           e(
             "div",
@@ -846,7 +865,7 @@ const MainCanvas = (props) => {
         eq3 = e(
           "div",
           { className: "formula-row equation-row eq3-row" },
-          e("span", { className: "var-box mean-box" + eqPrefixDehClass }, renderXBar()),
+          e("span", { className: "var-box var-box-non-button mean-box" + eqPrefixDehClass }, renderXBar()),
           e("span", { className: "formula-equals" + eqPrefixDehClass }, "="),
           e("span", {
             ref: revealMeanRef,
@@ -859,7 +878,7 @@ const MainCanvas = (props) => {
       eq2 = e(
         "div",
         { className: "formula-row equation-row eq2-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "div",
@@ -872,7 +891,7 @@ const MainCanvas = (props) => {
       eq3 = e(
         "div",
         { className: "formula-row equation-row eq3-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e("span", { className: "mean-result" }, "6.4")
       );
@@ -956,7 +975,7 @@ const MainCanvas = (props) => {
       e(
         "div",
         { className: "formula-row equation-row eq1-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "div",
@@ -973,7 +992,7 @@ const MainCanvas = (props) => {
       e(
         "div",
         { className: "formula-row equation-row eq2-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "div",
@@ -990,7 +1009,7 @@ const MainCanvas = (props) => {
       e(
         "div",
         { className: "formula-row equation-row eq3-row" },
-        e("span", { className: "var-box mean-box" }, renderXBar()),
+        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
         e(
           "span",
@@ -1072,7 +1091,7 @@ const MainCanvas = (props) => {
       step === 3 &&
       !varNudgesDismissed &&
       !startAtFinal &&
-      phase === "initial"
+      (phase === "initial" || phase === "waitingClick")
     ) {
       for (var i = 0; i < 5; i++) {
         if (filledVars[i] === null) {

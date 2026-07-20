@@ -493,13 +493,6 @@ const MainCanvas = ({
         isRotation: false,
       },
       {
-        selector: ".piit-col-trans",
-        refKey: "col-rot",
-        id: "fly-col-rot",
-        targetKey: "right-col-rot",
-        isRotation: true,
-      },
-      {
         selector: ".piit-col-img",
         refKey: "col-img",
         id: "fly-col-img",
@@ -507,12 +500,6 @@ const MainCanvas = ({
         isRotation: false,
       },
     ];
-
-    const wrapRotationColumnHtml = (columnHtml) =>
-      '<div class="piit-table has-translation is-trans-open is-rot-merged">' +
-      '<div class="piit-columns">' +
-      columnHtml +
-      "</div></div>";
 
     const snapshots = [];
     for (const def of columnDefs) {
@@ -528,40 +515,15 @@ const MainCanvas = ({
       snapshots.push({
         id: def.id,
         targetKey: def.targetKey,
-        isRotation: def.isRotation,
         startX: src.left,
         startY: src.top,
         width: src.width,
         height: src.height,
-        outerHTML: def.isRotation
-          ? wrapRotationColumnHtml(columnHtml)
-          : columnHtml,
+        outerHTML: columnHtml,
       });
     }
 
     return snapshots;
-  }, []);
-
-  const getRotationTargetRect = useCallback((snap) => {
-    const preEl = cellRefs.current["right-col-pre"];
-    const imgEl = cellRefs.current["right-col-img"];
-    if (!preEl || !imgEl) return null;
-
-    const pre = preEl.getBoundingClientRect();
-    const img = imgEl.getBoundingClientRect();
-    if (pre.width < 2 || img.width < 2 || img.left <= pre.right) return null;
-
-    const slotLeft = pre.right;
-    const slotWidth = img.left - pre.right;
-    const width = Math.min(snap.width, slotWidth);
-    const left = slotLeft + (slotWidth - width) / 2;
-
-    return {
-      left: left,
-      top: pre.top,
-      width: width,
-      height: pre.height,
-    };
   }, []);
 
   const applyTargetRectsToSnapshots = useCallback(
@@ -573,10 +535,7 @@ const MainCanvas = ({
           50,
         );
 
-        let tgt = targetEl ? targetEl.getBoundingClientRect() : null;
-        if ((!tgt || tgt.width < 2) && snap.isRotation) {
-          tgt = getRotationTargetRect(snap);
-        }
+        const tgt = targetEl ? targetEl.getBoundingClientRect() : null;
         if (!tgt || tgt.width < 2) continue;
 
         result.push({
@@ -589,7 +548,7 @@ const MainCanvas = ({
       }
       return result;
     },
-    [waitForElement, getRotationTargetRect],
+    [waitForElement],
   );
 
   const flyTableColumnsTogether = useCallback(
@@ -1425,6 +1384,7 @@ const MainCanvas = ({
       }
 
       setLeftTableFlyHidden(true);
+      setRightTablePrepInvisible(false);
       await delay(30);
       if (cancelled) return;
 
@@ -1432,7 +1392,6 @@ const MainCanvas = ({
       if (cancelled) return;
 
       setRightTableRevealed(true);
-      setRightTablePrepInvisible(false);
       await delay(100);
 
       if (!cancelled && typeof onStep8TransitionComplete === "function") {
@@ -1759,8 +1718,8 @@ const MainCanvas = ({
       rightTableRevealed && tableVisible && showRightTable,
     prepInvisible: rightTablePrepInvisible,
     contentVisible: true,
-    showRotationColumn: true,
-    rotationColumnOpen: rotationColumnOpen || step === 9,
+    showRotationColumn: false,
+    rotationColumnOpen: false,
     rotationCells: rotationCells,
     rotationMerged: rotationMerged,
     hideRotTop: hideRotTop,
@@ -1768,7 +1727,7 @@ const MainCanvas = ({
     rotationFirstDashed: rotationFirstDashed,
     cellHighlight: step9CellHighlight,
     hideUnknownBorders: step9HideUnknownBorders,
-    twoColumnOnly: false,
+    twoColumnOnly: true,
   };
 
   const leftTableProps = {
