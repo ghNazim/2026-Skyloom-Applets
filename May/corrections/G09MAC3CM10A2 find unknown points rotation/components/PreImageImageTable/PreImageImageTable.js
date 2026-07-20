@@ -356,7 +356,7 @@ const PreImageImageTable = ({
       {
         className:
           "piit-cell piit-trans-cell" +
-          (isMultiline ? " is-multiline" : "") +
+          (isMultiline ? " is-multiline "+ current_language : "") +
           (hideCell ? " is-hidden-cell" : ""),
         style: style,
         ref: (el) => {
@@ -503,7 +503,8 @@ const PreImageImageTable = ({
     "piit-col-trans" +
     (showRotationColumn && !twoColumnOnly ? " is-present" : "") +
     (rotationColumnOpen ? " is-open" : "") +
-    (hideRotationColumn ? " is-source-hidden" : "");
+    (hideRotationColumn ? " is-source-hidden" : "") + " " +current_language;
+    
 
   const colClass = (kind) =>
     "piit-column piit-col-" +

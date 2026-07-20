@@ -67,7 +67,7 @@ const TranslationGraphPanel = ({
 
   const GRID_COLOR = "#3a6d8c";
   const AXIS_COLOR = "#ffffff";
-  const BG_COLOR = "#0a1520";
+  const BG_COLOR = "none";
 
   const toSvg = useCallback(
     (gx, gy) => ({

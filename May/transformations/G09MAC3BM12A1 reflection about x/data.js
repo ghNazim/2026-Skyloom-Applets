@@ -59,34 +59,35 @@ const DATA = {
         },
         6: {
           rightTextDone:
-            "Kita menemukan bayangan dari<br><y>A(2, 4)</y> di <y>A&rsquo;(2, -4)</y>.",
-          navTextDone: "Ketuk &raquo; untuk menyimpulkan polanya.",
+            "We located the image of<br><y>A(2, 4)</y> at <y>A&rsquo;(2, -4)</y>.",
+          navTextDone: "Tap &raquo; to deduce the pattern.",
         },
         7: {
-          topText: "<y>Bandingkan koordinat titik dan bayangannya.</y>",
-          title: "Pengamatan mana yang benar?",
-          optionX: "koordinat-x berubah",
-          optionY: "koordinat-y berubah",
-          navTextInitial: "Ketuk pilihan yang benar.",
-          navTextDone: "Ketuk &raquo; untuk melanjutkan.",
+          topText: "<y>Compare the coordinates of point and its image.</y>",
+          title: "Which of these observations is correct?",
+          optionX: "x-coordinate changed",
+          optionY: "y-coordinate changed",
+          navTextInitial: "Tap the correct option.",
+          navTextDone: "Tap &raquo; to continue.",
           feedbackWrong:
-            "Belum tepat, coba perhatikan lagi!<br>Koordinat-x titik dan bayangannya sama.",
+            "No, look again!<br>The x-coordinate of point and its image is same.",
           feedbackCorrect:
-            "Benar!<br>Koordinat-y titik dan bayangannya memiliki tanda yang berlawanan.",
+            "That&rsquo;s correct!<br>y-coordinates of point and its image have opposite signs.",
         },
         8: {
-          topTextInitial: "<y>Bandingkan koordinat titik dan bayangannya.</y>",
-          topTextRule: "Aturan refleksi terhadap sumbu-x.",
-          navTextInitial: "Ketuk 'Tampilkan' untuk melihat aturan sumbu-x.",
-          navTextDone: "Ketuk &raquo; untuk melihat penerapan aturan ini.",
-          observationTitle: "Pengamatan",
-          observationX: "koordinat-x:",
-          observationXValue: "Tidak berubah",
-          observationY: "koordinat-y:",
-          observationYValue: "Tanda berubah",
+          topTextInitial:
+            "<y>Compare the coordinates of point and its image.</y>",
+          topTextRule: "Rule for reflection across x-axis.",
+          navTextInitial: "Tap 'Reveal' for the x-axis rule.",
+          navTextDone: "Tap &raquo; to see applications of this rule.",
+          observationTitle: "Observation",
+          observationX: "x-coordinate:",
+          observationXValue: "No change",
+          observationY: "y-coordinate:",
+          observationYValue: "Sign changed",
           bodyText:
-            "Pola ini berlaku untuk semua<br>titik yang direfleksikan<br>terhadap sumbu-x.<br><br>Mari kita lihat aturan umumnya.",
-          revealBtn: "Tampilkan",
+            "This pattern works for all<br>points reflected<br>across the x-axis.<br><br>Let&rsquo;s see the general rule.",
+          revealBtn: "Reveal",
         },
         9: {
           questions: [
@@ -97,7 +98,7 @@ const DATA = {
               imageX: "3",
               imageY: "-4",
               topText:
-                "Tentukan koordinat bayangan ketika titik A(3, 4) direfleksikan terhadap sumbu-x.",
+                "Find coordinates of image when point A(3, 4) is reflected across x-axis.",
               options: ["3", "-3", "4", "-4"],
             },
             {
@@ -107,7 +108,7 @@ const DATA = {
               imageX: "0",
               imageY: "3",
               topText:
-                "Tentukan koordinat bayangan ketika titik B(0, -3) direfleksikan terhadap sumbu-x.",
+                "Find coordinates of image when point B(0, -3) is reflected across x-axis.",
               options: ["0", "3", "-3"],
             },
             {
@@ -117,7 +118,7 @@ const DATA = {
               imageX: "-3",
               imageY: "2",
               topText:
-                "Tentukan koordinat bayangan ketika titik C(-3, -2) direfleksikan terhadap sumbu-x.",
+                "Find coordinates of image when point C(-3, -2) is reflected across x-axis.",
               options: ["3", "-3", "2", "-2"],
             },
           ],

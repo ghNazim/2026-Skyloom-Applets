@@ -1,0 +1,92 @@
+:root {
+  /* Color Palette */
+  --accent-color: #f97315;
+  --panel-border-color: #c9a4ff90;
+  --light-text-color: rgba(255, 255, 255, 0.87);
+
+  /* Button styles */
+  --start-button-gradient-start: #ff9800;
+  --start-button-gradient-end: rgb(255, 133, 12);
+  --start-button-shadow: rgb(198, 82, 0);
+  --button-border-color: #6c757d;
+  --button-hover-border-color: #ffc107;
+
+  --text-box-bg: rgba(30, 137, 186, 0.25);
+  --text-box-text-shadow: 0 0.08vw 0.2vw rgba(0, 0, 0, 0.42);
+  --text-box-shadow: 0 0.25vw 0.65vw rgba(0, 0, 0, 0.28);
+
+  /* Canvas action buttons (reveal, blue-box, mcq, start, etc.) */
+  --action-btn-bg: #ffb84c;
+  --action-btn-text: #0c2432;
+  --action-btn-shadow: #c8872e;
+  --action-btn-highlight: rgba(255, 255, 255, 0.35);
+  --action-btn-radius: 0.8vw;
+
+  /* Zoom slider */
+  --slider-card-bg: #05435e;
+  --slider-track-bg: #0c8eb9;
+  --slider-thumb-border: #f9b000;
+  --slider-card-shadow: 0 0.2vw 0.45vw rgba(0, 0, 0, 0.45);
+  --slider-thumb-shadow: 0 0.15vw 0.35vw rgba(0, 0, 0, 0.55);
+  --slider-thumb-border-low-opacity: #f9ae007c;
+
+  /* Mirror wrong-feedback box */
+  --mirror-feedback-bg: rgba(72, 50, 56, 0.92);
+  --mirror-feedback-border: #e9978a;
+  --mirror-feedback-text: #ffffff;
+  --mirror-feedback-text-shadow: 0 0.08vw 0.2vw rgba(0, 0, 0, 0.42);
+
+  /* Other colors */
+  --white-color: #ffffff;
+  --transparent-black-20: rgba(0, 0, 0, 0.2);
+
+  /* Typography */
+  --font-family: Roboto, Arial, sans-serif;
+
+}
+html {
+  font-size: 1.5vw;
+}
+button{
+  font-family: var(--font-family);
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: var(--font-family);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--light-text-color);
+  background-image: url("../assets/DarkBG2.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* #root{
+  
+} */
+
+y {
+  font-weight: 600;
+  color: #ff9800;
+  display: inline;
+}
+
+
+cm {
+  --font-family-comma: Georgia, sans-serif;
+  font-family: var(--font-family-comma);
+  display: inline;
+}

@@ -73,6 +73,10 @@
   opacity: 1;
 }
 
+.piit-table.is-trans-open .piit-col-trans.is-open.id {
+  flex: 1.8;
+}
+
 .piit-table.is-rot-merged .piit-col-trans.is-open {
   overflow: visible;
 }
@@ -174,6 +178,10 @@
   padding-left: 0.4vw;
   padding-right: 0.4vw;
 }
+.piit-trans-cell.is-multiline.id{
+  line-height: 1;
+}
+
 
 .piit-rot-cell-slot {
   position: relative;

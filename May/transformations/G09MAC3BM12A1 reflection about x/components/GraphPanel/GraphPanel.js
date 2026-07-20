@@ -309,27 +309,49 @@ const GraphPanel = (props) => {
         (step === 6 && step6HighlightX2 && i === 2) ||
         (step === 7 && step7Answer === "wrong" && i === 2);
       const isAxisNumberHighlight = isWrongPlotHighlight || isCoordinateHighlight;
-      els.push(
-        React.createElement(
-          "text",
-          {
-            key: "xl-" + i,
-            x: px,
-            y: ORIGIN_Y + 24,
-            fill: isWrongPlotHighlight
-              ? WRONG_COLOR
-              : isCoordinateHighlight
-                ? YELLOW
-                : AXIS_COLOR,
-            opacity: isAxisNumberHighlight ? 1 : AXIS_DIM_OPACITY,
-            fontSize: isCoordinateHighlight ? AXIS_NUM_FONT * 1.2 : AXIS_NUM_FONT,
-            fontWeight: "600",
-            textAnchor: "middle",
-            fontFamily: "system-ui, sans-serif",
-          },
-          String(i),
-        ),
+      const labelFontSize = isCoordinateHighlight ? AXIS_NUM_FONT * 1.2 : AXIS_NUM_FONT;
+      const labelY = ORIGIN_Y + 24;
+      const labelText = React.createElement(
+        "text",
+        {
+          key: "xl-text-" + i,
+          x: px,
+          y: labelY,
+          fill: isWrongPlotHighlight
+            ? WRONG_COLOR
+            : isCoordinateHighlight
+              ? YELLOW
+              : AXIS_COLOR,
+          opacity: isAxisNumberHighlight ? 1 : AXIS_DIM_OPACITY,
+          fontSize: labelFontSize,
+          fontWeight: "600",
+          textAnchor: "middle",
+          fontFamily: "system-ui, sans-serif",
+        },
+        String(i),
       );
+
+      if (i === 2) {
+        const boxWidth = labelFontSize * 0.58;
+        const boxHeight = labelFontSize * 1.05;
+        els.push(
+          React.createElement(
+            "g",
+            { key: "xl-" + i },
+            React.createElement("rect", {
+              key: "xl-bg-" + i,
+              x: px - boxWidth / 2,
+              y: labelY - labelFontSize * 0.82,
+              width: boxWidth,
+              height: boxHeight,
+              fill: "#0a2b3f",
+            }),
+            labelText,
+          ),
+        );
+      } else {
+        els.push(labelText);
+      }
     }
     for (let j = Y_MIN + 1; j < Y_MAX; j++) {
       if (j === 0) continue;
@@ -751,6 +773,7 @@ const GraphPanel = (props) => {
       (step === 7 && step7Answer === "wrong") || (step === 8 && step8XActive);
     const highlightY =
       (step === 7 && step7Answer === "correct") || (step === 8 && step8YActive);
+    const dimNonYParts = step === 7 && step7Answer === "correct";
     const showCoords = step === 7 || step === 8 || step6ShowCoordLabel;
 
     if (!showCoords) {
@@ -784,17 +807,17 @@ const GraphPanel = (props) => {
         fontWeight: "700",
         fontFamily: "system-ui, sans-serif",
       },
-      React.createElement("tspan", { opacity: highlightY ? COORD_DIM_OPACITY : 1 }, "A\u2032("),
+      React.createElement("tspan", { opacity: dimNonYParts ? COORD_DIM_OPACITY : 1 }, "A\u2032("),
       React.createElement(
         "tspan",
         {
           fill: highlightX ? (step === 8 ? STEP8_X_HIGHLIGHT : YELLOW) : WHITE,
-          opacity: step === 6 && !step6ShowCoordX ? 0 : highlightY ? COORD_DIM_OPACITY : 1,
+          opacity: step === 6 && !step6ShowCoordX ? 0 : dimNonYParts ? COORD_DIM_OPACITY : 1,
           className: step8XBlink ? "rg-blink-text" : undefined,
         },
         "2",
       ),
-      React.createElement("tspan", { opacity: highlightY ? COORD_DIM_OPACITY : 1 }, ", "),
+      React.createElement("tspan", { opacity: dimNonYParts ? COORD_DIM_OPACITY : 1 }, ", "),
       React.createElement(
         "tspan",
         {
@@ -809,7 +832,7 @@ const GraphPanel = (props) => {
         },
         "-4",
       ),
-      React.createElement("tspan", { opacity: highlightY ? COORD_DIM_OPACITY : 1 }, ")"),
+      React.createElement("tspan", { opacity: dimNonYParts ? COORD_DIM_OPACITY : 1 }, ")"),
     );
   };
 
@@ -1113,7 +1136,7 @@ const GraphPanel = (props) => {
           renderAxisArrow(ORIGIN_X, plotTop, "up", AXIS_COLOR, yArrowDims),
           renderAxisArrow(ORIGIN_X, plotBottom, "down", AXIS_COLOR, yArrowDims),
         ),
-        axisLabels,
+        step === 6 ? null : axisLabels,
         showProp1Overlays && p1LineVisible
           ? React.createElement("line", {
               // ELEMENT: reflection-dotted-line — yellow dotted vertical line at x=2 (step 5 prop1)
@@ -1343,6 +1366,7 @@ const GraphPanel = (props) => {
                 : null,
             )
           : null,
+        step === 6 ? axisLabels : null,
         step === 2 && step2Phase !== "correct" && step2Phase !== "done"
           ? React.createElement("circle", {
               id: "step2-target-nudge",

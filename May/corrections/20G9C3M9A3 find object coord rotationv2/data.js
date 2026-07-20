@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Finding Object Coordinates",
         text:
-          "Given image coordinates and rotation,<br>find object coordinates.<br><br>Click START to begin!",
+          "Given image coordinates and rotation,<br>find object coordinates.<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       final: {
@@ -192,7 +192,7 @@ const DATA = {
       start: {
         heading: "Mencari Koordinat Objek",
         text:
-          "Diberikan koordinat bayangan dan rotasi,<br>cari koordinat objek.<br><br>Ketuk MULAI untuk memulai!",
+          "Diberikan koordinat bayangan dan rotasi,<br>cari koordinat objek.<br><br><br>Ketuk MULAI untuk memulai!",
         buttonText: "MULAI",
       },
       final: {

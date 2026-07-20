@@ -14,11 +14,11 @@ const DATA = {
       },
       question: {
         text:
-          'Triangle PQR is transformed to produce the image P\u2019Q\u2019R\u2019.<br> Given <span id="highlight-p" class="orange-bg fly-source">P (2,1)</span>, <span id="highlight-q" class="orange-bg fly-source">Q (4,3)</span>, <span id="highlight-p-prime" class="cyan-bg fly-source">P\u2019 (1,-2)</span>, and <span id="highlight-r-prime" class="cyan-bg fly-source">R\u2019 (4,-3)</span>. Determine the coordinates of <span id="highlight-r-solve" class="orange-bg">R</span> and <span id="highlight-qprime-solve" class="cyan-bg">Q\u2019</span>.',
+          'Triangle PQR is rotated to produce the image P’Q’R’.<br> Given <span id="highlight-p" class="orange-bg fly-source">P (2,1)</span>, <span id="highlight-q" class="orange-bg fly-source">Q (4,3)</span>, <span id="highlight-p-prime" class="cyan-bg fly-source">P’ (1,-2)</span>, and <span id="highlight-r-prime" class="cyan-bg fly-source">R’ (4,-3)</span>. Determine the coordinates of <span id="highlight-r-solve" class="orange-bg">R</span> and <span id="highlight-qprime-solve" class="cyan-bg">Q’</span>.',
         textPlain:
-          "Triangle PQR is transformed to produce the image P\u2019Q\u2019R\u2019.<br> Given P (2,1), Q (4,3), P\u2019 (1,-2), and R\u2019 (4,-3). Determine the coordinates of R and Q\u2019.",
+          "Triangle PQR is rotated to produce the image P’Q’R’.<br> Given P (2,1), Q (4,3), P’ (1,-2), and R’ (4,-3). Determine the coordinates of R and Q’.",
         textStep9:
-          "Triangle PQR is transformed to produce the image P\u2019Q\u2019R\u2019.<br> Given P (2,1), Q (4,3), P\u2019 (1,-2), and R\u2019 (4,-3). <span id=\"highlight-solve-phrase\" class=\"purple-bg\">Determine the coordinates of R and Q\u2019.</span>",
+          "Triangle PQR is rotated to produce the image P’Q’R’.<br> Given P (2,1), Q (4,3), P’ (1,-2), and R’ (4,-3). <span id=\"highlight-solve-phrase\" class=\"purple-bg\">Determine the coordinates of R and Q’.</span>",
       },
       graph: {
         labelP: "P (2,1)",

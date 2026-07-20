@@ -210,7 +210,7 @@ const RotationFormulaPanel = ({
             { className: "rfp-mcq-options" },
             mcq.options.map((opt, index) => {
               let cls = "rfp-mcq-option";
-              if (String(opt).includes("\n")) cls += " is-multiline";
+              if (String(opt).includes("\n")) cls += " is-multiline " + current_language;
               const showResult = step5Selected === index && picked;
               if (showResult && index !== mcq.correctIndex) cls += " wrong";
               if (showResult && index === mcq.correctIndex) cls += " correct";

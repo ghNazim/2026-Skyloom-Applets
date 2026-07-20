@@ -207,9 +207,12 @@ const MainCanvas = ({
       const srcStyle = window.getComputedStyle(sourceEl);
       const tgtStyle = window.getComputedStyle(targetEl);
       const startFontSize = options.startFontSize || srcStyle.fontSize;
-      const endFontSize = options.shrinkWhileFlying
+      const endFontSize = options.preserveSourceFontSize
         ? startFontSize
-        : options.endFontSize || tgtStyle.fontSize;
+        : options.shrinkWhileFlying
+          ? startFontSize
+          : options.endFontSize || tgtStyle.fontSize;
+      const preserveSourceBox = options.preserveSourceBox === true;
       const flyEndScale = options.shrinkWhileFlying
         ? options.flyEndScale != null
           ? options.flyEndScale
@@ -229,6 +232,13 @@ const MainCanvas = ({
             startScale: flyEndScale != null ? 1 : null,
             endScale: flyEndScale,
             fontWeight: srcStyle.fontWeight,
+            width: preserveSourceBox ? src.width : null,
+            height: preserveSourceBox ? src.height : null,
+            fontFamily: preserveSourceBox ? srcStyle.fontFamily : null,
+            lineHeight: preserveSourceBox ? srcStyle.lineHeight : null,
+            whiteSpace: preserveSourceBox ? srcStyle.whiteSpace : null,
+            padding: preserveSourceBox ? srcStyle.padding : null,
+            boxSizing: preserveSourceBox ? srcStyle.boxSizing : null,
             startX: src.left + src.width / 2,
             startY: src.top + src.height / 2,
             dx: dx,
@@ -255,11 +265,15 @@ const MainCanvas = ({
   }, [getFlyText]);
 
   const flyBetweenRefs = useCallback(
-    async (fromKey, toKey, text, color) => {
+    async (fromKey, toKey, text, color, flyOptions = {}) => {
       await delay(50);
       const sourceEl = cellRefs.current[fromKey];
       const targetEl = cellRefs.current[toKey];
-      await animateFly(sourceEl, targetEl, { text: text, color: color });
+      await animateFly(sourceEl, targetEl, {
+        ...flyOptions,
+        text: text,
+        color: color,
+      });
     },
     [animateFly],
   );
@@ -1172,7 +1186,11 @@ const MainCanvas = ({
       const val = APP_DATA.table.rotationValue;
       const btnEl = document.getElementById("rotation-mcq-opt-0");
       const targetEl = cellRefs.current["rot-0"];
-      await animateFly(btnEl, targetEl, { text: val, color: "#ffffff" });
+      await animateFly(btnEl, targetEl, {
+        text: val,
+        color: "#ffffff",
+        preserveSourceBox: true,
+      });
       setRotationCells([val, null, null]);
       setRotationFirstDashed(true);
       await delay(350);
@@ -1195,10 +1213,16 @@ const MainCanvas = ({
       setRotationFirstDashed(false);
       await delay(400);
 
-      await flyBetweenRefs("rot-val-0", "rot-1", val);
+      await flyBetweenRefs("rot-val-0", "rot-1", val, "#ffffff", {
+        preserveSourceBox: true,
+        preserveSourceFontSize: true,
+      });
       setRotationCells([val, val, null]);
       await delay(250);
-      await flyBetweenRefs("rot-val-0", "rot-2", val);
+      await flyBetweenRefs("rot-val-0", "rot-2", val, "#ffffff", {
+        preserveSourceBox: true,
+        preserveSourceFontSize: true,
+      });
       setRotationCells([val, val, val]);
       await delay(350);
 
@@ -1937,9 +1961,19 @@ const MainCanvas = ({
         style: {
           left: clone.startX + "px",
           top: clone.startY + "px",
+          width: clone.width != null ? clone.width + "px" : undefined,
+          height: clone.height != null ? clone.height + "px" : undefined,
+          display: clone.width != null ? "flex" : undefined,
+          alignItems: clone.width != null ? "center" : undefined,
+          justifyContent: clone.width != null ? "center" : undefined,
+          boxSizing: clone.boxSizing || undefined,
+          padding: clone.padding || undefined,
           color: clone.color || "#ffffff",
           fontSize: clone.animating ? clone.endFontSize : clone.startFontSize,
           fontWeight: clone.fontWeight,
+          fontFamily: clone.fontFamily || undefined,
+          lineHeight: clone.lineHeight || undefined,
+          whiteSpace: clone.whiteSpace || undefined,
           transition: clone.transitionDuration
             ? "transform " +
               clone.transitionDuration +
