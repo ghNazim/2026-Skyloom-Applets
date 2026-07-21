@@ -31,7 +31,8 @@ const DATA = {
         4: {
           questionText:
             "The two polygons are congruent. Can you find the values of u and v?",
-          navText: "Tap polygon 2 to make it similar to polygon 1.",
+          navText:
+            "Tap polygon 2 to change it's orientation to match polygon 1.",
           polygon1: "Polygon 1",
           polygon2: "Polygon 2",
           actionText: "Polygon 1 ≅ Polygon 2",
@@ -137,13 +138,12 @@ const DATA = {
           actionText: "Poligon 1 ≅ Poligon 2",
           questionAfterRotate:
             "Sudut-sudut yang bersesuaian sekarang berada pada posisi yang cocok.",
-          navAfterRotate:
-            "Ketuk » untuk memberi label titik sudut poligon.",
+          navAfterRotate: "Ketuk » untuk memberi label titik sudut poligon.",
         },
         5: {
-          questionText:
-            "Apa urutan titik sudut yang benar pada PQRS?",
-          navText: "Ketuk titik sudut dalam urutan yang benar untuk memberi label.",
+          questionText: "Apa urutan titik sudut yang benar pada PQRS?",
+          navText:
+            "Ketuk titik sudut dalam urutan yang benar untuk memberi label.",
           actionText: "ABCD ≅ PQRS",
           questionLabeled: "Titik sudut poligon telah diberi label.",
           navLabeled:
@@ -153,9 +153,9 @@ const DATA = {
           questionText:
             "Identifikasi sudut pada ABCD yang bersesuaian dengan ∠Q.",
           navText: "Ketuk sudut yang cocok pada ABCD.",
-          navDone: "Ketuk » untuk mengidentifikasi sudut berikutnya yang belum diketahui.",
-          actionText:
-            "Karena kedua poligon kongruen,<br>∠B = ∠Q",
+          navDone:
+            "Ketuk » untuk mengidentifikasi sudut berikutnya yang belum diketahui.",
+          actionText: "Karena kedua poligon kongruen,<br>∠B = ∠Q",
         },
         7: {
           questionText:

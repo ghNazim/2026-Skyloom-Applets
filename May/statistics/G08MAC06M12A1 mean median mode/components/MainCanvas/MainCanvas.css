@@ -673,12 +673,12 @@
   width: 24vw;
   min-height: 12vw;
   border-radius: 1vw;
-  padding: 1.4vw 1.8vw;
+  padding: 1vw;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2vw;
+  font-size: 2.5vw;
   line-height: 1.2;
   text-align: center;
   background: rgba(95, 72, 90, 0.72);
@@ -995,9 +995,10 @@
 
 .mean-dd-right,
 .mean-numpad-wrap {
-  width: 28vw;
+  width: auto;
   flex-shrink: 0;
   box-sizing: border-box;
+  /* overflow: visible; */
 }
 
 .mean-dd-right {
@@ -1006,10 +1007,10 @@
   gap: 1.1vw;
   /* align-items: stretch; */
   align-items: center;
-  padding: 1.2vw;
-  border-radius: 1vw;
+  padding: 1vw;
+  border-radius: 2vw;
   /* border: 0.15vw solid rgba(255, 255, 255, 0.35); */
-  /* background: rgba(0, 0, 0, 0.2); */
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .mean-dd-formula {
@@ -1029,6 +1030,22 @@
   left: -10vw; */
 }
 
+.mean-dd-right.step8.complete {
+  background: transparent;
+}
+
+.mean-dd-formula.step8 .mean-dd-fraction {
+  width: 22vw;
+  min-width: 22vw;
+  max-width: 22vw;
+}
+
+.mean-dd-formula.step8 .mean-dd-fraction .mean-dd-zone.fraction-zone {
+  width: 22vw;
+  min-width: 22vw;
+  max-width: 22vw;
+}
+
 .mean-dd-right.step9-collapse {
   width: 28vw;
   min-width: 0;
@@ -1036,6 +1053,7 @@
   padding-right: 1.2vw;
   overflow: hidden;
   opacity: 1;
+  background: transparent;
   transition:
     width 0.9s cubic-bezier(0.22, 1, 0.36, 1),
     padding-left 0.9s cubic-bezier(0.22, 1, 0.36, 1),
@@ -1067,6 +1085,7 @@
   min-width: 16vw;
   width: max-content;
   max-width: 24vw;
+  position: relative;
 }
 
 .mean-dd-fraction .mean-dd-zone.fraction-zone {
@@ -1225,6 +1244,11 @@
   opacity: 0;
 }
 
+.mean-dd-draggable.placed-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .mean-dd-ghost {
   position: fixed;
   z-index: 9999;
@@ -1235,6 +1259,47 @@
   box-shadow: 0 0.5vw 1vw rgba(0, 0, 0, 0.45);
 }
 
+.step8-fraction-midpoint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.mean-step8-drag-hint {
+  position: absolute;
+  z-index: 130;
+  left: var(--hint-from-x);
+  top: var(--hint-from-y);
+  width: 5vw;
+  height: auto;
+  opacity: 0.6;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: mean-step8-tap-drag 1.8s ease-in-out infinite;
+}
+
+@keyframes mean-step8-tap-drag {
+  0%, 16% {
+    left: var(--hint-from-x);
+    top: var(--hint-from-y);
+    transform: translate(-50%, -50%) scale(1);
+  }
+  68%, 82% {
+    left: var(--hint-to-x);
+    top: var(--hint-to-y);
+    transform: translate(-50%, -50%) scale(0.94);
+  }
+  100% {
+    left: var(--hint-from-x);
+    top: var(--hint-from-y);
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 /* Step 9 — same formula look as step 8 complete */
 .mean-step9-panel {
   height: 100%;
@@ -1242,6 +1307,30 @@
 
 .mean-step9-panel .mean-dd-left {
   flex: 1;
+}
+
+.mean-step9-panel .mean-dd-fraction {
+  width: 22vw;
+  min-width: 22vw;
+  max-width: 22vw;
+  flex: 0 0 auto;
+}
+
+.mean-step9-panel .mean-dd-fraction .mean-dd-zone.fraction-zone {
+  width: 22vw;
+  min-width: 22vw;
+  max-width: 22vw;
+  height: 7vw;
+  min-height: 7vw;
+  max-height: 7vw;
+  flex: 0 0 7vw;
+  padding: 0.45vw 0.65vw;
+  overflow: hidden;
+}
+
+.mean-step9-panel .step9-sum-expression {
+  width: 100%;
+  font-size: 2.25vw;
 }
 
 .mean-step9-panel .mean-dd-zone.step9-static,

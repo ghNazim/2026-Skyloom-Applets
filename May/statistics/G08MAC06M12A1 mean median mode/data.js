@@ -20,7 +20,8 @@ const DATA = {
       },
       steps: {
         1: {
-          questionText: "Let's first determine the mode.<br>How many modes are there?",
+          questionText:
+            "Let's first determine the mode.<br>How many modes are there?",
           navText: "Tap and choose the correct number of modes.",
           countPrompt: "How many modes?",
           identifyPrompt: "What are the modes?",
@@ -28,25 +29,29 @@ const DATA = {
           countCorrectQuestion: "There are 2 modes. Identify these 2 modes.",
           countCorrectNav: "Tap and choose the correct modes.",
           oneModeQuestion: "You found one mode. Find the other mode as well.",
-          completeQuestion: "So, the modes of this data set are: <y>4</y> and <yl>6</yl>.",
+          completeQuestion:
+            "So, the modes of this data set are: <y>4</y> and <yl>6</yl>.",
           completeNav: "Tap &raquo; to find the median of the data set.",
         },
         2: {
-          questionText: "What are the steps of finding the median of a data set having 9 values.",
+          questionText:
+            "What are the steps of finding the median of a data set having 9 values.",
           navText: "Drag the correct option near the correct step number.",
-          completeQuestion: "That's right. The steps are in order. Let's now find the mean step wise.",
+          completeQuestion:
+            "That's right. The steps are in order. Let's now find the mean step wise.",
           completeNav: "Tap step 1 to sort the data set.",
           stepLabels: ["Step 1", "Step 2", "Step 3"],
           options: {
             find: "Find the median",
             sort: "Sort the data from smallest to largest",
-            eliminate: "Eliminate values in pairs to find middle",
+            eliminate: "Cross out values in pairs to find middle",
           },
           initialOrder: ["find", "sort", "eliminate"],
           correctOrder: ["sort", "eliminate", "find"],
         },
         3: {
-          questionText: "Let's order the data set in order from smallest to largest.",
+          questionText:
+            "Let's order the data set in order from smallest to largest.",
           navText: "Tap each value in order from smallest to largest.",
           smallest: "Smallest",
           largest: "Largest",
@@ -56,14 +61,18 @@ const DATA = {
           navText: "Tap on step 2.",
         },
         5: {
-          questionText: "Let us now eliminate values to reach the middle value(s).",
-          navText: "Tap the smallest or largest - both will be removed together.",
+          questionText:
+            "Let us now cross out values to reach the middle value(s).",
+          navText:
+            "Tap the smallest or largest - both will be removed together.",
           ongoingNav: "Tap the next smallest or largest value.",
-          completeQuestion: "Step 2 is also done. Let us now move ahead with the last step.",
+          completeQuestion:
+            "Step 2 is also done. Let us now move ahead with the last step.",
           completeNav: "Tap on step 3.",
         },
         6: {
-          questionText: "There are two middle values.<br>How do we find the median of the data set in this case?",
+          questionText:
+            "There are two middle values.<br>How do we find the median of the data set in this case?",
           navText: "Tap the correct option.",
           completeNav: "Tap &raquo; to find the median.",
           options: [
@@ -72,8 +81,10 @@ const DATA = {
             "Any one of the middle values",
           ],
           correctIndex: 1,
-          wrongFeedback: "When there are two middle values, averaging them out gives us the median.",
-          correctFeedback: "That's right! When there are two middle values, we average them out.",
+          wrongFeedback:
+            "When there are two middle values, averaging them out gives us the median.",
+          correctFeedback:
+            "That's right! When there are two middle values, we average them out.",
         },
         7: {
           questionText: "Find the mean of the two middle values.",
@@ -96,7 +107,8 @@ const DATA = {
           sumQuestion: "",
           sumAnimNav: "Watch each value fly into the numerator.",
           sumRevealNav: "Adding up all the values...",
-          sumCompleteQuestion: "Sum of all values: 3+4+4+4+5+6+6+6+7+8+8+9 = 70",
+          sumCompleteQuestion:
+            "Sum of all values: 3+4+4+4+5+6+6+6+7+8+8+9 = 70",
           sumCompleteNav: "Tap the denominator.",
           countQuestion: "",
           countAnimNav: "Counting each data value...",
@@ -104,11 +116,12 @@ const DATA = {
           countCompleteQuestion: "The total number of data values is 12.",
           countCompleteNavAlt: "Tap the numerator.",
           countCompleteNav: "Tap Reveal to find the mean.",
-          meanQuestion: "Divide the total with the number of data points now. And find the mean.",
+          meanQuestion:
+            "Divide the total with the number of data points now. And find the mean.",
           meanNav: "Tap Reveal to see the mean.",
           revealLabel: "Reveal",
           completeQuestion: "The mean of the numbers is 5.8",
-          completeNav: "Tap &raquo;.",
+          completeNav: "Tap &raquo; to wrap up.",
           sumAnswer: 70,
           countAnswer: 12,
           meanAnswer: "5.8",
@@ -156,34 +169,44 @@ const DATA = {
       },
       steps: {
         1: {
-          questionText: "Mari tentukan modus terlebih dahulu.<br>Ada berapa modus?",
+          questionText:
+            "Mari tentukan modus terlebih dahulu.<br>Ada berapa modus?",
           navText: "Ketuk dan pilih jumlah modus yang benar.",
           countPrompt: "Ada berapa modus?",
           identifyPrompt: "Apa saja modusnya?",
           modePromptSingular: "Apa modusnya?",
           countCorrectQuestion: "Ada 2 modus. Temukan 2 modus tersebut.",
           countCorrectNav: "Ketuk dan pilih modus yang benar.",
-          oneModeQuestion: "Kamu menemukan satu modus. Temukan modus yang lainnya juga.",
-          completeQuestion: "Jadi, modus dari kumpulan data ini adalah: <y>4</y> dan <yl>6</yl>.",
-          completeNav: "Ketuk &raquo; untuk menemukan median dari kumpulan data.",
+          oneModeQuestion:
+            "Kamu menemukan satu modus. Temukan modus yang lainnya juga.",
+          completeQuestion:
+            "Jadi, modus dari kumpulan data ini adalah: <y>4</y> dan <yl>6</yl>.",
+          completeNav:
+            "Ketuk &raquo; untuk menemukan median dari kumpulan data.",
         },
         2: {
-          questionText: "Apa langkah-langkah mencari median dari kumpulan data yang memiliki 9 nilai.",
-          navText: "Seret pilihan yang benar ke dekat nomor langkah yang tepat.",
-          completeQuestion: "Benar. Langkah-langkahnya sudah berurutan. Sekarang mari cari rata-rata secara bertahap.",
+          questionText:
+            "Apa langkah-langkah mencari median dari kumpulan data yang memiliki 9 nilai.",
+          navText:
+            "Seret pilihan yang benar ke dekat nomor langkah yang tepat.",
+          completeQuestion:
+            "Benar. Langkah-langkahnya sudah berurutan. Sekarang mari cari rata-rata secara bertahap.",
           completeNav: "Ketuk langkah 1 untuk mengurutkan kumpulan data.",
           stepLabels: ["Langkah 1", "Langkah 2", "Langkah 3"],
           options: {
             find: "Temukan median",
             sort: "Urutkan data dari yang terkecil ke terbesar",
-            eliminate: "Hilangkan nilai secara berpasangan untuk menemukan bagian tengah",
+            eliminate:
+              "Coret nilai secara berpasangan untuk menemukan bagian tengah",
           },
           initialOrder: ["find", "sort", "eliminate"],
           correctOrder: ["sort", "eliminate", "find"],
         },
         3: {
-          questionText: "Mari urutkan kumpulan data dari yang terkecil ke terbesar.",
-          navText: "Ketuk setiap nilai data secara berurutan - mulai dari yang terkecil.",
+          questionText:
+            "Mari urutkan kumpulan data dari yang terkecil ke terbesar.",
+          navText:
+            "Ketuk setiap nilai data secara berurutan - mulai dari yang terkecil.",
           smallest: "Terkecil",
           largest: "Terbesar",
         },
@@ -192,14 +215,18 @@ const DATA = {
           navText: "Ketuk langkah 2.",
         },
         5: {
-          questionText: "Sekarang mari hilangkan nilai untuk mencapai nilai tengah.",
-          navText: "Ketuk nilai terkecil atau terbesar - keduanya akan dihapus bersama.",
+          questionText:
+            "Sekarang mari coret nilai untuk mencapai nilai tengah.",
+          navText:
+            "Ketuk nilai terkecil atau terbesar - keduanya akan dihapus bersama.",
           ongoingNav: "Ketuk nilai terkecil atau terbesar berikutnya.",
-          completeQuestion: "Langkah 2 juga selesai. Mari lanjut ke langkah terakhir.",
+          completeQuestion:
+            "Langkah 2 juga selesai. Mari lanjut ke langkah terakhir.",
           completeNav: "Ketuk langkah 3.",
         },
         6: {
-          questionText: "Ada dua nilai tengah.<br>Bagaimana cara menemukan median kumpulan data dalam kasus ini?",
+          questionText:
+            "Ada dua nilai tengah.<br>Bagaimana cara menemukan median kumpulan data dalam kasus ini?",
           navText: "Ketuk pilihan yang benar.",
           completeNav: "Ketuk &raquo; untuk menemukan median.",
           options: [
@@ -208,20 +235,24 @@ const DATA = {
             "Salah satu nilai tengah",
           ],
           correctIndex: 1,
-          wrongFeedback: "Jika ada dua nilai tengah, merata-ratakannya memberi kita median.",
-          correctFeedback: "Benar! Jika ada dua nilai tengah, kita merata-ratakannya.",
+          wrongFeedback:
+            "Jika ada dua nilai tengah, merata-ratakannya memberi kita median.",
+          correctFeedback:
+            "Benar! Jika ada dua nilai tengah, kita merata-ratakannya.",
         },
         7: {
           questionText: "Temukan rata-rata dari dua nilai tengah.",
           completeQuestion: "Median dari kumpulan data ini adalah 6.",
-          navText: "Isi jawaban menggunakan numpad dan ketuk ✓ untuk mengirim.",
-          completeNav: "Ketuk &raquo; untuk sekarang menemukan rata-rata dari kumpulan data ini.",
+          navText: "Masukkan nilai median yang benar.",
+          completeNav:
+            "Ketuk &raquo; untuk sekarang menemukan rata-rata dari kumpulan data ini.",
           denominator: 2,
           correctAnswer: 6,
         },
         8: {
           questionText: "Pertama, rumus rata-rata.",
-          completeQuestion: "Mari sekarang temukan rata-rata dari kumpulan data",
+          completeQuestion:
+            "Mari sekarang temukan rata-rata dari kumpulan data",
           navText: "Seret pilihan yang benar ke tempat yang tepat.",
           completeNav: "Ketuk &raquo; untuk melanjutkan perhitungan rata-rata.",
           dropPlaceholder: "Letakkan di sini",
@@ -232,7 +263,8 @@ const DATA = {
           sumQuestion: "",
           sumAnimNav: "Perhatikan setiap nilai terbang ke pembilang.",
           sumRevealNav: "Menjumlahkan semua nilai...",
-          sumCompleteQuestion: "Jumlah semua nilai: 3+4+4+4+5+6+6+6+7+8+8+9 = 70",
+          sumCompleteQuestion:
+            "Jumlah semua nilai: 3+4+4+4+5+6+6+6+7+8+8+9 = 70",
           sumCompleteNav: "Ketuk penyebut untuk melanjutkan.",
           countQuestion: "",
           countAnimNav: "Menghitung setiap nilai data...",
@@ -240,14 +272,15 @@ const DATA = {
           countCompleteQuestion: "Jumlah total nilai data adalah 12.",
           countCompleteNavAlt: "Ketuk pembilang untuk melanjutkan.",
           countCompleteNav: "Ketuk Tampilkan untuk menemukan rata-rata.",
-          meanQuestion: "Bagi total dengan banyak titik data sekarang. Dan temukan rata-rata.",
+          meanQuestion:
+            "Bagi total dengan banyak titik data sekarang. Dan temukan rata-rata.",
           meanNav: "Ketuk Tampilkan untuk melihat rata-rata.",
           revealLabel: "Tampilkan",
-          completeQuestion: "Rata-rata dari angka-angka tersebut adalah 5.8",
-          completeNav: "Ketuk &raquo;.",
+          completeQuestion: "Rata-rata dari angka-angka tersebut adalah 5,8",
+          completeNav: "Ketuk &raquo; untuk menyelesaikan.",
           sumAnswer: 70,
           countAnswer: 12,
-          meanAnswer: "5.8",
+          meanAnswer: "5,8",
         },
       },
       meanDragDrop: {
@@ -265,7 +298,7 @@ const DATA = {
       },
       completion: {
         heading: "Kerja Bagus!",
-        stats: ["Modus = 4 & 6", "Median = 6", "Rata-rata = 5.8"],
+        stats: ["Modus = 4 & 6", "Median = 6", "Rata-rata = 5,8"],
         text: "Kamu berhasil menemukan modus, rata-rata, dan median dari kumpulan data ini.<br><br> Ketuk 'Mulai Lagi' untuk mengulangi aktivitas ini.",
         buttonText: "Mulai Lagi",
       },

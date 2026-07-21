@@ -21,6 +21,7 @@ const PLOT_FLY_END_SCALE = 0.8;
 const DEFAULT_FLY_DURATION = 780;
 const STEP9_PLOT_FLY_DURATION = Math.round(DEFAULT_FLY_DURATION * 1.5);
 const STEP9_LINE_GROW_DURATION = 900;
+const STEP9_FINAL_ROTATION_DURATION = 1340;
 
 const KNOWN_POINTS = [
   {
@@ -135,6 +136,7 @@ const MainCanvas = ({
   const [lineGrowKey, setLineGrowKey] = useState(null);
   const [step9CellHighlight, setStep9CellHighlight] = useState(null);
   const [step9HideUnknownBorders, setStep9HideUnknownBorders] = useState(false);
+  const [step9FinalRotationPhase, setStep9FinalRotationPhase] = useState(null);
 
   const makeGenericSplitFormula = useCallback((clickable) => {
     return {
@@ -801,6 +803,7 @@ const MainCanvas = ({
       setRevealedCells(null);
       setPointStates({});
       setSegments({});
+      setStep9FinalRotationPhase(null);
       setShowUnknown(false);
       setUnknownR({ x: 2, y: 4 });
       setUnknownQPrime({ x: 2, y: -4 });
@@ -953,6 +956,7 @@ const MainCanvas = ({
         setStep8FlyTargetsReady(false);
         setStep9CellHighlight(null);
         setStep9HideUnknownBorders(false);
+        setStep9FinalRotationPhase(null);
       }
     }
     if (step === 9 && !step9InitRef.current) {
@@ -979,6 +983,7 @@ const MainCanvas = ({
       setAllHighlighted(false);
       setStep9CellHighlight(null);
       setStep9HideUnknownBorders(false);
+      setStep9FinalRotationPhase(null);
       const knownStates = {};
       KNOWN_POINTS.forEach((pt) => {
         knownStates[pt.key] = { opacity: 1, labelVisible: true };
@@ -1465,6 +1470,20 @@ const MainCanvas = ({
       });
     };
 
+    const runFinalRotationCycle = async (playCongratsSound) => {
+      setStep9FinalRotationPhase("prep");
+      await delay(250);
+      setStep9FinalRotationPhase("cloneReady");
+      await delay(50);
+      setStep9FinalRotationPhase("rotating");
+      await delay(STEP9_FINAL_ROTATION_DURATION);
+      setStep9FinalRotationPhase(null);
+
+      if (playCongratsSound && typeof playSound === "function") {
+        playSound("congrats");
+      }
+    };
+
     const runStep9Anim = async () => {
       if (typeof onNavAnimating === "function") onNavAnimating(true);
       await delay(1000);
@@ -1518,10 +1537,13 @@ const MainCanvas = ({
 
       await growLine("PPrimeQPrime");
       await growLine("QPrimeRPrime");
-      await delay(400);
 
       setStep9CellHighlight(null);
       setStep9HideUnknownBorders(true);
+      await delay(500);
+
+      await runFinalRotationCycle(true);
+      await delay(200);
 
       if (typeof onStep9PhaseChange === "function") {
         onStep9PhaseChange("done");
@@ -1549,10 +1571,14 @@ const MainCanvas = ({
 
   const graphPoints = useMemo(() => {
     const pts = [];
+    const finalRotationActive = step9FinalRotationPhase != null;
+    const finalRotationRotating = step9FinalRotationPhase === "rotating";
 
     KNOWN_POINTS.forEach((pt) => {
       const state = pointStates[pt.key];
       if (!state) return;
+      const isPreimagePoint = pt.key === "P" || pt.key === "Q";
+      const isImagePoint = pt.key === "PPrime" || pt.key === "RPrime";
       pts.push({
         id: pt.key,
         x: pt.x,
@@ -1561,7 +1587,12 @@ const MainCanvas = ({
         label: pt.label(),
         labelPlacement: pt.labelPlacement,
         opacity: state.opacity,
-        labelOpacity: state.labelVisible ? 1 : 0,
+        labelOpacity: state.labelVisible ? (finalRotationActive ? 0.5 : 1) : 0,
+        circleOpacity:
+          (isImagePoint && finalRotationActive) ||
+          (isPreimagePoint && finalRotationRotating)
+            ? 0.5
+            : 1,
         showLabel: state.opacity > 0,
         labelRefKey: pt.labelRefKey,
       });
@@ -1584,7 +1615,14 @@ const MainCanvas = ({
           : APP_DATA.graph.labelRUnknown,
         labelPlacement: dynamicLabelPlacement(isStep9 ? R_FINAL.y : unknownR.y),
         opacity: rOpacity,
-        labelOpacity: isStep9 ? (rLabelVisible ? 1 : 0) : 1,
+        labelOpacity: isStep9
+          ? rLabelVisible
+            ? finalRotationActive
+              ? 0.5
+              : 1
+            : 0
+          : 1,
+        circleOpacity: finalRotationRotating ? 0.5 : 1,
         showLabel: true,
         labelRefKey: "R",
       });
@@ -1610,14 +1648,28 @@ const MainCanvas = ({
           isStep9 ? QPRIME_FINAL.y : unknownQPrime.y,
         ),
         opacity: qOpacity,
-        labelOpacity: isStep9 ? (qLabelVisible ? 1 : 0) : 1,
+        labelOpacity: isStep9
+          ? qLabelVisible
+            ? finalRotationActive
+              ? 0.5
+              : 1
+            : 0
+          : 1,
+        circleOpacity: finalRotationActive ? 0.5 : 1,
         showLabel: true,
         labelRefKey: "QPrime",
       });
     }
 
     return pts;
-  }, [pointStates, showUnknown, unknownR, unknownQPrime, step]);
+  }, [
+    pointStates,
+    showUnknown,
+    unknownR,
+    unknownQPrime,
+    step,
+    step9FinalRotationPhase,
+  ]);
 
   const graphSegments = useMemo(() => {
     const segs = [];
@@ -1628,6 +1680,10 @@ const MainCanvas = ({
     const rPos = step === 9 ? R_FINAL : unknownR;
     const qPrimePos = step === 9 ? QPRIME_FINAL : unknownQPrime;
     const unknownDashed = step !== 9;
+    const finalRotationActive = step9FinalRotationPhase != null;
+    const finalRotationRotating = step9FinalRotationPhase === "rotating";
+    const preimageSegmentOpacity = finalRotationRotating ? 0.5 : 1;
+    const imageSegmentOpacity = finalRotationActive ? 0.5 : 1;
 
     const withGrow = (seg, key) => ({
       ...seg,
@@ -1643,6 +1699,7 @@ const MainCanvas = ({
             to: q,
             color: TRANSLATION_GRAPH_COLORS.preimage,
             dashed: false,
+            opacity: preimageSegmentOpacity,
           },
           "PQ",
         ),
@@ -1656,6 +1713,7 @@ const MainCanvas = ({
             to: rPrime,
             color: TRANSLATION_GRAPH_COLORS.image,
             dashed: false,
+            opacity: imageSegmentOpacity,
           },
           "PPrimeRPrime",
         ),
@@ -1669,6 +1727,7 @@ const MainCanvas = ({
             to: rPos,
             color: TRANSLATION_GRAPH_COLORS.preimage,
             dashed: unknownDashed,
+            opacity: preimageSegmentOpacity,
           },
           "PR",
         ),
@@ -1682,6 +1741,7 @@ const MainCanvas = ({
             to: rPos,
             color: TRANSLATION_GRAPH_COLORS.preimage,
             dashed: unknownDashed,
+            opacity: preimageSegmentOpacity,
           },
           "QR",
         ),
@@ -1695,6 +1755,7 @@ const MainCanvas = ({
             to: qPrimePos,
             color: TRANSLATION_GRAPH_COLORS.image,
             dashed: unknownDashed,
+            opacity: imageSegmentOpacity,
           },
           "PPrimeQPrime",
         ),
@@ -1708,13 +1769,21 @@ const MainCanvas = ({
             to: rPrime,
             color: TRANSLATION_GRAPH_COLORS.image,
             dashed: unknownDashed,
+            opacity: imageSegmentOpacity,
           },
           "QPrimeRPrime",
         ),
       );
     }
     return segs;
-  }, [segments, unknownR, unknownQPrime, step, lineGrowKey]);
+  }, [
+    segments,
+    unknownR,
+    unknownQPrime,
+    step,
+    lineGrowKey,
+    step9FinalRotationPhase,
+  ]);
 
   const columnsHidden = step === 1;
   const rightHidden = step <= 2;
@@ -1864,6 +1933,7 @@ const MainCanvas = ({
         points: graphPoints,
         segments: graphSegments,
         labelRefs: labelRefs,
+        finalRotationPhase: step9FinalRotationPhase,
       });
     }
     return null;

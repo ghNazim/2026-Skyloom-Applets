@@ -24,7 +24,7 @@ const SummaryCanvas = (function () {
   const ROTATE_MS = 1000;
   const WAIT_SHORT_MS = 600;
   const WAIT_LONG_MS = 2000;
-  const DIRECTION_EMPHASIS_MS = 3000;
+  const DIRECTION_EMPHASIS_MS = 4300;
   const ANGLE_EMPHASIS_MS = 3000;
 
   function describeSector(cx, cy, r, startRad, rotationDeg) {
@@ -335,7 +335,7 @@ const SummaryCanvas = (function () {
     };
 
     const isCentreBlinking = stage.centreVisible && !stage.directionBoxVisible;
-    const isDirectionBlinking = stage.directionBlinking;
+    const isDirectionGrowing = stage.directionBlinking;
     const isAngleBlinking = stage.angleBlinking;
     const dimCentreBox = stage.directionBoxVisible && !stage.complete;
     const dimDirectionBox = stage.angleBoxVisible && !stage.complete;
@@ -492,6 +492,31 @@ const SummaryCanvas = (function () {
         React.createElement(
           "g",
           { style: makeFadeStyle(stage.directionArcVisible, FADE_MS) },
+          React.createElement(
+            "defs",
+            null,
+            directionArc &&
+              React.createElement(
+                "mask",
+                {
+                  id: "summary-direction-grow-mask",
+                  maskUnits: "userSpaceOnUse",
+                  x: 0,
+                  y: 0,
+                  width: VB_W,
+                  height: VB_H,
+                },
+                React.createElement("path", {
+                  className: "summary-direction-grow-mask-path",
+                  d: directionArc.arcPath,
+                  pathLength: 1,
+                  fill: "none",
+                  stroke: "#ffffff",
+                  strokeWidth: 24,
+                  strokeLinecap: "round",
+                })
+              )
+          ),
           React.createElement("circle", {
             cx: ANCHOR_X,
             cy: ANCHOR_Y,
@@ -507,7 +532,8 @@ const SummaryCanvas = (function () {
               "g",
               {
                 key: "direction-arc",
-                className: isDirectionBlinking ? "summary-blink-direction" : undefined,
+                className: isDirectionGrowing ? "summary-grow-direction" : undefined,
+                mask: isDirectionGrowing ? "url(#summary-direction-grow-mask)" : undefined,
               },
               React.createElement("path", {
                 d: directionArc.arcPath,

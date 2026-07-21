@@ -29,6 +29,7 @@ const TranslationGraphPanel = ({
   points,
   segments,
   labelRefs,
+  finalRotationPhase,
 }) => {
   const { useCallback, useMemo } = React;
 
@@ -284,6 +285,7 @@ const TranslationGraphPanel = ({
         fill: pt.color,
         stroke: "#ffffff",
         strokeWidth: 1.5,
+        opacity: pt.circleOpacity != null ? pt.circleOpacity : 1,
       }),
     );
   };
@@ -323,6 +325,72 @@ const TranslationGraphPanel = ({
   const AXIS_ARROW_INSET = AXIS_STROKE * 6;
   const pointList = points || [];
   const segmentList = segments || [];
+  const renderFinalRotationClone = () => {
+    const cloneVisible =
+      finalRotationPhase === "cloneReady" || finalRotationPhase === "rotating";
+    if (!cloneVisible) return null;
+
+    const clonePoints = [
+      { id: "clone-p", x: 2, y: 1 },
+      { id: "clone-q", x: 4, y: 3 },
+      { id: "clone-r", x: 3, y: 4 },
+    ].map((pt) => ({
+      ...pt,
+      pos: toSvg(pt.x, pt.y),
+    }));
+
+    const getPos = (id) => clonePoints.find((pt) => pt.id === id).pos;
+    const p = getPos("clone-p");
+    const q = getPos("clone-q");
+    const r = getPos("clone-r");
+
+    return React.createElement(
+      "g",
+      {
+        className:
+          "tgp-final-rotation-clone" +
+          (finalRotationPhase === "rotating" ? " is-rotating" : ""),
+        style: {
+          transformOrigin: ORIGIN_X + "px " + ORIGIN_Y + "px",
+        },
+      },
+      React.createElement("line", {
+        x1: p.x,
+        y1: p.y,
+        x2: q.x,
+        y2: q.y,
+        stroke: COLOR_PREIMAGE,
+        strokeWidth: 2.5,
+      }),
+      React.createElement("line", {
+        x1: p.x,
+        y1: p.y,
+        x2: r.x,
+        y2: r.y,
+        stroke: COLOR_PREIMAGE,
+        strokeWidth: 2.5,
+      }),
+      React.createElement("line", {
+        x1: q.x,
+        y1: q.y,
+        x2: r.x,
+        y2: r.y,
+        stroke: COLOR_PREIMAGE,
+        strokeWidth: 2.5,
+      }),
+      clonePoints.map((pt) =>
+        React.createElement("circle", {
+          key: pt.id,
+          cx: pt.pos.x,
+          cy: pt.pos.y,
+          r: pointRadius,
+          fill: COLOR_PREIMAGE,
+          stroke: "#ffffff",
+          strokeWidth: 1.5,
+        }),
+      ),
+    );
+  };
 
   return React.createElement(
     "div",
@@ -402,6 +470,7 @@ const TranslationGraphPanel = ({
       axisLabels,
       segmentList.map(renderSegment),
       pointList.map(renderPoint),
+      renderFinalRotationClone(),
     ),
   );
 };

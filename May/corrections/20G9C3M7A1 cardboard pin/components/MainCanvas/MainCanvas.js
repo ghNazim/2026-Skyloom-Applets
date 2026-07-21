@@ -12,6 +12,7 @@ const CLOCK_SIZE = 225;
 const STEP5_MIN_ROTATION = 5;
 const CARD_DRAG_MIN_DISTANCE = 6;
 const CARD_DRAG_MIN_ANGLE = 2;
+const STEP5_NUDGE_SIZE = 48;
 
 function normalizeAngleDelta(delta) {
   if (delta > 180) delta -= 360;
@@ -58,6 +59,37 @@ function describeArc(cx, cy, r, startRad, rotationDeg) {
   const endX = cx + r * Math.cos(endRad);
   const endY = cy + r * Math.sin(endRad);
   return `M ${startX} ${startY} A ${r} ${r} 0 ${largeArc} ${sweep} ${endX} ${endY}`;
+}
+
+function buildArcArrow(cx, cy, r, startRad, rotationDeg, headLen) {
+  if (Math.abs(rotationDeg) < 0.5) return null;
+
+  const rotationRad = (rotationDeg * Math.PI) / 180;
+  const endRad = startRad + rotationRad;
+  const sweep = rotationDeg >= 0 ? 1 : 0;
+  const spread = Math.PI / 7;
+  const trimRad = Math.min(Math.abs(rotationRad) * 0.45, headLen / r);
+  const arcEndRad = endRad - Math.sign(rotationDeg) * trimRad;
+  const arcSpan = arcEndRad - startRad;
+  const absArcSpan = Math.abs(arcSpan);
+  const largeArc = absArcSpan > Math.PI ? 1 : 0;
+
+  const x1 = cx + r * Math.cos(startRad);
+  const y1 = cy + r * Math.sin(startRad);
+  const x2 = cx + r * Math.cos(arcEndRad);
+  const y2 = cy + r * Math.sin(arcEndRad);
+  const tipX = cx + r * Math.cos(endRad);
+  const tipY = cy + r * Math.sin(endRad);
+  const tangent = endRad + (rotationDeg >= 0 ? Math.PI / 2 : -Math.PI / 2);
+  const wing1X = tipX - headLen * Math.cos(tangent - spread);
+  const wing1Y = tipY - headLen * Math.sin(tangent - spread);
+  const wing2X = tipX - headLen * Math.cos(tangent + spread);
+  const wing2Y = tipY - headLen * Math.sin(tangent + spread);
+
+  return {
+    arcPath: `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} ${sweep} ${x2} ${y2}`,
+    arrowPoints: `${tipX},${tipY} ${wing1X},${wing1Y} ${wing2X},${wing2Y}`,
+  };
 }
 
 function renderArrow(fromX, fromY, toX, toY, color, extraProps) {
@@ -180,6 +212,7 @@ const MainCanvas = (props) => {
   const [showRightArrows, setShowRightArrows] = useState(false);
   const [step5ArcAngles, setStep5ArcAngles] = useState({ left: [], right: [] });
   const [step5ClockState, setStep5ClockState] = useState({ left: "hidden", right: "hidden" });
+  const [step5NudgeHidden, setStep5NudgeHidden] = useState({ left: false, right: false });
   const step5PhaseRef = useRef(step5Phase);
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -283,6 +316,7 @@ const MainCanvas = (props) => {
       setShowRightArrows(false);
       setStep5ArcAngles({ left: [], right: [] });
       setStep5ClockState({ left: "hidden", right: "hidden" });
+      setStep5NudgeHidden({ left: false, right: false });
       setCentreRevealed(true);
     }
   }, [step, step1Phase, step2Phase, step3Phase, step4Phase, step5Phase]);
@@ -555,6 +589,7 @@ const MainCanvas = (props) => {
         return;
       }
       cardDragQualifiedRef.current = true;
+      setStep5NudgeHidden((prev) => ({ ...prev, [side]: true }));
       let frameDelta = normalizeAngleDelta(currentAngle - lastPointerAngleRef.current);
       lastPointerAngleRef.current = currentAngle;
 
@@ -671,6 +706,27 @@ const MainCanvas = (props) => {
     return describeArc(ANCHOR_X, ANCHOR_Y, radius, baseAngle + (startAngle * Math.PI) / 180, endAngle - startAngle);
   }, []);
 
+  const getArcArrowData = useCallback((pointRel, angles, headLen) => {
+    if (!pointRel || angles.length < 2) return null;
+
+    const absX = CB_LEFT + pointRel.relX;
+    const absY = CB_TOP + pointRel.relY;
+    const dx = absX - ANCHOR_X;
+    const dy = absY - ANCHOR_Y;
+    const radius = Math.sqrt(dx * dx + dy * dy);
+    const baseAngle = Math.atan2(dy, dx);
+    const startAngle = angles[0];
+    const endAngle = angles[angles.length - 1];
+    return buildArcArrow(
+      ANCHOR_X,
+      ANCHOR_Y,
+      radius,
+      baseAngle + (startAngle * Math.PI) / 180,
+      endAngle - startAngle,
+      headLen
+    );
+  }, []);
+
   const getRedPointWorld = useCallback((rotDeg) => {
     const pt = points.red;
     if (!pt) return null;
@@ -769,6 +825,41 @@ const MainCanvas = (props) => {
     const cardboardTransform = `rotate(${panelRotation} ${ANCHOR_X} ${ANCHOR_Y})`;
     const elements = [];
 
+    const renderRotationNudge = () => {
+      if (!canDrag || step5NudgeHidden[side]) return null;
+
+      const startAngle = isLeft ? -12 : 12;
+      const endAngle = isLeft ? 26 : -26;
+      const nudgeX = CB_CX + 8 - STEP5_NUDGE_SIZE / 2;
+      const nudgeY = CB_TOP + CB_H * 0.34 - STEP5_NUDGE_SIZE / 2;
+
+      return React.createElement(
+        "g",
+        {
+          key: "rotation-nudge",
+          className: "step5-rotation-nudge",
+          opacity: 0.78,
+        },
+        React.createElement("animateTransform", {
+          attributeName: "transform",
+          type: "rotate",
+          values: `${startAngle} ${ANCHOR_X} ${ANCHOR_Y}; ${endAngle} ${ANCHOR_X} ${ANCHOR_Y}; ${endAngle} ${ANCHOR_X} ${ANCHOR_Y}; ${startAngle} ${ANCHOR_X} ${ANCHOR_Y}`,
+          keyTimes: "0;0.68;0.999;1",
+          dur: "1.45s",
+          repeatCount: "indefinite",
+        }),
+        React.createElement("image", {
+          href: "assets/tap.png",
+          x: nudgeX,
+          y: nudgeY,
+          width: STEP5_NUDGE_SIZE,
+          height: STEP5_NUDGE_SIZE,
+          transform: `rotate(${isLeft ? 20 : -20} ${nudgeX + STEP5_NUDGE_SIZE / 2} ${nudgeY + STEP5_NUDGE_SIZE / 2})`,
+          pointerEvents: "none",
+        })
+      );
+    };
+
     if (clockState !== "hidden") {
       elements.push(
         React.createElement("image", {
@@ -842,22 +933,72 @@ const MainCanvas = (props) => {
     if (panelArcAngles.length > 1 && points.red) {
       const arcPath = getArcPath(points.red, panelArcAngles);
       if (arcPath) {
+        const isArcComplete = clockState === "gif";
+        const maskId = `step5-arc-grow-mask-${side}`;
+        const arcArrow = isArcComplete ? getArcArrowData(points.red, panelArcAngles, 12) : null;
+        const renderedArcPath = arcArrow ? arcArrow.arcPath : arcPath;
+        if (isArcComplete) {
+          elements.push(
+            React.createElement(
+              "defs",
+              { key: "step5-arc-defs" },
+              React.createElement(
+                "mask",
+                {
+                  id: maskId,
+                  maskUnits: "userSpaceOnUse",
+                  x: 0,
+                  y: 0,
+                  width: VB_W,
+                  height: VB_H + 80,
+                },
+                React.createElement("path", {
+                  className: "step5-arc-grow-mask",
+                  d: arcPath,
+                  pathLength: 1,
+                  fill: "none",
+                  stroke: "#ffffff",
+                  strokeWidth: 18,
+                  strokeLinecap: "round",
+                })
+              )
+            )
+          );
+        }
         elements.push(
-          React.createElement("path", {
-            key: "step5-arc",
-            d: arcPath,
-            fill: "none",
-            stroke: ARROW_COLOR,
-            strokeWidth: 2.5,
-            strokeDasharray: "6 4",
-            strokeLinecap: "round",
-          })
+          React.createElement(
+            "g",
+            {
+              key: "step5-arc",
+              className: "step5-arc-path",
+              mask: isArcComplete ? `url(#${maskId})` : undefined,
+            },
+            React.createElement("path", {
+              d: renderedArcPath,
+              fill: "none",
+              stroke: ARROW_COLOR,
+              strokeWidth: 2.5,
+              strokeDasharray: "6 4",
+              strokeLinecap: "round",
+            }),
+            arcArrow &&
+              React.createElement("polygon", {
+                points: arcArrow.arrowPoints,
+                fill: ARROW_COLOR,
+                stroke: ARROW_COLOR,
+                strokeWidth: 0.5,
+                strokeLinejoin: "round",
+              })
+          )
         );
       }
     }
 
     const angleOverlay = renderAngleOverlay(panelRotation, showArrows);
     if (angleOverlay) elements.push(angleOverlay);
+
+    const rotationNudge = renderRotationNudge();
+    if (rotationNudge) elements.push(rotationNudge);
 
     elements.push(
       React.createElement("circle", {

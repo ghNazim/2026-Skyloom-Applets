@@ -6,6 +6,7 @@ const App = () => {
   const [showCompletedStep, setShowCompletedStep] = useState(false);
   const [sessionKey, setSessionKey] = useState(0);
   const [nudgePositions, setNudgePositions] = useState([]);
+  const [mcqRuleTransition, setMcqRuleTransition] = useState(null);
   const [navState, setNavState] = useState({
     text: "",
     nextEnabled: false,
@@ -17,6 +18,7 @@ const App = () => {
     if (typeof playSound === "function") playSound("click");
     setQuestionIndex(0);
     setShowCompletedStep(false);
+    setMcqRuleTransition(null);
     setCurrentStep(1);
   };
 
@@ -25,6 +27,7 @@ const App = () => {
     setCurrentStep(0);
     setQuestionIndex(0);
     setShowCompletedStep(false);
+    setMcqRuleTransition(null);
     setSessionKey((key) => key + 1);
     setNavState({ text: "", nextEnabled: false, prevEnabled: false, animating: false });
   };
@@ -32,6 +35,103 @@ const App = () => {
   const handleNavChange = useCallback((nextState) => {
     setNavState((prev) => ({ ...prev, ...nextState }));
   }, []);
+
+  const startMcqRuleTransition = () => {
+    const correctOptionEl = document.querySelector(".mcq-option.correct");
+    if (!correctOptionEl) {
+      setMcqRuleTransition(null);
+      setCurrentStep(2);
+      return;
+    }
+
+    const rect = correctOptionEl.getBoundingClientRect();
+    const computed = window.getComputedStyle(correctOptionEl);
+    setMcqRuleTransition({
+      id: Date.now(),
+      content: correctOptionEl.innerHTML,
+      sourceRect: {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      },
+      targetRect: null,
+      fontSize: computed.fontSize,
+      targetFontSize: computed.fontSize,
+      fontWeight: computed.fontWeight || "500",
+      active: false,
+      arrived: false,
+      duration: 900,
+    });
+    setNavState({ text: "", nextEnabled: false, prevEnabled: false, animating: true });
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setCurrentStep(2);
+      });
+    });
+  };
+
+  const handleMcqRuleTargetReady = useCallback((targetSnapshot) => {
+    setMcqRuleTransition((transition) => {
+      if (!transition || transition.targetRect) return transition;
+      return {
+        ...transition,
+        targetRect: targetSnapshot.rect,
+        targetFontSize: targetSnapshot.fontSize || transition.fontSize,
+        active: true,
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!mcqRuleTransition || !mcqRuleTransition.active || mcqRuleTransition.arrived) return undefined;
+    const id = setTimeout(() => {
+      setMcqRuleTransition((transition) =>
+        transition && transition.id === mcqRuleTransition.id
+          ? { ...transition, arrived: true }
+          : transition,
+      );
+    }, mcqRuleTransition.duration);
+    return () => clearTimeout(id);
+  }, [mcqRuleTransition]);
+
+  const renderMcqRuleTransition = () => {
+    if (!mcqRuleTransition) return null;
+    const source = mcqRuleTransition.sourceRect;
+    const target = mcqRuleTransition.targetRect;
+    const startX = source.left + source.width / 2;
+    const startY = source.top + source.height / 2;
+    const dx = target ? target.left + target.width / 2 - startX : 0;
+    const dy = target ? target.top + target.height / 2 - startY : 0;
+    const duration = mcqRuleTransition.duration;
+
+    return React.createElement("div", {
+      className: "reflection-fly-clone",
+      style: {
+        left: startX + "px",
+        top: startY + "px",
+        fontWeight: mcqRuleTransition.fontWeight,
+        transition:
+          "transform " +
+          duration +
+          "ms cubic-bezier(0.35, 0, 0.15, 1), font-size " +
+          duration +
+          "ms cubic-bezier(0.35, 0, 0.15, 1)",
+        fontSize: mcqRuleTransition.active
+          ? mcqRuleTransition.targetFontSize
+          : mcqRuleTransition.fontSize,
+        transform: mcqRuleTransition.active
+          ? "translate(calc(-50% + " +
+            dx +
+            "px), calc(-50% + " +
+            dy +
+            "px))"
+          : "translate(-50%, -50%)",
+      },
+      dangerouslySetInnerHTML: { __html: mcqRuleTransition.content },
+    });
+  };
 
   const handleNav = (direction) => {
     if (navState.animating) return;
@@ -45,6 +145,7 @@ const App = () => {
       } else {
         setCurrentStep((step) => step - 1);
       }
+      setMcqRuleTransition(null);
       setShowCompletedStep(true);
       setSessionKey((key) => key + 1);
       setNavState({ text: "", nextEnabled: false, prevEnabled: false, animating: false });
@@ -54,6 +155,12 @@ const App = () => {
     if (direction === "next" && navState.nextEnabled) {
       if (typeof playSound === "function") playSound("click");
       setShowCompletedStep(false);
+      if (currentStep === 1) {
+        startMcqRuleTransition();
+        return;
+      } else {
+        setMcqRuleTransition(null);
+      }
       if (currentStep === 3) {
         if (questionIndex < APP_DATA.reflection.challenges.length - 1) {
           setQuestionIndex((index) => index + 1);
@@ -81,7 +188,7 @@ const App = () => {
         addTarget("start-button");
       } else if (currentStep > 3) {
         addTarget("start-over-button");
-      } else if (navState.nextEnabled && !navState.animating) {
+      } else if (navState.nextEnabled && !navState.animating && !mcqRuleTransition) {
         addTarget("next-button");
       }
 
@@ -94,7 +201,7 @@ const App = () => {
       clearTimeout(id);
       window.removeEventListener("resize", updateNudges);
     };
-  }, [currentStep, questionIndex, navState.nextEnabled, navState.animating]);
+  }, [currentStep, questionIndex, navState.nextEnabled, navState.animating, mcqRuleTransition]);
 
   const renderNudges = () =>
     nudgePositions.map((position, index) =>
@@ -157,6 +264,10 @@ const App = () => {
         questionIndex: questionIndex,
         isLastQuestion: questionIndex === APP_DATA.reflection.challenges.length - 1,
         startCompleted: showCompletedStep,
+        mcqRuleTransition: currentStep === 2 ? mcqRuleTransition : null,
+        mcqRuleTransitionComplete: !!(mcqRuleTransition && mcqRuleTransition.arrived),
+        onMcqRuleTargetReady: handleMcqRuleTargetReady,
+        onMcqRuleRowShown: () => setMcqRuleTransition(null),
         onNavChange: handleNavChange,
       }),
     ),
@@ -170,6 +281,7 @@ const App = () => {
         navText: navState.text,
       }),
     ),
+    renderMcqRuleTransition(),
     renderNudges(),
   );
 };

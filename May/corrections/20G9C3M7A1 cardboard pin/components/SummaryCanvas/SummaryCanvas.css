@@ -119,7 +119,26 @@
 }
 
 .summary-blink-centre,
-.summary-blink-direction,
 .summary-blink-angle {
   animation: summary-focus-blink 0.75s ease-in-out infinite;
+}
+
+@keyframes summary-direction-grow {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  72%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.summary-grow-direction {
+  pointer-events: none;
+}
+
+.summary-direction-grow-mask-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: summary-direction-grow 1.35s ease-out infinite;
 }

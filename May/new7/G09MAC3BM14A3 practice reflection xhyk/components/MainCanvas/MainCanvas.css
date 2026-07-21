@@ -333,6 +333,15 @@
   font-size: 2.7vw;
 }
 
+.rule-row-hidden {
+  visibility: hidden;
+}
+
+.rule-formula {
+  display: inline-flex;
+  align-items: center;
+}
+
 .drop-equation,
 .answer-equation,
 .plain-substitution {

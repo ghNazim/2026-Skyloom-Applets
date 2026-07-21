@@ -222,8 +222,8 @@
 }
 
 .angle-label-orange {
-  fill: #ff8c00 !important;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
+  fill: #bf00d4 !important;
+  /* text-shadow: 0 0 2px rgba(0, 0, 0, 0.35); */
 }
 
 .math-var-svg {
@@ -241,11 +241,11 @@
   0%,
   100% {
     opacity: 0.85;
-    filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.6));
+    filter: drop-shadow(0 0 4px rgba(75, 0, 110, 0.6));
   }
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.9));
+    filter: drop-shadow(0 0 10px rgba(75, 0, 110, 0.9));
   }
 }
 

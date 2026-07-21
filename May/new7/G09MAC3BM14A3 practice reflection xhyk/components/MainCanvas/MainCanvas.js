@@ -1,4 +1,14 @@
-const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startCompleted = false, onNavChange }) => {
+const MainCanvas = ({
+  step,
+  questionIndex = 0,
+  isLastQuestion = false,
+  startCompleted = false,
+  mcqRuleTransition = null,
+  mcqRuleTransitionComplete = false,
+  onMcqRuleTargetReady,
+  onMcqRuleRowShown,
+  onNavChange,
+}) => {
   const {
     useCallback,
     useEffect,
@@ -80,6 +90,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
   const rightLineRef = useRef(null);
   const finalImageRef = useRef(null);
   const row3FinalRef = useRef(null);
+  const ruleFormulaRef = useRef(null);
   const dragValueRefs = {
     x: useRef(null),
     y: useRef(null),
@@ -267,13 +278,13 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     [questionText, d.correctFeedback, d.nav.substitute, d.nav.simplify, d.nav.summarize, d.nav.nextChallenge, isLastQuestion, nav],
   );
 
-  const flyClone = useCallback((sourceEl, targetEl, content, duration = 850) => {
+  const flyCloneFromSnapshot = useCallback((sourceSnapshot, targetEl, content, duration = 850) => {
     return new Promise((resolve) => {
-      if (!sourceEl || !targetEl) {
+      if (!sourceSnapshot || !targetEl) {
         resolve();
         return;
       }
-      const src = sourceEl.getBoundingClientRect();
+      const src = sourceSnapshot.rect;
       const dst = targetEl.getBoundingClientRect();
       if (!src.width || !src.height || !dst.width || !dst.height) {
         resolve();
@@ -285,7 +296,6 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       const startY = src.top + src.height / 2;
       const dx = dst.left + dst.width / 2 - startX;
       const dy = dst.top + dst.height / 2 - startY;
-      const computed = window.getComputedStyle(sourceEl);
       const targetComputed = window.getComputedStyle(targetEl);
 
       setFlyClones((clones) =>
@@ -297,9 +307,9 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           dx,
           dy,
           duration,
-          fontSize: computed.fontSize,
-          targetFontSize: targetComputed.fontSize || computed.fontSize,
-          fontWeight: computed.fontWeight || "500",
+          fontSize: sourceSnapshot.fontSize,
+          targetFontSize: targetComputed.fontSize || sourceSnapshot.fontSize,
+          fontWeight: sourceSnapshot.fontWeight || "500",
           active: false,
         }),
       );
@@ -320,6 +330,30 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       }, duration);
     });
   }, []);
+
+  const flyClone = useCallback(
+    (sourceEl, targetEl, content, duration = 850) => {
+      if (!sourceEl) return Promise.resolve();
+      const rect = sourceEl.getBoundingClientRect();
+      const computed = window.getComputedStyle(sourceEl);
+      return flyCloneFromSnapshot(
+        {
+          rect: {
+            left: rect.left,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height,
+          },
+          fontSize: computed.fontSize,
+          fontWeight: computed.fontWeight || "500",
+        },
+        targetEl,
+        content,
+        duration,
+      );
+    },
+    [flyCloneFromSnapshot],
+  );
 
   useEffect(() => {
     clearTimers();
@@ -422,8 +456,10 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       if (startCompleted) return;
       nav("", false, true);
       setRightMode("substitute");
+      if (mcqRuleTransition && !mcqRuleTransitionComplete) return;
       await delay(300);
       setRowStage(1);
+      onMcqRuleRowShown && onMcqRuleRowShown();
       await delay(500);
       setRowStage(2);
       for (let i = 1; i <= 9; i++) {
@@ -442,7 +478,28 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     return () => {
       cancelled = true;
     };
-  }, [step, startCompleted]);
+  }, [step, startCompleted, mcqRuleTransitionComplete]);
+
+  useEffect(() => {
+    if (step !== 2 || startCompleted || !mcqRuleTransition || mcqRuleTransitionComplete) return;
+    const id = setTimeout(() => {
+      const el = ruleFormulaRef.current;
+      if (!el || !onMcqRuleTargetReady) return;
+      const rect = el.getBoundingClientRect();
+      const computed = window.getComputedStyle(el);
+      if (!rect.width || !rect.height) return;
+      onMcqRuleTargetReady({
+        rect: {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        },
+        fontSize: computed.fontSize,
+      });
+    }, 0);
+    return () => clearTimeout(id);
+  }, [step, startCompleted, mcqRuleTransition, mcqRuleTransitionComplete, onMcqRuleTargetReady]);
 
   useEffect(() => {
     if (step === 3 && !startCompleted) {
@@ -550,12 +607,19 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
   useEffect(() => {
     if (step !== 2 || substituteDone) return;
     if (dropValues.x && dropValues.y && dropValues.param) {
+      setHoverDropZone(null);
       setSubstituteDone(true);
       setRightStage(2);
       play("correct");
       nav(d.nav.simplify, true, false);
     }
   }, [dropValues, step, substituteDone]);
+
+  useEffect(() => {
+    if (!dragging || substituteDone) {
+      setHoverDropZone(null);
+    }
+  }, [dragging, substituteDone]);
 
   const finalizeStep3 = useCallback(async () => {
     setFinalizing(true);
@@ -637,6 +701,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       const hitKey = getHitKey(event);
       const droppedItem = draggingRef.current;
 
+      setHoverDropZone(null);
       if (hitKey && droppedItem && answers[hitKey] === droppedItem.value) {
         setDropValues((values) => ({ ...values, [hitKey]: droppedItem.value }));
         setHiddenValues((values) => values.concat(droppedItem.value));
@@ -648,16 +713,17 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
         }
         play("wrong");
       }
-      setHoverDropZone(null);
       draggingRef.current = null;
       setDragging(null);
     };
 
     window.addEventListener("pointermove", move, { passive: false });
     window.addEventListener("pointerup", up, { passive: false });
+    window.addEventListener("pointercancel", up, { passive: false });
     return () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
     };
   }, [!!dragging]);
 
@@ -1007,12 +1073,12 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
       ),
     );
 
-  const renderRuleRow = () =>
+  const renderRuleFormula = () =>
     isHorizontal
       ? h(
-          "div",
-          { className: "formula-row rule-row" },
-          h("span", null, d.ruleLabel + "\u00a0 A("),
+          "span",
+          { className: "rule-formula", ref: ruleFormulaRef },
+          h("span", null, "A("),
           math("x"),
           h("span", null, ","),
           math("y"),
@@ -1025,9 +1091,9 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           h("span", null, ")"),
         )
       : h(
-          "div",
-          { className: "formula-row rule-row" },
-          h("span", null, d.ruleLabel + "\u00a0 A("),
+          "span",
+          { className: "rule-formula", ref: ruleFormulaRef },
+          h("span", null, "A("),
           math("x"),
           h("span", null, ","),
           math("y"),
@@ -1040,6 +1106,14 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           h("span", null, ")"),
         );
 
+  const renderRuleRow = (hidden) =>
+    h(
+      "div",
+      { className: "formula-row rule-row " + (hidden ? "rule-row-hidden" : "") },
+      h("span", null, d.ruleLabel + "\u00a0"),
+      renderRuleFormula(),
+    );
+
   const dropBox = (key) =>
     h(
       "span",
@@ -1049,7 +1123,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
           "drop-box " +
           "drop-" + key + " " +
           (dropValues[key] ? "filled " : "") +
-          (hoverDropZone === key ? "hovered " : "") +
+          (dragging && !dropValues[key] && hoverDropZone === key ? "hovered " : "") +
           (shakeZone === key ? "shake" : ""),
       },
       dropValues[key],
@@ -1134,7 +1208,7 @@ const MainCanvas = ({ step, questionIndex = 0, isLastQuestion = false, startComp
     h(
       "div",
       { className: "substitution-work" },
-      rowStage >= 1 ? renderRuleRow() : null,
+      rowStage >= 1 ? renderRuleRow(false) : mcqRuleTransition && !mcqRuleTransitionComplete ? renderRuleRow(true) : null,
       rowStage >= 2 ? renderDropEquation() : null,
       rowStage >= 3 ? renderDraggables() : null,
       dragging

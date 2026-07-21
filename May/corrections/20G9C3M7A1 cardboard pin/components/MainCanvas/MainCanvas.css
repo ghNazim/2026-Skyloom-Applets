@@ -46,8 +46,9 @@
   text-align: center;
   line-height: 1.7;
   transition: opacity 0.35s ease;
-  /* transform: translateY(50%); */
-  /* position: relative; */
+  
+  position: relative;
+  left: -8vw;
   /* top: -7.5vw; */
 }
 
@@ -166,4 +167,39 @@
   text-align: center;
   line-height: 1.5;
   pointer-events: none;
+}
+
+@keyframes step5-nudge-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  45% {
+    opacity: 0.95;
+  }
+}
+
+.step5-rotation-nudge {
+  pointer-events: none;
+  animation: step5-nudge-pulse 1.45s ease-in-out infinite;
+}
+
+@keyframes step5-arc-grow {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  72%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.step5-arc-path {
+  pointer-events: none;
+}
+
+.step5-arc-grow-mask {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: step5-arc-grow 1.35s ease-out infinite;
 }

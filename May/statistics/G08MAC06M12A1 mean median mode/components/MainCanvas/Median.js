@@ -257,6 +257,7 @@ const Median = (props) => {
     if (step === 7) {
       onSetNextEnabled(false);
       onUpdateQuestionText(step7.questionText);
+      onUpdateNavText("");
       resetCalcState();
       setEliminatedSlots(buildEliminatedThroughMiddle());
     }
@@ -562,8 +563,10 @@ const Median = (props) => {
   function handleNumpadDigit(digit) {
     if (calcBoxState === "correct") return;
     if (typeof playSound === "function") playSound("click");
+    const shouldStartFresh = calcBoxState === "wrong";
     setCalcBoxState(null);
     setCalcInput(function (prev) {
+      if (shouldStartFresh) return String(digit);
       if (prev.length >= 2) return prev;
       return prev + String(digit);
     });
@@ -572,12 +575,17 @@ const Median = (props) => {
   function handleNumpadBackspace() {
     if (calcBoxState === "correct") return;
     if (typeof playSound === "function") playSound("click");
+    if (calcBoxState === "wrong") {
+      setCalcBoxState(null);
+      setCalcInput("");
+      return;
+    }
     setCalcBoxState(null);
     setCalcInput(function (prev) { return prev.slice(0, -1); });
   }
 
   function handleCalcSubmit() {
-    if (calcBoxState === "correct" || !calcInput) return;
+    if (calcBoxState === "correct" || calcBoxState === "wrong" || !calcInput) return;
     if (Number(calcInput) === calcCorrectAnswer) {
       setCalcBoxState("correct");
       if (typeof playSound === "function") playSound("correct");
@@ -587,10 +595,6 @@ const Median = (props) => {
     } else {
       setCalcBoxState("wrong");
       if (typeof playSound === "function") playSound("wrong");
-      setTimeout(function () {
-        setCalcBoxState(null);
-        setCalcInput("");
-      }, 700);
     }
   }
 
@@ -797,7 +801,7 @@ const Median = (props) => {
         type: "button",
         key: "numpad-submit",
         className: "median-numpad-key submit",
-        disabled: calcBoxState === "correct" || !calcInput,
+        disabled: calcBoxState === "correct" || calcBoxState === "wrong" || !calcInput,
         onClick: handleCalcSubmit,
       }, "✓");
     }

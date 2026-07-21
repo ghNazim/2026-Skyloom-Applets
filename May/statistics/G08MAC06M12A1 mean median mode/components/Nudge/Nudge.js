@@ -4,44 +4,55 @@ const Nudge = (props) => {
   const asset = props.asset || "assets/tap.gif";
   const transform = props.transform || "translate(30%, 0%)";
   const verticalDrag = props.verticalDrag || false;
-  
+  const positionPreset = props.positionPreset || "center";
+
   const { useState, useEffect } = React;
   const [position, setPosition] = useState(null);
 
-  useEffect(function () {
-    if (!show || !targetRef) {
-      setPosition(null);
-      return undefined;
-    }
-
-    function updatePosition() {
-      const el = targetRef.current;
-      if (!el) {
+  useEffect(
+    function () {
+      if (!show || !targetRef) {
         setPosition(null);
-        return;
+        return undefined;
       }
-      const rect = el.getBoundingClientRect();
-      if (rect.width === 0 && rect.height === 0) {
-        setPosition(null);
-        return;
+
+      function updatePosition() {
+        const el = targetRef.current;
+        if (!el) {
+          setPosition(null);
+          return;
+        }
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) {
+          setPosition(null);
+          return;
+        }
+        if (positionPreset === "next") {
+          setPosition({
+            left: rect.left + (3 * rect.width) / 10,
+            top: rect.top,
+          });
+        } else {
+          setPosition({
+            left: rect.left + rect.width / 2,
+            top: rect.top + rect.height / 2,
+          });
+        }
       }
-      setPosition({
-        left: rect.left + rect.width / 2,
-        top: rect.top + rect.height / 2,
-      });
-    }
 
-    updatePosition();
-    const intervalId = setInterval(updatePosition, 150);
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
+      updatePosition();
+      const intervalId = setInterval(updatePosition, 150);
+      window.addEventListener("resize", updatePosition);
+      window.addEventListener("scroll", updatePosition, true);
 
-    return function () {
-      clearInterval(intervalId);
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [show, targetRef]);
+      return function () {
+        clearInterval(intervalId);
+        window.removeEventListener("resize", updatePosition);
+        window.removeEventListener("scroll", updatePosition, true);
+      };
+    },
+    [show, targetRef, positionPreset],
+  );
 
   if (!show || !position) return null;
 
@@ -62,6 +73,6 @@ const Nudge = (props) => {
       src: asset,
       alt: "",
       className: "nudge-tap-gif" + (verticalDrag ? " vertical-drag" : ""),
-    })
+    }),
   );
 };

@@ -18,7 +18,7 @@ const QUAD_PQRS_INITIAL = {
 
 const COLOR_FILL = "#5AA6B6";
 const COLOR_WHITE = "#ffffff";
-const COLOR_ORANGE = "#ff8c00";
+const COLOR_ANGLE_HIGHLIGHT = "#b62df5";
 const COLOR_GHOST_FILL = "#888888";
 const COLOR_GHOST_STROKE = "#aaaaaa";
 
@@ -29,6 +29,7 @@ const HOTSPOT_RADIUS = 30;
 const VERTEX_HOTSPOT_RADIUS = 26;
 const VERTEX_DOT_RADIUS = 7;
 const LABEL_OFFSET = 32;
+const SUMMARY_V_LABEL_X_OFFSET = 34;
 const ANGLE_TEXT_FONT_SIZE = 26;
 const VERTEX_LABEL_FONT_SIZE = 30;
 const POLYGON_TITLE_FONT_SIZE = 28;
@@ -307,6 +308,7 @@ const MainCanvas = (props) => {
   const pqrsPathRef = useRef(null);
   const animatingRef = useRef(false);
   const hotspotAnimRef = useRef([]);
+  const summaryRotationTweenRef = useRef(null);
 
   const [pqrsTransform, setPqrsTransform] = useState(() =>
     getPqrsTransformForStep(step),
@@ -426,6 +428,10 @@ const MainCanvas = (props) => {
   }, [visibleHotspots, animateHotspotsIn]);
 
   useLayoutEffect(() => {
+    if (summaryRotationTweenRef.current) {
+      summaryRotationTweenRef.current.kill();
+      summaryRotationTweenRef.current = null;
+    }
     if (onAnimationStateChange) {
       onAnimationStateChange(false);
     }
@@ -579,7 +585,36 @@ const MainCanvas = (props) => {
       setActionText(APP_DATA.steps[11].actionText);
       setVFound(true);
       onSetNextLabel(APP_DATA.steps[11].nextText);
-      onSetNextEnabled(true);
+      onSetNextEnabled(false);
+      animatingRef.current = true;
+      if (onAnimationStateChange) {
+        onAnimationStateChange(true);
+      }
+
+      const animState = { rotation: 0 };
+      summaryRotationTweenRef.current = gsap.to(animState, {
+        rotation: PQRS_GEOM.initialRotation,
+        duration: 1.0,
+        ease: "power2.inOut",
+        onUpdate: () => {
+          setPqrsTransform({
+            centroid: { ...PQRS_GEOM.alignedCentroid },
+            rotation: animState.rotation,
+          });
+        },
+        onComplete: () => {
+          setPqrsTransform({
+            centroid: { ...PQRS_GEOM.alignedCentroid },
+            rotation: PQRS_GEOM.initialRotation,
+          });
+          summaryRotationTweenRef.current = null;
+          animatingRef.current = false;
+          if (onAnimationStateChange) {
+            onAnimationStateChange(false);
+          }
+          onSetNextEnabled(true);
+        },
+      });
     }
   }, [
     step,
@@ -788,15 +823,16 @@ const MainCanvas = (props) => {
     });
   };
 
-  const renderAngleLabel = (text, vertex, shapeCentroid, color, className) => {
+  const renderAngleLabel = (text, vertex, shapeCentroid, color, className, offset) => {
     const pos = inwardAngleLabelPos(vertex, shapeCentroid, ANGLE_LABEL_INSET);
+    const labelOffset = offset || {};
     const firstChar = typeof text === "string" ? text.charAt(0).toLowerCase() : "";
     const hasMathVar = firstChar === "u" || firstChar === "v";
     return React.createElement(
       "text",
       {
-        x: pos.x,
-        y: pos.y,
+        x: pos.x + (labelOffset.x || 0),
+        y: pos.y + (labelOffset.y || 0),
         fill: color || COLOR_WHITE,
         fontSize: ANGLE_TEXT_FONT_SIZE,
         fontWeight: 600,
@@ -935,7 +971,7 @@ const MainCanvas = (props) => {
       if (key === "A" && !isOrange) return;
       elems.push(
         renderAngleArc(v, QUAD_ABCD[adj[0]], QUAD_ABCD[adj[1]], {
-          fill: isOrange ? COLOR_ORANGE : "none",
+          fill: isOrange ? COLOR_ANGLE_HIGHLIGHT : "none",
           stroke: isOrange ? COLOR_WHITE : COLOR_WHITE,
           strokeWidth: isOrange ? 2.5 : 2,
           id: `abc-angle-${key}`,
@@ -947,7 +983,7 @@ const MainCanvas = (props) => {
             label,
             v,
             abcCentroid,
-            isOrange ? COLOR_ORANGE : COLOR_WHITE,
+            isOrange ? COLOR_ANGLE_HIGHLIGHT : COLOR_WHITE,
             isOrange ? "angle-label-orange" : "",
           ),
         );
@@ -964,11 +1000,11 @@ const MainCanvas = (props) => {
       const shouldHighlightOrange = highlightUV || summarizeOrange || highlightVAtStep10;
       const isOrange = orangeAngles.P;
       const fill = summarizeOrange
-        ? COLOR_ORANGE
+        ? COLOR_ANGLE_HIGHLIGHT
         : isOrange
-          ? COLOR_ORANGE
+          ? COLOR_ANGLE_HIGHLIGHT
           : shouldHighlightOrange
-            ? COLOR_ORANGE
+            ? COLOR_ANGLE_HIGHLIGHT
             : "none";
       elems.push(
         renderAngleArc(p.P, p.S, p.Q, {
@@ -981,7 +1017,7 @@ const MainCanvas = (props) => {
       const pLabel = vFound ? APP_DATA.labels.vEquals : APP_DATA.labels.v;
       const pLabelColor =
         isOrange || summarizeOrange || ((highlightUV || highlightVAtStep10) && !vFound)
-          ? COLOR_ORANGE
+          ? COLOR_ANGLE_HIGHLIGHT
           : COLOR_WHITE;
       elems.push(
         renderAngleLabel(
@@ -992,6 +1028,7 @@ const MainCanvas = (props) => {
           isOrange || summarizeOrange || ((highlightUV || highlightVAtStep10) && !vFound)
             ? "angle-label-orange"
             : "",
+          summarizeOrange ? { x: SUMMARY_V_LABEL_X_OFFSET } : null,
         ),
       );
     };
@@ -1000,7 +1037,7 @@ const MainCanvas = (props) => {
       if (qAngleFound) {
         elems.push(
           renderAngleArc(p.Q, p.P, p.R, {
-            fill: orangeAngles.Q ? COLOR_ORANGE : "none",
+            fill: orangeAngles.Q ? COLOR_ANGLE_HIGHLIGHT : "none",
             stroke: COLOR_WHITE,
             strokeWidth: orangeAngles.Q ? 2.5 : 2,
             id: "pqrs-angle-Q",
@@ -1011,14 +1048,14 @@ const MainCanvas = (props) => {
             APP_DATA.labels.angle80,
             p.Q,
             pqrsCentroid,
-            orangeAngles.Q ? COLOR_ORANGE : COLOR_WHITE,
+            orangeAngles.Q ? COLOR_ANGLE_HIGHLIGHT : COLOR_WHITE,
             orangeAngles.Q ? "angle-label-orange" : "",
           ),
         );
       } else if (glowAngle === "Q" && step === 6) {
         elems.push(
           renderAngleArc(p.Q, p.P, p.R, {
-            fill: COLOR_ORANGE,
+            fill: COLOR_ANGLE_HIGHLIGHT,
             stroke: COLOR_WHITE,
             strokeWidth: 2.5,
             className: "angle-glow-pulse",
@@ -1042,7 +1079,7 @@ const MainCanvas = (props) => {
           APP_DATA.labels.angle135,
           p.R,
           pqrsCentroid,
-          orangeAngles.R ? COLOR_ORANGE : COLOR_WHITE,
+          orangeAngles.R ? COLOR_ANGLE_HIGHLIGHT : COLOR_WHITE,
           orangeAngles.R ? "angle-label-orange" : "",
         ),
       );
@@ -1053,11 +1090,11 @@ const MainCanvas = (props) => {
       const isOrange = orangeAngles.S;
       const isGlow = glowAngle === "S" && step === 7 && !sAngleFound;
       const fill = summarizeOrange
-        ? COLOR_ORANGE
+        ? COLOR_ANGLE_HIGHLIGHT
         : isOrange || isGlow
-          ? COLOR_ORANGE
+          ? COLOR_ANGLE_HIGHLIGHT
           : shouldHighlightOrange
-            ? COLOR_ORANGE
+            ? COLOR_ANGLE_HIGHLIGHT
             : "none";
       elems.push(
         renderAngleArc(p.S, p.R, p.P, {
@@ -1073,7 +1110,7 @@ const MainCanvas = (props) => {
         : APP_DATA.labels.u;
       const labelColor =
         isOrange || summarizeOrange || (shouldHighlightOrange && !sAngleFound)
-          ? COLOR_ORANGE
+          ? COLOR_ANGLE_HIGHLIGHT
           : COLOR_WHITE;
       elems.push(
         renderAngleLabel(

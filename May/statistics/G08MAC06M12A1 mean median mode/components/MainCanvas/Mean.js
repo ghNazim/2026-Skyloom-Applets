@@ -23,10 +23,12 @@ const Mean = (props) => {
   const containerRef = useRef(null);
   const sortSlotRefs = useRef([]);
   const sumSpanRefs = useRef([]);
+  const draggableRefs = useRef({});
   const lastCountBadgeRef = useRef(null);
   const numBoxRef = useRef(null);
   const denomBoxRef = useRef(null);
   const meanBoxRef = useRef(null);
+  const step8FractionRef = useRef(null);
 
   const [sumDone, setSumDone] = useState(false);
   const [countDone, setCountDone] = useState(false);
@@ -48,6 +50,8 @@ const Mean = (props) => {
   const [flyingCountClone, setFlyingCountClone] = useState(null);
   const [step9CollapseStarted, setStep9CollapseStarted] = useState(false);
   const [step9NudgesReady, setStep9NudgesReady] = useState(false);
+  const [showStep8DragHint, setShowStep8DragHint] = useState(true);
+  const [step8DragHintPath, setStep8DragHintPath] = useState(null);
 
   function resetDragDrop() {
     setFilledZones({});
@@ -60,6 +64,9 @@ const Mean = (props) => {
     setIsDragging(false);
     setHoveredZone(null);
     setGhostSize({ width: 0, height: 0 });
+    setShowStep8DragHint(true);
+    setStep8DragHintPath(null);
+    draggableRefs.current = {};
   }
 
   function resetStep9() {
@@ -161,6 +168,33 @@ const Mean = (props) => {
   }, [step, initialStage]);
 
   useEffect(function () {
+    if (step !== 8 || !showStep8DragHint || ddComplete || isDragging) return undefined;
+    let frameId = null;
+    function updateHintPath() {
+      const middleId = dd.draggables[Math.floor(dd.draggables.length / 2)].id;
+      const fromNode = draggableRefs.current[middleId];
+      const toNode = step8FractionRef.current;
+      const container = containerRef.current;
+      if (!fromNode || !toNode || !container) return;
+      const cRect = container.getBoundingClientRect();
+      const fromRect = fromNode.getBoundingClientRect();
+      const toRect = toNode.getBoundingClientRect();
+      setStep8DragHintPath({
+        fromX: fromRect.left - cRect.left + fromRect.width / 2,
+        fromY: fromRect.top - cRect.top + fromRect.height / 2,
+        toX: toRect.left - cRect.left + toRect.width / 2,
+        toY: toRect.top - cRect.top + toRect.height / 2,
+      });
+    }
+    frameId = requestAnimationFrame(updateHintPath);
+    window.addEventListener("resize", updateHintPath);
+    return function () {
+      if (frameId !== null) cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", updateHintPath);
+    };
+  }, [step, showStep8DragHint, ddComplete, isDragging, filledZones]);
+
+  useEffect(function () {
     if (step !== 8) return;
     const zones = ["left", "num", "denom"];
     const allFilled = zones.every(function (z) { return filledZones[z]; });
@@ -185,13 +219,20 @@ const Mean = (props) => {
       denomAnimActive ||
       isCountAnimating
     ) return;
+    let navTimer = null;
     const timer = setTimeout(function () {
       setShowResultBox(true);
       setCountBadgeCount(0);
       onUpdateQuestionText(step9.meanQuestion);
-      onUpdateNavText(step9.meanNav);
+      onUpdateNavText("");
+      navTimer = setTimeout(function () {
+        onUpdateNavText(step9.meanNav);
+      }, 350);
     }, 1500);
-    return function () { clearTimeout(timer); };
+    return function () {
+      clearTimeout(timer);
+      if (navTimer !== null) clearTimeout(navTimer);
+    };
   }, [
     sumDone,
     countDone,
@@ -293,6 +334,7 @@ const Mean = (props) => {
   function handleDragPointerDown(event, draggableId) {
     event.preventDefault();
     const rect = event.currentTarget.getBoundingClientRect();
+    setShowStep8DragHint(false);
     setDraggedItem(draggableId);
     setIsDragging(true);
     setDragPosition({ x: event.clientX, y: event.clientY });
@@ -359,6 +401,21 @@ const Mean = (props) => {
     }, content);
   }
 
+  function renderStep8DragHint() {
+    if (!showNudges || step !== 8 || !showStep8DragHint || isDragging || ddComplete || !step8DragHintPath) return null;
+    return e("img", {
+      className: "mean-step8-drag-hint",
+      src: "assets/tap.png",
+      alt: "",
+      style: {
+        "--hint-from-x": step8DragHintPath.fromX + "px",
+        "--hint-from-y": step8DragHintPath.fromY + "px",
+        "--hint-to-x": step8DragHintPath.toX + "px",
+        "--hint-to-y": step8DragHintPath.toY + "px",
+      },
+    });
+  }
+
   function renderDragDropPanel() {
     const ghost = isDragging && draggedItem ? e("div", {
       className: "mean-dd-draggable mean-dd-ghost",
@@ -376,6 +433,7 @@ const Mean = (props) => {
           renderDropZone("left"),
           e("span", { className: "mean-dd-equals" }, "="),
           e("div", { className: "mean-dd-fraction" },
+            e("span", { className: "step8-fraction-midpoint", ref: step8FractionRef }),
             renderDropZone("num"),
             e("div", { className: "mean-dd-bar" }),
             renderDropZone("denom")
@@ -386,17 +444,20 @@ const Mean = (props) => {
           )
         )
       ),
-      e("div", { className: "mean-dd-right step8" },
+      e("div", { className: "mean-dd-right step8 " + (ddComplete ? "complete" : "") },
         dd.draggables.map(function (item) {
-          if (!availableDraggables.includes(item.id)) return null;
+          const isAvailable = availableDraggables.includes(item.id);
           return e("button", {
             type: "button",
             key: "drag-" + item.id,
-            className: "mean-dd-draggable" + (draggedItem === item.id && isDragging ? " dragging" : "") + (hiddenSourceId === item.id ? " source-hidden" : ""),
-            onPointerDown: function (ev) { handleDragPointerDown(ev, item.id); },
+            ref: function (node) { draggableRefs.current[item.id] = node; },
+            className: "mean-dd-draggable" + (draggedItem === item.id && isDragging ? " dragging" : "") + (hiddenSourceId === item.id ? " source-hidden" : "") + (!isAvailable ? " placed-hidden" : ""),
+            disabled: !isAvailable,
+            onPointerDown: isAvailable ? function (ev) { handleDragPointerDown(ev, item.id); } : undefined,
           }, renderDraggableText(item.text));
         })
       ),
+      renderStep8DragHint(),
       ghost
     );
   }
@@ -533,8 +594,9 @@ const Mean = (props) => {
             setSumAnimActive(false);
             setIsSumAnimating(false);
             setActiveField(null);
+            if (!countDone) setShowFractionNudges(true);
             onUpdateQuestionText(step9.sumCompleteQuestion);
-            onUpdateNavText(countDone ? step9.countCompleteNav : step9.sumCompleteNav);
+            onUpdateNavText(countDone ? "" : step9.sumCompleteNav);
           }, 650);
         }, 1000);
         return;
@@ -581,8 +643,9 @@ const Mean = (props) => {
     setIsCountAnimating(false);
     setActiveField(null);
     setCountBadgeCount(0);
+    if (!sumDone) setShowFractionNudges(true);
     onUpdateQuestionText(step9.countCompleteQuestion);
-    onUpdateNavText(sumDone ? step9.countCompleteNav : step9.countCompleteNavAlt);
+    onUpdateNavText(sumDone ? "" : step9.countCompleteNavAlt);
   }
 
   function getBoxDisplay(field) {

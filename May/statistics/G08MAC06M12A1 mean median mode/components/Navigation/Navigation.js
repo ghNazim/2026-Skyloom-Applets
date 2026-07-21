@@ -38,6 +38,7 @@ const Navigation = ({
     React.createElement(Nudge, {
       targetRef: nextButtonRef,
       show: showNextNudge,
+      positionPreset: "next",
     })
   );
 };
