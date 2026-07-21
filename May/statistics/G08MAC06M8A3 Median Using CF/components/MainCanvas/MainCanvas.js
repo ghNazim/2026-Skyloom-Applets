@@ -8,6 +8,7 @@ const MainCanvas = (props) => {
   const dataOptions = APP_DATA.dataOptions;
   const frequencyOptions = APP_DATA.frequencyOptions;
   const prompts = APP_DATA.prompts;
+  const FORMULA_HINT_HALF_HEIGHT_SCALE = 0.42;
 
   const blankRows = tableData.map(function () {
     return { value: null, frequency: null };
@@ -18,6 +19,8 @@ const MainCanvas = (props) => {
   const [activeRow, setActiveRow] = useState(0);
   const [activeField, setActiveField] = useState("data");
   const [dropdown, setDropdown] = useState(null);
+  const [step2NudgeDismissed, setStep2NudgeDismissed] = useState(false);
+  const [step2NudgeReady, setStep2NudgeReady] = useState(false);
   const [wrongChoice, setWrongChoice] = useState(null);
   const [feedbackHtml, setFeedbackHtml] = useState("");
   const [focusedGridValue, setFocusedGridValue] = useState(null);
@@ -39,6 +42,8 @@ const MainCanvas = (props) => {
   const [showTotalHint, setShowTotalHint] = useState(false);
   const [wrongFormulaId, setWrongFormulaId] = useState(null);
   const [selectedFormulaId, setSelectedFormulaId] = useState(null);
+  const [formulaTransferDone, setFormulaTransferDone] = useState(false);
+  const [flyingFormulaClone, setFlyingFormulaClone] = useState(null);
   const [formulaStage, setFormulaStage] = useState("n");
   const [formulaBoxVisible, setFormulaBoxVisible] = useState(false);
   const [formulaFading, setFormulaFading] = useState(false);
@@ -59,6 +64,10 @@ const MainCanvas = (props) => {
   const actionPanelRef = useRef(null);
   const nAnswerRef = useRef(null);
   const formulaNRef = useRef(null);
+  const step4ActionRef = useRef(null);
+  const step4MedianPositionRef = useRef(null);
+  const formulaOptionRefs = useRef({});
+  const activeStep2CellRef = useRef(null);
   const dataCellRefs = useRef([]);
   const freqCellRefs = useRef([]);
   const cfCellRefs = useRef([]);
@@ -167,6 +176,7 @@ const MainCanvas = (props) => {
     if (step !== 2) return;
     if (rowIndex !== activeRow || type !== activeField) return;
     play("click");
+    setStep2NudgeDismissed(true);
     setWrongChoice(null);
     setDropdown({ type: type, rowIndex: rowIndex });
     if (type === "freq") {
@@ -262,9 +272,8 @@ const MainCanvas = (props) => {
 
   function handleNumpadNumber(num) {
     if (step !== 3 || activeCfRow >= tableData.length) return;
-    if (cfErrorRow === activeCfRow || cfFeedbackHtml) {
+    if (cfErrorRow === activeCfRow) {
       setCfErrorRow(null);
-      setCfFeedbackHtml("");
       setCfInput(num);
       return;
     }
@@ -279,7 +288,6 @@ const MainCanvas = (props) => {
     if (step !== 3) return;
     play("click");
     setCfErrorRow(null);
-    setCfFeedbackHtml("");
     setCfInput("");
   }
 
@@ -325,9 +333,8 @@ const MainCanvas = (props) => {
   function handleFlatNumpadNumber(num) {
     if (step !== 4 || step4Mode !== "count" || nComplete) return;
     play("click");
-    if (nError || step4FeedbackHtml) {
+    if (nError) {
       setNError(false);
-      setStep4FeedbackHtml("");
       setNInput(num);
       return;
     }
@@ -342,7 +349,6 @@ const MainCanvas = (props) => {
     if (step !== 4 || step4Mode !== "count" || nComplete) return;
     play("click");
     setNError(false);
-    setStep4FeedbackHtml("");
     setNInput("");
   }
 
@@ -385,10 +391,50 @@ const MainCanvas = (props) => {
 
     play("correct");
     setSelectedFormulaId(option.id);
+    setFormulaTransferDone(false);
     setStep4FeedbackHtml("");
     setTimeout(function () {
+      startFormulaChoiceClone(option.id);
+    }, 40);
+    setTimeout(function () {
+      setFormulaTransferDone(true);
+      setFlyingFormulaClone(null);
+    }, 780);
+    setTimeout(function () {
       if (onAutoAdvance) onAutoAdvance();
-    }, 1000);
+    }, 1120);
+  }
+
+  function startFormulaChoiceClone(optionId) {
+    if (!step4ActionRef.current || !step4MedianPositionRef.current) return;
+    var source = formulaOptionRefs.current[optionId];
+    if (!source) return;
+
+    var panelRect = step4ActionRef.current.getBoundingClientRect();
+    var fromRect = source.getBoundingClientRect();
+    var toRect = step4MedianPositionRef.current.getBoundingClientRect();
+    var startLeft = fromRect.left - panelRect.left + fromRect.width / 2;
+    var startTop = fromRect.top - panelRect.top + fromRect.height / 2;
+    var endLeft = toRect.left - panelRect.left + toRect.width / 2;
+    var endTop = toRect.top - panelRect.top + toRect.height / 2;
+
+    setFlyingFormulaClone({
+      optionId: optionId,
+      left: startLeft,
+      top: startTop,
+      tx: endLeft - startLeft,
+      ty: endTop - startTop,
+      active: false,
+    });
+    setTimeout(function () {
+      setFlyingFormulaClone(function (prev) {
+        if (!prev) return prev;
+        var next = {};
+        for (var key in prev) next[key] = prev[key];
+        next.active = true;
+        return next;
+      });
+    }, 40);
   }
 
   function startFlyingNClone() {
@@ -400,12 +446,15 @@ const MainCanvas = (props) => {
     var startTop = fromRect.top - panelRect.top + fromRect.height / 2;
     var endLeft = toRect.left - panelRect.left + toRect.width / 2;
     var endTop = toRect.top - panelRect.top + toRect.height / 2;
+    var fromFontSize = parseFloat(window.getComputedStyle(nAnswerRef.current).fontSize) || fromRect.height;
+    var toFontSize = parseFloat(window.getComputedStyle(formulaNRef.current).fontSize) || fromFontSize;
 
     setFlyingNClone({
       left: startLeft,
       top: startTop,
       tx: endLeft - startLeft,
       ty: endTop - startTop,
+      scale: Math.max(0.1, toFontSize / fromFontSize),
       active: false,
     });
     setTimeout(function () {
@@ -507,7 +556,7 @@ const MainCanvas = (props) => {
     var dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
     var cos = dx / dist;
     var sin = dy / dist;
-    var halfHeight = fRect.height * 0.72;
+    var halfHeight = fRect.height * FORMULA_HINT_HALF_HEIGHT_SCALE;
     var extension = fRect.width * 0.18;
     var perpX = -sin * halfHeight;
     var perpY = cos * halfHeight;
@@ -539,20 +588,20 @@ const MainCanvas = (props) => {
 
     var startX = cellRect.left - wrapRect.left;
     var startY = cellRect.top - wrapRect.top + cellRect.height / 2;
-    var endX = labelRect.left - wrapRect.left + labelRect.width * 0.1;
+    var endX = labelRect.left - wrapRect.left;
     var endY = labelRect.top - wrapRect.top + labelRect.height / 2;
     var elbowX = Math.min(startX - cellRect.width * 0.48, endX - labelRect.width * 0.42);
+    var strokeWidth = Math.max(3, cellRect.height * 0.08);
+    var headLength = Math.max(12, cellRect.height * 0.45);
+    var headHalfHeight = Math.max(6, cellRect.height * 0.2);
 
     setFinalArrow({
       viewWidth: Math.max(1, wrapRect.width),
       viewHeight: Math.max(1, wrapRect.height),
       path: "M " + startX + " " + startY + " H " + elbowX + " V " + endY + " H " + endX,
-      head: [
-        [endX, endY],
-        [endX - 14, endY - 8],
-        [endX - 10, endY],
-        [endX - 14, endY + 8],
-      ].map(function (point) { return point.join(","); }).join(" "),
+      strokeWidth: strokeWidth,
+      headLength: headLength,
+      headHalfHeight: headHalfHeight,
     });
   }, []);
 
@@ -613,6 +662,8 @@ const MainCanvas = (props) => {
         setShowTotalHint(false);
         setWrongFormulaId(null);
         setSelectedFormulaId("odd");
+        setFormulaTransferDone(true);
+        setFlyingFormulaClone(null);
         onUpdateQuestionText(APP_DATA.steps[4].questionTextFormula);
         onUpdateNavText(APP_DATA.steps[4].navTextFormula);
         onSetNextEnabled(true);
@@ -749,6 +800,8 @@ const MainCanvas = (props) => {
       setShowTotalHint(false);
       setWrongFormulaId(null);
       setSelectedFormulaId(null);
+      setFormulaTransferDone(false);
+      setFlyingFormulaClone(null);
       setTimeout(function () {
         onUpdateQuestionText(APP_DATA.steps[4].questionText);
         onUpdateNavText(APP_DATA.steps[4].navText);
@@ -778,6 +831,8 @@ const MainCanvas = (props) => {
       setShowTotalHint(false);
       setWrongFormulaId(null);
       setSelectedFormulaId("odd");
+      setFormulaTransferDone(true);
+      setFlyingFormulaClone(null);
       setFormulaStage("n");
       setFormulaBoxVisible(false);
       setFormulaFading(false);
@@ -839,6 +894,21 @@ const MainCanvas = (props) => {
       window.removeEventListener("resize", updateFinalArrow);
     };
   }, [step, finalSettled, updateFinalArrow]);
+
+  useEffect(function () {
+    setStep2NudgeDismissed(false);
+    setStep2NudgeReady(false);
+
+    if (step !== 2 || activeRow >= tableData.length) return;
+
+    var timeoutId = setTimeout(function () {
+      setStep2NudgeReady(true);
+    }, 1000);
+
+    return function () {
+      clearTimeout(timeoutId);
+    };
+  }, [step, activeRow, activeField]);
 
   function renderGrid() {
     return e("div", { className: "raw-grid", "aria-label": "Dataset values" },
@@ -907,15 +977,19 @@ const MainCanvas = (props) => {
 
   function renderFrequencyTable(showCf) {
     var showRange = step === 5 && showRangeColumn;
+    var totalHintOuterDim = step === 4 && showTotalHint;
+    activeStep2CellRef.current = null;
     return e("div", { className: "table-wrap", ref: tableWrapRef },
       e("div", { className: "median-table" + (showCf ? " with-cf" : "") + (showRange ? " with-range" : "") },
         e("div", { className: "median-table-row header-row" },
           e("div", {
-            className: "median-table-cell header-cell",
+            className: "median-table-cell header-cell" +
+              (totalHintOuterDim ? " total-hint-outer-dim" : ""),
             dangerouslySetInnerHTML: { __html: APP_DATA.tableHeaders.data },
           }),
           e("div", {
-            className: "median-table-cell header-cell",
+            className: "median-table-cell header-cell" +
+              (totalHintOuterDim ? " total-hint-outer-dim" : ""),
             dangerouslySetInnerHTML: { __html: APP_DATA.tableHeaders.frequency },
           }),
           showCf ? e("div", {
@@ -936,6 +1010,7 @@ const MainCanvas = (props) => {
           var cfDisplay = cfActive ? (cfInput || prompts.unknown) : (cfFilled ? cfValues[index] : prompts.unknown);
           var totalHintLast = step === 4 && showTotalHint && index === tableData.length - 1;
           var totalHintDim = step === 4 && showTotalHint && index !== tableData.length - 1;
+          var formulaHintSource = showFormulaOverlay && (index === activeCfRow || index === activeCfRow - 1);
           var medianRangeHint = showRange && rowForDisplay && rowForDisplay.value === 15;
 
           return e("div", { className: "median-table-row", key: "row-" + index },
@@ -943,19 +1018,28 @@ const MainCanvas = (props) => {
               type: "button",
               className: "median-table-cell data-cell" +
                 (dataActive ? " active selectable" : "") +
+                (totalHintOuterDim ? " total-hint-outer-dim" : "") +
                 (dropdown && dropdown.type === "data" && dropdown.rowIndex === index ? " dropdown-open" : ""),
               onClick: function () { openDropdown("data", index); },
               disabled: !dataActive,
-              ref: function (el) { dataCellRefs.current[index] = el; },
+              ref: function (el) {
+                dataCellRefs.current[index] = el;
+                if (dataActive) activeStep2CellRef.current = el;
+              },
             }, getCellText(index, "data")),
             e("button", {
               type: "button",
               className: "median-table-cell freq-cell" +
                 (freqActive ? " active selectable" : "") +
+                (totalHintOuterDim ? " total-hint-outer-dim" : "") +
+                (formulaHintSource && index === activeCfRow ? " formula-hint-source" : "") +
                 (dropdown && dropdown.type === "freq" && dropdown.rowIndex === index ? " dropdown-open" : ""),
               onClick: function () { openDropdown("freq", index); },
               disabled: !freqActive,
-              ref: function (el) { freqCellRefs.current[index] = el; },
+              ref: function (el) {
+                freqCellRefs.current[index] = el;
+                if (freqActive) activeStep2CellRef.current = el;
+              },
             }, getCellText(index, "freq")),
             showCf ? e("div", {
               className: "median-table-cell cf-cell" +
@@ -963,6 +1047,7 @@ const MainCanvas = (props) => {
                 (cfActive ? " active" : "") +
                 (cfFilled ? " filled" : "") +
                 (cfErrorRow === index ? " wrong" : "") +
+                (formulaHintSource && index === activeCfRow - 1 ? " formula-hint-source" : "") +
                 (totalHintDim ? " total-hint-dim" : "") +
                 (totalHintLast ? " total-hint-last" : ""),
               ref: function (el) { cfCellRefs.current[index] = el; },
@@ -976,6 +1061,11 @@ const MainCanvas = (props) => {
           );
         })
       ),
+      step === 2 ? e(Nudge, {
+        targetRef: activeStep2CellRef,
+        active: step2NudgeReady && !step2NudgeDismissed && activeRow < tableData.length,
+        onDismiss: function () { setStep2NudgeDismissed(true); },
+      }) : null,
       renderDropdown(),
       formulaOverlay ? e("svg", {
         className: "formula-overlay",
@@ -1027,41 +1117,51 @@ const MainCanvas = (props) => {
     );
   }
 
-  function renderFormulaCore(id) {
-    if (id === "odd") {
+  function renderOrdinalFormula(children) {
+    if (current_language === "id") {
       return e("span", { className: "formula-core" },
-        e("span", { className: "paren" }, "("),
-        renderFraction("n+1", "2"),
-        e("span", { className: "paren" }, ")"),
-        e("sup", { className: "formula-sup" }, "th")
+        e("span", { className: "formula-prefix" }, "ke-"),
+        children
       );
     }
 
     return e("span", { className: "formula-core" },
-      e("span", { className: "paren" }, "("),
-      renderFraction("n", "2"),
-      e("span", { className: "paren" }, ")"),
+      children,
       e("sup", { className: "formula-sup" }, "th")
     );
   }
 
+  function renderFormulaCore(id) {
+    if (id === "odd") {
+      return renderOrdinalFormula([
+        e("span", { className: "paren" }, "("),
+        renderFraction("n+1", "2"),
+        e("span", { className: "paren" }, ")")
+      ]);
+    }
+
+    return renderOrdinalFormula([
+      e("span", { className: "paren" }, "("),
+      renderFraction("n", "2"),
+      e("span", { className: "paren" }, ")")
+    ]);
+  }
+
   function renderMedianFormulaCore() {
     if (formulaStage === "13") {
-      return e("span", { className: "formula-core" },
+      return renderOrdinalFormula([
         e("span", { className: "paren" }, "("),
         e("span", null, "13"),
-        e("span", { className: "paren" }, ")"),
-        e("sup", { className: "formula-sup" }, "th")
-      );
+        e("span", { className: "paren" }, ")")
+      ]);
     }
 
     if (formulaStage === "26") {
-      return e("span", { className: "formula-core" },
+      return renderOrdinalFormula([
         e("span", { className: "paren" }, "("),
         renderFraction("26", "1"),
-        e("span", { className: "paren" }, ")"),
-        e("sup", { className: "formula-sup" }, "th")
-      );
+        e("span", { className: "paren" }, ")")
+      ]);
     }
 
     var numerator = formulaStage === "25" ?
@@ -1071,12 +1171,11 @@ const MainCanvas = (props) => {
         "+1"
       );
 
-    return e("span", { className: "formula-core" },
+    return renderOrdinalFormula([
       e("span", { className: "paren" }, "("),
       renderFraction(numerator, "2"),
-      e("span", { className: "paren" }, ")"),
-      e("sup", { className: "formula-sup" }, "th")
-    );
+      e("span", { className: "paren" }, ")")
+    ]);
   }
 
   function renderFlatNumpad(onNumber, onClear, onSubmit, disabled) {
@@ -1124,9 +1223,11 @@ const MainCanvas = (props) => {
           key: "formula-" + option.id,
           className: "formula-option" +
             (wrongFormulaId === option.id ? " wrong shake" : "") +
-            (selectedFormulaId === option.id ? " correct" : ""),
+            (selectedFormulaId === option.id ? " correct" : "") +
+            (selectedFormulaId ? " transferring" : ""),
           onClick: function () { handleFormulaChoice(option); },
           disabled: !!selectedFormulaId,
+          ref: function (el) { formulaOptionRefs.current[option.id] = el; },
         },
           renderFormulaCore(option.id),
           e("span", { className: "formula-suffix" }, option.suffix)
@@ -1135,8 +1236,16 @@ const MainCanvas = (props) => {
     );
   }
 
+  function getFormulaOptionSuffix(optionId) {
+    var options = APP_DATA.steps[4].options;
+    for (var i = 0; i < options.length; i++) {
+      if (options[i].id === optionId) return options[i].suffix;
+    }
+    return "";
+  }
+
   function renderStep4ActionColumn() {
-    return e("div", { className: "step4-action-column" },
+    return e("div", { className: "step4-action-column", ref: step4ActionRef },
       e("div", { className: "step4-math-row" },
         e("div", { className: "n-equation" },
           e("span", {
@@ -1154,7 +1263,14 @@ const MainCanvas = (props) => {
       ),
       e("div", { className: "step4-feedback-row" },
         step4Mode === "formula" && selectedFormulaId ?
-          e("div", { className: "middle-position-label" }, APP_DATA.steps[4].middlePosition) :
+          e("div", {
+            className: "formula-option step4-transfer-target" +
+              (formulaTransferDone ? " transfer-done" : " transfer-pending"),
+            ref: step4MedianPositionRef,
+          },
+            renderFormulaCore(selectedFormulaId),
+            e("span", { className: "formula-suffix" }, getFormulaOptionSuffix(selectedFormulaId))
+          ) :
           (step4FeedbackHtml ? e("div", {
             className: "feedback-card step4-feedback-card",
             dangerouslySetInnerHTML: { __html: step4FeedbackHtml },
@@ -1162,7 +1278,19 @@ const MainCanvas = (props) => {
       ),
       e("div", { className: "step4-control-row" },
         step4Mode === "count" ? renderFlatNumpad() : renderFormulaOptions()
-      )
+      ),
+      flyingFormulaClone ? e("div", {
+        className: "flying-formula-clone" + (flyingFormulaClone.active ? " active" : ""),
+        style: {
+          left: flyingFormulaClone.left + "px",
+          top: flyingFormulaClone.top + "px",
+          "--formula-fly-x": flyingFormulaClone.tx + "px",
+          "--formula-fly-y": flyingFormulaClone.ty + "px",
+        },
+      },
+        renderFormulaCore(flyingFormulaClone.optionId),
+        e("span", { className: "formula-suffix" }, getFormulaOptionSuffix(flyingFormulaClone.optionId))
+      ) : null
     );
   }
 
@@ -1211,6 +1339,7 @@ const MainCanvas = (props) => {
           top: flyingNClone.top + "px",
           "--fly-x": flyingNClone.tx + "px",
           "--fly-y": flyingNClone.ty + "px",
+          "--fly-scale": flyingNClone.scale,
         },
       }, "25") : null
     );
@@ -1249,15 +1378,33 @@ const MainCanvas = (props) => {
       ),
       finalArrow ? e("svg", {
         className: "final-median-arrow",
-        viewBox: "0 0 " + finalArrow.viewWidth + " " + finalArrow.viewHeight,
-        preserveAspectRatio: "none",
+        width: finalArrow.viewWidth,
+        height: finalArrow.viewHeight,
       },
+        e("defs", null,
+          e("marker", {
+            id: "final-median-arrowhead",
+            viewBox: "0 -" + finalArrow.headHalfHeight + " " + finalArrow.headLength + " " + (finalArrow.headHalfHeight * 2),
+            refX: finalArrow.headLength,
+            refY: "0",
+            markerWidth: finalArrow.headLength,
+            markerHeight: finalArrow.headHalfHeight * 2,
+            markerUnits: "userSpaceOnUse",
+            orient: "auto",
+            overflow: "visible",
+          },
+            e("path", {
+              d: "M 0 -" + finalArrow.headHalfHeight + " L " + finalArrow.headLength + " 0 L 0 " + finalArrow.headHalfHeight + " Z",
+              fill: "#ffa51f",
+            })
+          )
+        ),
         e("path", {
+          className: "final-median-arrow-line",
           d: finalArrow.path,
           fill: "none",
-        }),
-        e("polygon", {
-          points: finalArrow.head,
+          strokeWidth: finalArrow.strokeWidth,
+          markerEnd: "url(#final-median-arrowhead)",
         })
       ) : null,
       e("div", { className: "final-median-label", ref: finalMedianLabelRef }, APP_DATA.final.medianLabel)

@@ -8,10 +8,15 @@ const Navigation = ({
   showNextNudge = false,
   isFinalStep = false,
   startOverText = "Start Over",
+  startOverButtonRef,
+  showStartOverNudge = false,
+  onStartOverNudgeDismiss,
   onRestart,
 }) => {
   const localNextRef = React.useRef(null);
+  const localStartOverRef = React.useRef(null);
   const nextRef = nextButtonRef || localNextRef;
+  const startOverRef = startOverButtonRef || localStartOverRef;
 
   if (isFinalStep) {
     return React.createElement(
@@ -20,11 +25,17 @@ const Navigation = ({
       React.createElement(
         "button",
         {
+          ref: startOverRef,
           className: "start-over-nav-button",
           onClick: onRestart,
         },
         startOverText
-      )
+      ),
+      React.createElement(Nudge, {
+        targetRef: startOverRef,
+        active: showStartOverNudge,
+        onDismiss: onStartOverNudgeDismiss,
+      })
     );
   }
 

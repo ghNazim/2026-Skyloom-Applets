@@ -271,6 +271,7 @@ sup {
   color: white;
   font-size: 2.75vw;
   font-weight: 800;
+  font-family: var(--font-family);
   line-height: 1;
   display: flex;
   align-items: center;
@@ -293,7 +294,18 @@ button.median-num-circle:not(:disabled) {
 }
 
 .median-num-circle.counted {
-  filter: brightness(1.03);
+  border-color: rgba(131, 200, 238, 0.3);
+  filter: saturate(0.7);
+}
+
+.median-num-circle.counted::after {
+  content: "";
+  position: absolute;
+  inset: -0.28vw;
+  border-radius: 50%;
+  background: rgba(0, 6, 18, 0.7);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .median-num-circle.position-wrong {
@@ -342,6 +354,10 @@ button.median-num-circle:not(:disabled) {
   color: #98dc5a;
 }
 
+.position-label.neutral {
+  color: white;
+}
+
 .median-num-circle.updown {
   animation: median-updown 0.82s ease-in-out infinite;
 }
@@ -367,11 +383,13 @@ button.median-num-circle:not(:disabled) {
 }
 
 .sort-smallest {
-  left: 0.4vw;
+  left: 13vw;
+  transform: translateX(-50%);
 }
 
 .sort-largest {
-  right: 0.4vw;
+  right: 13vw;
+  transform: translateX(50%);
 }
 
 .median-count-badge {
@@ -609,6 +627,17 @@ button.median-num-circle:not(:disabled) {
   filter: brightness(1.07);
 }
 
+.middle-option sup,
+.middle-simplified-expression sup,
+.middle-correct-expression sup {
+  display: inline-block;
+  font-size: 58%;
+  line-height: 1;
+  vertical-align: super;
+  transform: translateY(-0.52em);
+  margin-left: 0.04em;
+}
+
 .middle-option.wrong {
   background: linear-gradient(145deg, #ff6262, #e74343);
   border-color: #ff4b4b;
@@ -676,7 +705,7 @@ button.median-num-circle:not(:disabled) {
   align-items: center;
   justify-content: center;
   min-height: 1.35vw;
-  font-family: Georgia, "Times New Roman", serif;
+  /* font-family: Georgia, "Times New Roman", serif; */
   font-style: italic;
   font-weight: 800;
   line-height: 1;
@@ -805,10 +834,18 @@ button.median-num-circle:not(:disabled) {
   color: white;
 }
 
+.median-answer-comma {
+  font-size: 2.5vw;
+  font-weight: 800;
+  line-height: 1;
+  transform: translateY(0.08em);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
 .median-numpad {
   display: grid;
-  grid-template-columns: repeat(6, 3.1vw) 3.6vw;
-  grid-template-rows: repeat(2, 2.85vw);
+  grid-template-columns: repeat(6, 4.1vw) 4.6vw;
+  grid-template-rows: repeat(2, 3.85vw);
   gap: 0.25vw;
   justify-content: center;
   align-items: stretch;
@@ -819,7 +856,7 @@ button.median-num-circle:not(:disabled) {
   border-radius: 0.35vw;
   background: linear-gradient(145deg, rgba(87, 66, 43, 0.95), rgba(47, 36, 27, 0.98));
   color: white;
-  font-size: 1.75vw;
+  font-size: 2.5vw;
   font-weight: 800;
   cursor: pointer;
   text-shadow: 0 0.14vw 0.2vw rgba(0, 0, 0, 0.45);
@@ -883,6 +920,7 @@ button.median-num-circle:not(:disabled) {
   z-index: 115;
   pointer-events: none;
   margin: 0;
+  font-family: var(--font-family);
 }
 
 @media (max-aspect-ratio: 14 / 9) {

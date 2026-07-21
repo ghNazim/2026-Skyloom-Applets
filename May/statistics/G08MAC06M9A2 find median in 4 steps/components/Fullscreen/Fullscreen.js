@@ -16,7 +16,7 @@ const Fullscreen = ({
     topContent || null,
     React.createElement("p", {
       className: "fullscreen-content " + (left ? "left" : "center"),
-      dangerouslySetInnerHTML: { __html: text },
+      dangerouslySetInnerHTML: { __html: formatSuperscriptOrdinals(text) },
     })
   );
 
@@ -35,6 +35,6 @@ const Fullscreen = ({
       },
       buttonText
     ),
-    React.createElement(Nudge, { targetRef: buttonRef, show: showNudge })
+    React.createElement(Nudge, { targetRef: buttonRef, show: showNudge, variant: "fullscreen" })
   );
 };

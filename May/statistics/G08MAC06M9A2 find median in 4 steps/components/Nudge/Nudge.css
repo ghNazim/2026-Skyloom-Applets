@@ -2,9 +2,34 @@
   pointer-events: none;
 }
 
-.nudge-overlay .nudge-tap-gif {
+.nudge-fullscreen {
+  transform: translate(30%, 0%);
+}
+
+.nudge-nav-next {
+  transform: translate(10%, -35%);
+}
+
+.nudge-step-button {
+  /* left: 90% !important; */
+  transform: translate(
+    calc((var(--nudge-target-width, 0px) / 2) - 80%),
+    calc((var(--nudge-target-height, 0px) / 2) - 48%)
+  );
+}
+
+.nudge-step-drag {
+  transform: translate(calc((var(--nudge-target-width, 0px) / 2) - 100%), -50%);
+}
+
+.nudge-overlay .nudge-gif {
   width: 5vw;
-  height: 5vw;
+  height: auto;
   object-fit: contain;
   opacity: 0.5;
+}
+
+.nudge-step-drag .nudge-gif {
+  width: 6.5vw;
+  opacity: 0.6;
 }

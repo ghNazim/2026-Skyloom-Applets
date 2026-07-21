@@ -21,7 +21,7 @@ const Navigation = ({
     ),
     React.createElement("div", {
       className: "nav-text-container",
-      dangerouslySetInnerHTML: { __html: navText || "" },
+      dangerouslySetInnerHTML: { __html: formatSuperscriptOrdinals(navText || "") },
     }),
     React.createElement(
       "button",
@@ -37,6 +37,7 @@ const Navigation = ({
     React.createElement(Nudge, {
       targetRef: nextButtonRef,
       show: !isNextDisabled,
+      variant: "nav-next",
     })
   );
 };

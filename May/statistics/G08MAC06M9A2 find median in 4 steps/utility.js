@@ -26,6 +26,11 @@ function handleComma(sentence) {
   return sentence.replace(/,/g, "<cm>,</cm>");
 }
 
+function formatSuperscriptOrdinals(text) {
+  if (!text) return text;
+  return String(text).replace(/(\d+)(st|nd|rd|th)(?![^<]*>)/g, "$1<sup>$2</sup>");
+}
+
 function confettiBurst() {
   const duration = 1 * 600;
   const end = Date.now() + duration;

@@ -13,7 +13,7 @@
   width: 5.5vw;
   height: 5.5vw;
   object-fit: contain;
-  opacity: 0.5;
+  opacity: 0.4;
   user-select: none;
-  transform: translate(15%, 15%);
+  transform: translate(35%, 15%);
 }

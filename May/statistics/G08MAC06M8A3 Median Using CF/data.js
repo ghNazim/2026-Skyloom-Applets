@@ -7,8 +7,8 @@ const DATA = {
         buttonText: "Start",
       },
       tableHeaders: {
-        data: "Data (<i>x</i><sub><i>i</i></sub>)",
-        frequency: "Frequency (<i>f</i><sub><i>i</i></sub>)",
+        data: "Data (<i>x<sub>i</sub></i>)",
+        frequency: "Frequency (<i>f<sub>i</sub></i>)",
         cumulativeFrequency: "Cumulative<br>Frequency",
       },
       gridValues: [
@@ -39,7 +39,7 @@ const DATA = {
         nextLargest: "We need to add the data points in order. You selected the largest earlier, so choose the data point that is the next largest after <value>.",
         firstCf: "Remember, the cumulative frequency for first row is always its frequency.",
         nextCf: "Cumulative frequency (except the first row) = current frequency + previous cumulative frequency",
-        totalCount: "Add all individual frequencies to<br>get <i>n</i>, or simply read the last<br>cumulative frequency.",
+        totalCount: "Add all individual frequencies to get <i>n</i>, or simply read the last cumulative frequency.",
         oddFormula: "That is for even. There is only one middle position for odd sized data set.",
       },
       steps: {
@@ -83,7 +83,7 @@ const DATA = {
           navText: "",
           navTextMedian: "Enter the correct median value.",
           navTextRetry: "Try again! Enter the correct median value.",
-          navTextDone: "Tap &raquo;",
+          navTextDone: "Tap &raquo; to wrap up.",
           medianPosition: "Median position",
           medianLabel: "Median:",
           positionRangeHeader: "Position<br>range",
@@ -109,8 +109,8 @@ const DATA = {
         buttonText: "Mulai",
       },
       tableHeaders: {
-        data: "Data (<i>x</i><sub><i>i</i></sub>)",
-        frequency: "Frekuensi (<i>f</i><sub><i>i</i></sub>)",
+        data: "Data (<i>x<sub>i</sub></i>)",
+        frequency: "Frekuensi (<i>f<sub>i</sub></i>)",
         cumulativeFrequency: "Frekuensi<br>Kumulatif",
       },
       gridValues: [
@@ -141,7 +141,7 @@ const DATA = {
         nextLargest: "Kita perlu menambahkan titik data secara berurutan. Kamu memilih yang terbesar sebelumnya, jadi pilih titik data yang paling besar berikutnya setelah <value>.",
         firstCf: "Ingat, frekuensi kumulatif untuk baris pertama selalu sama dengan frekuensinya.",
         nextCf: "Frekuensi kumulatif (kecuali baris pertama) = frekuensi saat ini + frekuensi kumulatif sebelumnya",
-        totalCount: "Jumlahkan semua frekuensi satu per satu untuk<br>mendapatkan <i>n</i>, atau cukup baca frekuensi<br>kumulatif terakhir.",
+        totalCount: "Jumlahkan semua frekuensi satu per satu untuk mendapatkan <i>n</i>, atau cukup baca frekuensi kumulatif terakhir.",
         oddFormula: "Itu untuk data genap. Untuk kumpulan data berukuran ganjil, hanya ada satu posisi tengah.",
       },
       steps: {
@@ -197,7 +197,7 @@ const DATA = {
       },
       final: {
         heading: "Bagus Sekali!",
-        text: "Kamu menemukan posisi tengah untuk <i>n</i>, lalu menggunakan frekuensi kumulatif untuk menentukan nilai data mana yang menempatinya &mdash; dan itulah median.<br><br>Logika yang sama berlaku untuk kumpulan data apa pun yang akan kamu temui.<br><br>Ketuk &lsquo;Ulangi&rsquo; untuk mengulang aktivitas ini.",
+        text: "<p>Kamu menemukan posisi tengah untuk <i>n</i>, lalu menggunakan frekuensi kumulatif untuk menentukan nilai data mana yang menempatinya &mdash; dan itulah median.<br><br>Logika yang sama berlaku untuk kumpulan data apa pun yang akan kamu temui.<br><br>Ketuk &lsquo;Ulangi&rsquo; untuk mengulang aktivitas ini.</p>",
         medianLabel: "Median",
         buttonText: "Ulangi",
       },

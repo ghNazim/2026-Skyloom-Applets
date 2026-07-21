@@ -13,6 +13,7 @@ const App = () => {
 
   const fullscreenButtonRef = useRef(null);
   const nextButtonRef = useRef(null);
+  const startOverButtonRef = useRef(null);
 
   function getNextNavInitialStage(fromStep, toStep, farthest) {
     if (toStep <= farthest) return "final";
@@ -178,6 +179,9 @@ const App = () => {
         showNextNudge: showNextNudge,
         isFinalStep: currentStep === 6,
         startOverText: APP_DATA.final.buttonText,
+        startOverButtonRef: startOverButtonRef,
+        showStartOverNudge: currentStep === 6 && !nextNudgeDismissed,
+        onStartOverNudgeDismiss: function () { setNextNudgeDismissed(true); },
         onRestart: handleRestart,
       }),
     ),

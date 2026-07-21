@@ -1,6 +1,8 @@
 const Nudge = (props) => {
   var targetRef = props.targetRef;
   var show = props.show !== false;
+  var type = props.type || "tap";
+  var variant = props.variant || "fullscreen";
   var useState = React.useState;
   var useEffect = React.useEffect;
   var _pos = useState(null);
@@ -19,13 +21,15 @@ const Nudge = (props) => {
     var el = targetRef.current;
     if (!el) return undefined;
 
-    function handleTargetClick() {
+    function handleTargetInteraction() {
       setDismissed(true);
     }
 
-    el.addEventListener("click", handleTargetClick);
+    el.addEventListener("click", handleTargetInteraction);
+    el.addEventListener("pointerdown", handleTargetInteraction);
     return function () {
-      el.removeEventListener("click", handleTargetClick);
+      el.removeEventListener("click", handleTargetInteraction);
+      el.removeEventListener("pointerdown", handleTargetInteraction);
     };
   }, [show, dismissed, targetRef]);
 
@@ -49,6 +53,8 @@ const Nudge = (props) => {
       setPosition({
         left: rect.left + rect.width / 2,
         top: rect.top + rect.height / 2,
+        width: rect.width,
+        height: rect.height,
       });
     }
 
@@ -69,20 +75,21 @@ const Nudge = (props) => {
   return React.createElement(
     "div",
     {
-      className: "nudge-overlay",
+      className: "nudge-overlay nudge-" + type + " nudge-" + variant,
       style: {
         position: "fixed",
         left: position.left,
         top: position.top,
-        transform: "translate(30%, 0%)",
+        "--nudge-target-width": position.width + "px",
+        "--nudge-target-height": position.height + "px",
         pointerEvents: "none",
         zIndex: 10000,
       },
     },
     React.createElement("img", {
-      src: "assets/tap.gif",
+      src: type === "drag" ? "assets/drag.gif" : "assets/tap.gif",
       alt: "",
-      className: "nudge-tap-gif",
+      className: "nudge-gif",
     })
   );
 };

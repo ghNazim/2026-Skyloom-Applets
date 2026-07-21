@@ -64,3 +64,12 @@
    justify-content: center;
 }
 
+.nav-text-container sup {
+  display: inline-block;
+  font-size: 58%;
+  line-height: 1;
+  vertical-align: super;
+  transform: translateY(-0.52em);
+  margin-left: 0.03em;
+  margin-right: 0.16em;
+}

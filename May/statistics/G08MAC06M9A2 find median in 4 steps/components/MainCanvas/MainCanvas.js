@@ -50,6 +50,9 @@ var MainCanvas = function (props) {
   var _ghostSize = useState({ width: 0, height: 0 });
   var ghostSize = _ghostSize[0];
   var setGhostSize = _ghostSize[1];
+  var _showStepDragNudge = useState(true);
+  var showStepDragNudge = _showStepDragNudge[0];
+  var setShowStepDragNudge = _showStepDragNudge[1];
 
   var _phase = useState("arrange");
   var phase = _phase[0];
@@ -136,6 +139,7 @@ var MainCanvas = function (props) {
   var containerRef = useRef(null);
   var overlayRef = useRef(null);
   var optionRefs = useRef([]);
+  var stepDragNudgeRef = useRef(null);
   var optionRefById = useRef({});
   var actionRefs = useRef([]);
   var circleRefs = useRef([]);
@@ -161,7 +165,7 @@ var MainCanvas = function (props) {
   }
 
   function renderMarkup(text) {
-    return { __html: text };
+    return { __html: formatSuperscriptOrdinals(text) };
   }
 
   function ordinalSuffix(num) {
@@ -274,6 +278,7 @@ var MainCanvas = function (props) {
       setLockedRows({});
       setDraggedIndex(null);
       setHoverIndex(null);
+      setShowStepDragNudge(true);
       setPhase("arrange");
       setShowStepPanel(true);
       setActionVisible(false);
@@ -343,6 +348,7 @@ var MainCanvas = function (props) {
     var gapPx = window.innerWidth * 0.0135;
     dragAnchorXRef.current = event.clientX;
     setDraggedIndex(index);
+    setShowStepDragNudge(false);
     setHoverIndex(index);
     setDragOffset({
       x: event.clientX - rect.left,
@@ -581,22 +587,15 @@ var MainCanvas = function (props) {
   function completeCounting(nextCounts) {
     clearTimer(idleTimerRef);
     setCountComplete(true);
-    setBadgeMode("shrinking");
     setTimeout(function () {
-      var sequential = {};
-      for (var i = 0; i < N; i++) sequential[i] = i + 1;
-      setCountByIndex(sequential);
-      setBadgeMode("stagger");
-      setTimeout(function () {
-        setInProgressAction(null);
-        setExploredActions({ 0: true, 1: true });
-        setActiveAction(2);
-        setPhase("middleReady");
-        onUpdateQuestionText(S2.countCompleteQuestion);
-        onUpdateNavText(S2.countCompleteNav);
-        if (typeof playSound === "function") playSound("congrats");
-      }, 980);
-    }, 330);
+      setInProgressAction(null);
+      setExploredActions({ 0: true, 1: true });
+      setActiveAction(2);
+      setPhase("middleReady");
+      onUpdateQuestionText(S2.countCompleteQuestion);
+      onUpdateNavText(S2.countCompleteNav);
+      if (typeof playSound === "function") playSound("congrats");
+    }, 220);
   }
 
   function beginMiddlePosition() {
@@ -726,14 +725,16 @@ var MainCanvas = function (props) {
     setShowPositionUpdown(false);
 
     if (!isCorrect) {
-      var wrongFeedback = {};
-      wrongFeedback[index] = "wrong";
-      setPositionFeedback(wrongFeedback);
+      setPositionFeedback(function (prev) {
+        var next = copyObject(prev);
+        next[index] = "wrong";
+        return next;
+      });
       if (typeof playSound === "function") playSound("wrong");
       setTimeout(function () {
         setPositionFeedback(function (prev) {
           var next = copyObject(prev);
-          if (next[index] === "wrong") delete next[index];
+          if (next[index] === "wrong") next[index] = "neutral";
           return next;
         });
       }, 650);
@@ -744,13 +745,22 @@ var MainCanvas = function (props) {
     var nextSelected = copyObject(selectedPositions);
     nextSelected[index] = true;
     setSelectedPositions(nextSelected);
-    var correctFeedback = copyObject(positionFeedback);
-    correctFeedback[index] = "correct";
-    setPositionFeedback(correctFeedback);
+    setPositionFeedback(function (prev) {
+      var next = copyObject(prev);
+      Object.keys(nextSelected).forEach(function (key) {
+        if (nextSelected[key]) next[key] = "correct";
+      });
+      return next;
+    });
     if (typeof playSound === "function") playSound("correct");
 
     if (areAllMiddlePositionsSelected(nextSelected)) {
       clearTimer(idleTimerRef);
+      var finalFeedback = {};
+      Object.keys(nextSelected).forEach(function (key) {
+        if (nextSelected[key]) finalFeedback[key] = "correct";
+      });
+      setPositionFeedback(finalFeedback);
       setPhase("finalStepReady");
       setActiveAction(3);
       setInProgressAction(null);
@@ -788,10 +798,11 @@ var MainCanvas = function (props) {
     setMedianAnswerState(null);
     setMedianInput(function (prev) {
       var base = medianFreshAfterWrong ? "" : prev;
-      if (key === "." && base.indexOf(".") >= 0) return base;
+      var decimalKey = key === "," ? "." : key;
+      if (decimalKey === "." && base.indexOf(".") >= 0) return base;
       if (base.length >= 3) return base;
-      if (key === "." && base === "") return "0.";
-      return (base + String(key)).slice(0, 3);
+      if (decimalKey === "." && base === "") return "0.";
+      return (base + String(decimalKey)).slice(0, 3);
     });
     setMedianFreshAfterWrong(false);
   }
@@ -807,7 +818,7 @@ var MainCanvas = function (props) {
   function handleMedianSubmit() {
     if (phase === "medianDone" || !medianInput) return;
     if (Number(medianInput) === Number(S2.medianAnswer)) {
-      setMedianInput(S2.medianAnswer);
+      setMedianInput(String(S2.medianAnswer));
       setMedianAnswerState("correct");
       setMedianFreshAfterWrong(false);
       setPhase("medianDone");
@@ -896,6 +907,7 @@ var MainCanvas = function (props) {
             key: "step-option-" + id,
             ref: function (node) {
               optionRefs.current[index] = node;
+              if (index === 1) stepDragNudgeRef.current = node;
               if (node) optionRefById.current[id] = node;
             },
             className: [
@@ -912,6 +924,9 @@ var MainCanvas = function (props) {
             dangerouslySetInnerHTML: renderMarkup(S1.options[id]),
           });
         }),
+        step === 1
+          ? e(Nudge, { targetRef: stepDragNudgeRef, show: showStepDragNudge && draggedIndex === null, type: "drag", variant: "step-drag" })
+          : null,
         draggedIndex !== null && hoverIndex !== null && !lockedRows[hoverIndex] && rowStrideRef.current
           ? e("div", {
             className: "median-step-drop-placeholder",
@@ -955,7 +970,7 @@ var MainCanvas = function (props) {
         );
       }),
       activeAction !== null
-        ? e(Nudge, { targetRef: actionRefs.current[activeAction] ? { current: actionRefs.current[activeAction] } : actionRefs, show: true })
+        ? e(Nudge, { targetRef: actionRefs.current[activeAction] ? { current: actionRefs.current[activeAction] } : actionRefs, show: true, variant: "step-button" })
         : null,
     );
   }
@@ -978,6 +993,7 @@ var MainCanvas = function (props) {
           var counted = countByIndex[index];
           var positionState = positionFeedback[index];
           var isMiddleSelected = !!selectedPositions[index];
+          var visiblePositionState = positionState || (isMiddleSelected ? "correct" : null);
           var clickable =
             (phase === "counting" && !counted) ||
             (phase === "selectMiddle" && !isMiddleSelected);
@@ -1006,11 +1022,11 @@ var MainCanvas = function (props) {
                 handleCircleClick(index);
               },
             },
-            positionState || isMiddleSelected
+            visiblePositionState
               ? e("span", {
                 className:
                   "position-label " +
-                  (positionState === "wrong" ? "wrong" : "correct"),
+                  (visiblePositionState === "wrong" ? "wrong" : visiblePositionState === "correct" ? "correct" : "neutral"),
                 dangerouslySetInnerHTML: renderMarkup(ordinalHtml(index + 1)),
               })
               : null,
@@ -1188,6 +1204,15 @@ var MainCanvas = function (props) {
 
   function renderMedianPanel() {
     if (!showMedianPanel) return null;
+    var displayedMedianInput = current_language === "id" ? medianInput.replace(".", ",") : medianInput;
+    var answerContent = displayedMedianInput || "\u00A0";
+    if (current_language === "id" && displayedMedianInput.indexOf(",") >= 0) {
+      answerContent = displayedMedianInput.split("").map(function (char, index) {
+        return char === ","
+          ? e("span", { className: "median-answer-comma", key: "answer-char-" + index }, char)
+          : e("span", { key: "answer-char-" + index }, char);
+      });
+    }
     return e(
       "div",
       { className: "median-value" },
@@ -1200,13 +1225,13 @@ var MainCanvas = function (props) {
             "median-answer-box" +
             (medianAnswerState === "wrong" ? " wrong" : "") +
             (medianAnswerState === "correct" ? " correct" : ""),
-        }, medianInput || "\u00A0"),
+        }, answerContent),
       ),
       phase !== "medianDone"
         ? e(
           "div",
           { className: "median-numpad" },
-          ["1", "2", "3", "4", "5", ".", "6", "7", "8", "9", "0", "clear", "submit"].map(renderNumpadKey),
+          ["1", "2", "3", "4", "5", current_language === "id" ? "," : ".", "6", "7", "8", "9", "0", "clear", "submit"].map(renderNumpadKey),
         )
         : null,
     );

@@ -94,6 +94,7 @@ const App = () => {
         "div",
         { className: "app-main-content", style: { position: "relative" } },
         React.createElement(Fullscreen, {
+          key: "start-" + String(resetKey),
           heading: APP_DATA.start.heading,
           text: APP_DATA.start.text,
           buttonText: APP_DATA.start.buttonText,
@@ -111,6 +112,7 @@ const App = () => {
         "div",
         { className: "app-main-content", style: { position: "relative" } },
         React.createElement(Fullscreen, {
+          key: "final",
           heading: APP_DATA.finalScreen.heading,
           text: APP_DATA.finalScreen.text,
           buttonText: APP_DATA.finalScreen.buttonText,

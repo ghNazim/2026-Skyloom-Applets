@@ -85,5 +85,8 @@
   cursor: pointer;
   text-shadow: 0 0 0.5vw rgba(0, 0, 0, 0.5);
   box-shadow: 0 0.2vw 0.35vw rgba(0, 0, 0, 0.28);
+  position: relative;
+  left: 23vw;
+  bottom: 4vw;
 }
 
