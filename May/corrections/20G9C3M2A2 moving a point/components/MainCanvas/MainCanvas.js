@@ -1979,6 +1979,10 @@ const MainCanvas = (props) => {
     (step === 2 &&
       step2Phase !== "animating" &&
       step2Phase !== "ruleShown");
+  const hideAxisNumbers =
+    symbolicMode &&
+    ((step === 2 && (step2Phase === "animating" || step2Phase === "ruleShown")) ||
+      (step === 4 && (step4Phase === "animating" || step4Phase === "ruleShown")));
 
   const renderFormulaColumn = () => {
     const s5 = APP_DATA.steps[5];
@@ -2220,6 +2224,7 @@ const MainCanvas = (props) => {
         symbolicMode: symbolicMode,
         symbolicVar: step === 3 || step === 4 ? "b" : "a",
         useEdgeCoordBox: useEdgeCoordBox,
+        hideAxisNumbers: hideAxisNumbers,
         showHNudge: showSliderNudge && (step === 1 || step === 2),
         showVNudge: showSliderNudge && (step === 3 || step === 4),
         onHChange: onHChange,

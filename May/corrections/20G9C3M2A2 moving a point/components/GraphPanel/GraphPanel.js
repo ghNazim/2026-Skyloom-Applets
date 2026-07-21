@@ -30,6 +30,7 @@ const GraphPanel = (props) => {
     symbolicMode = false,
     symbolicVar = "a",
     useEdgeCoordBox = false,
+    hideAxisNumbers = false,
     showHNudge = false,
     showVNudge = false,
     onHChange,
@@ -906,10 +907,10 @@ const GraphPanel = (props) => {
   }, [ORIGIN_X, ORIGIN_Y, TOP_PAD, PLOT_W, UNIT]);
 
   const axisLabels = useMemo(() => {
-    const els = [];
+    const numberEls = [];
     for (let i = 1; i <= GRID_UNITS; i++) {
       const px = ORIGIN_X + i * UNIT;
-      els.push(
+      numberEls.push(
         React.createElement(
           "text",
           {
@@ -926,7 +927,7 @@ const GraphPanel = (props) => {
         ),
       );
       const py = ORIGIN_Y - i * UNIT;
-      els.push(
+      numberEls.push(
         React.createElement(
           "text",
           {
@@ -943,7 +944,17 @@ const GraphPanel = (props) => {
         ),
       );
     }
-    els.push(
+    return React.createElement(
+      React.Fragment,
+      null,
+      React.createElement(
+        "g",
+        {
+          className: "gp-axis-number-group",
+          style: { opacity: hideAxisNumbers ? 0 : 1 },
+        },
+        numberEls,
+      ),
       React.createElement(
         "text",
         {
@@ -959,8 +970,7 @@ const GraphPanel = (props) => {
         "(0,0)",
       ),
     );
-    return els;
-  }, [ORIGIN_X, ORIGIN_Y, UNIT]);
+  }, [AXIS_COLOR, GRID_UNITS, ORIGIN_X, ORIGIN_Y, UNIT, hideAxisNumbers]);
 
   const hPct = pctFromValue(hValue, SLIDER_MIN, SLIDER_MAX);
   const vPct = pctFromValue(vValue, SLIDER_MIN, SLIDER_MAX);

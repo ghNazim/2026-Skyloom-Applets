@@ -14,6 +14,8 @@ const MainCanvas = (props) => {
     mcqDisabled,
     showMcqOptions,
     onMcqSelect,
+    onMcqRetry,
+    mcqRetryButtonText,
     dndPlacements,
     dndSourceItems,
     dndWrongItemId,
@@ -80,6 +82,8 @@ const MainCanvas = (props) => {
               feedbackType: mcqFeedbackType,
               disabled: mcqDisabled,
               onSelect: onMcqSelect,
+              retryButtonText: mcqRetryButtonText,
+              onRetry: onMcqRetry,
             })
           : null,
       ),

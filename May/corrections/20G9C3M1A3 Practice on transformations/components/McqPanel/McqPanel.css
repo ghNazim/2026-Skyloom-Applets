@@ -11,6 +11,7 @@
 
 .mcq-panel-feedback-only {
   justify-content: center;
+  position: relative;
 }
 
 .mcq-panel-options {
@@ -88,6 +89,28 @@
 
 .mcq-feedback-text {
   width: 100%;
+}
+
+.mcq-retry-btn {
+  position: absolute;
+  bottom: 0.5vw;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.85vw 1.6vw;
+  font-size: 2.5vw;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  border: none;
+  border-radius: var(--action-btn-radius);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.mcq-retry-btn:hover {
+  transform: translateX(-50%) scale(1.02);
 }
 
 @keyframes mcq-shake {

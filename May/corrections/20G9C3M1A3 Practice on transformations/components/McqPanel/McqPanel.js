@@ -7,8 +7,11 @@ const McqPanel = ({
   feedbackType,
   disabled,
   onSelect,
+  retryButtonText,
+  onRetry,
 }) => {
   if (showFeedback && feedbackText) {
+    const showRetry = feedbackType === "wrong";
     return React.createElement(
       "div",
       { className: "mcq-panel mcq-panel-feedback-only" },
@@ -24,6 +27,19 @@ const McqPanel = ({
           dangerouslySetInnerHTML: { __html: handleComma(feedbackText) },
         }),
       ),
+      showRetry
+        ? React.createElement(
+            "button",
+            {
+              type: "button",
+              className: "mcq-retry-btn",
+              onClick: () => {
+                if (typeof onRetry === "function") onRetry();
+              },
+            },
+            retryButtonText,
+          )
+        : null,
     );
   }
 

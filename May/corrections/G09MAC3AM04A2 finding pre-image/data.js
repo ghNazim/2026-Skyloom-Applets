@@ -54,7 +54,7 @@ const DATA = {
           navText: "Tap » to start solving",
         },
         2: {
-          navTextDrag: "Drag the coordinates into the table correctly",
+          navTextDrag: "Drag the translation values into the table correctly",
           navTextDone: "Tap » to find object coordinates",
         },
         3: {

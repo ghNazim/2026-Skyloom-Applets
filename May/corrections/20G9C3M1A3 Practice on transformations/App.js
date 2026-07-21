@@ -155,6 +155,11 @@ const App = () => {
     runGraphAnimation({ unlockMcq: true, enableReplay: true });
   };
 
+  const handleMcqRetry = useCallback(() => {
+    if (typeof playSound === "function") playSound("click");
+    resetMcqState();
+  }, [resetMcqState]);
+
   const handleMcqSelect = useCallback(
     (index) => {
       if (mcqResultState !== null || !mcqUnlocked || !isMcqStep(currentStep)) return;
@@ -265,10 +270,6 @@ const App = () => {
   const handlePrev = () => {
     if (typeof playSound === "function") playSound("click");
     if (isMcqStep(currentStep)) {
-      if (mcqShowFeedback && mcqResultState === "wrong") {
-        resetMcqState();
-        return;
-      }
       if (currentStep > 1) {
         const prevStep = currentStep - 1;
         resetMcqState();
@@ -366,7 +367,7 @@ const App = () => {
   const isPrevDisabled = useMemo(() => {
     if (isMcqStep(currentStep)) {
       if (mcqShowFeedback && mcqResultState === "wrong") {
-        return false;
+        return true;
       }
       return currentStep === 1;
     }
@@ -484,6 +485,8 @@ const App = () => {
         mcqDisabled: !mcqUnlocked || mcqResultState !== null,
         showMcqOptions: mcqUnlocked,
         onMcqSelect: handleMcqSelect,
+        onMcqRetry: handleMcqRetry,
+        mcqRetryButtonText: APP_DATA.retryButtonText,
         dndPlacements: dndPlacements,
         dndSourceItems: dndSourceItems,
         dndWrongItemId: dndWrongItemId,

@@ -13,11 +13,12 @@ const DATA = {
         buttonText: "START",
       },
       replay: "REPLAY",
+      retryButtonText: "RETRY",
       mcqQuestion: "Which transformation the figure has gone through?",
       steps: {
         1: {
           navText: "Tap the correct option",
-          navTextRetry: "Tap « to answer again",
+          navTextRetry: "Tap 'Retry' to answer again",
           navTextNext: "Tap » to see next question",
           options: ["Translation", "Rotation", "Reflection", "Dilation"],
           ans: "Translation",
@@ -34,7 +35,7 @@ const DATA = {
         },
         3: {
           navText: "Tap the correct option",
-          navTextRetry: "Tap « to answer again",
+          navTextRetry: "Tap 'Retry' to answer again",
           navTextNext: "Tap » to see next question",
           options: ["Translation", "Rotation", "Reflection", "Dilation"],
           ans: "Rotation",
@@ -51,7 +52,7 @@ const DATA = {
         },
         5: {
           navText: "Tap the correct option",
-          navTextRetry: "Tap « to answer again",
+          navTextRetry: "Tap 'Retry' to answer again",
           navTextNext: "Tap » to see next question",
           options: ["Translation", "Rotation", "Reflection", "Dilation"],
           ans: "Reflection",
@@ -68,7 +69,7 @@ const DATA = {
         },
         7: {
           navText: "Tap the correct option",
-          navTextRetry: "Tap « to answer again",
+          navTextRetry: "Tap 'Retry' to answer again",
           navTextNext: "Tap » to see next question",
           options: ["Translation", "Rotation", "Reflection", "Dilation"],
           ans: "Dilation",
@@ -129,11 +130,12 @@ const DATA = {
         buttonText: "MULAI",
       },
       replay: "PUTAR ULANG",
+      retryButtonText: "COBA LAGI",
       mcqQuestion: "Transformasi apa yang dialami bangun ini?",
       steps: {
         1: {
           navText: "Ketuk opsi yang benar",
-          navTextRetry: "Ketuk « untuk menjawab lagi",
+          navTextRetry: "Ketuk 'Coba Lagi' untuk menjawab lagi",
           navTextNext: "Ketuk » untuk melihat pertanyaan berikutnya",
           options: ["Translasi", "Rotasi", "Refleksi", "Dilatasi"],
           ans: "Translasi",
@@ -150,7 +152,7 @@ const DATA = {
         },
         3: {
           navText: "Ketuk opsi yang benar",
-          navTextRetry: "Ketuk « untuk menjawab lagi",
+          navTextRetry: "Ketuk 'Coba Lagi' untuk menjawab lagi",
           navTextNext: "Ketuk » untuk melihat pertanyaan berikutnya",
           options: ["Translasi", "Rotasi", "Refleksi", "Dilatasi"],
           ans: "Rotasi",
@@ -167,7 +169,7 @@ const DATA = {
         },
         5: {
           navText: "Ketuk opsi yang benar",
-          navTextRetry: "Ketuk « untuk menjawab lagi",
+          navTextRetry: "Ketuk 'Coba Lagi' untuk menjawab lagi",
           navTextNext: "Ketuk » untuk melihat pertanyaan berikutnya",
           options: ["Translasi", "Rotasi", "Refleksi", "Dilatasi"],
           ans: "Refleksi",
@@ -184,7 +186,7 @@ const DATA = {
         },
         7: {
           navText: "Ketuk opsi yang benar",
-          navTextRetry: "Ketuk « untuk menjawab lagi",
+          navTextRetry: "Ketuk 'Coba Lagi' untuk menjawab lagi",
           navTextNext: "Ketuk » untuk melihat pertanyaan berikutnya",
           options: ["Translasi", "Rotasi", "Refleksi", "Dilatasi"],
           ans: "Dilatasi",

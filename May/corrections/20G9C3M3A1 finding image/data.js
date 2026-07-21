@@ -8,13 +8,11 @@ const DATA = {
     app: {
       start: {
         heading: "Finding Image Coordinates",
-        text:
-          "Given the coordinates of an object and the<br>movement (translation), let's see how to find the<br>coordinates of its image.<br><br><br>Click START to begin!",
+        text: "Given the coordinates of an object and the<br>movement (translation), let's see how to find the<br>coordinates of its image.<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       question: {
-        text:
-          'A <span id="fly-point-p" class="fly-source">point P</span>(<span id="fly-x" class="fly-source">2</span>,<span id="fly-y" class="fly-source">1</span>) translates <span class="purple-bg">6 units right and 2 units up</span>.<br>Find the image coordinates.',
+        text: 'A <span id="fly-point-p" class="fly-source">point P</span>(<span id="fly-x" class="fly-source">2</span>,<span id="fly-y" class="fly-source">1</span>) translates <span class="purple-bg">6 units right and 2 units up</span>.<br>Find the image coordinates.',
         textPlain:
           'A <span id="fly-point-p" class="fly-source">point P</span>(<span id="fly-x" class="fly-source">2</span>,<span id="fly-y" class="fly-source">1</span>) translates 6 units right and 2 units up.<br>Find the image coordinates.',
       },
@@ -31,8 +29,7 @@ const DATA = {
         correct: { x: "+6", y: "+2" },
       },
       rightPanel: {
-        step2Question:
-          "How does the given translation affect the coordinates?",
+        step2Question: "How does the given translation affect the coordinates?",
         step3Instruction:
           "Simply add the object coordinate and the translation to get the image coordinate.",
         step3Result: "The image coordinates of Point P is (8,3).",
@@ -42,7 +39,7 @@ const DATA = {
           navText: "Tap » to start solving",
         },
         2: {
-          navTextDrag: "Drag the coordinates into the table correctly",
+          navTextDrag: "Drag the translation values into the table correctly",
           navTextDone: "Tap » to find image coordinates",
         },
         3: {
@@ -132,8 +129,7 @@ const DATA = {
       },
       final: {
         heading: "",
-        text:
-          "Great job! You can now find the image when the<br>object coordinates and units of movement are given.",
+        text: "Great job! You can now find the image when the<br>object coordinates and units of movement are given.",
         buttonText: "START OVER",
       },
     },
@@ -142,13 +138,11 @@ const DATA = {
     app: {
       start: {
         heading: "Mencari Koordinat Bayangan",
-        text:
-          "Diberikan koordinat sebuah objek dan<br>pergerakannya (translasi), mari lihat cara<br>mencari koordinat bayangannya.<br><br>Ketuk MULAI untuk memulai!",
+        text: "Diberikan koordinat sebuah objek dan<br>pergerakannya (translasi), mari lihat cara<br>mencari koordinat bayangannya.<br><br>Ketuk MULAI untuk memulai!",
         buttonText: "MULAI",
       },
       question: {
-        text:
-          'Sebuah <span id="fly-point-p" class="fly-source">titik P</span>(<span id="fly-x" class="fly-source">2</span>,<span id="fly-y" class="fly-source">1</span>) ditranslasi <span class="purple-bg">6 satuan ke kanan dan 2 satuan ke atas</span>.<br>Temukan koordinat bayangannya.',
+        text: 'Sebuah <span id="fly-point-p" class="fly-source">titik P</span>(<span id="fly-x" class="fly-source">2</span>,<span id="fly-y" class="fly-source">1</span>) ditranslasi <span class="purple-bg">6 satuan ke kanan dan 2 satuan ke atas</span>.<br>Temukan koordinat bayangannya.',
         textPlain:
           'Sebuah <span id="fly-point-p" class="fly-source">titik P</span>(<span id="fly-x" class="fly-source">2</span>,<span id="fly-y" class="fly-source">1</span>) ditranslasi 6 satuan ke kanan dan 2 satuan ke atas.<br>Temukan koordinat bayangannya.',
       },
@@ -176,8 +170,7 @@ const DATA = {
           navText: "Ketuk » untuk mulai menyelesaikan",
         },
         2: {
-          navTextDrag:
-            "Seret koordinat ke dalam tabel dengan benar",
+          navTextDrag: "Seret nilai terjemahan ke dalam tabel dengan benar",
           navTextDone: "Ketuk » untuk mencari koordinat bayangan",
         },
         3: {
@@ -267,8 +260,7 @@ const DATA = {
       },
       final: {
         heading: "",
-        text:
-          "Bagus! Sekarang kamu dapat menemukan bayangan ketika<br>koordinat bangun awal dan satuan pergerakannya diberikan.",
+        text: "Bagus! Sekarang kamu dapat menemukan bayangan ketika<br>koordinat bangun awal dan satuan pergerakannya diberikan.",
         buttonText: "MULAI LAGI",
       },
     },

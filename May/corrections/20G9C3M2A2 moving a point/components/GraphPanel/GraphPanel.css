@@ -59,6 +59,10 @@
   display: block;
 }
 
+.gp-axis-number-group {
+  transition: opacity 0.22s ease;
+}
+
 .graph-h-slider-wrap {
   width: 100%;
   display: flex;
