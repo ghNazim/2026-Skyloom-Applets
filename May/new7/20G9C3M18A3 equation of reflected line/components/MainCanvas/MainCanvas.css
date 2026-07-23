@@ -62,13 +62,30 @@
   min-height: 3.15vw;
   opacity: 0;
   transform: translateY(0.5vw);
-  transition: opacity 0.34s ease, transform 0.34s ease;
+  /* transition: opacity 0.34s ease, transform 0.34s ease; */
   color: #ffffff;
 }
 
 .sol-line.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.collapsible-line {
+  transition:
+    opacity 0.26s ease,
+    transform 0.26s ease,
+    min-height 0.38s ease,
+    margin 0.38s ease;
+}
+
+.collapsible-line.is-collapsing {
+  min-height: 0;
+  height: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-0.35vw);
 }
 
 .sol-info {
@@ -83,13 +100,7 @@
   line-height: 1;
 }
 
-.math-text,
-.math-var,
-.inline-math-var,
-.sol-data,
-.substitution-expression,
-.sol-answer,
-.line-option {
+.math-var {
   font-family: "Times New Roman", Times, serif;
   font-style: italic;
 }
@@ -165,6 +176,8 @@
   cursor: pointer;
   font-size: 2.55vw;
   font-weight: 600;
+  font-family: inherit;
+  font-style: normal;
   line-height: 1;
   text-align: center;
   transition: background-color 0.2s ease, transform 0.2s ease;
@@ -225,7 +238,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.1vw;
+  font-size: 2.65vw;
   line-height: 1;
   opacity: 0;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -255,6 +268,7 @@
   line-height: 1;
   opacity: 0;
   transition: opacity 0.25s ease;
+  will-change: opacity;
 }
 
 .coordinate-or.is-visible {
@@ -308,12 +322,14 @@
   justify-content: center;
   gap: 0.7vw;
   color: #ffffff;
-  font-size: 3vw;
+  font-size: 2.65vw;
   line-height: 1;
+  font-family: inherit;
+  font-style: normal;
 }
 
 .paren {
-  font-size: 3.15vw;
+  font-size: 2.65vw;
 }
 
 .sub-box {
@@ -326,9 +342,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.55vw;
+  font-size: 2.65vw;
   line-height: 1;
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  font-family: inherit;
+  font-style: normal;
 }
 
 .sub-box.idle {
@@ -402,6 +420,8 @@
   line-height: 1;
   opacity: 0;
   transition: opacity 0.25s ease;
+  font-family: inherit;
+  font-style: normal;
 }
 
 .sol-answer.is-visible {
@@ -413,13 +433,15 @@
   z-index: 10000;
   pointer-events: none;
   color: #ffffff;
-  font-family: "Times New Roman", Times, serif;
-  font-style: italic;
-  font-size: 2.7vw;
+  font-family: inherit;
+  font-style: normal;
+  font-size: 2.65vw;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
-  transition: transform 0.74s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.74s cubic-bezier(0.4, 0, 0.2, 1),
+    font-size 0.74s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes question-jump {

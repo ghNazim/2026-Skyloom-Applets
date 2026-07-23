@@ -11,7 +11,22 @@ const Numpad = ({
   onNumberClick,
   onBackspace,
 }) => {
-  const padKeys = keys || ["1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "0", "-", "clear", "submit"];
+  const padKeys = keys || [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "+",
+    "0",
+    "-",
+    "clear",
+    "submit",
+  ];
 
   const pressValue = (value) => {
     if (disabled) return;
@@ -43,6 +58,14 @@ const Numpad = ({
   const contentFor = (key) => {
     if (key === "clear") return "\u232b";
     if (key === "submit") return "\u2713";
+    if (key === "x'" || key === "y'") {
+      return React.createElement(
+        React.Fragment,
+        null,
+        React.createElement("span", { className: "math-var" }, key.charAt(0)),
+        "'",
+      );
+    }
     return key;
   };
 

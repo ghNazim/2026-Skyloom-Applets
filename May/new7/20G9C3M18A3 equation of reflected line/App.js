@@ -25,15 +25,21 @@ const App = () => {
     if (!stepReady) return;
     if (typeof playSound === "function") playSound("click");
 
-    if (mainCanvasRef.current && typeof mainCanvasRef.current.prepareStepChange === "function") {
-      mainCanvasRef.current.prepareStepChange();
-    }
+    const delay =
+      mainCanvasRef.current && typeof mainCanvasRef.current.prepareStepChange === "function"
+        ? mainCanvasRef.current.prepareStepChange()
+        : 0;
 
-    if (currentStep >= 4) {
-      resetToStep(0);
-      return;
-    }
-    resetToStep(currentStep + 1);
+    const goNext = () => {
+      if (currentStep >= 4) {
+        resetToStep(0);
+        return;
+      }
+      resetToStep(currentStep + 1);
+    };
+
+    if (delay) setTimeout(goNext, delay);
+    else goNext();
   };
 
   const handlePrev = () => {
