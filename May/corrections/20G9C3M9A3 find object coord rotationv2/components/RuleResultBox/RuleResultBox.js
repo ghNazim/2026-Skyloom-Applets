@@ -152,6 +152,48 @@ const RuleResultBox = ({ ruleState, coordRefs, visible, variant }) => {
   );
 };
 
+const RuleResultStack = ({
+  ruleState,
+  coordRefs,
+  visible,
+  variant,
+  splitPhase,
+}) => {
+  const genericRule = variant === "180" ? GENERIC_RULE_180 : GENERIC_RULE;
+  const isCloning = splitPhase && splitPhase !== "idle";
+  const className =
+    "rule-result-stack" +
+    (isCloning ? " is-cloning" : "") +
+    (splitPhase === "split" ? " is-split" : "") +
+    (splitPhase ? " is-" + splitPhase : "");
+
+  return React.createElement(
+    "div",
+    { className: className },
+    isCloning
+      ? React.createElement(
+          "div",
+          { className: "rule-result-copy rule-result-copy-top" },
+          React.createElement(RuleResultBox, {
+            ruleState: genericRule,
+            visible: visible,
+            variant: variant,
+          }),
+        )
+      : null,
+    React.createElement(
+      "div",
+      { className: "rule-result-copy rule-result-copy-bottom" },
+      React.createElement(RuleResultBox, {
+        ruleState: ruleState,
+        coordRefs: coordRefs,
+        visible: visible,
+        variant: variant,
+      }),
+    ),
+  );
+};
+
 const RuleResultBox180 = ({ ruleState, coordRefs, visible }) => {
   const rp = APP_DATA.rulePanel2;
 

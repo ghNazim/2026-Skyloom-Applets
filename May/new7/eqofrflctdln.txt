@@ -1,0 +1,226 @@
+I want to create a new applet that will have similar structure as the given one. 
+It will have  navigation at the bottom and main canvas above it, no question panel needed in this applet. 
+
+main canvas will have 2 columns, left column is math column, right column is action column. 
+math column - 65% width 
+action column - rest. 
+
+math column will mainly have 2 rows, problem row, and solution row. 
+problem row - height auto, 
+solution row - rest
+
+solution row will be flex-start. 
+It will have multiple sol-line. 
+
+I will explain each things step by step. 
+
+FLow:
+
+Step 0:
+heading - Equation of the reflected line
+text - Let’s practice how to find the equation of the reflected line by 
+substituting the reflection rule into the given line equation.
+Click START to begin!
+button : START
+
+step 1: 
+problem statement - Find the equation of image of line 3x − 2y = 1 when reflected across x−axis.
+(keep it constant throughout the steps)
+nav text (n) - "" //Empty initially
+
+action column will have only text - 
+"Let’s explore the details given in the question."
+
+First bring the problem statement character by character, each character 30ms. 
+When rendered completely , then after 0.3 sec, fade in right panel text . 
+(Keep the right panel there blank initially. After the problem statement has completely rendered then only fade in the right panel text with opacity transition)
+
+After the right panel text has appeared, we will trigger a series of animation to render all the sol-lines one by one. 
+
+Each sol-line has 2 sections sitting side by side, 
+info and data. 
+
+1. 
+Equation of given line: 3𝑥 − 2𝑦 =1
+//first render the info, keep the 'data' hidden with 0 opacity initially. 
+clone this "3x − 2y = 1" from the problem statement , and fly animate to sol-line-1 data section, then vanish the clone and appear the data with full opacity. (no opacity transition)
+2. 
+Line of reflection: x−axis
+(similar like sol-line 1, clone and fly "x-axis" from question)
+3. 
+Rule for reflection across x−axis: ?
+//First render the info and then bring the jumping question mark in the data section. 
+(You can find this in the attached applet)
+
+
+NOTE: Wait for 1 sec, after the render of one sol-line (complete, after animation) and the render start of next sol line. 
+
+After sol-line 3 appeared, 
+Enable the next button , nav text becomes - "Tap » to continue."
+Clicking the next button will take the user to the next step.
+step 2: 
+
+bring the mcq in the right column removing the prev content. 
+title - What is the rule for reflection across x−axis?
+options - 
+(x, y) → (−x, y)
+(x, y) → (−x, −y)
+(x, y) → (x, −y)
+(x ,y) → (y, x)
+
+ans - (x, y) → (x, −y)
+
+nav text becomes - Tap the correct option.
+
+mcq mechanism like attached applet , no feedback space needed for this mcq. 
+
+When the user has answered correctly, clone the text from the correct option and fly to solve line three and replace the question mark to fill it there.
+(Nav text becomes empty again. till the animation ends. )
+Now bring another sol-card, 
+but this will have so many things, 
+
+title - "Coordinates of image:"
+below it have 2 columns in the middle , 
+
+left column data - 
+
+x' = x //blue boxed
+or //bare text
+x = x' //yellow box
+
+right column data - 
+
+y' = -y //blue boxed
+or //bare text
+y = -y' //yellow box
+
+Initially keep all 3 rows of both columns opacity 0. 
+We will show these part by part. 
+
+First the left column: 
+Bring the first row blue box , inside make visible "x' =", keep rhs 'x' hidden yet. 
+
+from sol-line 3 data section , rhs, clone 'x' and fly it to left column first row x's position on rhs. now remove the clone and make visible the 'x' on rhs with full opacity. 
+
+Wait 0.3 sec. 
+
+Now make visible the "or" with opacity transition. 
+wait 0.3 sec again. 
+
+Now bring the 3rd row yellow box, 
+And clone "x'", "=" and "x" from blue box, and fly to yellow box respective position to make visible the content inside 3rd row yellow box 
+
+Now all 3 rows of left column is visible, 
+
+do the same thing to make visible the content of right column. 
+
+When this animation is done , nav text becomes - 
+"Tap » to begin substitution."
+and enable the next button. 
+
+Clicking the next button will take the user to the next step.
+
+step 3: 
+Erase the action column content, and bring this text - "Substitute the rule into the equation of given line"
+
+now we need to bring 2 new sol-lines erasing all old ones, 
+
+the new ones are - 
+1. Rule for reflection: x = x'  |   y = -y'
+2. Given line: 3x − 2y = 1
+
+(Initially both of these are opacity 0)
+But do not bring these lines directly , as soon as the next button is clicked, create clones of the following texts from existing sol-lines before changing the step. 
+
+"x = x'" and "y = -y'" from the sol card yellow boxes, 
+and "3x − 2y = 1" from sol line 1. 
+
+When clones are created, now change the step, keeping the clones on the screen. 
+(lets call it a forming phase)
+
+Then animate the clones to respective places in new sol lines , 1 and 2 . (animate all clones together, not one by one)
+
+when clones reaches their respective places, now remove the clones and make both sol lines visible. 
+
+(Make sure the sol lines are color coded , x/x' colored orange, y/y' colored purple.)
+
+Now bring another sol-card below 
+
+title -  "Equation of the reflected line:"
+content - 3([ornage-box]) - 2([purple-box]) = 1
+
+Initially the content will be opacity 0, 
+clone and fly this "3x − 2y = 1" from sol-line 2 , to make it visible. 
+
+In the right column, show a numpad with the following keys, 
+0-9, +, -, x', y', clear, submit. 
+(for clear and submit use symbols). 
+I have attached a sample numpad in the components folder. You can look at that and add the extra keys. 
+
+Above the numpad , have this text "Substitute the rule into the 
+equation of given line"
+and above this text , have a feedback space. 
+(show feedback only on wrong answer submission). 
+
+Initially , keep the orange box active with a vertical white line blinking inside, so that user understands that now clicking a numpad key will enter into this box. 
+
+Enter into the the box whatever user clicks, when user clicks numpad-submit button, validate the answer. 
+
+If answer is correct , make the current active box green , and move to next box. 
+If wrong, show wrong feedback in the right panel , make the box reddish and shake for 0.5 sec. (When user tries answering after wrong, make the box default and start fresh). 
+
+correct answers - 
+x' and -y'
+
+wrong feedbacks - 
+"Oops!
+Look at the reflection rule and fill in the x−coordinate part of the image here."
+and similar for y coordinate. 
+
+nav text when numpad is active - "Tap using numpad to fill the highlighted box."
+When both the boxes are answered correctly, enable the next button.and nav text becomes - "Tap » for last step."
+
+clicking next will take user to next step. 
+
+step 4: 
+Remove all sol-lines swiftly by making their height 0 with css transition, so the sol card moves up smoothly. 
+
+In the sol card, from both boxes, hide the background and border to make the text look like normal text. 
+
+Clear the right panel , and bring an mcq , 
+title - The simplified form of the given equation is:
+options - 
+3x + 2y = 1 
+3x − 2y = 1
+−3x + 2y = 1
+3x − 2y = −1
+
+Keep feedback space above the title, when answered correctly or wrongly , show feedback there. 
+
+nav text - "Tap the correct option."
+ans - 
+3x + 2y = 1
+
+wrong and correct feedbacks - "Oops! Try again." and 
+"Well done!"
+
+On correct answer, have a sol-answer row below the sol card, 
+with this inside "3x + 2y = 1"
+
+But initially keep this with opacity zero.
+
+On the correct answer, clone the text inside the correct option, fly it in the respective position of the sol answer, remove the clone, and make the sol answer content visible.
+
+When done , enable the next button, and nav text - Tap » for another challenge.
+
+---
+Build till here for now. 
+Note , all x and y math variable used must be in font times new roman, italics. 
+
+-----------------
+I am adding a few images from the storyboard. Take a look at the images to get an understanding about the layout and elements. 
+
+Modify the required files or create new files to achieve the above mentioned flow. 
+All English words and sentences must be defined in the data.js file under "en" object , also translate to "id" to have the Indonesian version of the texts. 
+Code
+No need to test using browser, I will manually test by myself, just recheck the code to make sure everything is correctly done. 

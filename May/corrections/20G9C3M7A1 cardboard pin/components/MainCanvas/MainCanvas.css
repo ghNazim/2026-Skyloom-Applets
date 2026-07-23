@@ -203,3 +203,8 @@
   stroke-dashoffset: 1;
   animation: step5-arc-grow 1.35s ease-out infinite;
 }
+
+
+.clock-gif{
+transform: translate(-5px, -5px);
+}

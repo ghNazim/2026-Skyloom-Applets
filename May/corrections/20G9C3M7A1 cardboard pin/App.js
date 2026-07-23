@@ -97,9 +97,9 @@ const App = () => {
     if (currentStep === 3) return APP_DATA.steps[3].questionText;
     if (currentStep === 4) return APP_DATA.steps[4].questionText;
     if (currentStep === 5) return APP_DATA.steps[5].questionText;
-    if (currentStep === 6) return APP_DATA.steps[6].questionText;
+    if (currentStep === 6) return summarySequenceDone ? APP_DATA.steps[6].questionText : "";
     return "";
-  }, [currentStep]);
+  }, [currentStep, summarySequenceDone]);
 
   const navText = useMemo(() => {
     if (currentStep === 1) {

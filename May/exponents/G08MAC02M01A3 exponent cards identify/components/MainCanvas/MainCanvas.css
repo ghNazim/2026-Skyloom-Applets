@@ -111,7 +111,7 @@
   bottom: 15%;
   left: 50%;
   transform: translateX(-50%);
-  transition: background-color 0.3s, border-color 0.3s;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Exponent zone - smaller, positioned top-right as superscript */
@@ -126,7 +126,7 @@
   position: absolute;
   top: 12%;
   right: 5%;
-  transition: background-color 0.3s, border-color 0.3s;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card-base-number {
@@ -209,7 +209,7 @@
   cursor: grab;
   user-select: none;
   box-shadow: 0 0.3vw 0.8vw rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
   text-align: center;
   width: 14vw;
 }
@@ -217,13 +217,15 @@
 .drag-label:active {
   cursor: grabbing;
   transform: scale(1.05);
+  background-color: #ffd54f;
   box-shadow: 0 0.5vw 1.5vw rgba(0, 0, 0, 0.3);
 }
 
 .drag-ghost {
   cursor: grabbing;
   transform: scale(1.05);
-  box-shadow: 0 0.5vw 1.5vw rgba(0, 0, 0, 0.3);
+  background-color: #ffd54f;
+  box-shadow: 0 0.5vw 1.5vw rgba(0, 0, 0, 0.3), 0 0 0 0.25vw rgba(255, 193, 7, 0.35);
 }
 
 /* Feedback boxes */

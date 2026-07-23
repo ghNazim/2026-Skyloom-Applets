@@ -870,6 +870,7 @@ const MainCanvas = (props) => {
           width: CLOCK_SIZE,
           height: CLOCK_SIZE,
           opacity: 0.4,
+          class: "clock-gif"
         })
       );
     }

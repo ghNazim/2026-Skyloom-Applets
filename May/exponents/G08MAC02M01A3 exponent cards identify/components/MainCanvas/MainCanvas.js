@@ -16,6 +16,7 @@ const MainCanvas = (props) => {
   const [animationDone, setAnimationDone] = useState(false);
   const [cardExiting, setCardExiting] = useState(false);
   const [draggingLabel, setDraggingLabel] = useState(null);
+  const [hoveredDropZone, setHoveredDropZone] = useState(null);
 
   const dragRef = useRef(null);
   const ghostRef = useRef(null);
@@ -54,6 +55,7 @@ const MainCanvas = (props) => {
     setIsFlipped(false);
     setAnimationDone(false);
     setDraggingLabel(null);
+    setHoveredDropZone(null);
     onSetNextEnabled(false);
     onUpdateTexts(APP_DATA.steps[1].navText);
   };
@@ -138,6 +140,20 @@ const MainCanvas = (props) => {
     const newY = e.clientY - d.offsetY;
     ghostRef.current.style.left = newX + "px";
     ghostRef.current.style.top = newY + "px";
+
+    const baseRect = getDropZoneRect(baseDropRef);
+    const expRect = getDropZoneRect(expDropRef);
+    let nextHoveredZone = null;
+
+    if (isInsideRect(e.clientX, e.clientY, baseRect)) {
+      nextHoveredZone = baseZoneLabel === null ? "base" : "occupied";
+    } else if (isInsideRect(e.clientX, e.clientY, expRect)) {
+      nextHoveredZone = expZoneLabel === null ? "exponent" : "occupied";
+    }
+
+    setHoveredDropZone((current) =>
+      current === nextHoveredZone ? current : nextHoveredZone
+    );
   };
 
   const handlePointerUp = (e) => {
@@ -182,15 +198,72 @@ const MainCanvas = (props) => {
     }
 
     setDraggingLabel(null);
+    setHoveredDropZone(null);
     dragRef.current = null;
   };
 
-  const getDropZoneFill = (zone) => {
+  const getDropZoneState = (zone) => {
     const label = zone === "base" ? baseZoneLabel : expZoneLabel;
-    if (label === null) return "transparent";
-    if (feedbackType === null) return "#b0bec5";
-    if (feedbackType === "correct") return "#81c784";
-    return "#e57373";
+    const isDragging = draggingLabel !== null && phase === "dragging";
+    const isHovered = hoveredDropZone === zone;
+
+    if (label !== null) {
+      if (feedbackType === null) {
+        return {
+          backgroundColor: "#b0bec5",
+          borderColor: "#546e7a",
+          boxShadow: "0 0.2vw 0.8vw rgba(84, 110, 122, 0.25)",
+        };
+      }
+
+      if (feedbackType === "correct") {
+        return {
+          backgroundColor: "#81c784",
+          borderColor: "#388e3c",
+          boxShadow: "0 0.25vw 1vw rgba(56, 142, 60, 0.35)",
+        };
+      }
+
+      return {
+        backgroundColor: "#e57373",
+        borderColor: "#c62828",
+        boxShadow: "0 0.25vw 1vw rgba(198, 40, 40, 0.35)",
+      };
+    }
+
+    if (isHovered) {
+      return zone === "base"
+        ? {
+            backgroundColor: "rgba(21, 101, 192, 0.22)",
+            borderColor: "#1565c0",
+            boxShadow: "0 0 0 0.35vw rgba(21, 101, 192, 0.18), 0 0.4vw 1.4vw rgba(21, 101, 192, 0.28)",
+          }
+        : {
+            backgroundColor: "rgba(230, 81, 0, 0.22)",
+            borderColor: "#e65100",
+            boxShadow: "0 0 0 0.35vw rgba(230, 81, 0, 0.18), 0 0.4vw 1.4vw rgba(230, 81, 0, 0.28)",
+          };
+    }
+
+    if (isDragging) {
+      return zone === "base"
+        ? {
+            backgroundColor: "rgba(21, 101, 192, 0.1)",
+            borderColor: "#42a5f5",
+            boxShadow: "0 0.25vw 1vw rgba(21, 101, 192, 0.18)",
+          }
+        : {
+            backgroundColor: "rgba(230, 81, 0, 0.1)",
+            borderColor: "#ff9800",
+            boxShadow: "0 0.25vw 1vw rgba(230, 81, 0, 0.18)",
+          };
+    }
+
+    return {
+      backgroundColor: "transparent",
+      borderColor: "#666",
+      boxShadow: "none",
+    };
   };
 
   const getDropZoneDisplayText = (zone) => {
@@ -204,8 +277,12 @@ const MainCanvas = (props) => {
   };
 
   const renderCardFront = (q, isTop, expNumClass) => {
-    const baseZoneFill = isTop ? getDropZoneFill("base") : "transparent";
-    const expZoneFill = isTop ? getDropZoneFill("exponent") : "transparent";
+    const baseZoneState = isTop
+      ? getDropZoneState("base")
+      : { backgroundColor: "transparent", borderColor: "#666", boxShadow: "none" };
+    const expZoneState = isTop
+      ? getDropZoneState("exponent")
+      : { backgroundColor: "transparent", borderColor: "#666", boxShadow: "none" };
     const baseText = isTop ? getDropZoneDisplayText("base") : null;
     const expText = isTop ? getDropZoneDisplayText("exponent") : null;
 
@@ -221,15 +298,9 @@ const MainCanvas = (props) => {
             ref: isTop ? baseDropRef : null,
             className: "card-base-zone",
             style: {
-              backgroundColor: baseZoneFill,
-              borderColor:
-                isTop
-                  ? feedbackType === "correct"
-                    ? "#388e3c"
-                    : feedbackType === "wrong"
-                    ? "#c62828"
-                    : "#666"
-                  : "#666",
+              backgroundColor: baseZoneState.backgroundColor,
+              borderColor: baseZoneState.borderColor,
+              boxShadow: baseZoneState.boxShadow,
             },
           },
           baseText &&
@@ -255,15 +326,9 @@ const MainCanvas = (props) => {
             ref: isTop ? expDropRef : null,
             className: "card-exp-zone",
             style: {
-              backgroundColor: expZoneFill,
-              borderColor:
-                isTop
-                  ? feedbackType === "correct"
-                    ? "#388e3c"
-                    : feedbackType === "wrong"
-                    ? "#c62828"
-                    : "#666"
-                  : "#666",
+              backgroundColor: expZoneState.backgroundColor,
+              borderColor: expZoneState.borderColor,
+              boxShadow: expZoneState.boxShadow,
             },
           },
           expText &&

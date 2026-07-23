@@ -1,0 +1,258 @@
+.graph-panel.reflection-graph-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0;
+}
+
+.reflection-graph-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.reflection-coordinate-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.reflection-coordinate-svg.is-clickable {
+  cursor: crosshair;
+}
+
+.rg-grow-line {
+  animation: rg-line-grow 0.8s ease forwards;
+}
+
+@keyframes rg-line-grow {
+  from {
+    stroke-dashoffset: var(--rg-line-len, 100px);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.rg-unit-line-rotate {
+  animation: rg-unit-flip 0.75s ease-in-out forwards;
+}
+
+@keyframes rg-unit-flip {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+.rg-unit-label-final {
+  transition: all 0.5s ease;
+}
+
+.rg-x-axis-target {
+  pointer-events: stroke;
+}
+
+.rg-p1-line-fade {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.rg-p1-line-fade.is-visible {
+  opacity: 0.5;
+}
+
+.rg-p1-line-grow {
+  opacity: 0;
+  transform: scaleY(0);
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+
+.rg-p1-line-grow.is-visible {
+  opacity: 1;
+  animation: rg-p1-line-grow 0.8s ease forwards;
+}
+
+@keyframes rg-p1-line-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.rg-fade-in {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.rg-fade-in.is-visible {
+  opacity: 1;
+}
+
+.rg-dehighlight {
+  opacity: 0.28;
+}
+
+.rg-flying-coordinate {
+  pointer-events: none;
+  transition: transform 0.8s ease-in-out, opacity 0.2s ease 0.68s;
+  transform: translate(0, 0);
+  opacity: 1;
+}
+
+.rg-flying-coordinate.is-flying {
+  transform: translate(var(--rg-fly-x), var(--rg-fly-y));
+  opacity: 0;
+}
+
+.rg-blink-text {
+  animation: rg-text-blink 0.6s ease-in-out infinite;
+}
+
+.rg-callout {
+  transition: transform 0.65s ease, opacity 0.45s ease;
+  transform-origin: center;
+}
+
+.rg-callout.is-hidden {
+  opacity: 0;
+}
+
+.rg-callout.is-visible {
+  opacity: 1;
+}
+
+.rg-callout.is-dimmed-copy {
+  opacity: 0.6;
+}
+
+.rg-callout-body {
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 22px;
+  font-weight: 600;
+  font-family: system-ui, sans-serif;
+  color: #fff;
+  line-height: 1.4;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.rg-callout-body.is-yellow {
+  color: #ffb84c;
+  font-weight: 700;
+}
+
+.rg-callout-text-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.rg-callout-body.is-prev {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transition: opacity 0.55s ease;
+  pointer-events: none;
+}
+
+.rg-callout-body.is-prev.is-fading {
+  opacity: 0;
+}
+
+.rg-callout-body.is-next {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.rg-callout-body.is-next.is-visible {
+  opacity: 1;
+}
+
+.rg-callout-dots {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  margin-left: 4px;
+  vertical-align: baseline;
+}
+
+.rg-callout-dots .rg-dot {
+  display: inline-block;
+  font-size: 0.72em;
+  line-height: 1;
+  opacity: 0.35;
+  animation: rg-dot-bounce 1.1s ease-in-out infinite;
+}
+
+.rg-callout-dots .rg-dot.dot2 {
+  animation-delay: 0.18s;
+}
+
+.rg-callout-dots .rg-dot.dot3 {
+  animation-delay: 0.36s;
+}
+
+.rg-callout-text-yellow {
+  fill: #ffb84c;
+  font-weight: 700;
+}
+
+.rg-dot {
+  opacity: 0.25;
+  animation: rg-dot-blink 1.05s infinite;
+}
+
+.rg-dot.dot2 {
+  animation-delay: 0.2s;
+}
+
+.rg-dot.dot3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes rg-dot-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+@keyframes rg-dot-blink {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes rg-text-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}

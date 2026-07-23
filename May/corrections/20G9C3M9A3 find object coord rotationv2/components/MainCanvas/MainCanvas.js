@@ -113,6 +113,7 @@ const MainCanvas = ({
   const [showObjectSegment, setShowObjectSegment] = useState(false);
   const [objectSegmentOpacity, setObjectSegmentOpacity] = useState(0);
   const [ruleState, setRuleState] = useState(GENERIC_RULE);
+  const [resultClonePhase, setResultClonePhase] = useState("idle");
   const [useCoordParts, setUseCoordParts] = useState(false);
   const [rotationOverlay, setRotationOverlay] = useState(null);
   const [rotatePanelContentVisible, setRotatePanelContentVisible] =
@@ -213,6 +214,20 @@ const MainCanvas = ({
     await delay(320);
   }, []);
 
+  const splitResultBox = useCallback(async () => {
+    setResultClonePhase("spawning");
+    await delay(60);
+    setResultClonePhase("split");
+    await delay(520);
+  }, []);
+
+  const mergeResultBox = useCallback(async (onMerged) => {
+    setResultClonePhase("merging");
+    await delay(500);
+    if (typeof onMerged === "function") onMerged();
+    setResultClonePhase("idle");
+  }, []);
+
   const addHighlight = useCallback(
     (id) => {
       if (typeof onVisibleHighlightsChange === "function") {
@@ -260,6 +275,10 @@ const MainCanvas = ({
 
       if (typeof playSound === "function") playSound("click");
 
+      setRuleState(GENERIC_RULE);
+      await splitResultBox();
+      if (isCancelled()) return;
+
       await animateFly(
         coordRefs.current[primeKey + "X"],
         ruleRefs.current.imgNegY,
@@ -298,7 +317,9 @@ const MainCanvas = ({
       await delay(1000);
       if (isCancelled()) return;
 
-      const objGroup = document.querySelector(".rule-object-group");
+      const objGroup = document.querySelector(
+        ".rule-result-copy-bottom .rule-object-group",
+      );
       const ptDef = OBJECT_POINT_DEFS.find((p) => p.key === cfg.objectKey);
 
       setObjectPointStates((prev) => ({
@@ -323,7 +344,9 @@ const MainCanvas = ({
         onObjectBoxChange(cfg.objectKey, cfg.objectBox());
       }
 
-      await delay(400);
+      await mergeResultBox(() => setRuleState(GENERIC_RULE));
+      if (isCancelled()) return;
+      await delay(200);
       if (isCancelled()) return;
       findAnimRef.current = false;
 
@@ -344,6 +367,8 @@ const MainCanvas = ({
     [
       animateFly,
       revealObjectPoint,
+      splitResultBox,
+      mergeResultBox,
       onObjectBoxChange,
       onStep4PhaseChange,
       onStep5PhaseChange,
@@ -539,6 +564,7 @@ const MainCanvas = ({
       setShowObjectSegment(false);
       setObjectSegmentOpacity(0);
       setRuleState(GENERIC_RULE);
+      setResultClonePhase("idle");
       setUseCoordParts(false);
       setRotationOverlay(null);
       setRotatePanelContentVisible(false);
@@ -576,6 +602,7 @@ const MainCanvas = ({
       setupImageGraph();
       setQuestionVisual(true, true);
       setRuleState(GENERIC_RULE);
+      setResultClonePhase("idle");
       setUseCoordParts(true);
       setRightVisible(true);
       findAnimRef.current = false;
@@ -589,6 +616,7 @@ const MainCanvas = ({
       setupImageGraph();
       setQuestionVisual(true, true);
       setRuleState(GENERIC_RULE);
+      setResultClonePhase("idle");
       setUseCoordParts(true);
       setRightVisible(true);
       findAnimRef.current = false;
@@ -764,10 +792,11 @@ const MainCanvas = ({
       return React.createElement(
         "div",
         { className: "main-canvas-right-inner" },
-        React.createElement(RuleResultBox, {
+        React.createElement(RuleResultStack, {
           ruleState: ruleState,
           coordRefs: ruleRefs,
           visible: true,
+          splitPhase: resultClonePhase,
         }),
       );
     }

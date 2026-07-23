@@ -46,7 +46,7 @@ const DATA = {
             "<y>Did you notice?</y><br><br>A larger turn creates a larger angle.",
           rightTextDone:
             "The amount of turn made by an object<br>is called the <y>angle of rotation</y>.",
-          navTextDone: "Tap » to continue",
+          navTextDone: "Tap » to learn about the direction of rotation.",
         },
         5: {
           questionText: "Which direction did the object rotate?",

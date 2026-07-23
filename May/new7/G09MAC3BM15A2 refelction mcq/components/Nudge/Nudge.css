@@ -1,0 +1,12 @@
+.nudge-overlay {
+  transform: translate(-12%, -8%);
+}
+
+.nudge-tap-gif {
+  width: 4vw;
+  min-width: 34px;
+  max-width: 58px;
+  height: auto;
+  display: block;
+  opacity: 0.5;
+}
