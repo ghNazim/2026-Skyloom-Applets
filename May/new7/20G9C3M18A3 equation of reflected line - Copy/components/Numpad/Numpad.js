@@ -22,7 +22,7 @@ const Numpad = ({
     "8",
     "9",
     "+",
-    "2k",
+    "0",
     "-",
     "clear",
     "submit",
@@ -66,14 +66,6 @@ const Numpad = ({
         "'",
       );
     }
-    if (key === "2k") {
-      return React.createElement(
-        React.Fragment,
-        null,
-        "2",
-        React.createElement("span", { className: "math-var" }, "k"),
-      );
-    }
     return key;
   };
 
@@ -81,7 +73,7 @@ const Numpad = ({
     if (key === "clear") return "numpad-button clear-button";
     if (key === "submit") return "numpad-button submit-button";
     if (key === "+" || key === "-") return "numpad-button utility-button";
-    if (key === "x'" || key === "y'" || key === "2k") return "numpad-button variable-button";
+    if (key === "x'" || key === "y'") return "numpad-button variable-button";
     return "numpad-button digit-button";
   };
 

@@ -95,17 +95,21 @@ const BarGraph = ({
   // Y axis labels + orange dots on axis
   yLabels.forEach(function (val, i) {
     var yy = yP(val);
+    var isWrongLabel =
+      wrongLineY !== null &&
+      wrongLineY !== undefined &&
+      wrongLineY === val;
     children.push(
       e(
         "text",
         {
           key: "ylabel-" + i,
-          x: ML -15,
+          x: ML - 15,
           y: yy + 6,
           textAnchor: "end",
-          fill: "#f0a030",
+          fill: isWrongLabel ? "#ef4444" : "#f0a030",
           fontSize: LABEL_SIZE,
-          fontWeight: 600,
+          fontWeight: isWrongLabel ? 700 : 600,
         },
         val
       )
@@ -271,24 +275,7 @@ const BarGraph = ({
           "text",
           {
             key: "wrong-label",
-            x: ML - 30,
-            y: wrongYPos + 6,
-            textAnchor: "end",
-            fill: "#ef4444",
-            fontSize: LABEL_SIZE,
-            fontWeight: 700,
-          },
-          wrongLineY
-        )
-      );
-    } else {
-      // If on a label, just color that label red (overlay)
-      children.push(
-        e(
-          "text",
-          {
-            key: "ylabel-red-overlay",
-            x: ML - 30,
+            x: ML - 15,
             y: wrongYPos + 6,
             textAnchor: "end",
             fill: "#ef4444",
@@ -310,13 +297,20 @@ const BarGraph = ({
   if (barValueBoxes) {
     barValueBoxes.forEach(function (val, i) {
       if (val === null || val === undefined) return;
+      var isActiveBar = highlightBarIndex === i;
+      var isDehighlighted =
+        lowOpacityAll && highlightBarIndex !== null && !isActiveBar;
+      var boxOpacity = isDehighlighted ? 0.25 : 1;
       var cx = xBarCenter(i);
       var barTop = yP(bars[i]);
       var boxTop = barTop - valueBoxSize - valueBoxGap;
       children.push(
         e(
           "g",
-          { key: "bvb-" + i, className: "bar-value-box-g" },
+          {
+            key: "bvb-" + i,
+            opacity: boxOpacity,
+          },
           e("rect", {
             x: cx - valueBoxHalf,
             y: boxTop,

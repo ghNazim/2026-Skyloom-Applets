@@ -15,6 +15,7 @@ const Numpad = ({ disabled = false, onNumberClick, onClear, onSubmit }) => {
 
   const handleSubmit = () => {
     if (!disabled) {
+      playSound("click");
       onSubmit && onSubmit();
     }
   };

@@ -25,7 +25,7 @@
 
 .bar-graph-feedback {
   position: absolute;
-  top: 0;
+  top: -1.7vw;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(80, 50, 60, 0.85);
@@ -33,12 +33,13 @@
   border-radius: 0.6vw;
   padding: 0.5vw 1.2vw;
   color: white;
-  font-size: 1.8vw;
+  font-size: 2.2vw;
   font-weight: 500;
   text-align: center;
   z-index: 10;
   white-space: nowrap;
   animation: fadeIn 0.3s ease;
+  width: 100%;
 }
 
 @keyframes fadeIn {
@@ -68,16 +69,6 @@
 
 .xlabel-highlight {
   font-weight: 700 !important;
-}
-
-/* Bar value box fade in */
-.bar-value-box-g {
-  animation: barValueFadeIn 0.5s ease forwards;
-}
-
-@keyframes barValueFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .correct-line-fade {

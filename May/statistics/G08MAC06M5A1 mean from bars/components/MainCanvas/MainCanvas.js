@@ -16,6 +16,7 @@ const MainCanvas = (props) => {
   const [boxState, setBoxState] = useState("default");
   const [nBoxState, setNBoxState] = useState("var");
   const [nValue, setNValue] = useState(null);
+  const [numeratorExpanded, setNumeratorExpanded] = useState(false);
   const [activeVarIndex, setActiveVarIndex] = useState(null);
   const [filledVars, setFilledVars] = useState([null, null, null, null, null]);
   const [barValueBoxes, setBarValueBoxes] = useState([null, null, null, null, null]);
@@ -64,6 +65,10 @@ const MainCanvas = (props) => {
   const step6Data = APP_DATA.steps[6];
   const answers = step3Data.answers;
   const days = step3Data.days;
+
+  function playClick() {
+    if (typeof playSound === "function") playSound("click");
+  }
 
   function renderXBar() {
     return e(
@@ -185,6 +190,7 @@ const MainCanvas = (props) => {
     } else if (stepNum === 2) {
       setNBoxState("filled");
       setNValue(5);
+      setNumeratorExpanded(true);
       setPhase("done");
       onSetNextEnabled(true);
     } else if (stepNum === 3) {
@@ -233,6 +239,7 @@ const MainCanvas = (props) => {
     } else if (stepNum === 2) {
       setNBoxState("var");
       setNValue(null);
+      setNumeratorExpanded(false);
       setPhase("initial");
       onSetNextEnabled(false);
     } else if (stepNum === 3) {
@@ -351,11 +358,15 @@ const MainCanvas = (props) => {
         setNBoxState("filled");
         setNValue(5);
         setBoxState("default");
+      }, 500);
+
+      setTimeout(function () {
+        setNumeratorExpanded(true);
         setPhase("done");
         onUpdateQuestionText(step2Data.questionAfterCorrect);
         onUpdateNavText(step2Data.navAfterCorrect);
         onSetNextEnabled(true);
-      }, 500);
+      }, 1000);
     } else {
       playSound("wrong");
       setBoxState("wrong");
@@ -424,6 +435,7 @@ const MainCanvas = (props) => {
   // ---------- STEP 2: TAP N ----------
   function handleTapN() {
     if (phase !== "initial" || nBoxState !== "var") return;
+    playClick();
     setNBoxState("empty");
     setNumpadVisible(true);
     setInputValue("");
@@ -437,6 +449,7 @@ const MainCanvas = (props) => {
     if (activeVarIndex !== null && boxState === "wrong") return;
     if (flyAnimating) return;
 
+    playClick();
     setVarNudgesDismissed(true);
     setActiveVarIndex(idx);
     setInputValue("");
@@ -461,6 +474,7 @@ const MainCanvas = (props) => {
   // ---------- STEP 4: REVEAL SUM ----------
   function handleRevealSum() {
     if (flyAnimating) return;
+    playClick();
     setFlyAnimating(true);
     setRevealPhase("sum-animating");
     setAnimNavHidden(true);
@@ -513,6 +527,7 @@ const MainCanvas = (props) => {
   // ---------- STEP 4: REVEAL MEAN ----------
   function handleRevealMean() {
     if (flyAnimating) return;
+    playClick();
     setFlyAnimating(true);
     setRevealPhase("mean-animating");
     setMeanRevealStage("");
@@ -606,7 +621,7 @@ const MainCanvas = (props) => {
       nContent = e("span", { className: "var-filled" }, "5");
     }
 
-    if (nBoxState === "filled") {
+    if (numeratorExpanded) {
       numContent = [];
       for (var i = 0; i < 5; i++) {
         if (i > 0) {
@@ -948,7 +963,7 @@ const MainCanvas = (props) => {
   }
 
   function toggleDropdown(id) {
-    if (typeof playSound === "function") playSound("click");
+    playClick();
     setOpenDropdownId(function (prev) {
       return prev === id ? null : id;
     });

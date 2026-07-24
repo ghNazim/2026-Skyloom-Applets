@@ -2,7 +2,6 @@ const App = () => {
   const { useState, useMemo, useEffect, useRef, useCallback } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [questionIndex, setQuestionIndex] = useState(0);
   const [stepReady, setStepReady] = useState(false);
   const [nudgePositions, setNudgePositions] = useState([]);
   const mainCanvasRef = useRef(null);
@@ -14,13 +13,11 @@ const App = () => {
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
-    setQuestionIndex(0);
     resetToStep(1);
   };
 
   const handleStartOver = () => {
     if (typeof playSound === "function") playSound("click");
-    setQuestionIndex(0);
     resetToStep(0);
   };
 
@@ -35,12 +32,7 @@ const App = () => {
 
     const goNext = () => {
       if (currentStep >= 4) {
-        if (questionIndex >= APP_DATA.questions.length - 1) {
-          resetToStep(5);
-          return;
-        }
-        setQuestionIndex((index) => index + 1);
-        resetToStep(1);
+        resetToStep(0);
         return;
       }
       resetToStep(currentStep + 1);
@@ -51,41 +43,27 @@ const App = () => {
   };
 
   const handlePrev = () => {
-    if (currentStep === 1 && questionIndex === 0) return;
     if (typeof playSound === "function") playSound("click");
-    if (currentStep === 1) {
-      setQuestionIndex((index) => index - 1);
-      resetToStep(4);
+    if (currentStep <= 1) {
+      resetToStep(0);
       return;
     }
     resetToStep(currentStep - 1);
   };
-
-  const isPrevDisabled = currentStep === 1 && questionIndex === 0;
 
   const navText = useMemo(() => {
     const steps = APP_DATA.steps;
     if (currentStep === 1) return stepReady ? steps.step1.nav.ready : steps.step1.nav.animating;
     if (currentStep === 2) return stepReady ? steps.step2.nav.ready : steps.step2.nav.chooseRule;
     if (currentStep === 3) return stepReady ? steps.step3.nav.ready : steps.step3.nav.numpadActive;
-    if (currentStep === 4) {
-      if (!stepReady) return steps.step4.nav.chooseSimplified;
-      return questionIndex >= APP_DATA.questions.length - 1
-        ? steps.step4.nav.conclude
-        : steps.step4.nav.ready;
-    }
+    if (currentStep === 4) return stepReady ? steps.step4.nav.ready : steps.step4.nav.chooseSimplified;
     return "";
-  }, [currentStep, questionIndex, stepReady]);
+  }, [currentStep, stepReady]);
 
   useEffect(() => {
     const updateNudges = () => {
       const nextPositions = [];
-      const targetId =
-        currentStep === 0 || currentStep === 5
-          ? "start-button"
-          : stepReady
-            ? "next-button"
-            : null;
+      const targetId = currentStep === 0 ? "start-button" : stepReady ? "next-button" : null;
       if (targetId) {
         const el = document.getElementById(targetId);
         if (el && !el.disabled) nextPositions.push(el.getBoundingClientRect());
@@ -129,25 +107,6 @@ const App = () => {
     );
   }
 
-  if (currentStep === 5) {
-    return React.createElement(
-      "div",
-      { className: "applet-container" },
-      React.createElement(
-        "div",
-        { className: "app-main-content app-main-content-splash" },
-        React.createElement(Fullscreen, {
-          heading: APP_DATA.completion.heading,
-          text: APP_DATA.completion.text,
-          buttonText: APP_DATA.completion.buttonText,
-          onButtonClick: handleStartOver,
-          buttonId: "start-button",
-        }),
-      ),
-      renderNudges(),
-    );
-  }
-
   return React.createElement(
     "div",
     { className: "applet-container" },
@@ -157,7 +116,6 @@ const App = () => {
       React.createElement(MainCanvas, {
         ref: mainCanvasRef,
         step: currentStep,
-        question: APP_DATA.questions[questionIndex],
         onReadyChange: setStepReady,
       }),
     ),
@@ -168,7 +126,7 @@ const App = () => {
         onNav: (dir) =>
           dir === "next" ? handleNext() : dir === "prev" ? handlePrev() : null,
         isNextDisabled: !stepReady,
-        isPrevDisabled: isPrevDisabled,
+        isPrevDisabled: false,
         navText: navText,
       }),
     ),
