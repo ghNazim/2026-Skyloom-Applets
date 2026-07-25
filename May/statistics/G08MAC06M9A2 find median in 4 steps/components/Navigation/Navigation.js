@@ -21,7 +21,7 @@ const Navigation = ({
     ),
     React.createElement("div", {
       className: "nav-text-container",
-      dangerouslySetInnerHTML: { __html: formatSuperscriptOrdinals(navText || "") },
+      dangerouslySetInnerHTML: { __html: formatDisplayText(navText || "") },
     }),
     React.createElement(
       "button",

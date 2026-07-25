@@ -113,3 +113,12 @@
   color: #ffb63e;
   font-weight: 700;
 }
+
+
+.fullscreen-split-left .bar-graph-container{
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 1.5vw;
+  height: 89%;
+  padding-bottom: 1vw;
+  padding-right: 1vw;
+}

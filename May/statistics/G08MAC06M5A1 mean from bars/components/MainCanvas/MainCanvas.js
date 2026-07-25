@@ -17,6 +17,11 @@ const MainCanvas = (props) => {
   const [nBoxState, setNBoxState] = useState("var");
   const [nValue, setNValue] = useState(null);
   const [numeratorExpanded, setNumeratorExpanded] = useState(false);
+  const [numeratorPhase, setNumeratorPhase] = useState("ellipsis");
+  const [staggerCount, setStaggerCount] = useState(0);
+  const [eq2Ready, setEq2Ready] = useState(false);
+  const [eq3Ready, setEq3Ready] = useState(false);
+  const [meanRevealFlipped, setMeanRevealFlipped] = useState(false);
   const [activeVarIndex, setActiveVarIndex] = useState(null);
   const [filledVars, setFilledVars] = useState([null, null, null, null, null]);
   const [barValueBoxes, setBarValueBoxes] = useState([null, null, null, null, null]);
@@ -58,6 +63,17 @@ const MainCanvas = (props) => {
   const revealSumRef = useRef(null);
   const revealMeanRef = useRef(null);
   const eq2FractionRef = useRef(null);
+  const eq1MeanRef = useRef(null);
+  const eq1EqualsRef = useRef(null);
+  const eq1FracLineRef = useRef(null);
+  const eq1DenRef = useRef(null);
+  const eq2MeanRef = useRef(null);
+  const eq2EqualsRef = useRef(null);
+  const eq2FracLineRef = useRef(null);
+  const eq2DenRef = useRef(null);
+  const eq3MeanRef = useRef(null);
+  const eq3EqualsRef = useRef(null);
+  const staggerTimerRef = useRef(null);
   const step3Data = APP_DATA.steps[3];
   const step2Data = APP_DATA.steps[2];
   const step4Data = APP_DATA.steps[4];
@@ -77,6 +93,67 @@ const MainCanvas = (props) => {
       e("span", { className: "x-bar-line" }),
       "x"
     );
+  }
+
+  function flyElementToTarget(sourceEl, targetEl, onDone) {
+    if (!sourceEl || !targetEl) {
+      if (onDone) onDone();
+      return;
+    }
+    var sRect = sourceEl.getBoundingClientRect();
+    var tRect = targetEl.getBoundingClientRect();
+    var clone = sourceEl.cloneNode(true);
+    clone.className = (clone.className + " fly-element-clone").trim();
+    document.body.appendChild(clone);
+
+    var cs = window.getComputedStyle(sourceEl);
+    var rowEl = sourceEl.closest(".formula-row") || sourceEl.parentElement;
+    var rowStyle = rowEl ? window.getComputedStyle(rowEl) : cs;
+
+    gsap.set(clone, {
+      position: "fixed",
+      left: sRect.left,
+      top: sRect.top,
+      width: sRect.width,
+      height: sRect.height,
+      margin: 0,
+      zIndex: 10060,
+      boxSizing: "border-box",
+      fontSize: cs.fontSize,
+      fontWeight: cs.fontWeight,
+      color: cs.color,
+      display: cs.display === "flex" ? "flex" : "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+    });
+
+    gsap.to(clone, {
+      left: tRect.left,
+      top: tRect.top,
+      width: tRect.width,
+      height: tRect.height,
+      duration: 0.55,
+      ease: "power2.inOut",
+      onComplete: function () {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        if (onDone) onDone();
+      },
+    });
+  }
+
+  function flyElementsToTargets(pairs, onAllDone) {
+    var remaining = pairs.length;
+    if (remaining === 0) {
+      if (onAllDone) onAllDone();
+      return;
+    }
+    pairs.forEach(function (pair) {
+      flyElementToTarget(pair.source, pair.target, function () {
+        remaining--;
+        if (remaining === 0 && onAllDone) onAllDone();
+      });
+    });
   }
 
   function flyFractionToTarget(sourceEl, targetEl, onDone) {
@@ -157,6 +234,36 @@ const MainCanvas = (props) => {
     };
   }
 
+  function runMeanGraphAnimation(onComplete) {
+    setMeanGraphPhase("flying");
+
+    setTimeout(function () {
+      var sourceEl = meanResultRef.current;
+      var targetEl = meanLabelRef.current;
+
+      flyDigitToTarget(sourceEl, targetEl, "6.4", function () {
+        setMeanGraphPhase("drawing");
+        setMeanDrawProgress(0);
+
+        if (meanDrawTweenRef.current) meanDrawTweenRef.current.kill();
+        var tweenState = { p: 0 };
+        meanDrawTweenRef.current = gsap.to(tweenState, {
+          p: 1,
+          duration: 0.75,
+          ease: "power2.out",
+          onUpdate: function () {
+            setMeanDrawProgress(tweenState.p);
+          },
+          onComplete: function () {
+            setMeanGraphPhase("complete");
+            setMeanDrawProgress(1);
+            if (onComplete) onComplete();
+          },
+        });
+      });
+    }, 80);
+  }
+
   function setSumNumRef(idx) {
     return function (el) {
       sumNumRefs.current[idx] = el;
@@ -190,7 +297,9 @@ const MainCanvas = (props) => {
     } else if (stepNum === 2) {
       setNBoxState("filled");
       setNValue(5);
+      setNumeratorPhase("complete");
       setNumeratorExpanded(true);
+      setStaggerCount(5);
       setPhase("done");
       onSetNextEnabled(true);
     } else if (stepNum === 3) {
@@ -201,6 +310,10 @@ const MainCanvas = (props) => {
       onSetNextEnabled(true);
     } else if (stepNum === 4) {
       setRevealPhase("done");
+      setEq2Ready(true);
+      setEq3Ready(true);
+      setMeanRevealFlipped(true);
+      setMeanRevealStage("result");
       onSetNextEnabled(true);
     } else if (stepNum === 5) {
       setMeanGraphPhase("complete");
@@ -216,6 +329,10 @@ const MainCanvas = (props) => {
   }
 
   function applyStepInitialState(stepNum) {
+    if (staggerTimerRef.current) {
+      clearInterval(staggerTimerRef.current);
+      staggerTimerRef.current = null;
+    }
     setNumpadVisible(false);
     setInputValue("");
     setBoxState("default");
@@ -239,6 +356,8 @@ const MainCanvas = (props) => {
     } else if (stepNum === 2) {
       setNBoxState("var");
       setNValue(null);
+      setNumeratorPhase("ellipsis");
+      setStaggerCount(0);
       setNumeratorExpanded(false);
       setPhase("initial");
       onSetNextEnabled(false);
@@ -250,6 +369,12 @@ const MainCanvas = (props) => {
       onSetNextEnabled(false);
     } else if (stepNum === 4) {
       setRevealPhase("none");
+      setEq2Ready(false);
+      setEq3Ready(false);
+      setMeanRevealFlipped(false);
+      setMeanRevealStage("");
+      setMeanGraphPhase("hidden");
+      setMeanDrawProgress(0);
       onSetNextEnabled(false);
     } else if (stepNum === 5) {
       setMeanGraphPhase("hidden");
@@ -271,6 +396,55 @@ const MainCanvas = (props) => {
     applyStepInitialState(step);
   }, [step, startAtFinal]);
 
+  // ---------- STEP 4: EQ2 FLY-IN FROM EQ1 ----------
+  useEffect(function () {
+    if (step !== 4 || startAtFinal) return;
+
+    setEq2Ready(false);
+    setEq3Ready(false);
+
+    var timer = setTimeout(function () {
+      flyElementsToTargets(
+        [
+          { source: eq1MeanRef.current, target: eq2MeanRef.current },
+          { source: eq1EqualsRef.current, target: eq2EqualsRef.current },
+          { source: eq1FracLineRef.current, target: eq2FracLineRef.current },
+          { source: eq1DenRef.current, target: eq2DenRef.current },
+        ],
+        function () {
+          setEq2Ready(true);
+        }
+      );
+    }, 250);
+
+    return function () {
+      clearTimeout(timer);
+    };
+  }, [step, startAtFinal]);
+
+  // ---------- STEP 4: EQ3 FLY-IN FROM EQ2 ----------
+  useEffect(function () {
+    if (step !== 4 || revealPhase !== "sum-done" || startAtFinal) return;
+
+    setEq3Ready(false);
+
+    var timer = setTimeout(function () {
+      flyElementsToTargets(
+        [
+          { source: eq2MeanRef.current, target: eq3MeanRef.current },
+          { source: eq2EqualsRef.current, target: eq3EqualsRef.current },
+        ],
+        function () {
+          setEq3Ready(true);
+        }
+      );
+    }, 250);
+
+    return function () {
+      clearTimeout(timer);
+    };
+  }, [step, revealPhase, startAtFinal]);
+
   // ---------- STEP 5: MEAN LINE ANIMATION ----------
   useEffect(function () {
     if (step !== 5 || startAtFinal) return;
@@ -282,31 +456,10 @@ const MainCanvas = (props) => {
     onSetNextEnabled(false);
 
     var startTimer = setTimeout(function () {
-      var sourceEl = meanResultRef.current;
-      var targetEl = meanLabelRef.current;
-
-      setMeanGraphPhase("flying");
-      flyDigitToTarget(sourceEl, targetEl, "6.4", function () {
-        setMeanGraphPhase("drawing");
-        setMeanDrawProgress(0);
-
-        if (meanDrawTweenRef.current) meanDrawTweenRef.current.kill();
-        var tweenState = { p: 0 };
-        meanDrawTweenRef.current = gsap.to(tweenState, {
-          p: 1,
-          duration: 0.75,
-          ease: "power2.out",
-          onUpdate: function () {
-            setMeanDrawProgress(tweenState.p);
-          },
-          onComplete: function () {
-            setMeanGraphPhase("complete");
-            setMeanDrawProgress(1);
-            setAnimNavHidden(false);
-            onUpdateNavText(step5Data.navText);
-            onSetNextEnabled(true);
-          },
-        });
+      runMeanGraphAnimation(function () {
+        setAnimNavHidden(false);
+        onUpdateNavText(step5Data.navText);
+        onSetNextEnabled(true);
       });
     }, 500);
 
@@ -344,6 +497,37 @@ const MainCanvas = (props) => {
     }
   }
 
+  // ---------- STEP 2: NUMERATOR STAGGER ----------
+  function runNumeratorStagger() {
+    if (staggerTimerRef.current) {
+      clearInterval(staggerTimerRef.current);
+      staggerTimerRef.current = null;
+    }
+
+    setNumeratorPhase("stagger");
+    setStaggerCount(0);
+
+    setTimeout(function () {
+      setStaggerCount(1);
+      var count = 1;
+      staggerTimerRef.current = setInterval(function () {
+        count++;
+        if (count <= 5) {
+          setStaggerCount(count);
+        } else {
+          clearInterval(staggerTimerRef.current);
+          staggerTimerRef.current = null;
+          setNumeratorPhase("complete");
+          setNumeratorExpanded(true);
+          setPhase("done");
+          onUpdateQuestionText(step2Data.questionAfterCorrect);
+          onUpdateNavText(step2Data.navAfterCorrect);
+          onSetNextEnabled(true);
+        }
+      }, 120);
+    }, 80);
+  }
+
   // ---------- STEP 2: CHECK N ----------
   function checkNAnswer(val) {
     if (val === step2Data.correctAnswer) {
@@ -358,15 +542,8 @@ const MainCanvas = (props) => {
         setNBoxState("filled");
         setNValue(5);
         setBoxState("default");
+        runNumeratorStagger();
       }, 500);
-
-      setTimeout(function () {
-        setNumeratorExpanded(true);
-        setPhase("done");
-        onUpdateQuestionText(step2Data.questionAfterCorrect);
-        onUpdateNavText(step2Data.navAfterCorrect);
-        onSetNextEnabled(true);
-      }, 1000);
     } else {
       playSound("wrong");
       setBoxState("wrong");
@@ -524,37 +701,52 @@ const MainCanvas = (props) => {
     setTimeout(processNext, 300);
   }
 
-  // ---------- STEP 4: REVEAL MEAN ----------
+  // ---------- STEP 4: REVEAL MEAN (flip card) ----------
   function handleRevealMean() {
-    if (flyAnimating) return;
+    if (flyAnimating || meanRevealFlipped) return;
     playClick();
+    if (typeof playSound === "function") playSound("congrats");
     setFlyAnimating(true);
     setRevealPhase("mean-animating");
-    setMeanRevealStage("");
-    setAnimNavHidden(true);
-    onUpdateNavText(" ");
+    setMeanRevealFlipped(true);
+    setMeanRevealStage("result");
 
     setTimeout(function () {
-      var fractionEl = eq2FractionRef.current;
-      var targetEl = revealMeanRef.current;
+      setFlyAnimating(false);
+      setRevealPhase("done");
+      onUpdateQuestionText(step4Data.questionFinal);
+      onUpdateNavText(step4Data.navFinal);
+      onSetNextEnabled(true);
+    }, 650);
+  }
 
-      flyFractionToTarget(fractionEl, targetEl, function () {
-        setMeanRevealStage("fraction");
-        setRevealBlinking(true);
-        setTimeout(function () {
-          setMeanRevealStage("result");
-          setRevealBlinking(false);
-          setTimeout(function () {
-            setFlyAnimating(false);
-            setRevealPhase("done");
-            setAnimNavHidden(false);
-            onUpdateQuestionText(step4Data.questionFinal);
-            onUpdateNavText(step4Data.navFinal);
-            onSetNextEnabled(true);
-          }, 1000);
-        }, 700);
-      });
-    }, 150);
+  function renderRevealFlipCard(onClick, flipped, backText, cardRef) {
+    return e(
+      "div",
+      {
+        ref: cardRef,
+        className:
+          "flip-card reveal-flip-card" + (flipped ? " reveal-flip-card-done" : ""),
+        onClick: flipped ? undefined : onClick,
+      },
+      e(
+        "div",
+        { className: "flip-card-inner" + (flipped ? " flipped" : "") },
+        e(
+          "div",
+          { className: "flip-card-front reveal-box" },
+          step4Data.revealText
+        ),
+        e(
+          "div",
+          {
+            ref: meanResultRef,
+            className: "flip-card-back flip-card-back-revealed",
+          },
+          backText
+        )
+      )
+    );
   }
 
   // ---------- RENDER FORMULA (step 1) ----------
@@ -621,16 +813,36 @@ const MainCanvas = (props) => {
       nContent = e("span", { className: "var-filled" }, "5");
     }
 
-    if (numeratorExpanded) {
+    if (
+      numeratorPhase === "stagger" ||
+      numeratorPhase === "complete" ||
+      numeratorExpanded
+    ) {
       numContent = [];
+      var visibleCount =
+        numeratorPhase === "stagger" ? staggerCount : 5;
       for (var i = 0; i < 5; i++) {
         if (i > 0) {
-          numContent.push(e("span", { key: "op" + i, className: "formula-op" }, "+"));
+          numContent.push(
+            e(
+              "span",
+              {
+                key: "op" + i,
+                className: "formula-op num-stagger-fade",
+                style: { opacity: i < visibleCount ? 1 : 0 },
+              },
+              "+"
+            )
+          );
         }
         numContent.push(
           e(
             "span",
-            { key: "x" + i, className: "var-box var-box-non-button" },
+            {
+              key: "x" + i,
+              className: "var-box var-box-non-button num-stagger-fade",
+              style: { opacity: i < visibleCount ? 1 : 0 },
+            },
             e("span", null, "x", e("sub", null, String(i + 1)))
           )
         );
@@ -726,11 +938,13 @@ const MainCanvas = (props) => {
   function renderFormulaStep4() {
     var sumValues = [4, 5, 6, 7, 10];
     var sumAnimating = revealPhase === "sum-animating";
-    var meanFlying =
-      revealPhase === "mean-animating" && meanRevealStage === "";
+    var meanFlying = revealPhase === "mean-animating";
     var eq1DehClass =
       sumAnimating || meanFlying ? " formula-dehighlight" : "";
     var eqPrefixDehClass = meanFlying ? " formula-dehighlight" : "";
+    var eqPartOpacity = function (ready) {
+      return { opacity: ready ? 1 : 0 };
+    };
 
     var eq1NumChildren = [];
     sumValues.forEach(function (val, i) {
@@ -753,28 +967,62 @@ const MainCanvas = (props) => {
     var eq1 = e(
       "div",
       { className: "formula-row equation-row eq1-row" + (sumAnimating ? " eq1-sum-animating" : "") },
-      e("span", { className: "var-box var-box-non-button mean-box" + eq1DehClass }, renderXBar()),
-      e("span", { className: "formula-equals" + eq1DehClass }, "="),
+      e(
+        "span",
+        {
+          ref: eq1MeanRef,
+          className: "var-box var-box-non-button mean-box" + eq1DehClass,
+        },
+        renderXBar()
+      ),
+      e(
+        "span",
+        {
+          ref: eq1EqualsRef,
+          className: "formula-equals" + eq1DehClass,
+        },
+        "="
+      ),
       e(
         "div",
         { className: "fraction" },
         e("div", { className: "fraction-num" + (meanFlying ? eq1DehClass : "") }, eq1Num),
-        e("div", { className: "fraction-line" + eq1DehClass }),
-        e("div", { className: "fraction-den" + eq1DehClass }, "5")
+        e(
+          "div",
+          {
+            ref: eq1FracLineRef,
+            className: "fraction-line" + eq1DehClass,
+          }
+        ),
+        e(
+          "div",
+          {
+            ref: eq1DenRef,
+            className: "fraction-den" + eq1DehClass,
+          },
+          "5"
+        )
       )
     );
 
-    var eq2 = null;
-    if (revealPhase === "none" || revealPhase === "sum-animating") {
-      var revealContent;
+    var revealContent = null;
+    if (eq2Ready) {
       if (revealPhase === "sum-animating") {
         revealContent = e(
           "span",
           {
             ref: revealSumRef,
-            className: "reveal-target reveal-sum-control" + (revealBlinking ? " glow-blink" : ""),
+            className:
+              "reveal-target reveal-sum-control" +
+              (revealBlinking ? " glow-blink" : ""),
           },
           sumRevealText || ""
+        );
+      } else if (revealPhase === "sum-done" || revealPhase === "mean-animating" || revealPhase === "done") {
+        revealContent = e(
+          "span",
+          { className: "var-filled-num" },
+          "32"
         );
       } else {
         revealContent = e(
@@ -787,128 +1035,126 @@ const MainCanvas = (props) => {
           step4Data.revealText
         );
       }
-
-      eq2 = e(
-        "div",
-        { className: "formula-row equation-row eq2-row" },
-        e("span", { className: "var-box var-box-non-button mean-box" + (sumAnimating ? " formula-dehighlight" : "") }, renderXBar()),
-        e("span", { className: "formula-equals" + (sumAnimating ? " formula-dehighlight" : "") }, "="),
-        e(
-          "div",
-          { className: "fraction" },
-          e("div", { className: "fraction-num" }, revealContent),
-          e("div", { className: "fraction-line" + (sumAnimating ? " formula-dehighlight" : "") }),
-          e("div", { className: "fraction-den" + (sumAnimating ? " formula-dehighlight" : "") }, "5")
-        )
-      );
-    } else if (revealPhase === "sum-done" || revealPhase === "mean-animating") {
-      eq2 = e(
-        "div",
-        { className: "formula-row equation-row eq2-row" },
-        e("span", { className: "var-box var-box-non-button mean-box" + eqPrefixDehClass }, renderXBar()),
-        e("span", { className: "formula-equals" + eqPrefixDehClass }, "="),
-        e(
-          "div",
-          { ref: eq2FractionRef, className: "fraction" },
-          e(
-            "div",
-            { className: "fraction-num" },
-            e("span", { className: "var-filled-num" }, "32")
-          ),
-          e("div", { className: "fraction-line" }),
-          e(
-            "div",
-            { className: "fraction-den" },
-            e("span", { className: "var-filled-num" }, "5")
-          )
-        )
-      );
+    } else {
+      revealContent = e("span", { className: "fraction-num-empty" });
     }
 
+    var eq2FracNum = null;
+    if (revealPhase === "sum-done" || revealPhase === "mean-animating" || revealPhase === "done") {
+      eq2FracNum = e(
+        "div",
+        { ref: eq2FractionRef, className: "fraction-num" },
+        e("span", { className: "var-filled-num" }, "32")
+      );
+    } else {
+      eq2FracNum = e("div", { className: "fraction-num" }, revealContent);
+    }
+
+    var eq2 = e(
+      "div",
+      {
+        className:
+          "formula-row equation-row eq2-row" + (eq2Ready ? " eq-row-visible" : ""),
+      },
+      e(
+        "span",
+        {
+          ref: eq2MeanRef,
+          className:
+            "var-box var-box-non-button mean-box" +
+            (sumAnimating ? " formula-dehighlight" : "") +
+            eqPrefixDehClass,
+          style: eqPartOpacity(eq2Ready),
+        },
+        renderXBar()
+      ),
+      e(
+        "span",
+        {
+          ref: eq2EqualsRef,
+          className:
+            "formula-equals" +
+            (sumAnimating ? " formula-dehighlight" : "") +
+            eqPrefixDehClass,
+          style: eqPartOpacity(eq2Ready),
+        },
+        "="
+      ),
+      e(
+        "div",
+        { className: "fraction" },
+        eq2FracNum,
+        e(
+          "div",
+          {
+            ref: eq2FracLineRef,
+            className:
+              "fraction-line" +
+              (sumAnimating ? " formula-dehighlight" : "") +
+              eqPrefixDehClass,
+            style: eqPartOpacity(eq2Ready),
+          }
+        ),
+        e(
+          "div",
+          {
+            ref: eq2DenRef,
+            className:
+              "fraction-den" +
+              (sumAnimating ? " formula-dehighlight" : "") +
+              eqPrefixDehClass,
+            style: eqPartOpacity(eq2Ready),
+          },
+          "5"
+        )
+      )
+    );
+
     var eq3 = null;
-    if (revealPhase === "sum-done") {
+    if (
+      revealPhase === "sum-done" ||
+      revealPhase === "mean-animating" ||
+      revealPhase === "done"
+    ) {
+      var eq3Result = null;
+      if (eq3Ready) {
+        eq3Result = renderRevealFlipCard(
+          handleRevealMean,
+          meanRevealFlipped,
+          "6.4",
+          revealMeanRef
+        );
+      } else {
+        eq3Result = e("span", { className: "eq3-result-slot" });
+      }
+
       eq3 = e(
         "div",
-        { className: "formula-row equation-row eq3-row" },
-        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
-        e("span", { className: "formula-equals" }, "="),
+        {
+          className:
+            "formula-row equation-row eq3-row" +
+            (eq3Ready ? " eq-row-visible" : ""),
+          style: eqPartOpacity(eq3Ready),
+        },
         e(
           "span",
           {
-            ref: revealMeanRef,
-            className: "reveal-box",
-            onClick: handleRevealMean,
+            ref: eq3MeanRef,
+            className: "var-box var-box-non-button mean-box" + eqPrefixDehClass,
+            style: eqPartOpacity(eq3Ready),
           },
-          step4Data.revealText
-        )
-      );
-    } else if (revealPhase === "mean-animating") {
-      if (meanRevealStage === "result") {
-        eq3 = e(
-          "div",
-          { className: "formula-row equation-row eq3-row" },
-          e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
-          e("span", { className: "formula-equals" }, "="),
-          e("span", { className: "mean-result" }, "6.4")
-        );
-      } else if (meanRevealStage === "fraction") {
-        eq3 = e(
-          "div",
-          { className: "formula-row equation-row eq3-row" },
-          e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
-          e("span", { className: "formula-equals" }, "="),
-          e(
-            "div",
-            {
-              className:
-                "fraction" + (revealBlinking ? " glow-blink" : ""),
-            },
-            e(
-              "div",
-              { className: "fraction-num" },
-              e("span", { className: "var-filled-num" }, "32")
-            ),
-            e("div", { className: "fraction-line" }),
-            e(
-              "div",
-              { className: "fraction-den" },
-              e("span", { className: "var-filled-num" }, "5")
-            )
-          )
-        );
-      } else {
-        eq3 = e(
-          "div",
-          { className: "formula-row equation-row eq3-row" },
-          e("span", { className: "var-box var-box-non-button mean-box" + eqPrefixDehClass }, renderXBar()),
-          e("span", { className: "formula-equals" + eqPrefixDehClass }, "="),
-          e("span", {
-            ref: revealMeanRef,
-            className:
-              "reveal-target reveal-target-fraction" + eqPrefixDehClass,
-          })
-        );
-      }
-    } else if (revealPhase === "done") {
-      eq2 = e(
-        "div",
-        { className: "formula-row equation-row eq2-row" },
-        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
-        e("span", { className: "formula-equals" }, "="),
+          renderXBar()
+        ),
         e(
-          "div",
-          { className: "fraction" },
-          e("div", { className: "fraction-num" }, e("span", { className: "var-filled-num" }, "32")),
-          e("div", { className: "fraction-line" }),
-          e("div", { className: "fraction-den" }, "5")
-        )
-      );
-      eq3 = e(
-        "div",
-        { className: "formula-row equation-row eq3-row" },
-        e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
-        e("span", { className: "formula-equals" }, "="),
-        e("span", { className: "mean-result" }, "6.4")
+          "span",
+          {
+            ref: eq3EqualsRef,
+            className: "formula-equals" + eqPrefixDehClass,
+            style: eqPartOpacity(eq3Ready),
+          },
+          "="
+        ),
+        eq3Result
       );
     }
 
@@ -970,7 +1216,7 @@ const MainCanvas = (props) => {
   }
 
   // ---------- RENDER FORMULA COMPLETE (step 4 done / step 5) ----------
-  function renderFormulaComplete(useMeanFlyRef) {
+  function renderFormulaComplete() {
     var sumValues = [4, 5, 6, 7, 10];
     var eq1NumChildren = [];
     sumValues.forEach(function (val, i) {
@@ -1026,14 +1272,7 @@ const MainCanvas = (props) => {
         { className: "formula-row equation-row eq3-row" },
         e("span", { className: "var-box var-box-non-button mean-box" }, renderXBar()),
         e("span", { className: "formula-equals" }, "="),
-        e(
-          "span",
-          {
-            ref: useMeanFlyRef ? meanResultRef : null,
-            className: "mean-result",
-          },
-          "6.4"
-        )
+        renderRevealFlipCard(null, true, "6.4", null)
       )
     );
   }
@@ -1046,7 +1285,7 @@ const MainCanvas = (props) => {
       e(
         "div",
         { className: "calc-formula-area" },
-        renderFormulaComplete(true)
+        renderFormulaComplete()
       )
     );
   }
@@ -1122,13 +1361,20 @@ const MainCanvas = (props) => {
       }
     }
 
-    if (step === 4 && revealPhase === "none" && !flyAnimating && !startAtFinal) {
+    if (step === 4 && revealPhase === "none" && eq2Ready && !flyAnimating && !startAtFinal) {
       nudges.push(
         e(Nudge, { key: "nudge-reveal-sum", targetRef: revealSumRef, active: true })
       );
     }
 
-    if (step === 4 && revealPhase === "sum-done" && !flyAnimating && !startAtFinal) {
+    if (
+      step === 4 &&
+      revealPhase === "sum-done" &&
+      eq3Ready &&
+      !meanRevealFlipped &&
+      !flyAnimating &&
+      !startAtFinal
+    ) {
       nudges.push(
         e(Nudge, { key: "nudge-reveal-mean", targetRef: revealMeanRef, active: true })
       );

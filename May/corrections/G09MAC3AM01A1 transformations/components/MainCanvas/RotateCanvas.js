@@ -362,7 +362,18 @@ const RotateCanvas = function (props) {
   );
 
   var runSummaryReplaySequence = useCallback(
-    function (showReplayAfter) {
+    function (showReplayAfter, snapReset) {
+      if (snapReset) {
+        killTween();
+        setPaperAngle(0);
+        paperAngleRef.current = 0;
+        animatePaperAngle(TARGET_ANGLE, 1.1, function () {
+          if (showReplayAfter) {
+            setShowReplayBtn(true);
+          }
+        });
+        return;
+      }
       animatePaperAngle(0, 0.7, function () {
         animatePaperAngle(TARGET_ANGLE, 1.1, function () {
           if (showReplayAfter) {
@@ -371,7 +382,7 @@ const RotateCanvas = function (props) {
         });
       });
     },
-    [animatePaperAngle, TARGET_ANGLE]
+    [animatePaperAngle, TARGET_ANGLE, killTween]
   );
 
   var getTrackPointPos = useCallback(
@@ -508,17 +519,23 @@ const RotateCanvas = function (props) {
   );
 
   var runPointsRevealAnim = useCallback(
-    function (onComplete) {
+    function (onComplete, snapReset) {
       killTween();
       setShowTrackPoints(false);
       setShowTrackArcs(false);
       setTrackGuides({ e: false, f: false, center: false });
       setTrackAngle(0);
 
-      var proxy = { a: paperAngleRef.current };
-      gsapTweenRef.current = gsap
-        .timeline({ onComplete: onComplete || null })
-        .to(proxy, {
+      if (snapReset) {
+        setPaperAngle(0);
+        paperAngleRef.current = 0;
+      }
+
+      var proxy = { a: snapReset ? 0 : paperAngleRef.current };
+      var timeline = gsap.timeline({ onComplete: onComplete || null });
+
+      if (!snapReset) {
+        timeline.to(proxy, {
           a: 0,
           duration: 1.7,
           ease: "power2.inOut",
@@ -527,7 +544,10 @@ const RotateCanvas = function (props) {
             paperAngleRef.current = proxy.a;
             setTrackAngle(proxy.a);
           },
-        })
+        });
+      }
+
+      timeline
         .call(function () {
           setShowTrackPoints(true);
           setShowTrackArcs(true);
@@ -545,6 +565,8 @@ const RotateCanvas = function (props) {
             setTrackAngle(proxy.a);
           },
         });
+
+      gsapTweenRef.current = timeline;
     },
     [killTween, TARGET_ANGLE]
   );
@@ -871,7 +893,7 @@ const RotateCanvas = function (props) {
       if (typeof playSound === "function") playSound("click");
       setShowReplayBtn(false);
       if (postRevealStep === "mcqSummary") {
-        runSummaryReplaySequence(true);
+        runSummaryReplaySequence(true, true);
       } else if (postRevealStep === "orientSummary") {
         runOrientationRevealAnim(function () {
           setShowReplayBtn(true);
@@ -879,7 +901,7 @@ const RotateCanvas = function (props) {
       } else if (postRevealStep === "pointsSummary") {
         runPointsRevealAnim(function () {
           setShowReplayBtn(true);
-        });
+        }, true);
       }
     },
     [

@@ -4,6 +4,7 @@ var MainCanvas = function (props) {
   var onSetNextEnabled = props.onSetNextEnabled;
   var onUpdateNavText = props.onUpdateNavText;
   var onUpdateQuestionText = props.onUpdateQuestionText;
+  var onSetAnimating = props.onSetAnimating;
   var useState = React.useState;
   var useEffect = React.useEffect;
   var useRef = React.useRef;
@@ -90,6 +91,9 @@ var MainCanvas = function (props) {
   var _showCountRow = useState(false);
   var showCountRow = _showCountRow[0];
   var setShowCountRow = _showCountRow[1];
+  var _bottomParentExpanded = useState(false);
+  var bottomParentExpanded = _bottomParentExpanded[0];
+  var setBottomParentExpanded = _bottomParentExpanded[1];
   var _countComplete = useState(false);
   var countComplete = _countComplete[0];
   var setCountComplete = _countComplete[1];
@@ -150,6 +154,17 @@ var MainCanvas = function (props) {
   var dragAnchorXRef = useRef(0);
   var idleTimerRef = useRef(null);
   var animationTimerRef = useRef(null);
+  var animDepthRef = useRef(0);
+
+  function pushAnimating() {
+    animDepthRef.current += 1;
+    if (animDepthRef.current === 1 && onSetAnimating) onSetAnimating(true);
+  }
+
+  function popAnimating() {
+    animDepthRef.current = Math.max(0, animDepthRef.current - 1);
+    if (animDepthRef.current === 0 && onSetAnimating) onSetAnimating(false);
+  }
 
   function clearTimer(ref) {
     if (ref.current) clearTimeout(ref.current);
@@ -165,7 +180,7 @@ var MainCanvas = function (props) {
   }
 
   function renderMarkup(text) {
-    return { __html: formatSuperscriptOrdinals(text) };
+    return { __html: formatDisplayText(text) };
   }
 
   function ordinalSuffix(num) {
@@ -178,6 +193,9 @@ var MainCanvas = function (props) {
   }
 
   function ordinalHtml(num) {
+    if (current_language === "id") {
+      return "ke-" + String(num);
+    }
     return String(num) + "<sup>" + ordinalSuffix(num) + "</sup>";
   }
 
@@ -189,7 +207,7 @@ var MainCanvas = function (props) {
 
   function renderFractionExpression(kind) {
     var numerator = kind === "odd" ? e(React.Fragment, null, e("mi", null, "n"), "+1") : e("mi", null, "n");
-    return e(
+    var fraction = e(
       "span",
       { className: "middle-fraction-wrap" },
       e("span", { className: "middle-paren" }, "("),
@@ -201,8 +219,11 @@ var MainCanvas = function (props) {
         e("span", { className: "middle-frac-den" }, "2"),
       ),
       e("span", { className: "middle-paren" }, ")"),
-      e("sup", null, "th"),
     );
+    if (current_language === "id") {
+      return e(React.Fragment, null, "ke-", fraction);
+    }
+    return e(React.Fragment, null, fraction, e("sup", null, "th"));
   }
 
   function renderMiddleOptionContent(index) {
@@ -252,6 +273,7 @@ var MainCanvas = function (props) {
     setCountByIndex({});
     setCountBoxValue("");
     setShowCountRow(false);
+    setBottomParentExpanded(false);
     setCountComplete(false);
     setShowUpdown(false);
     setBadgeMode("normal");
@@ -270,6 +292,8 @@ var MainCanvas = function (props) {
     clearOverlay();
     clearTimer(idleTimerRef);
     clearTimer(animationTimerRef);
+    animDepthRef.current = 0;
+    if (onSetAnimating) onSetAnimating(false);
   }
 
   useEffect(function () {
@@ -309,6 +333,7 @@ var MainCanvas = function (props) {
         setPhase("sortReady");
         return undefined;
       }
+      pushAnimating();
       animationTimerRef.current = setTimeout(function () {
         animateOptionsToActionButtons();
       }, 180);
@@ -316,6 +341,8 @@ var MainCanvas = function (props) {
     return function () {
       clearTimer(idleTimerRef);
       clearTimer(animationTimerRef);
+      animDepthRef.current = 0;
+      if (onSetAnimating) onSetAnimating(false);
     };
   }, [step]);
 
@@ -447,6 +474,7 @@ var MainCanvas = function (props) {
       setActiveAction(0);
       setPhase("sortReady");
       onUpdateNavText(S2.sortReadyNav);
+      popAnimating();
       return;
     }
 
@@ -460,6 +488,7 @@ var MainCanvas = function (props) {
         setActiveAction(0);
         setPhase("sortReady");
         onUpdateNavText(S2.sortReadyNav);
+        popAnimating();
       },
     });
 
@@ -548,6 +577,7 @@ var MainCanvas = function (props) {
     onUpdateQuestionText(S2.sortedQuestion);
     onUpdateNavText(S2.sortedNav);
     if (typeof playSound === "function") playSound("tick");
+    popAnimating();
   }
 
   function beginSorting() {
@@ -558,6 +588,7 @@ var MainCanvas = function (props) {
     setPhase("sorting");
     onUpdateQuestionText(S2.sortingQuestion);
     onUpdateNavText(S2.sortingNav);
+    pushAnimating();
     animationTimerRef.current = setTimeout(animateSortData, 100);
   }
 
@@ -568,6 +599,7 @@ var MainCanvas = function (props) {
     setInProgressAction(1);
     setPhase("counting");
     setShowCountRow(true);
+    setBottomParentExpanded(false);
     setCountByIndex({});
     setCountBoxValue("");
     setCountComplete(false);
@@ -575,6 +607,15 @@ var MainCanvas = function (props) {
     setShowUpdown(true);
     onUpdateQuestionText(S2.countQuestion);
     onUpdateNavText(S2.countNav);
+    pushAnimating();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        setBottomParentExpanded(true);
+      });
+    });
+    animationTimerRef.current = setTimeout(function () {
+      popAnimating();
+    }, 480);
   }
 
   function scheduleCountHint() {
@@ -584,18 +625,38 @@ var MainCanvas = function (props) {
     }, 5000);
   }
 
-  function completeCounting(nextCounts) {
+  function finishCountingStep() {
     clearTimer(idleTimerRef);
     setCountComplete(true);
-    setTimeout(function () {
-      setInProgressAction(null);
-      setExploredActions({ 0: true, 1: true });
-      setActiveAction(2);
-      setPhase("middleReady");
-      onUpdateQuestionText(S2.countCompleteQuestion);
-      onUpdateNavText(S2.countCompleteNav);
-      if (typeof playSound === "function") playSound("congrats");
-    }, 220);
+    setInProgressAction(null);
+    setExploredActions({ 0: true, 1: true });
+    setActiveAction(2);
+    setPhase("middleReady");
+    onUpdateQuestionText(S2.countCompleteQuestion);
+    onUpdateNavText(S2.countCompleteNav);
+    if (typeof playSound === "function") playSound("congrats");
+  }
+
+  function reorderCountBadges() {
+    clearTimer(idleTimerRef);
+    setShowUpdown(false);
+    setPhase("countReordering");
+    pushAnimating();
+    setBadgeMode("shrinking");
+    animationTimerRef.current = setTimeout(function () {
+      var orderedCounts = {};
+      for (var i = 0; i < N; i++) orderedCounts[i] = i + 1;
+      setCountByIndex(orderedCounts);
+      setCountBoxValue(String(N));
+      setBadgeMode("stagger");
+      var staggerDuration = 280 + (N - 1) * 80 + 120;
+      animationTimerRef.current = setTimeout(function () {
+        setBadgeMode("normal");
+        setPhase("counting");
+        finishCountingStep();
+        popAnimating();
+      }, staggerDuration);
+    }, 300);
   }
 
   function beginMiddlePosition() {
@@ -609,6 +670,7 @@ var MainCanvas = function (props) {
     setBadgeMode("shrinking");
     setShowUpdown(false);
     clearTimer(idleTimerRef);
+    pushAnimating();
     animationTimerRef.current = setTimeout(function () {
       setCountByIndex({});
       setShowMiddlePanel(true);
@@ -618,6 +680,7 @@ var MainCanvas = function (props) {
       setExpressionStage(0);
       setPhase("middleMcq");
       onUpdateNavText(S2.middleChoiceNav);
+      popAnimating();
     }, 360);
   }
 
@@ -637,6 +700,7 @@ var MainCanvas = function (props) {
 
     setMiddleChoiceState("correct");
     if (typeof playSound === "function") playSound("correct");
+    pushAnimating();
     setTimeout(function () {
       setShowCorrectOnly(true);
       onUpdateQuestionText(S2.correctMiddleQuestion);
@@ -692,6 +756,7 @@ var MainCanvas = function (props) {
         setShowPositionUpdown(true);
         onUpdateQuestionText(S2.simplifiedMiddleQuestion);
         onUpdateNavText(S2.selectMiddleNav);
+        popAnimating();
       }, 1000);
     }, 1000);
   }
@@ -731,13 +796,6 @@ var MainCanvas = function (props) {
         return next;
       });
       if (typeof playSound === "function") playSound("wrong");
-      setTimeout(function () {
-        setPositionFeedback(function (prev) {
-          var next = copyObject(prev);
-          if (next[index] === "wrong") next[index] = "neutral";
-          return next;
-        });
-      }, 650);
       schedulePositionHint();
       return;
     }
@@ -756,11 +814,13 @@ var MainCanvas = function (props) {
 
     if (areAllMiddlePositionsSelected(nextSelected)) {
       clearTimer(idleTimerRef);
-      var finalFeedback = {};
-      Object.keys(nextSelected).forEach(function (key) {
-        if (nextSelected[key]) finalFeedback[key] = "correct";
+      setPositionFeedback(function (prev) {
+        var next = copyObject(prev);
+        Object.keys(nextSelected).forEach(function (key) {
+          if (nextSelected[key]) next[key] = "correct";
+        });
+        return next;
       });
-      setPositionFeedback(finalFeedback);
       setPhase("finalStepReady");
       setActiveAction(3);
       setInProgressAction(null);
@@ -787,6 +847,13 @@ var MainCanvas = function (props) {
     setMedianInput("");
     setMedianAnswerState(null);
     setMedianFreshAfterWrong(false);
+    setPositionFeedback(function (prev) {
+      var next = copyObject(prev);
+      Object.keys(next).forEach(function (key) {
+        if (next[key] === "wrong") delete next[key];
+      });
+      return next;
+    });
     onUpdateQuestionText(S2.medianQuestion);
     onUpdateNavText(S2.medianNav);
     onSetNextEnabled(false);
@@ -852,11 +919,164 @@ var MainCanvas = function (props) {
     setShowUpdown(false);
     if (typeof playSound === "function") playSound("tick");
     if (nextCount >= N) {
-      completeCounting(nextCounts);
+      reorderCountBadges();
     } else {
       scheduleCountHint();
     }
   }
+
+  function getOrderedCounts() {
+    var orderedCounts = {};
+    for (var i = 0; i < N; i++) orderedCounts[i] = i + 1;
+    return orderedCounts;
+  }
+
+  function getMiddleCompletedSelection() {
+    var selected = {};
+    var feedback = {};
+    middlePositions.forEach(function (position) {
+      selected[position - 1] = true;
+      feedback[position - 1] = "correct";
+    });
+    return { selected: selected, feedback: feedback };
+  }
+
+  function resetLaterActionState(fromActionIndex) {
+    if (fromActionIndex <= 0) {
+      setShowCountRow(false);
+      setBottomParentExpanded(false);
+      setCountByIndex({});
+      setCountBoxValue("");
+      setCountComplete(false);
+      setShowUpdown(false);
+      setBadgeMode("normal");
+    }
+    if (fromActionIndex <= 1) {
+      setShowMiddlePanel(false);
+      setMiddleChoice(null);
+      setMiddleChoiceState(null);
+      setShowCorrectOnly(false);
+      setExpressionStage(0);
+      setSelectedPositions({});
+      setPositionFeedback({});
+      setShowPositionUpdown(false);
+    }
+    if (fromActionIndex <= 2) {
+      setShowMedianPanel(false);
+      setMedianInput("");
+      setMedianAnswerState(null);
+      setMedianFreshAfterWrong(false);
+    }
+  }
+
+  function restoreCompletedSnapshot(actionIndex) {
+    clearTimer(idleTimerRef);
+    clearTimer(animationTimerRef);
+    clearOverlay();
+    animDepthRef.current = 0;
+    if (onSetAnimating) onSetAnimating(false);
+
+    setShowStepPanel(false);
+    setActionVisible(true);
+    setShowData(true);
+    setDisplayData(sortedDataset.slice());
+    setShowSortLabels(true);
+    setInProgressAction(null);
+    onSetNextEnabled(false);
+
+    if (actionIndex === 0) {
+      resetLaterActionState(0);
+      setPhase("countReady");
+      setActiveAction(1);
+      setExploredActions({ 0: true });
+      onUpdateQuestionText(S2.sortedQuestion);
+      onUpdateNavText(S2.sortedNav);
+      return;
+    }
+
+    if (actionIndex === 1) {
+      resetLaterActionState(1);
+      setPhase("middleReady");
+      setActiveAction(2);
+      setExploredActions({ 0: true, 1: true });
+      setShowCountRow(true);
+      setBottomParentExpanded(true);
+      setCountByIndex(getOrderedCounts());
+      setCountBoxValue(String(N));
+      setCountComplete(true);
+      setBadgeMode("normal");
+      onUpdateQuestionText(S2.countCompleteQuestion);
+      onUpdateNavText(S2.countCompleteNav);
+      return;
+    }
+
+    if (actionIndex === 2) {
+      var middleState = getMiddleCompletedSelection();
+      resetLaterActionState(2);
+      setPhase("finalStepReady");
+      setActiveAction(3);
+      setExploredActions({ 0: true, 1: true, 2: true });
+      setShowCountRow(true);
+      setBottomParentExpanded(true);
+      setCountByIndex({});
+      setCountBoxValue(String(N));
+      setCountComplete(true);
+      setShowMiddlePanel(true);
+      setMiddleChoice(middleCorrectOption);
+      setMiddleChoiceState("correct");
+      setShowCorrectOnly(true);
+      setExpressionStage(4);
+      setSelectedPositions(middleState.selected);
+      setPositionFeedback(middleState.feedback);
+      onUpdateQuestionText(S2.foundBothQuestion);
+      onUpdateNavText(S2.foundBothNav);
+    }
+  }
+
+  function getPracticeLevel() {
+    if (phase === "medianDone" || phase === "medianEntry") return 3;
+    if (
+      phase === "finalStepReady" ||
+      inProgressAction === 2 ||
+      showMiddlePanel ||
+      phase === "middleIntro" ||
+      phase === "middleMcq" ||
+      phase === "selectMiddle"
+    ) return 2;
+    if (phase === "middleReady") return 1;
+    if (inProgressAction === 1 || phase === "counting" || phase === "countReordering") return 1;
+    if (phase === "countReady") return 0;
+    if (inProgressAction === 0 || phase === "sorting") return 0;
+    return -1;
+  }
+
+  function handlePracticePrev() {
+    if (animDepthRef.current > 0) return true;
+    var level = getPracticeLevel();
+    if (level <= 0) return false;
+    restoreCompletedSnapshot(level - 1);
+    return true;
+  }
+
+  useEffect(function () {
+    if (!props.onRegisterPracticePrev) return undefined;
+    if (step !== 2) {
+      props.onRegisterPracticePrev(null);
+      return undefined;
+    }
+    props.onRegisterPracticePrev(handlePracticePrev);
+    return function () {
+      props.onRegisterPracticePrev(null);
+    };
+  }, [
+    step,
+    phase,
+    inProgressAction,
+    showMiddlePanel,
+    showMedianPanel,
+    showCountRow,
+    exploredActions,
+  ]);
 
   function handleActionClick(index) {
     if (index === 0) beginSorting();
@@ -993,7 +1213,9 @@ var MainCanvas = function (props) {
           var counted = countByIndex[index];
           var positionState = positionFeedback[index];
           var isMiddleSelected = !!selectedPositions[index];
-          var visiblePositionState = positionState || (isMiddleSelected ? "correct" : null);
+          var visiblePositionState = positionState === "wrong"
+            ? "wrong"
+            : (positionState === "correct" || isMiddleSelected ? "correct" : null);
           var clickable =
             (phase === "counting" && !counted) ||
             (phase === "selectMiddle" && !isMiddleSelected);
@@ -1050,9 +1272,9 @@ var MainCanvas = function (props) {
   function renderMiddleExpression() {
     if (expressionStage === 2) {
       if (middleCorrectOption === 0) {
-        return e(
-          "span",
-          { className: "middle-simplified-expression fading" },
+        var oddFraction = e(
+          React.Fragment,
+          null,
           e("span", { className: "middle-paren" }, "("),
           e(
             "span",
@@ -1062,7 +1284,11 @@ var MainCanvas = function (props) {
             e("span", { className: "middle-frac-den" }, "2"),
           ),
           e("span", { className: "middle-paren" }, ")"),
-          e("sup", null, "th"),
+        );
+        return e(
+          "span",
+          { className: "middle-simplified-expression fading" },
+          current_language === "id" ? e(React.Fragment, null, "ke-", oddFraction) : e(React.Fragment, null, oddFraction, e("sup", null, "th")),
           e("span", { className: "middle-option-text" }, " " + S2.valueText),
         );
       }
@@ -1078,9 +1304,9 @@ var MainCanvas = function (props) {
       });
     }
     if (middleCorrectOption === 0) {
-      return e(
-        "span",
-        { className: "middle-correct-expression" },
+      var oddExprFraction = e(
+        React.Fragment,
+        null,
         e("span", { className: "middle-paren" }, "("),
         e(
           "span",
@@ -1098,13 +1324,19 @@ var MainCanvas = function (props) {
           e("span", { className: "middle-frac-den" }, "2"),
         ),
         e("span", { className: "middle-paren" }, ")"),
-        e("sup", null, "th"),
+      );
+      return e(
+        "span",
+        { className: "middle-correct-expression" },
+        current_language === "id"
+          ? e(React.Fragment, null, "ke-", oddExprFraction)
+          : e(React.Fragment, null, oddExprFraction, e("sup", null, "th")),
         e("span", { className: "middle-option-text" }, " " + S2.valueText),
       );
     }
-    return e(
-      "span",
-      { className: "middle-correct-expression" },
+    var evenFraction = e(
+      React.Fragment,
+      null,
       e("span", { className: "middle-paren" }, "("),
       e(
         "span",
@@ -1117,7 +1349,11 @@ var MainCanvas = function (props) {
         e("span", { className: "middle-frac-den" }, "2"),
       ),
       e("span", { className: "middle-paren" }, ")"),
-      e("sup", null, "th"),
+    );
+    return e(
+      "span",
+      { className: "middle-correct-expression" },
+      current_language === "id" ? e(React.Fragment, null, "ke-", evenFraction) : e(React.Fragment, null, evenFraction, e("sup", null, "th")),
       e("span", { className: "middle-option-text" }, " " + S2.nextValueText),
     );
   }
@@ -1244,6 +1480,7 @@ var MainCanvas = function (props) {
       {
         className:
           "bottom-parent" +
+          (bottomParentExpanded ? " is-expanded" : "") +
           (showMiddlePanel ? " has-middle" : "") +
           (showMedianPanel ? " has-median" : ""),
       },
@@ -1286,7 +1523,7 @@ var MainCanvas = function (props) {
     },
     e(
       "div",
-      { className: "median-visual-row" },
+      { className: "median-visual-row" + (bottomParentExpanded ? " has-expanded-bottom" : "") },
       showStepPanel ? renderStepsPanel() : null,
       renderDataRow(),
       renderBottomParent(),

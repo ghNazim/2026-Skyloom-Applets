@@ -3,7 +3,7 @@ const QuestionPanel = ({ text }) => {
     "div",
     { className: "question-panel" },
     React.createElement("h2", {
-      dangerouslySetInnerHTML: { __html: formatSuperscriptOrdinals(text || "") },
+      dangerouslySetInnerHTML: { __html: formatDisplayText(text || "") },
     }),
   );
 };

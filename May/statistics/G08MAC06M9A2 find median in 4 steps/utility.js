@@ -22,13 +22,36 @@ function handleComma(sentence) {
   if (current_language !== "id" || !sentence) {
     return sentence;
   }
-  
+
   return sentence.replace(/,/g, "<cm>,</cm>");
+}
+
+function formatDecimalForLocale(text) {
+  if (!text || current_language !== "id") return text;
+  return String(text).replace(/(\d)\.(\d)/g, "$1,$2");
 }
 
 function formatSuperscriptOrdinals(text) {
   if (!text) return text;
   return String(text).replace(/(\d+)(st|nd|rd|th)(?![^<]*>)/g, "$1<sup>$2</sup>");
+}
+
+function formatIndonesianOrdinals(text) {
+  if (!text) return text;
+  return String(text)
+    .replace(/(\d+)<sup>(?:st|nd|rd|th)<\/sup>/g, "ke-$1")
+    .replace(/(\d+)(st|nd|rd|th)(?![^<]*>)/g, "ke-$1");
+}
+
+function formatDisplayText(text) {
+  if (!text) return text;
+  var result = formatDecimalForLocale(text);
+  if (current_language === "id") {
+    result = formatIndonesianOrdinals(result);
+  } else {
+    result = formatSuperscriptOrdinals(result);
+  }
+  return handleComma(result);
 }
 
 function confettiBurst() {

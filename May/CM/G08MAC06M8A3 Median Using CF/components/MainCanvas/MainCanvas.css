@@ -1,0 +1,1116 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  /* column-reverse: the feedback row sits ABOVE the data/table (the interaction is
+     pushed down), so a hint appears over the work instead of below it. The feedback
+     row still collapses to 0 in the CF stage, so nothing shifts there. */
+  flex-direction: column-reverse;
+  overflow: hidden;
+  position: relative;
+}
+
+.visual-row {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2vw;
+  overflow: visible;
+}
+
+.feedback-row {
+  flex: 0 0 20%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  transition: flex-basis 0.45s ease, opacity 0.35s ease;
+}
+
+.feedback-row.collapsed {
+  flex-basis: 0;
+  opacity: 0;
+}
+
+.left-visual-column,
+.right-visual-column,
+.cf-action-shell,
+.cf-action-column {
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.left-visual-column {
+  flex: 1 1 0;
+  transition: flex-basis 0.6s ease, flex-grow 0.6s ease, opacity 0.45s ease;
+}
+
+.left-visual-column.hidden {
+  flex: 0 0 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.right-visual-column {
+  flex: 0 0 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: flex-basis 0.6s ease, flex-grow 0.6s ease, width 0.6s ease, opacity 0.45s ease;
+}
+
+.right-visual-column.visible {
+  flex: 1 1 0;
+  opacity: 1;
+}
+
+.right-visual-column.cf-table-column {
+  flex: 0 0 65%;
+}
+
+.cf-action-shell {
+  flex: 0 0 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: flex-grow 0.6s ease, flex-basis 0.6s ease, opacity 0.45s ease;
+}
+
+.cf-action-shell.expanded {
+  flex: 1 1 0;
+  opacity: 0;
+}
+
+.cf-action-shell.visible {
+  opacity: 1;
+}
+
+.cf-action-column {
+  width: 100%;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 1vw;
+  padding-right: 1vw;
+}
+
+.raw-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 5.7vw);
+  grid-template-rows: repeat(5, 4.8vw);
+  gap: 0.55vw;
+}
+
+.raw-number-box {
+  border-radius: 0.55vw;
+  background: rgba(126, 143, 151, 0.92);
+  border: 0.12vw solid rgba(40, 45, 52, 0.85);
+  box-shadow: inset 0 0.08vw 0 rgba(255, 255, 255, 0.12), 0 0.12vw 0.25vw rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 2.55vw;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, filter 0.3s ease, background-color 0.3s ease;
+}
+
+.raw-number-box.dimmed {
+  opacity: 0.22;
+  filter: brightness(0.55);
+}
+
+.raw-number-box.focused {
+  opacity: 1;
+  filter: none;
+  background: rgba(139, 154, 159, 0.98);
+}
+
+.table-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.median-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42vw;
+}
+
+.median-table-row {
+  display: grid;
+  grid-template-columns: 13.5vw 17vw;
+  gap: 0.42vw;
+  transition: grid-template-columns 0.45s ease;
+}
+
+.median-table.with-cf .median-table-row {
+  grid-template-columns: 13.2vw 16.5vw 16.5vw;
+}
+
+.median-table.with-cf.with-range .median-table-row {
+  grid-template-columns: 11.2vw 14.2vw 14.2vw 11.6vw;
+}
+
+.median-table-cell {
+  height: 4.25vw;
+  border-radius: 0.55vw;
+  border: 0.12vw solid rgba(22, 28, 38, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.2vw;
+  font-weight: 620;
+  line-height: 1.15;
+  text-align: center;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 0.8vw;
+}
+
+button.median-table-cell {
+  font-family: inherit;
+  cursor: default;
+}
+
+button.median-table-cell:not(:disabled) {
+  cursor: pointer;
+}
+
+.header-cell {
+  height: 5.3vw;
+  background: #d9ead2;
+  color: #3d3d3f;
+  font-size: 1.9vw;
+  font-weight: 760;
+}
+
+.header-cell sub {
+  font-size: 0.62em;
+  vertical-align: sub;
+}
+
+.cf-header {
+  font-size: 1.8vw;
+}
+
+.data-cell {
+  background: rgba(126, 143, 151, 0.9);
+}
+
+.freq-cell {
+  background: rgba(55, 124, 170, 0.94);
+}
+
+.cf-cell {
+  background: rgba(84, 47, 89, 0.88);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.cf-cell.filled {
+  background: #e75d9e;
+  color: #fff;
+}
+
+.median-table-cell.active {
+  box-shadow: 0 0 0 0.18vw #ffce54, 0 0 0.55vw rgba(255, 206, 84, 0.7);
+}
+
+.median-table-cell.selectable {
+  font-size: 1.45vw;
+  font-style: italic;
+  color: rgba(34, 38, 43, 0.7);
+}
+
+.median-table-cell.selectable.dropdown-open {
+  color: rgba(34, 38, 43, 0.9);
+  font-size: 1.9vw;
+  font-style: normal;
+}
+
+.freq-cell.selectable {
+  color: rgba(230, 231, 232, 0.78);
+}
+
+.cf-cell.active {
+  opacity: 1;
+  background: #e75d9e;
+  color: #fff;
+  box-shadow: 0 0 0 0.18vw #ffce54, 0 0 0.55vw rgba(255, 206, 84, 0.7);
+}
+
+.cf-cell.waiting {
+  opacity: 0.5;
+}
+
+.cf-cell.wrong {
+  background: #ff4e4e;
+  color: #fff;
+  animation: cell-shake 0.25s ease-in-out 2;
+}
+
+.cf-cell.cf-focus-dim {
+  /* Recede the pink FILL only (a gentle transparency) — the number stays fully white. */
+  background: rgba(231, 93, 158, 0.6);
+  color: #fff;
+  transition: background-color 0.4s ease;
+}
+
+.cf-cell.total-hint-dim {
+  opacity: 0.32;
+  filter: brightness(0.65);
+}
+
+.median-table-cell.total-hint-outer-dim {
+  opacity: 0.22;
+  filter: brightness(0.55);
+}
+
+.cf-cell.total-hint-last {
+  opacity: 1;
+  filter: none;
+  animation: total-hint-blink 1s ease-in-out infinite;
+}
+
+.range-header,
+.range-cell {
+  background: rgba(2, 11, 30, 0.72);
+  color: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.18);
+  opacity: 0;
+  transition: opacity 0.35s ease, background-color 0.35s ease, color 0.35s ease;
+  width: 14vw;
+}
+
+.range-header {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1.75vw;
+}
+
+.range-cell {
+  font-size: 1.75vw;
+  font-weight: 560;
+}
+
+.range-cell sup {
+  font-size: 0.52em;
+  vertical-align: super;
+  line-height: 0;
+  position: relative;
+  bottom: 0.3vw;
+}
+
+.range-visible {
+  opacity: 1;
+}
+
+.range-cell.median-range-highlight {
+  background: rgba(218, 147, 41, 0.3);
+  color: #ffa51f;
+}
+
+/* Repeat-wrong hint: pulse the median-position cell in yellow to point at where the
+   median lies (instead of re-revealing the whole column). */
+@keyframes median-cell-blink {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 206, 84, 0); background: rgba(218, 147, 41, 0.3); }
+  50%      { box-shadow: 0 0 0 0.2vw #ffce54, 0 0 0.85vw rgba(255, 206, 84, 0.95); background: rgba(255, 206, 84, 0.55); }
+}
+.range-cell.median-blink {
+  animation: median-cell-blink 0.55s ease-in-out 3;
+}
+
+.choice-dropdown {
+  position: absolute;
+  z-index: 20;
+  width: 4.25vw;
+  display: flex;
+  flex-direction: column;
+  border: 0.22vw solid #fff;
+  box-shadow: 0 0.25vw 0.6vw rgba(0, 0, 0, 0.4);
+}
+
+.choice-dropdown.data-dropdown {
+  top: 25%;
+  left: 42%;
+}
+
+.choice-dropdown.freq-dropdown {
+  top: 25%;
+  left: 95%;
+}
+
+.choice-option {
+  width: 100%;
+  height: 3.65vw;
+  border: 0;
+  border-bottom: 0.18vw solid white;
+  background: #ffb43d;
+  color: white;
+  font-family: inherit;
+  font-size: 2.6vw;
+  cursor: pointer;
+}
+
+.choice-option:last-child {
+  border-bottom: 0;
+}
+
+.choice-option.wrong {
+  background: #ff4e4e;
+}
+
+.shake {
+  animation: choice-shake 0.5s ease-in-out;
+}
+
+.feedback-card {
+  width: 100%;
+  min-height: 88%;
+  border-radius: 0.7vw;
+  border: 0.16vw dashed #ff8d83;
+  background: rgba(91, 55, 79, 0.92);
+  color: #fff;
+  /* NOT flex: the total-count hint contains an inline <i>n</i>, and flex would make the
+     text nodes on either side of it separate flex items — splitting the sentence into
+     columns and scrambling the reading order. Plain block flow keeps it inline. */
+  display: block;
+  text-align: center;
+  font-size: 2.35vw;
+  line-height: 1.16;
+  padding: 0.7vw 1.2vw;
+}
+
+.cf-feedback-space {
+  /* Give the hint enough room that the longer "next row" text doesn't spill onto the
+     numpad below (which is tightened a touch to keep everything inside the panel). */
+  width: 100%;
+  height: 34%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tighten the numpad's own frame in the CF stage so the bigger feedback space above it
+   doesn't push it past the panel. */
+.cf-action-column .numpad-grid {
+  padding: 0.6vw;
+  gap: 0.4vw;
+}
+
+.cf-feedback-card {
+  width: 100%;
+  min-height: 78%;
+  font-size: 2.3vw;
+  line-height: 1.14;
+}
+
+.step4-action-column {
+  width: 100%;
+  height: 93%;
+  border-radius: 1.1vw;
+  background: rgba(1, 10, 28, 0.84);
+  display: grid;
+  grid-template-rows: 24% 36% 40%;
+  align-items: center;
+  justify-items: center;
+  padding: 1.5vw 1.6vw;
+  gap: 0.55vw;
+  position: relative;
+}
+
+.step5-action-column {
+  grid-template-rows: 17% 34% 17% 32%;
+}
+
+.step4-math-row,
+.step4-feedback-row,
+.step4-control-row {
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.n-equation {
+  width: 88%;
+  height: 72%;
+  border-radius: 0.65vw;
+  background: rgba(25, 35, 57, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.45vw;
+  padding: 0 2.2vw;
+}
+
+.n-label {
+  color: #fff;
+  font-size: 2vw;
+  font-weight: 750;
+}
+
+.n-answer-box {
+  width: 7.4vw;
+  height: 4.25vw;
+  border-radius: 0.55vw;
+  background: #e75d9e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.45vw;
+  font-weight: 720;
+  box-shadow: inset 0 0.08vw 0 rgba(255, 255, 255, 0.18), 0 0.18vw 0.35vw rgba(0, 0, 0, 0.35);
+}
+
+.n-answer-box.active {
+  box-shadow: inset 0 0.08vw 0 rgba(255, 255, 255, 0.18), 0 0 0 0.18vw #ffce54, 0 0 0.55vw rgba(255, 206, 84, 0.72);
+}
+
+.n-answer-box.wrong {
+  background: #ff4e4e;
+  animation: cell-shake 0.25s ease-in-out 2;
+}
+
+.step4-feedback-card {
+  width: 100%;
+  min-height: 80%;
+  font-size: 1.95vw;
+}
+
+.middle-position-label {
+  width: 88%;
+  height: 70%;
+  border-radius: 0.55vw;
+  background: rgba(25, 35, 57, 0.72);
+  color: #fff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.9vw;
+  font-size: 2vw;
+  font-weight: 760;
+}
+
+.formula-option.step4-transfer-target {
+  width: 92%;
+  height: 5.15vw;
+  background: rgba(91, 73, 51, 0.96);
+  border-color: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.step4-transfer-target.transfer-pending {
+  opacity: 0;
+}
+
+.step4-transfer-target.transfer-done {
+  opacity: 1;
+}
+
+.step5-median-position-row {
+  width: 88%;
+  height: 100%;
+  border-radius: 0.55vw;
+  background: rgba(25, 35, 57, 0.72);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65vw;
+  padding: 0.75vw 1vw;
+  overflow: hidden;
+}
+
+.step5-position-label {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1.95vw;
+  /* Never let the flex column crush the label — if the box runs short the label must keep
+     its full text height, otherwise the options collapse on top of "Posisi median". */
+  flex-shrink: 0;
+}
+
+.formula-option.median-position-box {
+  height: 5.2vw;
+  background: rgba(91, 73, 51, 0.96);
+  border-color: transparent;
+  transform: translateY(0);
+  /* Visible from the first frame of step 5 so it carries over from the step-4 answer
+     slot instead of fading in (the "blink"). `.fading` still handles the value
+     cross-fade as n resolves to 13. */
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.median-position-box.slide-in {
+  opacity: 1;
+}
+
+/* --- Step 4 formula question: "Median position" label + a long placeholder box that
+   the chosen formula flies into while it shrinks to its compact size. --- */
+.step4-action-column.step4-formula-mode {
+  /* Rows 1 & 2 match step 5's grid exactly (17% n, 34% median), so when the calculation
+     opens neither the n box nor the "Median position" box jumps — step 5 just fills the
+     rows below (median entry + numpad). Row 3 (49%) holds the two options during the
+     question and the wrong-answer hint. */
+  grid-template-rows: 17% 34% 49%;
+}
+
+/* The median box now grows past its 34% track (into the empty row 3) to fit both options,
+   so on a wrong answer the hint must sit at the BOTTOM of row 3 — otherwise the row centres
+   it and it slides up under the taller box. There's ample room below (row 3 ends near the
+   column floor), so bottom-anchoring keeps a clean gap without clipping. */
+.step4-action-column.step4-formula-mode .step4-feedback-row {
+  /* The column grid centres each row in its track (align-items:center), so the hint must
+     bottom-anchor as a grid item to drop below the taller box. */
+  align-self: end;
+}
+
+/* The "Median position" box holds the answer slot (top) + the two options. */
+.step4-median-block {
+  width: 90%;
+  /* TOP-anchored in its cell so the label stays put as the box shrinks. */
+  align-self: start;
+  /* Size to the label + two options. The cell is only 34% tall (matched to step 5 so the
+     box doesn't jump on advance), which can't hold both options — but the feedback row
+     below is empty during the question, so the top-anchored box is free to extend into it
+     instead of crushing its own contents. */
+  max-height: none;
+  border-radius: 0.6vw;
+  /* Same dark container step 5 uses (only the dashed border marks it as a target while
+     the options are inside), so the auto-advance never flashes a different background. */
+  background: rgba(25, 35, 57, 0.72);
+  border: 0.18vw dashed rgba(255, 206, 84, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7vw;
+  padding: 0.85vw 0.9vw;
+  transition: background-color 0.4s ease, border-color 0.4s ease, gap 0.4s ease;
+  /* Animate the box in when the formula question opens (instead of popping). */
+  animation: step4-block-in 0.6s var(--ease-pop, cubic-bezier(0.2,0.9,0.3,1.2)) both;
+  transform-origin: top center;
+}
+
+@keyframes step4-block-in {
+  0%   { opacity: 0; transform: translateY(2.6vw) scale(0.88); }
+  55%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* resolved: the answer has landed — become the SAME dark container step 5 uses, so the
+   auto-advance into the calculation doesn't flash a different background. */
+.step4-median-block.resolved {
+  background: rgba(25, 35, 57, 0.72);
+  border-color: transparent;
+  gap: 0.4vw;
+}
+.step4-median-block .step5-position-label { color: #fff; }
+
+/* the two options live directly inside the box — no placeholder slot. */
+.step4-options-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  /* Keep the options at full height too — pairs with the label's flex-shrink:0 so a short
+     box grows downward rather than squeezing the two options into the label. */
+  flex-shrink: 0;
+}
+.step4-options-wrap .formula-options {
+  width: 100%;
+}
+
+/* the correct option becomes the answer: it turns to the solid median style (same as
+   step 5's box, so the flow into the calculation is seamless) and stays under the label. */
+.formula-option.chosen {
+  background: rgba(91, 73, 51, 0.96);
+  border-color: transparent;
+  cursor: default;
+}
+
+/* the wrong option collapses away so the correct one snaps up right under the label. */
+.formula-option.option-gone {
+  /* NOTE: no `max-height: 0` — max-height isn't transitioned, so it would clamp the box
+     to 0 instantly and defeat the height animation. Let `height` (transitioned on the
+     base) glide to 0 so the box shrinks smoothly. */
+  min-height: 0;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  border-width: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.median-position-box.fading {
+  opacity: 0;
+}
+
+.step5-median-entry-row,
+.step5-numpad-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.median-equation {
+  width: 88%;
+  height: 80%;
+  border-radius: 0.55vw;
+  background: rgba(25, 35, 57, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.35vw;
+  padding: 0 2.2vw;
+}
+
+.median-label {
+  color: #fff;
+  font-size: 2vw;
+  font-weight: 760;
+}
+
+.median-answer-box {
+  width: 7.4vw;
+  height: 4.25vw;
+  border-radius: 0.55vw;
+  background: #65b7df;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.45vw;
+  font-weight: 720;
+  box-shadow: inset 0 0.08vw 0 rgba(255, 255, 255, 0.18), 0 0.18vw 0.35vw rgba(0, 0, 0, 0.35);
+}
+
+.median-answer-box.active {
+  box-shadow: inset 0 0.08vw 0 rgba(255, 255, 255, 0.18), 0 0 0 0.18vw #ffce54, 0 0 0.55vw rgba(255, 206, 84, 0.72);
+}
+
+.median-answer-box.wrong {
+  background: #ff4e4e;
+  animation: cell-shake 0.25s ease-in-out 2;
+}
+
+.median-answer-box.correct {
+  background: #94cf54;
+}
+
+.flying-n-clone {
+  position: absolute;
+  z-index: 30;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 2.45vw;
+  font-weight: 760;
+  pointer-events: none;
+  transition: transform 0.7s ease;
+  text-shadow: 0 0.16vw 0.28vw rgba(0, 0, 0, 0.45);
+}
+
+.flying-n-clone.active {
+  transform: translate(calc(-50% + var(--fly-x)), calc(-50% + var(--fly-y))) scale(var(--fly-scale, 1));
+}
+
+.flat-numpad {
+  width: 92%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(2, 3.4vw);
+  gap: 0.38vw;
+}
+
+.flat-numpad-button {
+  border: 0.12vw solid rgba(0, 0, 0, 0.45);
+  border-radius: 0.45vw;
+  background: linear-gradient(145deg, rgba(74, 61, 43, 0.98), rgba(51, 43, 36, 0.98));
+  color: white;
+  font-family: inherit;
+  font-size: 2vw;
+  font-weight: 760;
+  cursor: pointer;
+  box-shadow: 0 0.15vw 0.3vw rgba(0, 0, 0, 0.38);
+}
+
+.flat-numpad-button.submit {
+  background: linear-gradient(145deg, #ffad25, #f3940d);
+}
+
+.flat-numpad-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.formula-options {
+  width: 92%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75vw;
+}
+
+.formula-option {
+  width: 100%;
+  height: 5.15vw;
+  border: 0.16vw solid rgba(181, 99, 0, 0.62);
+  border-radius: 0.75vw;
+  background: linear-gradient(180deg, #ffad2b, #f59a16);
+  color: white;
+  font-family: inherit;
+  font-size: 2vw;
+  font-weight: 760;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.3vw;
+  cursor: pointer;
+  text-shadow: 0 0.16vw 0.28vw rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 0.1vw 0 rgba(255, 255, 255, 0.16), 0 0.18vw 0.35vw rgba(0, 0, 0, 0.35);
+  /* on the base so the collapse (.option-gone) and colour change (.chosen) animate. */
+  transition: height 0.4s ease, opacity 0.3s ease, margin 0.4s ease,
+              padding 0.4s ease, border-width 0.4s ease, background 0.3s ease;
+}
+
+.formula-option.wrong {
+  background: linear-gradient(180deg, #ff5b5b, #ef4545);
+  border-color: #ff7777;
+}
+
+.formula-option.correct {
+  background: linear-gradient(180deg, #9dd462, #7fc03e);
+  border-color: #a8dc72;
+}
+
+.formula-option.transferring {
+  opacity: 0;
+}
+
+.formula-option:disabled {
+  opacity: 1;
+}
+
+.formula-option.transferring:disabled {
+  opacity: 0;
+}
+
+.flying-formula-clone {
+  position: absolute;
+  z-index: 32;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.3vw;
+  color: #fff;
+  font-size: 2vw;
+  font-weight: 760;
+  line-height: 1;
+  text-shadow: 0 0.16vw 0.28vw rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  transition: transform 0.7s ease, opacity 0.18s ease 0.52s;
+}
+
+.flying-formula-clone.active {
+  opacity: 0;
+  transform:
+    translate(calc(-50% + var(--formula-fly-x)), calc(-50% + var(--formula-fly-y)));
+}
+
+.formula-core {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* font-family: Georgia, "Times New Roman", serif; */
+  /* font-style: italic; */
+  font-weight: 760;
+  line-height: 1;
+}
+
+.paren {
+  font-size: 3.1vw;
+  font-weight: 400;
+}
+
+.stacked-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4vw;
+  font-size: 1.45vw;
+  line-height: 1;
+}
+
+.fraction-top,
+.fraction-bottom {
+  display: block;
+}
+
+.fraction-bar {
+  width: 100%;
+  height: 0.12vw;
+  background: currentColor;
+  margin: 0.16vw 0;
+}
+
+.formula-sup {
+  font-size: 1.3vw;
+  margin-left: 0.2vw;
+  align-self: flex-start;
+}
+
+.formula-prefix {
+  font-size: 2vw;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.formula-suffix {
+  font-size: 2.2vw;
+  font-weight: 700;
+  line-height: 1;
+  max-width: 10vw;
+}
+
+.question-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  min-width: 3.4vw;
+  margin: 0 0.25vw;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.question-fraction-top,
+.question-fraction-bottom {
+  display: block;
+}
+
+.question-fraction-bar {
+  width: 100%;
+  height: 0.12vw;
+  background: currentColor;
+  margin: 0.12vw 0;
+}
+
+.final-canvas-container {
+  justify-content: center;
+}
+
+.final-stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  align-items: center;
+  transition: grid-template-columns 0.65s ease;
+}
+
+.final-stage.entering {
+  grid-template-columns: 65% 35%;
+}
+
+.final-stage.entering .final-text-column {
+  opacity: 0;
+  transform: translateX(1.5vw);
+}
+
+.final-stage.settled .final-text-column {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.final-table-column,
+.final-text-column {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.final-table-wrap {
+  position: relative;
+  /* width: 33vw; */
+  /* padding-left: 4.6vw; */
+  /* padding-bottom: 4.5vw; */
+}
+
+.final-table {
+  gap: 0.28vw;
+}
+
+.final-table.median-table.with-cf .median-table-row {
+  grid-template-columns: 9.8vw 12.4vw 12.4vw;
+  gap: 0.25vw;
+}
+
+.final-stage.entering .final-table.median-table.with-cf .median-table-row {
+  grid-template-columns: 13.2vw 16.5vw 16.5vw;
+  gap: 0.42vw;
+}
+
+.final-table .median-table-cell {
+  /* height: 3.05vw; */
+  /* border-radius: 0.36vw; */
+  /* font-size: 1.65vw; */
+  /* padding: 0 0.45vw; */
+  transition: height 0.65s ease, width 0.65s ease, font-size 0.65s ease, border-radius 0.65s ease, padding 0.65s ease, background-color 0.35s ease, color 0.35s ease;
+}
+
+.final-stage.entering .final-table .median-table-cell {
+  height: 4.25vw;
+  border-radius: 0.55vw;
+  font-size: 2.2vw;
+  padding: 0 0.8vw;
+}
+
+.final-table .header-cell {
+  height: 4vw;
+  font-size: 1.7vw;
+}
+
+.final-stage.entering .final-table .header-cell {
+  height: 5.3vw;
+  font-size: 1.9vw;
+}
+
+.final-table .cf-header {
+  font-size: 1.6vw;
+}
+
+.final-stage.entering .final-table .cf-header {
+  font-size: 1.8vw;
+}
+
+.final-table .final-median-cell {
+  background: rgba(135, 95, 42, 0.92);
+  color: #ffa51f;
+  font-weight: 820;
+}
+
+.final-stage.entering .final-table .final-median-cell {
+  background: rgba(126, 143, 151, 0.9);
+  color: white;
+}
+
+.final-median-arrow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease 0.55s;
+}
+
+.final-stage.entering .final-median-arrow {
+  opacity: 0;
+}
+
+.final-median-arrow-line {
+  stroke: #ffa51f;
+}
+
+.final-median-label {
+  position: absolute;
+  left: 4.4vw;
+  bottom: -5vw;
+  background: #ffa51f;
+  color: #000;
+  font-size: 2vw;
+  font-weight: 820;
+  line-height: 1;
+  padding: 0.55vw 0.85vw;
+  opacity: 1;
+  transition: opacity 0.3s ease 0.55s;
+}
+
+.final-stage.entering .final-median-label {
+  opacity: 0;
+}
+
+.final-text-column {
+  color: white;
+  text-align: center;
+  font-size: 2.35vw;
+  line-height: 1.32;
+  padding: 0 3.5vw 3vw 1vw;
+  transition: opacity 0.45s ease 0.25s, transform 0.45s ease 0.25s;
+  /* display: block; */
+}
+
+.final-text-column i {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.formula-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 15;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.formula-overlay polygon {
+  fill: rgba(255, 255, 255, 0.22);
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 0.18vw;
+  stroke-dasharray: 0.7vw 0.45vw;
+}
+
+.formula-hint-source {
+  color: #ffe86a !important;
+  text-shadow: 0 0 0.32vw rgba(255, 232, 106, 0.82), 0 0 0.72vw rgba(255, 190, 50, 0.46) !important;
+}
+
+.formula-plus {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 16;
+  color: #ffe86a;
+  font-size: 2.8vw;
+  font-weight: 800;
+  pointer-events: none;
+  text-shadow: 0 0 0.32vw rgba(255, 232, 106, 0.86), 0 0 0.72vw rgba(255, 190, 50, 0.48);
+}
+
+@keyframes choice-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.28vw); }
+  40% { transform: translateX(0.28vw); }
+  60% { transform: translateX(-0.2vw); }
+  80% { transform: translateX(0.2vw); }
+}
+
+@keyframes cell-shake {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(0.28vw); }
+}
+
+@keyframes total-hint-blink {
+  0%, 100% {
+    box-shadow: 0 0 0 0.16vw rgba(255, 206, 84, 0.52), 0 0 0.45vw rgba(255, 206, 84, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 0.24vw #ffce54, 0 0 0.8vw rgba(255, 206, 84, 0.82);
+  }
+}

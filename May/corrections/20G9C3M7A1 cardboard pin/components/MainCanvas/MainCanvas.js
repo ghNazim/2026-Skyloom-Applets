@@ -20,7 +20,16 @@ function normalizeAngleDelta(delta) {
   return delta;
 }
 
+function normalizeDisplayRotation(rotationDeg) {
+  if (Math.abs(rotationDeg) < 0.5) return rotationDeg;
+  const sign = rotationDeg >= 0 ? 1 : -1;
+  const remainder = Math.abs(rotationDeg) % 360;
+  if (remainder < 0.5) return sign * 360;
+  return sign * remainder;
+}
+
 function describeSector(cx, cy, r, startRad, rotationDeg) {
+  rotationDeg = normalizeDisplayRotation(rotationDeg);
   if (Math.abs(rotationDeg) < 0.5) return "";
   const rotationRad = (rotationDeg * Math.PI) / 180;
   const sweep = rotationDeg >= 0 ? 1 : 0;
@@ -35,6 +44,7 @@ function describeSector(cx, cy, r, startRad, rotationDeg) {
 }
 
 function describeArc(cx, cy, r, startRad, rotationDeg) {
+  rotationDeg = normalizeDisplayRotation(rotationDeg);
   if (Math.abs(rotationDeg) < 0.5) return "";
 
   const rotationRad = (rotationDeg * Math.PI) / 180;
@@ -62,6 +72,7 @@ function describeArc(cx, cy, r, startRad, rotationDeg) {
 }
 
 function buildArcArrow(cx, cy, r, startRad, rotationDeg, headLen) {
+  rotationDeg = normalizeDisplayRotation(rotationDeg);
   if (Math.abs(rotationDeg) < 0.5) return null;
 
   const rotationRad = (rotationDeg * Math.PI) / 180;

@@ -16,7 +16,7 @@ const Fullscreen = ({
     topContent || null,
     React.createElement("p", {
       className: "fullscreen-content " + (left ? "left" : "center"),
-      dangerouslySetInnerHTML: { __html: formatSuperscriptOrdinals(text) },
+      dangerouslySetInnerHTML: { __html: formatDisplayText(text) },
     })
   );
 

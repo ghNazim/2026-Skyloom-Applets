@@ -27,7 +27,16 @@ const SummaryCanvas = (function () {
   const DIRECTION_EMPHASIS_MS = 4300;
   const ANGLE_EMPHASIS_MS = 3000;
 
+  function normalizeDisplayRotation(rotationDeg) {
+    if (Math.abs(rotationDeg) < 0.5) return rotationDeg;
+    const sign = rotationDeg >= 0 ? 1 : -1;
+    const remainder = Math.abs(rotationDeg) % 360;
+    if (remainder < 0.5) return sign * 360;
+    return sign * remainder;
+  }
+
   function describeSector(cx, cy, r, startRad, rotationDeg) {
+    rotationDeg = normalizeDisplayRotation(rotationDeg);
     if (Math.abs(rotationDeg) < 0.5) return "";
     const rotationRad = (rotationDeg * Math.PI) / 180;
     const sweep = rotationDeg >= 0 ? 1 : 0;
@@ -60,6 +69,7 @@ const SummaryCanvas = (function () {
   }
 
   function buildDirectionArc(cx, cy, r, startRad, rotationDeg) {
+    rotationDeg = normalizeDisplayRotation(rotationDeg);
     if (Math.abs(rotationDeg) < 8) return null;
     const rotationRad = (rotationDeg * Math.PI) / 180;
     const endRad = startRad + rotationRad;

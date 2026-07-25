@@ -93,13 +93,92 @@
   font-size: 2.45vw;
 }
 
-.eq2-row, .eq3-row {
-  animation: fadeSlideUp 0.5s ease forwards;
+.eq2-row.eq-row-visible,
+.eq3-row.eq-row-visible {
+  opacity: 1;
 }
 
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(0.8vw); }
-  to { opacity: 1; transform: translateY(0); }
+.fraction-num-empty {
+  display: inline-block;
+  min-width: 12.5vw;
+  min-height: 4.8vw;
+}
+
+.num-stagger-fade {
+  transition: opacity 0.22s ease;
+}
+
+.eq3-result-slot {
+  display: inline-block;
+  min-width: 12.5vw;
+  min-height: 4.8vw;
+}
+
+.fly-element-clone {
+  pointer-events: none;
+}
+
+/* Flip card reveal */
+.flip-card {
+  background-color: transparent;
+  width: 12.5vw;
+  height: 4.8vw;
+  perspective: 600px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.8vw;
+  box-sizing: border-box;
+}
+
+.flip-card-front {
+  transform: rotateY(0deg);
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+.reveal-flip-card .flip-card-front {
+  width: 100%;
+  height: 100%;
+}
+
+.reveal-flip-card .flip-card-back.flip-card-back-revealed {
+  background: rgba(34, 197, 94, 0.35);
+  border: 2px solid #4ade80;
+  color: #bbf7d0;
+  font-weight: bold;
+  font-size: inherit;
+}
+
+.reveal-flip-card-done {
+  cursor: default;
+  pointer-events: none;
 }
 
 .formula-equals {
@@ -129,14 +208,14 @@
   background: rgba(255, 255, 255, 0.14);
   color: white;
   font-weight: 700;
-  padding: 0.6vw 1.1vw;
+  /* padding: 0.6vw 1.1vw; */
   border-radius: 0.4vw;
   font-style: italic;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 3.35vw;
-  min-height: 3.2vw;
+  width: 5.2vw;
+  height: 4.8vw;
   font-size: 1.2em;
   line-height: 1;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -216,17 +295,22 @@
   color: white;
   font-weight: 700;
   font-size: inherit;
-  padding: 0.2vw 0.3vw;
+  /* padding: 0.2vw 0.3vw; */
+  width: 5.2vw;
+  height: 4.8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Empty box (dashed) */
 .empty-box {
   border: 0.2vw dashed rgba(255, 255, 255, 1);
   border-radius: 0.4vw;
-  padding: 0.6vw 1.1vw;
+  /* padding: 0.6vw 1.1vw; */
   min-width: 5vw;
   width: 5.2vw;
-  height: 4.6vw;
+  height: 4.8vw;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -303,16 +387,17 @@
   border: 1px solid var(--button-border-color);
   color: var(--white-color);
   font-weight: bold;
-  padding: 0.6vw 1.6vw;
   border-radius: 0.8vw;
   cursor: pointer;
   font-size: inherit;
-  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
-  display: inline-block;
+  transition: transform 0.2s, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   box-sizing: border-box;
-  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
-    0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+  width: 12.5vw;
+  height: 4.8vw;
 }
 
 .reveal-box:hover {
@@ -353,7 +438,7 @@
   align-items: center;
   justify-content: center;
   min-width: 4.5vw;
-  min-height: 3.5vw;
+  min-height: 4.8vw;
   padding: 0.2vw 0.6vw;
   border: 0.2vw dashed rgba(255, 255, 255, 0.55);
   border-radius: 0.4vw;

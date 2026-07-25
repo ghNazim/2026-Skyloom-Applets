@@ -1,0 +1,23 @@
+.nudge-overlay {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10050;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.nudge-tap-img {
+  position: absolute;
+  right: -0.1vw;
+  bottom: -0.1vw;
+  width: 4.6vw;
+  height: 4.6vw;
+  object-fit: contain;
+  opacity: 0.55;
+  user-select: none;
+  /* Sit ON the target's bottom-right corner instead of hanging far outside it — the old
+     translate(35%,15%) pushed the gif off a corner button (the Next chevron) so it got
+     clipped by the viewport and overlapped the nav text. A tiny nudge keeps it attached
+     without spilling past the edge. */
+  transform: translate(8%, 6%);
+}

@@ -1,5 +1,5 @@
 const audioCache = {};
-const sounds = ["correct", "wrong", "click"];
+const sounds = ["correct", "wrong", "click", "congrats"];
 sounds.forEach((name) => {
   const audio = new Audio("sound/" + name + ".mp3");
   audio.load();

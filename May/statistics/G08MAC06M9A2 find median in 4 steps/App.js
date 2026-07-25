@@ -3,10 +3,12 @@ const App = () => {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [dynamicNavText, setDynamicNavText] = useState(null);
   const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
   const [resetKey, setResetKey] = useState(0);
   const [challengeIndex, setChallengeIndex] = useState(0);
+  const practicePrevRef = React.useRef(null);
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
@@ -28,6 +30,7 @@ const App = () => {
     setDynamicNavText(null);
     setDynamicQuestionText(null);
     setIsNextDisabled(true);
+    setIsAnimating(false);
   }, [currentStep]);
 
   const handleNext = () => {
@@ -52,11 +55,19 @@ const App = () => {
   };
 
   const handlePrev = () => {
+    if (isAnimating) return;
     if (typeof playSound === "function") playSound("click");
+    if (currentStep === 2 && practicePrevRef.current) {
+      if (practicePrevRef.current()) return;
+    }
     if (currentStep > 1) {
       setCurrentStep(function (prev) { return prev - 1; });
     }
   };
+
+  const registerPracticePrev = useCallback(function (handler) {
+    practicePrevRef.current = handler;
+  }, []);
 
   const setNextEnabled = useCallback(function (enabled) {
     setIsNextDisabled(!enabled);
@@ -68,6 +79,10 @@ const App = () => {
 
   const updateQuestionText = useCallback(function (text) {
     setDynamicQuestionText(text);
+  }, []);
+
+  const setAnimating = useCallback(function (animating) {
+    setIsAnimating(!!animating);
   }, []);
 
   const getQuestionText = () => {
@@ -138,6 +153,8 @@ const App = () => {
         onSetNextEnabled: setNextEnabled,
         onUpdateNavText: updateNavText,
         onUpdateQuestionText: updateQuestionText,
+        onSetAnimating: setAnimating,
+        onRegisterPracticePrev: registerPracticePrev,
       })
     ),
     React.createElement(
@@ -149,7 +166,7 @@ const App = () => {
           else if (dir === "prev") handlePrev();
         },
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: currentStep <= 1,
+        isPrevDisabled: currentStep <= 1 || isAnimating,
         navText: getNavText(),
       })
     )
