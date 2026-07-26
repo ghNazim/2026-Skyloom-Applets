@@ -136,6 +136,41 @@ function playDilationPickup() {
   osc.stop(t + 0.15);
 }
 
+function playDilationSettle() {
+  if (!dilationAudioCtx) return;
+  resumeDilationAudio();
+  const t = dilationAudioCtx.currentTime;
+  const osc = dilationAudioCtx.createOscillator();
+  const gain = dilationAudioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(dilationAudioCtx.destination);
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(340, t);
+  osc.frequency.exponentialRampToValueAtTime(260, t + 0.09);
+  gain.gain.setValueAtTime(0.1, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+  osc.start(t);
+  osc.stop(t + 0.12);
+}
+
+function playDilationDragTick(k) {
+  if (!dilationAudioCtx) return;
+  resumeDilationAudio();
+  const t = dilationAudioCtx.currentTime;
+  const osc = dilationAudioCtx.createOscillator();
+  const gain = dilationAudioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(dilationAudioCtx.destination);
+  osc.type = "sine";
+  const clamped = Math.max(0.1, Math.min(2, k));
+  const freq = 200 + ((clamped - 0.1) / 1.9) * 380;
+  osc.frequency.setValueAtTime(freq, t);
+  gain.gain.setValueAtTime(0.06, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+  osc.start(t);
+  osc.stop(t + 0.04);
+}
+
 function playDilationSweep(duration) {
   if (!dilationAudioCtx) return;
   resumeDilationAudio();

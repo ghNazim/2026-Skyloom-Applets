@@ -1,7 +1,7 @@
 const App = () => {
   const { useState, useMemo, useEffect, useCallback, useRef } = React;
 
-  const [currentStep, setCurrentStep] = useState(6);
+  const [currentStep, setCurrentStep] = useState(0);
   const [sliderK, setSliderK] = useState(INTRO_SLIDER.default);
   const [visualK, setVisualK] = useState(INTRO_SLIDER.default);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -15,7 +15,6 @@ const App = () => {
   const [step3Reduced, setStep3Reduced] = useState(false);
   const [step1Enlarged, setStep1Enlarged] = useState(false);
   const [sliderDragStarted, setSliderDragStarted] = useState(false);
-  const [step7Answered, setStep7Answered] = useState(false);
   const [pointStates, setPointStates] = useState({});
   const [pointFeedback, setPointFeedback] = useState(null);
   const [step8Answered, setStep8Answered] = useState(false);
@@ -28,6 +27,7 @@ const App = () => {
   const visualKRef = useRef(visualK);
   const mcqVisibleRef = useRef(mcqVisible);
   const mcqAnsweredRef = useRef(mcqAnswered);
+  const lastDragTickRef = useRef(0);
   stepRef.current = currentStep;
   visualKRef.current = visualK;
   mcqVisibleRef.current = mcqVisible;
@@ -172,7 +172,6 @@ const App = () => {
     setStep3Reduced(false);
     setStep1Enlarged(false);
     setSliderDragStarted(false);
-    setStep7Answered(false);
     setPointStates({});
     setPointFeedback(null);
     setStep8Answered(false);
@@ -191,7 +190,6 @@ const App = () => {
       setNudgePositions([]);
       setStep3Done(false);
       setStep3Reduced(false);
-      setStep7Answered(false);
       setPointStates({});
       setPointFeedback(null);
       setStep8Answered(false);
@@ -282,12 +280,34 @@ const App = () => {
     return { min: 1, max: 1, center: 1 };
   }, [currentStep]);
 
-  const handleKChange = useCallback((val) => {
-    setSliderK(val);
+  const applyVisualK = useCallback((k) => {
+    setVisualK(k);
+    visualKRef.current = k;
+    setShowGhost(Math.abs(k - 1) > 0.02);
   }, []);
+
+  const handleKChange = useCallback(
+    (val) => {
+      setSliderK(val);
+      applyVisualK(val);
+
+      const step = stepRef.current;
+      if (step === 1 && val > 1) setStep1Enlarged(true);
+      if (step === 3 && val < 0.98) setStep3Reduced(true);
+
+      const now = performance.now();
+      if (now - lastDragTickRef.current > 55) {
+        playDilationDragTick(val);
+        lastDragTickRef.current = now;
+      }
+    },
+    [applyVisualK],
+  );
 
   const handleKDragStart = useCallback(() => {
     setSliderDragStarted(true);
+    lastDragTickRef.current = 0;
+    playDilationPickup();
   }, []);
 
   const handleKRelease = useCallback(
@@ -295,6 +315,8 @@ const App = () => {
       const cfg = getSliderConfig();
       let val = rawVal;
       const step = stepRef.current;
+
+      cancelAnimation();
 
       if (step === 1) {
         val = snapKNearEdge(val, cfg.min, cfg.max);
@@ -309,21 +331,19 @@ const App = () => {
       }
 
       setSliderK(val);
+      applyVisualK(val);
+      playDilationSettle();
 
-      runDilationAnim(visualKRef.current, val, (finalK) => {
-        const stepAtEnd = stepRef.current;
-        const introCfg = INTRO_SLIDER;
-        const atStep3Goal =
-          stepAtEnd === 3 && Math.abs(finalK - introCfg.min) < 0.02;
+      const atStep3Goal =
+        step === 3 && Math.abs(val - INTRO_SLIDER.min) < 0.02;
 
-        handleSliderReleaseComplete(finalK);
+      handleSliderReleaseComplete(val);
 
-        if (!atStep3Goal) {
-          setSliderDragStarted(false);
-        }
-      });
+      if (!atStep3Goal) {
+        setSliderDragStarted(false);
+      }
     },
-    [getSliderConfig, runDilationAnim, handleSliderReleaseComplete],
+    [getSliderConfig, cancelAnimation, applyVisualK, handleSliderReleaseComplete],
   );
 
   const handleMcqSelect = useCallback(
@@ -338,20 +358,6 @@ const App = () => {
         mcqAnsweredRef.current = true;
         setSliderLocked(false);
         cancelAnimation();
-
-        if (step === 5) {
-          scheduleStepWork(() => {
-            resetMcq();
-            setCurrentStep(6);
-          }, 500);
-        } else if (step === 6) {
-          scheduleStepWork(() => {
-            resetMcq();
-            setCurrentStep(7);
-          }, 500);
-        } else if (step === 7) {
-          setStep7Answered(true);
-        }
       } else {
         if (typeof playSound === "function") playSound("wrong");
         setMcqWrongIndices((prev) =>
@@ -367,12 +373,10 @@ const App = () => {
     },
     [
       mcqKey,
-      resetMcq,
       runDilationAnim,
       sliderK,
       snapVisualK,
       cancelAnimation,
-      scheduleStepWork,
     ],
   );
 
@@ -441,15 +445,16 @@ const App = () => {
     }
     if (currentStep === 6) {
       resetMcq();
-      setSliderK(SCALE_SLIDER.max);
-      setVisualK(SCALE_SLIDER.max);
-      visualKRef.current = SCALE_SLIDER.max;
-      setShowGhost(true);
       setIsAnimating(false);
+      setShowGhost(Math.abs(visualKRef.current - 1) > 0.02);
     }
     if (currentStep === 7) {
       resetMcq();
-      setStep7Answered(false);
+      setSliderK(SCALE_SLIDER.center);
+      setVisualK(SCALE_SLIDER.center);
+      visualKRef.current = SCALE_SLIDER.center;
+      setShowGhost(false);
+      setIsAnimating(false);
     }
     if (currentStep === 8) {
       resetMcq();
@@ -471,7 +476,16 @@ const App = () => {
   const sliderCfg = getSliderConfig();
 
   const questionText = useMemo(() => {
-    if (currentStep >= 5 && currentStep <= 7 && mcqVisible) {
+    if (currentStep === 5 && mcqAnswered) {
+      return APP_DATA.steps[5].questionTextDone;
+    }
+    if (currentStep === 6 && mcqAnswered) {
+      return APP_DATA.steps[6].questionTextDone;
+    }
+    if (currentStep === 7 && mcqAnswered) {
+      return APP_DATA.steps[7].questionTextAfter;
+    }
+    if (currentStep >= 5 && currentStep <= 7) {
       return APP_DATA.steps[5].questionText;
     }
     if (currentStep === 1 && step1Enlarged) {
@@ -480,9 +494,6 @@ const App = () => {
     if (currentStep === 3 && step3Reduced) {
       return APP_DATA.steps[3].questionTextAfter;
     }
-    if (currentStep === 7 && step7Answered) {
-      return APP_DATA.steps[7].questionTextAfter;
-    }
     if (currentStep === 8 && step8Answered) {
       return APP_DATA.steps[8].questionTextAfter;
     }
@@ -490,16 +501,24 @@ const App = () => {
     return s ? s.questionText : "";
   }, [
     currentStep,
-    mcqVisible,
+    mcqAnswered,
     step1Enlarged,
     step3Reduced,
-    step7Answered,
     step8Answered,
   ]);
 
   const navText = useMemo(() => {
-    if (currentStep >= 5 && currentStep <= 7 && mcqVisible) {
+    if (currentStep >= 5 && currentStep <= 7 && mcqVisible && !mcqAnswered) {
       return handleComma(APP_DATA.mcqNavText || "Tap the correct option");
+    }
+    if (currentStep === 5 && mcqAnswered) {
+      return handleComma(APP_DATA.steps[5].navDone);
+    }
+    if (currentStep === 6 && mcqAnswered) {
+      return handleComma(APP_DATA.steps[6].navDone);
+    }
+    if (currentStep === 7 && mcqAnswered) {
+      return handleComma(APP_DATA.steps[7].navTextAfter);
     }
     if (currentStep === 3) {
       return handleComma(
@@ -507,9 +526,6 @@ const App = () => {
           ? APP_DATA.steps[3].navTextDone
           : APP_DATA.steps[3].navTextInitial,
       );
-    }
-    if (currentStep === 7 && step7Answered) {
-      return handleComma(APP_DATA.steps[7].navTextAfter);
     }
     if (currentStep === 8) {
       return handleComma(
@@ -519,17 +535,24 @@ const App = () => {
       );
     }
     const s = APP_DATA.steps[currentStep];
-    return s && s.navText ? handleComma(s.navText) : s && s.navTextInitial ? handleComma(s.navTextInitial) : "";
-  }, [currentStep, mcqVisible, step3Done, step7Answered, step8Answered]);
+    if (currentStep === 7) {
+      return handleComma(s.navTextInitial);
+    }
+    return s && s.navText ? handleComma(s.navText) : "";
+  }, [currentStep, mcqVisible, mcqAnswered, step3Done, step8Answered]);
 
   const isNextDisabled = useMemo(() => {
     if (currentStep === 1 || currentStep === 2) return true;
     if (currentStep === 3 && !step3Done) return true;
-    if (currentStep === 5 || currentStep === 6) return true;
-    if (currentStep === 7 && !step7Answered) return true;
+    if (
+      (currentStep === 5 || currentStep === 6 || currentStep === 7) &&
+      !mcqAnswered
+    ) {
+      return true;
+    }
     if (currentStep === 8 && !step8Answered) return true;
     return false;
-  }, [currentStep, step3Done, step7Answered, step8Answered]);
+  }, [currentStep, step3Done, mcqAnswered, step8Answered]);
 
   const isPrevDisabled = currentStep === 1;
 
@@ -537,7 +560,7 @@ const App = () => {
     if (typeof playSound === "function") playSound("click");
     if (isNextDisabled) return;
     setNudgePositions([]);
-    if (currentStep === 7 || currentStep === 8) {
+    if (currentStep === 5 || currentStep === 6 || currentStep === 7 || currentStep === 8) {
       resetMcq();
     }
     if (currentStep < 9) setCurrentStep(currentStep + 1);

@@ -14,8 +14,9 @@
 }
 
 .dilation-left-col {
-  flex: 0 0 60%;
-  width: 60%;
+  flex: 1 1 100%;
+  width: auto;
+  max-width: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -23,13 +24,24 @@
   background: rgba(12, 35, 55, 0.85);
   border-radius: 2vw;
   overflow: visible;
+  transition: max-width 0.45s ease, flex-basis 0.45s ease;
+}
+
+.dilation-layout:has(.dilation-right-panel.is-visible) .dilation-left-col {
+  flex: 1 1 60%;
+  max-width: 60%;
 }
 
 .dilation-right-panel {
   flex: 0 0 0;
   width: 0;
+  min-width: 0;
   overflow: hidden;
-  transition: width 0.45s ease, flex-basis 0.45s ease;
+  opacity: 0;
+  transition:
+    width 0.45s ease,
+    flex-basis 0.45s ease,
+    opacity 0.35s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,6 +50,7 @@
 .dilation-right-panel.is-visible {
   flex: 1 1 40%;
   width: 40%;
+  opacity: 1;
 }
 
 .dilation-right-panel.is-hidden {
@@ -47,7 +60,11 @@
   padding: 0;
   margin: 0;
   border: none;
-  transition: width 0.45s ease, flex-basis 0.45s ease;
+  opacity: 0;
+  transition:
+    width 0.45s ease,
+    flex-basis 0.45s ease,
+    opacity 0.35s ease;
 }
 
 .dilation-right-panel-inner {
@@ -60,6 +77,28 @@
   background: rgba(0, 0, 0, 0.35);
   border-radius: 2vw;
   margin-left: 0.8vw;
+  min-width: 28vw;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateX(1.2vw);
+  transition:
+    opacity 0.35s ease 0.12s,
+    transform 0.45s ease 0.08s;
+  pointer-events: none;
+}
+
+.dilation-right-panel-inner.is-shown {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.dilation-right-panel-inner.is-collapsed {
+  opacity: 0;
+  transform: translateX(1.2vw);
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s ease;
 }
 
 .dilation-right-text {

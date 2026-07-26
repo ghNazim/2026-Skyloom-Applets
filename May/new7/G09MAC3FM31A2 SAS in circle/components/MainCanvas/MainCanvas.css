@@ -1,0 +1,210 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  gap: 0.7vw;
+}
+
+.visual-column,
+.action-column {
+  height: 100%;
+  min-width: 0;
+  transition:
+    flex-basis 0.55s ease,
+    max-width 0.55s ease,
+    opacity 0.35s ease;
+}
+
+.visual-column {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1vw;
+  background: rgba(5, 25, 45, 0.68);
+}
+
+.visual-column.is-split {
+  flex-basis: 50%;
+}
+
+.action-column {
+  flex: 0 0 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.action-column.is-visible {
+  flex: 1 1 50%;
+  max-width: 50%;
+  opacity: 1;
+}
+
+.action-panel {
+  width: 100%;
+  height: 100%;
+  border-radius: 1vw;
+  background: rgba(12, 136, 174, 0.86);
+  box-shadow: inset 0 0 0 0.12vw rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.action-content-fade {
+  width: 100%;
+  height: 100%;
+  animation: actionFadeIn 0.38s ease both;
+}
+
+.action-text {
+  width: 100%;
+  height: 100%;
+  padding: 3.2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-align: center;
+  font-size: 3vw;
+  line-height: 1.25;
+  font-weight: 400;
+}
+
+.action-text.final-proof {
+  align-items: flex-start;
+  padding-top: 3vw;
+  font-size: 3.4vw;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.main-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.circle-diagram text,
+.info-box text,
+.flying-clones text {
+  pointer-events: none;
+  user-select: none;
+}
+
+.circle-shape,
+.center-point,
+.triangle-fill,
+.angle-sectors path {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.blink-highlight {
+  animation: circleBlinkHighlight 1.2s ease-in-out infinite;
+}
+
+.blink-center {
+  animation: centerBlinkHighlight 1.2s ease-in-out infinite;
+}
+
+.step3-blink {
+  animation: triangleBlink 1s ease-in-out infinite;
+}
+
+.angle-blink {
+  animation: angleBlink 0.9s ease-in-out infinite;
+}
+
+.triangle-fill {
+  transition:
+    fill 0.28s ease,
+    fill-opacity 0.28s ease;
+}
+
+.circle-click-target {
+  cursor: pointer;
+}
+
+.info-box {
+  animation: infoBoxIn 0.35s ease both;
+}
+
+.info-box text {
+  transition: opacity 0.25s ease;
+}
+
+@keyframes actionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes circleBlinkHighlight {
+  0%,
+  100% {
+    stroke: #ffffff;
+    stroke-width: 4;
+  }
+  45% {
+    stroke: #fff200;
+    stroke-width: 9;
+  }
+  72% {
+    stroke: #55c3d2;
+    stroke-width: 7;
+  }
+}
+
+@keyframes centerBlinkHighlight {
+  0%,
+  100% {
+    r: 9;
+    fill: #ffffff;
+  }
+  50% {
+    r: 16;
+    fill: #fff200;
+  }
+  74% {
+    r: 13;
+    fill: #55c3d2;
+  }
+}
+
+@keyframes triangleBlink {
+  0%,
+  100% {
+    opacity: 0.86;
+  }
+  50% {
+    opacity: 0.36;
+  }
+}
+
+@keyframes angleBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes infoBoxIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,133 @@
+.mcq-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1vw;
+  padding: 1.4vw;
+}
+
+.mcq-title {
+  color: #ffffff;
+  font-size: 2.2vw;
+  line-height: 1.15;
+  font-weight: 500;
+  text-align: center;
+}
+
+.mcq-panel-options {
+  display: flex;
+  gap: 0.8vw;
+  width: 100%;
+}
+
+.mcq-options-column {
+  flex-direction: column;
+}
+
+.mcq-option {
+  min-height: 4.4vw;
+  padding: 0.55vw 1vw;
+  font-size: 2.2vw;
+  line-height: 1.1;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  border: 0.15vw solid rgba(92, 60, 22, 0.38);
+  border-radius: var(--action-btn-radius);
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+  text-align: center;
+}
+
+.mcq-option:hover:not(:disabled):not(.wrong):not(.correct) {
+  transform: scale(1.02);
+}
+
+.mcq-option.wrong {
+  background-color: #c83c3c;
+  color: #ffffff;
+  animation: mcq-shake 0.45s ease;
+}
+
+.mcq-option.correct {
+  background-color: #a8c99a;
+  color: #0c2432;
+}
+
+.mcq-option:disabled {
+  cursor: default;
+}
+
+.mcq-feedback-slot {
+  min-height: 6.2vw;
+  padding: 0.75vw 1vw;
+  border-radius: 0.8vw;
+  border: 0.16vw dashed rgba(255, 255, 255, 0.7);
+  background: rgba(238, 238, 238, 0.95);
+  color: #101010;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(0.3vw);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.mcq-feedback-slot.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mcq-feedback-slot.is-correct {
+  background: #e9f6e5;
+  border-color: #70aa5d;
+}
+
+.mcq-feedback-slot.is-wrong {
+  background: #fff0ef;
+  border-color: #cf6a64;
+}
+
+.mcq-feedback-label {
+  font-size: 1.45vw;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.mcq-feedback-text {
+  width: 100%;
+  font-size: 1.35vw;
+  line-height: 1.2;
+  text-align: center;
+}
+
+@keyframes mcq-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-0.35vw);
+  }
+  40% {
+    transform: translateX(0.35vw);
+  }
+  60% {
+    transform: translateX(-0.25vw);
+  }
+  80% {
+    transform: translateX(0.25vw);
+  }
+}

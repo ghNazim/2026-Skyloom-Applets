@@ -50,11 +50,11 @@ var UNKNOWNS = {
 };
 
 var SIDE_LABELS = {
-  AB: { text: "40 cm", tx: 203, ty: 67.94 },
+  AB: { text: "40 cm", tx: 203, ty: 63.94 },
   BC: { text: "21 cm", tx: 0, ty: 29.94, transform: "translate(348 202.426) rotate(-59.1717)" },
   AD: { text: "15 cm", tx: 0, ty: 29.94, transform: "translate(86.6396 116) rotate(74.622)" },
   DC: { text: "16 cm", tx: 180, ty: 267.94 },
-  RS: { text: "16 cm", tx: 646, ty: 74.94 },
+  RS: { text: "16 cm", tx: 646, ty: 63.94 },
   SP: { text: "15 cm", tx: 0, ty: 29.94, transform: "translate(844.64 97) rotate(74.622)" },
   PQ: { text: "40 cm", tx: 646, ty: 267.94 },
   QR: { text: "21 cm", tx: 0, ty: 29.94, transform: "translate(487 174.426) rotate(-59.1717)" },
@@ -68,8 +68,14 @@ var VLABEL_POS = {
 };
 
 var ALWAYS_VISIBLE = new Set(["AB", "BC", "RS", "SP"]);
+var GIVEN_SIDES = new Set(["AB", "BC", "RS", "SP"]);
+var FOUND_SIDES = new Set(["AD", "DC", "PQ", "QR"]);
+var GIVEN_ANGLES = new Set(["A", "B"]);
+var FOUND_ANGLES = new Set(["P", "Q", "R", "S", "C", "D"]);
 
 var YELLOW_FILL = "#ffd700";
+var GIVEN_DATA_COLOR = "#c9a0ff";
+var FOUND_DATA_COLOR = "#ff8c00";
 
 /* ── Angle data ── */
 
@@ -96,6 +102,10 @@ var COMP_PAIRS = {
 };
 
 var ANGLE_CUE_COLORS = { C: "yellow", R: "yellow", D: "green", S: "green" };
+var S6_YELLOW_HIGHLIGHT = "rgba(255, 215, 0, 1)";
+var S6_GREEN_HIGHLIGHT = "rgba(120, 230, 160, 1)";
+var S6_PAIR_BLINK_MS = 2000;
+var S6_PAIR_PAUSE_MS = 500;
 var CALC_SUBTRAHEND_TEXT_SLOT = { x: 46, y: 0 };
 var CALC_SUBTRAHEND_DEST_OFFSET = { x: 0, y: 0 };
 var CALC_EQUATION_INWARD_OFFSET = { C: 10, D: 10 };
@@ -278,6 +288,10 @@ var MainCanvas = function (props) {
   var _uh = useState([]); var usedHotspots = _uh[0]; var setUsedHotspots = _uh[1];
   var _wh = useState(null); var wrongHotspot = _wh[0]; var setWrongHotspot = _wh[1];
   var _fb = useState(""); var feedbackText = _fb[0]; var setFeedbackText = _fb[1];
+  var _s6yh = useState([]); var s6YellowHighlights = _s6yh[0]; var setS6YellowHighlights = _s6yh[1];
+  var _s6gh = useState([]); var s6GreenHighlights = _s6gh[0]; var setS6GreenHighlights = _s6gh[1];
+  var _s6sb = useState(false); var s6SectorBlink = _s6sb[0]; var setS6SectorBlink = _s6sb[1];
+  var _s6bc = useState(null); var s6BlinkColor = _s6bc[0]; var setS6BlinkColor = _s6bc[1];
 
   /* ── State: Steps 6-8 shared ── */
   var _fa = useState({}); var foundAngles = _fa[0]; var setFoundAngles = _fa[1];
@@ -415,6 +429,8 @@ var MainCanvas = function (props) {
     if (step === 6) {
       setS6Idx(0); setS6Phase("select");
       setUsedHotspots([]); setHighlightAngle("Q"); setWrongHotspot(null); setFeedbackText("");
+      setS6YellowHighlights([]); setS6GreenHighlights([]);
+      setS6SectorBlink(false); setS6BlinkColor(null);
     }
 
     if (step === 7) {
@@ -442,10 +458,12 @@ var MainCanvas = function (props) {
     setS4Stage(0); setActiveCue(null); setWrongLine(null); setCorrectLine(null);
     setBlinking(false); setLastFoundMsg(null);
     setStep5KnownAngles(completedStep >= 5 ? ["A", "B"] : []);
-    setStep5VisibleCues(completedStep >= 5 ? ["P", "Q", "R", "S"] : []);
+    setStep5VisibleCues(completedStep >= 5 ? ["P", "Q", "R", "S", "C", "D"] : []);
     setS6Idx(0); setS6Phase(completedStep >= 6 ? "done" : null);
     setUsedHotspots(completedStep >= 6 ? ["B", "A", "C"] : []);
     setWrongHotspot(null); setFeedbackText("");
+    setS6YellowHighlights([]); setS6GreenHighlights([]);
+    setS6SectorBlink(false); setS6BlinkColor(null);
     setHighlightAngle(null);
     setFlyData(null); setHtmlFlyData(null);
     setShowCorrespCues(completedStep >= 6 && completedStep < 7);
@@ -505,6 +523,7 @@ var MainCanvas = function (props) {
 
   function startHtmlFly(text, fromPoint, toPoint, onDone, opts) {
     opts = opts || {};
+    playSnd("swoosh");
     var id = "html-fly-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
     setHtmlFlyData({
       id: id,
@@ -560,7 +579,7 @@ var MainCanvas = function (props) {
 
   function flyStep5Cues() {
     var source = getProblemTokenPoint("other-angles");
-    var cues = ["P", "Q", "R", "S"];
+    var cues = ["P", "Q", "R", "S", "C", "D"];
     function flyCue(i) {
       if (i >= cues.length) {
         setAnimationBusy(false);
@@ -650,6 +669,45 @@ var MainCanvas = function (props) {
      Step 6 handlers (angle correspondence)
      ════════════════════════════════════════════════════════════ */
 
+  function completeStep6() {
+    setS6Phase("done");
+    setHighlightAngle(null);
+    setS6YellowHighlights([]);
+    setS6GreenHighlights([]);
+    setS6SectorBlink(false);
+    setS6BlinkColor(null);
+    setShowCorrespCues(true);
+    setAnimationBusy(false);
+    onUpdateTexts(
+      APP_DATA.steps[6].correspondDone,
+      APP_DATA.steps[6].correspondDoneNav
+    );
+    onSetNextEnabled(true);
+  }
+
+  function runStep6PairBlinkAnimation() {
+    setAnimationBusy(true);
+    setS6Phase("pairAnim");
+    setHighlightAngle(null);
+    setS6YellowHighlights(["R", "C"]);
+    setS6GreenHighlights([]);
+    setS6BlinkColor("yellow");
+    setS6SectorBlink(true);
+
+    addTimer(function () {
+      setS6SectorBlink(false);
+      addTimer(function () {
+        setS6GreenHighlights(["S", "D"]);
+        setS6BlinkColor("green");
+        setS6SectorBlink(true);
+        addTimer(function () {
+          setS6SectorBlink(false);
+          completeStep6();
+        }, S6_PAIR_BLINK_MS);
+      }, S6_PAIR_PAUSE_MS);
+    }, S6_PAIR_BLINK_MS);
+  }
+
   function handleHotspotClick(vk) {
     if (step !== 6 || s6Phase !== "select") return;
     if (wrongHotspot) return;
@@ -694,20 +752,13 @@ var MainCanvas = function (props) {
         }, 500);
       });
     } else {
-      setS6Phase("done");
-      setHighlightAngle(null);
-      setShowCorrespCues(true);
-      setAnimationBusy(false);
-      onUpdateTexts(
-        APP_DATA.steps[6].correspondDone,
-        APP_DATA.steps[6].correspondDoneNav
-      );
-      onSetNextEnabled(true);
+      runStep6PairBlinkAnimation();
     }
   }
 
   function startFly(text, fromPos, toPos, onDone, opts) {
     opts = opts || {};
+    playSnd("swoosh");
     var id = "fly-text-" + Date.now();
     setFlyData({
       mode: "angle",
@@ -736,6 +787,7 @@ var MainCanvas = function (props) {
 
   function startSideFly(fromKey, toKey, text, onDone, opts) {
     opts = opts || {};
+    playSnd("swoosh");
     var from = _sideLabelFlyCfg(fromKey);
     var to = _sideLabelFlyCfg(toKey);
     var id = "fly-text-" + Date.now();
@@ -962,13 +1014,21 @@ var MainCanvas = function (props) {
       var a1 = poly[adj[vk][0]], a2 = poly[adj[vk][1]];
       var arc = _innerArc(vertex, a1, a2);
       var fill = ANGLE_FILLS[vk];
-      if (highlightAngle === vk) fill = "rgba(255, 215, 0, 1)";
+      if (s6GreenHighlights.indexOf(vk) !== -1) fill = S6_GREEN_HIGHLIGHT;
+      else if (s6YellowHighlights.indexOf(vk) !== -1) fill = S6_YELLOW_HIGHLIGHT;
+      else if (highlightAngle === vk) fill = S6_YELLOW_HIGHLIGHT;
+
+      var isBlinking = s6SectorBlink && (
+        (s6BlinkColor === "yellow" && s6YellowHighlights.indexOf(vk) !== -1) ||
+        (s6BlinkColor === "green" && s6GreenHighlights.indexOf(vk) !== -1)
+      );
+      var blinkCls = isBlinking ? " angle-sector--blink" : "";
 
       return h("path", {
         key: "sector-" + vk,
         d: _sectorPath(vertex.x, vertex.y, ARC_RADIUS, arc.start, arc.end),
         fill: fill, stroke: "white", strokeWidth: 1.5,
-        className: "angle-sector" + (sectorDim ? " angle-sector--dim" : ""),
+        className: "angle-sector" + (sectorDim ? " angle-sector--dim" : "") + blinkCls,
       });
     });
   }
@@ -985,6 +1045,21 @@ var MainCanvas = function (props) {
     });
   }
 
+  function getSideLabelFill(key) {
+    if (step !== 8) return "white";
+    if (GIVEN_SIDES.has(key)) return GIVEN_DATA_COLOR;
+    if (FOUND_SIDES.has(key)) return FOUND_DATA_COLOR;
+    return "white";
+  }
+
+  function getAngleLabelFill(vk, isYellow) {
+    if (isYellow) return YELLOW_FILL;
+    if (step !== 8) return "white";
+    if (GIVEN_ANGLES.has(vk)) return GIVEN_DATA_COLOR;
+    if (FOUND_ANGLES.has(vk)) return FOUND_DATA_COLOR;
+    return "white";
+  }
+
   function renderSideLabel(key) {
     var cfg = SIDE_LABELS[key];
     var visible = isSideLabelVisible(key);
@@ -994,7 +1069,7 @@ var MainCanvas = function (props) {
     else if (dim) cls += " side-label--dim";
     else cls += " side-label--visible";
     var props = {
-      key: "slabel-" + key, fill: "white",
+      key: "slabel-" + key, fill: getSideLabelFill(key),
       fontFamily: "Roboto, system-ui, sans-serif",
       fontSize: FONT_SIDE, className: cls,
     };
@@ -1052,6 +1127,7 @@ var MainCanvas = function (props) {
     var poly = _getPoly(info.corrPolyKey);
     return sides.map(function (side) {
       var v1 = poly[side.v1], v2 = poly[side.v2];
+      var mid = _mid(v1, v2);
       var color = "#ff8c00";
       if (correctLine === side.name) color = "#4CAF50";
       if (wrongLine === side.name) color = "#ff4444";
@@ -1060,6 +1136,11 @@ var MainCanvas = function (props) {
           x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y,
           stroke: color, strokeWidth: SIDE_LINE_W, strokeLinecap: "round",
           className: "clickable-side-line",
+        }),
+        h("circle", {
+          cx: mid.x, cy: mid.y, r: 10,
+          fill: "white",
+          className: "side-tap-indicator",
         }),
         h("line", {
           x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y,
@@ -1104,7 +1185,7 @@ var MainCanvas = function (props) {
       var isYellow = yellowAngles.indexOf(vk) !== -1;
       labels.push(h("text", {
         key: "alabel-" + vk, x: pos.x, y: pos.y,
-        fill: isYellow ? YELLOW_FILL : "white", fontSize: 22, fontWeight: 600,
+        fill: getAngleLabelFill(vk, isYellow), fontSize: 22, fontWeight: 600,
         textAnchor: "middle", dominantBaseline: "middle",
         className: "angle-label-text",
       }, val + "\u00B0"));
@@ -1124,7 +1205,7 @@ var MainCanvas = function (props) {
       var isYellow = yellowAngles.indexOf(vk) !== -1;
       labels.push(h("text", {
         key: "alabel-" + vk, x: pos.x, y: pos.y,
-        fill: isYellow ? YELLOW_FILL : "white", fontSize: 22, fontWeight: 600,
+        fill: getAngleLabelFill(vk, isYellow), fontSize: 22, fontWeight: 600,
         textAnchor: "middle", dominantBaseline: "middle",
         className: "angle-label-text",
       }, val + "\u00B0"));
@@ -1137,7 +1218,8 @@ var MainCanvas = function (props) {
   function renderAngleCuesStep5() {
     if (!showAngleCuesStep5) return null;
     var boxW = 34, boxH = 28;
-    return PQRS_ORDER.map(function (vk) {
+    var cueAngles = ["P", "Q", "R", "S", "C", "D"];
+    return cueAngles.map(function (vk) {
       if (step5VisibleCues.indexOf(vk) === -1) return null;
       var pos = _angleLabelPos(vk);
       return h("foreignObject", {
