@@ -4,9 +4,10 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1vw;
   padding: 1.4vw;
+  padding-top: 3vw;
 }
 
 .mcq-title {
@@ -57,8 +58,8 @@
 }
 
 .mcq-option.correct {
-  background-color: #a8c99a;
-  color: #0c2432;
+  background-color: #70aa5d;
+  color: #fff;
 }
 
 .mcq-option:disabled {
@@ -71,7 +72,7 @@
   border-radius: 0.8vw;
   border: 0.16vw dashed rgba(255, 255, 255, 0.7);
   background: rgba(238, 238, 238, 0.95);
-  color: #101010;
+  color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -90,13 +91,13 @@
 }
 
 .mcq-feedback-slot.is-correct {
-  background: #e9f6e5;
-  border-color: #70aa5d;
+  background: #70aa5d;
+  border-color: #fff;
 }
 
 .mcq-feedback-slot.is-wrong {
-  background: #fff0ef;
-  border-color: #cf6a64;
+  background: #c83c3c;
+  border-color: #fff;
 }
 
 .mcq-feedback-label {
@@ -104,11 +105,12 @@
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
+  display: none;
 }
 
 .mcq-feedback-text {
   width: 100%;
-  font-size: 1.35vw;
+  font-size: 2vw;
   line-height: 1.2;
   text-align: center;
 }

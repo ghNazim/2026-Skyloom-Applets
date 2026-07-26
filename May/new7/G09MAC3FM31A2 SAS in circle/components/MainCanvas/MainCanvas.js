@@ -14,6 +14,11 @@ const COLORS = {
   yellow: "#fff200",
 };
 
+const TAP_HINT = {
+  size: 48,
+  offsetY: 30,
+};
+
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -93,10 +98,10 @@ function describeSector(vertex, p1, p2, radius) {
 
 const INFO = {
   x: 225,
-  y: 358,
+  y: 398,
   w: 350,
   h: 154,
-  rowY: [400, 446, 492],
+  rowY: [434, 476, 518],
   leftX: 315,
   eqX: 400,
   rightX: 485,
@@ -132,7 +137,6 @@ const MainCanvas = ({
   onSetNextEnabled,
   onUpdateTexts,
   onSetNextLabel,
-  onRegisterNudgeTarget,
   onHideNudge,
   onAnimationStateChange,
 }) => {
@@ -171,9 +175,6 @@ const MainCanvas = ({
   }, [isAnimating, onAnimationStateChange]);
 
   useEffect(() => {
-    if (step === 5 && !radiusDone && circleClickRef.current) {
-      onRegisterNudgeTarget(circleClickRef.current, { delay: 650 });
-    }
     if (step !== 5 || radiusDone) {
       if (onHideNudge) onHideNudge();
     }
@@ -216,7 +217,6 @@ const MainCanvas = ({
     infoParts.angleLeft,
     infoParts.angleRight,
     onHideNudge,
-    onRegisterNudgeTarget,
     onSetNextEnabled,
     onSetNextLabel,
     radiusDone,
@@ -676,6 +676,16 @@ const MainCanvas = ({
           r: 9,
           fill: COLORS.white,
         }),
+        step === 5 && !radiusDone && !isAnimating &&
+          React.createElement("image", {
+            href: "assets/tap.gif",
+            x: CENTER.x - TAP_HINT.size / 2,
+            y: CENTER.y + TAP_HINT.offsetY,
+            width: TAP_HINT.size,
+            height: TAP_HINT.size,
+            preserveAspectRatio: "xMidYMid meet",
+            style: { pointerEvents: "none" },
+          }),
         pointLabels.map((key) => {
           const pos = labelPosition(key, pts);
           return React.createElement(
