@@ -10,7 +10,7 @@
   gap: 0;
   position: relative;
   overflow: visible;
-  background: #0f3c53c1;
+  /* background: #0f3c53c1; */
   backdrop-filter: blur(0.5vw);
   /* padding: 0 0.25vw; */
   

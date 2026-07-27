@@ -26,7 +26,7 @@ const DATA = {
         3: {
           questionText: "Answer the question to uncover patterns…",
           questionTextAfter: "What changed when you moved the figure?",
-          questionTranslation: "TRANSLATION",
+          questionTranslation: "<yb>TRANSLATION</yb>",
           navText:
             "Tap any of the icons to explore different transformations…",
           mcqs: [
@@ -135,7 +135,7 @@ const DATA = {
         replayButton: "Replay",
         observeQuestion:
           "Observe how every points move when you turn the figure",
-        questionTranslation: "ROTATION",
+        questionTranslation: "<yb>ROTATION</yb>",
         blueBox:
           "Such a Transformation<br>is called a <y>ROTATION</y>.",
         definitionTyping:
@@ -176,7 +176,7 @@ const DATA = {
         revealButton: "Reveal what changed",
         summarizeButton: "Summarize",
         replayButton: "Replay",
-        questionTranslation: "DILATION",
+        questionTranslation: "<yb>DILATION</yb>",
         blueBox:
           "Such a Transformation<br>is called a <y>DILATION</y>.",
         definitionTyping:
@@ -216,7 +216,7 @@ const DATA = {
         revealButton: "Reveal what changed",
         summarizeButton: "Summarize",
         replayButton: "Replay",
-        questionTranslation: "REFLECTION",
+        questionTranslation: "<yb>REFLECTION</yb>",
         blueBox:
           "Such a Transformation<br>is called a <y>REFLECTION</y>.",
         definitionTyping:
@@ -253,7 +253,7 @@ const DATA = {
         3: {
           questionText: "Jawab pertanyaan untuk menemukan pola…",
           questionTextAfter: "Apa yang berubah ketika Anda memindahkan figur?",
-          questionTranslation: "TRANSLASI",
+          questionTranslation: "<yb>TRANSLASI</yb>",
           navText:
             "Ketuk salah satu ikon untuk menjelajahi transformasi yang berbeda…",
           mcqs: [
@@ -362,7 +362,7 @@ const DATA = {
         replayButton: "Putar Ulang",
         observeQuestion:
           "Amati bagaimana setiap titik bergerak ketika Anda memutar figur",
-        questionTranslation: "ROTASI",
+        questionTranslation: "<yb>ROTASI</yb>",
         blueBox:
           "Transformasi seperti ini<br>disebut <y>ROTASI</y>.",
         definitionTyping:
@@ -403,7 +403,7 @@ const DATA = {
         revealButton: "Ungkap apa yang berubah",
         summarizeButton: "Ringkas",
         replayButton: "Putar Ulang",
-        questionTranslation: "DILASI",
+        questionTranslation: "<yb>DILASI</yb>",
         blueBox:
           "Transformasi seperti ini<br>disebut <y>DILASI</y>.",
         definitionTyping:
@@ -446,7 +446,7 @@ const DATA = {
         revealButton: "Ungkap apa yang berubah",
         summarizeButton: "Ringkas",
         replayButton: "Putar ulang",
-        questionTranslation: "REFLEKSI",
+        questionTranslation: "<yb>REFLEKSI</yb>",
         blueBox:
           "Transformasi seperti ini<br>disebut <y>REFLEKSI</y>.",
         definitionTyping:

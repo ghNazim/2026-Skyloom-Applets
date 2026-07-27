@@ -326,12 +326,13 @@ const ZoomCanvas = function (props) {
 
   var animateScaleToOneThenReveal = useCallback(
     function (onComplete) {
+      killTween();
       setShowRevealDemo(false);
-      animateScale(1, ZOOM_CFG.scaleToOneDuration, function () {
-        runRevealDemoAnim(onComplete);
-      });
+      setPaperScale(1);
+      paperScaleRef.current = 1;
+      runRevealDemoAnim(onComplete);
     },
-    [animateScale, runRevealDemoAnim, ZOOM_CFG.scaleToOneDuration]
+    [killTween, runRevealDemoAnim]
   );
 
   var startDefinitionTyping = useCallback(

@@ -951,7 +951,7 @@ const RotateCanvas = function (props) {
               ROTATE.summarizeButton,
               true
             );
-          });
+          }, true);
         }, 450);
         return;
       }

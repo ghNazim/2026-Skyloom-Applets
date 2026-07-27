@@ -535,23 +535,23 @@ const MirrorCanvas = function (props) {
 
   var beginRevealFlow = useCallback(
     function () {
+      killTween();
       setShowFlipExtras(false);
-      runFlipBackAnimation(function () {
-        setShowInitialFlipGroup(false);
-        setShowFReference(true);
-        setMirrorPhase("revealPrep");
-        runRevealSequence(function () {
-          if (onUpdateQuestion) onUpdateQuestion(MIRROR.summaryQuestion);
-          showSummaryPanel(
-            MIRROR.revealSummary,
-            MIRROR.summarizeButton,
-            true
-          );
-        });
+      setFlipScaleX(1);
+      setShowInitialFlipGroup(false);
+      setShowFReference(true);
+      setMirrorPhase("revealPrep");
+      runRevealSequence(function () {
+        if (onUpdateQuestion) onUpdateQuestion(MIRROR.summaryQuestion);
+        showSummaryPanel(
+          MIRROR.revealSummary,
+          MIRROR.summarizeButton,
+          true
+        );
       });
     },
     [
-      runFlipBackAnimation,
+      killTween,
       runRevealSequence,
       onUpdateQuestion,
       showSummaryPanel,
@@ -1243,8 +1243,7 @@ const MirrorCanvas = function (props) {
             "mirror-path-yellow-static" +
             (staticYellowSnapped ? " mirror-path-yellow-static--snapped" : ""),
           d: pointsToPath(staticYellowPoints),
-          fill: IMAGE_COLOR,
-          fillOpacity: staticYellowSnapped ? 0.6 : 0.45,
+          fill: "none",
           opacity: staticYellowSnapped ? 1 : reflectionInView ? 0.3 : 0,
           stroke: IMAGE_COLOR,
           strokeWidth: 5,

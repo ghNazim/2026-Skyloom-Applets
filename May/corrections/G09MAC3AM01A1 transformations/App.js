@@ -168,9 +168,7 @@ const App = () => {
     setDynamicQuestionText(text);
   }, []);
 
-  const handleTextLayoverActive = useCallback((active) => {
-    setQuestionHighlighted(!!active);
-  }, []);
+  const handleTextLayoverActive = useCallback(function () {}, []);
 
   const handleMoveFlowComplete = useCallback(() => {
     setMoveFlowComplete(true);
