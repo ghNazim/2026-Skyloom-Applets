@@ -1,4 +1,4 @@
-const QuestionPanel = ({ html, activeHighlightId = null }) => {
+const QuestionPanel = ({ html, activeHighlightId = null, collapsed = false }) => {
   const content = html || "";
 
   const processedHtml = formatMathVariablesInHtml(
@@ -20,7 +20,7 @@ const QuestionPanel = ({ html, activeHighlightId = null }) => {
 
   return React.createElement(
     "div",
-    { className: "question-panel" },
+    { className: "question-panel" + (collapsed ? " is-collapsed" : "") },
     React.createElement("h2", {
       dangerouslySetInnerHTML: { __html: processedHtml },
     }),

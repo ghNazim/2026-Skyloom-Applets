@@ -31,6 +31,7 @@ const MainCanvas = ({
   const formulaYRightRef = useRef(null);
 
   const ruleSolved = ruleStatus === "correct";
+  const answerRowOpen = ruleStatus === "hold" || ruleStatus === "correct";
   const ruleRevealed = ruleStatus === "hold" || ruleStatus === "correct";
   const coordinateSolved = coordinateStatus === "correct";
   const coordinatePhaseActive = ruleStatus === "correct";
@@ -48,7 +49,7 @@ const MainCanvas = ({
 
     const sourceRect = sourceEl.getBoundingClientRect();
     const targetRect = targetEl.getBoundingClientRect();
-    const text = sourceEl.textContent.trim();
+    const html = sourceEl.innerHTML.trim();
     const dx =
       targetRect.left + targetRect.width / 2 -
       (sourceRect.left + sourceRect.width / 2);
@@ -58,7 +59,7 @@ const MainCanvas = ({
 
     setFlyClone({
       id: Date.now(),
-      text: text,
+      html: html,
       left: sourceRect.left + sourceRect.width / 2,
       top: sourceRect.top + sourceRect.height / 2,
       dx: dx,
@@ -194,7 +195,8 @@ const MainCanvas = ({
       "span",
       {
         ref: ref,
-        className: showConnectorHints ? colorClass : "",
+        className:
+          "math-var" + (showConnectorHints ? " " + colorClass : ""),
       },
       variable,
     );
@@ -306,22 +308,19 @@ const MainCanvas = ({
         }
         if (isWrongSelection) className += " is-wrong";
 
-        return React.createElement(
-          "button",
-          {
-            key: group + "-" + index,
-            className: className,
-            disabled: disabled,
-            ref: (el) => {
-              optionRefs.current[group][index] = el;
-            },
-            onClick: () => {
-              if (coordinatePhaseActive) onCoordinateSelect(index);
-              else onRuleSelect(index);
-            },
+        return React.createElement("button", {
+          key: group + "-" + index,
+          className: className,
+          disabled: disabled,
+          ref: (el) => {
+            optionRefs.current[group][index] = el;
           },
-          option,
-        );
+          onClick: () => {
+            if (coordinatePhaseActive) onCoordinateSelect(index);
+            else onRuleSelect(index);
+          },
+          dangerouslySetInnerHTML: { __html: formatMathVariables(option) },
+        });
       }),
     );
   };
@@ -337,7 +336,7 @@ const MainCanvas = ({
         { className: "reflection-left-column" },
         React.createElement(
           "div",
-          { className: "reflection-rows" + (ruleSolved ? " answer-open" : "") },
+          { className: "reflection-rows" + (answerRowOpen ? " answer-open" : "") },
           React.createElement(
             "section",
             { className: "reflection-row formula-row", ref: formulaPanelRef },
@@ -389,8 +388,12 @@ const MainCanvas = ({
           React.createElement(
             "section",
             { className: "reflection-row answer-row" },
-            React.createElement("div", { className: "row-title answer-title" }, APP_DATA.labels.coordinatesPrompt),
-            renderCoordinateFormula(),
+            React.createElement(
+              "div",
+              { className: "answer-row-inner" },
+              React.createElement("div", { className: "row-title answer-title" }, APP_DATA.labels.coordinatesPrompt),
+              renderCoordinateFormula(),
+            ),
           ),
         ),
       ),
@@ -411,20 +414,17 @@ const MainCanvas = ({
       ),
     ),
     flyClone
-      ? React.createElement(
-          "div",
-          {
-            className: "reflection-fly-clone",
-            style: {
-              left: flyClone.left + "px",
-              top: flyClone.top + "px",
-              transform: flyClone.active
-                ? "translate(calc(-50% + " + flyClone.dx + "px), calc(-50% + " + flyClone.dy + "px))"
-                : "translate(-50%, -50%)",
-            },
+      ? React.createElement("div", {
+          className: "reflection-fly-clone",
+          style: {
+            left: flyClone.left + "px",
+            top: flyClone.top + "px",
+            transform: flyClone.active
+              ? "translate(calc(-50% + " + flyClone.dx + "px), calc(-50% + " + flyClone.dy + "px))"
+              : "translate(-50%, -50%)",
           },
-          flyClone.text,
-        )
+          dangerouslySetInnerHTML: { __html: flyClone.html },
+        })
       : null,
   );
 };
