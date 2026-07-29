@@ -1,0 +1,898 @@
+/* ══════════════════════════════════════════════════
+   SHARED LAYOUT
+   ══════════════════════════════════════════════════ */
+
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 1vw;
+  padding: 0 0.75vw;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 1 — MCQ PHASE
+   ══════════════════════════════════════════════════ */
+
+.reflection-left-column {
+  flex: 0 0 65%;
+  min-width: 0;
+  height: 100%;
+}
+
+.reflection-right-column {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  padding: 1.45vw 1.25vw;
+  border-radius: 1vw;
+  background: #1e89ba40;
+}
+
+.reflection-rows {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 1fr 0fr;
+  gap: 0;
+  transition:
+    grid-template-rows 0.72s cubic-bezier(0.4, 0, 0.2, 1),
+    gap 0.72s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reflection-rows.answer-open {
+  grid-template-rows: 2fr 3fr;
+  gap: 1vw;
+}
+
+.reflection-row {
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  border-radius: 0.85vw;
+  background: #0a2b3f;
+}
+
+.answer-row-inner {
+  height: 100%;
+  min-height: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease 0.18s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 3.5vw;
+}
+
+.reflection-rows.answer-open .answer-row-inner {
+  opacity: 1;
+}
+
+.row-title {
+  position: absolute;
+  left: 1.45vw;
+  top: 1vw;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 2.15vw;
+  font-style: italic;
+  line-height: 1;
+}
+
+.answer-title {
+  top: 1.45vw;
+}
+
+.formula-expression {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4.2vw;
+  z-index: 2;
+  color: white;
+  font-size: 3.2vw;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.formula-row .formula-expression {
+  padding-top: 0.4vw;
+}
+
+.formula-arrow {
+  font-size: 4.2vw;
+  line-height: 0;
+}
+
+.formula-answer-slot {
+  min-width: 10.5vw;
+  min-height: 4.4vw;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.formula-rhs {
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.formula-rhs.is-visible {
+  opacity: 1;
+}
+
+.jump-question {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cc5680;
+  font-weight: 800;
+  font-size: 4.5vw;
+  animation: question-jump 0.78s ease-in-out infinite;
+}
+
+/* ── Coordinate question mark overlay ── */
+
+.coord-question-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15vw;
+  white-space: nowrap;
+}
+
+.coord-static {
+  color: rgba(255, 255, 255, 1);
+  font-size: 3vw;
+}
+
+.coord-q-mark {
+  color: #cc5680;
+  font-weight: 800;
+  font-size: 3.5vw;
+  animation: question-jump 0.78s ease-in-out infinite;
+}
+
+.coord-q-mark.no-jump {
+  animation: none;
+}
+
+.x-token {
+  color: #ff7a35;
+}
+
+.y-token {
+  color: #df61d8;
+}
+
+/* ── Coordinate expressions in answer row ── */
+
+.coord-expressions-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5vw;
+  flex: 1;
+}
+
+.coordinate-expression {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3vw;
+  color: white;
+  font-size: 3vw;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  transition: opacity 0.35s ease;
+}
+
+.coordinate-expression.dimmed {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ── Hint connectors ── */
+
+.x-hint,
+.y-hint {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 3;
+  font-size: 2.45vw;
+  line-height: 1;
+  background: #082d3b;
+  padding: 0 0.5vw;
+}
+
+.x-hint {
+  top: 0.65vw;
+  color: #ff7a35;
+}
+
+.y-hint {
+  bottom: 0.45vw;
+  color: #df61d8;
+}
+
+.hint-paths {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hint-path {
+  fill: none;
+  stroke-width: 0.16vw;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.hint-path.orange {
+  stroke: #ff7a35;
+}
+
+.hint-path.purple {
+  stroke: #c638b9;
+}
+
+/* ── Options & feedback ── */
+
+.reflection-feedback,
+.feedback-spacer {
+  flex: 0 0 8.6vw;
+  width: 100%;
+}
+
+.reflection-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9vw 1vw;
+  border-radius: 0.8vw;
+  background: rgba(255, 53, 53, 0.795);
+  color: #ffffff;
+  text-align: center;
+  font-size: 2.25vw;
+  line-height: 1.28;
+  animation: feedback-pop 0.28s ease-out;
+  border: 0.25vw dashed white;
+}
+
+.reflection-options {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.7vw;
+}
+
+.reflection-option {
+  width: 100%;
+  min-height: 4.65vw;
+  border: none;
+  border-radius: 0.68vw;
+  background: #1e7191;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 2.85vw;
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.reflection-option:hover:not(:disabled) {
+  transform: scale(1.015);
+}
+
+.reflection-option.is-correct {
+  background: #2e6037;
+}
+
+.reflection-option.is-wrong {
+  background: #ef3b3b;
+  animation: option-shake 0.45s ease;
+}
+
+.reflection-option:disabled {
+  cursor: default;
+}
+
+/* ── Fly clone ── */
+
+.reflection-fly-clone {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 2.85vw;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 0.78s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reflection-fly-clone.substitution-fly-clone {
+  transition: transform 1.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-fly-clone {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 2 — SUBSTITUTION
+   ══════════════════════════════════════════════════ */
+
+.step2-left-column {
+  flex: 0 0 65%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step2-heading-bar {
+  background: #1e89ba53;
+  color: white;
+  font-size: 2.5vw;
+  padding: 1vw 1.8vw;
+  border-radius: 0.85vw 0.85vw 0 0;
+  flex-shrink: 0;
+  transition: opacity 0.4s ease;
+  text-align: center;
+}
+
+.step2-visual {
+  flex: 1;
+  background: #0a2b3f;
+  border-radius: 0 0 0.85vw 0.85vw;
+  padding: 1.5vw 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1.2vw;
+  transition: opacity 0.4s ease;
+}
+
+.step2-heading-bar.hidden-content {
+  opacity: 0;
+}
+
+.step2-coord-title {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 2.5vw;
+
+  transition: opacity 0.5s ease;
+}
+
+.step2-coord-title.hidden-content {
+  opacity: 0;
+}
+
+.step2-coord-values {
+  color: #ff9800;
+  font-size: 3.2vw;
+  font-weight: 600;
+  white-space: nowrap;
+  align-self: center;
+  transition: opacity 0.5s ease;
+}
+
+.step2-coord-values.hidden-content {
+  opacity: 0;
+}
+
+.step2-coord-label {
+  color: #ff9800;
+}
+
+.step2-coord-group {
+  display: inline;
+}
+
+.step2-coord-val {
+  padding: 0.15vw 0.35vw;
+  border-radius: 0.3vw;
+  transition: background-color 0.4s ease;
+}
+
+.step2-formula-title {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 2.5vw;
+  margin-top: 0.5vw;
+  transition: opacity 0.5s ease;
+}
+
+.step2-formula-title.hidden-content {
+  opacity: 0;
+}
+
+.step2-formula-title y {
+  color: #ff9800;
+}
+
+.step2-right-column {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  padding: 2vw 1.5vw;
+  border-radius: 1vw;
+  background: #1e89ba40;
+}
+
+.step2-right-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vw;
+  text-align: center;
+  transition: opacity 0.5s ease;
+}
+
+.step2-right-content.hidden-content {
+  opacity: 0;
+}
+
+.step2-right-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 2.15vw;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.step2-right-formula {
+  color: #ff9800;
+  font-size: 3.5vw;
+  font-weight: 600;
+}
+
+.step2-substitute-btn {
+  font-size: 2.5vw;
+  cursor: pointer;
+  padding: 1vw 2.5vw;
+}
+
+.step2-substitute-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Two-point form fraction layout ── */
+
+.tpf-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5vw;
+  margin-top: 0.5vw;
+}
+
+.tpf-container-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transition: opacity 0.5s ease;
+}
+
+.step2-visual .step2-formula-title {
+  width: 100%;
+  text-align: left;
+}
+
+.tpf-fraction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tpf-num,
+.tpf-den {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3vw;
+  color: white;
+  font-size: 3.2vw;
+  white-space: nowrap;
+  padding: 0.3vw 0.6vw;
+  min-height: 3.2vw;
+  transition: background-color 0.5s ease;
+  border-radius: 0.3vw;
+}
+
+.tpf-bar {
+  width: 100%;
+  min-width: 8vw;
+  height: 0.18vw;
+  background: #ff9800;
+  margin: 0.2vw 0;
+}
+
+.tpf-equals {
+  color: white;
+  font-size: 3vw;
+  font-weight: 400;
+}
+
+.tpf-op {
+  color: white;
+}
+
+.tpf-val-sign {
+  display: inline;
+}
+
+.tpf-val-sign.tpf-fade-out,
+.tpf-op.tpf-fade-out,
+.tpf-den.tpf-fade-out {
+  animation: tpf-fade-out 0.65s ease forwards;
+}
+
+.tpf-op.tpf-fade-in,
+.tpf-den.tpf-fade-in {
+  opacity: 0;
+  animation: tpf-fade-in 0.65s ease forwards;
+}
+
+.tpf-simp-target {
+  min-width: 5vw;
+  min-height: 3.2vw;
+  justify-content: center;
+}
+
+.tpf-subscript {
+  padding: 0.1vw 0.3vw;
+  border-radius: 0.3vw;
+  transition:
+    background-color 0.6s ease,
+    padding 0.6s ease,
+    border-radius 0.6s ease;
+}
+
+.tpf-subscript sub {
+  font-size: 0.65em;
+}
+
+/* ── Background box colors ── */
+
+.tpf-box-blue,
+.tpf-box-brown {
+  padding: 0.3vw 0.65vw;
+  border-radius: 0.45vw;
+  display: inline-block;
+  transition:
+    background-color 0.6s ease,
+    padding 0.6s ease,
+    border-radius 0.6s ease;
+}
+
+.tpf-box-blue {
+  background-color: rgba(41, 98, 143, 0.7);
+}
+
+.tpf-box-brown {
+  background-color: rgba(130, 85, 30, 0.7);
+}
+
+.tpf-subscript.tpf-box-blue,
+.tpf-subscript.tpf-box-brown {
+  padding: 0.25vw 0.55vw;
+  border-radius: 0.45vw;
+}
+
+.step2-coord-val.tpf-box-blue,
+.step2-coord-val.tpf-box-brown {
+  transition:
+    background-color 0.6s ease,
+    padding 0.6s ease,
+    border-radius 0.6s ease;
+}
+
+.tpf-box-clearing,
+.tpf-purple-box.tpf-box-clearing {
+  background-color: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.tpf-purple-box {
+  background-color: rgba(137, 79, 163, 0.7);
+  padding: 0.3vw 0.65vw;
+  border-radius: 0.45vw;
+  transition:
+    background-color 0.6s ease,
+    padding 0.6s ease,
+    border-radius 0.6s ease;
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 3 — FINAL MCQ
+   ══════════════════════════════════════════════════ */
+
+.step3-left-column {
+  flex: 0 0 65%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step3-visual {
+  flex: 1;
+  background: #0a2b3f;
+  border-radius: 0 0 0.85vw 0.85vw;
+  padding: 1.5vw 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5vw;
+}
+
+.step3-visual .step2-formula-title {
+  width: 100%;
+  /* text-align: left !important; */
+}
+
+.step3-visual .tpf-container {
+  width: 100%;
+  justify-content: center;
+}
+
+.step3-visual .tpf-container-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.step3-simplify-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8vw;
+  margin-top: 1.5vw;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 2.5vw;
+  text-align: center;
+}
+
+.step3-simplify-formula {
+  color: #ff9800;
+  font-size: 3.5vw;
+  font-weight: 600;
+}
+
+.step3-right-column {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  padding: 1.45vw 1.25vw;
+  border-radius: 1vw;
+  background: #1e89ba40;
+}
+
+.step3-mcq-title {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 2.2vw;
+  text-align: center;
+  line-height: 1.35;
+  flex-shrink: 0;
+}
+
+.step3-options {
+  flex: 0;
+  justify-content: center;
+}
+
+.step3-options .reflection-option {
+  min-height: 5vw;
+  font-size: 3vw;
+}
+
+/* ══════════════════════════════════════════════════
+   STEP 4 — REFLECTION GRAPH
+   ══════════════════════════════════════════════════ */
+
+.step4-left-column {
+  flex: 0 0 65%;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step4-visual {
+  flex: 1;
+  min-height: 0;
+  background: #0a2b3f;
+  border-radius: 0 0 0.85vw 0.85vw;
+  padding: 0.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step4-right-column {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw 1.5vw;
+  border-radius: 1vw;
+  background: #1e89ba40;
+}
+
+.step4-left-column .step2-heading-bar y {
+  color: #e97132;
+}
+
+.step4-right-content {
+  color: #8fd9a8;
+  font-size: 2.5vw;
+  line-height: 1.55;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.step4-right-content y {
+  color: #ffd34d;
+}
+
+.step4-right-content.hidden-content {
+  opacity: 0;
+  visibility: hidden;
+  transition: none;
+}
+
+.step4-right-content.fade-in {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s ease;
+  animation: fade-in-anim 0.5s ease forwards;
+}
+
+/* ── Simplify feedback ── */
+
+.simplify-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1vw 1.2vw;
+  border-radius: 0.8vw;
+  color: #ffffff;
+  text-align: center;
+  font-size: 2.1vw;
+  line-height: 1.35;
+  animation: feedback-pop 0.28s ease-out;
+  margin-top: auto;
+}
+
+.simplify-feedback.correct-feedback {
+  background: rgba(46, 96, 55, 0.9);
+  border: 0.2vw solid rgba(100, 200, 120, 0.5);
+}
+
+.simplify-feedback.wrong-feedback {
+  background: rgba(255, 53, 53, 0.795);
+  border: 0.25vw dashed white;
+}
+
+/* ══════════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════════ */
+
+.fade-in {
+  animation: fade-in-anim 0.5s ease forwards;
+}
+
+.hidden-content {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+@keyframes fade-in-anim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tpf-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tpf-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes question-jump {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-0.65vw);
+  }
+}
+
+@keyframes option-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-0.35vw);
+  }
+  50% {
+    transform: translateX(0.35vw);
+  }
+  75% {
+    transform: translateX(-0.2vw);
+  }
+}
+
+@keyframes feedback-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.3vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
