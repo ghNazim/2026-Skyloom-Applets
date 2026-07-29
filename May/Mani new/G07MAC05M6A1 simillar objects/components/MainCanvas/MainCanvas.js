@@ -17,6 +17,7 @@ const MainCanvas = (props) => {
   const { useState, useEffect, useRef } = React;
 
   const stepData = APP_DATA.steps[1];
+  const step2Data = APP_DATA.steps[2];
   const objects = stepData.objects;
   const dollIds = objects
     .filter((object) => object.type === "doll")
@@ -71,11 +72,47 @@ const MainCanvas = (props) => {
     if (onUpdateQuestionPanel) onUpdateQuestionPanel(false, "");
   };
 
+  const runStep2Animation = async () => {
+    setPhaseValue("step2Start");
+    setSelectedIdsValue(dollIds);
+    setWrongIds([]);
+    setSameLines([]);
+    setDifferentLines([
+      stepData.differentShapeLine1,
+      stepData.differentShapeLine2,
+    ]);
+    setHasTappedOpeningImage(true);
+    setAnimating(true);
+    if (onSetNextEnabled) onSetNextEnabled(false);
+    if (onPrevAvailabilityChange) onPrevAvailabilityChange(false);
+    if (registerGoPrevQuestion) registerGoPrevQuestion(null);
+    if (onUpdateNavText) onUpdateNavText(step2Data.navText);
+    if (onUpdateQuestionPanel) {
+      onUpdateQuestionPanel(true, step2Data.questionText);
+    }
+
+    await wait(PAUSE_MS);
+    setPhaseValue("step2NotSimilarAnimating");
+    await wait(SIMILAR_WORD_MOVE_MS);
+    setPhaseValue("step2NotSimilarVisible");
+    await wait(READ_PAUSE_MS);
+    setPhaseValue("step2GroupsMoving");
+    await wait(ANIMATION_MS);
+    setPhaseValue("step2Complete");
+    if (onUpdateNavText) onUpdateNavText(step2Data.navTextExplore);
+    if (onSetNextEnabled) onSetNextEnabled(true);
+    setAnimating(false);
+  };
+
   useEffect(() => {
     if (step === 1) resetActivity();
   }, [step]);
 
-  if (step !== 1) return null;
+  useEffect(() => {
+    if (step === 2) runStep2Animation();
+  }, [step]);
+
+  if (step !== 1 && step !== 2) return null;
 
   const handleSelectTap = (object) => {
     if (isAnimatingRef.current || phaseRef.current !== "selecting") return;
@@ -264,7 +301,10 @@ const MainCanvas = (props) => {
       if (
         phase === "nonSimilarIntro" ||
         phase === "nonSimilarBox" ||
-        phase === "nonSimilarComplete"
+        phase === "nonSimilarComplete" ||
+        phase === "step2Start" ||
+        phase === "step2NotSimilarAnimating" ||
+        phase === "step2NotSimilarVisible"
       ) {
         const rightPositions = {
           car: { left: "55%", top: "68%", scale: 0.95 },
@@ -277,6 +317,23 @@ const MainCanvas = (props) => {
           top: rightPositions[object.id].top,
           scale: rightPositions[object.id].scale,
           rotateY: 0,
+          rotateZ: 0,
+        };
+      }
+
+      if (phase === "step2GroupsMoving" || phase === "step2Complete") {
+        const summaryScale = 0.9;
+        const leftSummaryPositions = {
+          car: { left: "8%", top: "61%", scale: object.scale * summaryScale },
+          robo: { left: "20%", top: "56%", scale: object.scale * summaryScale },
+          teddy: { left: "32%", top: "57%", scale: object.scale * summaryScale },
+          dino: { left: "42%", top: "61%", scale: object.scale * summaryScale },
+        };
+        return {
+          left: leftSummaryPositions[object.id].left,
+          top: leftSummaryPositions[object.id].top,
+          scale: leftSummaryPositions[object.id].scale,
+          rotateY: object.rotateY,
           rotateZ: 0,
         };
       }
@@ -351,13 +408,33 @@ const MainCanvas = (props) => {
       if (
         phase === "nonSimilarIntro" ||
         phase === "nonSimilarBox" ||
-        phase === "nonSimilarComplete"
+        phase === "nonSimilarComplete" ||
+        phase === "step2Start" ||
+        phase === "step2NotSimilarAnimating" ||
+        phase === "step2NotSimilarVisible"
       ) {
         return {
           left: "112%",
           top: object.stackTop,
           scale: 1,
           rotateY: 0,
+          rotateZ: 0,
+        };
+      }
+
+      if (phase === "step2GroupsMoving" || phase === "step2Complete") {
+        const summaryScale = 0.9;
+        const rightSummaryPositions = {
+          doll1: { left: "58%", top: "60%" },
+          doll2: { left: "69%", top: "57%" },
+          doll3: { left: "81%", top: "55%" },
+          doll4: { left: "92%", top: "60%" },
+        };
+        return {
+          left: rightSummaryPositions[object.id].left,
+          top: rightSummaryPositions[object.id].top,
+          scale: object.scale * summaryScale,
+          rotateY: object.rotateY,
           rotateZ: 0,
         };
       }
@@ -602,6 +679,16 @@ const MainCanvas = (props) => {
   return React.createElement(
     "div",
     { className: "main-canvas-container look-alikes-applet" },
+    React.createElement("div", {
+      className:
+        "summary-half-bg summary-left-bg" +
+        (phase === "step2Complete" ? " is-visible" : ""),
+    }),
+    React.createElement("div", {
+      className:
+        "summary-half-bg summary-right-bg" +
+        (phase === "step2Complete" ? " is-visible" : ""),
+    }),
     React.createElement(
       "div",
       {
@@ -646,7 +733,11 @@ const MainCanvas = (props) => {
           phase === "similarComplete" ||
           phase === "similarTitleVisible" ||
           phase === "similarTitleAnimating" ||
-          phase === "similarObjectsRight"
+          phase === "similarObjectsRight" ||
+          phase === "step2NotSimilarAnimating" ||
+          phase === "step2NotSimilarVisible" ||
+          phase === "step2GroupsMoving" ||
+          phase === "step2Complete"
             ? " is-out-left"
             : ""),
       },
@@ -661,6 +752,8 @@ const MainCanvas = (props) => {
           "object-title similar-objects-title" +
           (phase === "similarTitleVisible" ||
           phase === "similarObjectsRight" ||
+          phase === "step2GroupsMoving" ||
+          phase === "step2Complete" ||
           phase === "nonSimilarIntro" ||
           phase === "nonSimilarBox" ||
           phase === "nonSimilarComplete"
@@ -673,6 +766,19 @@ const MainCanvas = (props) => {
             : ""),
       },
       stepData.similarObjectsTitle,
+    ),
+    React.createElement(
+      "div",
+      {
+        className:
+          "object-title not-similar-objects-title" +
+          (phase === "step2NotSimilarVisible" ||
+          phase === "step2GroupsMoving" ||
+          phase === "step2Complete"
+            ? " is-visible"
+            : ""),
+      },
+      step2Data.notSimilarObjectsTitle,
     ),
     React.createElement(
       "div",
@@ -706,9 +812,13 @@ const MainCanvas = (props) => {
       {
         className:
           "math-callout non-similar-big-box" +
-          (phase === "nonSimilarBox" || phase === "nonSimilarComplete"
+          (phase === "nonSimilarBox" ||
+          phase === "nonSimilarComplete" ||
+          phase === "step2Start" ||
+          phase === "step2NotSimilarAnimating"
             ? " is-visible"
-            : ""),
+            : "") +
+          (phase === "step2NotSimilarAnimating" ? " is-fading" : ""),
       },
       React.createElement("div", null, stepData.similarBoxLine1),
       React.createElement("div", null, stepData.similarBoxLine2),
@@ -718,6 +828,12 @@ const MainCanvas = (props) => {
         stepData.nonSimilarBoxWord + ".",
       ),
     ),
+    phase === "step2NotSimilarAnimating" &&
+      React.createElement(
+        "div",
+        { className: "moving-not-similar-word is-moving" },
+        step2Data.nonSimilarBoxWord,
+      ),
     objects.map((object) =>
       React.createElement("img", {
         key: object.id,

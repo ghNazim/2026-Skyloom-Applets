@@ -34,3 +34,11 @@
   font-weight: 400;
   line-height: 1.2;
 }
+
+.question-similar {
+  color: #ffcc45;
+}
+
+.question-not-similar {
+  color: #66bfff;
+}

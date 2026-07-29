@@ -11,7 +11,7 @@ const Navigation = ({
     React.createElement(
       "button",
       {
-        className: "nav-chevron",
+        className: "nav-chevron prev",
         onClick: () => onNav("prev"),
         disabled: isPrevDisabled,
       },

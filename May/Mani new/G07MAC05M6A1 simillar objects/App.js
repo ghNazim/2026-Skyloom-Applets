@@ -11,7 +11,7 @@ const App = () => {
   const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
   const goPrevQuestionRef = useRef(null);
 
-  const isFullscreenStep = currentStep === 0 || currentStep === 2;
+  const isFullscreenStep = currentStep === 0 || currentStep === 3;
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
@@ -36,6 +36,11 @@ const App = () => {
       setDynamicQuestionText(null);
       setQuestionPanelVisible(false);
       setIsNextDisabled(true);
+    } else if (currentStep === 2) {
+      setDynamicNavText(APP_DATA.steps[2].navText);
+      setDynamicQuestionText(APP_DATA.steps[2].questionText);
+      setQuestionPanelVisible(true);
+      setIsNextDisabled(true);
     }
   }, [currentStep]);
 
@@ -44,6 +49,8 @@ const App = () => {
     if (typeof playSound === "function") playSound("click");
     if (currentStep === 1) {
       setCurrentStep(2);
+    } else if (currentStep === 2) {
+      setCurrentStep(3);
     }
   };
 
@@ -105,7 +112,7 @@ const App = () => {
     );
   }
 
-  if (currentStep === 2) {
+  if (currentStep === 3) {
     return React.createElement(
       "div",
       { className: "applet-container" },

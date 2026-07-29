@@ -30,6 +30,10 @@
     0.2vh 0.2vh 0.1vh var(--start-button-shadow);
 }
 
+.nav-chevron.prev {
+  opacity: 0;
+  pointer-events: none;
+}
 .nav-chevron:not(:disabled) {
   opacity: 1;
   color: var(--white-color);
@@ -76,8 +80,9 @@
   font-size: 2.5vw;
   color: var(--white-color);
   padding: 0.3vw;
-   background: rgba(255, 255, 255, 0.355);
+   /* background: rgba(255, 255, 255, 0.355); */
    border-radius: 0.8vw;
+   /* height: 4.5vw; */
 }
 
 .lower-panel-text {

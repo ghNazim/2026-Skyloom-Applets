@@ -86,7 +86,7 @@ const LOOK_ALIKE_OBJECTS = [
     left: "83%",
     top: "21%",
     width: "12vw",
-    scale: 1.1,
+    scale: 1,
     rotateY: 0,
     dockLeft: "36%",
     dockTop: "78%",
@@ -102,7 +102,7 @@ const LOOK_ALIKE_OBJECTS = [
     left: "35%",
     top: "70%",
     width: "12vw",
-    scale: 1.1,
+    scale: 1,
     rotateY: 0,
     dockLeft: "26%",
     dockTop: "84%",
@@ -134,8 +134,7 @@ const DATA = {
     app: {
       start: {
         heading: "Look-alikes",
-        text:
-          "Let's see if you can spot things that look alike<br>from this group of objects, and then<br>explore what makes them feel this way...",
+        text: "Let's see if you can spot things that look alike<br>from this group of objects, and then<br>explore what makes them feel this way...",
         buttonText: "START",
       },
       final: {
@@ -154,8 +153,7 @@ const DATA = {
           navTextOtherCompare: "Tap the other objects to compare them",
           navTextLookAlikeShapes:
             "Tap the look alike shapes to see what we call them.",
-          navTextOtherShapes:
-            "Tap the other shapes to see what we call them.",
+          navTextOtherShapes: "Tap the other shapes to see what we call them.",
           navTextSummarise: "Tap » to summarise.",
           compareButton: "Compare",
           sameShapeLine1: "They all have the same shape!!!",
@@ -169,6 +167,15 @@ const DATA = {
           nonSimilarBoxWord: "NOT SIMILAR",
           objects: LOOK_ALIKE_OBJECTS,
         },
+        2: {
+          questionText:
+            "<span class='question-similar'>Similar</span> and <span class='question-not-similar'>Not Similar</span> Objects",
+          navText: "",
+          navTextExplore: "Tap » to explore with a few more examples.",
+          notSimilarObjectsTitle: "NOT SIMILAR OBJECTS",
+          similarObjectsTitle: "SIMILAR OBJECTS",
+          nonSimilarBoxWord: "NOT SIMILAR",
+        },
       },
     },
   },
@@ -176,8 +183,7 @@ const DATA = {
     app: {
       start: {
         heading: "Benda Mirip",
-        text:
-          "Mari lihat apakah kamu bisa menemukan benda yang mirip<br>dari kelompok benda ini, lalu<br>menjelajahi apa yang membuatnya terasa begitu...",
+        text: "Mari lihat apakah kamu bisa menemukan benda yang mirip<br>dari kelompok benda ini, lalu<br>menjelajahi apa yang membuatnya terasa begitu...",
         buttonText: "MULAI",
       },
       final: {
@@ -194,12 +200,10 @@ const DATA = {
           navText: "Ketuk benda-benda yang mirip",
           navTextCompare: "Ketuk 'Bandingkan'",
           navTextLineUp: "Ketuk objek apa saja untuk menyusunnya sejajar",
-          navTextOtherCompare:
-            "Ketuk objek lainnya untuk membandingkannya",
+          navTextOtherCompare: "Ketuk objek lainnya untuk membandingkannya",
           navTextLookAlikeShapes:
             "Ketuk bentuk yang mirip untuk melihat sebutannya.",
-          navTextOtherShapes:
-            "Ketuk bentuk lainnya untuk melihat sebutannya.",
+          navTextOtherShapes: "Ketuk bentuk lainnya untuk melihat sebutannya.",
           navTextSummarise: "Ketuk » untuk merangkum.",
           compareButton: "Bandingkan",
           sameShapeLine1: "Semuanya memiliki bentuk yang sama!!!",
@@ -212,6 +216,16 @@ const DATA = {
           similarBoxWord: "SERUPA",
           nonSimilarBoxWord: "TIDAK SERUPA",
           objects: LOOK_ALIKE_OBJECTS,
+        },
+        2: {
+          questionText:
+            "<span class='question-similar'>Objek Serupa</span> dan <span class='question-not-similar'>Tidak Serupa</span>",
+          navText: "",
+          navTextExplore:
+            "Ketuk » untuk menjelajah dengan beberapa contoh lagi.",
+          notSimilarObjectsTitle: "OBJEK TIDAK SERUPA",
+          similarObjectsTitle: "OBJEK SERUPA",
+          nonSimilarBoxWord: "TIDAK SERUPA",
         },
       },
     },
