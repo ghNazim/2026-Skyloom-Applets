@@ -11,7 +11,7 @@ const App = () => {
   const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
   const goPrevQuestionRef = useRef(null);
 
-  const isFullscreenStep = currentStep === 0 || currentStep === 3;
+  const isFullscreenStep = currentStep === 0 || currentStep === 5;
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
@@ -41,6 +41,11 @@ const App = () => {
       setDynamicQuestionText(APP_DATA.steps[2].questionText);
       setQuestionPanelVisible(true);
       setIsNextDisabled(true);
+    } else if (currentStep === 3 || currentStep === 4) {
+      setDynamicNavText(APP_DATA.steps[currentStep].navText);
+      setDynamicQuestionText(APP_DATA.steps[currentStep].questionText);
+      setQuestionPanelVisible(true);
+      setIsNextDisabled(true);
     }
   }, [currentStep]);
 
@@ -51,6 +56,10 @@ const App = () => {
       setCurrentStep(2);
     } else if (currentStep === 2) {
       setCurrentStep(3);
+    } else if (currentStep === 3) {
+      setCurrentStep(4);
+    } else if (currentStep === 4) {
+      setCurrentStep(5);
     }
   };
 
@@ -112,7 +121,7 @@ const App = () => {
     );
   }
 
-  if (currentStep === 3) {
+  if (currentStep === 5) {
     return React.createElement(
       "div",
       { className: "applet-container" },
@@ -122,9 +131,11 @@ const App = () => {
         React.createElement(Fullscreen, {
           heading: APP_DATA.final.heading,
           text: APP_DATA.final.text,
+          table: APP_DATA.final.table,
           buttonText: APP_DATA.final.buttonText,
           onButtonClick: handleRestart,
           showNudge: false,
+          isFinal: true,
         }),
       ),
     );

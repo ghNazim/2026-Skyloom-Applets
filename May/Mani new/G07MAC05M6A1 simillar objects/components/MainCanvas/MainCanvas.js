@@ -18,9 +18,16 @@ const MainCanvas = (props) => {
 
   const stepData = APP_DATA.steps[1];
   const step2Data = APP_DATA.steps[2];
+  const isSpotStep = step === 3 || step === 4;
+  const spotData = isSpotStep ? APP_DATA.steps[step] : APP_DATA.steps[3];
   const objects = stepData.objects;
+  const spotObjects = spotData.objects;
+  const targetType = spotData.targetType || "car";
   const dollIds = objects
     .filter((object) => object.type === "doll")
+    .map((object) => object.id);
+  const targetIds = spotObjects
+    .filter((object) => object.type === targetType)
     .map((object) => object.id);
   const [phase, setPhase] = useState("selecting");
   const [selectedIds, setSelectedIds] = useState([]);
@@ -56,6 +63,8 @@ const MainCanvas = (props) => {
 
   const allDollsSelected = (ids) =>
     dollIds.every((id) => ids.indexOf(id) !== -1);
+  const allTargetsSelected = (ids) =>
+    targetIds.every((id) => ids.indexOf(id) !== -1);
 
   const resetActivity = () => {
     setPhaseValue("selecting");
@@ -104,6 +113,23 @@ const MainCanvas = (props) => {
     setAnimating(false);
   };
 
+  const resetSpotStep = () => {
+    setPhaseValue("step3Selecting");
+    setSelectedIdsValue([]);
+    setWrongIds([]);
+    setSameLines([]);
+    setDifferentLines([]);
+    setHasTappedOpeningImage(false);
+    setAnimating(false);
+    if (onSetNextEnabled) onSetNextEnabled(false);
+    if (onUpdateNavText) onUpdateNavText(spotData.navText);
+    if (onPrevAvailabilityChange) onPrevAvailabilityChange(false);
+    if (registerGoPrevQuestion) registerGoPrevQuestion(null);
+    if (onUpdateQuestionPanel) {
+      onUpdateQuestionPanel(true, spotData.questionText);
+    }
+  };
+
   useEffect(() => {
     if (step === 1) resetActivity();
   }, [step]);
@@ -112,7 +138,11 @@ const MainCanvas = (props) => {
     if (step === 2) runStep2Animation();
   }, [step]);
 
-  if (step !== 1 && step !== 2) return null;
+  useEffect(() => {
+    if (isSpotStep) resetSpotStep();
+  }, [step]);
+
+  if (step !== 1 && step !== 2 && !isSpotStep) return null;
 
   const handleSelectTap = (object) => {
     if (isAnimatingRef.current || phaseRef.current !== "selecting") return;
@@ -244,6 +274,11 @@ const MainCanvas = (props) => {
   };
 
   const handleObjectClick = (object) => {
+    if (isSpotStep) {
+      handleSpotObjectClick(object);
+      return;
+    }
+
     if (phase === "selecting") {
       setHasTappedOpeningImage(true);
       handleSelectTap(object);
@@ -270,7 +305,123 @@ const MainCanvas = (props) => {
     }
   };
 
+  const handleSpotObjectClick = (object) => {
+    if (isAnimatingRef.current) return;
+
+    if (phase === "step3Selecting") {
+      setHasTappedOpeningImage(true);
+
+      if (object.type !== targetType) {
+        if (typeof playSound === "function") playSound("wrong");
+        if (wrongIds.indexOf(object.id) === -1) {
+          setWrongIds((prev) => prev.concat(object.id));
+        }
+        return;
+      }
+
+      if (selectedIdsRef.current.indexOf(object.id) !== -1) return;
+
+      if (typeof playSound === "function") playSound("correct");
+      const nextSelected = selectedIdsRef.current.concat(object.id);
+      setSelectedIdsValue(nextSelected);
+
+      if (allTargetsSelected(nextSelected)) {
+        setPhaseValue("step3ReadyCompare");
+        if (onUpdateNavText) onUpdateNavText(spotData.navTextCompare);
+      }
+      return;
+    }
+  };
+
+  const handleStep3Compare = async () => {
+    if (isAnimatingRef.current || phaseRef.current !== "step3ReadyCompare") {
+      return;
+    }
+
+    if (typeof playSound === "function") playSound("click");
+    setAnimating(true);
+    setPhaseValue("step3CarsRow");
+    await wait(ANIMATION_MS);
+    setPhaseValue("step3CarsStackOriginalScale");
+    await wait(ANIMATION_MS);
+    await wait(ANIMATION_MS);
+    setPhaseValue("step3CarsStack");
+    await wait(ANIMATION_MS);
+    setPhaseValue("step3CarsTilting");
+    await wait(ANIMATION_MS);
+    setPhaseValue("step3CarsStack");
+    await wait(ANIMATION_MS);
+    setSameLines([spotData.fitText]);
+    if (onUpdateNavText) onUpdateNavText(spotData.navTextDone);
+    if (onSetNextEnabled) onSetNextEnabled(true);
+    setAnimating(false);
+  };
+
   const getObjectPlacement = (object) => {
+    if (isSpotStep) {
+      if (object.type !== targetType) {
+        if (
+          phase === "step3CarsRow" ||
+          phase === "step3CarsStackOriginalScale" ||
+          phase === "step3CarsStack" ||
+          phase === "step3CarsTilting"
+        ) {
+          return {
+            left: object.exitLeft,
+            top: object.exitTop,
+            scale: object.scale,
+            rotateY: object.rotateY,
+            rotateZ: object.rotateZ,
+          };
+        }
+
+        return {
+          left: object.left,
+          top: object.top,
+          scale: object.scale,
+          rotateY: object.rotateY,
+          rotateZ: object.rotateZ,
+        };
+      }
+
+      if (phase === "step3CarsRow") {
+        return {
+          left: object.rowLeft,
+          top: object.rowTop,
+          scale: object.scale,
+          rotateY: 0,
+          rotateZ: 0,
+        };
+      }
+
+      if (
+        phase === "step3CarsStackOriginalScale" ||
+        phase === "step3CarsStack" ||
+        phase === "step3CarsTilting"
+      ) {
+        const tiltValues = [15, 30, -15, -30];
+        const tiltById = targetIds.reduce((acc, id, index) => {
+          acc[id] = tiltValues[index] || 0;
+          return acc;
+        }, {});
+        return {
+          left: object.stackLeft,
+          top: object.stackTop,
+          scale: phase === "step3CarsStackOriginalScale" ? object.scale : 1,
+          rotateY: 0,
+          rotateZ: phase === "step3CarsTilting" ? tiltById[object.id] || 0 : 0,
+        };
+      }
+
+      return {
+        left: object.left,
+        top: object.top,
+        scale: object.scale,
+        rotateY: object.rotateY,
+        rotateZ: object.rotateZ,
+      };
+    }
+
     if (!isDoll(object)) {
       if (
         phase === "distractorsDocked" ||
@@ -510,6 +661,49 @@ const MainCanvas = (props) => {
     phase === "similarObjectsRight";
 
   const getObjectClassName = (object) => {
+    if (isSpotStep) {
+      const classes = ["look-object"];
+      const objectIsTarget = object.type === targetType;
+
+      if (phase === "step3Selecting" || phase === "step3ReadyCompare") {
+        if (selectedIds.indexOf(object.id) !== -1 && objectIsTarget) {
+          classes.push("is-selected-doll");
+        }
+        if (
+          wrongIds.indexOf(object.id) !== -1 ||
+          (phase === "step3ReadyCompare" && !objectIsTarget)
+        ) {
+          classes.push("is-greyed");
+        }
+      }
+
+      if (
+        objectIsTarget &&
+        (phase === "step3CarsRow" ||
+          phase === "step3CarsStackOriginalScale" ||
+          phase === "step3CarsStack" ||
+          phase === "step3CarsTilting")
+      ) {
+        classes.push("is-black-green");
+      }
+
+      if (
+        !objectIsTarget &&
+        (phase === "step3CarsRow" ||
+          phase === "step3CarsStackOriginalScale" ||
+          phase === "step3CarsStack" ||
+          phase === "step3CarsTilting")
+      ) {
+        classes.push("is-faded-other");
+      }
+
+      if (phase === "step3Selecting") {
+        classes.push("is-clickable");
+      }
+
+      return classes.join(" ");
+    }
+
     const classes = ["look-object"];
     const objectIsDoll = isDoll(object);
 
@@ -596,6 +790,40 @@ const MainCanvas = (props) => {
 
   const getObjectStyle = (object) => {
     const placement = getObjectPlacement(object);
+    if (isSpotStep) {
+      const targetStackOrder = spotObjects
+        .filter((item) => item.type === targetType)
+        .slice()
+        .sort((a, b) => b.scale - a.scale)
+        .reduce((acc, item, index) => {
+          acc[item.id] = index + 3;
+          return acc;
+        }, {});
+      const isStackedTarget =
+        object.type === targetType &&
+        (phase === "step3CarsStackOriginalScale" ||
+          phase === "step3CarsStack" ||
+          phase === "step3CarsTilting");
+      return {
+        left: placement.left,
+        top: placement.top,
+        width: object.width,
+        transform:
+          "translate(-50%, -50%) perspective(40vw) rotateY(" +
+          placement.rotateY +
+          "deg) rotate(" +
+          placement.rotateZ +
+          "deg) scale(" +
+          placement.scale +
+          ")",
+        zIndex: isStackedTarget
+          ? targetStackOrder[object.id]
+          : object.type === targetType
+          ? 3
+          : 2,
+      };
+    }
+
     const stackOrder = {
       doll3: 3,
       doll2: 4,
@@ -675,6 +903,8 @@ const MainCanvas = (props) => {
       style: { left, top },
     });
   };
+
+  const activeObjects = isSpotStep ? spotObjects : objects;
 
   return React.createElement(
     "div",
@@ -834,7 +1064,7 @@ const MainCanvas = (props) => {
         { className: "moving-not-similar-word is-moving" },
         step2Data.nonSimilarBoxWord,
       ),
-    objects.map((object) =>
+    activeObjects.map((object) =>
       React.createElement("img", {
         key: object.id,
         src: object.src,
@@ -845,17 +1075,17 @@ const MainCanvas = (props) => {
         draggable: false,
       }),
     ),
-    phase === "readyToCompare" &&
+    (phase === "readyToCompare" || phase === "step3ReadyCompare") &&
       React.createElement(
         "button",
         {
           type: "button",
           className: "btn compare-button",
-          onClick: handleCompare,
+          onClick: isSpotStep ? handleStep3Compare : handleCompare,
         },
-        stepData.compareButton,
+        isSpotStep ? spotData.compareButton : stepData.compareButton,
       ),
-    phase === "readyToCompare" &&
+    (phase === "readyToCompare" || phase === "step3ReadyCompare") &&
       React.createElement("img", {
         src: "assets/tap.gif",
         alt: "",

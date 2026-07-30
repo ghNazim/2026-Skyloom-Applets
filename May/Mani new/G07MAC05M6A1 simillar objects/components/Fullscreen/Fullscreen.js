@@ -16,15 +16,54 @@ const Fullscreen = ({
   left = false,
   isFinal = false,
   summaryCards = [],
+  table = null,
   showNudge = false,
 }) => {
   const contentArea = React.createElement(
     "div",
     { className: "fullscreen-content-wrap" },
-    React.createElement("p", {
-      className: "fullscreen-content " + (left ? "left" : "center"),
-      dangerouslySetInnerHTML: { __html: text },
-    }),
+    text &&
+      React.createElement("p", {
+        className: "fullscreen-content " + (left ? "left" : "center"),
+        dangerouslySetInnerHTML: { __html: text },
+      }),
+    isFinal &&
+      table &&
+      React.createElement(
+        "div",
+        { className: "final-table-wrap" },
+        React.createElement(
+          "table",
+          { className: "final-summary-table" },
+          React.createElement(
+            "thead",
+            null,
+            React.createElement(
+              "tr",
+              null,
+              table.headers.map((header, index) =>
+                React.createElement("th", {
+                  key: "final-header-" + index,
+                  dangerouslySetInnerHTML: { __html: header },
+                }),
+              ),
+            ),
+          ),
+          React.createElement(
+            "tbody",
+            null,
+            table.rows.map((row, rowIndex) =>
+              React.createElement(
+                "tr",
+                { key: "final-row-" + rowIndex },
+                row.map((cell, cellIndex) =>
+                  React.createElement("td", { key: "final-cell-" + cellIndex }, cell),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     isFinal &&
       summaryCards.length > 0 &&
       React.createElement(
