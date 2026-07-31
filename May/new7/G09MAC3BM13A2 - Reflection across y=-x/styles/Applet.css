@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  background: var(--background-color) url("../assets/DarkBG2.jpg") center /
+    cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.applet-container {
+  aspect-ratio: 16/9;
+  width: 100%;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--text-color);
+  box-shadow: 0 1vh 3vw var(--transparent-black-15);
+  position: relative;
+  gap: 1vh;
+  background: #0f3c53c1;
+}
+.lesson-screen {
+  height: 92%;
+  min-height: 0;
+  padding: 2vh 1vw;
+}
+.top-title {
+  color: var(--button-hover-border-color);
+  text-align: center;
+  font-size: 2.1vw !important;
+  margin-bottom: 1vh;
+  height: fit-content;
+  line-height: 1.35;
+  padding: 0 2vw;
+}
+
+/* Configure custom view transition timing for native browser morphing animations */
+::view-transition-group(*) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -381,23 +381,15 @@ button.median-num-circle:not(:disabled) {
 
 .sort-label {
   position: absolute;
-  top: 2vw;
   color: rgba(255, 255, 255, 0.72);
   font-size: 2vw;
   font-style: italic;
   font-weight: 500;
   line-height: 1;
-}
-
-.sort-smallest {
-  left: 13vw;
-  transform: translateX(-50%);
-  
-}
-
-.sort-largest {
-  right: 13vw;
-  transform: translateX(50%);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 8.45vw));
+  z-index: 2;
 }
 
 .median-count-badge {
@@ -613,7 +605,7 @@ button.median-num-circle:not(:disabled) {
 }
 
 .middle-option {
-  flex: 1 1 0;
+  /* flex: 1 1 0; */
   min-width: 0;
   border: 0.18vw solid rgba(255, 154, 35, 0.92);
   border-radius: 0.8vw;
@@ -645,6 +637,12 @@ button.median-num-circle:not(:disabled) {
     background 0.3s ease,
     border-color 0.3s ease;
 }
+.middle-option:first-child {
+  width: 40%;
+}
+.middle-option:last-child {
+  width: 60%;
+}
 
 .middle-option:hover:not(:disabled) {
   filter: brightness(1.07);
@@ -659,6 +657,8 @@ button.median-num-circle:not(:disabled) {
   vertical-align: super;
   transform: translateY(-0.52em);
   margin-left: 0.04em;
+  position: relative;
+  left: -0.3vw;
 }
 
 .middle-option.wrong {
@@ -673,7 +673,7 @@ button.median-num-circle:not(:disabled) {
 }
 
 .middle-options.correct-only .middle-option.removed {
-  flex: 0 0 0;
+  /* flex: 0 0 0; */
   width: 0;
   min-width: 0;
   padding: 0;
@@ -683,7 +683,6 @@ button.median-num-circle:not(:disabled) {
 }
 
 .middle-options.correct-only .middle-option.kept {
-  flex: 0 0 58%;
   cursor: default;
   background: linear-gradient(145deg, rgba(139, 81, 112, 0.94), rgba(97, 54, 82, 0.96));
   border-color: rgba(151, 67, 116, 0.72);
@@ -692,8 +691,12 @@ button.median-num-circle:not(:disabled) {
     0 0.2vw 0.34vw rgba(0, 0, 0, 0.32);
 }
 
-.bottom-parent.has-median .middle-options.correct-only .middle-option.kept {
-  flex-basis: 88%;
+.bottom-parent.has-median .middle-options.correct-only .middle-option.kept,
+.bottom-parent.has-median .middle-options.correct-only .middle-option.kept:first-child,
+.bottom-parent.has-median .middle-options.correct-only .middle-option.kept:last-child {
+  width: 100%;
+  flex: 1 1 100%;
+  max-width: 100%;
   font-size: 1.75vw;
 }
 
@@ -704,12 +707,26 @@ button.median-num-circle:not(:disabled) {
   40%, 60% { transform: translateX(0.42vw); }
 }
 
-.middle-fraction-wrap,
-.middle-correct-expression {
+.middle-fraction-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.1vw;
+  white-space: nowrap;
+}
+
+.middle-formula-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15vw;
+  white-space: nowrap;
+}
+
+.middle-correct-expression,
+.middle-simplified-expression {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5vw;
   white-space: nowrap;
 }
 
@@ -748,8 +765,14 @@ button.median-num-circle:not(:disabled) {
   font-weight: 400;
 }
 
+.middle-ke-prefix {
+  display: inline-block;
+  margin-right: 0.1vw;
+}
+
 .middle-option-text {
   display: inline;
+  margin-left: 0.1vw;
 }
 
 .middle-expression-n {

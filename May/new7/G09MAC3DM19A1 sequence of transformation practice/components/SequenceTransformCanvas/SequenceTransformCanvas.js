@@ -9,11 +9,14 @@ const SEQ_GRAPH = {
   gridHeight: 540,
 };
 
-const SequenceTransformCanvas = ({
+const TRANSLATION_PATH_DELAY_MS = 1180;
+const TRANSLATION_PATH_DURATION_MS = 900;
+
+const SequenceTransformCanvas = React.forwardRef(({
   stageKey,
   preservedPoints = {},
   onStageComplete,
-}) => {
+}, ref) => {
   const {
     useCallback,
     useEffect,
@@ -21,9 +24,14 @@ const SequenceTransformCanvas = ({
     useMemo,
     useRef,
     useState,
+    useImperativeHandle,
   } = React;
 
   const stage = APP_DATA.stages[stageKey];
+  const graph = useMemo(
+    () => Object.assign({}, SEQ_GRAPH, stage.graph || {}),
+    [stage],
+  );
   const fields = useMemo(() => {
     const list = [];
     stage.answerKeys.forEach((key) => {
@@ -43,13 +51,17 @@ const SequenceTransformCanvas = ({
   const [coordLabels, setCoordLabels] = useState({});
   const [demoPoint, setDemoPoint] = useState(null);
   const [translationMotion, setTranslationMotion] = useState(null);
+  const [reflectionDemo, setReflectionDemo] = useState(null);
   const [completePolygon, setCompletePolygon] = useState(false);
   const [calloutPos, setCalloutPos] = useState(null);
   const [flyClone, setFlyClone] = useState(null);
   const [connectors, setConnectors] = useState([]);
+  const [rowTransition, setRowTransition] = useState(null);
 
   const rootRef = useRef(null);
   const graphRef = useRef(null);
+  const givenRowRef = useRef(null);
+  const answerRowRef = useRef(null);
   const inputRefs = useRef({});
   const coordRefs = useRef({});
   const hintRef = useRef(null);
@@ -57,21 +69,21 @@ const SequenceTransformCanvas = ({
   const timeoutRefs = useRef([]);
   const rafRefs = useRef([]);
 
-  const unitX = SEQ_GRAPH.gridWidth / (SEQ_GRAPH.xMax - SEQ_GRAPH.xMin);
-  const unitY = SEQ_GRAPH.gridHeight / (SEQ_GRAPH.yMax - SEQ_GRAPH.yMin);
-  const svgWidth = SEQ_GRAPH.gridWidth + SEQ_GRAPH.padX * 2;
-  const svgHeight = SEQ_GRAPH.gridHeight + SEQ_GRAPH.padY * 2;
+  const unitX = graph.gridWidth / (graph.xMax - graph.xMin);
+  const unitY = graph.gridHeight / (graph.yMax - graph.yMin);
+  const svgWidth = graph.gridWidth + graph.padX * 2;
+  const svgHeight = graph.gridHeight + graph.padY * 2;
   const origin = {
-    x: SEQ_GRAPH.padX + (0 - SEQ_GRAPH.xMin) * unitX,
-    y: SEQ_GRAPH.padY + (SEQ_GRAPH.yMax - 0) * unitY,
+    x: graph.padX + (0 - graph.xMin) * unitX,
+    y: graph.padY + (graph.yMax - 0) * unitY,
   };
 
   const toSvg = useCallback(
     (pt) => ({
-      x: SEQ_GRAPH.padX + (pt.x - SEQ_GRAPH.xMin) * unitX,
-      y: SEQ_GRAPH.padY + (SEQ_GRAPH.yMax - pt.y) * unitY,
+      x: graph.padX + (pt.x - graph.xMin) * unitX,
+      y: graph.padY + (graph.yMax - pt.y) * unitY,
     }),
-    [unitX, unitY],
+    [graph, unitX, unitY],
   );
 
   const pointScreenPosition = useCallback(
@@ -109,23 +121,31 @@ const SequenceTransformCanvas = ({
       const labelPos = getLabelPos(
         {
           key: pointKey,
-          labelPlacement: pointKey.indexOf("C") === 0 ? "right" : "left",
+          labelPlacement: getPointLabelPlacement(pointKey),
         },
         pos,
+      );
+      const labelCenter = getLabelVisualCenter(
+        labelPos,
+        formatCoord(pointKey, pt),
       );
       return {
         x:
           graphRect.left -
           rootRect.left +
-          (labelPos.x / svgWidth) * graphRect.width,
+          (labelCenter.x / svgWidth) * graphRect.width,
         y:
           graphRect.top -
           rootRect.top +
-          (labelPos.y / svgHeight) * graphRect.height,
+          (labelCenter.y / svgHeight) * graphRect.height,
       };
     },
     [svgHeight, svgWidth, toSvg],
   );
+
+  const getPointLabelPlacement = (pointKey) =>
+    (stage.labelPlacements && stage.labelPlacements[pointKey]) ||
+    (pointKey.indexOf("C") === 0 ? "right" : "left");
 
   const clearTimers = useCallback(() => {
     timeoutRefs.current.forEach((id) => clearTimeout(id));
@@ -151,10 +171,12 @@ const SequenceTransformCanvas = ({
     setCoordLabels({});
     setDemoPoint(null);
     setTranslationMotion(null);
+    setReflectionDemo(null);
     setCompletePolygon(false);
     setCalloutPos(null);
     setFlyClone(null);
     setConnectors([]);
+    setRowTransition(null);
     setLater(() => setActiveIndex(0), 1000);
     return () => {
       clearTimers();
@@ -164,13 +186,66 @@ const SequenceTransformCanvas = ({
 
   const activeField = activeIndex == null ? null : fields[activeIndex];
 
+  const playAnswerToGivenTransition = useCallback(
+    () =>
+      new Promise((resolve) => {
+        if (!rootRef.current || !givenRowRef.current || !answerRowRef.current) {
+          resolve();
+          return;
+        }
+        const rootRect = rootRef.current.getBoundingClientRect();
+        const answerRect = answerRowRef.current.getBoundingClientRect();
+        const givenRect = givenRowRef.current.getBoundingClientRect();
+        const start = {
+          left: answerRect.left - rootRect.left,
+          top: answerRect.top - rootRect.top,
+          width: answerRect.width,
+          height: answerRect.height,
+        };
+        const end = {
+          left: givenRect.left - rootRect.left,
+          top: givenRect.top - rootRect.top,
+          width: givenRect.width,
+          height: givenRect.height,
+        };
+        setActiveIndex(null);
+        setCalloutPos(null);
+        setShowRuleHint(false);
+        setRowTransition({
+          html: answerRowRef.current.innerHTML,
+          start,
+          end,
+          moving: false,
+        });
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() =>
+            setRowTransition((transition) =>
+              transition ? { ...transition, moving: true } : transition,
+            ),
+          );
+        });
+        const id = setTimeout(resolve, 850);
+        timeoutRefs.current.push(id);
+      }),
+    [],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      playAnswerToGivenTransition,
+    }),
+    [playAnswerToGivenTransition],
+  );
+
   const allGraphPoints = useMemo(() => {
     const base = {};
-    Object.keys(APP_DATA.originalPoints).forEach((key) => {
+    const originalPoints = stage.originalPoints || APP_DATA.originalPoints;
+    Object.keys(originalPoints).forEach((key) => {
       base[key] = {
         key: key,
         label: key,
-        point: APP_DATA.originalPoints[key],
+        point: originalPoints[key],
         color: "#ffffff",
         labelColor: "#ffffff",
         labelPlacement: key === "A" ? "left" : "right",
@@ -184,11 +259,11 @@ const SequenceTransformCanvas = ({
       base[key] = plotted[key];
     });
     return base;
-  }, [plotted, preservedPoints]);
+  }, [plotted, preservedPoints, stage]);
 
   const animateTranslationPath = useCallback(
     (pointKey) => {
-      const fromKey = pointKey.replace("''", "'");
+      const fromKey = getSourcePointKey(pointKey);
       const startMotion = {
         key: pointKey,
         movingLabel: fromKey.charAt(0) + "t",
@@ -197,7 +272,7 @@ const SequenceTransformCanvas = ({
         progress: 0,
       };
       setTranslationMotion(startMotion);
-      const duration = 900;
+      const duration = TRANSLATION_PATH_DURATION_MS;
       const startTime = performance.now();
       const tick = (now) => {
         const progress = Math.min(1, (now - startTime) / duration);
@@ -319,6 +394,26 @@ const SequenceTransformCanvas = ({
     nextStatuses[pointKey + "-x"] === "correct" &&
     nextStatuses[pointKey + "-y"] === "correct";
 
+  const isTranslationStage = () => stage.demoMode === "translate";
+
+  const shouldShowReflectionDemo = (pointKey) =>
+    stage.demoMode === "reflectX" || stage.demoMode === "reflectY"
+      ? !stage.demoPoints || stage.demoPoints.indexOf(pointKey) !== -1
+      : false;
+
+  const revealPlottedPoint = (pointKey) => {
+    setCoordLabels((prev) => ({ ...prev, [pointKey]: false }));
+    setPlotted((prev) => ({
+      ...prev,
+      [pointKey]: {
+        ...prev[pointKey],
+        label: pointKey,
+        showCircle: true,
+      },
+    }));
+    advanceAfterPoint(pointKey);
+  };
+
   const startPointAnimation = (pointKey) => {
     const coordEl = coordRefs.current[pointKey];
     const target = pointLabelScreenPosition(pointKey, stage.answers[pointKey]);
@@ -354,7 +449,8 @@ const SequenceTransformCanvas = ({
           point: stage.answers[pointKey],
           color: stage.answerColor,
           labelColor: stage.answerColor,
-          labelPlacement: pointKey.indexOf("C") === 0 ? "right" : "left",
+          labelPlacement: getPointLabelPlacement(pointKey),
+          showCircle: false,
         },
       }));
       setCoordLabels((prev) => ({ ...prev, [pointKey]: true }));
@@ -364,30 +460,26 @@ const SequenceTransformCanvas = ({
       setLater(() => setDemoPoint(pointKey), 1650);
       setLater(() => {
         setDemoPoint(null);
-        setCoordLabels((prev) => ({ ...prev, [pointKey]: false }));
-        setPlotted((prev) => ({
-          ...prev,
-          [pointKey]: { ...prev[pointKey], label: pointKey },
-        }));
-        advanceAfterPoint(pointKey);
+        revealPlottedPoint(pointKey);
       }, 3050);
-    } else {
+    } else if (isTranslationStage()) {
       setLater(() => {
         animateTranslationPath(pointKey);
-      }, 1180);
+      }, TRANSLATION_PATH_DELAY_MS);
       setLater(() => {
         setTranslationMotion((motion) =>
           motion && motion.key === pointKey ? null : motion,
         );
-      }, 2580);
+        revealPlottedPoint(pointKey);
+      }, TRANSLATION_PATH_DELAY_MS + TRANSLATION_PATH_DURATION_MS);
+    } else if (shouldShowReflectionDemo(pointKey)) {
+      setLater(() => setReflectionDemo(pointKey), 1050);
       setLater(() => {
-        setCoordLabels((prev) => ({ ...prev, [pointKey]: false }));
-        setPlotted((prev) => ({
-          ...prev,
-          [pointKey]: { ...prev[pointKey], label: pointKey },
-        }));
-        advanceAfterPoint(pointKey);
-      }, 2580);
+        setReflectionDemo(null);
+        revealPlottedPoint(pointKey);
+      }, 2850);
+    } else {
+      setLater(() => revealPlottedPoint(pointKey), 980);
     }
   };
 
@@ -416,7 +508,8 @@ const SequenceTransformCanvas = ({
         point: stage.answers[key],
         color: stage.answerColor,
         labelColor: stage.answerColor,
-        labelPlacement: key.indexOf("C") === 0 ? "right" : "left",
+        labelPlacement: getPointLabelPlacement(key),
+        showCircle: true,
       };
     });
     return completed;
@@ -535,7 +628,12 @@ const SequenceTransformCanvas = ({
   const renderHint = () =>
     React.createElement(
       "div",
-      { className: "seq-hint-card", ref: hintRef },
+      {
+        className:
+          "seq-hint-card" +
+          (rowTransition ? " is-row-transition-hidden" : ""),
+        ref: hintRef,
+      },
       showRuleHint ? renderRuleHint() : React.createElement("span", null, APP_DATA.hints[stage.defaultHintKey]),
       connectors.length
         ? React.createElement(
@@ -587,8 +685,13 @@ const SequenceTransformCanvas = ({
       text,
     );
 
+  const formatTranslationTerm = (axis, delta) => {
+    if (!delta) return axis;
+    return axis + (delta > 0 ? "+" : "") + delta;
+  };
+
   const renderRuleHint = () => {
-    if (stageKey === "rotation") {
+    if (stage.connectorMode === "rotate90Clockwise") {
       return React.createElement(
         "span",
         { className: "seq-rule" },
@@ -604,6 +707,39 @@ const SequenceTransformCanvas = ({
         ")",
       );
     }
+    if (stage.connectorMode === "reflectX") {
+      return React.createElement(
+        "span",
+        { className: "seq-rule" },
+        APP_DATA.hints[stage.ruleHintKey],
+        " (",
+        hintToken("lhs-x", "x", "is-x"),
+        " , ",
+        hintToken("lhs-y", "y", "is-y"),
+        ") \u2192 (",
+        hintToken("rhs-x", "x", "is-x"),
+        " , ",
+        hintToken("rhs-y", "-y", "is-y"),
+        ")",
+      );
+    }
+    if (stage.connectorMode === "reflectY") {
+      return React.createElement(
+        "span",
+        { className: "seq-rule" },
+        APP_DATA.hints[stage.ruleHintKey],
+        " (",
+        hintToken("lhs-x", "x", "is-x"),
+        " , ",
+        hintToken("lhs-y", "y", "is-y"),
+        ") \u2192 (",
+        hintToken("rhs-x", "-x", "is-x"),
+        " , ",
+        hintToken("rhs-y", "y", "is-y"),
+        ")",
+      );
+    }
+    const translationDelta = stage.translation || { x: 2, y: 3 };
     return React.createElement(
       "span",
       { className: "seq-rule" },
@@ -613,16 +749,16 @@ const SequenceTransformCanvas = ({
       " , ",
       hintToken("lhs-y", "y", "is-y"),
       ") \u2192 (",
-      hintToken("rhs-x", "x+2", "is-x"),
+      hintToken("rhs-x", formatTranslationTerm("x", translationDelta.x), "is-x"),
       " , ",
-      hintToken("rhs-y", "y+3", "is-y"),
+      hintToken("rhs-y", formatTranslationTerm("y", translationDelta.y), "is-y"),
       ")",
     );
   };
 
   const renderGraph = () => {
     const points = Object.values(allGraphPoints);
-    const originalOrder = ["A", "B", "C"];
+    const originalOrder = Object.keys(stage.originalPoints || APP_DATA.originalPoints);
     return React.createElement(
       "div",
       { className: "seq-graph-panel" },
@@ -670,6 +806,7 @@ const SequenceTransformCanvas = ({
         renderTranslationMotion(),
         completePolygon ? renderCompletedPolygon() : null,
         demoPoint ? renderRotationDemo(demoPoint) : null,
+        reflectionDemo ? renderReflectionDemo(reflectionDemo) : null,
         points.map(renderGraphPoint),
       ),
     );
@@ -677,25 +814,25 @@ const SequenceTransformCanvas = ({
 
   const renderGrid = () => {
     const els = [];
-    const left = SEQ_GRAPH.padX;
-    const right = SEQ_GRAPH.padX + SEQ_GRAPH.gridWidth;
-    const top = SEQ_GRAPH.padY;
-    const bottom = SEQ_GRAPH.padY + SEQ_GRAPH.gridHeight;
+    const left = graph.padX;
+    const right = graph.padX + graph.gridWidth;
+    const top = graph.padY;
+    const bottom = graph.padY + graph.gridHeight;
     const axisArrowInset = 0;
-    for (let x = SEQ_GRAPH.xMin; x <= SEQ_GRAPH.xMax; x++) {
-      const px = SEQ_GRAPH.padX + (x - SEQ_GRAPH.xMin) * unitX;
+    for (let x = graph.xMin; x <= graph.xMax; x++) {
+      const px = graph.padX + (x - graph.xMin) * unitX;
       els.push(React.createElement("line", { key: "vx" + x, x1: px, y1: top, x2: px, y2: bottom, className: "seq-grid-line" }));
       els.push(
-        x === 0 || x === SEQ_GRAPH.xMin || x === SEQ_GRAPH.xMax
+        x === 0 || x === graph.xMin || x === graph.xMax
           ? null
           : React.createElement("text", { key: "xl" + x, x: px, y: origin.y + 23, className: "seq-axis-number", textAnchor: "middle" }, x),
       );
     }
-    for (let y = SEQ_GRAPH.yMin; y <= SEQ_GRAPH.yMax; y++) {
-      const py = SEQ_GRAPH.padY + (SEQ_GRAPH.yMax - y) * unitY;
+    for (let y = graph.yMin; y <= graph.yMax; y++) {
+      const py = graph.padY + (graph.yMax - y) * unitY;
       els.push(React.createElement("line", { key: "hy" + y, x1: left, y1: py, x2: right, y2: py, className: "seq-grid-line" }));
       els.push(
-        y === 0 || y === SEQ_GRAPH.yMin || y === SEQ_GRAPH.yMax
+        y === 0 || y === graph.yMin || y === graph.yMax
           ? null
           : React.createElement("text", { key: "yl" + y, x: origin.x + 23, y: py + 6, className: "seq-axis-number", textAnchor: "middle" }, y),
       );
@@ -704,14 +841,15 @@ const SequenceTransformCanvas = ({
     els.push(React.createElement("line", { key: "y-axis", x1: origin.x, y1: top + axisArrowInset, x2: origin.x, y2: bottom - axisArrowInset, className: "seq-axis-line", markerStart: "url(#seq-arrow-start)", markerEnd: "url(#seq-arrow-end)" }));
     els.push(React.createElement("text", { key: "origin", x: origin.x - 14, y: origin.y + 12, className: "seq-origin-label" }, APP_DATA.graph.origin));
     els.push(React.createElement("text", { key: "x-label", x: right - 8, y: origin.y - 10, className: "seq-axis-name", textAnchor: "start" }, APP_DATA.graph.xAxis));
-    els.push(React.createElement("text", { key: "y-label", x: origin.x, y: top - 8, className: "seq-axis-name", textAnchor: "middle" }, APP_DATA.graph.yAxis));
+    els.push(React.createElement("text", { key: "y-label", x: origin.x-6, y: top - 20, className: "seq-axis-name", textAnchor: "middle" }, APP_DATA.graph.yAxis));
     return els;
   };
 
   const renderOriginalSegments = (order) =>
     order.map((key, index) => {
-      const a = APP_DATA.originalPoints[key];
-      const b = APP_DATA.originalPoints[order[(index + 1) % order.length]];
+      const originalPoints = stage.originalPoints || APP_DATA.originalPoints;
+      const a = originalPoints[key];
+      const b = originalPoints[order[(index + 1) % order.length]];
       return renderLine("orig-" + key, a, b, "#ffffff", true, "seq-original-line");
     });
 
@@ -844,13 +982,15 @@ const SequenceTransformCanvas = ({
     return React.createElement(
       "g",
       { key: item.key, className: "seq-graph-point" },
-      React.createElement("circle", {
-        cx: pos.x,
-        cy: pos.y,
-        r: 8.5,
-        fill: item.color,
-        stroke: item.color === "#ffffff" ? "#ffffff" : "none",
-      }),
+      item.showCircle === false
+        ? null
+        : React.createElement("circle", {
+            cx: pos.x,
+            cy: pos.y,
+            r: 8.5,
+            fill: item.color,
+            stroke: item.color === "#ffffff" ? "#ffffff" : "none",
+          }),
       React.createElement(
         "text",
         {
@@ -867,7 +1007,8 @@ const SequenceTransformCanvas = ({
 
   const renderRotationDemo = (pointKey) => {
     const originalKey = pointKey.charAt(0);
-    const original = APP_DATA.originalPoints[originalKey];
+    const originalPoints = stage.originalPoints || APP_DATA.originalPoints;
+    const original = originalPoints[originalKey];
     const from = toSvg(original);
     const arc = makeArc(origin, from, toSvg(stage.answers[pointKey]), 58);
     return React.createElement(
@@ -888,10 +1029,105 @@ const SequenceTransformCanvas = ({
     );
   };
 
+  const renderReflectionDemo = (pointKey) => {
+    const sourceKey = getSourcePointKey(pointKey);
+    const fromPoint = stage.points[sourceKey];
+    const axisPoint =
+      stage.demoMode === "reflectX"
+        ? { x: fromPoint.x, y: 0 }
+        : { x: 0, y: fromPoint.y };
+    const from = toSvg(fromPoint);
+    const axis = toSvg(axisPoint);
+    const axisName = stage.demoMode === "reflectX" ? "x" : "y";
+    return React.createElement(
+      "g",
+      { className: "seq-reflection-demo" },
+      React.createElement("line", {
+        x1: from.x,
+        y1: from.y,
+        x2: axis.x,
+        y2: axis.y,
+        className:
+          "seq-reflect-measure-line is-" + axisName + "-axis-measure",
+        style: { transformOrigin: from.x + "px " + from.y + "px" },
+      }),
+      React.createElement(
+        "g",
+        {
+          className: "seq-reflect-rotating-clone",
+          style: { transformOrigin: axis.x + "px " + axis.y + "px" },
+        },
+        React.createElement("line", {
+          x1: axis.x,
+          y1: axis.y,
+          x2: from.x,
+          y2: from.y,
+          className: "seq-reflect-clone-line",
+        }),
+        React.createElement("circle", {
+          cx: from.x,
+          cy: from.y,
+          r: 8.5,
+          fill: "#ffffff",
+        }),
+      ),
+      React.createElement("circle", {
+        cx: axis.x,
+        cy: axis.y,
+        r: 5,
+        className: "seq-reflect-axis-anchor",
+      }),
+    );
+  };
+
+  const getSourcePointKey = (pointKey) => {
+    const priorImageKey = pointKey.replace("''", "'");
+    if (stage.points[priorImageKey]) return priorImageKey;
+    const originalKey = pointKey.replace("'", "");
+    if (stage.points[originalKey]) return originalKey;
+    return pointKey.charAt(0);
+  };
+
   const getLabelPos = (item, pos) => {
     if (item.labelPlacement === "left") return { x: pos.x - 14, y: pos.y - 12, anchor: "end" };
     if (item.labelPlacement === "right") return { x: pos.x + 13, y: pos.y - 12, anchor: "start" };
+    if (item.labelPlacement === "bottomLeft") return { x: pos.x - 13, y: pos.y + 27, anchor: "end" };
+    if (item.labelPlacement === "bottomRight") return { x: pos.x + 13, y: pos.y + 27, anchor: "start" };
+    if (item.labelPlacement === "top") return { x: pos.x, y: pos.y - 18, anchor: "middle" };
     return { x: pos.x, y: pos.y - 18, anchor: "middle" };
+  };
+
+  const getLabelVisualCenter = (labelPos, text) => {
+    const metrics = measureSvgLabelText(text);
+    let x = labelPos.x;
+    if (labelPos.anchor === "start") x += metrics.width / 2;
+    if (labelPos.anchor === "end") x -= metrics.width / 2;
+    return {
+      x,
+      y: labelPos.y + (metrics.descent - metrics.ascent) / 2,
+    };
+  };
+
+  const measureSvgLabelText = (text) => {
+    if (typeof document !== "undefined") {
+      const canvas = measureSvgLabelText.canvas ||
+        (measureSvgLabelText.canvas = document.createElement("canvas"));
+      const ctx = canvas.getContext && canvas.getContext("2d");
+      if (ctx) {
+        ctx.font = "700 23px system-ui, sans-serif";
+        const metrics = ctx.measureText(text);
+        return {
+          width: metrics.width,
+          ascent: metrics.actualBoundingBoxAscent || 18,
+          descent: metrics.actualBoundingBoxDescent || 5,
+        };
+      }
+    }
+    return {
+      width: String(text).length * 13,
+      ascent: 18,
+      descent: 5,
+    };
   };
 
   const makeArc = (center, start, end, radius) => {
@@ -925,13 +1161,23 @@ const SequenceTransformCanvas = ({
       { className: "seq-math-column" },
       React.createElement(
         "div",
-        { className: "seq-row seq-given-row" },
+        {
+          className:
+            "seq-row seq-given-row" +
+            (rowTransition ? " is-row-transition-hidden" : ""),
+          ref: givenRowRef,
+        },
         stage.givenKeys.map((key) => renderCoordBox(key, stage.points[key], "given")),
       ),
       renderHint(),
       React.createElement(
         "div",
-        { className: "seq-row seq-answer-row" },
+        {
+          className:
+            "seq-row seq-answer-row" +
+            (rowTransition ? " is-row-transition-hidden" : ""),
+          ref: answerRowRef,
+        },
         stage.answerKeys.map((key) =>
           React.createElement(
             "div",
@@ -973,6 +1219,22 @@ const SequenceTransformCanvas = ({
           }),
         )
       : null,
+    rowTransition
+      ? React.createElement("div", {
+          className:
+            "seq-row seq-answer-row seq-row-transition-clone" +
+            (rowTransition.moving ? " is-moving" : ""),
+          style: {
+            left: rowTransition.start.left + "px",
+            top: rowTransition.start.top + "px",
+            width: rowTransition.start.width + "px",
+            height: rowTransition.start.height + "px",
+            "--dx": rowTransition.end.left - rowTransition.start.left + "px",
+            "--dy": rowTransition.end.top - rowTransition.start.top + "px",
+          },
+          dangerouslySetInnerHTML: { __html: rowTransition.html },
+        })
+      : null,
     flyClone
       ? React.createElement(
           "div",
@@ -990,4 +1252,4 @@ const SequenceTransformCanvas = ({
         )
       : null,
   );
-};
+});

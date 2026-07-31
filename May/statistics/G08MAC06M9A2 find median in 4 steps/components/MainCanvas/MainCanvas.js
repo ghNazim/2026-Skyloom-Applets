@@ -139,8 +139,12 @@ var MainCanvas = function (props) {
   var _medianFreshAfterWrong = useState(false);
   var medianFreshAfterWrong = _medianFreshAfterWrong[0];
   var setMedianFreshAfterWrong = _medianFreshAfterWrong[1];
+  var _sortLabelPositions = useState({ smallest: null, largest: null });
+  var sortLabelPositions = _sortLabelPositions[0];
+  var setSortLabelPositions = _sortLabelPositions[1];
 
   var containerRef = useRef(null);
+  var dataWrapRef = useRef(null);
   var overlayRef = useRef(null);
   var optionRefs = useRef([]);
   var stepDragNudgeRef = useRef(null);
@@ -205,42 +209,59 @@ var MainCanvas = function (props) {
       .replace(/\{nextPosition\}/g, ordinalHtml(nextPosition));
   }
 
-  function renderFractionExpression(kind) {
-    var numerator = kind === "odd" ? e(React.Fragment, null, e("mi", null, "n"), "+1") : e("mi", null, "n");
-    var fraction = e(
+  function renderFractionCore(numeratorContent) {
+    return e(
       "span",
       { className: "middle-fraction-wrap" },
       e("span", { className: "middle-paren" }, "("),
       e(
         "span",
         { className: "middle-fraction" },
-        e("span", { className: "middle-frac-num" }, numerator),
+        e("span", { className: "middle-frac-num" }, numeratorContent),
         e("span", { className: "middle-frac-bar" }),
         e("span", { className: "middle-frac-den" }, "2"),
       ),
       e("span", { className: "middle-paren" }, ")"),
     );
+  }
+
+  function renderFormulaBlock(numeratorContent) {
+    var fraction = renderFractionCore(numeratorContent);
     if (current_language === "id") {
-      return e(React.Fragment, null, "ke-", fraction);
+      return e(
+        "span",
+        { className: "middle-formula-block" },
+        e("span", { className: "middle-ke-prefix" }, "ke-"),
+        fraction,
+      );
     }
-    return e(React.Fragment, null, fraction, e("sup", null, "th"));
+    return e(
+      "span",
+      { className: "middle-formula-block" },
+      fraction,
+      e("sup", null, "th"),
+    );
+  }
+
+  function renderExpressionWithSuffix(formulaBlock, suffixText, className) {
+    return e(
+      "span",
+      { className: className || "middle-correct-expression" },
+      formulaBlock,
+      e("span", { className: "middle-option-text" }, suffixText),
+    );
+  }
+
+  function renderFractionExpression(kind) {
+    var numerator = kind === "odd" ? e(React.Fragment, null, e("mi", null, "n"), "+1") : e("mi", null, "n");
+    return renderFormulaBlock(numerator);
   }
 
   function renderMiddleOptionContent(index) {
     if (index === 0) {
-      return e(
-        React.Fragment,
-        null,
-        renderFractionExpression("odd"),
-        e("span", { className: "middle-option-text" }, " " + S2.valueText),
-      );
+      return renderExpressionWithSuffix(renderFractionExpression("odd"), S2.valueText);
     }
-    return e(
-      React.Fragment,
-      null,
-      renderFractionExpression("even"),
-      e("span", { className: "middle-option-text" }, " " + S2.nextValueText),
-    );
+    return renderExpressionWithSuffix(renderFractionExpression("even"), S2.nextValueText);
   }
 
   function relativeRect(node) {
@@ -306,6 +327,9 @@ var MainCanvas = function (props) {
       setPhase("arrange");
       setShowStepPanel(true);
       setActionVisible(false);
+      setActiveAction(null);
+      setInProgressAction(null);
+      setExploredActions({});
       setShowData(false);
       setShowCountRow(false);
       setShowMiddlePanel(false);
@@ -345,6 +369,49 @@ var MainCanvas = function (props) {
       if (onSetAnimating) onSetAnimating(false);
     };
   }, [step]);
+
+  useEffect(function () {
+    if (!showSortLabels) {
+      setSortLabelPositions({ smallest: null, largest: null });
+      return undefined;
+    }
+
+    function getStaticPositionWithin(el, container) {
+      var left = 0;
+      var top = 0;
+      var node = el;
+      while (node && node !== container) {
+        left += node.offsetLeft;
+        top += node.offsetTop;
+        node = node.parentElement;
+      }
+      if (!node) return null;
+      return {
+        left: left + el.offsetWidth / 2,
+        top: top,
+      };
+    }
+
+    function updateSortLabelPositions() {
+      var wrap = dataWrapRef.current;
+      var firstCircle = circleRefs.current[0];
+      var lastCircle = circleRefs.current[N - 1];
+      if (!wrap || !firstCircle || !lastCircle) return;
+      var smallestPos = getStaticPositionWithin(firstCircle, wrap);
+      var largestPos = getStaticPositionWithin(lastCircle, wrap);
+      if (!smallestPos || !largestPos) return;
+      setSortLabelPositions({
+        smallest: smallestPos,
+        largest: largestPos,
+      });
+    }
+
+    updateSortLabelPositions();
+    window.addEventListener("resize", updateSortLabelPositions);
+    return function () {
+      window.removeEventListener("resize", updateSortLabelPositions);
+    };
+  }, [showSortLabels, displayData, N, bottomParentExpanded, showCountRow, showMiddlePanel, showMedianPanel]);
 
   function getPreviewOrder() {
     if (draggedIndex === null || hoverIndex === null || draggedIndex === hoverIndex) {
@@ -1189,8 +1256,13 @@ var MainCanvas = function (props) {
           },
         );
       }),
-      activeAction !== null
-        ? e(Nudge, { targetRef: actionRefs.current[activeAction] ? { current: actionRefs.current[activeAction] } : actionRefs, show: true, variant: "step-button" })
+      step === 2 && actionVisible && activeAction !== null
+        ? e(Nudge, {
+          key: "action-nudge-" + String(activeAction),
+          targetRef: actionRefs.current[activeAction] ? { current: actionRefs.current[activeAction] } : actionRefs,
+          show: true,
+          variant: "step-button",
+        })
         : null,
     );
   }
@@ -1199,12 +1271,24 @@ var MainCanvas = function (props) {
     if (!showData) return null;
     return e(
       "div",
-      { className: "median-data-wrap" },
-      showSortLabels
-        ? e("div", { className: "sort-label sort-smallest" }, S2.smallest)
+      { className: "median-data-wrap", ref: dataWrapRef },
+      showSortLabels && sortLabelPositions.smallest
+        ? e("div", {
+          className: "sort-label sort-smallest",
+          style: {
+            left: sortLabelPositions.smallest.left + "px",
+            top: sortLabelPositions.smallest.top + "px",
+          },
+        }, S2.smallest)
         : null,
-      showSortLabels
-        ? e("div", { className: "sort-label sort-largest" }, S2.largest)
+      showSortLabels && sortLabelPositions.largest
+        ? e("div", {
+          className: "sort-label sort-largest",
+          style: {
+            left: sortLabelPositions.largest.left + "px",
+            top: sortLabelPositions.largest.top + "px",
+          },
+        }, S2.largest)
         : null,
       e(
         "div",
@@ -1222,7 +1306,7 @@ var MainCanvas = function (props) {
           var cls = "median-num-circle";
           if (clickable && showUpdown) cls += " updown";
           if (phase === "selectMiddle" && clickable && showPositionUpdown) cls += " updown";
-          if (counted) cls += " counted";
+          if (counted && (phase === "counting" || phase === "countReordering")) cls += " counted";
           if (positionState === "wrong") cls += " position-wrong";
           if (positionState === "correct") cls += " position-correct";
           if (
@@ -1272,24 +1356,10 @@ var MainCanvas = function (props) {
   function renderMiddleExpression() {
     if (expressionStage === 2) {
       if (middleCorrectOption === 0) {
-        var oddFraction = e(
-          React.Fragment,
-          null,
-          e("span", { className: "middle-paren" }, "("),
-          e(
-            "span",
-            { className: "middle-fraction" },
-            e("span", { className: "middle-frac-num" }, "10"),
-            e("span", { className: "middle-frac-bar" }),
-            e("span", { className: "middle-frac-den" }, "2"),
-          ),
-          e("span", { className: "middle-paren" }, ")"),
-        );
-        return e(
-          "span",
-          { className: "middle-simplified-expression fading" },
-          current_language === "id" ? e(React.Fragment, null, "ke-", oddFraction) : e(React.Fragment, null, oddFraction, e("sup", null, "th")),
-          e("span", { className: "middle-option-text" }, " " + S2.valueText),
+        return renderExpressionWithSuffix(
+          renderFormulaBlock("10"),
+          S2.valueText,
+          "middle-simplified-expression fading",
         );
       }
       return e("span", {
@@ -1304,57 +1374,29 @@ var MainCanvas = function (props) {
       });
     }
     if (middleCorrectOption === 0) {
-      var oddExprFraction = e(
-        React.Fragment,
-        null,
-        e("span", { className: "middle-paren" }, "("),
-        e(
-          "span",
-          { className: "middle-fraction" },
+      return renderExpressionWithSuffix(
+        renderFormulaBlock(
           e(
-            "span",
-            { className: "middle-frac-num" },
+            React.Fragment,
+            null,
             e("span", {
               className: "middle-expression-n",
               ref: expressionNRef,
             }, expressionStage >= 1 ? String(N) : e("mi", null, "n")),
             "+1",
           ),
-          e("span", { className: "middle-frac-bar" }),
-          e("span", { className: "middle-frac-den" }, "2"),
         ),
-        e("span", { className: "middle-paren" }, ")"),
-      );
-      return e(
-        "span",
-        { className: "middle-correct-expression" },
-        current_language === "id"
-          ? e(React.Fragment, null, "ke-", oddExprFraction)
-          : e(React.Fragment, null, oddExprFraction, e("sup", null, "th")),
-        e("span", { className: "middle-option-text" }, " " + S2.valueText),
+        S2.valueText,
       );
     }
-    var evenFraction = e(
-      React.Fragment,
-      null,
-      e("span", { className: "middle-paren" }, "("),
-      e(
-        "span",
-        { className: "middle-fraction" },
+    return renderExpressionWithSuffix(
+      renderFormulaBlock(
         e("span", {
-          className: "middle-frac-num",
+          className: "middle-expression-n",
           ref: expressionNRef,
         }, expressionStage >= 1 ? String(N) : e("mi", null, "n")),
-        e("span", { className: "middle-frac-bar" }),
-        e("span", { className: "middle-frac-den" }, "2"),
       ),
-      e("span", { className: "middle-paren" }, ")"),
-    );
-    return e(
-      "span",
-      { className: "middle-correct-expression" },
-      current_language === "id" ? e(React.Fragment, null, "ke-", evenFraction) : e(React.Fragment, null, evenFraction, e("sup", null, "th")),
-      e("span", { className: "middle-option-text" }, " " + S2.nextValueText),
+      S2.nextValueText,
     );
   }
 

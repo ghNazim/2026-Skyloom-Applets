@@ -1,0 +1,36 @@
+#hand-ftue {
+    position: fixed;
+    width: 5vw;
+    height: auto;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    display: none;
+    transform: translate(-30%, -20%);
+    transition: top 1s ease, left 1s ease, opacity 0.3s;
+}
+#hand-ftue img {
+    width: 100%;
+    filter: drop-shadow(0 0 0.2vw rgba(10, 10, 10, 0.5));
+}
+.hand-animating {
+    display: block !important;
+    opacity: 0.82 !important;
+}
+
+.hand-dragging {
+    transition: top 1s ease, left 1s ease;
+}
+
+.hand-drag-nudge {
+    animation: handDragNudge 1.15s ease-in-out infinite;
+}
+
+@keyframes handDragNudge {
+    0%, 100% {
+        transform: translate(-24%, -16%);
+    }
+    50% {
+        transform: translate(4%, -16%);
+    }
+}

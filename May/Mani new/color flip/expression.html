@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Expression Simplification</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #667085;
+      --accent: #127369;
+      --accent-dark: #0c514a;
+      --gold: #d99a2b;
+      --paper: #ffffff;
+      --page: #edf4f1;
+      --line: #d7e4df;
+      --glow: rgba(18, 115, 105, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 20% 14%, rgba(217, 154, 43, 0.18), transparent 28%),
+        linear-gradient(145deg, #edf4f1 0%, #f9fbfa 48%, #e7f0f3 100%);
+      color: var(--ink);
+    }
+
+    main {
+      width: min(94vw, 980px);
+      min-height: 72vh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      align-items: center;
+      gap: 34px;
+      padding: clamp(26px, 5vw, 64px);
+    }
+
+    .stage {
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+    }
+
+    .equation-shell {
+      width: 100%;
+      min-height: clamp(150px, 24vw, 230px);
+      display: grid;
+      place-items: center;
+      padding: clamp(18px, 4vw, 42px);
+      border: 1px solid rgba(215, 228, 223, 0.9);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow:
+        0 28px 80px rgba(23, 32, 51, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(12px);
+    }
+
+    .equation {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-wrap: wrap;
+      row-gap: 0.22em;
+      max-width: 100%;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 4vw;
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: 0;
+      text-align: center;
+      transform: translateZ(0);
+    }
+
+    .token {
+      display: inline-block;
+      position: relative;
+      padding: 0.015em 0.02em;
+      white-space: pre;
+      border-radius: 8px;
+      will-change: transform, opacity, filter;
+    }
+
+    .operator {
+      margin-inline: 0.1em;
+    }
+
+    .term {
+      margin-inline: 0.018em;
+    }
+
+    .group {
+      margin-inline: 0;
+    }
+
+    .tail {
+      margin-left: 0.16em;
+    }
+
+    .highlight {
+      color: var(--accent-dark);
+      text-shadow: 0 0 24px var(--glow);
+    }
+
+    .warm {
+      color: #9a5f09;
+      text-shadow: 0 0 22px rgba(217, 154, 43, 0.24);
+    }
+
+    .control-row {
+      display: flex;
+      justify-content: center;
+      min-height: 54px;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 150px;
+      min-height: 48px;
+      padding: 0 24px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #ffffff;
+      font: 750 1rem/1 Inter, "Segoe UI", Arial, sans-serif;
+      cursor: pointer;
+      box-shadow: 0 14px 34px rgba(18, 115, 105, 0.26);
+      transition:
+        transform 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 18px 42px rgba(18, 115, 105, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.72;
+      transform: none;
+    }
+
+    .ghost-token {
+      position: fixed;
+      z-index: 20;
+      pointer-events: none;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 700;
+      line-height: 1.12;
+      white-space: pre;
+      border-radius: 8px;
+      will-change: transform, opacity, filter;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 560px) {
+      main {
+        min-height: 82vh;
+        padding-inline: 16px;
+      }
+
+      .equation-shell {
+        min-height: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="stage" aria-label="Expression simplification animation">
+      <div class="equation-shell">
+        <div id="equation" class="equation" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <div class="control-row">
+      <button id="simplifyButton" type="button">Simplify</button>
+    </div>
+
+    <p id="spokenStatus" class="sr-only"></p>
+  </main>
+
+  <script>
+    const equation = document.querySelector("#equation");
+    const button = document.querySelector("#simplifyButton");
+    const spokenStatus = document.querySelector("#spokenStatus");
+
+    const motion = {
+      move: 820,
+      swap: 420,
+      pause: 360,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)"
+    };
+
+    let tokens = [];
+
+    const initialTokens = [
+      token("outerNeg", "&minus;2", "term highlight"),
+      token("lp", "(", "group"),
+      token("innerTwo", "2", "term"),
+      token("k", "k", "term warm"),
+      token("innerMinus", "&minus;", "operator"),
+      token("x", "x", "term"),
+      token("rp", ")", "group"),
+      token("minusY", "&minus; y", "term tail"),
+      token("plusOne", "+ 1", "term tail"),
+      token("equalsZero", "= 0", "term tail")
+    ];
+
+    function token(id, html, className = "term") {
+      return { id, html, className };
+    }
+
+    function cloneToken(item) {
+      return { ...item };
+    }
+
+    function render(nextTokens) {
+      tokens = nextTokens.map(cloneToken);
+      equation.innerHTML = "";
+
+      tokens.forEach((item) => {
+        const span = document.createElement("span");
+        span.className = `token ${item.className}`;
+        span.dataset.id = item.id;
+        span.innerHTML = item.html;
+        equation.appendChild(span);
+      });
+
+      spokenStatus.textContent = equation.textContent.replace(/\s+/g, " ").trim();
+    }
+
+    function getTokenElements() {
+      return [...equation.querySelectorAll(".token")];
+    }
+
+    function getRects() {
+      const rects = new Map();
+      getTokenElements().forEach((element) => {
+        rects.set(element.dataset.id, element.getBoundingClientRect());
+      });
+      return rects;
+    }
+
+    function createGhost(element, rect) {
+      const ghost = element.cloneNode(true);
+      ghost.classList.add("ghost-token");
+      ghost.style.left = `${rect.left}px`;
+      ghost.style.top = `${rect.top}px`;
+      ghost.style.width = `${rect.width}px`;
+      ghost.style.height = `${rect.height}px`;
+      ghost.style.fontSize = getComputedStyle(element).fontSize;
+      ghost.style.color = getComputedStyle(element).color;
+      ghost.style.margin = "0";
+      document.body.appendChild(ghost);
+      return ghost;
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => window.setTimeout(resolve, ms));
+    }
+
+    function nextFrame() {
+      return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }
+
+    async function transitionTo(nextTokens, options = {}) {
+      const oldElements = getTokenElements();
+      const oldRects = getRects();
+      const nextIds = new Set(nextTokens.map((item) => item.id));
+      const exiting = oldElements
+        .filter((element) => !nextIds.has(element.dataset.id))
+        .map((element) => createGhost(element, oldRects.get(element.dataset.id)));
+
+      render(nextTokens);
+      await nextFrame();
+
+      const animations = [];
+
+      getTokenElements().forEach((element) => {
+        const id = element.dataset.id;
+        const first = oldRects.get(id);
+        const last = element.getBoundingClientRect();
+
+        if (first) {
+          const dx = first.left - last.left;
+          const dy = first.top - last.top;
+
+          if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+            animations.push(
+              element.animate(
+                [
+                  { transform: `translate(${dx}px, ${dy}px)` },
+                  { transform: "translate(0, 0)" }
+                ],
+                {
+                  duration: options.duration || motion.move,
+                  easing: motion.easing,
+                  fill: "both"
+                }
+              ).finished
+            );
+          }
+        } else {
+          animations.push(
+            element.animate(
+              [
+                { opacity: 0, transform: "translateY(0.18em) scale(0.86)", filter: "blur(6px)" },
+                { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" }
+              ],
+              {
+                duration: options.duration || motion.move,
+                easing: motion.easing,
+                fill: "both"
+              }
+            ).finished
+          );
+        }
+
+        if (options.pulseIds?.includes(id)) {
+          animations.push(pulseToken(element));
+        }
+      });
+
+      exiting.forEach((ghost, index) => {
+        const drift = index % 2 === 0 ? -0.18 : 0.18;
+        animations.push(
+          ghost.animate(
+            [
+              { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" },
+              { opacity: 0, transform: `translateY(${drift}em) scale(0.78)`, filter: "blur(7px)" }
+            ],
+            {
+              duration: options.duration || motion.move,
+              easing: motion.easing,
+              fill: "forwards"
+            }
+          ).finished.finally(() => ghost.remove())
+        );
+      });
+
+      await Promise.allSettled(animations);
+    }
+
+    function pulseToken(element) {
+      return element.animate(
+        [
+          { transform: "scale(1)", textShadow: "0 0 0 rgba(18, 115, 105, 0)" },
+          { transform: "scale(1.08)", textShadow: "0 0 28px rgba(18, 115, 105, 0.42)" },
+          { transform: "scale(1)", textShadow: "0 0 0 rgba(18, 115, 105, 0)" }
+        ],
+        {
+          duration: 680,
+          easing: motion.easing,
+          fill: "both"
+        }
+      ).finished;
+    }
+
+    async function swapToken(tokenId, newHtml, newClassName) {
+      const element = equation.querySelector(`[data-id="${tokenId}"]`);
+      const item = tokens.find((entry) => entry.id === tokenId);
+
+      if (!element || !item) {
+        return;
+      }
+
+      await element.animate(
+        [
+          { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" },
+          { opacity: 0, transform: "translateY(-0.2em) scale(0.92)", filter: "blur(7px)" }
+        ],
+        {
+          duration: motion.swap,
+          easing: motion.easing,
+          fill: "forwards"
+        }
+      ).finished;
+
+      item.html = newHtml;
+      if (newClassName) {
+        item.className = newClassName;
+      }
+
+      render(tokens);
+      const updated = equation.querySelector(`[data-id="${tokenId}"]`);
+      await updated.animate(
+        [
+          { opacity: 0, transform: "translateY(0.2em) scale(0.92)", filter: "blur(7px)" },
+          { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" }
+        ],
+        {
+          duration: motion.swap,
+          easing: motion.easing,
+          fill: "both"
+        }
+      ).finished;
+    }
+
+    async function swapMultipleTokens(updates) {
+      const updateIds = Object.keys(updates);
+      const elements = updateIds
+        .map((id) => equation.querySelector(`[data-id="${id}"]`))
+        .filter(Boolean);
+
+      await Promise.allSettled(
+        elements.map((element) => element.animate(
+          [
+            { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" },
+            { opacity: 0, transform: "translateY(-0.16em) scale(0.92)", filter: "blur(7px)" }
+          ],
+          {
+            duration: motion.swap,
+            easing: motion.easing,
+            fill: "forwards"
+          }
+        ).finished)
+      );
+
+      tokens.forEach((item) => {
+        const update = updates[item.id];
+        if (!update) {
+          return;
+        }
+
+        item.html = update.html ?? item.html;
+        item.className = update.className ?? item.className;
+      });
+
+      render(tokens);
+
+      await Promise.allSettled(
+        updateIds
+          .map((id) => equation.querySelector(`[data-id="${id}"]`))
+          .filter(Boolean)
+          .map((element) => element.animate(
+            [
+              { opacity: 0, transform: "translateY(0.16em) scale(0.92)", filter: "blur(7px)" },
+              { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" }
+            ],
+            {
+              duration: motion.swap,
+              easing: motion.easing,
+              fill: "both"
+            }
+          ).finished)
+      );
+    }
+
+    function combineSigns(firstSign, secondSign) {
+      const negativeCount = [firstSign, secondSign].filter((sign) => sign === "-").length;
+      return negativeCount === 1 ? "-" : "+";
+    }
+
+    async function mergeTokens(sourceIds, replacementToken) {
+      const survivors = tokens.filter((item) => !sourceIds.includes(item.id));
+      const firstSourceIndex = tokens.findIndex((item) => sourceIds.includes(item.id));
+      const insertIndex = Math.max(firstSourceIndex, 0);
+      survivors.splice(insertIndex, 0, replacementToken);
+      await transitionTo(survivors, {
+        duration: 880,
+        pulseIds: [replacementToken.id]
+      });
+    }
+
+    async function rearrangeTokens(orderedIds, textUpdates = {}) {
+      const byId = new Map(tokens.map((item) => [item.id, cloneToken(item)]));
+      const arranged = orderedIds.map((id) => {
+        const item = byId.get(id);
+        if (textUpdates[id]) {
+          item.html = textUpdates[id].html ?? item.html;
+          item.className = textUpdates[id].className ?? item.className;
+        }
+        return item;
+      });
+
+      await transitionTo(arranged, {
+        duration: 980,
+        pulseIds: orderedIds.slice(0, 2)
+      });
+    }
+
+    async function removeOuterBracketsAndCombineSigns() {
+      await Promise.all([
+        pulseById("outerNeg"),
+        pulseById("negFour"),
+        pulseById("innerMinus"),
+        pulseById("x")
+      ]);
+
+      await transitionTo(
+        [
+          token("outerNeg", "&minus;2", "term highlight"),
+          token("timesA", "&times;", "operator"),
+          token("negFour", "&minus;4", "term warm"),
+          token("distMinus", "&minus;", "operator"),
+          token("parenNegTwo", "(&minus;2)", "term highlight"),
+          token("x", "x", "term"),
+          token("minusY", "&minus; y", "term tail"),
+          token("plusOne", "+ 1", "term tail"),
+          token("equalsZero", "= 0", "term tail")
+        ],
+        {
+          duration: 980,
+          pulseIds: ["timesA", "distMinus", "parenNegTwo"]
+        }
+      );
+    }
+
+    async function combineBackToBackSigns() {
+      const combinedSign = combineSigns("-", "-");
+
+      await swapMultipleTokens({
+        distMinus: {
+          html: combinedSign,
+          className: "operator highlight"
+        },
+        parenNegTwo: {
+          html: "(2)",
+          className: "term highlight"
+        }
+      });
+    }
+
+    function pulseById(tokenId) {
+      const element = equation.querySelector(`[data-id="${tokenId}"]`);
+      return element ? pulseToken(element) : Promise.resolve();
+    }
+
+    async function simplify() {
+      button.disabled = true;
+      button.textContent = "Simplifying";
+
+      render(initialTokens);
+      await wait(300);
+
+      await swapToken("k", "&times;(&minus;2)", "term warm");
+      await wait(motion.pause);
+
+      await mergeTokens(
+        ["innerTwo", "k"],
+        token("negFour", "&minus;4", "term warm")
+      );
+      await wait(motion.pause);
+
+      await removeOuterBracketsAndCombineSigns();
+      await wait(motion.pause);
+
+      await mergeTokens(
+        ["outerNeg", "timesA", "negFour"],
+        token("const8", "8", "term warm")
+      );
+      await wait(motion.pause);
+
+      await combineBackToBackSigns();
+      await wait(motion.pause);
+
+      await swapToken("parenNegTwo", "2", "term highlight");
+      await wait(motion.pause);
+
+      await rearrangeTokens(
+        ["parenNegTwo", "x", "minusY", "const8", "plusOne", "equalsZero"],
+        {
+          const8: {
+            html: "+ 8",
+            className: "term warm tail"
+          }
+        }
+      );
+      await wait(motion.pause);
+
+      await mergeTokens(
+        ["const8", "plusOne"],
+        token("plusNine", "+ 9", "term warm tail")
+      );
+      await wait(160);
+
+      await transitionTo(
+        [
+          token("parenNegTwo", "2", "term highlight"),
+          token("x", "x", "term"),
+          token("minusY", "&minus; y", "term tail"),
+          token("plusNine", "+ 9", "term warm tail"),
+          token("equalsZero", "= 0", "term tail")
+        ],
+        {
+          duration: 760,
+          pulseIds: ["parenNegTwo", "x", "plusNine"]
+        }
+      );
+
+      button.disabled = false;
+      button.textContent = "Replay";
+    }
+
+    button.addEventListener("click", simplify);
+    render(initialTokens);
+  </script>
+</body>
+</html>

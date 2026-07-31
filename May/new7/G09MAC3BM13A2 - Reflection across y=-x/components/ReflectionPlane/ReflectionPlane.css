@@ -1,0 +1,603 @@
+.rotation-plane-shell,
+.reflection-plane-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--window-bg);
+  border: 0.08vw solid var(--panel-border-color);
+  border-radius: 0.6vw;
+  overflow: hidden;
+  view-transition-name: reflection-plane-shell;
+}
+.reflection-plane {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.diagonal-line-label {
+  paint-order: stroke;
+  stroke: rgba(15, 26, 36, 0.9);
+  stroke-width: 5;
+}
+.grid-bg {
+  fill: #0a1520;
+  stroke: rgba(255, 255, 255, 0.01);
+  stroke-width: 1.3;
+}
+.grid-small {
+  fill: none;
+  stroke: #3a6d8c;
+  stroke-width: 1;
+}
+.graph-axis-line {
+  stroke: #ffffff;
+  stroke-width: 1.3;
+  opacity: 0.75;
+}
+.reflection-line {
+  stroke: #ffd54a;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+.reflection-line-draggable {
+  cursor: grab;
+  stroke-width: 3.2;
+  filter: drop-shadow(0 0 0.7vw rgba(255, 213, 74, 0.5));
+  animation: staticGlow 1.1s ease-in-out infinite alternate;
+}
+.reflection-line-draggable.is-dragging {
+  cursor: grabbing;
+}
+.reflection-line-hit {
+  stroke: rgba(255, 255, 255, 0.01);
+  stroke-width: 26;
+  stroke-linecap: round;
+  cursor: grab;
+  pointer-events: all;
+}
+.reflection-line-label {
+  fill: #ffd54a;
+  font-size: 24px;
+  font-weight: 700;
+  font-style: italic;
+  font-family: "Times New Roman", Times, serif;
+}
+.diagonal-reflection-line {
+  stroke-dasharray: 7 5;
+  animation: drawConnector 0.7s ease forwards;
+}
+.diagonal-plane .axis-label-y {
+  fill: rgba(255, 255, 255, 0.75);
+}
+.diagonal-plane .axis-label-prime {
+  opacity: 0.9;
+}
+.reflection-line-caption {
+  fill: #ffd54a;
+  font-size: 13px;
+  font-weight: 600;
+}
+.axis-arrow {
+  fill: #ffd54a;
+}
+.axis-arrow-grey {
+  fill: #ffffff;
+  opacity: 0.75;
+}
+.axis-label,
+.origin-label {
+  fill: rgba(255, 255, 255, 0.75);
+  font-size: 24px;
+  font-style: italic;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: 700;
+}
+.axis-number {
+  fill: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+}
+.tick-mark {
+  stroke: rgba(255, 255, 255, 0.65);
+  stroke-width: 1;
+}
+.source-shape {
+  fill: none;
+  stroke: #ffd54a;
+  stroke-width: 3;
+}
+.image-shape {
+  fill: none;
+  stroke: #ffd54a;
+  stroke-width: 3;
+}
+.joined-line,
+.joined-poly {
+  stroke-dasharray: 8 6;
+  animation: fadeIn 0.6s ease forwards;
+}
+.source-point circle {
+  fill: #ffd54a;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.equal-point circle {
+  fill: #92d050;
+}
+.source-point .point-label,
+.image-point .point-label {
+  fill: #ffffff;
+  font-weight: 600;
+  font-size: 22px;
+  paint-order: stroke fill;
+  stroke: rgba(12, 24, 37, 0.86);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.graph-coord-x {
+  fill: #e97132 !important;
+}
+.graph-coord-y {
+  fill: #45c6ce !important;
+}
+.image-point circle {
+  fill: transparent;
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+.attempt-point.wrong circle {
+  fill: #bd5472;
+  stroke: #ffd4df;
+}
+.attempt-point.wrong .wrong-label {
+  fill: #ffb8c7;
+  font-size: 22px;
+  font-weight: 600;
+  paint-order: stroke fill;
+  stroke: rgba(12, 24, 37, 0.86);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.point-ping-ring {
+  fill: none !important;
+  stroke: currentColor;
+  stroke-width: 3;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+  animation: pointPing 0.55s ease-out 3;
+}
+.source-point .point-ping-ring {
+  color: #ffd54a;
+}
+.equal-point .point-ping-ring {
+  color: #92d050;
+}
+.attempt-point.wrong .point-ping-ring {
+  color: #ffb8c7;
+}
+.image-point .point-ping-ring {
+  color: #ffffff;
+}
+.image-point {
+  animation: pointPop 0.45s ease both;
+}
+.image-point-tappable {
+  cursor: pointer;
+}
+.image-point-tappable circle {
+  fill: #ffd54a;
+  stroke: #ffffff;
+  stroke-width: 3;
+  filter: url(#softGlow);
+  animation: staticGlow 1.1s ease-in-out infinite alternate;
+}
+.image-point-joined circle {
+  fill: transparent;
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+.draggable-point {
+  cursor: grab;
+}
+.reflection-plane.drag-enabled {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.reflection-plane.drag-enabled.is-dragging {
+  cursor: grabbing;
+}
+.drag-hit-area {
+  fill: transparent !important;
+  stroke: none !important;
+  pointer-events: none;
+  filter: none !important;
+  animation: none !important;
+}
+.drag-pulse-ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1.2;
+  pointer-events: none;
+  animation: dragPulseRing 2s ease-in-out infinite alternate;
+}
+.draggable-point > circle:not(.drag-hit-area):not(.drag-pulse-ring) {
+  filter: none;
+  animation: none;
+}
+.ghost-example {
+  opacity: 0.92;
+}
+.diagonal-perp {
+  stroke: rgba(255, 255, 255, 0.92);
+}
+.image-segment {
+  stroke: #ffd54a;
+  stroke-width: 3;
+}
+.image-segment.joining-solid {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawStroke 0.45s ease forwards;
+}
+.image-segment.joined-dashed {
+  stroke-dasharray: 8 6;
+}
+.full-dashed-guide,
+.construction-guide {
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 2.2;
+  stroke-dasharray: 7 7;
+  stroke-linecap: round;
+}
+.degree-label {
+  fill: #ffd54a;
+  font-size: 15px;
+  font-weight: 700;
+}
+.unit-label {
+  fill: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.unit-label-on-line {
+  fill: #ffff00;
+  font-size: 24px;
+  font-weight: 700;
+  paint-order: stroke fill;
+  stroke: rgba(12, 24, 37, 0.85);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.dist-label-follow {
+  transition: transform 0.45s ease;
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+.construction-static {
+  opacity: 1 !important;
+  animation: none !important;
+  stroke-dashoffset: 0 !important;
+  transform: none !important;
+}
+.construction-guide-wrap .full-dashed-guide {
+  opacity: 1;
+}
+.construction-angle {
+  fill: none;
+  stroke: #f08b52;
+  stroke-width: 3.5;
+  opacity: 1;
+}
+.construction-yellow-source,
+.construction-yellow-flip {
+  stroke: #e0bf21;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+}
+.construction-step-draw {
+  animation: constructionDrawYellow 0.75s ease forwards;
+}
+.construction-step-flip {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transform-box: view-box;
+  animation: flipYellowOverAxis 1.45s cubic-bezier(0.45, 0.05, 0.25, 1) forwards;
+}
+.construction-step-point {
+  animation: pointPop 0.45s ease forwards;
+}
+.construction-fading {
+  animation: fadeOut 0.5s ease forwards;
+}
+.connector-line {
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 2.2;
+  stroke-dasharray: 3 4;
+  stroke-linecap: round;
+  animation: drawConnector 0.9s ease forwards;
+}
+.connector-line.connector-wrong {
+  stroke: #bd5472;
+}
+.perp-guide-line {
+  stroke: #49b76c;
+  stroke-width: 2.2;
+  stroke-dasharray: 3 4;
+  stroke-linecap: round;
+  stroke-dashoffset: 160;
+  animation: drawPerpGuide 0.75s ease forwards;
+}
+.perpendicular-solid-guide {
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-dasharray: 7 7;
+  stroke-dashoffset: 360;
+  animation: drawPerpGuide 0.75s ease forwards;
+}
+.count-wrap .count-segment.wrong-segment {
+  stroke: #bd5472;
+}
+.count-wrap .unit-label.wrong-label-text {
+  fill: #ffb8c7;
+}
+@keyframes drawConnector {
+  from { stroke-dashoffset: 200; opacity: 0.4; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+.count-segment {
+  stroke: #ffd54a;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.first-segment-draw {
+  stroke: #ffd54a;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: drawFirstSegment 0.8s ease forwards;
+}
+.caterpillar-flipping {
+  stroke: #ffd54a;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  transform-box: view-box;
+  animation: caterpillarFlip 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.image-distance {
+  stroke: #bd5472;
+}
+.distance-source,
+.distance-image {
+  animation: fadeIn 0.45s ease forwards;
+}
+.unit-travel-guide {
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1.6;
+  stroke-dasharray: 2 5;
+}
+.unit-measure-segment,
+.unit-travel-segment {
+  stroke: #ffd54a;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 0.45vw rgba(255, 213, 74, 0.7));
+}
+.unit-measure-segment {
+  animation: drawUnitMeasure 1.05s ease forwards;
+}
+.unit-travel-segment {
+  animation: drawUnitMeasure 1.2s cubic-bezier(.45, .05, .35, 1) forwards;
+}
+.unit-flip-segment {
+  stroke: #ffd54a;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: unitFlipStep 0.72s cubic-bezier(0.35, 0, 0.2, 1) forwards;
+  filter: drop-shadow(0 0 0.45vw rgba(255, 213, 74, 0.7));
+}
+.unit-flip-2 {
+  animation-delay: 0.32s;
+}
+.unit-flip-3 {
+  animation-delay: 0.64s;
+}
+.unit-flip-4 {
+  animation-delay: 0.96s;
+}
+.unit-flip-5 {
+  animation-delay: 1.28s;
+}
+.unit-flip-label {
+  fill: #ffff00;
+  font-size: 24px;
+  font-weight: 700;
+  opacity: 0;
+  paint-order: stroke;
+  stroke: rgba(15, 26, 36, 0.85);
+  stroke-width: 4;
+  animation: fadeIn 0.35s ease 0.55s forwards;
+}
+.unit-half-fraction {
+  fill: #ffff00;
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(15, 26, 36, 0.9);
+  stroke-width: 3;
+  opacity: 0;
+  animation: fadeIn 0.35s ease 0.65s forwards;
+}
+.unit-flip-half {
+  stroke-dasharray: 3 4;
+}
+.right-angle-mark path,
+.right-angle-mark text {
+  opacity: 0;
+  animation: constructionReveal 0.4s ease forwards;
+}
+.construction-white-flip {
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 7 6;
+  opacity: 0;
+  transform-box: view-box;
+  animation: flipWhiteDiagonal 1.45s cubic-bezier(.45, .05, .25, 1) forwards;
+}
+.construction-white-flip.becomes-yellow {
+  animation: flipWhiteDiagonalToYellow 1.45s cubic-bezier(.45, .05, .25, 1) forwards;
+}
+.construction-point-travel {
+  fill: transparent;
+  stroke: #ffffff;
+  stroke-width: 3;
+  opacity: 0;
+  animation: travelPointIn 0.25s ease forwards,
+    travelPointMove 1.2s cubic-bezier(.45, .05, .35, 1) forwards;
+}
+.joined-reflection-distance {
+  stroke: #ffd54a;
+  stroke-width: 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 0.45vw rgba(255, 213, 74, 0.7));
+}
+.equidistance-marker {
+  stroke: #f08b52;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  paint-order: stroke;
+  filter: drop-shadow(0 0 0.22vw rgba(240, 139, 82, 0.45));
+  animation: constructionReveal 0.35s ease forwards;
+}
+.plot-ready {
+  cursor: crosshair;
+}
+.ftue-point-anchor {
+  fill: transparent;
+  stroke: transparent;
+  pointer-events: none;
+}
+@keyframes staticGlow {
+  from {
+    stroke-width: 2;
+    filter: drop-shadow(0 0 0.3vw rgba(255, 213, 74, 0.5));
+  }
+  to {
+    stroke-width: 4;
+    filter: drop-shadow(0 0 1vw rgba(255, 213, 74, 1));
+  }
+}
+@keyframes pointPop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes dragPulseRing {
+  from {
+    opacity: 0.2;
+    stroke-width: 1;
+  }
+  to {
+    opacity: 0.55;
+    stroke-width: 1.6;
+  }
+}
+@keyframes pointPulse {
+  from { opacity: 0.82; }
+  to { opacity: 1; }
+}
+@keyframes pointPing {
+  0% { opacity: 0.95; transform: scale(0.72); }
+  70% { opacity: 0.35; transform: scale(1.45); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+@keyframes drawPerpGuide {
+  from { opacity: 0.3; stroke-dashoffset: 160; }
+  to { opacity: 1; stroke-dashoffset: 0; }
+}
+@keyframes unitFlipStep {
+  0% {
+    opacity: 0;
+    transform: rotate(-90deg) scaleX(0.2);
+  }
+  45% {
+    opacity: 1;
+    transform: rotate(-35deg) scaleX(1);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scaleX(1);
+  }
+}
+@keyframes caterpillarFlip {
+  0% { transform: rotate(-180deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes drawFirstSegment {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes drawUnitMeasure {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes constructionReveal {
+  to { opacity: 1; }
+}
+@keyframes flipWhiteDiagonal {
+  0% { opacity: 1; transform: rotate(0deg); }
+  100% { opacity: 1; transform: rotate(-180deg); }
+}
+@keyframes flipWhiteDiagonalToYellow {
+  0% {
+    opacity: 1;
+    stroke: rgba(255, 255, 255, 0.7);
+    stroke-dasharray: 7 6;
+    transform: rotate(0deg);
+  }
+  72% {
+    stroke: rgba(255, 255, 255, 0.7);
+    stroke-dasharray: 7 6;
+  }
+  100% {
+    opacity: 1;
+    stroke: #ffd54a;
+    stroke-dasharray: 360;
+    transform: rotate(-180deg);
+  }
+}
+@keyframes travelPointIn {
+  to { opacity: 1; }
+}
+@keyframes travelPointMove {
+  from { transform: translate(0, 0); }
+  to { transform: translate(var(--tdx), var(--tdy)); }
+}
+@keyframes drawStroke {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes constructionDrawYellow {
+  0% { opacity: 1; stroke-dashoffset: 300; }
+  100% { opacity: 1; stroke-dashoffset: 0; }
+}
+@keyframes flipYellowOverAxis {
+  0% { opacity: 1; stroke-dashoffset: 0; transform: rotate(0deg); }
+  100% { opacity: 1; stroke-dashoffset: 0; transform: rotate(-180deg); }
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title></title>
+  <link rel="stylesheet" href="./styles/index.css" />
+  <link rel="stylesheet" href="./styles/Applet.css" />
+  <link rel="stylesheet" href="./components/WelcomeScreen/WelcomeScreen.css" />
+  <link rel="stylesheet" href="./components/Navigation/Navigation.css" />
+  <link rel="stylesheet" href="./components/LowerPanel/LowerPanel.css" />
+  <link rel="stylesheet" href="./components/HandFtue/HandFtue.css" />
+  <link rel="stylesheet" href="./components/ReflectionPlane/ReflectionPlane.css" />
+  <link rel="stylesheet" href="./components/ReflectionLessonScreen/ReflectionLessonScreen.css" />
+  <link rel="stylesheet" href="./components/FlyOverlay/FlyOverlay.css" />
+  <script src="./react/react.development.js"></script>
+  <script src="./react/react-dom.development.js"></script>
+  <script src="./data.js"></script>
+</head>
+<body>
+  <div id="hand-ftue">
+    <img src="assets/fingerTap.gif" alt="Hand Cursor" />
+  </div>
+  <div id="root"></div>
+  <script src="./components/WelcomeScreen/WelcomeScreen.js"></script>
+  <script src="./components/Navigation/Navigation.js"></script>
+  <script src="./components/ReflectionPlane/ReflectionPlane.js"></script>
+  <script src="./components/ReflectionLessonScreen/ReflectionLessonScreen.js"></script>
+  <script src="./components/FlyOverlay/FlyOverlay.js"></script>
+  <script src="./App.js"></script>
+  <script>setLanguage('en'); ReactDOM.render(React.createElement(App), document.getElementById('root'));</script>
+</body>
+</html>

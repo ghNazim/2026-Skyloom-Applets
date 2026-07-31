@@ -1,0 +1,118 @@
+:root {
+  --background-color: #0a1520;
+  --window-bg: #0a1520;
+  --panel-bg: #0a2b3f;
+  --panel-bg-bright: #0f4967;
+  --panel-border-color: rgba(255, 255, 255, 0.15);
+  --nav-gold: #5b9fd4;
+  --nav-gold-dark: #2d6a9f;
+  --nav-btn-highlight: rgba(255, 255, 255, 0.4);
+  --action-btn-bg: #ffb84c;
+  --action-btn-text: #0c2432;
+  --action-btn-shadow: #c8872e;
+  --action-btn-highlight: rgba(255, 255, 255, 0.35);
+  --action-btn-radius: 0.8vw;
+  --text-color: rgba(255, 255, 255, 0.87);
+  --light-text-color: rgba(255, 255, 255, 0.87);
+  --button-background-color: #1e1233;
+  --start-button-gradient-start: #ff9800;
+  --start-button-gradient-end: rgb(255, 133, 12);
+  --start-button-shadow: rgb(198, 82, 0);
+  --white-color: #ffffff;
+  --button-border-color: #6c757d;
+  --button-hover-border-color: #ffc107;
+  --transparent-black-15: rgba(0, 0, 0, 0.15);
+  --transparent-black-20: rgba(0, 0, 0, 0.2);
+  --transparent-black-30: rgba(0, 0, 0, 0.3);
+  --transparent-purple-55: rgba(12, 35, 55, 0.85);
+  --transparent-purple-border: #c9a4ff90;
+  --transparent-dark-purple: rgba(10, 21, 32, 0.7);
+  --transparent-darker-purple: rgba(10, 21, 32, 0.9);
+  --color-preimage: #e97132;
+  --color-preimage-light: #ffb84c;
+  --color-image: #45c6ce;
+  --color-image-light: #64c7ff;
+  --color-transform: #9b59b6;
+  --color-transform-dark: #7d3c98;
+  --color-highlight: #ffb84c;
+  --color-right: #4caf50;
+  --color-wrong: #f44336;
+  --color-cta-teal: #45c6ce;
+  --color-cta-orange: #ff9800;
+  --color-cta-blue: #5b9fd4;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color: var(--light-text-color);
+  background: var(--background-color);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-height: 100vh;
+}
+h1 {
+  font-size: 3vw !important;
+}
+h2,
+h3,
+p {
+  font-size: 2.2vw !important;
+}
+button {
+  border-radius: 0.6vw;
+  border: 0.1vw solid transparent;
+  padding: 1vh 2vw;
+  font-size: 2vw !important;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 0.3vw auto -webkit-focus-ring-color;
+}
+.math-k {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-weight: 700;
+}
+.math-text {
+  display: block;
+  font-size: 2vw;
+}
+.katex-display {
+  margin: 1vh 0;
+}
+.var-x {
+  color: #e67e22;
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+.var-y {
+  color: #5dade2;
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+.math-var {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 1.2em;
+}
+
+/* ── View Transitions speed ────────────────────────────────────── */
+::view-transition-group(*) {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

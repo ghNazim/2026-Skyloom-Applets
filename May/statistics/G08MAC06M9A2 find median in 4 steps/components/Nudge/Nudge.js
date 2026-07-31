@@ -13,7 +13,10 @@ const Nudge = (props) => {
   var setDismissed = _dismissed[1];
 
   useEffect(function () {
-    if (!show) setDismissed(false);
+    if (!show) {
+      setDismissed(false);
+      setPosition(null);
+    }
   }, [show]);
 
   useEffect(function () {

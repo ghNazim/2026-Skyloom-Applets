@@ -1,0 +1,37 @@
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 1vw 1vw;
+}
+.nav-chevron {
+  width: 8vw;
+  height: 4vw;
+  padding: 0 0 0.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white-color);
+  font-size: 3vw !important;
+  line-height: 0;
+  background-color: var(--nav-gold);
+  border: none;
+  border-radius: 0.8vw;
+  box-shadow:
+    0.15vw 0.2vw 0 0 var(--nav-gold-dark),
+    inset 0.1vw 0.1vw 0 0 var(--nav-btn-highlight),
+    0 0.3vw 0.5vw rgba(0, 0, 0, 0.28);
+  opacity: 0.55;
+}
+.nav-chevron:not(:disabled) {
+  opacity: 1;
+  color: var(--white-color);
+}
+.nav-chevron:not(:disabled):hover {
+  color: var(--white-color);
+}
+.nav-chevron:disabled {
+  cursor: not-allowed;
+}
