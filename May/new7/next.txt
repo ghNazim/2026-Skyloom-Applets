@@ -1,0 +1,101 @@
+I want to create a new applet that will have similar structure as the given one. 
+
+Main canvas will be divided in 2 columns, 
+properties column and graph column. 
+
+In the properties column there will be a title and 6 buttons . 
+In the graph column there will be an svg , 500/500 viewbox size . 
+That will have 2 axis x and y meeting at the center, 
+and some other elements, 
+some mechanisms will happen there. I will describe the mechanisms in step1. 
+
+(I have attached a reference folder in the root, inside it there is an html, it has kinda similar mechanisms that we need in this applet. Specially the flipping mechanism
+Assuming the whole graph is spread in 12 rows and columns for easy point positioning, -6 to 6 in both axis. origin in center. 
+)
+
+Also in the graph column itself , position a buttons container with absolute positioning, bottom 0.5vw. 
+In it have 2 navigation buttons, '<' '>'. (prev and next)
+Flow:
+
+Step 0:
+heading - Reflection of a Point
+text - Let's recall the <y>rules of reflection</y>!
+button : START
+
+step 1: 
+left panel title - "Explore reflection rules for different lines."
+6 buttons - 
+[x-axis // maps to y = 0
+y-axis // maps to x = 0
+Line y = h // maps to y = 1
+Line x = k // maps to x = 1
+Line y = x // maps similar to name
+Line y = -x // maps similar to name
+]
+
+In the graph, there will be 2 axes, with labels and arrow just like the reference html, (With one difference, the reference HTML is in light theme. The background is fine and all but my current tablet is basically dark theme. Make sure the X and Y axes are in white and all the colors used are light colors not dark colors.
+use yellow for reflector line , 
+use orange for point, and projection line
+use cyan for reflected point and reflected line. 
+etc)
+
+Now let me tell you the complete mechanism of each of the buttons. 
+
+for x-axis: 
+When the button is clicked, 
+play this animation sequence- (name: prefold)
+1. bring a point (4,3) on the graph, label it A(x,y) // color coded, x in pink and y in purple. 
+2. draw a perpendicular on x axis , and draw another perpendicular on y axis from this point, dashed grey color. 
+Label the intersections, x and y respectively. 
+3. draw the reflector line y = 0 with grow animation. (yellow color, bold)
+(reflector line should have arrowheads on both its end like x and y axes)
+(Have 0.6 sec pause between consecutive animations)
+
+When these animation sequence is done, enable next button . 
+
+Show nudge on it. 
+
+Clicking next button will trigger the fold animation. (name: fold)
+
+1. Draw projection line from the point to the reflector , bright yellow , solid, with grow animation, from point to reflector, 
+2. Now fold the half where point lies , and rotate it about the reflector 180 degree to fall on the non-point half. 
+(In the folding overlay will contain the point circle, the projection line, the grey perpendiculars )
+(This animation is present in reference Html)
+3. When fold is complete , leave ghost imprints on the non point half of the point and projection line , 
+projection line imprint - yellow, dashed
+point imprint : cyan blue 
+
+4. Now remove the fold overlay.
+5. 
+now draw a grey perpendicular from reflected point to y axis, and label the intersection '-y'. 
+6.
+Now label the reflected point , A'(x,-y) // color coded, x in pink -y in purple.
+(label location - to the right of the point for both A and A')
+
+7. bring 2 boxes below the A' point, 
+x-box and y-box, 
+x-box - "x-coordinate: No change" // in pink
+y-box - "y-coordinate: sign changes" // in purple
+
+Here the animation ends. 
+
+Previous button should be kept disabled initially , 
+enable after the first animation ends, 
+enable again after the 2nd animation ends. 
+
+Clicking previous will take user back to the visual before the current animation occurred. 
+(Make sure when any animation occurs all buttons should be kept disabled)
+
+Now lets see y=x case- 
+When y=x button is clicked: 
+
+
+
+
+-----------------
+I am adding a few images from the storyboard. Take a look at the images to get an understanding about the layout and elements. 
+
+Modify the required files or create new files to achieve the above mentioned flow. 
+All English words and sentences must be defined in the data.js file under "en" object , also translate to "id" to have the Indonesian version of the texts. 
+Code
+No need to test using browser, I will manually test by myself, just recheck the code to make sure everything is correctly done. 
