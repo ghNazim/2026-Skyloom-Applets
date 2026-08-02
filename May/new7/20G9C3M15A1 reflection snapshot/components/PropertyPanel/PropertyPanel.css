@@ -1,0 +1,107 @@
+.property-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 1.4vw;
+  padding: 2vw 1.4vw;
+  background: rgba(4, 18, 30, 0.28);
+  border-radius: 0;
+  border: none;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.property-panel-title {
+  color: #ffffff;
+  font-size: 2.5vw;
+  line-height: 1.18;
+  /* font-weight: 800; */
+  text-align: center;
+  margin-bottom: 2vw;
+}
+
+.property-panel-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.9vw;
+}
+
+.property-btn {
+  width: 100%;
+  min-height: 4.25vw;
+  padding: 0.8vw 0.9vw;
+  border: 0.12vw solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.75vw;
+  background: #156082;
+  color: #ffffff;
+  font-size: 2.5vw;
+  line-height: 1.08;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
+}
+
+.property-btn:hover:not(:disabled) {
+  transform: translateY(-0.12vw);
+  background: #207090;
+}
+
+.property-btn.active {
+  background: #2a8fb0;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.property-btn.explored:not(.active) {
+  opacity: 0.92;
+  background: #1a5f7a;
+}
+
+.property-btn.pending {
+  background: rgba(21, 96, 130, 0.64);
+}
+
+.property-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.property-btn.active:disabled {
+  opacity: 1;
+}
+
+.property-summarize-btn {
+  position: absolute;
+  left: 1.4vw;
+  right: 1.4vw;
+  bottom: 2vw;
+  padding: 1vw 1.5vw;
+  border: none;
+  border-radius: var(--action-btn-radius);
+  background: var(--action-btn-bg);
+  color: var(--action-btn-text);
+  font-size: 2.2vw;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  box-shadow:
+    0.12vw 0.15vw 0 0 var(--action-btn-shadow),
+    inset 0.1vw 0.1vw 0 0 var(--action-btn-highlight),
+    0 0.2vw 0.45vw rgba(0, 0, 0, 0.22);
+}
+
+.property-summarize-btn:disabled {
+  cursor: default;
+  pointer-events: none;
+}
