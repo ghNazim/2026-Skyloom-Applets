@@ -1,0 +1,298 @@
+.slope-scene-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.slope-scene-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hill-shape {
+  fill: url("#grassPattern");
+  stroke: none;
+  cursor: pointer;
+  transition: opacity 0.35s ease;
+}
+
+.hill-shape.dehighlighted {
+  opacity: 0.5;
+}
+
+.hill-shape.muted {
+  opacity: 0.3;
+}
+
+.grid {
+  opacity: 0.8;
+  transition: opacity 0.25s ease;
+}
+
+.grid.muted {
+  opacity: 0.5;
+}
+
+.grid-line.minor {
+  stroke: rgba(149, 188, 207, 0.28);
+  stroke-width: 1;
+}
+
+.grid-line.major {
+  stroke: rgba(157, 198, 216, 0.48);
+  stroke-width: 2;
+}
+
+.axis-line {
+  stroke: rgba(181, 210, 224, 0.68);
+  stroke-width: 3;
+}
+
+.axis-label,
+.axis-number {
+  fill: rgba(204, 224, 232, 0.62);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+}
+
+.axis-number {
+  font-size: 20px;
+}
+
+.surface-line {
+  stroke: #b6dd69;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0.12vw 0.15vw rgba(0, 0, 0, 0.25));
+}
+
+.slope-line-group.clickable {
+  cursor: pointer;
+}
+
+.surface-label-group {
+  pointer-events: none;
+}
+
+.surface-label-box {
+  fill: rgba(69, 103, 76, 0.78);
+  stroke: rgba(198, 225, 174, 0.22);
+  stroke-width: 2;
+  filter: drop-shadow(0 0.25vw 0.35vw rgba(0, 0, 0, 0.26));
+}
+
+.surface-label {
+  fill: #ffffff;
+  font-size: 27px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  opacity: 0.96;
+  stroke: none;
+}
+
+.surface-final-label {
+  fill: #ffffff;
+  font-size: 32px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: rgba(20, 57, 75, 0.68);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+
+.cycle-group {
+  transition: opacity 0.25s ease;
+}
+
+.cycle-group.clickable {
+  cursor: pointer;
+}
+
+.cycle-group.muted-strong {
+  opacity: 0.3;
+}
+
+.movement-arrow {
+  stroke-linecap: square;
+  stroke-width: 8;
+  cursor: pointer;
+  paint-order: stroke;
+}
+
+.arrow-hit-zone {
+  stroke: transparent;
+  stroke-width: 34;
+  stroke-linecap: round;
+  fill: none;
+  cursor: pointer;
+  pointer-events: stroke;
+}
+
+.surface-hit-zone {
+  stroke-width: 30;
+}
+
+.blue-arrow {
+  stroke: #82c9ed;
+  filter: drop-shadow(0 0.12vw 0.18vw rgba(0, 0, 0, 0.32));
+}
+
+.yellow-arrow {
+  stroke: #f7c534;
+  filter: drop-shadow(0 0.12vw 0.18vw rgba(0, 0, 0, 0.32));
+}
+
+.movement-text {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  paint-order: stroke;
+  stroke: rgba(17, 49, 67, 0.72);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+
+.blue-text {
+  fill: #9bdcff;
+}
+
+.yellow-text {
+  fill: #ffc63f;
+}
+
+.movement-positive-word.blink-source {
+  animation: blink-word 0.45s ease-in-out 3;
+}
+
+.slope-formula {
+  position: absolute;
+  top: 1.5vw;
+  left: 1.5vw;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.9vw;
+  color: #ffffff;
+  font-size: 3vw;
+  line-height: 1;
+  transform: translateX(-120%);
+  animation: formula-slide-in 0.55s ease forwards;
+  pointer-events: none;
+}
+
+.formula-name,
+.formula-equals {
+  font-weight: 500;
+}
+
+.formula-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 34vw;
+}
+
+.formula-part {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 2.65vw;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.formula-part.numerator {
+  color: #ffc63f;
+}
+
+.formula-part.denominator {
+  color: #9bdcff;
+}
+
+.fraction-bar {
+  width: 100%;
+  height: 0.22vw;
+  margin: 0.45vw 0;
+  background: #ffffff;
+}
+
+.formula-result {
+  color: #ffffff;
+  font-size: 3vw;
+  font-weight: 700;
+}
+
+.blink-word {
+  animation: blink-word 0.45s ease-in-out 3;
+}
+
+.blink-fraction .formula-fraction,
+.result-positive .formula-result {
+  animation: blink-word 0.34s ease-in-out 5;
+}
+
+.hidden-formula {
+  display: none;
+}
+
+.formula-moving-clone {
+  position: absolute;
+  top: 1.5vw;
+  left: 1.5vw;
+  z-index: 6;
+  color: #ffffff;
+  font-size: 3vw;
+  font-weight: 700;
+  pointer-events: none;
+  transition: transform 1s ease-in-out;
+  text-shadow: 0 0.18vw 0.35vw rgba(0, 0, 0, 0.35);
+}
+
+.positive-word-clone {
+  position: absolute;
+  z-index: 7;
+  font-size: 2.7vw;
+  font-weight: 700;
+  pointer-events: none;
+  opacity: 1;
+  text-shadow: 0 0.18vw 0.3vw rgba(0, 0, 0, 0.35);
+  transform: translate(0, 0);
+  transition: transform 0.78s ease-in-out;
+}
+
+.yellow-word-clone {
+  color: #ffc63f;
+}
+
+.blue-word-clone {
+  color: #9bdcff;
+}
+
+@keyframes formula-slide-in {
+  from {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes blink-word {
+  0%,
+  100% {
+    filter: brightness(1);
+    opacity: 1;
+  }
+  50% {
+    filter: brightness(1.8);
+    opacity: 0.25;
+  }
+}
