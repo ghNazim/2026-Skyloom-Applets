@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Water Glass (JS Configurable)</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #0b1a26;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container {
+    width: 60vw;
+    height: 40vw;
+    max-width: 900px;
+    max-height: 600px;
+    min-width: 300px;
+    min-height: 200px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  svg text {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    user-select: none;
+  }
+
+  .slider-wrapper {
+    width: 60vw;
+    max-width: 600px;
+    margin-top: 30px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #1d3f54;
+    border-radius: 5px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f7a01d;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f7a01d;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    border: none;
+    transition: transform 0.1s;
+  }
+
+  input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.15);
+  }
+</style>
+</head>
+<body>
+
+<div class="main-wrapper">
+  <div class="container">
+    <!-- Empty SVG container -->
+    <svg viewBox="0 0 600 450" id="glass-svg"></svg>
+  </div>
+  
+  <div class="slider-wrapper">
+    <input type="range" id="water-slider" min="0" max="1" step="0.001" value="0.25">
+  </div>
+</div>
+
+<script>
+// =========================================================
+// GLASS PROPERTIES CONFIGURATION
+// Tweak any variable here to procedurally redraw the UI
+// =========================================================
+const glassProperties = {
+  cx: 250,              // Center X of the glass
+  topY: 100,            // Top Rim Y
+  bottomY: 420,         // Bottom Outer Rim Y
+  innerBottomY: 400,    // Bottom Inner Rim Y
+  outerTopRx: 140,      // Top Outer Rim Radius X
+  outerTopRy: 30,       // Top Outer Rim Radius Y
+  outerBottomRx: 100,   // Bottom Outer Rim Radius X
+  outerBottomRy: 20,    // Bottom Outer Rim Radius Y
+  innerTopRx: 130,      // Top Inner Rim Radius X
+  innerTopRy: 25,       // Top Inner Rim Radius Y
+  innerBottomRx: 94,    // Bottom Inner Rim Radius X
+  innerBottomRy: 17,    // Bottom Inner Rim Radius Y
+  waterMaxFillY: 115,   // Y position for 1-cup (100% full)
+  meterX: 450,          // Meter line X position
+  meterTextX: 480,      // Meter text labels X position
+  colors: {
+    glassTint: '#62b5df',
+    innerTint: '#8acae9',
+    waterStart: '#3b90b8',
+    waterMid: '#4fa5c9',
+    waterEnd: '#3789b0',
+    surfaceStart: '#7bc7e6',
+    surfaceEnd: '#55accf',
+    highlight: '#ffffff',
+    meterBase: '#1d3f54',
+    activeColor: '#f7a01d'
+  }
+};
+
+// =========================================================
+// SVG RENDERING LOGIC
+// =========================================================
+const svg = document.getElementById('glass-svg');
+const slider = document.getElementById('water-slider');
+const gp = glassProperties;
+
+// Helper to create SVG elements quickly
+function createSVG(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  if (attrs) {
+    for (let key in attrs) {
+      el.setAttribute(key, attrs[key]);
+    }
+  }
+  return el;
+}
+
+// 1. Defs (Gradients)
+const defs = createSVG('defs');
+const waterGrad = createSVG('linearGradient', {id: 'waterGrad', x1: '0%', y1: '0%', x2: '100%', y2: '0%'});
+waterGrad.appendChild(createSVG('stop', {offset: '0%', 'stop-color': gp.colors.waterStart}));
+waterGrad.appendChild(createSVG('stop', {offset: '50%', 'stop-color': gp.colors.waterMid}));
+waterGrad.appendChild(createSVG('stop', {offset: '100%', 'stop-color': gp.colors.waterEnd}));
+
+const surfaceGrad = createSVG('linearGradient', {id: 'surfaceGrad', x1: '0%', y1: '0%', x2: '0%', y2: '100%'});
+surfaceGrad.appendChild(createSVG('stop', {offset: '0%', 'stop-color': gp.colors.surfaceStart}));
+surfaceGrad.appendChild(createSVG('stop', {offset: '100%', 'stop-color': gp.colors.surfaceEnd}));
+
+defs.appendChild(waterGrad);
+defs.appendChild(surfaceGrad);
+svg.appendChild(defs);
+
+// 2. Layer Groups (Z-Indexing conceptually from top-to-bottom of DOM)
+const layers = {
+  backTint: createSVG('g', {id: 'backTint'}),
+  backRims: createSVG('g', {id: 'backRims'}),
+  waterVolume: createSVG('g', {id: 'waterVolume'}),
+  baseVolume: createSVG('g', {id: 'baseVolume'}),
+  frontRims: createSVG('g', {id: 'frontRims'}),
+  sideWalls: createSVG('g', {id: 'sideWalls'}),
+  reflections: createSVG('g', {id: 'reflections'}),
+  meterGroup: createSVG('g', {id: 'meterGroup'}),
+  guessGroup: createSVG('g', {id: 'guessGroup'})
+};
+
+Object.values(layers).forEach(layer => svg.appendChild(layer));
+
+// 3. Draw Static Glass Elements
+// --- Back Tint ---
+const dBackTint1 = `M ${gp.cx - gp.outerTopRx} ${gp.topY} A ${gp.outerTopRx} ${gp.outerTopRy} 0 0 0 ${gp.cx + gp.outerTopRx} ${gp.topY} L ${gp.cx + gp.outerBottomRx} ${gp.bottomY} A ${gp.outerBottomRx} ${gp.outerBottomRy} 0 0 1 ${gp.cx - gp.outerBottomRx} ${gp.bottomY} Z`;
+const dBackTint2 = `M ${gp.cx - gp.outerTopRx} ${gp.topY} A ${gp.outerTopRx} ${gp.outerTopRy} 0 0 1 ${gp.cx + gp.outerTopRx} ${gp.topY} L ${gp.cx + gp.outerBottomRx} ${gp.bottomY} A ${gp.outerBottomRx} ${gp.outerBottomRy} 0 0 0 ${gp.cx - gp.outerBottomRx} ${gp.bottomY} Z`;
+layers.backTint.appendChild(createSVG('path', {d: dBackTint1, fill: gp.colors.glassTint, opacity: '0.05'}));
+layers.backTint.appendChild(createSVG('path', {d: dBackTint2, fill: gp.colors.glassTint, opacity: '0.05'}));
+
+// --- Back Rims ---
+const dBackInnerBottom = `M ${gp.cx - gp.innerBottomRx} ${gp.innerBottomY} A ${gp.innerBottomRx} ${gp.innerBottomRy} 0 0 1 ${gp.cx + gp.innerBottomRx} ${gp.innerBottomY}`;
+const dBackOuterBottom = `M ${gp.cx - gp.outerBottomRx} ${gp.bottomY} A ${gp.outerBottomRx} ${gp.outerBottomRy} 0 0 1 ${gp.cx + gp.outerBottomRx} ${gp.bottomY}`;
+const dBackOuterTop = `M ${gp.cx - gp.outerTopRx} ${gp.topY} A ${gp.outerTopRx} ${gp.outerTopRy} 0 0 1 ${gp.cx + gp.outerTopRx} ${gp.topY}`;
+const dBackInnerTop = `M ${gp.cx - gp.innerTopRx} ${gp.topY} A ${gp.innerTopRx} ${gp.innerTopRy} 0 0 1 ${gp.cx + gp.innerTopRx} ${gp.topY}`;
+layers.backRims.appendChild(createSVG('path', {d: dBackInnerBottom, fill: 'none', stroke: gp.colors.innerTint, 'stroke-width': '2', opacity: '0.3'}));
+layers.backRims.appendChild(createSVG('path', {d: dBackOuterBottom, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '2', opacity: '0.5'}));
+layers.backRims.appendChild(createSVG('path', {d: dBackOuterTop, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '4'}));
+layers.backRims.appendChild(createSVG('path', {d: dBackInnerTop, fill: 'none', stroke: gp.colors.innerTint, 'stroke-width': '2'}));
+
+// --- Base Volume Thickness ---
+const dBaseInnerVolume = `M ${gp.cx - gp.innerBottomRx} ${gp.innerBottomY} A ${gp.innerBottomRx} ${gp.innerBottomRy} 0 0 0 ${gp.cx + gp.innerBottomRx} ${gp.innerBottomY} L ${gp.cx + gp.outerBottomRx} ${gp.bottomY} A ${gp.outerBottomRx} ${gp.outerBottomRy} 0 0 1 ${gp.cx - gp.outerBottomRx} ${gp.bottomY} Z`;
+layers.baseVolume.appendChild(createSVG('path', {d: dBaseInnerVolume, fill: gp.colors.glassTint, opacity: '0.15'}));
+layers.baseVolume.appendChild(createSVG('ellipse', {cx: gp.cx, cy: gp.innerBottomY + 7, rx: gp.innerBottomRx + 3, ry: gp.innerBottomRy + 1.5, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '2', opacity: '0.4'}));
+layers.baseVolume.appendChild(createSVG('ellipse', {cx: gp.cx, cy: gp.innerBottomY + 14, rx: gp.innerBottomRx + 4.5, ry: gp.innerBottomRy + 2.5, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '2', opacity: '0.4'}));
+
+// --- Front Rims ---
+const dFrontOuterBottom = `M ${gp.cx - gp.outerBottomRx} ${gp.bottomY} A ${gp.outerBottomRx} ${gp.outerBottomRy} 0 0 0 ${gp.cx + gp.outerBottomRx} ${gp.bottomY}`;
+const dFrontInnerBottom = `M ${gp.cx - gp.innerBottomRx} ${gp.innerBottomY} A ${gp.innerBottomRx} ${gp.innerBottomRy} 0 0 0 ${gp.cx + gp.innerBottomRx} ${gp.innerBottomY}`;
+const dFrontOuterTop = `M ${gp.cx - gp.outerTopRx} ${gp.topY} A ${gp.outerTopRx} ${gp.outerTopRy} 0 0 0 ${gp.cx + gp.outerTopRx} ${gp.topY}`;
+const dFrontInnerTop = `M ${gp.cx - gp.innerTopRx} ${gp.topY} A ${gp.innerTopRx} ${gp.innerTopRy} 0 0 0 ${gp.cx + gp.innerTopRx} ${gp.topY}`;
+layers.frontRims.appendChild(createSVG('path', {d: dFrontOuterBottom, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '4', 'stroke-linecap': 'round'}));
+layers.frontRims.appendChild(createSVG('path', {d: dFrontInnerBottom, fill: 'none', stroke: gp.colors.innerTint, 'stroke-width': '2', 'stroke-linecap': 'round'}));
+layers.frontRims.appendChild(createSVG('path', {d: dFrontOuterTop, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '4'}));
+layers.frontRims.appendChild(createSVG('path', {d: dFrontInnerTop, fill: 'none', stroke: gp.colors.innerTint, 'stroke-width': '2'}));
+
+// --- Side Walls ---
+const dOuterLeft = `M ${gp.cx - gp.outerTopRx} ${gp.topY} L ${gp.cx - gp.outerBottomRx} ${gp.bottomY}`;
+const dOuterRight = `M ${gp.cx + gp.outerTopRx} ${gp.topY} L ${gp.cx + gp.outerBottomRx} ${gp.bottomY}`;
+const dInnerLeft = `M ${gp.cx - gp.innerTopRx} ${gp.topY} L ${gp.cx - gp.innerBottomRx} ${gp.innerBottomY}`;
+const dInnerRight = `M ${gp.cx + gp.innerTopRx} ${gp.topY} L ${gp.cx + gp.innerBottomRx} ${gp.innerBottomY}`;
+layers.sideWalls.appendChild(createSVG('path', {d: dOuterLeft, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '4', 'stroke-linecap': 'round'}));
+layers.sideWalls.appendChild(createSVG('path', {d: dOuterRight, fill: 'none', stroke: gp.colors.glassTint, 'stroke-width': '4', 'stroke-linecap': 'round'}));
+layers.sideWalls.appendChild(createSVG('path', {d: dInnerLeft, fill: 'none', stroke: gp.colors.innerTint, 'stroke-width': '2', 'stroke-linecap': 'round', opacity: '0.7'}));
+layers.sideWalls.appendChild(createSVG('path', {d: dInnerRight, fill: 'none', stroke: gp.colors.innerTint, 'stroke-width': '2', 'stroke-linecap': 'round', opacity: '0.7'}));
+
+// --- Reflections ---
+const ref1 = `M ${gp.cx - gp.outerTopRx + 6} ${gp.topY + 15} L ${gp.cx - gp.outerBottomRx + 6} ${gp.bottomY - 15}`;
+const ref2 = `M ${gp.cx - gp.outerTopRx + 14} ${gp.topY + 25} L ${gp.cx - gp.outerBottomRx + 11} ${gp.bottomY - 30}`;
+const ref3 = `M ${gp.cx + gp.outerTopRx - 6} ${gp.topY + 15} L ${gp.cx + gp.outerBottomRx - 6} ${gp.bottomY - 15}`;
+layers.reflections.appendChild(createSVG('path', {d: ref1, stroke: 'white', 'stroke-width': '4', 'stroke-linecap': 'round', opacity: '0.15'}));
+layers.reflections.appendChild(createSVG('path', {d: ref2, stroke: 'white', 'stroke-width': '1.5', 'stroke-linecap': 'round', opacity: '0.1'}));
+layers.reflections.appendChild(createSVG('path', {d: ref3, stroke: 'white', 'stroke-width': '3', 'stroke-linecap': 'round', opacity: '0.08'}));
+
+// 4. Create Dynamic Components (Water, Meter, Tracker)
+// --- Water Variables ---
+const waterBody = createSVG('path', {fill: 'url(#waterGrad)'});
+const waterSurface = createSVG('ellipse', {cx: gp.cx, fill: 'url(#surfaceGrad)'});
+const waterHighlight = createSVG('ellipse', {cx: gp.cx, fill: 'none', stroke: gp.colors.highlight, 'stroke-width': '1.5'});
+layers.waterVolume.appendChild(waterBody);
+layers.waterVolume.appendChild(waterSurface);
+layers.waterVolume.appendChild(waterHighlight);
+
+// --- Meter Elements ---
+layers.meterGroup.appendChild(createSVG('line', {
+  x1: gp.meterX, y1: gp.waterMaxFillY, x2: gp.meterX, y2: gp.innerBottomY, 
+  stroke: gp.colors.meterBase, 'stroke-width': '4', 'stroke-linecap': 'round'
+}));
+
+const meterActive = createSVG('line', {
+  x1: gp.meterX, x2: gp.meterX, y2: gp.innerBottomY, 
+  stroke: gp.colors.glassTint, 'stroke-width': '4', 'stroke-linecap': 'round'
+});
+layers.meterGroup.appendChild(meterActive);
+
+const cupLabel = createSVG('text', {x: gp.meterTextX - 12, y: gp.waterMaxFillY - 25, fill: '#ffffff', 'font-size': '20', 'font-weight': 'bold'});
+cupLabel.textContent = 'cup';
+layers.meterGroup.appendChild(cupLabel);
+
+const meterTicksData = [
+  { val: 1,     label: '1',  fontSize: 20 },
+  { val: 0.5,   label: '½', fontSize: 18 },
+  { val: 0.333, label: '⅓', fontSize: 18 },
+  { val: 0.25,  label: '¼', fontSize: 18 },
+  { val: 0,     label: '0',  fontSize: 20 }
+];
+
+const tickElements = [];
+const heightRange = gp.innerBottomY - gp.waterMaxFillY;
+
+meterTicksData.forEach(tick => {
+  const y = gp.innerBottomY - tick.val * heightRange;
+  
+  const line = createSVG('line', {
+    x1: gp.meterX, y1: y, 
+    x2: (tick.val === 1 || tick.val === 0) ? gp.meterX + 20 : gp.meterX + 15, 
+    y2: y, stroke: gp.colors.glassTint, 'stroke-width': '2'
+  });
+  
+  const text = createSVG('text', {
+    x: gp.meterTextX, y: y + 6, fill: '#ffffff', 'font-size': tick.fontSize
+  });
+  text.textContent = tick.label;
+  
+  layers.meterGroup.appendChild(line);
+  layers.meterGroup.appendChild(text);
+  
+  tickElements.push({ val: tick.val, el: text });
+});
+
+// --- Guess Indicator ---
+const guessText = createSVG('text', {
+  x: 90, fill: gp.colors.activeColor, 'font-size': '22', 'font-weight': 'bold',
+  'text-anchor': 'end', 'dominant-baseline': 'central'
+});
+guessText.textContent = 'guess';
+
+const guessLine = createSVG('line', {
+  x1: 100, stroke: gp.colors.activeColor, 'stroke-width': '2', 'stroke-dasharray': '4 4'
+});
+layers.guessGroup.appendChild(guessText);
+layers.guessGroup.appendChild(guessLine);
+
+
+// =========================================================
+// RUNTIME UPDATE FUNCTION
+// =========================================================
+function updateWater(fillRatio) {
+  fillRatio = Math.max(0, Math.min(1, fillRatio));
+
+  const waterY = gp.innerBottomY - fillRatio * heightRange;
+  
+  // Dynamically interpolate radius for the specific water level
+  const ratio = (gp.innerBottomY - waterY) / (gp.innerBottomY - gp.topY);
+  const waterRx = gp.innerBottomRx + ratio * (gp.innerTopRx - gp.innerBottomRx);
+  const waterRy = gp.innerBottomRy + ratio * (gp.innerTopRy - gp.innerBottomRy);
+  
+  // Build the water fill path
+  const path = `M ${gp.cx - waterRx} ${waterY}
+                A ${waterRx} ${waterRy} 0 0 1 ${gp.cx + waterRx} ${waterY}
+                L ${gp.cx + gp.innerBottomRx} ${gp.innerBottomY}
+                A ${gp.innerBottomRx} ${gp.innerBottomRy} 0 0 1 ${gp.cx - gp.innerBottomRx} ${gp.innerBottomY}
+                Z`;
+  
+  if (fillRatio <= 0.005) {
+    waterBody.setAttribute('opacity', '0');
+    waterSurface.setAttribute('opacity', '0');
+    waterHighlight.setAttribute('opacity', '0');
+  } else {
+    waterBody.setAttribute('opacity', '0.85');
+    waterSurface.setAttribute('opacity', '0.95');
+    waterHighlight.setAttribute('opacity', '0.4');
+    
+    waterBody.setAttribute('d', path);
+    waterSurface.setAttribute('cy', waterY);
+    waterSurface.setAttribute('rx', waterRx);
+    waterSurface.setAttribute('ry', waterRy);
+    
+    waterHighlight.setAttribute('cy', waterY);
+    waterHighlight.setAttribute('rx', Math.max(0, waterRx - 2));
+    waterHighlight.setAttribute('ry', Math.max(0, waterRy - 1));
+  }
+
+  // Sync active meter track
+  meterActive.setAttribute('y1', waterY);
+
+  // Move the 'guess' tracker
+  guessText.setAttribute('y', waterY); 
+  guessLine.setAttribute('y1', waterY);
+  guessLine.setAttribute('y2', waterY);
+  guessLine.setAttribute('x2', gp.cx - waterRx - 8);
+
+  // Illuminate scale markings when water nears them
+  tickElements.forEach(tick => {
+    if (Math.abs(fillRatio - tick.val) <= 0.03) {
+      tick.el.setAttribute('fill', gp.colors.activeColor);
+    } else {
+      tick.el.setAttribute('fill', '#ffffff');
+    }
+  });
+}
+
+// Bind slider to render
+slider.addEventListener('input', (e) => {
+  updateWater(parseFloat(e.target.value));
+});
+
+// Initial bootup paint
+updateWater(parseFloat(slider.value));
+
+</script>
+</body>
+</html>

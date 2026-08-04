@@ -1,0 +1,17 @@
+.nudge-overlay {
+  pointer-events: none;
+}
+
+.nudge-overlay .nudge-gif {
+  width: 5vw;
+  height: 5vw;
+  object-fit: contain;
+  opacity: 0.5;
+  translate: 40% 50%;
+}
+
+.nudge-overlay.nudge-drag .nudge-gif {
+  width: 10vw;
+  height: 10vw;
+  translate: 0% 30%;
+}

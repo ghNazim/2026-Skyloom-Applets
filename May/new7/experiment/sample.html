@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Glass Water Fill</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #102a35;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: min(600px, 95vw);
+            text-align: center;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .controls {
+            margin-top: 20px;
+            color: white;
+        }
+
+        .slider {
+            width: 80%;
+            max-width: 450px;
+            accent-color: #55bde8;
+        }
+
+        .value {
+            margin-top: 8px;
+            font-size: 16px;
+            color: #9eddf5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <svg id="glassSvg" viewBox="0 0 500 525" xmlns="http://www.w3.org/2000/svg">
+
+            <defs>
+
+                <!--
+        Clip path for the WATER BODY only.
+        The water surface is intentionally outside
+        this clip path so its back half remains visible.
+      -->
+                <clipPath id="waterClip">
+                    <path d="
+            M34 73
+            L112 449
+            Q119 482 153 488
+            Q250 501 347 488
+            Q381 482 388 449
+            L466 73
+            Z
+          " />
+                </clipPath>
+
+                <!-- Water gradient -->
+                <linearGradient id="waterGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#55bde3" stop-opacity="0.72" />
+
+                    <stop offset="100%" stop-color="#3d9bc0" stop-opacity="0.72" />
+                </linearGradient>
+
+            </defs>
+
+
+            <!-- ================================================= -->
+            <!-- WATER BODY                                         -->
+            <!-- ================================================= -->
+
+            <!--
+      Only the rectangular body is clipped.
+      The surface ellipse is NOT inside this group.
+    -->
+            <g clip-path="url(#waterClip)">
+
+                <rect id="waterBody" x="0" y="490" width="500" height="0" fill="url(#waterGradient)" />
+
+            </g>
+
+
+            <!-- ================================================= -->
+            <!-- WATER SURFACE                                      -->
+            <!-- ================================================= -->
+
+            <!--
+      This is intentionally outside waterClip.
+
+      Therefore, at fill = 1, the complete ellipse
+      including its back half remains visible.
+    -->
+            <ellipse id="waterSurface" cx="250" cy="490" rx="130" ry="18" fill="#5bc2e8" opacity="0.95" />
+
+
+            <!-- ================================================= -->
+            <!-- GLASS BODY                                         -->
+            <!-- ================================================= -->
+
+            <path d="
+        M34 73
+        L112 449
+        Q119 482 153 488
+        Q250 501 347 488
+        Q381 482 388 449
+        L466 73
+        Z
+      " fill="rgba(255,255,255,0.025)" />
+
+
+            <!-- ================================================= -->
+            <!-- GLASS OUTLINE                                     -->
+            <!-- ================================================= -->
+
+            <path d="
+        M34 73
+        L112 449
+        Q119 482 153 488
+        Q250 501 347 488
+        Q381 482 388 449
+        L466 73
+      " fill="none" stroke="#56b8ed" stroke-width="6" stroke-linejoin="round" />
+
+
+            <!-- ================================================= -->
+            <!-- TOP RIM                                            -->
+            <!-- ================================================= -->
+
+            <ellipse cx="250" cy="73" rx="216" ry="37" fill="none" stroke="#56b8ed" stroke-width="6" />
+
+
+            <!-- ================================================= -->
+            <!-- GLASS HIGHLIGHTS                                   -->
+            <!-- ================================================= -->
+
+            <!-- Left highlight -->
+            <path d="
+        M45 82
+        L119 439
+        Q124 459 143 467
+      " fill="none" stroke="#b9edff" stroke-width="5" stroke-linecap="round" opacity="0.85" />
+
+            <!-- Right highlight -->
+            <path d="
+        M455 82
+        L381 439
+        Q376 459 357 467
+      " fill="none" stroke="#9ce4fa" stroke-width="4" stroke-linecap="round" opacity="0.55" />
+
+
+            <!-- ================================================= -->
+            <!-- BOTTOM GLASS RINGS                                -->
+            <!-- ================================================= -->
+
+            <ellipse cx="250" cy="464" rx="133" ry="30" fill="none" stroke="#63c8f0" stroke-width="5" />
+
+            <ellipse cx="250" cy="463" rx="117" ry="21" fill="none" stroke="#8bdcf7" stroke-width="4" opacity="0.85" />
+
+            <!-- Bottom outer curve -->
+            <path d="
+        M112 449
+        Q119 482 153 488
+        Q250 501 347 488
+        Q381 482 388 449
+      " fill="none" stroke="#56b8ed" stroke-width="5" />
+
+        </svg>
+
+
+        <!-- =================================================== -->
+        <!-- SLIDER                                             -->
+        <!-- =================================================== -->
+
+        <div class="controls">
+
+            <input id="fillSlider" class="slider" type="range" min="0" max="1" step="0.01" value="0.5" />
+
+            <div class="value">
+                Fill: <span id="fillValue">0.50</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const slider = document.getElementById("fillSlider");
+        const waterBody = document.getElementById("waterBody");
+        const waterSurface = document.getElementById("waterSurface");
+        const fillValue = document.getElementById("fillValue");
+
+
+        function updateWater() {
+
+            const value = parseFloat(slider.value);
+
+            /*
+              Glass water range:
+        
+              0 = bottom
+              1 = top
+            */
+
+            const bottom = 490;
+            const top = 73;
+
+            const surfaceY =
+                bottom - value * (bottom - top);
+
+
+            // ---------------------------------------------------
+            // WATER BODY
+            // ---------------------------------------------------
+
+            waterBody.setAttribute(
+                "y",
+                surfaceY
+            );
+
+            waterBody.setAttribute(
+                "height",
+                bottom - surfaceY + 30
+            );
+
+
+            // ---------------------------------------------------
+            // WATER SURFACE
+            // ---------------------------------------------------
+
+            /*
+              The glass gets wider toward the top,
+              so make the water surface wider as it rises.
+            */
+
+            const minRx = 120;
+            const maxRx = 198;
+
+            const rx =
+                minRx + value * (maxRx - minRx);
+
+            waterSurface.setAttribute(
+                "cy",
+                surfaceY
+            );
+
+            waterSurface.setAttribute(
+                "rx",
+                rx
+            );
+
+            waterSurface.setAttribute(
+                "ry",
+                18
+            );
+
+
+            // Hide surface when empty
+            waterSurface.style.display =
+                value <= 0 ? "none" : "block";
+
+
+            // Display slider value
+            fillValue.textContent =
+                value.toFixed(2);
+        }
+
+
+        slider.addEventListener(
+            "input",
+            updateWater
+        );
+
+
+        // Initialize
+        updateWater();
+
+    </script>
+
+</body>
+
+</html>

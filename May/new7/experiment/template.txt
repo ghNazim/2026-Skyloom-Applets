@@ -1,0 +1,43 @@
+I want to create a new applet that will have similar structure as the given one. 
+It will have question panel at the top, navigation at the bottom and main canvas in the middle. 
+
+Main canvas will be divided into two columns:
+- Left column(visual): 64%
+- Right column(count): rest
+
+What will be there in the left and right columns? I will explain while telling you the flow.
+
+Step 0:
+start fullscreen
+heading - How much does each cup hold?
+The content section of the full screen should be divided into two columns.
+left column (60% ) - "Karina measures her baking ingredients with four cups: 1, ½, ⅓, and ¼ of a cup. 
+
+Before using them, she wants to know how full each one makes the glass.
+
+Predict the level, then pour to check."
+
+Right column will have only one image in a card - 
+cup4en.png for English version, cup4id.png for Indonesian version. 
+
+button : START
+
+step 1: 
+question text (q) - This is the 1 cup.
+Pour it to see the glass fill.
+nav text (n) - Tap the 1 cup to pour it in.
+
+In left visual column have 2 columns, 
+visual left and visual right. 
+
+In visual left , have the empty glass. 
+(To render glass create a Glass.js component)
+
+
+-----------------
+I am adding a few images from the storyboard. Take a look at the images to get an understanding about the layout and elements. 
+
+Modify the required files or create new files to achieve the above mentioned flow. 
+All English words and sentences must be defined in the data.js file under "en" object , also translate to "id" to have the Indonesian version of the texts. 
+Code
+No need to test using browser, I will manually test by myself, just recheck the code to make sure everything is correctly done. 
