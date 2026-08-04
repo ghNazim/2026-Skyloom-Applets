@@ -148,6 +148,12 @@
   filter: drop-shadow(0 0.12vw 0.18vw rgba(0, 0, 0, 0.32));
 }
 
+.rock-wall-edge {
+  stroke: rgba(45, 35, 27, 0.72);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
 .movement-text {
   font-size: 32px;
   font-weight: 500;
@@ -168,6 +174,11 @@
 
 .yellow-text {
   fill: #ffc63f;
+}
+
+.clickable-movement-text {
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .movement-positive-word.blink-source {

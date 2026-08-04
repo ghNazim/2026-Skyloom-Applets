@@ -237,10 +237,12 @@ function rotateVec(v, angle) {
 function buildPerfectTriangle(approxX, approxY, approxZ, lenAB, lenBC, lenAC) {
   const X = { x: approxX.x, y: approxX.y };
   const toY = { x: approxY.x - X.x, y: approxY.y - X.y };
-  const dirXY = Math.hypot(toY.x, toY.y) > 1 ? normalizeVec(toY) : { x: 1, y: 0 };
+  const dirXY =
+    Math.hypot(toY.x, toY.y) > 1 ? normalizeVec(toY) : { x: 1, y: 0 };
   const Y = { x: X.x + dirXY.x * lenAB, y: X.y + dirXY.y * lenAB };
 
-  const cosX = (lenAB * lenAB + lenAC * lenAC - lenBC * lenBC) / (2 * lenAB * lenAC);
+  const cosX =
+    (lenAB * lenAB + lenAC * lenAC - lenBC * lenBC) / (2 * lenAB * lenAC);
   const angleX = Math.acos(Math.max(-1, Math.min(1, cosX)));
 
   const dirXZ1 = rotateVec(dirXY, angleX);
@@ -277,7 +279,9 @@ function tryCompleteTriangle(lines, tol) {
   }
 
   const bySide = {};
-  lines.forEach((l) => { bySide[l.origSide] = l; });
+  lines.forEach((l) => {
+    bySide[l.origSide] = l;
+  });
   const ab = bySide.AB;
   const bc = bySide.BC;
   const ac = bySide.AC;
@@ -497,7 +501,9 @@ function perspectiveYAxisFlipPt(pt, centroid, t) {
 /** X↔A (AB∩AC), Y↔B (AB∩BC), Z↔C (AC∩BC) */
 function mapYellowVertices(lines) {
   const bySide = {};
-  lines.forEach((l) => { bySide[l.origSide] = l; });
+  lines.forEach((l) => {
+    bySide[l.origSide] = l;
+  });
   const ab = bySide.AB;
   const bc = bySide.BC;
   const ac = bySide.AC;
@@ -521,7 +527,9 @@ function mapYellowVertices(lines) {
   if (!X || !Y || !Z) return null;
 
   return {
-    X, Y, Z,
+    X,
+    Y,
+    Z,
     sides: {
       AB: ab.displayLength,
       BC: bc.displayLength,
@@ -551,10 +559,11 @@ function pointForAngleAtX(X, Y, currentZ, targetDeg) {
   const radius = ptDist(X, currentZ);
   const targetRad = (targetDeg * Math.PI) / 180;
   const candidates = [baseAngle + targetRad, baseAngle - targetRad];
-  const chosen = Math.abs(signedAngleDelta(currentAngle, candidates[0])) <=
+  const chosen =
+    Math.abs(signedAngleDelta(currentAngle, candidates[0])) <=
     Math.abs(signedAngleDelta(currentAngle, candidates[1]))
-    ? candidates[0]
-    : candidates[1];
+      ? candidates[0]
+      : candidates[1];
   return {
     x: X.x + Math.cos(chosen) * radius,
     y: X.y + Math.sin(chosen) * radius,
@@ -569,8 +578,14 @@ function describeArc(cx, cy, r, startAngle, endAngle) {
     endAngle = tmp;
     delta = -delta;
   }
-  const start = { x: cx + Math.cos(startAngle) * r, y: cy + Math.sin(startAngle) * r };
-  const end = { x: cx + Math.cos(endAngle) * r, y: cy + Math.sin(endAngle) * r };
+  const start = {
+    x: cx + Math.cos(startAngle) * r,
+    y: cy + Math.sin(startAngle) * r,
+  };
+  const end = {
+    x: cx + Math.cos(endAngle) * r,
+    y: cy + Math.sin(endAngle) * r,
+  };
   const largeArc = delta > Math.PI ? 1 : 0;
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`;
 }
@@ -583,8 +598,14 @@ function describeSector(cx, cy, r, startAngle, endAngle) {
     endAngle = tmp;
     delta = -delta;
   }
-  const start = { x: cx + Math.cos(startAngle) * r, y: cy + Math.sin(startAngle) * r };
-  const end = { x: cx + Math.cos(endAngle) * r, y: cy + Math.sin(endAngle) * r };
+  const start = {
+    x: cx + Math.cos(startAngle) * r,
+    y: cy + Math.sin(startAngle) * r,
+  };
+  const end = {
+    x: cx + Math.cos(endAngle) * r,
+    y: cy + Math.sin(endAngle) * r,
+  };
   const largeArc = delta > Math.PI ? 1 : 0;
   return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
 }
@@ -605,7 +626,7 @@ function mapTwoSideYellowVertices(lines) {
   }
   if (!X) return null;
 
-  const farFrom = (line, point) => close(line.p1, point) ? line.p2 : line.p1;
+  const farFrom = (line, point) => (close(line.p1, point) ? line.p2 : line.p1);
   const Y = farFrom(ab, X);
   const Z = farFrom(ac, X);
   return {
@@ -654,7 +675,8 @@ function transformTriangleForSideMatch(source, targetA, targetB, targetC) {
   if (
     targetC &&
     triangleWinding(targetA, targetB, transformed.Z) *
-      triangleWinding(targetA, targetB, targetC) < 0
+      triangleWinding(targetA, targetB, targetC) <
+      0
   ) {
     transformed.Z = reflectPtAcrossLine(transformed.Z, targetA, targetB);
   }
@@ -683,7 +705,8 @@ function orientTriangleToSideWithoutScaling(source, targetA, targetB, targetC) {
   if (
     targetC &&
     triangleWinding(targetA, targetB, transformed.Z) *
-      triangleWinding(targetA, targetB, targetC) < 0
+      triangleWinding(targetA, targetB, targetC) <
+      0
   ) {
     transformed.Z = reflectPtAcrossLine(transformed.Z, targetA, targetB);
   }
@@ -755,6 +778,7 @@ const MainCanvas = (props) => {
   const [animYellow, setAnimYellow] = useState(null);
   const [drawDraft, setDrawDraft] = useState(null);
   const drawRef = useRef(null);
+  const [step4DragStarted, setStep4DragStarted] = useState(false);
   const [step4BottomVisible, setStep4BottomVisible] = useState(false);
   const [step4ConcludeVisible, setStep4ConcludeVisible] = useState(false);
   const [step5NonSimilarVisible, setStep5NonSimilarVisible] = useState(false);
@@ -784,11 +808,14 @@ const MainCanvas = (props) => {
     return applyShift(triPoints, triShiftX);
   }, [triPoints, triShiftX]);
 
-  const sideLengths = useMemo(() => ({
-    AB: sideLen(currentTriPoints.A, currentTriPoints.B),
-    AC: sideLen(currentTriPoints.A, currentTriPoints.C),
-    BC: sideLen(currentTriPoints.B, currentTriPoints.C),
-  }), [currentTriPoints]);
+  const sideLengths = useMemo(
+    () => ({
+      AB: sideLen(currentTriPoints.A, currentTriPoints.B),
+      AC: sideLen(currentTriPoints.A, currentTriPoints.C),
+      BC: sideLen(currentTriPoints.B, currentTriPoints.C),
+    }),
+    [currentTriPoints],
+  );
 
   const getSVGPoint = useCallback((e) => {
     const svg = svgRef.current;
@@ -806,15 +833,18 @@ const MainCanvas = (props) => {
   triPointsRef.current = triPoints;
 
   // ── Step 1: Vertex dragging ──
-  const handleVertexDown = useCallback((vertex, e) => {
-    if (step !== 1) return;
-    e.preventDefault();
-    if (onStep1PointInteractionStart) onStep1PointInteractionStart();
-    const pt = getSVGPoint(e);
-    dragStartRef.current = pt;
-    originalPosRef.current = { ...triPointsRef.current[vertex] };
-    setDragging(vertex);
-  }, [step, getSVGPoint, onStep1PointInteractionStart]);
+  const handleVertexDown = useCallback(
+    (vertex, e) => {
+      if (step !== 1) return;
+      e.preventDefault();
+      if (onStep1PointInteractionStart) onStep1PointInteractionStart();
+      const pt = getSVGPoint(e);
+      dragStartRef.current = pt;
+      originalPosRef.current = { ...triPointsRef.current[vertex] };
+      setDragging(vertex);
+    },
+    [step, getSVGPoint, onStep1PointInteractionStart],
+  );
 
   const hasInteractedRef = useRef(false);
   hasInteractedRef.current = hasInteracted;
@@ -836,7 +866,10 @@ const MainCanvas = (props) => {
         newX = initialPositions[dragging].x + (dx / d) * DRAG_RADIUS;
         newY = initialPositions[dragging].y + (dy / d) * DRAG_RADIUS;
       }
-      const bounded = clampPointToViewBox({ x: newX, y: newY }, BLUE_POINT_RADIUS);
+      const bounded = clampPointToViewBox(
+        { x: newX, y: newY },
+        BLUE_POINT_RADIUS,
+      );
       setTriPoints((prev) => ({ ...prev, [dragging]: bounded }));
       if (!hasInteractedRef.current) {
         setHasInteracted(true);
@@ -1006,34 +1039,47 @@ const MainCanvas = (props) => {
   }, [step, yellowLines]);
 
   // ── Ratio button click ──
-  const handleRatioClick = useCallback((ratio) => {
-    if (selectedRatio !== null) return;
-    playSnd("click");
-    if (onSetPrevDisabled) onSetPrevDisabled(true);
-    setSelectedRatio(ratio);
-    setShowButtons(false);
+  const handleRatioClick = useCallback(
+    (ratio) => {
+      if (selectedRatio !== null) return;
+      playSnd("click");
+      if (onSetPrevDisabled) onSetPrevDisabled(true);
+      setSelectedRatio(ratio);
+      setShowButtons(false);
 
-    const leftPts = applyShift(triPoints, computeLeftShift(triPoints));
-    const lAB = sideLen(leftPts.A, leftPts.B);
-    const lAC = sideLen(leftPts.A, leftPts.C);
+      const leftPts = applyShift(triPoints, computeLeftShift(triPoints));
+      const lAB = sideLen(leftPts.A, leftPts.B);
+      const lAC = sideLen(leftPts.A, leftPts.C);
 
-    const blueDisplayed = getBlueDisplayedLengths(leftPts);
-    const displayAB = fmtScaledDisplay(blueDisplayed.AB, ratio);
-    const displayAC = fmtScaledDisplay(blueDisplayed.AC, ratio);
+      const blueDisplayed = getBlueDisplayedLengths(leftPts);
+      const displayAB = fmtScaledDisplay(blueDisplayed.AB, ratio);
+      const displayAC = fmtScaledDisplay(blueDisplayed.AC, ratio);
 
-    const lines = [
-      { id: "line-ab", length: lAB * ratio * SCALE, displayLength: displayAB, origSide: "AB" },
-      { id: "line-ac", length: lAC * ratio * SCALE, displayLength: displayAC, origSide: "AC" },
-    ];
+      const lines = [
+        {
+          id: "line-ab",
+          length: lAB * ratio * SCALE,
+          displayLength: displayAB,
+          origSide: "AB",
+        },
+        {
+          id: "line-ac",
+          length: lAC * ratio * SCALE,
+          displayLength: displayAC,
+          origSide: "AC",
+        },
+      ];
 
-    placeYellowLines(lines);
+      placeYellowLines(lines);
 
-    setYellowLines(lines);
+      setYellowLines(lines);
 
-    setTimeout(() => {
-      runRatioBoxAnimation(ratio, lines, leftPts);
-    }, 1000);
-  }, [selectedRatio, triPoints, onSetPrevDisabled, onUpdateTexts]);
+      setTimeout(() => {
+        runRatioBoxAnimation(ratio, lines, leftPts);
+      }, 1000);
+    },
+    [selectedRatio, triPoints, onSetPrevDisabled, onUpdateTexts],
+  );
 
   const runRatioBoxAnimation = (ratio, lines, leftPts) => {
     setRatioBoxVisible(true);
@@ -1043,7 +1089,10 @@ const MainCanvas = (props) => {
     const centroid = triCentroid(leftPts);
     const labelOffset = 18;
 
-    const sideMap = { AB: { p1: leftPts.A, p2: leftPts.B }, AC: { p1: leftPts.A, p2: leftPts.C } };
+    const sideMap = {
+      AB: { p1: leftPts.A, p2: leftPts.B },
+      AC: { p1: leftPts.A, p2: leftPts.C },
+    };
     const fractionOrder = ["AB", "AC"];
 
     let stepIdx = 0;
@@ -1076,20 +1125,28 @@ const MainCanvas = (props) => {
         const fromPt = ptMid(yellowLine.p1, yellowLine.p2);
         const toPt = { x: fx, y: centerY + numOffsetY };
         const cloneId = `fly-num-${fracIdx}`;
-        setFlyingClones((prev) => [...prev, {
-          id: cloneId, text: String(yellowLine.displayLength),
-          from: { x: fromPt.x, y: fromPt.y - 16 }, to: toPt,
-          color: COLOR_YELLOW, t: 0,
-          fromFontSize: YELLOW_LABEL_FONT_SIZE,
-          toFontSize: RATIO_BOX_NUM_FONT_SIZE,
-        }]);
+        setFlyingClones((prev) => [
+          ...prev,
+          {
+            id: cloneId,
+            text: String(yellowLine.displayLength),
+            from: { x: fromPt.x, y: fromPt.y - 16 },
+            to: toPt,
+            color: COLOR_YELLOW,
+            t: 0,
+            fromFontSize: YELLOW_LABEL_FONT_SIZE,
+            toFontSize: RATIO_BOX_NUM_FONT_SIZE,
+          },
+        ]);
         const anim = { t: 0 };
         gsap.to(anim, {
-          t: 1, duration: 0.6, ease: "power2.inOut",
+          t: 1,
+          duration: 0.6,
+          ease: "power2.inOut",
           onUpdate: () => {
-            setFlyingClones((prev) => prev.map((c) =>
-              c.id === cloneId ? { ...c, t: anim.t } : c
-            ));
+            setFlyingClones((prev) =>
+              prev.map((c) => (c.id === cloneId ? { ...c, t: anim.t } : c)),
+            );
           },
           onComplete: () => {
             setFlyingClones((prev) => prev.filter((c) => c.id !== cloneId));
@@ -1105,24 +1162,38 @@ const MainCanvas = (props) => {
         // Fly blue triangle label (denominator) to ratio box
         const side = sideMap[sideKey];
         const mid = ptMid(side.p1, side.p2);
-        const fromPt = labelOutward(mid, side.p1, side.p2, centroid, labelOffset);
+        const fromPt = labelOutward(
+          mid,
+          side.p1,
+          side.p2,
+          centroid,
+          labelOffset,
+        );
         const toPt = { x: fx, y: centerY + denOffsetY };
         const cloneId = `fly-den-${fracIdx}`;
         const sideLength = fmtLen(sideLen(side.p1, side.p2));
-        setFlyingClones((prev) => [...prev, {
-          id: cloneId, text: sideLength,
-          from: fromPt, to: toPt,
-          color: COLOR_BLUE, t: 0,
-          fromFontSize: LABEL_FONT_SIZE,
-          toFontSize: RATIO_BOX_NUM_FONT_SIZE,
-        }]);
+        setFlyingClones((prev) => [
+          ...prev,
+          {
+            id: cloneId,
+            text: sideLength,
+            from: fromPt,
+            to: toPt,
+            color: COLOR_BLUE,
+            t: 0,
+            fromFontSize: LABEL_FONT_SIZE,
+            toFontSize: RATIO_BOX_NUM_FONT_SIZE,
+          },
+        ]);
         const anim = { t: 0 };
         gsap.to(anim, {
-          t: 1, duration: 0.6, ease: "power2.inOut",
+          t: 1,
+          duration: 0.6,
+          ease: "power2.inOut",
           onUpdate: () => {
-            setFlyingClones((prev) => prev.map((c) =>
-              c.id === cloneId ? { ...c, t: anim.t } : c
-            ));
+            setFlyingClones((prev) =>
+              prev.map((c) => (c.id === cloneId ? { ...c, t: anim.t } : c)),
+            );
           },
           onComplete: () => {
             setFlyingClones((prev) => prev.filter((c) => c.id !== cloneId));
@@ -1146,125 +1217,145 @@ const MainCanvas = (props) => {
     playSnd("correct");
   }, [onSetNextEnabled, onUpdateTexts]);
 
-  const doSnap = useCallback((lines, movedIdx) => {
-    if (triangleFormedRef.current) return lines;
-    const snapped = snapTwoLineEndpoint(lines, movedIdx, FINAL_SNAP_DISTANCE);
-    if (snapped !== lines) {
-      markTwoSidesJoined();
-      return snapped;
-    }
-    return lines;
-  }, [markTwoSidesJoined]);
+  const doSnap = useCallback(
+    (lines, movedIdx) => {
+      if (triangleFormedRef.current) return lines;
+      const snapped = snapTwoLineEndpoint(lines, movedIdx, FINAL_SNAP_DISTANCE);
+      if (snapped !== lines) {
+        markTwoSidesJoined();
+        return snapped;
+      }
+      return lines;
+    },
+    [markTwoSidesJoined],
+  );
 
-  const applySnap = useCallback((prev, movedIdx) => {
-    if (!prev) return prev;
-    return doSnap(prev, movedIdx);
-  }, [doSnap]);
+  const applySnap = useCallback(
+    (prev, movedIdx) => {
+      if (!prev) return prev;
+      return doSnap(prev, movedIdx);
+    },
+    [doSnap],
+  );
 
-  const handleLineMoveStart = useCallback((lineIdx, e) => {
-    if (step !== 3 || triangleFormedRef.current) return;
-    const lines = lineStatesRef.current;
-    if (!lines || lines[lineIdx].locked) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const pt = getSVGPoint(e);
-    lineDragRef.current = {
-      type: "move",
-      lineIdx,
-      startMouse: pt,
-      startP1: { ...lines[lineIdx].p1 },
-      startP2: { ...lines[lineIdx].p2 },
-    };
-
-    const handleMove = (ev) => {
-      ev.preventDefault();
-      const p = getSVGPoint(ev);
-      const ref = lineDragRef.current;
-      if (!ref || ref.type !== "move") return;
-      const rawDx = p.x - ref.startMouse.x;
-      const rawDy = p.y - ref.startMouse.y;
-      const { dx, dy } = constrainSegmentDelta(
-        ref.startP1,
-        ref.startP2,
-        rawDx,
-        rawDy,
-        YELLOW_POINT_RADIUS,
-      );
-      setLineStates((prev) => {
-        if (!prev) return prev;
-        const next = [...prev];
-        next[ref.lineIdx] = {
-          ...next[ref.lineIdx],
-          p1: { x: ref.startP1.x + dx, y: ref.startP1.y + dy },
-          p2: { x: ref.startP2.x + dx, y: ref.startP2.y + dy },
-        };
-        return next;
-      });
-    };
-    const handleUp = () => {
-      const movedIdx = lineDragRef.current ? lineDragRef.current.lineIdx : lineIdx;
-      lineDragRef.current = null;
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("touchend", handleUp);
-      setLineStates((prev) => prev ? applySnap(prev, movedIdx) : prev);
-    };
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
-    window.addEventListener("touchmove", handleMove, { passive: false });
-    window.addEventListener("touchend", handleUp);
-  }, [step, getSVGPoint, applySnap]);
-
-  const handleEndpointRotateStart = useCallback((lineIdx, endpoint, e) => {
-    if (step !== 3) return;
-    const lines = lineStatesRef.current;
-    if (!lines || !canRotateEndpoint(lines[lineIdx], endpoint, triangleFormedRef.current)) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    const line = lines[lineIdx];
-    const anchor = endpoint === "p1" ? line.p2 : line.p1;
-    lineDragRef.current = {
-      type: "rotate",
-      lineIdx,
-      endpoint,
-      anchor: { ...anchor },
-      length: line.length,
-    };
-
-    const handleMove = (ev) => {
-      ev.preventDefault();
-      const p = getSVGPoint(ev);
-      const ref = lineDragRef.current;
-      if (!ref || ref.type !== "rotate") return;
-      const angle = Math.atan2(p.y - ref.anchor.y, p.x - ref.anchor.x);
-      const newPt = {
-        x: ref.anchor.x + Math.cos(angle) * ref.length,
-        y: ref.anchor.y + Math.sin(angle) * ref.length,
+  const handleLineMoveStart = useCallback(
+    (lineIdx, e) => {
+      if (step !== 3 || triangleFormedRef.current) return;
+      const lines = lineStatesRef.current;
+      if (!lines || lines[lineIdx].locked) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const pt = getSVGPoint(e);
+      lineDragRef.current = {
+        type: "move",
+        lineIdx,
+        startMouse: pt,
+        startP1: { ...lines[lineIdx].p1 },
+        startP2: { ...lines[lineIdx].p2 },
       };
-      if (!pointInViewBox(newPt, YELLOW_POINT_RADIUS)) return;
-      setLineStates((prev) => {
-        if (!prev) return prev;
-        const next = [...prev];
-        next[ref.lineIdx] = { ...next[ref.lineIdx], [ref.endpoint]: newPt };
-        return next;
-      });
-    };
-    const handleUp = () => {
-      const movedIdx = lineDragRef.current ? lineDragRef.current.lineIdx : lineIdx;
-      lineDragRef.current = null;
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("touchend", handleUp);
-      setLineStates((prev) => prev ? applySnap(prev, movedIdx) : prev);
-    };
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
-    window.addEventListener("touchmove", handleMove, { passive: false });
-    window.addEventListener("touchend", handleUp);
-  }, [step, getSVGPoint, applySnap]);
+
+      const handleMove = (ev) => {
+        ev.preventDefault();
+        const p = getSVGPoint(ev);
+        const ref = lineDragRef.current;
+        if (!ref || ref.type !== "move") return;
+        const rawDx = p.x - ref.startMouse.x;
+        const rawDy = p.y - ref.startMouse.y;
+        const { dx, dy } = constrainSegmentDelta(
+          ref.startP1,
+          ref.startP2,
+          rawDx,
+          rawDy,
+          YELLOW_POINT_RADIUS,
+        );
+        setLineStates((prev) => {
+          if (!prev) return prev;
+          const next = [...prev];
+          next[ref.lineIdx] = {
+            ...next[ref.lineIdx],
+            p1: { x: ref.startP1.x + dx, y: ref.startP1.y + dy },
+            p2: { x: ref.startP2.x + dx, y: ref.startP2.y + dy },
+          };
+          return next;
+        });
+      };
+      const handleUp = () => {
+        const movedIdx = lineDragRef.current
+          ? lineDragRef.current.lineIdx
+          : lineIdx;
+        lineDragRef.current = null;
+        window.removeEventListener("mousemove", handleMove);
+        window.removeEventListener("mouseup", handleUp);
+        window.removeEventListener("touchmove", handleMove);
+        window.removeEventListener("touchend", handleUp);
+        setLineStates((prev) => (prev ? applySnap(prev, movedIdx) : prev));
+      };
+      window.addEventListener("mousemove", handleMove);
+      window.addEventListener("mouseup", handleUp);
+      window.addEventListener("touchmove", handleMove, { passive: false });
+      window.addEventListener("touchend", handleUp);
+    },
+    [step, getSVGPoint, applySnap],
+  );
+
+  const handleEndpointRotateStart = useCallback(
+    (lineIdx, endpoint, e) => {
+      if (step !== 3) return;
+      const lines = lineStatesRef.current;
+      if (
+        !lines ||
+        !canRotateEndpoint(lines[lineIdx], endpoint, triangleFormedRef.current)
+      )
+        return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const line = lines[lineIdx];
+      const anchor = endpoint === "p1" ? line.p2 : line.p1;
+      lineDragRef.current = {
+        type: "rotate",
+        lineIdx,
+        endpoint,
+        anchor: { ...anchor },
+        length: line.length,
+      };
+
+      const handleMove = (ev) => {
+        ev.preventDefault();
+        const p = getSVGPoint(ev);
+        const ref = lineDragRef.current;
+        if (!ref || ref.type !== "rotate") return;
+        const angle = Math.atan2(p.y - ref.anchor.y, p.x - ref.anchor.x);
+        const newPt = {
+          x: ref.anchor.x + Math.cos(angle) * ref.length,
+          y: ref.anchor.y + Math.sin(angle) * ref.length,
+        };
+        if (!pointInViewBox(newPt, YELLOW_POINT_RADIUS)) return;
+        setLineStates((prev) => {
+          if (!prev) return prev;
+          const next = [...prev];
+          next[ref.lineIdx] = { ...next[ref.lineIdx], [ref.endpoint]: newPt };
+          return next;
+        });
+      };
+      const handleUp = () => {
+        const movedIdx = lineDragRef.current
+          ? lineDragRef.current.lineIdx
+          : lineIdx;
+        lineDragRef.current = null;
+        window.removeEventListener("mousemove", handleMove);
+        window.removeEventListener("mouseup", handleUp);
+        window.removeEventListener("touchmove", handleMove);
+        window.removeEventListener("touchend", handleUp);
+        setLineStates((prev) => (prev ? applySnap(prev, movedIdx) : prev));
+      };
+      window.addEventListener("mousemove", handleMove);
+      window.addEventListener("mouseup", handleUp);
+      window.addEventListener("touchmove", handleMove, { passive: false });
+      window.addEventListener("touchend", handleUp);
+    },
+    [step, getSVGPoint, applySnap],
+  );
 
   // ── Step 4: overlap animation ──
   const getOpenYellowEndpoints = useCallback((lines) => {
@@ -1291,62 +1382,73 @@ const MainCanvas = (props) => {
     onSetNextEnabled(lineStates.some((line) => line.origSide === "BC"));
     setDrawDraft(null);
     drawRef.current = null;
+    setStep4DragStarted(false);
   }, [step, lineStates, onSetNextEnabled, onSetPrevDisabled]);
 
-  const handleClosingDrawStart = useCallback((which, e) => {
-    if (step !== 4) return;
-    const lines = lineStatesRef.current;
-    if (!lines || lines.some((line) => line.origSide === "BC")) return;
-    const endpoints = getOpenYellowEndpoints(lines);
-    if (!endpoints) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const from = which === "y" ? endpoints.y : endpoints.z;
-    const target = which === "y" ? endpoints.z : endpoints.y;
-    drawRef.current = { from: { ...from }, target: { ...target } };
-    setDrawDraft({ from: { ...from }, to: { ...from } });
+  const handleClosingDrawStart = useCallback(
+    (which, e) => {
+      if (step !== 4) return;
+      const lines = lineStatesRef.current;
+      if (!lines || lines.some((line) => line.origSide === "BC")) return;
+      const endpoints = getOpenYellowEndpoints(lines);
+      if (!endpoints) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setStep4DragStarted(true);
+      const from = which === "y" ? endpoints.y : endpoints.z;
+      const target = which === "y" ? endpoints.z : endpoints.y;
+      drawRef.current = { from: { ...from }, target: { ...target } };
+      setDrawDraft({ from: { ...from }, to: { ...from } });
 
-    const handleMove = (ev) => {
-      ev.preventDefault();
-      const p = clampPointToViewBox(getSVGPoint(ev), YELLOW_POINT_RADIUS);
-      setDrawDraft((prev) => prev ? { ...prev, to: p } : prev);
-    };
-    const handleUp = (ev) => {
-      ev.preventDefault();
-      const p = clampPointToViewBox(getSVGPoint(ev), YELLOW_POINT_RADIUS);
-      const ref = drawRef.current;
-      drawRef.current = null;
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("touchend", handleUp);
-      if (ref && ptDist(p, ref.target) <= DRAW_SNAP_DISTANCE) {
-        const newLine = {
-          id: "line-bc",
-          length: ptDist(ref.from, ref.target),
-          displayLength: fmtLen(ptDist(ref.from, ref.target) / SCALE),
-          origSide: "BC",
-          p1: { ...ref.from },
-          p2: { ...ref.target },
-          snappedP1: true,
-          snappedP2: true,
-          locked: true,
-          dehighlighted: true,
-        };
-        setLineStates((prev) => prev ? [...prev, newLine] : prev);
-        setDrawDraft(null);
-        onUpdateTexts(undefined, APP_DATA.steps[4].navDone);
-        onSetNextEnabled(true);
-        playSnd("correct");
-      } else {
-        setDrawDraft(null);
-      }
-    };
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
-    window.addEventListener("touchmove", handleMove, { passive: false });
-    window.addEventListener("touchend", handleUp);
-  }, [step, getOpenYellowEndpoints, getSVGPoint, onSetNextEnabled, onUpdateTexts]);
+      const handleMove = (ev) => {
+        ev.preventDefault();
+        const p = clampPointToViewBox(getSVGPoint(ev), YELLOW_POINT_RADIUS);
+        setDrawDraft((prev) => (prev ? { ...prev, to: p } : prev));
+      };
+      const handleUp = (ev) => {
+        ev.preventDefault();
+        const p = clampPointToViewBox(getSVGPoint(ev), YELLOW_POINT_RADIUS);
+        const ref = drawRef.current;
+        drawRef.current = null;
+        window.removeEventListener("mousemove", handleMove);
+        window.removeEventListener("mouseup", handleUp);
+        window.removeEventListener("touchmove", handleMove);
+        window.removeEventListener("touchend", handleUp);
+        if (ref && ptDist(p, ref.target) <= DRAW_SNAP_DISTANCE) {
+          const newLine = {
+            id: "line-bc",
+            length: ptDist(ref.from, ref.target),
+            displayLength: fmtLen(ptDist(ref.from, ref.target) / SCALE),
+            origSide: "BC",
+            p1: { ...ref.from },
+            p2: { ...ref.target },
+            snappedP1: true,
+            snappedP2: true,
+            locked: true,
+            dehighlighted: true,
+          };
+          setLineStates((prev) => (prev ? [...prev, newLine] : prev));
+          setDrawDraft(null);
+          onUpdateTexts(undefined, APP_DATA.steps[4].navDone);
+          onSetNextEnabled(true);
+          playSnd("correct");
+        } else {
+          setDrawDraft(null);
+        }
+      };
+      window.addEventListener("mousemove", handleMove);
+      window.addEventListener("mouseup", handleUp);
+      window.addEventListener("touchmove", handleMove, { passive: false });
+      window.addEventListener("touchend", handleUp);
+    },
+    [
+      step,
+      getOpenYellowEndpoints,
+      getSVGPoint,
+      onSetNextEnabled,
+      onUpdateTexts,
+    ],
+  );
 
   useEffect(() => {
     if (step !== 999 || !lineStates) return;
@@ -1378,7 +1480,13 @@ const MainCanvas = (props) => {
     let rotAngle = angBlue - angYellow;
 
     setAnimBluePts({ ...blueStart });
-    setAnimYellow({ X: { ...X }, Y: { ...Y }, Z: { ...Z }, sides, labelInside: 0 });
+    setAnimYellow({
+      X: { ...X },
+      Y: { ...Y },
+      Z: { ...Z },
+      sides,
+      labelInside: 0,
+    });
 
     let YPhase1End = { ...Y0 };
     let ZPhase1End = { ...Z0 };
@@ -1497,7 +1605,14 @@ const MainCanvas = (props) => {
     return () => {
       if (step4AnimRef.current) step4AnimRef.current.kill();
     };
-  }, [step, lineStates, triShiftX, onSetPrevDisabled, onUpdateTexts, onStep4Phase]);
+  }, [
+    step,
+    lineStates,
+    triShiftX,
+    onSetPrevDisabled,
+    onUpdateTexts,
+    onStep4Phase,
+  ]);
 
   useEffect(() => {
     if (!step4ConcludeVisible) return;
@@ -1550,7 +1665,11 @@ const MainCanvas = (props) => {
     const tl = gsap.timeline({
       onComplete: () => {
         setAnimBluePts(blueTarget);
-        setAnimYellow({ ...yellowScaledTarget, sides: mapping.sides, labelInside: 1 });
+        setAnimYellow({
+          ...yellowScaledTarget,
+          sides: mapping.sides,
+          labelInside: 1,
+        });
         setStep5NonSimilarVisible(true);
         setTimeout(() => {
           setStep5ConcludeVisible(true);
@@ -1605,7 +1724,8 @@ const MainCanvas = (props) => {
     if (!step5ConcludeVisible) return;
     const tid = setTimeout(() => {
       const btn = document.getElementById("conclude-button");
-      if (btn && onRegisterNudgeTarget) onRegisterNudgeTarget(btn.getBoundingClientRect());
+      if (btn && onRegisterNudgeTarget)
+        onRegisterNudgeTarget(btn.getBoundingClientRect());
     }, 200);
     return () => clearTimeout(tid);
   }, [step5ConcludeVisible, onRegisterNudgeTarget]);
@@ -1740,7 +1860,8 @@ const MainCanvas = (props) => {
         setTimeout(() => {
           if (onSetPrevDisabled) onSetPrevDisabled(false);
           const btn = document.getElementById("name-button");
-          if (btn && onRegisterNudgeTarget) onRegisterNudgeTarget(btn.getBoundingClientRect());
+          if (btn && onRegisterNudgeTarget)
+            onRegisterNudgeTarget(btn.getBoundingClientRect());
         }, 600);
       },
     });
@@ -1758,15 +1879,19 @@ const MainCanvas = (props) => {
     const mapping = mapTwoSideYellowVertices(lineStates);
     if (!mapping) return;
 
-    const blueTarget = applyShift(triPointsRef.current, computeLeftShift(triPointsRef.current));
+    const blueTarget = applyShift(
+      triPointsRef.current,
+      computeLeftShift(triPointsRef.current),
+    );
     const yellowBase = { A: mapping.X, B: mapping.Y, C: mapping.Z };
-    const yellowTargetTri = centerTriangle(yellowBase, 625, SVG_H / 2);
+    const yellowTargetTri = centerTriangle(yellowBase, 740, SVG_H / 2);
     const yellowTarget = {
       X: yellowTargetTri.A,
       Y: yellowTargetTri.B,
       Z: yellowTargetTri.C,
     };
-    const blueStart = animBluePts || centerTriangle(blueTarget, SVG_W / 2, SVG_H / 2);
+    const blueStart =
+      animBluePts || centerTriangle(blueTarget, SVG_W / 2, SVG_H / 2);
     const yellowStart = animYellow
       ? { X: animYellow.X, Y: animYellow.Y, Z: animYellow.Z }
       : yellowTarget;
@@ -1789,7 +1914,11 @@ const MainCanvas = (props) => {
       },
       onComplete: () => {
         setAnimBluePts(blueTarget);
-        setAnimYellow({ ...yellowTarget, sides: mapping.sides, labelInside: 0 });
+        setAnimYellow({
+          ...yellowTarget,
+          sides: mapping.sides,
+          labelInside: 0,
+        });
         setTimeout(() => {
           setStep6CtaVisible(true);
           if (onSetPrevDisabled) onSetPrevDisabled(false);
@@ -1802,7 +1931,10 @@ const MainCanvas = (props) => {
   }, [step, lineStates, onSetPrevDisabled, onStep6Ready]);
 
   const getCurrentBlueForAngle = useCallback(() => {
-    return animBluePts || applyShift(triPointsRef.current, computeLeftShift(triPointsRef.current));
+    return (
+      animBluePts ||
+      applyShift(triPointsRef.current, computeLeftShift(triPointsRef.current))
+    );
   }, [animBluePts]);
 
   const getCurrentYellowForAngle = useCallback(() => {
@@ -1810,93 +1942,114 @@ const MainCanvas = (props) => {
     return { X: animYellow.X, Y: animYellow.Y, Z: animYellow.Z };
   }, [animYellow]);
 
-  const finishStep7AngleMatch = useCallback((endpoint, targetPoint) => {
-    setAnimYellow((prev) => {
-      if (!prev) return prev;
-      const nextY = endpoint === "Y" ? targetPoint : prev.Y;
-      const nextZ = endpoint === "Z" ? targetPoint : prev.Z;
-      const nextSides = {
-        ...prev.sides,
-        BC: fmtLen(ptDist(nextY, nextZ) / SCALE),
+  const finishStep7AngleMatch = useCallback(
+    (endpoint, targetPoint) => {
+      setAnimYellow((prev) => {
+        if (!prev) return prev;
+        const nextY = endpoint === "Y" ? targetPoint : prev.Y;
+        const nextZ = endpoint === "Z" ? targetPoint : prev.Z;
+        const nextSides = {
+          ...prev.sides,
+          BC: fmtLen(ptDist(nextY, nextZ) / SCALE),
+        };
+        return {
+          ...prev,
+          Y: nextY,
+          Z: nextZ,
+          sides: nextSides,
+          labelInside: 0,
+        };
+      });
+      setStep7AngleMatched(true);
+      setStep7CheckVisible(true);
+      onUpdateTexts(undefined, APP_DATA.steps[7].navCheck);
+      playSnd("congrats");
+      setTimeout(() => {
+        const btn = document.getElementById("step7-check-button");
+        if (btn && onRegisterNudgeTarget)
+          onRegisterNudgeTarget(btn.getBoundingClientRect());
+      }, 250);
+    },
+    [onRegisterNudgeTarget, onUpdateTexts],
+  );
+
+  const handleStep7RotateStart = useCallback(
+    (endpoint, e) => {
+      if (step !== 7 || step7AngleMatched) return;
+      const blue = getCurrentBlueForAngle();
+      const yellow = getCurrentYellowForAngle();
+      if (!blue || !yellow) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const targetAngle = angleDegAt(blue.A, blue.B, blue.C);
+      const movingStart = endpoint === "Y" ? yellow.Y : yellow.Z;
+      const fixedPoint = endpoint === "Y" ? yellow.Z : yellow.Y;
+      const radius = ptDist(yellow.X, movingStart);
+
+      const handleMove = (ev) => {
+        ev.preventDefault();
+        const p = getSVGPoint(ev);
+        const rawAngle = Math.atan2(p.y - yellow.X.y, p.x - yellow.X.x);
+        const nextPoint = {
+          x: yellow.X.x + Math.cos(rawAngle) * radius,
+          y: yellow.X.y + Math.sin(rawAngle) * radius,
+        };
+        if (!pointInViewBox(nextPoint, YELLOW_POINT_RADIUS)) return;
+        const nextY = endpoint === "Y" ? nextPoint : fixedPoint;
+        const nextZ = endpoint === "Z" ? nextPoint : fixedPoint;
+        const nextAngle = angleDegAt(yellow.X, nextY, nextZ);
+        if (Math.abs(nextAngle - targetAngle) <= 3) {
+          const snappedPoint = pointForAngleAtX(
+            yellow.X,
+            fixedPoint,
+            nextPoint,
+            targetAngle,
+          );
+          if (!pointInViewBox(snappedPoint, YELLOW_POINT_RADIUS)) return;
+          window.removeEventListener("mousemove", handleMove);
+          window.removeEventListener("mouseup", handleUp);
+          window.removeEventListener("touchmove", handleMove);
+          window.removeEventListener("touchend", handleUp);
+          finishStep7AngleMatch(endpoint, snappedPoint);
+          return;
+        }
+        setAnimYellow((prev) => {
+          if (!prev) return prev;
+          const updatedY = endpoint === "Y" ? nextPoint : prev.Y;
+          const updatedZ = endpoint === "Z" ? nextPoint : prev.Z;
+          return {
+            ...prev,
+            Y: updatedY,
+            Z: updatedZ,
+            sides: {
+              ...prev.sides,
+              BC: fmtLen(ptDist(updatedY, updatedZ) / SCALE),
+            },
+            labelInside: 0,
+          };
+        });
       };
-      return { ...prev, Y: nextY, Z: nextZ, sides: nextSides, labelInside: 0 };
-    });
-    setStep7AngleMatched(true);
-    setStep7CheckVisible(true);
-    onUpdateTexts(undefined, APP_DATA.steps[7].navCheck);
-    playSnd("congrats");
-    setTimeout(() => {
-      const btn = document.getElementById("step7-check-button");
-      if (btn && onRegisterNudgeTarget) onRegisterNudgeTarget(btn.getBoundingClientRect());
-    }, 250);
-  }, [onRegisterNudgeTarget, onUpdateTexts]);
-
-  const handleStep7RotateStart = useCallback((endpoint, e) => {
-    if (step !== 7 || step7AngleMatched) return;
-    const blue = getCurrentBlueForAngle();
-    const yellow = getCurrentYellowForAngle();
-    if (!blue || !yellow) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    const targetAngle = angleDegAt(blue.A, blue.B, blue.C);
-    const movingStart = endpoint === "Y" ? yellow.Y : yellow.Z;
-    const fixedPoint = endpoint === "Y" ? yellow.Z : yellow.Y;
-    const radius = ptDist(yellow.X, movingStart);
-
-    const handleMove = (ev) => {
-      ev.preventDefault();
-      const p = getSVGPoint(ev);
-      const rawAngle = Math.atan2(p.y - yellow.X.y, p.x - yellow.X.x);
-      const nextPoint = {
-        x: yellow.X.x + Math.cos(rawAngle) * radius,
-        y: yellow.X.y + Math.sin(rawAngle) * radius,
-      };
-      if (!pointInViewBox(nextPoint, YELLOW_POINT_RADIUS)) return;
-      const nextY = endpoint === "Y" ? nextPoint : fixedPoint;
-      const nextZ = endpoint === "Z" ? nextPoint : fixedPoint;
-      const nextAngle = angleDegAt(yellow.X, nextY, nextZ);
-      if (Math.abs(nextAngle - targetAngle) <= 3) {
-        const snappedPoint = pointForAngleAtX(yellow.X, fixedPoint, nextPoint, targetAngle);
-        if (!pointInViewBox(snappedPoint, YELLOW_POINT_RADIUS)) return;
+      const handleUp = () => {
         window.removeEventListener("mousemove", handleMove);
         window.removeEventListener("mouseup", handleUp);
         window.removeEventListener("touchmove", handleMove);
         window.removeEventListener("touchend", handleUp);
-        finishStep7AngleMatch(endpoint, snappedPoint);
-        return;
-      }
-      setAnimYellow((prev) => {
-        if (!prev) return prev;
-        const updatedY = endpoint === "Y" ? nextPoint : prev.Y;
-        const updatedZ = endpoint === "Z" ? nextPoint : prev.Z;
-        return {
-          ...prev,
-          Y: updatedY,
-          Z: updatedZ,
-          sides: { ...prev.sides, BC: fmtLen(ptDist(updatedY, updatedZ) / SCALE) },
-          labelInside: 0,
-        };
-      });
-    };
-    const handleUp = () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("touchend", handleUp);
-    };
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
-    window.addEventListener("touchmove", handleMove, { passive: false });
-    window.addEventListener("touchend", handleUp);
-  }, [
-    step,
-    step7AngleMatched,
-    getCurrentBlueForAngle,
-    getCurrentYellowForAngle,
-    getSVGPoint,
-    finishStep7AngleMatch,
-  ]);
+      };
+      window.addEventListener("mousemove", handleMove);
+      window.addEventListener("mouseup", handleUp);
+      window.addEventListener("touchmove", handleMove, { passive: false });
+      window.addEventListener("touchend", handleUp);
+    },
+    [
+      step,
+      step7AngleMatched,
+      getCurrentBlueForAngle,
+      getCurrentYellowForAngle,
+      getSVGPoint,
+      finishStep7AngleMatch,
+    ],
+  );
 
   const runStep7SimilarityCheck = useCallback(() => {
     const blueStart = getCurrentBlueForAngle();
@@ -1930,11 +2083,15 @@ const MainCanvas = (props) => {
         setStep7SimilarVisible(true);
         setTimeout(() => {
           setStep7ConcludeVisible(true);
-          onUpdateTexts(APP_DATA.steps[7].questionFit, APP_DATA.steps[7].navConclude);
+          onUpdateTexts(
+            APP_DATA.steps[7].questionFit,
+            APP_DATA.steps[7].navConclude,
+          );
           if (onSetPrevDisabled) onSetPrevDisabled(false);
           setTimeout(() => {
             const btn = document.getElementById("sas-conclude-button");
-            if (btn && onRegisterNudgeTarget) onRegisterNudgeTarget(btn.getBoundingClientRect());
+            if (btn && onRegisterNudgeTarget)
+              onRegisterNudgeTarget(btn.getBoundingClientRect());
           }, 250);
         }, 500);
       },
@@ -1992,7 +2149,11 @@ const MainCanvas = (props) => {
   }, [step]);
 
   const renderBlueTriangle = () => {
-    const pts = (step === 4 || step === 5 || step === 6 || step === 7 || step === 8) && animBluePts ? animBluePts : currentTriPoints;
+    const pts =
+      (step === 4 || step === 5 || step === 6 || step === 7 || step === 8) &&
+      animBluePts
+        ? animBluePts
+        : currentTriPoints;
     const centroid = triCentroid(pts);
     const labelOffset = 18;
     const sides = [
@@ -2029,13 +2190,16 @@ const MainCanvas = (props) => {
           style: step === 1 ? { cursor: "grab" } : {},
           onMouseDown: step === 1 ? (e) => handleVertexDown(v, e) : undefined,
           onTouchStart: step === 1 ? (e) => handleVertexDown(v, e) : undefined,
-        })
+        }),
       ),
       false &&
         ["A", "B", "C"].map((v) => {
           const dir = { x: pts[v].x - centroid.x, y: pts[v].y - centroid.y };
           const dLen = Math.hypot(dir.x, dir.y) || 1;
-          const lp = { x: pts[v].x + (dir.x / dLen) * 22, y: pts[v].y + (dir.y / dLen) * 22 };
+          const lp = {
+            x: pts[v].x + (dir.x / dLen) * 22,
+            y: pts[v].y + (dir.y / dLen) * 22,
+          };
           return React.createElement(
             "text",
             {
@@ -2048,7 +2212,7 @@ const MainCanvas = (props) => {
               textAnchor: "middle",
               dominantBaseline: "middle",
             },
-            v
+            v,
           );
         }),
       sides.map((side) => {
@@ -2073,9 +2237,9 @@ const MainCanvas = (props) => {
             className: `side-label side-label-${side.key}`,
             style: { opacity: step >= 2 && side.key === "BC" ? 0.5 : 1 },
           },
-          fmtLen(side.len) + " cm"
+          fmtLen(side.len) + " cm",
         );
-      })
+      }),
     );
   };
 
@@ -2094,24 +2258,31 @@ const MainCanvas = (props) => {
           "g",
           { key: line.id },
           React.createElement("line", {
-            x1: line.p1.x, y1: line.p1.y,
-            x2: line.p2.x, y2: line.p2.y,
+            x1: line.p1.x,
+            y1: line.p1.y,
+            x2: line.p2.x,
+            y2: line.p2.y,
             stroke: COLOR_YELLOW,
             strokeWidth: YELLOW_STROKE_WIDTH,
             strokeLinecap: "round",
           }),
           React.createElement("circle", {
-            cx: line.p1.x, cy: line.p1.y,
-            r: YELLOW_POINT_RADIUS, fill: COLOR_YELLOW,
+            cx: line.p1.x,
+            cy: line.p1.y,
+            r: YELLOW_POINT_RADIUS,
+            fill: COLOR_YELLOW,
           }),
           React.createElement("circle", {
-            cx: line.p2.x, cy: line.p2.y,
-            r: YELLOW_POINT_RADIUS, fill: COLOR_YELLOW,
+            cx: line.p2.x,
+            cy: line.p2.y,
+            r: YELLOW_POINT_RADIUS,
+            fill: COLOR_YELLOW,
           }),
           React.createElement(
             "text",
             {
-              x: mid.x, y: mid.y - 16,
+              x: mid.x,
+              y: mid.y - 16,
               fill: COLOR_YELLOW,
               fontSize: LABEL_FONT_SIZE - 2,
               fontWeight: 600,
@@ -2119,15 +2290,16 @@ const MainCanvas = (props) => {
               dominantBaseline: "middle",
               transform: `rotate(${textAngle}, ${mid.x}, ${mid.y - 16})`,
             },
-            line.displayLength + " cm"
-          )
+            line.displayLength + " cm",
+          ),
         );
-      })
+      }),
     );
   };
 
   const renderRatioBox = () => {
-    if (step !== 2 || !ratioBoxVisible || !yellowLines || !selectedRatio) return null;
+    if (step !== 2 || !ratioBoxVisible || !yellowLines || !selectedRatio)
+      return null;
     const leftPts = applyShift(triPoints, computeLeftShift(triPoints));
     const blueDisplayed = getBlueDisplayedLengths(leftPts);
 
@@ -2141,21 +2313,36 @@ const MainCanvas = (props) => {
 
     const pos = getRatioBoxPositions();
     const {
-      boxX, boxY, boxW, boxH, fracSpacing, startX, centerY, resultOffsetX,
-      numOffsetY, denOffsetY,
+      boxX,
+      boxY,
+      boxW,
+      boxH,
+      fracSpacing,
+      startX,
+      centerY,
+      resultOffsetX,
+      numOffsetY,
+      denOffsetY,
     } = pos;
 
-    const vis = (needed) => ratioAnimStep >= needed ? 1 : 0;
+    const vis = (needed) => (ratioAnimStep >= needed ? 1 : 0);
 
     return React.createElement(
       "g",
       {
         className: "ratio-box-group",
-        style: { opacity: step2FadeOpacity, transition: step2FadingOut ? "none" : undefined },
+        style: {
+          opacity: step2FadeOpacity,
+          transition: step2FadingOut ? "none" : undefined,
+        },
       },
       React.createElement("rect", {
-        x: boxX, y: boxY, width: boxW, height: boxH,
-        rx: 12, ry: 12,
+        x: boxX,
+        y: boxY,
+        width: boxW,
+        height: boxH,
+        rx: 12,
+        ry: 12,
         fill: "rgba(55, 65, 75, 0.9)",
         stroke: "rgba(255,255,255,0.15)",
         strokeWidth: 1.5,
@@ -2168,37 +2355,74 @@ const MainCanvas = (props) => {
         return React.createElement(
           "g",
           { key: `frac-${i}` },
-          React.createElement("text", {
-            x: fx, y: centerY + numOffsetY,
-            fill: COLOR_YELLOW, fontSize: 19, fontWeight: 700,
-            textAnchor: "middle", dominantBaseline: "middle",
-            style: { opacity: vis(numStep), transition: "opacity 0.3s" },
-          }, String(frac.num)),
+          React.createElement(
+            "text",
+            {
+              x: fx,
+              y: centerY + numOffsetY,
+              fill: COLOR_YELLOW,
+              fontSize: 19,
+              fontWeight: 700,
+              textAnchor: "middle",
+              dominantBaseline: "middle",
+              style: { opacity: vis(numStep), transition: "opacity 0.3s" },
+            },
+            String(frac.num),
+          ),
           React.createElement("line", {
-            x1: fx - 22, y1: centerY, x2: fx + 22, y2: centerY,
-            stroke: COLOR_WHITE, strokeWidth: 2,
+            x1: fx - 22,
+            y1: centerY,
+            x2: fx + 22,
+            y2: centerY,
+            stroke: COLOR_WHITE,
+            strokeWidth: 2,
             style: { opacity: vis(barStep), transition: "opacity 0.3s" },
           }),
-          React.createElement("text", {
-            x: fx, y: centerY + denOffsetY,
-            fill: COLOR_BLUE, fontSize: 19, fontWeight: 700,
-            textAnchor: "middle", dominantBaseline: "middle",
-            style: { opacity: vis(denStep), transition: "opacity 0.3s" },
-          }, String(frac.den)),
-          i < fractions.length - 1 && React.createElement("text", {
-            x: fx + fracSpacing / 2, y: centerY,
-            fill: COLOR_WHITE, fontSize: 20, fontWeight: 700,
-            textAnchor: "middle", dominantBaseline: "middle",
-            style: { opacity: vis(denStep), transition: "opacity 0.3s" },
-          }, "=")
+          React.createElement(
+            "text",
+            {
+              x: fx,
+              y: centerY + denOffsetY,
+              fill: COLOR_BLUE,
+              fontSize: 19,
+              fontWeight: 700,
+              textAnchor: "middle",
+              dominantBaseline: "middle",
+              style: { opacity: vis(denStep), transition: "opacity 0.3s" },
+            },
+            String(frac.den),
+          ),
+          i < fractions.length - 1 &&
+            React.createElement(
+              "text",
+              {
+                x: fx + fracSpacing / 2,
+                y: centerY,
+                fill: COLOR_WHITE,
+                fontSize: 20,
+                fontWeight: 700,
+                textAnchor: "middle",
+                dominantBaseline: "middle",
+                style: { opacity: vis(denStep), transition: "opacity 0.3s" },
+              },
+              "=",
+            ),
         );
       }),
-      React.createElement("text", {
-        x: startX + (fractions.length - 1) * fracSpacing + resultOffsetX, y: centerY,
-        fill: COLOR_WHITE, fontSize: 18, fontWeight: 700,
-        textAnchor: "middle", dominantBaseline: "middle",
-        style: { opacity: vis(7), transition: "opacity 0.3s" },
-      }, "= " + selectedRatio)
+      React.createElement(
+        "text",
+        {
+          x: startX + (fractions.length - 1) * fracSpacing + resultOffsetX,
+          y: centerY,
+          fill: COLOR_WHITE,
+          fontSize: 18,
+          fontWeight: 700,
+          textAnchor: "middle",
+          dominantBaseline: "middle",
+          style: { opacity: vis(7), transition: "opacity 0.3s" },
+        },
+        "= " + selectedRatio,
+      ),
     );
   };
 
@@ -2213,22 +2437,28 @@ const MainCanvas = (props) => {
         const fromFs = clone.fromFontSize || RATIO_BOX_NUM_FONT_SIZE;
         const toFs = clone.toFontSize || RATIO_BOX_NUM_FONT_SIZE;
         const fontSize = fromFs + (toFs - fromFs) * clone.t;
-        return React.createElement("text", {
-          key: clone.id,
-          x: x, y: y,
-          fill: clone.color,
-          fontSize: fontSize,
-          fontWeight: 600,
-          textAnchor: "middle",
-          dominantBaseline: "middle",
-        }, clone.text);
-      })
+        return React.createElement(
+          "text",
+          {
+            key: clone.id,
+            x: x,
+            y: y,
+            fill: clone.color,
+            fontSize: fontSize,
+            fontWeight: 600,
+            textAnchor: "middle",
+            dominantBaseline: "middle",
+          },
+          clone.text,
+        );
+      }),
     );
   };
 
   const renderProportionalText = () => {
     if (step !== 2 || !proportionalTextVisible) return null;
-    const { centerX, proportionalTextY, proportionalLineHeight } = getRatioBoxPositions();
+    const { centerX, proportionalTextY, proportionalLineHeight } =
+      getRatioBoxPositions();
     const lines = APP_DATA.steps[2].proportionalText.split("\n");
     return React.createElement(
       "text",
@@ -2242,7 +2472,10 @@ const MainCanvas = (props) => {
         dominantBaseline: "hanging",
         fontStyle: "italic",
         className: "proportional-text",
-        style: { opacity: step2FadeOpacity, transition: step2FadingOut ? "none" : undefined },
+        style: {
+          opacity: step2FadeOpacity,
+          transition: step2FadingOut ? "none" : undefined,
+        },
       },
       lines.map((line, i) =>
         React.createElement(
@@ -2259,13 +2492,18 @@ const MainCanvas = (props) => {
     const labelOffset = 18;
     const formedCentroid = triangleFormed
       ? {
-          x: lineStates.reduce((sum, l) => sum + l.p1.x + l.p2.x, 0) / (lineStates.length * 2),
-          y: lineStates.reduce((sum, l) => sum + l.p1.y + l.p2.y, 0) / (lineStates.length * 2),
+          x:
+            lineStates.reduce((sum, l) => sum + l.p1.x + l.p2.x, 0) /
+            (lineStates.length * 2),
+          y:
+            lineStates.reduce((sum, l) => sum + l.p1.y + l.p2.y, 0) /
+            (lineStates.length * 2),
         }
       : null;
-    const openEndpoints = step === 4 && !lineStates.some((line) => line.origSide === "BC")
-      ? getOpenYellowEndpoints(lineStates)
-      : null;
+    const openEndpoints =
+      step === 4 && !lineStates.some((line) => line.origSide === "BC")
+        ? getOpenYellowEndpoints(lineStates)
+        : null;
 
     const getDrawEndpoint = (pt) => {
       if (!openEndpoints) return null;
@@ -2277,119 +2515,174 @@ const MainCanvas = (props) => {
     return React.createElement(
       "g",
       { className: "step3-lines-group" },
-      lineStates.map((line, idx) => {
-        const mid = ptMid(line.p1, line.p2);
-        const angle = sideAngleDeg(line.p1, line.p2);
-        let textAngle = angle;
-        if (textAngle > 90) textAngle -= 180;
-        if (textAngle < -90) textAngle += 180;
+      lineStates
+        .map((line, idx) => {
+          const mid = ptMid(line.p1, line.p2);
+          const angle = sideAngleDeg(line.p1, line.p2);
+          let textAngle = angle;
+          if (textAngle > 90) textAngle -= 180;
+          if (textAngle < -90) textAngle += 180;
 
-        const showMoveHandle = step === 3 && !triangleFormed && !line.locked;
-        const canRotateP1 = step === 3 && canRotateEndpoint(line, "p1", triangleFormed);
-        const canRotateP2 = step === 3 && canRotateEndpoint(line, "p2", triangleFormed);
-        const rotHandleEp = canRotateP1 ? "p1" : (canRotateP2 ? "p2" : null);
-        const rotHandlePt = rotHandleEp ? line[rotHandleEp] : null;
-        const leftEp = getLeftEndpointKey(line);
-        const p1DrawEndpoint = getDrawEndpoint(line.p1);
-        const p2DrawEndpoint = getDrawEndpoint(line.p2);
-        const lineOpacity = line.dehighlighted ? 0.45 : 1;
+          const showMoveHandle = step === 3 && !triangleFormed && !line.locked;
+          const canRotateP1 =
+            step === 3 && canRotateEndpoint(line, "p1", triangleFormed);
+          const canRotateP2 =
+            step === 3 && canRotateEndpoint(line, "p2", triangleFormed);
+          const rotHandleEp = canRotateP1 ? "p1" : canRotateP2 ? "p2" : null;
+          const rotHandlePt = rotHandleEp ? line[rotHandleEp] : null;
+          const leftEp = getLeftEndpointKey(line);
+          const p1DrawEndpoint = getDrawEndpoint(line.p1);
+          const p2DrawEndpoint = getDrawEndpoint(line.p2);
+          const lineOpacity = line.dehighlighted ? 0.45 : 1;
 
-        let labelX = mid.x;
-        let labelY = mid.y - (showMoveHandle ? MOVE_HANDLE_RADIUS + 12 : 16);
-        if (triangleFormed && formedCentroid) {
-          const outward = labelOutward(mid, line.p1, line.p2, formedCentroid, labelOffset);
-          labelX = outward.x;
-          labelY = outward.y;
-        }
+          let labelX = mid.x;
+          let labelY = mid.y - (showMoveHandle ? MOVE_HANDLE_RADIUS + 12 : 16);
+          if (triangleFormed && formedCentroid) {
+            const outward = labelOutward(
+              mid,
+              line.p1,
+              line.p2,
+              formedCentroid,
+              labelOffset,
+            );
+            labelX = outward.x;
+            labelY = outward.y;
+          }
 
-        return React.createElement(
-          "g",
-          { key: line.id },
-          React.createElement("line", {
-            x1: line.p1.x, y1: line.p1.y,
-            x2: line.p2.x, y2: line.p2.y,
-            stroke: COLOR_YELLOW,
-            strokeWidth: YELLOW_STROKE_WIDTH,
-            strokeLinecap: "round",
-            style: { opacity: lineOpacity },
-          }),
-          React.createElement("circle", {
-            cx: line.p1.x, cy: line.p1.y,
-            r: YELLOW_POINT_RADIUS, fill: COLOR_YELLOW,
-            style: {
-              cursor: p1DrawEndpoint ? "crosshair" : (canRotateP1 ? "grab" : "default"),
-              pointerEvents: p1DrawEndpoint || canRotateP1 ? "auto" : "none",
-              opacity: lineOpacity,
-            },
-            onMouseDown: p1DrawEndpoint ? (e) => handleClosingDrawStart(p1DrawEndpoint, e) : (canRotateP1 ? (e) => handleEndpointRotateStart(idx, "p1", e) : undefined),
-            onTouchStart: p1DrawEndpoint ? (e) => handleClosingDrawStart(p1DrawEndpoint, e) : (canRotateP1 ? (e) => handleEndpointRotateStart(idx, "p1", e) : undefined),
-          }),
-          React.createElement("circle", {
-            cx: line.p2.x, cy: line.p2.y,
-            r: YELLOW_POINT_RADIUS, fill: COLOR_YELLOW,
-            style: {
-              cursor: p2DrawEndpoint ? "crosshair" : (canRotateP2 ? "grab" : "default"),
-              pointerEvents: p2DrawEndpoint || canRotateP2 ? "auto" : "none",
-              opacity: lineOpacity,
-            },
-            onMouseDown: p2DrawEndpoint ? (e) => handleClosingDrawStart(p2DrawEndpoint, e) : (canRotateP2 ? (e) => handleEndpointRotateStart(idx, "p2", e) : undefined),
-            onTouchStart: p2DrawEndpoint ? (e) => handleClosingDrawStart(p2DrawEndpoint, e) : (canRotateP2 ? (e) => handleEndpointRotateStart(idx, "p2", e) : undefined),
-          }),
-          rotHandleEp && React.createElement("image", {
-            href: ROT_HANDLE_SRC,
-            x: rotHandlePt.x - ROT_HANDLE_SIZE / 2,
-            y: rotHandlePt.y - ROT_HANDLE_SIZE / 2,
-            width: ROT_HANDLE_SIZE,
-            height: ROT_HANDLE_SIZE,
-            className: "rot-handle-image",
-            style: { cursor: "grab", pointerEvents: "all" },
-            onMouseDown: (e) => handleEndpointRotateStart(idx, rotHandleEp, e),
-            onTouchStart: (e) => handleEndpointRotateStart(idx, rotHandleEp, e),
-          }),
-          showMoveHandle && React.createElement("circle", {
-            cx: mid.x, cy: mid.y, r: MOVE_HANDLE_RADIUS,
-            fill: "rgba(255,255,255,0.45)",
-            style: { cursor: "move" },
-            onMouseDown: (e) => handleLineMoveStart(idx, e),
-            onTouchStart: (e) => handleLineMoveStart(idx, e),
-          }),
-          React.createElement("text", {
-            x: labelX,
-            y: labelY,
-            fill: COLOR_YELLOW,
-            fontSize: YELLOW_LABEL_FONT_SIZE,
-            fontWeight: 600,
-            textAnchor: "middle",
-            dominantBaseline: "middle",
-            transform: `rotate(${textAngle}, ${labelX}, ${labelY})`,
-            style: { pointerEvents: "none", opacity: lineOpacity },
-          }, line.displayLength + " cm")
-        );
-      })
-      .concat(drawDraft ? [
-        React.createElement("line", {
-          key: "draw-draft",
-          x1: drawDraft.from.x,
-          y1: drawDraft.from.y,
-          x2: drawDraft.to.x,
-          y2: drawDraft.to.y,
-          stroke: COLOR_YELLOW,
-          strokeWidth: YELLOW_STROKE_WIDTH / 2,
-          strokeLinecap: "round",
-          strokeDasharray: "8 6",
-        }),
-      ] : [])
+          return React.createElement(
+            "g",
+            { key: line.id },
+            React.createElement("line", {
+              x1: line.p1.x,
+              y1: line.p1.y,
+              x2: line.p2.x,
+              y2: line.p2.y,
+              stroke: COLOR_YELLOW,
+              strokeWidth: YELLOW_STROKE_WIDTH,
+              strokeLinecap: "round",
+              style: { opacity: lineOpacity },
+            }),
+            React.createElement("circle", {
+              cx: line.p1.x,
+              cy: line.p1.y,
+              r: YELLOW_POINT_RADIUS,
+              fill: COLOR_YELLOW,
+              style: {
+                cursor: p1DrawEndpoint
+                  ? "crosshair"
+                  : canRotateP1
+                    ? "grab"
+                    : "default",
+                pointerEvents: p1DrawEndpoint || canRotateP1 ? "auto" : "none",
+                opacity: lineOpacity,
+              },
+              onMouseDown: p1DrawEndpoint
+                ? (e) => handleClosingDrawStart(p1DrawEndpoint, e)
+                : canRotateP1
+                  ? (e) => handleEndpointRotateStart(idx, "p1", e)
+                  : undefined,
+              onTouchStart: p1DrawEndpoint
+                ? (e) => handleClosingDrawStart(p1DrawEndpoint, e)
+                : canRotateP1
+                  ? (e) => handleEndpointRotateStart(idx, "p1", e)
+                  : undefined,
+            }),
+            React.createElement("circle", {
+              cx: line.p2.x,
+              cy: line.p2.y,
+              r: YELLOW_POINT_RADIUS,
+              fill: COLOR_YELLOW,
+              style: {
+                cursor: p2DrawEndpoint
+                  ? "crosshair"
+                  : canRotateP2
+                    ? "grab"
+                    : "default",
+                pointerEvents: p2DrawEndpoint || canRotateP2 ? "auto" : "none",
+                opacity: lineOpacity,
+              },
+              onMouseDown: p2DrawEndpoint
+                ? (e) => handleClosingDrawStart(p2DrawEndpoint, e)
+                : canRotateP2
+                  ? (e) => handleEndpointRotateStart(idx, "p2", e)
+                  : undefined,
+              onTouchStart: p2DrawEndpoint
+                ? (e) => handleClosingDrawStart(p2DrawEndpoint, e)
+                : canRotateP2
+                  ? (e) => handleEndpointRotateStart(idx, "p2", e)
+                  : undefined,
+            }),
+            rotHandleEp &&
+              React.createElement("image", {
+                href: ROT_HANDLE_SRC,
+                x: rotHandlePt.x - ROT_HANDLE_SIZE / 2,
+                y: rotHandlePt.y - ROT_HANDLE_SIZE / 2,
+                width: ROT_HANDLE_SIZE,
+                height: ROT_HANDLE_SIZE,
+                className: "rot-handle-image",
+                style: { cursor: "grab", pointerEvents: "all" },
+                onMouseDown: (e) =>
+                  handleEndpointRotateStart(idx, rotHandleEp, e),
+                onTouchStart: (e) =>
+                  handleEndpointRotateStart(idx, rotHandleEp, e),
+              }),
+            showMoveHandle &&
+              React.createElement("circle", {
+                cx: mid.x,
+                cy: mid.y,
+                r: MOVE_HANDLE_RADIUS,
+                fill: "rgba(255,255,255,0.45)",
+                style: { cursor: "move" },
+                onMouseDown: (e) => handleLineMoveStart(idx, e),
+                onTouchStart: (e) => handleLineMoveStart(idx, e),
+              }),
+            React.createElement(
+              "text",
+              {
+                x: labelX,
+                y: labelY,
+                fill: COLOR_YELLOW,
+                fontSize: YELLOW_LABEL_FONT_SIZE,
+                fontWeight: 600,
+                textAnchor: "middle",
+                dominantBaseline: "middle",
+                transform: `rotate(${textAngle}, ${labelX}, ${labelY})`,
+                style: { pointerEvents: "none", opacity: lineOpacity },
+              },
+              line.displayLength + " cm",
+            ),
+          );
+        })
+        .concat(
+          drawDraft
+            ? [
+                React.createElement("line", {
+                  key: "draw-draft",
+                  x1: drawDraft.from.x,
+                  y1: drawDraft.from.y,
+                  x2: drawDraft.to.x,
+                  y2: drawDraft.to.y,
+                  stroke: COLOR_YELLOW,
+                  strokeWidth: YELLOW_STROKE_WIDTH / 2,
+                  strokeLinecap: "round",
+                  strokeDasharray: "8 6",
+                }),
+              ]
+            : [],
+        ),
     );
   };
 
   const renderOverlapYellow = () => {
-    if ((step !== 5 && step !== 6 && step !== 7 && step !== 8) || !animYellow) return null;
+    if ((step !== 5 && step !== 6 && step !== 7 && step !== 8) || !animYellow)
+      return null;
     const { sides } = animYellow;
     const labelInside = animYellow.labelInside;
     const baseYellowPts = { A: animYellow.X, B: animYellow.Y, C: animYellow.Z };
-    const yellowPts = step === 5
-      ? scaleTriangleFromTopVertex(baseYellowPts, step5YellowScale)
-      : baseYellowPts;
+    const yellowPts =
+      step === 5
+        ? scaleTriangleFromTopVertex(baseYellowPts, step5YellowScale)
+        : baseYellowPts;
     const { A: X, B: Y, C: Z } = yellowPts;
     const centroid = triCentroid(yellowPts);
     const labelOffset = 18;
@@ -2431,21 +2724,23 @@ const MainCanvas = (props) => {
           fill: COLOR_YELLOW,
         }),
       ),
-      step === 7 && !step7AngleMatched && ["Y", "Z"].map((endpoint) => {
-        const pt = endpoint === "Y" ? Y : Z;
-        return React.createElement("image", {
-          key: `step7-rot-${endpoint}`,
-          href: ROT_HANDLE_SRC,
-          x: pt.x - ROT_HANDLE_SIZE / 2,
-          y: pt.y - ROT_HANDLE_SIZE / 2,
-          width: ROT_HANDLE_SIZE,
-          height: ROT_HANDLE_SIZE,
-          className: "rot-handle-image",
-          style: { cursor: "grab", pointerEvents: "all" },
-          onMouseDown: (e) => handleStep7RotateStart(endpoint, e),
-          onTouchStart: (e) => handleStep7RotateStart(endpoint, e),
-        });
-      }),
+      step === 7 &&
+        !step7AngleMatched &&
+        ["Y", "Z"].map((endpoint) => {
+          const pt = endpoint === "Y" ? Y : Z;
+          return React.createElement("image", {
+            key: `step7-rot-${endpoint}`,
+            href: ROT_HANDLE_SRC,
+            x: pt.x - ROT_HANDLE_SIZE / 2,
+            y: pt.y - ROT_HANDLE_SIZE / 2,
+            width: ROT_HANDLE_SIZE,
+            height: ROT_HANDLE_SIZE,
+            className: "rot-handle-image",
+            style: { cursor: "grab", pointerEvents: "all" },
+            onMouseDown: (e) => handleStep7RotateStart(endpoint, e),
+            onTouchStart: (e) => handleStep7RotateStart(endpoint, e),
+          });
+        }),
       yellowSides.map((side) => {
         const lPos = getYellowLabelPos(
           side.p1,
@@ -2513,13 +2808,15 @@ const MainCanvas = (props) => {
     return React.createElement(
       React.Fragment,
       null,
-      step === 5 && step5NonSimilarVisible &&
+      step === 5 &&
+        step5NonSimilarVisible &&
         React.createElement(
           "div",
           { className: "non-similar-text panel-fade-in" },
           stepData.nonSimilarText,
         ),
-      step === 5 && step5ConcludeVisible &&
+      step === 5 &&
+        step5ConcludeVisible &&
         React.createElement(
           "button",
           {
@@ -2533,21 +2830,20 @@ const MainCanvas = (props) => {
           },
           stepData.concludeText,
         ),
-      step === 6 && step6CtaVisible &&
-        React.createElement(
-          "button",
-          {
-            id: "try-angle-button",
-            className: "try-angle-button panel-fade-in",
-            onClick: () => {
-              playSnd("click");
-              if (onHideNudge) onHideNudge();
-              if (onNext) onNext(7);
-            },
-            dangerouslySetInnerHTML: { __html: stepData.tryAngleButtonText },
+      step === 6 &&
+        step6CtaVisible &&
+        React.createElement("button", {
+          id: "try-angle-button",
+          className: "try-angle-button panel-fade-in",
+          onClick: () => {
+            playSnd("click");
+            if (onHideNudge) onHideNudge();
+            if (onNext) onNext(7);
           },
-        ),
-      step === 7 && step7CheckVisible &&
+          dangerouslySetInnerHTML: { __html: stepData.tryAngleButtonText },
+        }),
+      step === 7 &&
+        step7CheckVisible &&
         React.createElement(
           "button",
           {
@@ -2557,13 +2853,15 @@ const MainCanvas = (props) => {
           },
           stepData.checkButtonText,
         ),
-      step === 7 && step7SimilarVisible &&
+      step === 7 &&
+        step7SimilarVisible &&
         React.createElement(
           "div",
           { className: "similar-text panel-fade-in" },
           stepData.similarText,
         ),
-      step === 7 && step7ConcludeVisible &&
+      step === 7 &&
+        step7ConcludeVisible &&
         React.createElement(
           "button",
           {
@@ -2590,11 +2888,18 @@ const MainCanvas = (props) => {
     const yellowAngle = angleDegAt(yellow.X, yellow.Y, yellow.Z);
     const blueStart = Math.atan2(blue.B.y - blue.A.y, blue.B.x - blue.A.x);
     const blueEnd = Math.atan2(blue.C.y - blue.A.y, blue.C.x - blue.A.x);
-    const yellowStart = Math.atan2(yellow.Y.y - yellow.X.y, yellow.Y.x - yellow.X.x);
-    const yellowEnd = Math.atan2(yellow.Z.y - yellow.X.y, yellow.Z.x - yellow.X.x);
+    const yellowStart = Math.atan2(
+      yellow.Y.y - yellow.X.y,
+      yellow.Y.x - yellow.X.x,
+    );
+    const yellowEnd = Math.atan2(
+      yellow.Z.y - yellow.X.y,
+      yellow.Z.x - yellow.X.x,
+    );
 
     const blueLabelAngle = blueStart + signedAngleDelta(blueStart, blueEnd) / 2;
-    const yellowLabelAngle = yellowStart + signedAngleDelta(yellowStart, yellowEnd) / 2;
+    const yellowLabelAngle =
+      yellowStart + signedAngleDelta(yellowStart, yellowEnd) / 2;
     const blueLabel = {
       x: blue.A.x + Math.cos(blueLabelAngle) * 75,
       y: blue.A.y + Math.sin(blueLabelAngle) * 75,
@@ -2606,7 +2911,10 @@ const MainCanvas = (props) => {
 
     return React.createElement(
       "g",
-      { className: "angle-measurements-layer", style: { pointerEvents: "none" } },
+      {
+        className: "angle-measurements-layer",
+        style: { pointerEvents: "none" },
+      },
       React.createElement("path", {
         d: describeSector(blue.A.x, blue.A.y, 52, blueStart, blueEnd),
         fill: COLOR_BLUE,
@@ -2624,30 +2932,38 @@ const MainCanvas = (props) => {
         opacity: 0.9,
       }),
       !(step === 8 || (step === 7 && step7SimilarVisible)) &&
-        React.createElement("text", {
-          x: blueLabel.x,
-          y: blueLabel.y,
-          fill: COLOR_BLUE,
-          fontSize: LABEL_FONT_SIZE,
+        React.createElement(
+          "text",
+          {
+            x: blueLabel.x,
+            y: blueLabel.y,
+            fill: COLOR_BLUE,
+            fontSize: LABEL_FONT_SIZE,
+            fontWeight: 700,
+            textAnchor: "middle",
+            dominantBaseline: "middle",
+          },
+          `${Math.round(blueAngle)}\u00B0`,
+        ),
+      React.createElement(
+        "text",
+        {
+          x: yellowLabel.x,
+          y: yellowLabel.y,
+          fill: COLOR_YELLOW,
+          fontSize: YELLOW_LABEL_FONT_SIZE + 2,
           fontWeight: 700,
           textAnchor: "middle",
           dominantBaseline: "middle",
-        }, `${Math.round(blueAngle)}\u00B0`),
-      React.createElement("text", {
-        x: yellowLabel.x,
-        y: yellowLabel.y,
-        fill: COLOR_YELLOW,
-        fontSize: YELLOW_LABEL_FONT_SIZE + 2,
-        fontWeight: 700,
-        textAnchor: "middle",
-        dominantBaseline: "middle",
-      }, `${Math.round(yellowAngle)}\u00B0`),
+        },
+        `${Math.round(yellowAngle)}\u00B0`,
+      ),
     );
   };
 
   const renderRatioButtons = () => {
     if (step !== 2 || !showButtons) return null;
-    const ratios = [0.25, 0.5, 1.25, 1.5];
+    const ratios = [0.25, 0.5, 1.1, 1.2];
     return React.createElement(
       "div",
       { className: "ratio-buttons-container" },
@@ -2659,9 +2975,9 @@ const MainCanvas = (props) => {
             className: "ratio-button",
             onClick: () => handleRatioClick(r),
           },
-          `Ratio = ${r}`
-        )
-      )
+          `Ratio = ${r}`,
+        ),
+      ),
     );
   };
 
@@ -2686,6 +3002,15 @@ const MainCanvas = (props) => {
     return layers;
   };
 
+  const step4OpenEndpoints =
+    step === 4 &&
+    lineStates &&
+    !lineStates.some((line) => line.origSide === "BC")
+      ? getOpenYellowEndpoints(lineStates)
+      : null;
+  const showStep4DragNudge =
+    step === 4 && step4OpenEndpoints && !step4DragStarted;
+
   return React.createElement(
     "div",
     { className: "main-canvas-container" },
@@ -2699,6 +3024,13 @@ const MainCanvas = (props) => {
       },
       renderTriangleLayers(),
     ),
+    showStep4DragNudge &&
+      React.createElement(DragPathNudge, {
+        show: true,
+        svgRef,
+        fromPt: step4OpenEndpoints.y,
+        toPt: step4OpenEndpoints.z,
+      }),
     renderRatioButtons(),
     renderStep4Overlays(),
     renderStep5Panel(),

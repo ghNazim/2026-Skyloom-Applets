@@ -692,6 +692,13 @@ var MainCanvas = function (props) {
     }, 5000);
   }
 
+  function isCountOrderSorted(counts) {
+    for (var i = 0; i < N; i++) {
+      if (counts[i] !== i + 1) return false;
+    }
+    return true;
+  }
+
   function finishCountingStep() {
     clearTimer(idleTimerRef);
     setCountComplete(true);
@@ -986,7 +993,11 @@ var MainCanvas = function (props) {
     setShowUpdown(false);
     if (typeof playSound === "function") playSound("tick");
     if (nextCount >= N) {
-      reorderCountBadges();
+      if (isCountOrderSorted(nextCounts)) {
+        finishCountingStep();
+      } else {
+        reorderCountBadges();
+      }
     } else {
       scheduleCountHint();
     }

@@ -1,0 +1,18 @@
+.line-verification-graph-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8vw;
+  box-sizing: border-box;
+}
+
+.line-verification-graph-svg {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0.8vw;
+  user-select: none;
+}

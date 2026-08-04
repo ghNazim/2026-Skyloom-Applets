@@ -1,0 +1,98 @@
+.summary-scene-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.summary-scene-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.summary-sky {
+  fill: #14536a;
+}
+
+.summary-ground,
+.summary-wall {
+  filter: drop-shadow(0 0.2vw 0.2vw rgba(0, 0, 0, 0.18));
+}
+
+.summary-mountain-band {
+  fill: rgba(49, 121, 56, 0.42);
+}
+
+.summary-mountain-band.yellow {
+  fill: rgba(235, 227, 70, 0.58);
+}
+
+.summary-slope-arrow {
+  stroke-width: 5;
+  stroke-linecap: round;
+  fill: none;
+  filter: drop-shadow(0 0.12vw 0.16vw rgba(0, 0, 0, 0.3));
+}
+
+.summary-slope-arrow.positive {
+  stroke: #9bd24c;
+}
+
+.summary-slope-arrow.negative {
+  stroke: #ff7f37;
+}
+
+.summary-slope-arrow.zero {
+  stroke: #8fdcff;
+}
+
+.summary-slope-arrow.undefined {
+  stroke: #f7c534;
+}
+
+.summary-slope-label {
+  font-size: 31px;
+  font-weight: 500;
+  paint-order: stroke;
+  stroke: rgba(16, 62, 78, 0.55);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+
+.summary-slope-label.positive {
+  fill: #9bd24c;
+}
+
+.summary-slope-label.negative {
+  fill: #ff7f37;
+}
+
+.summary-slope-label.zero {
+  fill: #8fdcff;
+  text-anchor: middle;
+}
+
+.summary-slope-label.undefined {
+  fill: #f7c534;
+  text-anchor: middle;
+}
+
+.summary-cycle,
+.summary-climber,
+.summary-empty-cycle {
+  filter: drop-shadow(0 0.15vw 0.14vw rgba(0, 0, 0, 0.25));
+}
+
+.fade-in {
+  animation: summary-fade-in 0.35s ease both;
+}
+
+@keyframes summary-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

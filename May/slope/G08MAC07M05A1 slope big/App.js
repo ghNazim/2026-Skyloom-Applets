@@ -1,10 +1,11 @@
 const App = () => {
   const { useState, useEffect, useMemo, useCallback } = React;
 
-  const [currentStep, setCurrentStep] = useState(12);
+  const [currentStep, setCurrentStep] = useState(0);
   const [exploredCards, setExploredCards] = useState([]);
   const [arrowSigns, setArrowSigns] = useState({ x: false, y: false });
   const [slopeComplete, setSlopeComplete] = useState(false);
+  const [summaryComplete, setSummaryComplete] = useState(false);
   const [nudgePositions, setNudgePositions] = useState([]);
 
   const resetSlopeScenario = useCallback(() => {
@@ -16,9 +17,14 @@ const App = () => {
     if (typeof playSound === "function") playSound("click");
     setNudgePositions([]);
     setExploredCards([]);
+    setSummaryComplete(false);
     resetSlopeScenario();
     setCurrentStep(1);
   };
+
+  const handleSummaryComplete = useCallback(() => {
+    setSummaryComplete(true);
+  }, []);
 
   const handleSelectCard = (cardId) => {
     setNudgePositions([]);
@@ -34,14 +40,26 @@ const App = () => {
       setCurrentStep(7);
       return;
     }
+    if (currentStep === 11 && cardId === "zero") {
+      if (typeof playSound === "function") playSound("click");
+      resetSlopeScenario();
+      setCurrentStep(12);
+      return;
+    }
+    if (currentStep === 16 && cardId === "nondefined") {
+      if (typeof playSound === "function") playSound("click");
+      resetSlopeScenario();
+      setCurrentStep(17);
+      return;
+    }
   };
 
   const handleIntroComplete = () => {
-    setCurrentStep((prev) => (prev === 7 ? 8 : 3));
+    setCurrentStep((prev) => prev + 1);
   };
 
   const handleRideComplete = () => {
-    setCurrentStep((prev) => (prev === 8 ? 9 : 4));
+    setCurrentStep((prev) => prev + 1);
   };
 
   const handleArrowTap = (axis) => {
@@ -51,9 +69,16 @@ const App = () => {
   };
 
   useEffect(() => {
-    if ((currentStep === 4 || currentStep === 9) && arrowSigns.x && arrowSigns.y) {
+    if (
+      (currentStep === 4 ||
+        currentStep === 9 ||
+        currentStep === 14 ||
+        currentStep === 19) &&
+      arrowSigns.x &&
+      arrowSigns.y
+    ) {
       const id = setTimeout(
-        () => setCurrentStep(currentStep === 9 ? 10 : 5),
+        () => setCurrentStep(currentStep + 1),
         350,
       );
       return () => clearTimeout(id);
@@ -63,13 +88,17 @@ const App = () => {
 
   const handleSlopeComplete = () => {
     setSlopeComplete(true);
-    const completedCard = currentStep === 10 ? "negative" : "positive";
+    const completedCard =
+      currentStep === 10
+        ? "negative"
+        : currentStep === 15
+          ? "zero"
+          : currentStep === 20
+            ? "nondefined"
+            : "positive";
     setExploredCards((prev) =>
       prev.includes(completedCard) ? prev : [...prev, completedCard],
     );
-    if (currentStep === 10) {
-      setCurrentStep(11);
-    }
   };
 
   const handleNext = () => {
@@ -79,8 +108,25 @@ const App = () => {
       setCurrentStep(6);
       return;
     }
-    if (currentStep === 11 && slopeComplete) {
-      setCurrentStep(12);
+    if (currentStep === 10 && slopeComplete) {
+      setCurrentStep(11);
+      return;
+    }
+    if (currentStep === 15 && slopeComplete) {
+      setCurrentStep(16);
+      return;
+    }
+    if (currentStep === 20 && slopeComplete) {
+      resetSlopeScenario();
+      setSummaryComplete(false);
+      setCurrentStep(21);
+      return;
+    }
+    if (currentStep === 21 && summaryComplete) {
+      setExploredCards([]);
+      setSummaryComplete(false);
+      resetSlopeScenario();
+      setCurrentStep(0);
     }
   };
 
@@ -89,29 +135,55 @@ const App = () => {
     if (currentStep === 5 && slopeComplete) {
       return APP_DATA.steps[5].doneQuestionText;
     }
-    if (currentStep === 11 && slopeComplete) {
-      return APP_DATA.steps[11].questionText;
+    if (currentStep === 10 && slopeComplete) {
+      return APP_DATA.steps[10].doneQuestionText;
+    }
+    if (currentStep === 15 && slopeComplete) {
+      return APP_DATA.steps[15].doneQuestionText;
+    }
+    if (currentStep === 20 && slopeComplete) {
+      return APP_DATA.steps[20].doneQuestionText;
+    }
+    if (currentStep === 21 && summaryComplete) {
+      return APP_DATA.steps[21].doneQuestionText;
     }
     return APP_DATA.steps[currentStep] ? APP_DATA.steps[currentStep].questionText : "";
-  }, [currentStep, slopeComplete]);
+  }, [currentStep, slopeComplete, summaryComplete]);
 
   const navText = useMemo(() => {
     if (currentStep === 0) return "";
     if (currentStep === 5 && slopeComplete) {
       return handleComma(APP_DATA.steps[5].doneNavText);
     }
-    if (currentStep === 11 && slopeComplete) {
-      return handleComma(APP_DATA.steps[11].navText);
+    if (currentStep === 10 && slopeComplete) {
+      return handleComma(APP_DATA.steps[10].doneNavText);
+    }
+    if (currentStep === 15 && slopeComplete) {
+      return handleComma(APP_DATA.steps[15].doneNavText);
+    }
+    if (currentStep === 20 && slopeComplete) {
+      return handleComma(APP_DATA.steps[20].doneNavText);
+    }
+    if (currentStep === 21 && summaryComplete) {
+      return handleComma(APP_DATA.steps[21].doneNavText);
     }
     return APP_DATA.steps[currentStep]
       ? handleComma(APP_DATA.steps[currentStep].navText)
       : "";
-  }, [currentStep, slopeComplete]);
+  }, [currentStep, slopeComplete, summaryComplete]);
 
   const isNextDisabled = !(
     (currentStep === 5 && slopeComplete) ||
-    (currentStep === 11 && slopeComplete)
+    (currentStep === 10 && slopeComplete) ||
+    (currentStep === 15 && slopeComplete) ||
+    (currentStep === 20 && slopeComplete) ||
+    (currentStep === 21 && summaryComplete)
   );
+
+  const nextSymbol =
+    currentStep === 21 && summaryComplete
+      ? APP_DATA.steps[21].nextText
+      : "&raquo;";
 
   useEffect(() => {
     const updateNudges = () => {
@@ -149,10 +221,36 @@ const App = () => {
         if (!arrowSigns.y) addNudgeFor("yellow-arrow-click-target");
       } else if (currentStep === 10 && !slopeComplete) {
         addNudgeFor("green-line-click-target");
-      } else if (currentStep === 11 && slopeComplete) {
+      } else if (currentStep === 10 && slopeComplete) {
         addNudgeFor("next-button");
-      } else if (currentStep === 12) {
+      } else if (currentStep === 11) {
         addNudgeFor("card-zero");
+      } else if (currentStep === 12) {
+        addNudgeFor("hill-click-target");
+      } else if (currentStep === 13) {
+        addNudgeFor("cycle-click-target");
+      } else if (currentStep === 14) {
+        if (!arrowSigns.x) addNudgeFor("blue-arrow-click-target");
+        if (!arrowSigns.y) addNudgeFor("yellow-text-click-target");
+      } else if (currentStep === 15 && !slopeComplete) {
+        addNudgeFor("green-line-click-target");
+      } else if (currentStep === 15 && slopeComplete) {
+        addNudgeFor("next-button");
+      } else if (currentStep === 16) {
+        addNudgeFor("card-nondefined");
+      } else if (currentStep === 17) {
+        addNudgeFor("hill-click-target");
+      } else if (currentStep === 18) {
+        addNudgeFor("cycle-click-target");
+      } else if (currentStep === 19) {
+        if (!arrowSigns.x) addNudgeFor("blue-text-click-target");
+        if (!arrowSigns.y) addNudgeFor("yellow-arrow-click-target");
+      } else if (currentStep === 20 && !slopeComplete) {
+        addNudgeFor("green-line-click-target");
+      } else if (currentStep === 20 && slopeComplete) {
+        addNudgeFor("next-button");
+      } else if (currentStep === 21 && summaryComplete) {
+        addNudgeFor("next-button");
       }
 
       setNudgePositions(positions);
@@ -214,6 +312,7 @@ const App = () => {
         onRideComplete: handleRideComplete,
         onArrowTap: handleArrowTap,
         onSlopeComplete: handleSlopeComplete,
+        onSummaryComplete: handleSummaryComplete,
         onClearNudges: () => setNudgePositions([]),
       }),
     ),
@@ -225,6 +324,7 @@ const App = () => {
         isNextDisabled: isNextDisabled,
         isPrevDisabled: true,
         navText: navText,
+        nextSymbol: nextSymbol,
       }),
     ),
     renderNudges(),

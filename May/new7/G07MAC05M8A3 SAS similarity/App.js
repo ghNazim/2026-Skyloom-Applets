@@ -314,7 +314,12 @@ const App = () => {
         }
         return;
       }
-      if ((currentStep === 2 || currentStep === 3 || currentStep === 4) && !isNextDisabled) {
+      if (currentStep === 4) {
+        if (!isNextDisabled) showNudgeAtElement("next-button");
+        else hideNudge();
+        return;
+      }
+      if ((currentStep === 2 || currentStep === 3) && !isNextDisabled) {
         showNudgeAtElement("next-button");
         return;
       }

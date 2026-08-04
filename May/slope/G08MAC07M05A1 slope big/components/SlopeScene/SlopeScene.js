@@ -16,7 +16,11 @@ const SlopeScene = (props) => {
   const [rideClicked, setRideClicked] = useState(false);
   const [formulaPhase, setFormulaPhase] = useState("idle");
   const [progress, setProgress] = useState(
-    scenario === "negative" ? 0.9 : SLOPE_SCENE.ride.startT,
+    scenario === "negative"
+      ? 0.9
+      : scenario === "zero" || scenario === "nondefined"
+        ? 0.2
+        : SLOPE_SCENE.ride.startT,
   );
   const [cloneMotion, setCloneMotion] = useState({ x: null, y: null });
   const [cloneTravel, setCloneTravel] = useState({ x: false, y: false });
@@ -33,17 +37,34 @@ const SlopeScene = (props) => {
   const timeoutsRef = useRef([]);
 
   const isNegativeScenario = scenario === "negative";
-  const stage = isNegativeScenario ? (step === 11 ? 5 : step - 5) : step;
-  const introStep = isNegativeScenario ? 7 : 2;
-  const movementStep = isNegativeScenario ? 8 : 3;
-  const arrowStep = isNegativeScenario ? 9 : 4;
+  const isZeroScenario = scenario === "zero";
+  const isUndefinedScenario = scenario === "nondefined";
+  const scenarioOffset = isUndefinedScenario
+    ? 15
+    : isZeroScenario
+      ? 10
+      : isNegativeScenario
+        ? 5
+        : 0;
+  const stage = step - scenarioOffset;
+  const introStep = 2 + scenarioOffset;
+  const movementStep = 3 + scenarioOffset;
+  const arrowStep = 4 + scenarioOffset;
   const ySignWord = isNegativeScenario
     ? APP_DATA.formula.negative
+    : isZeroScenario
+      ? APP_DATA.formula.zero
+      : APP_DATA.formula.positive;
+  const xSignWord = isUndefinedScenario
+    ? APP_DATA.formula.zero
     : APP_DATA.formula.positive;
-  const xSignWord = APP_DATA.formula.positive;
   const resultSignWord = isNegativeScenario
     ? APP_DATA.formula.negative
-    : APP_DATA.formula.positive;
+    : isZeroScenario
+      ? APP_DATA.formula.zero
+      : isUndefinedScenario
+        ? APP_DATA.formula.undefined
+        : APP_DATA.formula.positive;
   const rideLine = isNegativeScenario
     ? {
         a: SLOPE_SCENE.hill.rightBase,
@@ -51,6 +72,20 @@ const SlopeScene = (props) => {
         startT: 0.9,
         endT: 0.25,
       }
+    : isZeroScenario
+      ? {
+          a: { x: 120, y: 360 },
+          b: { x: 900, y: 360 },
+          startT: 0.2,
+          endT: 0.8,
+        }
+      : isUndefinedScenario
+        ? {
+            a: { x: 650, y: 500 },
+            b: { x: 650, y: 40 },
+            startT: 0.2,
+            endT: 0.8,
+          }
     : {
         a: SLOPE_SCENE.hill.leftBase,
         b: SLOPE_SCENE.hill.peak,
@@ -73,9 +108,13 @@ const SlopeScene = (props) => {
     () => {
       const a = isNegativeScenario
         ? SLOPE_SCENE.hill.peak
+        : isZeroScenario || isUndefinedScenario
+          ? rideLine.a
         : SLOPE_SCENE.hill.leftBase;
       const b = isNegativeScenario
         ? SLOPE_SCENE.hill.rightBase
+        : isZeroScenario || isUndefinedScenario
+          ? rideLine.b
         : SLOPE_SCENE.hill.peak;
       return (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
     },
@@ -92,7 +131,17 @@ const SlopeScene = (props) => {
     showLine && stage < 4 && !(stage === 3 && rideClicked);
   const showFinalSurfaceLabel = formulaPhase === "done" || slopeComplete;
   const mutedScene = stage === 5;
-  const surfaceLineStart = isNegativeScenario
+  const surfaceLineStart = isZeroScenario
+    ? {
+        x: rideLine.a.x,
+        y: rideLine.a.y,
+      }
+    : isUndefinedScenario
+      ? {
+          x: rideLine.b.x,
+          y: rideLine.b.y,
+        }
+    : isNegativeScenario
     ? {
         x: SLOPE_SCENE.hill.peak.x + 3,
         y: SLOPE_SCENE.hill.peak.y + 2,
@@ -101,7 +150,17 @@ const SlopeScene = (props) => {
         x: SLOPE_SCENE.hill.leftBase.x + 8,
         y: SLOPE_SCENE.hill.leftBase.y - 4,
       };
-  const surfaceLineEnd = isNegativeScenario
+  const surfaceLineEnd = isZeroScenario
+    ? {
+        x: rideLine.b.x,
+        y: rideLine.b.y,
+      }
+    : isUndefinedScenario
+      ? {
+          x: rideLine.a.x,
+          y: rideLine.a.y,
+        }
+    : isNegativeScenario
     ? {
         x: SLOPE_SCENE.hill.rightBase.x - 8,
         y: SLOPE_SCENE.hill.rightBase.y - 4,
@@ -114,6 +173,9 @@ const SlopeScene = (props) => {
     x: (surfaceLineStart.x + surfaceLineEnd.x) / 2,
     y: (surfaceLineStart.y + surfaceLineEnd.y) / 2,
   };
+  const zeroYellowTextOffset = { x: 34, y: -8 };
+  const undefinedBlueTextOffset = { x: 42, y: -46 };
+  const undefinedFinalLabelOffset = { x: -52, y: 0, angle: -90 };
 
   const renderSvgLines = (text, lineHeight) =>
     String(text || "")
@@ -306,8 +368,12 @@ const SlopeScene = (props) => {
       const sceneRect = sceneEl.getBoundingClientRect();
       const cloneRect = cloneEl.getBoundingClientRect();
       const svgPoint = svgEl.createSVGPoint();
-      svgPoint.x = surfaceMid.x;
-      svgPoint.y = surfaceMid.y - 34;
+      svgPoint.x = isUndefinedScenario
+        ? surfaceMid.x + undefinedFinalLabelOffset.x
+        : surfaceMid.x;
+      svgPoint.y = isUndefinedScenario
+        ? surfaceMid.y + undefinedFinalLabelOffset.y
+        : surfaceMid.y - 34;
       const ctm = svgEl.getScreenCTM();
       if (!ctm) return;
       const target = svgPoint.matrixTransform(ctm);
@@ -327,7 +393,7 @@ const SlopeScene = (props) => {
       cancelAnimationFrame(firstFrame);
       if (secondFrame) cancelAnimationFrame(secondFrame);
     };
-  }, [formulaPhase, surfaceMid.x, surfaceMid.y]);
+  }, [formulaPhase, surfaceMid.x, surfaceMid.y, isUndefinedScenario]);
 
   const handleHillClick = () => {
     if (introClicked || stage !== 2) return;
@@ -453,10 +519,12 @@ const SlopeScene = (props) => {
   };
 
   const renderCycle = () => {
-    const w = SLOPE_SCENE.ride.cycleWidth;
-    const h = SLOPE_SCENE.ride.cycleHeight;
-    const x = currentPoint.x - w * 0.53;
-    const y = currentPoint.y - h;
+    const w = isUndefinedScenario ? 150 : SLOPE_SCENE.ride.cycleWidth;
+    const h = isUndefinedScenario ? 220 : SLOPE_SCENE.ride.cycleHeight;
+    const x = isUndefinedScenario
+      ? currentPoint.x - w * 0.82
+      : currentPoint.x - w * 0.53;
+    const y = isUndefinedScenario ? currentPoint.y - h * 0.52 : currentPoint.y - h;
     return React.createElement(
       "g",
       {
@@ -468,100 +536,172 @@ const SlopeScene = (props) => {
         onClick: handleCycleClick,
       },
       React.createElement("image", {
-        href: "assets/cycle.png",
+        href: isUndefinedScenario ? "assets/guy.png" : "assets/cycle.png",
         x: x,
         y: y,
         width: w,
         height: h,
-        transform:
-          "rotate(" +
-          hillAngle +
-          " " +
-          currentPoint.x +
-          " " +
-          currentPoint.y +
-          ")",
+        transform: isUndefinedScenario
+          ? undefined
+          : "rotate(" +
+            hillAngle +
+            " " +
+            currentPoint.x +
+            " " +
+            currentPoint.y +
+            ")",
       }),
     );
   };
 
   const renderMovementArrows = () => {
     if (!showMovement) return null;
-    const corner = isNegativeScenario
-      ? { x: startPoint.x, y: currentPoint.y }
-      : { x: currentPoint.x, y: startPoint.y };
+    const corner =
+      isNegativeScenario || isUndefinedScenario
+        ? { x: startPoint.x, y: currentPoint.y }
+        : { x: currentPoint.x, y: startPoint.y };
+    const showBlueArrow = !isUndefinedScenario;
+    const showYellowArrow = !isZeroScenario;
     const blueText =
       stage >= 4 && arrowSigns.x
-        ? APP_DATA.steps[arrowStep].bluePositive
+        ? isUndefinedScenario
+          ? APP_DATA.steps[arrowStep].blueZero
+          : APP_DATA.steps[arrowStep].bluePositive
         : APP_DATA.steps[movementStep].blueMovement;
     const yellowText =
       stage >= 4 && arrowSigns.y
         ? isNegativeScenario
           ? APP_DATA.steps[arrowStep].yellowNegative
-          : APP_DATA.steps[arrowStep].yellowPositive
+          : isZeroScenario
+            ? APP_DATA.steps[arrowStep].yellowZero
+            : APP_DATA.steps[arrowStep].yellowPositive
         : APP_DATA.steps[movementStep].yellowMovement;
-    const blueTextPosition = {
-      x: isNegativeScenario ? (corner.x + currentPoint.x) / 2 : startPoint.x + 105,
-      y: isNegativeScenario ? corner.y + 36 : startPoint.y + 58,
-    };
-    const yellowTextPosition = isNegativeScenario
+    const blueArrowStart = isZeroScenario
+      ? { x: startPoint.x, y: startPoint.y + 58 }
+      : isNegativeScenario
+        ? { x: corner.x, y: corner.y }
+        : { x: startPoint.x, y: startPoint.y };
+    const blueArrowEnd = isZeroScenario
+      ? { x: currentPoint.x, y: startPoint.y + 58 }
+      : isNegativeScenario
+        ? { x: currentPoint.x, y: currentPoint.y }
+        : { x: corner.x, y: corner.y };
+    const yellowArrowStart = isUndefinedScenario
+      ? { x: startPoint.x + 76, y: startPoint.y }
+      : isNegativeScenario
+        ? { x: startPoint.x, y: startPoint.y }
+        : { x: corner.x, y: corner.y };
+    const yellowArrowEnd = isUndefinedScenario
+      ? { x: currentPoint.x + 76, y: currentPoint.y }
+      : isNegativeScenario
+        ? { x: corner.x, y: currentPoint.y }
+        : { x: currentPoint.x, y: currentPoint.y };
+    const blueTextPosition = isUndefinedScenario
       ? {
-          x: startPoint.x - 300,
-          y: (startPoint.y + corner.y) / 2 - 8,
+          x: yellowArrowEnd.x + undefinedBlueTextOffset.x,
+          y: yellowArrowEnd.y + undefinedBlueTextOffset.y,
         }
-      : {
-          x: corner.x + 44,
-          y: (corner.y + currentPoint.y) / 2 + 4,
-        };
+      : isZeroScenario
+        ? {
+            x: (blueArrowStart.x + blueArrowEnd.x) / 2,
+            y: blueArrowStart.y + 44,
+          }
+        : {
+            x: isNegativeScenario ? (corner.x + currentPoint.x) / 2 : startPoint.x + 105,
+            y: isNegativeScenario ? corner.y + 36 : startPoint.y + 58,
+          };
+    const yellowTextPosition = isUndefinedScenario
+      ? {
+          x: yellowArrowStart.x + 48,
+          y: (yellowArrowStart.y + yellowArrowEnd.y) / 2 - 8,
+        }
+      : isZeroScenario
+        ? {
+            x: blueArrowEnd.x + zeroYellowTextOffset.x,
+            y: blueArrowEnd.y + zeroYellowTextOffset.y,
+          }
+        : isNegativeScenario
+          ? {
+              x: startPoint.x - 300,
+              y: (startPoint.y + corner.y) / 2 - 8,
+            }
+          : {
+              x: corner.x + 44,
+              y: (corner.y + currentPoint.y) / 2 + 4,
+            };
     return React.createElement(
       "g",
       { className: "movement-layer" },
-      React.createElement("line", {
-        x1: isNegativeScenario ? corner.x : startPoint.x,
-        y1: isNegativeScenario ? corner.y : startPoint.y,
-        x2: isNegativeScenario ? currentPoint.x : corner.x,
-        y2: isNegativeScenario ? currentPoint.y : corner.y,
-        className: "movement-arrow blue-arrow",
-        markerEnd: "url(#arrow-blue)",
-        onClick: () => onArrowTap("x"),
-      }),
-      React.createElement("line", {
-        id: stage === 4 && !arrowSigns.x ? "blue-arrow-click-target" : undefined,
-        x1: isNegativeScenario ? corner.x : startPoint.x,
-        y1: isNegativeScenario ? corner.y : startPoint.y,
-        x2: isNegativeScenario ? currentPoint.x : corner.x,
-        y2: isNegativeScenario ? currentPoint.y : corner.y,
-        className: "arrow-hit-zone",
-        onClick: () => onArrowTap("x"),
-      }),
-      React.createElement("line", {
-        x1: isNegativeScenario ? startPoint.x : corner.x,
-        y1: isNegativeScenario ? startPoint.y : corner.y,
-        x2: isNegativeScenario ? corner.x : currentPoint.x,
-        y2: currentPoint.y,
-        className: "movement-arrow yellow-arrow",
-        markerEnd: "url(#arrow-yellow)",
-        onClick: () => onArrowTap("y"),
-      }),
-      React.createElement("line", {
-        id:
-          stage === 4 && !arrowSigns.y ? "yellow-arrow-click-target" : undefined,
-        x1: isNegativeScenario ? startPoint.x : corner.x,
-        y1: isNegativeScenario ? startPoint.y : corner.y,
-        x2: isNegativeScenario ? corner.x : currentPoint.x,
-        y2: currentPoint.y,
-        className: "arrow-hit-zone",
-        onClick: () => onArrowTap("y"),
-      }),
+      showBlueArrow
+        ? React.createElement("line", {
+            x1: blueArrowStart.x,
+            y1: blueArrowStart.y,
+            x2: blueArrowEnd.x,
+            y2: blueArrowEnd.y,
+            className: "movement-arrow blue-arrow",
+            markerEnd: "url(#arrow-blue)",
+            onClick: () => onArrowTap("x"),
+          })
+        : null,
+      showBlueArrow
+        ? React.createElement("line", {
+            id:
+              stage === 4 && !arrowSigns.x
+                ? "blue-arrow-click-target"
+                : undefined,
+            x1: blueArrowStart.x,
+            y1: blueArrowStart.y,
+            x2: blueArrowEnd.x,
+            y2: blueArrowEnd.y,
+            className: "arrow-hit-zone",
+            onClick: () => onArrowTap("x"),
+          })
+        : null,
+      showYellowArrow
+        ? React.createElement("line", {
+            x1: yellowArrowStart.x,
+            y1: yellowArrowStart.y,
+            x2: yellowArrowEnd.x,
+            y2: yellowArrowEnd.y,
+            className: "movement-arrow yellow-arrow",
+            markerEnd: "url(#arrow-yellow)",
+            onClick: () => onArrowTap("y"),
+          })
+        : null,
+      showYellowArrow
+        ? React.createElement("line", {
+            id:
+              stage === 4 && !arrowSigns.y
+                ? "yellow-arrow-click-target"
+                : undefined,
+            x1: yellowArrowStart.x,
+            y1: yellowArrowStart.y,
+            x2: yellowArrowEnd.x,
+            y2: yellowArrowEnd.y,
+            className: "arrow-hit-zone",
+            onClick: () => onArrowTap("y"),
+          })
+        : null,
       showMovementText
         ? React.createElement(
             "text",
             {
+              id:
+                isUndefinedScenario && stage === 4 && !arrowSigns.x
+                  ? "blue-text-click-target"
+                  : undefined,
               transform:
                 "translate(" + blueTextPosition.x + " " + blueTextPosition.y + ")",
             className:
               "movement-text blue-text" +
-              (isNegativeScenario ? " centered-movement-text" : ""),
+              (isNegativeScenario || isZeroScenario ? " centered-movement-text" : "") +
+              (isUndefinedScenario && stage === 4 && !arrowSigns.x
+                ? " clickable-movement-text"
+                : ""),
+              onClick:
+                isUndefinedScenario && stage === 4 && !arrowSigns.x
+                  ? () => onArrowTap("x")
+                  : undefined,
             },
             renderMovementLabelText(
               blueText,
@@ -576,13 +716,25 @@ const SlopeScene = (props) => {
         ? React.createElement(
             "text",
             {
+              id:
+                isZeroScenario && stage === 4 && !arrowSigns.y
+                  ? "yellow-text-click-target"
+                  : undefined,
               transform:
                 "translate(" +
                 yellowTextPosition.x +
                 " " +
                 yellowTextPosition.y +
                 ")",
-            className: "movement-text yellow-text",
+              className:
+                "movement-text yellow-text" +
+                (isZeroScenario && stage === 4 && !arrowSigns.y
+                  ? " clickable-movement-text"
+                  : ""),
+              onClick:
+                isZeroScenario && stage === 4 && !arrowSigns.y
+                  ? () => onArrowTap("y")
+                  : undefined,
             },
             renderMovementLabelText(
               yellowText,
@@ -599,17 +751,26 @@ const SlopeScene = (props) => {
   const renderSurfaceLabel = () => {
     if (!showSurfaceIntroLabel && !showFinalSurfaceLabel) return null;
     if (showFinalSurfaceLabel) {
+      const finalLabelX = isUndefinedScenario
+        ? surfaceMid.x + undefinedFinalLabelOffset.x
+        : surfaceMid.x;
+      const finalLabelY = isUndefinedScenario
+        ? surfaceMid.y + undefinedFinalLabelOffset.y
+        : surfaceMid.y - 34;
+      const finalLabelAngle = isUndefinedScenario
+        ? undefinedFinalLabelOffset.angle
+        : hillAngle;
       return React.createElement(
         "g",
         {
           className: "surface-final-label-group",
           transform:
             "translate(" +
-            surfaceMid.x +
+            finalLabelX +
             " " +
-            (surfaceMid.y - 34) +
+            finalLabelY +
             ") rotate(" +
-            hillAngle +
+            finalLabelAngle +
             ")",
         },
         React.createElement(
@@ -623,17 +784,33 @@ const SlopeScene = (props) => {
       );
     }
 
+    const introLabelX = isNegativeScenario
+      ? surfaceMid.x - 80
+      : isZeroScenario
+        ? surfaceMid.x
+        : isUndefinedScenario
+          ? surfaceMid.x + 190
+          : 560;
+    const introLabelY = isNegativeScenario
+      ? surfaceMid.y + 78
+      : isZeroScenario
+        ? surfaceMid.y + 82
+        : isUndefinedScenario
+          ? surfaceMid.y
+          : 310;
+    const introLabelAngle = isUndefinedScenario ? 0 : hillAngle;
+
     return React.createElement(
       "g",
       {
         className: "surface-label-group",
         transform:
           "translate(" +
-          (isNegativeScenario ? surfaceMid.x - 80 : 560) +
+          introLabelX +
           " " +
-          (isNegativeScenario ? surfaceMid.y + 78 : 310) +
+          introLabelY +
           ") rotate(" +
-          hillAngle +
+          introLabelAngle +
           ")",
       },
       React.createElement("rect", {
@@ -671,6 +848,9 @@ const SlopeScene = (props) => {
       formulaPhase === "move-label";
     const resultSigned =
       formulaPhase === "result-positive" || formulaPhase === "move-label";
+    const movingLabelAngle = isUndefinedScenario
+      ? undefinedFinalLabelOffset.angle
+      : hillAngle;
     return React.createElement(
       React.Fragment,
       null,
@@ -726,7 +906,7 @@ const SlopeScene = (props) => {
                         "px, " +
                         formulaMotion.dy +
                         "px) rotate(" +
-                        hillAngle +
+                        movingLabelAngle +
                         "deg)"
                       : "translate(0, 0) rotate(0deg)",
                   }
@@ -793,6 +973,73 @@ const SlopeScene = (props) => {
     SLOPE_SCENE.hill.rightBase.y +
     " Z";
 
+  const renderTerrain = () => {
+    const terrainProps = {
+      id:
+        stage === 2 && !introClicked && !isUndefinedScenario
+          ? "hill-click-target"
+          : undefined,
+      className:
+        "hill-shape" +
+        (showLine ? " dehighlighted" : "") +
+        (mutedScene ? " muted" : ""),
+      onClick: handleHillClick,
+    };
+
+    if (isZeroScenario) {
+      return React.createElement(
+        "g",
+        terrainProps,
+        React.createElement("rect", {
+          x: -20,
+          y: rideLine.a.y,
+          width: 1040,
+          height: 180,
+          fill: "url(#grassPattern)",
+        }),
+        React.createElement("path", {
+          d: "M -20 360 C 180 350 350 372 540 360 C 720 348 850 368 1020 356 L 1020 520 L -20 520 Z",
+          fill: "url(#grassPattern)",
+          opacity: 0.92,
+        }),
+      );
+    }
+
+    if (isUndefinedScenario) {
+      return React.createElement(
+        "g",
+        terrainProps,
+        React.createElement("rect", {
+          x: -20,
+          y: 430,
+          width: rideLine.a.x + 18,
+          height: 100,
+          fill: "url(#grassPattern)",
+        }),
+        React.createElement("rect", {
+          id: stage === 2 && !introClicked ? "hill-click-target" : undefined,
+          x: rideLine.a.x - 4,
+          y: -20,
+          width: 370,
+          height: 560,
+          fill: "url(#rockPattern)",
+        }),
+        React.createElement("line", {
+          x1: rideLine.a.x,
+          y1: -20,
+          x2: rideLine.a.x,
+          y2: 530,
+          className: "rock-wall-edge",
+        }),
+      );
+    }
+
+    return React.createElement("path", {
+      ...terrainProps,
+      d: hillPath,
+    });
+  };
+
   return React.createElement(
     "div",
     { className: "slope-scene-wrap", ref: sceneRef },
@@ -832,6 +1079,39 @@ const SlopeScene = (props) => {
           React.createElement("circle", { cx: "26", cy: "31", r: "1", fill: "#476f34", opacity: "0.45" }),
           React.createElement("circle", { cx: "44", cy: "17", r: "1.1", fill: "#476f34", opacity: "0.42" }),
         ),
+        React.createElement(
+          "pattern",
+          {
+            id: "rockPattern",
+            width: "92",
+            height: "92",
+            patternUnits: "userSpaceOnUse",
+          },
+          React.createElement("rect", { width: "92", height: "92", fill: "#7b654e" }),
+          React.createElement("path", {
+            d: "M6 12 C24 -2 42 6 54 18 C68 31 82 22 94 34 L94 54 C78 47 65 64 49 54 C35 46 22 58 8 48 Z",
+            fill: "#9c8666",
+            opacity: "0.9",
+          }),
+          React.createElement("path", {
+            d: "M-5 76 C12 61 27 70 42 62 C58 53 75 64 96 58 L96 95 L-5 95 Z",
+            fill: "#5f4e3f",
+            opacity: "0.82",
+          }),
+          React.createElement("path", {
+            d: "M20 0 L12 92 M48 0 L39 92 M77 0 L68 92",
+            stroke: "#3f342b",
+            strokeWidth: "3",
+            opacity: "0.42",
+          }),
+          React.createElement("circle", { cx: "24", cy: "29", r: "4", fill: "#b69c76", opacity: "0.55" }),
+          React.createElement("circle", { cx: "66", cy: "70", r: "5", fill: "#4f4236", opacity: "0.5" }),
+          React.createElement("path", {
+            d: "M71 18 C75 9 85 7 90 13 C83 14 82 22 76 26 Z",
+            fill: "#6f9d4f",
+            opacity: "0.75",
+          }),
+        ),
         React.createElement("marker", {
           id: "arrow-green",
           markerWidth: "18",
@@ -861,15 +1141,7 @@ const SlopeScene = (props) => {
         }, React.createElement("path", { d: "M 0 0 L 27 13.5 L 0 27 z", fill: "#f7c534" })),
       ),
       renderGrid(),
-      React.createElement("path", {
-        id: stage === 2 && !introClicked ? "hill-click-target" : undefined,
-        d: hillPath,
-        className:
-          "hill-shape" +
-          (showLine ? " dehighlighted" : "") +
-          (mutedScene ? " muted" : ""),
-        onClick: handleHillClick,
-      }),
+      renderTerrain(),
       showLine
         ? React.createElement(
             "g",
