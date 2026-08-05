@@ -77,20 +77,6 @@ const DilateControls = ({
           onBlur: onSliderCommit,
         }),
       ),
-      React.createElement(
-        "div",
-        { className: "slider-ticks dilate-slider-ticks" },
-        [0, 1, 2, 3].map(function (value) {
-          return React.createElement(
-            "span",
-            {
-              key: value,
-              style: { left: (value / 3) * 100 + "%" },
-            },
-            value,
-          );
-        }),
-      ),
     ),
   );
 };
@@ -341,7 +327,12 @@ const Controls = ({
   const labels = APP_DATA.labels;
 
   const renderMainControls = function () {
-    if (activeTool === "dilate" && (stage === "dilateSlider" || stage === "dilateSuccess")) {
+    if (
+      activeTool === "dilate" &&
+      (stage === "dilateSlider" ||
+        stage === "dilateBSlider" ||
+        stage === "dilateSuccess")
+    ) {
       return React.createElement(DilateControls, {
         scaleFactor: scaleFactor,
         sliderPulse: sliderPulse,

@@ -24,8 +24,8 @@
   --purple: #d778df;
   --yellow: #ffd23f;
   --green: #74bd50;
-  --object-fill: #416f96;
-  --image-fill: #7d4b2e;
+  --object-fill: #7d4b2e;
+  --image-fill: #416f96;
   --clone-fill: rgba(53, 83, 103, 0.68);
   color: var(--text-strong);
   /* background: var(--surface-dark); */

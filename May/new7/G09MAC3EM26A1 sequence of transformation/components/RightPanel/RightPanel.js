@@ -134,6 +134,7 @@ const RightPanel = ({
   revealHeading,
   mcqChoice,
   mcqCollapsed,
+  completedPaths,
   keptLabel,
   footerText,
   footerAction,
@@ -145,13 +146,16 @@ const RightPanel = ({
   const labels = APP_DATA.labels;
 
   const renderMcq = function () {
-    if (!mcqChoice && stage !== "step2" && !mcqCollapsed) return null;
+    const onStep2 = stage === "step2";
+    const inActiveFlow = mcqChoice && mcqCollapsed && onStep2 === false;
 
-    const showTitle = stage === "step2" && !mcqCollapsed;
-    const showOptionA =
-      (stage === "step2" && !mcqCollapsed) ||
-      (mcqCollapsed && mcqChoice === "dilateFirst");
-    const showOptionB = stage === "step2" && !mcqCollapsed;
+    if (!onStep2 && !inActiveFlow) return null;
+
+    const showBothOptions = onStep2 && !mcqCollapsed;
+    const showKeptDilate =
+      showBothOptions || (mcqCollapsed && mcqChoice === "dilateFirst");
+    const showKeptTranslate =
+      showBothOptions || (mcqCollapsed && mcqChoice === "translateFirst");
 
     return React.createElement(
       "div",
@@ -171,18 +175,22 @@ const RightPanel = ({
       React.createElement(
         "div",
         { className: "mcq-options" },
-        showOptionA
+        showKeptDilate
           ? React.createElement(
               "button",
               {
                 id: "mcq-dilate-first",
                 className:
                   "mcq-option" +
-                  (mcqChoice === "dilateFirst" ? " kept" : "") +
+                  (mcqCollapsed && mcqChoice === "dilateFirst" ? " kept" : "") +
+                  (completedPaths.dilateFirst ? " is-completed" : "") +
                   (mcqCollapsed && mcqChoice !== "dilateFirst"
                     ? " is-hidden"
                     : ""),
-                disabled: mcqCollapsed || mcqChoice === "dilateFirst",
+                disabled:
+                  completedPaths.dilateFirst ||
+                  mcqCollapsed ||
+                  mcqChoice === "dilateFirst",
                 onClick: function () {
                   onMcqSelect("dilateFirst");
                 },
@@ -190,17 +198,24 @@ const RightPanel = ({
               labels.dilateFirstThenTranslate,
             )
           : null,
-        showOptionB
+        showKeptTranslate
           ? React.createElement(
               "button",
               {
                 id: "mcq-translate-first",
                 className:
                   "mcq-option" +
+                  (mcqCollapsed && mcqChoice === "translateFirst"
+                    ? " kept"
+                    : "") +
+                  (completedPaths.translateFirst ? " is-completed" : "") +
                   (mcqCollapsed && mcqChoice !== "translateFirst"
                     ? " is-hidden"
                     : ""),
-                disabled: true,
+                disabled:
+                  completedPaths.translateFirst ||
+                  mcqCollapsed ||
+                  mcqChoice === "translateFirst",
                 onClick: function () {
                   onMcqSelect("translateFirst");
                 },
@@ -234,7 +249,7 @@ const RightPanel = ({
       );
     }
 
-    if (stage === "translateSuccess") {
+    if (stage === "translateSuccess" || stage === "translateSuccessB") {
       return React.createElement(
         React.Fragment,
         null,

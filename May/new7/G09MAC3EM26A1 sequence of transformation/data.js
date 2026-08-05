@@ -44,8 +44,8 @@ const DATA = {
       graph: {
         xMin: -13,
         xMax: 13,
-        yMin: -8,
-        yMax: 8,
+        yMin: -9,
+        yMax: 9,
         object: [
           { x: 1, y: -1 },
           { x: 1, y: -3 },
@@ -58,18 +58,19 @@ const DATA = {
         ],
         correctScale: 3,
         correctTranslation: { x: -11, y: 10 },
+        rightAngleIndex: 1,
       },
       panels: {
         step1: {
           lines: [
             [
               {
-                text: "The blue figure is the image obtained by transforming the red figure.",
+                text: "The blue figure is the image obtained by transforming the orange figure.",
               },
             ],
             [
               {
-                text: "Describe the sequence of transformations applied to the red figure to obtain the blue figure.",
+                text: "Describe the sequence of transformations applied to the orange figure to obtain the blue figure.",
               },
             ],
           ],
@@ -109,7 +110,7 @@ const DATA = {
           lines: [
             [
               {
-                text: "Next, choose a scale factor to increase or decrease the size of the red figure.",
+                text: "Next, choose a scale factor to increase or decrease the size of the orange figure.",
               },
             ],
           ],
@@ -139,11 +140,81 @@ const DATA = {
           ],
           footer: "",
         },
+        stepB3: {
+          lines: [
+            [
+              {
+                text: "Slide it into place (translate), then resize the figure to the correct size (dilate).",
+              },
+            ],
+          ],
+          footer: "Tap Translate.",
+        },
+        translateBActive: {
+          lines: [
+            [
+              {
+                text: "Translate the figure so that one of its vertices coincides with the corresponding vertex of the blue figure.",
+              },
+            ],
+          ],
+          footer: "Tap the arrows to translate.",
+        },
+        translateBSuccess: {
+          lines: [
+            [{ text: "Now, perform the next transformation to resize." }],
+          ],
+          footer: "",
+        },
+        dilateBIntro: {
+          lines: [
+            [
+              {
+                text: "Resize the figure to the correct size (dilate).",
+              },
+            ],
+          ],
+          footer: "Tap Dilate.",
+        },
+        dilateBSlider: {
+          lines: [
+            [
+              {
+                text: "Choose a scale factor to increase or decrease the size of the figure.",
+              },
+            ],
+          ],
+          footer: "Drag the slider to choose a scale factor.",
+        },
+        dilateBSuccess: {
+          lines: [
+            [{ text: "Dilation Successful!", color: "green" }],
+          ],
+          footer: "",
+        },
+        translateSuccessB: {
+          heading: "Transformation Successful!",
+          lines: [
+            [
+              {
+                text: "Position matched by translation, size matched by dilation",
+              },
+            ],
+          ],
+          footer: "",
+        },
         revealPanel: {
           heading: "Transformation Successful!",
           lines: [
             [{ text: "Tap \u2018Next\u2019 to see the other way." }],
           ],
+        },
+        step4: {
+          heading: "Next Step",
+          lines: [
+            [{ text: "Step 4 will be added here." }],
+          ],
+          footer: "",
         },
       },
       history: {
@@ -198,8 +269,8 @@ const DATA = {
       graph: {
         xMin: -13,
         xMax: 13,
-        yMin: -8,
-        yMax: 8,
+        yMin: -9,
+        yMax: 9,
         object: [
           { x: 1, y: -1 },
           { x: 1, y: -3 },
@@ -212,18 +283,19 @@ const DATA = {
         ],
         correctScale: 3,
         correctTranslation: { x: -11, y: 10 },
+        rightAngleIndex: 1,
       },
       panels: {
         step1: {
           lines: [
             [
               {
-                text: "Gambar biru adalah bayangan yang diperoleh dengan mentransformasikan gambar merah.",
+                text: "Gambar biru adalah bayangan yang diperoleh dengan mentransformasikan gambar oranye.",
               },
             ],
             [
               {
-                text: "Jelaskan rangkaian transformasi yang diterapkan pada gambar merah untuk memperoleh gambar biru.",
+                text: "Jelaskan rangkaian transformasi yang diterapkan pada gambar oranye untuk memperoleh gambar biru.",
               },
             ],
           ],
@@ -263,7 +335,7 @@ const DATA = {
           lines: [
             [
               {
-                text: "Selanjutnya, pilih faktor skala untuk memperbesar atau memperkecil gambar merah.",
+                text: "Selanjutnya, pilih faktor skala untuk memperbesar atau memperkecil gambar oranye.",
               },
             ],
           ],
@@ -293,11 +365,81 @@ const DATA = {
           ],
           footer: "",
         },
+        stepB3: {
+          lines: [
+            [
+              {
+                text: "Geser ke posisinya (translasi), lalu ubah ukuran gambar ke ukuran yang benar (dilatasi).",
+              },
+            ],
+          ],
+          footer: "Ketuk Translasi.",
+        },
+        translateBActive: {
+          lines: [
+            [
+              {
+                text: "Translasi gambar sehingga salah satu titik sudutnya bertepatan dengan titik sudut yang sesuai pada gambar biru.",
+              },
+            ],
+          ],
+          footer: "Ketuk panah untuk mentranslasi.",
+        },
+        translateBSuccess: {
+          lines: [
+            [{ text: "Sekarang, lakukan transformasi berikutnya untuk mengubah ukuran." }],
+          ],
+          footer: "",
+        },
+        dilateBIntro: {
+          lines: [
+            [
+              {
+                text: "Ubah ukuran gambar ke ukuran yang benar (dilatasi).",
+              },
+            ],
+          ],
+          footer: "Ketuk Dilatasi.",
+        },
+        dilateBSlider: {
+          lines: [
+            [
+              {
+                text: "Pilih faktor skala untuk memperbesar atau memperkecil gambar.",
+              },
+            ],
+          ],
+          footer: "Seret slider untuk memilih faktor skala.",
+        },
+        dilateBSuccess: {
+          lines: [
+            [{ text: "Dilatasi Berhasil!", color: "green" }],
+          ],
+          footer: "",
+        },
+        translateSuccessB: {
+          heading: "Transformasi Berhasil!",
+          lines: [
+            [
+              {
+                text: "Posisi cocok dengan translasi, ukuran cocok dengan dilatasi",
+              },
+            ],
+          ],
+          footer: "",
+        },
         revealPanel: {
           heading: "Transformasi Berhasil!",
           lines: [
             [{ text: "Ketuk \u2018Lanjut\u2019 untuk melihat cara lainnya." }],
           ],
+        },
+        step4: {
+          heading: "Langkah Berikutnya",
+          lines: [
+            [{ text: "Langkah 4 akan ditambahkan di sini." }],
+          ],
+          footer: "",
         },
       },
       history: {

@@ -136,10 +136,16 @@
   pointer-events: none;
 }
 
-.mcq-option:disabled:not(.kept) {
-  cursor: default;
-  color: var(--button-text-disabled);
+.mcq-option.is-completed {
   background: var(--button-disabled);
+  color: var(--button-text-disabled);
+  cursor: default;
+  box-shadow: none;
+  opacity: 0.72;
+}
+
+.mcq-option.is-completed:hover {
+  box-shadow: none;
 }
 
 .transform-list {
@@ -324,7 +330,7 @@
 }
 
 .right-text-panel.has-mcq {
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .panel-heading {

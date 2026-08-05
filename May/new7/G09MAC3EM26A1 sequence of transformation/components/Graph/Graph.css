@@ -50,13 +50,17 @@
 .object-triangle {
   fill: var(--object-fill);
   fill-opacity: 0.78;
-  stroke: none;
+  stroke: var(--object-fill);
+  stroke-opacity: 1;
+  stroke-width: 3.2;
 }
 
 .image-triangle {
   fill: var(--image-fill);
   fill-opacity: 0.76;
-  stroke: none;
+  stroke: var(--image-fill);
+  stroke-opacity: 1;
+  stroke-width: 3.2;
 }
 
 .image-triangle.is-correct {
