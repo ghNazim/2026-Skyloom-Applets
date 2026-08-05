@@ -56,9 +56,22 @@ function operationMatrix(kind, value) {
   if (kind === "reflect-y") return [-1, 0, 0, 1, 0, 0];
 
   const radians = ((value.direction === "cw" ? -value.degrees : value.degrees) * Math.PI) / 180;
-  const cos = Math.round(Math.cos(radians));
-  const sin = Math.round(Math.sin(radians));
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
   return [cos, sin, -sin, cos, 0, 0];
+}
+
+function snapRotationDegrees(degrees) {
+  const snapped = Math.round(degrees / 90) * 90;
+  return snapped >= 360 ? 0 : snapped;
+}
+
+function nearestPointToOrigin(vertices) {
+  return vertices.reduce(function (best, point) {
+    const dist = point.x * point.x + point.y * point.y;
+    const bestDist = best.x * best.x + best.y * best.y;
+    return dist < bestDist ? point : best;
+  }, vertices[0]);
 }
 
 function matricesMatch(left, right) {
@@ -90,6 +103,7 @@ const App = () => {
   const [nudgeRect, setNudgeRect] = useState(null);
   const [freeMatrix, setFreeMatrix] = useState([1, 0, 0, 1, 0, 0]);
   const [freeRotateBaseMatrix, setFreeRotateBaseMatrix] = useState([1, 0, 0, 1, 0, 0]);
+  const [flipAnimation, setFlipAnimation] = useState(null);
   const lastSliderCommitRef = useRef({ key: "", time: 0 });
 
   const currentExample = data.examples[exampleIndex] || data.examples[0];
@@ -118,6 +132,7 @@ const App = () => {
     setReflectionAxis(null);
     setFreeMatrix([1, 0, 0, 1, 0, 0]);
     setFreeRotateBaseMatrix([1, 0, 0, 1, 0, 0]);
+    setFlipAnimation(null);
   }, []);
 
   const startExample = useCallback(
@@ -293,10 +308,12 @@ const App = () => {
   );
 
   const completeRotationIfCorrect = useCallback(
-    function () {
+    function (committedDegrees) {
       if (!rotationDirection) return;
+      const degrees =
+        committedDegrees == null ? rotationDegrees : committedDegrees;
       const commitKey =
-        stage + "|" + activeTool + "|" + rotationDirection + "|" + rotationDegrees;
+        stage + "|" + activeTool + "|" + rotationDirection + "|" + degrees;
       const now = Date.now();
       if (
         lastSliderCommitRef.current.key === commitKey &&
@@ -308,8 +325,8 @@ const App = () => {
       play("click");
 
       if (stage === "freePlay" && activeTool === "rotate") {
-        if (rotationDegrees > 0 && rotationDegrees < 360) {
-          const fixed = { direction: rotationDirection, degrees: rotationDegrees };
+        if (degrees > 0 && degrees < 360) {
+          const fixed = { direction: rotationDirection, degrees: degrees };
           const op = operationMatrix("rotate", fixed);
           const next = multiplyMatrix(op, freeRotateBaseMatrix);
           setFreeMatrix(next);
@@ -333,11 +350,11 @@ const App = () => {
 
       if (!isSecondExample && stage === "rotateSlider") {
         const isCorrect =
-          (rotationDirection === "cw" && rotationDegrees === 90) ||
-          (rotationDirection === "acw" && rotationDegrees === 270);
+          (rotationDirection === "cw" && degrees === 90) ||
+          (rotationDirection === "acw" && degrees === 270);
         if (!isCorrect) return;
 
-        const fixed = { direction: rotationDirection, degrees: rotationDegrees };
+        const fixed = { direction: rotationDirection, degrees: degrees };
         play("correct");
         setRotationFixed(fixed);
         setRotationHistory(fixed);
@@ -348,7 +365,7 @@ const App = () => {
       }
 
       if (isSecondExample && stage === "rotateSlider") {
-        if (rotationDirection !== "cw" || rotationDegrees !== 90) return;
+        if (rotationDirection !== "cw" || degrees !== 90) return;
         const fixed = { direction: "cw", degrees: 90 };
         setRotationFixed(fixed);
         setRotationHistory(fixed);
@@ -359,7 +376,7 @@ const App = () => {
       }
 
       if (isSecondExample && stage === "rotateAgainSlider") {
-        if (rotationDirection !== "cw" || rotationDegrees !== 90) return;
+        if (rotationDirection !== "cw" || degrees !== 90) return;
         const fixed = { direction: "cw", degrees: 90 };
         play("correct");
         setRotationFixed(fixed);
@@ -394,9 +411,24 @@ const App = () => {
     ) {
       return;
     }
-    if (value !== rotationDegrees) play("tick");
-    if (stage === "freePlay") setSliderPulse(false);
+    if (
+      value !== rotationDegrees &&
+      Math.floor(value / 90) !== Math.floor(rotationDegrees / 90)
+    ) {
+      play("tick");
+    }
+    setSliderPulse(false);
     setRotationDegrees(value);
+  };
+
+  const handleSliderDragStart = function () {
+    setSliderPulse(false);
+  };
+
+  const handleSliderCommit = function () {
+    const snapped = snapRotationDegrees(rotationDegrees);
+    setRotationDegrees(snapped);
+    completeRotationIfCorrect(snapped);
   };
 
   const handleReset = function () {
@@ -413,6 +445,7 @@ const App = () => {
       setReflectionAxis(null);
       setFreeMatrix([1, 0, 0, 1, 0, 0]);
       setFreeRotateBaseMatrix([1, 0, 0, 1, 0, 0]);
+      setFlipAnimation(null);
       if (stage !== "freePlay") setStage("freePlay");
       return;
     }
@@ -428,16 +461,17 @@ const App = () => {
 
   const handleReflect = function (axis) {
     if (stage === "freePlay" && activeTool === "reflect") {
+      if (flipAnimation) return;
       play("click");
       setReflectionAxis(axis);
-      const op = operationMatrix("reflect-" + axis);
-      const next = multiplyMatrix(op, freeMatrix);
-      setFreeMatrix(next);
-      checkFreeCompletion(next);
+      setFlipAnimation({
+        axis: axis,
+        mode: "freePlay",
+        sourceMatrix: freeMatrix,
+      });
       setRotationDirection(null);
       setRotationDegrees(0);
       setSliderPulse(false);
-      setFreeRotateBaseMatrix(next);
       appendHistory(
         "reflection",
         axis === "x" ? data.history.reflectionX : data.history.reflectionY,
@@ -448,11 +482,46 @@ const App = () => {
     if (activeTool !== "reflect" || stage !== "reflectPrompt" || axis !== "y") {
       return;
     }
+    if (flipAnimation) return;
     play("click");
     setReflectionAxis("y");
     updateHistory("reflection", data.history.reflectionY);
+    setFlipAnimation({ axis: "y", mode: "guided" });
     setStage("afterReflect");
   };
+
+  useEffect(
+    function () {
+      if (!flipAnimation || flipAnimation.mode !== "freePlay") return;
+      const axis = flipAnimation.axis;
+      const sourceMatrix = flipAnimation.sourceMatrix;
+      const timer = window.setTimeout(function () {
+        const op = operationMatrix("reflect-" + axis);
+        const next = multiplyMatrix(op, sourceMatrix);
+        setFreeMatrix(next);
+        checkFreeCompletion(next);
+        setFreeRotateBaseMatrix(next);
+        setFlipAnimation(null);
+      }, 800);
+      return function () {
+        window.clearTimeout(timer);
+      };
+    },
+    [checkFreeCompletion, flipAnimation],
+  );
+
+  useEffect(
+    function () {
+      if (!flipAnimation || flipAnimation.mode !== "guided") return;
+      const timer = window.setTimeout(function () {
+        setFlipAnimation(null);
+      }, 800);
+      return function () {
+        window.clearTimeout(timer);
+      };
+    },
+    [flipAnimation],
+  );
 
   const handleMove = function (direction) {
     if (activeTool !== "translate") return;
@@ -804,11 +873,94 @@ const App = () => {
       ? {
           ...currentExample.raster,
           targetMatrix: currentExample.targetMatrix,
-          cloneMatrix: freeDisplayMatrix,
-          showClone: !isIdentityMatrix(freeDisplayMatrix) || isFreeSuccess,
+          cloneMatrix: flipAnimation
+            ? flipAnimation.sourceMatrix || freeMatrix
+            : freeDisplayMatrix,
+          showClone:
+            flipAnimation ||
+            !isIdentityMatrix(freeDisplayMatrix) ||
+            isFreeSuccess,
           cloneIsCorrect: isFreeSuccess,
+          flipAxis: flipAnimation ? flipAnimation.axis : null,
         }
       : null;
+
+  const flipScene = useMemo(
+    function () {
+      if (!flipAnimation) return null;
+      const base = currentExample.object || data.graph.object;
+      return {
+        mode: flipAnimation.mode,
+        axis: flipAnimation.axis,
+        baseVertices: base,
+        matrix:
+          flipAnimation.mode === "freePlay"
+            ? flipAnimation.sourceMatrix || freeMatrix
+            : null,
+      };
+    },
+    [
+      currentExample.object,
+      data.graph.object,
+      flipAnimation,
+      freeMatrix,
+    ],
+  );
+
+  const showRotationGuide =
+    activeTool === "rotate" &&
+    rotationDirection &&
+    !flipAnimation &&
+    (stage === "rotateSlider" ||
+      stage === "rotateAgainSlider" ||
+      stage === "freePlay");
+
+  const rotationGuideTarget = useMemo(
+    function () {
+      if (!showRotationGuide) return null;
+      if (currentExample.raster) {
+        return transformPoint(currentExample.raster.center, freeDisplayMatrix);
+      }
+      const base = currentExample.object || data.graph.object;
+      let vertices;
+      if (isFreeExample) {
+        vertices = base.map(function (point) {
+          return transformPoint(point, freeDisplayMatrix);
+        });
+      } else if (isSecondExample) {
+        const reflected =
+          stage === "rotateAgainSlider" ||
+          stage === "orientationDone2" ||
+          activeTool === "translate" ||
+          stage === "verticalGuide" ||
+          stage === "translateDown" ||
+          stage === "success" ||
+          stage === "reveal";
+        vertices = base.map(function (point) {
+          let next = reflected ? reflectPoint(point, "y") : point;
+          return rotatePoint(next, rotationDirection, rotationDegrees);
+        });
+      } else {
+        vertices = base.map(function (point) {
+          return rotatePoint(point, rotationDirection, rotationDegrees);
+        });
+      }
+      return nearestPointToOrigin(vertices);
+    },
+    [
+      activeTool,
+      currentExample.object,
+      currentExample.raster,
+      data.graph.object,
+      freeDisplayMatrix,
+      isFreeExample,
+      isSecondExample,
+      rotationDegrees,
+      rotationDirection,
+      showRotationGuide,
+      stage,
+    ],
+  );
 
   if (stage === "start") {
     return React.createElement(
@@ -871,19 +1023,26 @@ const App = () => {
           React.createElement(Graph, {
             objectVertices: currentExample.object || data.graph.object,
             imageVertices: currentExample.image || data.graph.image,
-            cloneVertices: cloneVertices,
+            cloneVertices: flipAnimation ? null : cloneVertices,
+            flipScene: flipScene,
             cloneIsCorrect: isCorrectStage || isFreeSuccess,
             cloneStatus: stage === "wrongRotation" ? "wrong" : null,
-            cloneMotionClass: stage === "afterReflect" ? "is-flipping" : "",
             imageIsCorrect: isCorrectStage || isFreeSuccess,
             showVerticalGuides: showVerticalGuides,
+            showRotationGuide: showRotationGuide,
+            rotationGuideTarget: rotationGuideTarget,
             reflectionAxis:
               isSecondExample &&
               (stage === "afterReflect" ||
                 stage === "rotateAgainDirection" ||
-                stage === "rotateAgainSlider")
+                stage === "rotateAgainSlider" ||
+                flipAnimation)
                 ? "y"
-                : null,
+                : flipAnimation && stage === "freePlay"
+                  ? flipAnimation.axis
+                  : reflectionAxis && stage === "freePlay"
+                    ? reflectionAxis
+                    : null,
             rasterScene: rasterScene,
           }),
         ),
@@ -913,7 +1072,8 @@ const App = () => {
           onToolClick: handleToolClick,
           onDirection: handleDirection,
           onSliderChange: handleSliderChange,
-          onSliderCommit: completeRotationIfCorrect,
+          onSliderDragStart: handleSliderDragStart,
+          onSliderCommit: handleSliderCommit,
           onReflect: handleReflect,
           onMove: handleMove,
         }),

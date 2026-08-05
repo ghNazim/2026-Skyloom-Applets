@@ -95,9 +95,9 @@ function getRatioBoxPositions(layout = RATIO_BOX_LAYOUT) {
   };
 }
 
-const BASE_A = { x: 2.25, y: -3.307 };
+const BASE_A = { x: 1.8, y: -2.64575 };
 const BASE_B = { x: 0, y: 0 };
-const BASE_C = { x: 6, y: 0 };
+const BASE_C = { x: 4.8, y: 0 };
 
 function getInitialTrianglePositions() {
   const cx = SVG_W / 2;
@@ -2963,7 +2963,7 @@ const MainCanvas = (props) => {
 
   const renderRatioButtons = () => {
     if (step !== 2 || !showButtons) return null;
-    const ratios = [0.25, 0.5, 1.1, 1.2];
+    const ratios = [0.5, 0.75, 1.1, 1.2];
     return React.createElement(
       "div",
       { className: "ratio-buttons-container" },

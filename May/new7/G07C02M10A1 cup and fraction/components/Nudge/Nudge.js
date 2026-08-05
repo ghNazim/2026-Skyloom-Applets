@@ -20,7 +20,7 @@ const Nudge = ({ show = false, position = null, kind = "tap" }) => {
     "div",
     { className: "nudge-overlay nudge-" + kind, style },
     React.createElement("img", {
-      src: kind === "drag" ? "assets/drag.gif" : "assets/tap.gif",
+      src: kind === "drag" ? "assets/verticalDrag.gif" : "assets/tap.gif",
       alt: "",
       className: "nudge-gif",
     })

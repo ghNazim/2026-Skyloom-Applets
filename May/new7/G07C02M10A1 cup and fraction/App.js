@@ -1,27 +1,30 @@
+const FINAL_STEP = 10;
+const BENCHMARK_STEP = 6;
+const LAST_NAV_STEP = 9;
+
 const StartScreen = ({ onStart }) => {
   return React.createElement(
     "div",
-    { className: "klepon-start" },
-    React.createElement("div", { className: "klepon-start-title" }, APP_DATA.start.heading),
+    { className: "cupfrac-start" },
+    React.createElement("div", { className: "cupfrac-start-title" }, APP_DATA.start.heading),
     React.createElement(
       "div",
-      { className: "klepon-start-content" },
+      { className: "cupfrac-start-content" },
       React.createElement(
         "div",
-        { className: "klepon-start-recipe" },
-        React.createElement(RecipePaper, null),
+        { className: "cupfrac-start-card" },
+        React.createElement("div", {
+          className: "cupfrac-start-copy",
+          dangerouslySetInnerHTML: { __html: APP_DATA.start.body },
+        }),
       ),
       React.createElement(
         "div",
-        { className: "klepon-start-card" },
+        { className: "cupfrac-start-image-card" },
         React.createElement("img", {
-          src: "assets/klepon.png",
+          src: APP_DATA.start.imageSrc,
           alt: "",
-          className: "klepon-start-image",
-        }),
-        React.createElement("div", {
-          className: "klepon-start-copy",
-          dangerouslySetInnerHTML: { __html: formatFractionsInText(APP_DATA.start.body) },
+          className: "cupfrac-start-image",
         }),
       ),
     ),
@@ -29,7 +32,7 @@ const StartScreen = ({ onStart }) => {
       "button",
       {
         id: "start-button",
-        className: "btn klepon-start-button",
+        className: "btn cupfrac-start-button",
         onClick: onStart,
       },
       APP_DATA.start.buttonText,
@@ -37,33 +40,64 @@ const StartScreen = ({ onStart }) => {
   );
 };
 
-const FinalScreen = ({ onStartOver, estimates }) => {
+const BenchmarkScreen = ({ onContinue }) => {
+  const config = APP_DATA.steps[BENCHMARK_STEP];
   return React.createElement(
     "div",
-    { className: "klepon-start klepon-final" },
-    React.createElement("div", { className: "klepon-start-title" }, APP_DATA.final.heading),
+    { className: "cupfrac-benchmark" },
+    React.createElement("div", { className: "cupfrac-benchmark-title" }, config.heading),
     React.createElement(
       "div",
-      { className: "klepon-start-content klepon-final-content" },
+      { className: "cupfrac-benchmark-content" },
       React.createElement(
         "div",
-        { className: "klepon-start-recipe" },
-        React.createElement(RecipePaper, { estimates }),
-      ),
-      React.createElement(
-        "div",
-        { className: "klepon-start-card klepon-final-card" },
-        React.createElement("div", {
-          className: "klepon-start-copy klepon-final-copy",
-          dangerouslySetInnerHTML: { __html: formatFractionsInText(APP_DATA.final.body) },
+        { className: "cupfrac-benchmark-glass-card" },
+        React.createElement(Glass, {
+          fill: 0,
+          fillDuration: 0,
+          ticks: [0, 0.25, 1 / 3, 0.5, 1],
+          unitLabel: APP_DATA.meterUnit,
         }),
       ),
+      React.createElement(
+        "div",
+        { className: "cupfrac-benchmark-text-card" },
+        React.createElement("div", {
+          className: "cupfrac-benchmark-copy",
+          dangerouslySetInnerHTML: { __html: config.body },
+        }),
+        React.createElement(
+          "button",
+          {
+            id: "benchmark-continue-button",
+            className: "btn cupfrac-benchmark-button",
+            onClick: onContinue,
+          },
+          config.buttonText,
+        ),
+      ),
+    ),
+  );
+};
+
+const FinalScreen = ({ onStartOver }) => {
+  return React.createElement(
+    "div",
+    { className: "cupfrac-final" },
+    React.createElement("div", { className: "cupfrac-final-title" }, APP_DATA.final.heading),
+    React.createElement(
+      "div",
+      { className: "cupfrac-final-card" },
+      React.createElement("div", {
+        className: "cupfrac-final-copy",
+        dangerouslySetInnerHTML: { __html: APP_DATA.final.body },
+      }),
     ),
     React.createElement(
       "button",
       {
         id: "start-over-button",
-        className: "btn klepon-start-button klepon-final-button",
+        className: "btn cupfrac-final-button",
         onClick: onStartOver,
       },
       APP_DATA.final.buttonText,
@@ -72,62 +106,59 @@ const FinalScreen = ({ onStartOver, estimates }) => {
 };
 
 const App = () => {
-  const { useState, useEffect, useCallback } = React;
+  const { useState, useEffect, useCallback, useRef } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
-  const [dynamicNavText, setDynamicNavText] = useState(null);
-  const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
-  const [nextButtonText, setNextButtonText] = useState("\u00BB");
-  const [showNudge, setShowNudge] = useState(false);
-  const [nudgePosition, setNudgePosition] = useState(null);
-  const [nudgeKind, setNudgeKind] = useState("tap");
-  const finalStep = 1 + APP_DATA.ingredientFlows.length * 3;
-
-  const hideNudge = useCallback(() => {
-    setShowNudge(false);
-    setNudgePosition(null);
-    setNudgeKind("tap");
-  }, []);
-
-  const showNudgeAtElement = useCallback((id, kind = "tap") => {
-    const el = document.getElementById(id);
-    if (!el) {
-      hideNudge();
-      return;
-    }
-    setNudgePosition(el.getBoundingClientRect());
-    setNudgeKind(kind);
-    setShowNudge(true);
-  }, [hideNudge]);
+  const [navText, setNavText] = useState("");
+  const [nudge, setNudge] = useState(null);
+  const nudgeIdRef = useRef(null);
 
   const playSnd = (name) => {
     if (typeof playSound === "function") playSound(name);
   };
 
-  const getIngredientIndex = useCallback(() => {
-    if (currentStep <= 0) return 0;
-    if (currentStep >= finalStep) return APP_DATA.ingredientFlows.length - 1;
-    return Math.floor((currentStep - 1) / 3);
-  }, [currentStep, finalStep]);
+  const hideNudge = useCallback(() => {
+    nudgeIdRef.current = null;
+    setNudge(null);
+  }, []);
 
-  const getPhase = useCallback(() => {
-    if (currentStep <= 0) return -1;
-    return (currentStep - 1) % 3;
-  }, [currentStep]);
+  const showNudgeAtElement = useCallback((id, kind = "tap") => {
+    const el = document.getElementById(id);
+    if (!el) {
+      nudgeIdRef.current = null;
+      setNudge(null);
+      return;
+    }
+    nudgeIdRef.current = id;
+    setNudge({ kind: kind, rect: el.getBoundingClientRect() });
+  }, []);
 
-  const getEstimatesForStep = useCallback(() => {
-    const completedCount =
-      currentStep >= finalStep
-        ? APP_DATA.ingredientFlows.length
-        : currentStep <= 0
-          ? 0
-          : Math.floor((currentStep - 1) / 3);
-    return APP_DATA.ingredientFlows.slice(0, completedCount).reduce((acc, flow) => {
-      acc[flow.itemKey] = flow.estimateText;
-      return acc;
-    }, {});
-  }, [currentStep, finalStep]);
+  useEffect(() => {
+    const onResize = () => {
+      const id = nudgeIdRef.current;
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setNudge((prev) => (prev ? { kind: prev.kind, rect: rect } : prev));
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const setNextEnabled = useCallback((enabled) => {
+    setIsNextDisabled(!enabled);
+  }, []);
+
+  const updateNav = useCallback((text) => {
+    setNavText(text || "");
+  }, []);
+
+  const advanceStep = useCallback(() => {
+    hideNudge();
+    setCurrentStep((prev) => (prev < LAST_NAV_STEP ? prev + 1 : prev));
+  }, [hideNudge]);
 
   const handleStart = () => {
     playSnd("click");
@@ -135,135 +166,46 @@ const App = () => {
     setCurrentStep(1);
   };
 
+  const handleBenchmarkContinue = () => {
+    playSnd("click");
+    hideNudge();
+    setCurrentStep(7);
+  };
+
   const handleStartOver = () => {
     playSnd("click");
     hideNudge();
     setCurrentStep(0);
+    setIsNextDisabled(true);
+    setNavText("");
   };
 
   const handleNext = () => {
-    if (isNextDisabled) return;
+    if (isNextDisabled || currentStep >= FINAL_STEP) return;
     playSnd("click");
     hideNudge();
-    const phase = getPhase();
-    const ingredientIndex = getIngredientIndex();
-    if (phase === 0) {
-      setCurrentStep((prev) => prev + 1);
-      return;
-    }
-    if (phase === 2) {
-      if (ingredientIndex < APP_DATA.ingredientFlows.length - 1) {
-        setCurrentStep((prev) => prev + 1);
-      } else {
-        setCurrentStep(finalStep);
-      }
-    }
+    setCurrentStep((prev) => prev + 1);
   };
 
-  const handlePrev = () => {
-    if (currentStep <= 1) return;
-    playSnd("click");
-    hideNudge();
-    setCurrentStep((prev) => prev - 1);
-  };
-
-  const setNextEnabled = useCallback((enabled) => {
-    setIsNextDisabled(!enabled);
-  }, []);
-
-  const updateTexts = useCallback((question, nav) => {
-    if (question !== undefined) setDynamicQuestionText(question);
-    if (nav !== undefined) setDynamicNavText(nav);
-  }, []);
-
-  const setNextLabel = useCallback((text) => {
-    if (text !== undefined) setNextButtonText(text);
-  }, []);
-
-  const completeTenthsPlacement = useCallback(() => {
-    setDynamicNavText("");
+  useEffect(() => {
+    if (currentStep !== 0) return undefined;
     setIsNextDisabled(true);
-    window.setTimeout(() => {
-      setCurrentStep((prev) => prev + 1);
-    }, 2000);
-  }, []);
+    setNavText("");
+    const tid = window.setTimeout(() => showNudgeAtElement("start-button"), 500);
+    return () => window.clearTimeout(tid);
+  }, [currentStep, showNudgeAtElement]);
 
   useEffect(() => {
-    hideNudge();
-    setDynamicNavText(null);
-    setDynamicQuestionText(null);
-    setNextButtonText("\u00BB");
-
-    if (currentStep === 0) {
-      setIsNextDisabled(true);
-      const tid = window.setTimeout(() => showNudgeAtElement("start-button"), 500);
-      return () => window.clearTimeout(tid);
-    }
-
-    if (currentStep === finalStep) {
-      setIsNextDisabled(true);
-      const tid = window.setTimeout(() => showNudgeAtElement("start-over-button"), 500);
-      return () => window.clearTimeout(tid);
-    }
-
-    const phase = getPhase();
-
-    if (phase === 0) {
-      setIsNextDisabled(false);
-      const tid = window.setTimeout(() => showNudgeAtElement("next-button"), 600);
-      return () => window.clearTimeout(tid);
-    }
-
-    if (phase === 1) {
-      setIsNextDisabled(true);
-      const tid = window.setTimeout(() => showNudgeAtElement("tenths-dot", "drag"), 600);
-      return () => window.clearTimeout(tid);
-    }
-
-    if (phase === 2) {
-      setIsNextDisabled(true);
-      const tid = window.setTimeout(() => showNudgeAtElement("show-benchmarks-button"), 600);
-      return () => window.clearTimeout(tid);
-    }
-  }, [currentStep, finalStep, getPhase, hideNudge, showNudgeAtElement]);
+    if (currentStep !== BENCHMARK_STEP) return undefined;
+    const tid = window.setTimeout(() => showNudgeAtElement("benchmark-continue-button"), 500);
+    return () => window.clearTimeout(tid);
+  }, [currentStep, showNudgeAtElement]);
 
   useEffect(() => {
-    const updateNudge = () => {
-      if (!showNudge) return;
-      if (currentStep === finalStep) {
-        showNudgeAtElement("start-over-button");
-        return;
-      }
-      const phase = getPhase();
-      if (currentStep === 0) showNudgeAtElement("start-button");
-      if (phase === 0 && !isNextDisabled) showNudgeAtElement("next-button");
-      if (phase === 1) showNudgeAtElement("tenths-dot", "drag");
-      if (phase === 2) {
-        if (!isNextDisabled) {
-          showNudgeAtElement("next-button");
-        } else {
-          showNudgeAtElement("show-benchmarks-button");
-        }
-      }
-    };
-    window.addEventListener("resize", updateNudge);
-    return () => window.removeEventListener("resize", updateNudge);
-  }, [currentStep, finalStep, getPhase, isNextDisabled, showNudge, showNudgeAtElement]);
-
-  const ingredientIndex = getIngredientIndex();
-  const phase = getPhase();
-  const flow = APP_DATA.ingredientFlows[ingredientIndex] || APP_DATA.ingredientFlows[0];
-  const estimates = getEstimatesForStep();
-  const phaseQuestion =
-    phase === 0 ? "" :
-    phase === 1 ? flow.placeQuestion :
-    phase === 2 ? flow.benchmarkQuestion : "";
-  const phaseNav =
-    phase === 0 ? flow.problemNav :
-    phase === 1 ? flow.placeNav :
-    phase === 2 ? APP_DATA.steps[3].navText : "";
-  const questionText = dynamicQuestionText !== null ? dynamicQuestionText : phaseQuestion;
-  const navText = dynamicNavText !== null ? dynamicNavText : phaseNav;
+    if (currentStep !== FINAL_STEP) return undefined;
+    const tid = window.setTimeout(() => showNudgeAtElement("start-over-button"), 500);
+    return () => window.clearTimeout(tid);
+  }, [currentStep, showNudgeAtElement]);
 
   if (currentStep === 0) {
     return React.createElement(
@@ -274,60 +216,85 @@ const App = () => {
         { className: "app-main-content" },
         React.createElement(StartScreen, { onStart: handleStart }),
       ),
-      React.createElement(Nudge, { show: showNudge, position: nudgePosition, kind: nudgeKind }),
+      React.createElement(Nudge, {
+        show: !!nudge,
+        position: nudge ? nudge.rect : null,
+        kind: nudge ? nudge.kind : "tap",
+      }),
     );
   }
 
-  if (currentStep === finalStep) {
+  if (currentStep === BENCHMARK_STEP) {
     return React.createElement(
       "div",
       { className: "applet-container" },
       React.createElement(
         "div",
         { className: "app-main-content" },
-        React.createElement(FinalScreen, { onStartOver: handleStartOver, estimates }),
+        React.createElement(BenchmarkScreen, { onContinue: handleBenchmarkContinue }),
       ),
-      React.createElement(Nudge, { show: showNudge, position: nudgePosition, kind: nudgeKind }),
+      React.createElement(Nudge, {
+        show: !!nudge,
+        position: nudge ? nudge.rect : null,
+        kind: nudge ? nudge.kind : "tap",
+      }),
     );
   }
+
+  if (currentStep === FINAL_STEP) {
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content" },
+        React.createElement(FinalScreen, { onStartOver: handleStartOver }),
+      ),
+      React.createElement(Nudge, {
+        show: !!nudge,
+        position: nudge ? nudge.rect : null,
+        kind: nudge ? nudge.kind : "tap",
+      }),
+    );
+  }
+
+  const stepConfig = APP_DATA.steps[currentStep] || {};
 
   return React.createElement(
     "div",
     { className: "applet-container" },
-    questionText
-      ? React.createElement(QuestionPanel, {
-          text: formatFractionsInText(questionText),
-          step: currentStep,
-        })
-      : null,
+    React.createElement(QuestionPanel, {
+      text: formatFractionsInText(stepConfig.questionText),
+      subText: formatFractionsInText(stepConfig.questionSub),
+    }),
     React.createElement(
       "div",
       { className: "app-main-content" },
-      phase === 0
-        ? React.createElement(Problem, { ingredientIndex, estimates })
-        : React.createElement(MainCanvas, {
-            step: currentStep,
-            ingredientIndex,
-            onSetNextEnabled: setNextEnabled,
-            onUpdateTexts: updateTexts,
-            onSetNextLabel: setNextLabel,
-            onCompleteTenthsPlacement: completeTenthsPlacement,
-            onHideNudge: hideNudge,
-            onShowNudgeAtElement: showNudgeAtElement,
-          }),
+      React.createElement(MainCanvas, {
+        step: currentStep,
+        onSetNextEnabled: setNextEnabled,
+        onUpdateNav: updateNav,
+        onAdvance: advanceStep,
+        onHideNudge: hideNudge,
+        onShowNudgeAtElement: showNudgeAtElement,
+      }),
     ),
     React.createElement(
       "div",
       { className: "lower-panel" },
       React.createElement(Navigation, {
-        onNav: (dir) => (dir === "next" ? handleNext() : handlePrev()),
+        onNav: (dir) => {
+          if (dir === "next") handleNext();
+        },
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: currentStep <= 1,
+        isPrevDisabled: true,
         navText: formatFractionsInText(navText),
-        nextButtonText: nextButtonText,
-        step: currentStep,
       }),
     ),
-    React.createElement(Nudge, { show: showNudge, position: nudgePosition, kind: nudgeKind }),
+    React.createElement(Nudge, {
+      show: !!nudge,
+      position: nudge ? nudge.rect : null,
+      kind: nudge ? nudge.kind : "tap",
+    }),
   );
 };

@@ -1,0 +1,256 @@
+.series-graph-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.series-graph-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  overflow: visible;
+}
+
+.graph-grid-line {
+  stroke: var(--grid-line);
+  stroke-width: 1.5;
+}
+
+.graph-axis-line {
+  stroke: var(--axis-line);
+  stroke-width: 2.25;
+}
+
+.graph-axis-arrow {
+  fill: var(--axis-line);
+}
+
+.graph-axis-number,
+.graph-axis-name,
+.graph-origin-label {
+  fill: rgba(255, 255, 255, 0.58);
+  font-family: var(--font-family);
+  font-weight: 500;
+}
+
+.graph-axis-number {
+  font-size: 19px;
+}
+
+.graph-axis-name {
+  font-size: 22px;
+}
+
+.graph-origin-label {
+  font-size: 19px;
+}
+
+.object-triangle {
+  fill: var(--object-fill);
+  fill-opacity: 0.78;
+  stroke: none;
+}
+
+.image-triangle {
+  fill: var(--image-fill);
+  fill-opacity: 0.76;
+  stroke: none;
+}
+
+.image-triangle.is-correct {
+  stroke: var(--green);
+  stroke-width: 3.2;
+  stroke-dasharray: none;
+}
+
+.clone-triangle {
+  fill: rgba(255, 255, 255, 0.15);
+  stroke: #ffffff;
+  stroke-width: 3.2;
+  stroke-dasharray: 4 5;
+  transition:
+    points 0.3s ease,
+    stroke 0.2s ease;
+}
+
+.clone-triangle-2 {
+  fill: rgba(255, 255, 255, 0.15);
+}
+
+.dilation-guide-line {
+  stroke: #ffffff;
+  stroke-width: 2.4;
+  stroke-dasharray: 7 6;
+  stroke-linecap: round;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.dilation-anchor {
+  fill: var(--green);
+  stroke: #ffffff;
+  stroke-width: 2.5;
+  pointer-events: none;
+}
+
+.vertex-picker-group {
+  cursor: pointer;
+}
+
+.vertex-picker-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+}
+
+.vertex-picker {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 2;
+  pointer-events: none;
+  animation: vertex-picker-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes vertex-picker-blink {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.clone-triangle.is-correct {
+  stroke: var(--green);
+  stroke-dasharray: none;
+}
+
+.clone-triangle.is-wrong {
+  stroke: #c76b88;
+  stroke-dasharray: 4 5;
+}
+
+.clone-triangle.is-flipping-y,
+.clone-flip-wrap.is-flipping-y,
+.raster-clone.is-flipping-y {
+  transform-box: view-box;
+  animation: clone-y-flip 0.8s ease-out both;
+}
+
+.clone-triangle.is-flipping-x,
+.clone-flip-wrap.is-flipping-x,
+.raster-clone.is-flipping-x {
+  transform-box: view-box;
+  animation: clone-x-flip 0.8s ease-out both;
+}
+
+.raster-shape {
+  opacity: 0.86;
+}
+
+.raster-object {
+  filter: drop-shadow(0 0 0.35vw rgba(88, 151, 204, 0.28));
+}
+
+.raster-image {
+  opacity: 0.46;
+  filter: sepia(0.45) saturate(1.35) hue-rotate(330deg);
+}
+
+.raster-image.is-correct,
+.raster-clone.is-correct {
+  outline: 0;
+}
+
+.raster-clone {
+  opacity: 0.9;
+  filter:
+    drop-shadow(0 0 0.08vw #ffffff)
+    drop-shadow(0 0 0.28vw rgba(255, 255, 255, 0.35));
+  transition:
+    transform 0.28s ease,
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+
+.graph-object-label,
+.graph-image-label {
+  font-family: var(--font-family);
+  font-size: 25px;
+  font-weight: 500;
+  fill: rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+}
+
+.vertical-guide-line {
+  stroke: var(--green);
+  stroke-width: 3.2;
+  stroke-dasharray: 8 7;
+  transform-origin: center bottom;
+  animation: guide-grow 0.35s ease-out both;
+}
+
+.reflect-axis-line {
+  stroke: var(--yellow);
+  stroke-width: 4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 0.45vw rgba(255, 210, 63, 0.65));
+}
+
+.rotation-center-cross {
+  stroke: #ffffff;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.rotation-radius-line {
+  stroke: #ffffff;
+  stroke-width: 2.8;
+  stroke-dasharray: 7 6;
+  stroke-linecap: round;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@keyframes guide-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes clone-y-flip {
+  from {
+    opacity: 0.35;
+    transform: scaleX(1);
+  }
+  35% {
+    opacity: 0.75;
+    transform: scaleX(0.08);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(-1);
+  }
+}
+
+@keyframes clone-x-flip {
+  from {
+    opacity: 0.35;
+    transform: scaleY(1);
+  }
+  35% {
+    opacity: 0.75;
+    transform: scaleY(0.08);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(-1);
+  }
+}

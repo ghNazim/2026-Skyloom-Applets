@@ -7,7 +7,6 @@ const Navigation = ({
   hidePrev = false,
   hideNext = false,
   navFadeIn = false,
-  step,
 }) => {
   const isTextButton = nextButtonText.length > 2;
   return React.createElement(
@@ -26,7 +25,6 @@ const Navigation = ({
         ),
     React.createElement("div", {
       className: "nav-text-container" + (navFadeIn ? " panel-fade-in" : ""),
-      style: step === 4 && !navFadeIn ? { opacity: 0 } : undefined,
       dangerouslySetInnerHTML: { __html: navText || "" },
     }),
     hideNext

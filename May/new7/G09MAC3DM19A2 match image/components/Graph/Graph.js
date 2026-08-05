@@ -41,11 +41,13 @@ const Graph = ({
   objectVertices,
   imageVertices,
   cloneVertices,
+  flipScene,
   cloneIsCorrect,
   cloneStatus,
-  cloneMotionClass,
   imageIsCorrect,
   showVerticalGuides,
+  showRotationGuide,
+  rotationGuideTarget,
   reflectionAxis,
   rasterScene,
 }) => {
@@ -148,7 +150,7 @@ const Graph = ({
     });
   };
 
-  const renderRaster = function (className, key, matrix, isCorrect) {
+  const renderRaster = function (className, key, matrix, isCorrect, flipAxis) {
     if (!rasterScene) return null;
     const width = rasterScene.width;
     const height = rasterScene.height || rasterScene.width;
@@ -167,20 +169,84 @@ const Graph = ({
     });
     const content = React.createElement(
       "g",
-      { key: key },
+      { key: key + "-content" },
       image,
     );
 
-    if (!matrix) return content;
+    const flipClass = flipAxis ? "is-flipping-" + flipAxis : "";
+    const flipStyle = flipClass
+      ? { transformOrigin: originX + "px " + originY + "px" }
+      : undefined;
+    const matrixText = matrix
+      ? svgMatrixText(graphMatrixToSvgMatrix(matrix, unit, originX, originY))
+      : null;
+
+    if (flipClass) {
+      return React.createElement(
+        "g",
+        {
+          key: key,
+          className: "raster-clone " + flipClass,
+          style: flipStyle,
+        },
+        React.createElement(
+          "g",
+          { transform: matrixText || undefined },
+          content,
+        ),
+      );
+    }
+
+    if (matrixText) {
+      return React.createElement(
+        "g",
+        { key: key, transform: matrixText },
+        content,
+      );
+    }
+
+    return React.createElement("g", { key: key }, content);
+  };
+
+  const renderFlipClone = function () {
+    if (!flipScene || rasterScene) return null;
+    const flipClass = "is-flipping-" + flipScene.axis;
+    const flipStyle = { transformOrigin: originX + "px " + originY + "px" };
+
+    if (flipScene.mode === "guided") {
+      return renderPolygon(
+        "clone-triangle " + flipClass,
+        flipScene.baseVertices,
+        "clone-flipping",
+        flipStyle,
+      );
+    }
+
     return React.createElement(
       "g",
       {
-        key: key,
-        transform: svgMatrixText(
-          graphMatrixToSvgMatrix(matrix, unit, originX, originY),
-        ),
+        key: "clone-flipping",
+        className: "clone-flip-wrap " + flipClass,
+        style: flipStyle,
       },
-      content,
+      React.createElement(
+        "g",
+        {
+          transform: svgMatrixText(
+            graphMatrixToSvgMatrix(
+              flipScene.matrix || [1, 0, 0, 1, 0, 0],
+              unit,
+              originX,
+              originY,
+            ),
+          ),
+        },
+        renderPolygon(
+          "clone-triangle",
+          flipScene.baseVertices,
+          "clone-flipping-shape",
+        ),
+      ),
     );
   };
 
@@ -232,6 +298,9 @@ const Graph = ({
         x: rasterImageCenter.x - 0.6,
         y: rasterImageCenter.y - (rasterScene.height || rasterScene.width) / 2 - 0.75,
       })
+    : null;
+  const rotationGuideSvgTarget = rotationGuideTarget
+    ? toSvg(rotationGuideTarget)
     : null;
 
   return React.createElement(
@@ -386,25 +455,45 @@ const Graph = ({
             "raster-clone",
             rasterScene.cloneMatrix,
             rasterScene.cloneIsCorrect,
+            rasterScene.flipAxis,
           )
         : null,
-      !rasterScene && cloneVertices
-        ? cloneMotionClass === "is-flipping"
-          ? renderPolygon(
-              "clone-triangle is-flipping",
-              objectVertices,
-              "clone-flipping",
-              {
-                transformOrigin: originX + "px " + originY + "px",
-              },
-            )
-          : renderPolygon(
-              "clone-triangle" +
-                (cloneIsCorrect ? " is-correct" : "") +
-                (cloneStatus ? " is-" + cloneStatus : ""),
-              cloneVertices,
-              "clone",
-            )
+      renderFlipClone(),
+      !flipScene && !rasterScene && cloneVertices
+        ? renderPolygon(
+            "clone-triangle" +
+              (cloneIsCorrect ? " is-correct" : "") +
+              (cloneStatus ? " is-" + cloneStatus : ""),
+            cloneVertices,
+            "clone",
+          )
+        : null,
+      showRotationGuide && rotationGuideSvgTarget
+        ? React.createElement(
+            "g",
+            { key: "rotation-guide", className: "rotation-guide" },
+            React.createElement("line", {
+              x1: originX,
+              y1: originY,
+              x2: rotationGuideSvgTarget.x,
+              y2: rotationGuideSvgTarget.y,
+              className: "rotation-radius-line",
+            }),
+            React.createElement("line", {
+              x1: originX - 14,
+              y1: originY,
+              x2: originX + 14,
+              y2: originY,
+              className: "rotation-center-cross",
+            }),
+            React.createElement("line", {
+              x1: originX,
+              y1: originY - 14,
+              x2: originX,
+              y2: originY + 14,
+              className: "rotation-center-cross",
+            }),
+          )
         : null,
       React.createElement(
         "text",

@@ -18,6 +18,7 @@ const RotateControls = ({
   enabledDirection,
   onDirection,
   onSliderChange,
+  onSliderDragStart,
   onSliderCommit,
 }) => {
   const labels = APP_DATA.labels;
@@ -99,12 +100,14 @@ const RotateControls = ({
           type: "range",
           min: 0,
           max: 360,
-          step: 90,
+          step: 1,
           value: sliderValue,
           disabled: sliderDisabled || controlsDisabled,
           onChange: function (event) {
             onSliderChange(Number(event.target.value));
           },
+          onPointerDown: onSliderDragStart,
+          onMouseDown: onSliderDragStart,
           onMouseUp: onSliderCommit,
           onTouchEnd: onSliderCommit,
           onKeyUp: onSliderCommit,
@@ -236,6 +239,7 @@ const Controls = ({
   onToolClick,
   onDirection,
   onSliderChange,
+  onSliderDragStart,
   onSliderCommit,
   onReflect,
   onMove,
@@ -254,6 +258,7 @@ const Controls = ({
         enabledDirection: enabledDirection,
         onDirection: onDirection,
         onSliderChange: onSliderChange,
+        onSliderDragStart: onSliderDragStart,
         onSliderCommit: onSliderCommit,
       });
     }
