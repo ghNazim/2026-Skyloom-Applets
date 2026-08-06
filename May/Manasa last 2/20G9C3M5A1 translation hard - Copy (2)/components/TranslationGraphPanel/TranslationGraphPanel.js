@@ -316,7 +316,7 @@ const TranslationGraphPanel = ({
             {
               x: labelPos.x,
               y: labelPos.y,
-              fill: pt.labelColor || pt.color,
+              fill: pt.color,
               fontSize: pointLabelFontSize,
               fontWeight: "700",
               textAnchor: labelPos.anchor,
@@ -343,9 +343,7 @@ const TranslationGraphPanel = ({
         : null,
       React.createElement("circle", {
         className:
-          "tgp-point-circle" +
-          (isClickable ? " is-clickable" : "") +
-          blinkClass,
+          "tgp-point-circle" + (isClickable ? " is-clickable" : "") + blinkClass,
         id: showClickPulse ? undefined : pt.clickId || undefined,
         cx: pos.x,
         cy: pos.y,
@@ -355,9 +353,7 @@ const TranslationGraphPanel = ({
         strokeWidth: pt.hollow ? 3 : 1.5,
         opacity: circleOpacity,
         onClick: isClickable ? pt.onClick : undefined,
-        style: isClickable
-          ? { pointerEvents: "all", cursor: "pointer" }
-          : undefined,
+        style: isClickable ? { pointerEvents: "all", cursor: "pointer" } : undefined,
       }),
     );
   };
@@ -375,11 +371,7 @@ const TranslationGraphPanel = ({
       points: pointsStr,
       fill: poly.color,
       fillOpacity: poly.fillOpacity != null ? poly.fillOpacity : 0.7,
-      stroke: poly.noStroke
-        ? "none"
-        : poly.stroke != null
-          ? poly.stroke
-          : poly.color,
+      stroke: poly.noStroke ? "none" : poly.stroke != null ? poly.stroke : poly.color,
       strokeWidth: poly.noStroke ? 0 : poly.strokeWidth || 2.5,
       opacity: poly.opacity != null ? poly.opacity : 1,
     });
@@ -443,7 +435,8 @@ const TranslationGraphPanel = ({
               fontWeight: "700",
               textAnchor: "middle",
               fontFamily: "system-ui, sans-serif",
-              transform: "rotate(" + angle + " " + midX + " " + midY + ")",
+              transform:
+                "rotate(" + angle + " " + midX + " " + midY + ")",
             },
             line.label,
           )
@@ -463,15 +456,9 @@ const TranslationGraphPanel = ({
     const vTravel = Math.max(0, traveled - Math.abs(dx));
 
     const start = toSvg(path.from.x, path.from.y);
-    const hEnd = toSvg(
-      path.from.x + (dx > 0 ? hTravel : -hTravel),
-      path.from.y,
-    );
+    const hEnd = toSvg(path.from.x + (dx > 0 ? hTravel : -hTravel), path.from.y);
     const corner = toSvg(path.from.x + dx, path.from.y);
-    const end = toSvg(
-      path.from.x + dx,
-      path.from.y + (dy > 0 ? vTravel : -vTravel),
-    );
+    const end = toSvg(path.from.x + dx, path.from.y + (dy > 0 ? vTravel : -vTravel));
     const color = path.color || APP_DATA.colors.transformation;
 
     const els = [];
@@ -722,21 +709,5 @@ const LINE_CLIP_BOUNDS = {
   yMax: TRANSLATION_GRAPH_CONFIG.yMax,
 };
 
-const OBJECT_LINE_CLIP = clipLineToGrid(
-  1,
-  1,
-  -2,
-  LINE_CLIP_BOUNDS.xMin,
-  LINE_CLIP_BOUNDS.xMax,
-  LINE_CLIP_BOUNDS.yMin,
-  LINE_CLIP_BOUNDS.yMax,
-);
-const IMAGE_LINE_CLIP = clipLineToGrid(
-  1,
-  1,
-  -5,
-  LINE_CLIP_BOUNDS.xMin,
-  LINE_CLIP_BOUNDS.xMax,
-  LINE_CLIP_BOUNDS.yMin,
-  LINE_CLIP_BOUNDS.yMax,
-);
+const OBJECT_LINE_CLIP = clipLineToGrid(1, 1, -2, LINE_CLIP_BOUNDS.xMin, LINE_CLIP_BOUNDS.xMax, LINE_CLIP_BOUNDS.yMin, LINE_CLIP_BOUNDS.yMax);
+const IMAGE_LINE_CLIP = clipLineToGrid(1, 1, -5, LINE_CLIP_BOUNDS.xMin, LINE_CLIP_BOUNDS.xMax, LINE_CLIP_BOUNDS.yMin, LINE_CLIP_BOUNDS.yMax);

@@ -116,42 +116,6 @@
   transform: translate(0, 0);
 }
 
-.main-canvas-left.is-transfer-hidden,
-.main-canvas-right.is-transfer-hidden {
-  opacity: 0 !important;
-  pointer-events: none;
-}
-
-.fly-clone-imperative {
-  position: fixed;
-  z-index: 10001;
-  pointer-events: none;
-  box-sizing: border-box;
-  will-change: left, top, width, height, font-size;
-}
-
-.fly-clone-text.is-element-clone {
-  position: fixed;
-  z-index: 10000;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  overflow: hidden;
-  transition:
-    transform 0.82s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.82s cubic-bezier(0.4, 0, 0.2, 1),
-    height 0.82s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translate(0, 0);
-}
-
-.fly-clone-text.is-element-clone.is-animating {
-  transform: translate(var(--fly-dx), var(--fly-dy));
-  width: var(--fly-target-w);
-  height: var(--fly-target-h);
-}
-
 .fly-clone-text.is-yellow {
   color: #ffb84c;
 }
@@ -161,8 +125,4 @@
   border-radius: 1vw;
   padding: 0 1vw;
   box-sizing: border-box;
-}
-
-.main-canvas-summary {
-  padding: 0;
 }

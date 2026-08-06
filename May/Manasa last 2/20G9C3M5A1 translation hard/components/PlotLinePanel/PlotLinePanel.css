@@ -1,0 +1,85 @@
+.plot-line-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5vw;
+  padding: 1.5vw 1.2vw;
+  box-sizing: border-box;
+}
+
+.plot-line-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vw;
+}
+
+.plot-line-title {
+  font-size: 2vw;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.plot-line-title.is-visible {
+  opacity: 1;
+}
+
+.plot-line-coords-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2vw;
+}
+
+.plot-line-coord-box {
+  min-width: 7vw;
+  padding: 0.7vw 1.2vw;
+  border-radius: 0.7vw;
+  font-size: 2.2vw;
+  font-weight: 600;
+  text-align: center;
+  box-sizing: border-box;
+  background: #804e38;
+  color: #ffffff;
+  opacity: 0;
+  cursor: default;
+  transition: opacity 0.35s ease;
+}
+
+.plot-line-coord-box.is-visible {
+  opacity: 1;
+}
+
+.plot-line-coord-box.is-clickable {
+  cursor: pointer;
+}
+
+.plot-line-formula-box {
+  width: 100%;
+  min-height: 10vw;
+  background: rgba(28, 72, 58, 0.92);
+  border: 0.18vw solid #ffe566;
+  border-radius: 1vw;
+  padding: 1.2vw 1.5vw;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.8vw;
+  font-weight: 700;
+  color: #ffe566;
+  font-family: "Times New Roman", Times, serif;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.plot-line-formula-box.is-visible {
+  opacity: 1;
+}

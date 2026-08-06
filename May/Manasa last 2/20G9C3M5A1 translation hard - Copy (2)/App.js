@@ -1,4 +1,4 @@
-const DEV_START_STEP = 11;
+const DEV_START_STEP = 0;
 
 const App = () => {
   const { useState, useMemo, useEffect, useCallback, useRef } = React;
@@ -16,12 +16,6 @@ const App = () => {
     nudgeId: null,
     nextEnabled: false,
   });
-  const [summaryNav, setSummaryNav] = useState({
-    text: "",
-    hidden: true,
-    nudgeId: null,
-  });
-  const [requestStep10, setRequestStep10] = useState(false);
 
   const resetStepStates = useCallback(() => {
     setStep1Phase("initial");
@@ -29,7 +23,6 @@ const App = () => {
     setStep6Phase("initial");
     setVisibleHighlights([]);
     setMathNav({ text: "", hidden: true, nudgeId: null, nextEnabled: false });
-    setSummaryNav({ text: "", hidden: true, nudgeId: null });
   }, []);
 
   const resetEverything = useCallback(() => {
@@ -64,14 +57,6 @@ const App = () => {
 
   const handleStepAdvance = useCallback((nextStep) => {
     setCurrentStep(nextStep);
-  }, []);
-
-  const handleSummaryNavChange = useCallback((nav) => {
-    setSummaryNav({
-      text: nav.text != null ? nav.text : "",
-      hidden: nav.hidden != null ? nav.hidden : true,
-      nudgeId: nav.nudgeId != null ? nav.nudgeId : null,
-    });
   }, []);
 
   const handleMathNavChange = useCallback((nav) => {
@@ -110,7 +95,7 @@ const App = () => {
   );
 
   const questionHtml = useMemo(() => {
-    if (currentStep < 1 || currentStep > 10) return "";
+    if (currentStep < 1) return "";
     return APP_DATA.question.text;
   }, [currentStep]);
 
@@ -127,22 +112,18 @@ const App = () => {
     if (currentStep === 6 && step6Phase === "done") {
       return APP_DATA.steps[6].navTextDone;
     }
-    if (currentStep >= 7 && currentStep <= 10) {
+    if (currentStep >= 7 && currentStep <= 9) {
       return mathNav.text;
     }
-    if (currentStep >= 11) {
-      return summaryNav.text;
-    }
     return "";
-  }, [currentStep, step1Phase, step2Phase, step6Phase, mathNav.text, summaryNav.text]);
+  }, [currentStep, step1Phase, step2Phase, step6Phase, mathNav.text]);
 
   const navTextHidden =
     (currentStep === 1 && step1Phase !== "done") ||
     (currentStep === 2 && step2Phase !== "done") ||
     (currentStep === 6 &&
       (step6Phase === "initial" || step6Phase === "animating")) ||
-    (currentStep >= 7 && currentStep <= 10 && mathNav.hidden) ||
-    (currentStep >= 11 && summaryNav.hidden);
+    (currentStep >= 7 && currentStep <= 9 && mathNav.hidden);
 
   const isAnimationRunning = navTextHidden;
 
@@ -151,9 +132,7 @@ const App = () => {
     (currentStep === 2 && step2Phase !== "done") ||
     (currentStep === 6 && step6Phase !== "done") ||
     (currentStep >= 7 && currentStep < 9) ||
-    (currentStep === 9 && !mathNav.nextEnabled) ||
-    (currentStep === 10 && !mathNav.nextEnabled) ||
-    currentStep >= 11;
+    (currentStep === 9 && !mathNav.nextEnabled);
 
   const isPrevDisabled = currentStep <= 1 || isAnimationRunning;
 
@@ -164,15 +143,6 @@ const App = () => {
 
     if (currentStep === 5) {
       setStep6Phase("initial");
-    }
-    if (currentStep === 9 && mathNav.nextEnabled) {
-      setRequestStep10(true);
-      return;
-    }
-    if (currentStep === 10 && mathNav.nextEnabled) {
-      setSummaryNav({ text: "", hidden: true, nudgeId: null });
-      setCurrentStep(11);
-      return;
     }
     if (currentStep < 7) {
       setCurrentStep(currentStep + 1);
@@ -199,10 +169,8 @@ const App = () => {
         addNudgeFor("start-button");
       } else if (currentStep === 6 && step6Phase === "done") {
         addNudgeFor("step-card-clickable");
-      } else if (currentStep >= 7 && currentStep <= 10 && mathNav.nudgeId) {
+      } else if (currentStep >= 7 && currentStep <= 9 && mathNav.nudgeId) {
         addNudgeFor(mathNav.nudgeId);
-      } else if (currentStep >= 11 && summaryNav.nudgeId) {
-        addNudgeFor(summaryNav.nudgeId);
       } else if (!isNextDisabled) {
         addNudgeFor("next-button");
       }
@@ -216,7 +184,7 @@ const App = () => {
       clearTimeout(timeoutId);
       window.removeEventListener("resize", updateNudges);
     };
-  }, [currentStep, isNextDisabled, step6Phase, mathNav.nudgeId, summaryNav.nudgeId]);
+  }, [currentStep, isNextDisabled, step6Phase, mathNav.nudgeId]);
 
   const renderNudges = () =>
     nudgePositions.map((position, index) =>
@@ -249,12 +217,10 @@ const App = () => {
   return React.createElement(
     "div",
     { className: "applet-container" },
-    currentStep <= 10
-      ? React.createElement(QuestionPanel, {
-          html: questionHtml,
-          visibleHighlights: visibleHighlights,
-        })
-      : null,
+    React.createElement(QuestionPanel, {
+      html: questionHtml,
+      visibleHighlights: visibleHighlights,
+    }),
     React.createElement(
       "div",
       { className: "app-main-content" },
@@ -270,9 +236,6 @@ const App = () => {
         onStep6PhaseChange: setStep6Phase,
         onStepAdvance: handleStepAdvance,
         onMathNavChange: handleMathNavChange,
-        onSummaryNavChange: handleSummaryNavChange,
-        requestStep10: requestStep10,
-        onRequestStep10Handled: () => setRequestStep10(false),
       }),
     ),
     React.createElement(

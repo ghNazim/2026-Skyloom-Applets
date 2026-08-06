@@ -9,7 +9,7 @@ const DATA = {
       start: {
         heading: "Translation of a Straight Line",
         text:
-          "A line <y><span class=\"math-var\">x</span> + <span class=\"math-var\">y</span> = 2</y> is translated 2 units to the right and 1 unit upward.<br>Let\u2019s see how to find the equation of the translated line.<br><br><br>Click START to begin!",
+          "A line <y>x + y = 2</y> is translated 2 units to the right and 1 unit upward.<br>Let\u2019s see how to find the equation of the translated line.<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       final: {
@@ -20,7 +20,7 @@ const DATA = {
       },
       question: {
         text:
-          'A line <span id="highlight-equation" class="orange-bg"><span class=\"math-var\">x</span> + <span class=\"math-var\">y</span> = 2</span> is <span id="highlight-translation" class="purple-bg">translated 2 units to the right and 1 unit upward</span>. <span id="highlight-find" class="purple-bg">What is the equation of the translated line?</span>',
+          'A line <span id="highlight-equation" class="orange-bg">x + y = 2</span> is <span id="highlight-translation" class="purple-bg">translated 2 units to the right and 1 unit upward</span>. <span id="highlight-find" class="purple-bg">What is the equation of the translated line?</span>',
         textPlain:
           "A line x + y = 2 is translated 2 units to the right and 1 unit upward. What is the equation of the translated line?",
       },
@@ -49,7 +49,6 @@ const DATA = {
         line3Prefix: "Translating by",
         line3Vector: "(+2, +1)",
         formulaTitle: "Equation of the line",
-        formulaTitleTranslated: "Equation of the translated line",
         objectCoord0: "(0, 2)",
         objectCoord1: "(2, 0)",
         imageCoord0: "(2, 3)",
@@ -79,22 +78,6 @@ const DATA = {
           navTapSimplify: "Tap the highlighted box to simplify",
           navTapNext: "Tap \u00bb to draw the line",
         },
-        10: {
-          navTapPoints: "Tap the points to plot the line",
-          navTapNext: "Tap \u00bb to see an alternate method",
-        },
-        11: {
-          navTapExplore: "Tap to explore",
-        },
-      },
-      summaryCanvas: {
-        originalLabel: "Original line",
-        translatedLabel: "Translated line",
-        originalEquation: "x + y = 2",
-        translatedEquation: "x + y = 5",
-        translatesLabel: "Translates",
-        bottomText:
-          'Do you know that the translated line equation carries translation (<span class="summary-coord-pink">+2</span>,<span class="summary-coord-orange">+1</span>) in it ?',
       },
       colors: {
         object: "#fb9b5b",
@@ -132,7 +115,7 @@ const DATA = {
       start: {
         heading: "Translasi Garis Lurus",
         text:
-          "Garis <y><span class=\"math-var\">x</span> + <span class=\"math-var\">y</span> = 2</y> ditranslasi 2 satuan ke kanan dan 1 satuan ke atas.<br>Mari kita lihat cara mencari persamaan garis hasil translasi.<br><br><br>Ketuk MULAI untuk memulai!",
+          "Garis <y>x + y = 2</y> ditranslasi 2 satuan ke kanan dan 1 satuan ke atas.<br>Mari kita lihat cara mencari persamaan garis hasil translasi.<br><br><br>Ketuk MULAI untuk memulai!",
         buttonText: "MULAI",
       },
       final: {
@@ -143,7 +126,7 @@ const DATA = {
       },
       question: {
         text:
-          'Garis <span id="highlight-equation" class="orange-bg"><span class=\"math-var\">x</span> + <span class=\"math-var\">y</span> = 2</span> <span id="highlight-translation" class="purple-bg">ditranslasi 2 satuan ke kanan dan 1 satuan ke atas</span>. <span id="highlight-find" class="purple-bg">Berapakah persamaan garis hasil translasi?</span>',
+          'Garis <span id="highlight-equation" class="orange-bg">x + y = 2</span> <span id="highlight-translation" class="purple-bg">ditranslasi 2 satuan ke kanan dan 1 satuan ke atas</span>. <span id="highlight-find" class="purple-bg">Berapakah persamaan garis hasil translasi?</span>',
         textPlain:
           "Garis x + y = 2 ditranslasi 2 satuan ke kanan dan 1 satuan ke atas. Berapakah persamaan garis hasil translasi?",
       },
@@ -172,7 +155,6 @@ const DATA = {
         line3Prefix: "Mentranslasi dengan",
         line3Vector: "(+2, +1)",
         formulaTitle: "Persamaan garis",
-        formulaTitleTranslated: "Persamaan garis hasil translasi",
         objectCoord0: "(0, 2)",
         objectCoord1: "(2, 0)",
         imageCoord0: "(2, 3)",
@@ -206,22 +188,6 @@ const DATA = {
           navTapSimplify: "Ketuk kotak yang disorot untuk menyederhanakan",
           navTapNext: "Ketuk \u00bb untuk menggambar garis",
         },
-        10: {
-          navTapPoints: "Ketuk titik untuk memplot garis",
-          navTapNext: "Ketuk \u00bb untuk melihat metode alternatif",
-        },
-        11: {
-          navTapExplore: "Ketuk untuk menjelajahi",
-        },
-      },
-      summaryCanvas: {
-        originalLabel: "Garis asli",
-        translatedLabel: "Garis hasil translasi",
-        originalEquation: "x + y = 2",
-        translatedEquation: "x + y = 5",
-        translatesLabel: "Mentranslasi",
-        bottomText:
-          'Tahukah kamu bahwa persamaan garis hasil translasi membawa translasi (<span class="summary-coord-pink">+2</span>,<span class="summary-coord-orange">+1</span>) di dalamnya ?',
       },
       colors: {
         object: "#fb9b5b",

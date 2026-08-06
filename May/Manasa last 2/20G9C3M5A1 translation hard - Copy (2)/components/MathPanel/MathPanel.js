@@ -64,8 +64,7 @@ const MathPanel = ({
     const renderVar = (varName, id) => {
       if (highlightVar === varName) {
         const handler = varName === "x" ? onXClick : onYClick;
-        const clickId =
-          varName === "x" ? "math-x-highlight" : "math-y-highlight";
+        const clickId = varName === "x" ? "math-x-highlight" : "math-y-highlight";
         return React.createElement(
           "span",
           {
@@ -94,7 +93,8 @@ const MathPanel = ({
             {
               key: "left",
               className:
-                "math-eq-part" + (equationParts.fadeLeft ? " is-faded" : ""),
+                "math-eq-part" +
+                (equationParts.fadeLeft ? " is-faded" : ""),
               id: "eq-part-left",
             },
             equationParts.left,
@@ -128,7 +128,8 @@ const MathPanel = ({
             {
               key: "middle",
               className:
-                "math-eq-part" + (equationParts.fadeMiddle ? " is-faded" : ""),
+                "math-eq-part" +
+                (equationParts.fadeMiddle ? " is-faded" : ""),
               id: "eq-part-middle",
             },
             equationParts.middle,
@@ -169,7 +170,8 @@ const MathPanel = ({
     React.createElement("span", { id: id, className: "math-formula-num" }, val);
 
   const renderSubstituteBox = (oldContent, newContent, phase) => {
-    const boxClass = "math-formula-highlight-box is-animating is-substituting";
+    const boxClass =
+      "math-formula-highlight-box is-animating is-substituting";
 
     if (phase === "fade-out") {
       return React.createElement(
@@ -548,17 +550,9 @@ const MathPanel = ({
           "math-coord-content" + (showContent ? "" : " is-placeholder"),
       },
       "(",
-      React.createElement(
-        "span",
-        { id: box.id + "-d0" },
-        parseCoordPair(box.text)[0],
-      ),
+      React.createElement("span", { id: box.id + "-d0" }, parseCoordPair(box.text)[0]),
       ", ",
-      React.createElement(
-        "span",
-        { id: box.id + "-d1" },
-        parseCoordPair(box.text)[1],
-      ),
+      React.createElement("span", { id: box.id + "-d1" }, parseCoordPair(box.text)[1]),
       ")",
     );
 
@@ -596,11 +590,7 @@ const MathPanel = ({
             "math-coord-content" + (box.contentFading ? " is-fading" : ""),
         },
         "(",
-        React.createElement(
-          "span",
-          { id: box.calcIds && box.calcIds[0] },
-          box.calcLeft,
-        ),
+        React.createElement("span", { id: box.calcIds && box.calcIds[0] }, box.calcLeft),
         React.createElement(
           "span",
           {
@@ -613,11 +603,7 @@ const MathPanel = ({
           "+2",
         ),
         ", ",
-        React.createElement(
-          "span",
-          { id: box.calcIds && box.calcIds[2] },
-          box.calcRight,
-        ),
+        React.createElement("span", { id: box.calcIds && box.calcIds[2] }, box.calcRight),
         React.createElement(
           "span",
           {
@@ -647,7 +633,10 @@ const MathPanel = ({
     }
     if (box.mode === "empty") {
       const placeholderText = box.text || "(0, 0)";
-      return renderCoordPair({ id: box.id, text: placeholderText }, false);
+      return renderCoordPair(
+        { id: box.id, text: placeholderText },
+        false,
+      );
     }
     return "";
   };
@@ -659,7 +648,8 @@ const MathPanel = ({
       "div",
       {
         className:
-          "math-equation-section" + (equationCollapsed ? " is-collapsed" : ""),
+          "math-equation-section" +
+          (equationCollapsed ? " is-collapsed" : ""),
       },
       React.createElement(
         "div",
@@ -695,7 +685,8 @@ const MathPanel = ({
     React.createElement(
       "div",
       {
-        className: "math-points-block" + (objectRowHidden ? " is-hidden" : ""),
+        className:
+          "math-points-block" + (objectRowHidden ? " is-hidden" : ""),
         id: "math-object-block",
       },
       React.createElement(
@@ -721,7 +712,9 @@ const MathPanel = ({
                 (box.visible ? " is-visible" : "") +
                 (box.clickable ? " is-clickable" : "") +
                 (box.instant ? " is-instant" : ""),
-              onClick: box.clickable ? () => onObjectPointClick(i) : undefined,
+              onClick: box.clickable
+                ? () => onObjectPointClick(i)
+                : undefined,
             },
             renderCoordContent(box),
           ),
@@ -788,7 +781,9 @@ const MathPanel = ({
                 (box.visible ? " is-visible" : "") +
                 (box.clickable ? " is-clickable" : "") +
                 (box.instant ? " is-instant" : ""),
-              onClick: box.clickable ? () => onImagePointClick(i) : undefined,
+              onClick: box.clickable
+                ? () => onImagePointClick(i)
+                : undefined,
             },
             renderCoordContent(box),
           ),
@@ -804,7 +799,7 @@ const MathPanel = ({
           },
           React.createElement(
             "div",
-            { className: "math-formula-title", id: "math-formula-title" },
+            { className: "math-formula-title" },
             texts.formulaTitle,
           ),
           React.createElement(

@@ -9,9 +9,6 @@ const MainCanvas = ({
   onStep6PhaseChange,
   onStepAdvance,
   onMathNavChange,
-  onSummaryNavChange,
-  requestStep10,
-  onRequestStep10Handled,
 }) => {
   const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
@@ -44,26 +41,6 @@ const MainCanvas = ({
   const mp = APP_DATA.mathPanel;
   const [math, setMath] = useState(() => createInitialMathState(mp));
   const [flyClones, setFlyClones] = useState([]);
-  const [step10, setStep10StateRaw] = useState({
-    transferring: false,
-    panelsHidden: false,
-    plotPanelMounted: false,
-    panelContentVisible: false,
-    phase: "initial",
-    plottedIndices: [],
-    plottedGraphPoints: [],
-    showImageLine: false,
-    imageLineGrow: 0,
-    coordClickable: null,
-  });
-
-  const setStep10State = useCallback((update) => {
-    if (typeof update === "function") {
-      setStep10StateRaw((prev) => ({ ...prev, ...update(prev) }));
-    } else {
-      setStep10StateRaw((prev) => ({ ...prev, ...update }));
-    }
-  }, []);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const isCancelled = () => cancelledRef.current;
@@ -181,20 +158,6 @@ const MainCanvas = ({
       requestAnimationFrame(tick);
     });
   }, []);
-
-  const animateImageLineGrow = useCallback(async (duration) => {
-    return new Promise((resolve) => {
-      const startTime = performance.now();
-      const tick = (now) => {
-        const t = Math.min(1, (now - startTime) / duration);
-        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        setStep10State({ imageLineGrow: eased });
-        if (t < 1) requestAnimationFrame(tick);
-        else resolve();
-      };
-      requestAnimationFrame(tick);
-    });
-  }, [setStep10State]);
 
   const runStep1Animation = useCallback(async () => {
     setLeftVisible(true);
@@ -476,25 +439,8 @@ const MainCanvas = ({
     if (step >= 2) {
       setLeftVisible(true);
       setRightVisible(true);
-      if (step !== 10) {
-        setShowObjectLine(true);
-        setObjectLineGrow(1);
-      }
-    }
-
-    if (step === 10) {
-      setLeftVisible(true);
-      setRightVisible(true);
-      setShowObjectLine(false);
-      setShowImageLine(false);
-      setWhitePoints([]);
-      setTranslationPaths([]);
-      setTranslationOverlay(null);
-      setImagePinkPoints([]);
-      setObjectPinkPoints([]);
-      setPairTranslationPaths([]);
-      setImageLineBlink(false);
-      return;
+      setShowObjectLine(true);
+      setObjectLineGrow(1);
     }
 
     if (step >= 3) {
@@ -683,13 +629,8 @@ const MainCanvas = ({
       MathStepHelpers,
       setCards,
       addHighlight,
-      setStep10State,
-      onStepAdvance,
-      colors,
-      imagePoints: APP_DATA.imagePoints,
-      animateImageLineGrow,
     }),
-    [onMathNavChange, onStepAdvance, addHighlight, setStep10State, animateImageLineGrow],
+    [onMathNavChange, addHighlight],
   );
 
   const handleMathXClick = useCallback(() => {
@@ -752,31 +693,6 @@ const MainCanvas = ({
     mathCtx,
   ]);
 
-  const handleStep10CoordClick = useCallback(
-    (index) => {
-      if (step !== 10) return;
-      if (step10.phase === "tapCoord0" && index === 0) {
-        runStep10PointClick(mathCtx, 0);
-      } else if (step10.phase === "tapCoord1" && index === 1) {
-        runStep10PointClick(mathCtx, 1);
-      }
-    },
-    [step, step10.phase, mathCtx],
-  );
-
-  const step10TransferRef = useRef(false);
-
-  useEffect(() => {
-    if (!requestStep10 || step !== 9 || step10TransferRef.current) return;
-    step10TransferRef.current = true;
-    if (typeof onRequestStep10Handled === "function") onRequestStep10Handled();
-    runStep9To10Transfer(mathCtx);
-  }, [requestStep10, step, mathCtx, onRequestStep10Handled]);
-
-  useEffect(() => {
-    if (step !== 9) step10TransferRef.current = false;
-  }, [step]);
-
   useEffect(() => {
     if (step !== 7) {
       animStartedRef.current.step7Intro = false;
@@ -814,10 +730,7 @@ const MainCanvas = ({
 
   const infiniteLines = useMemo(() => {
     const lines = [];
-    const showObject = step === 10 ? true : showObjectLine;
-    const objectGrow = step === 10 ? 1 : objectLineGrow;
-
-    if (showObject && OBJECT_LINE_CLIP) {
+    if (showObjectLine && OBJECT_LINE_CLIP) {
       lines.push({
         from: OBJECT_LINE_CLIP.from,
         to: OBJECT_LINE_CLIP.to,
@@ -825,21 +738,10 @@ const MainCanvas = ({
         label: APP_DATA.graph.objectLineLabel,
         labelT: 0.82,
         labelAngleOffset: 180,
-        growProgress: objectGrow,
+        growProgress: objectLineGrow,
       });
     }
-
-    if (step === 10 && step10.showImageLine && IMAGE_LINE_CLIP) {
-      lines.push({
-        from: IMAGE_LINE_CLIP.from,
-        to: IMAGE_LINE_CLIP.to,
-        color: colors.image,
-        label: "x+y=5",
-        labelT: 0.55,
-        labelAngleOffset: 180,
-        growProgress: step10.imageLineGrow,
-      });
-    } else if (showImageLine && IMAGE_LINE_CLIP) {
+    if (showImageLine && IMAGE_LINE_CLIP) {
       lines.push({
         from: IMAGE_LINE_CLIP.from,
         to: IMAGE_LINE_CLIP.to,
@@ -849,29 +751,11 @@ const MainCanvas = ({
       });
     }
     return lines;
-  }, [
-    step,
-    showObjectLine,
-    showImageLine,
-    imageLineBlink,
-    colors,
-    objectLineGrow,
-    step10.showImageLine,
-    step10.imageLineGrow,
-  ]);
+  }, [showObjectLine, showImageLine, imageLineBlink, colors, objectLineGrow]);
 
   const graphPoints = useMemo(() => {
-    if (step === 10) {
-      return step10.plottedGraphPoints || [];
-    }
     return whitePoints.concat(imagePinkPoints).concat(objectPinkPoints);
-  }, [
-    step,
-    whitePoints,
-    imagePinkPoints,
-    objectPinkPoints,
-    step10.plottedGraphPoints,
-  ]);
+  }, [whitePoints, imagePinkPoints, objectPinkPoints]);
 
   const allTranslationPaths = useMemo(() => {
     if (step >= 5 && pairTranslationPaths.length > 0) {
@@ -880,61 +764,11 @@ const MainCanvas = ({
     return translationPaths;
   }, [step, translationPaths, pairTranslationPaths]);
 
-  const showStepCards = step >= 3 && step <= 9 && !step10.transferring;
-  const showMathPanel = step >= 7 && step < 10;
-  const showPlotLinePanel =
-    step10.plotPanelMounted || step === 10 || step10.transferring;
-  const showStep10Graph = step === 10;
-  const panelTransferHidden = step10.panelsHidden;
+  const showStepCards = step >= 3 && step <= 9;
+  const showMathPanel = step >= 7;
 
-  const step10CoordBoxes = useMemo(
-    () => [
-      {
-        id: "step10-coord-0",
-        text: mp.imageCoord0,
-        clickable: step === 10 && step10.coordClickable === 0,
-      },
-      {
-        id: "step10-coord-1",
-        text: mp.imageCoord1,
-        clickable: step === 10 && step10.coordClickable === 1,
-      },
-    ],
-    [mp.imageCoord0, mp.imageCoord1, step, step10.coordClickable],
-  );
-
-  const flyCloneEls = flyClones.map((clone) => {
-    if (clone.mode === "element") {
-      return React.createElement(
-        "div",
-        {
-          key: clone.id,
-          className:
-            "fly-clone-text is-element-clone" +
-            (clone.animating ? " is-animating" : ""),
-          style: {
-            left: clone.startX + "px",
-            top: clone.startY + "px",
-            width: clone.width + "px",
-            height: clone.height + "px",
-            backgroundColor: clone.backgroundColor,
-            border: clone.border,
-            borderRadius: clone.borderRadius,
-            color: clone.color,
-            fontSize: clone.fontSize,
-            fontWeight: clone.fontWeight,
-            textAlign: clone.textAlign,
-            "--fly-dx": clone.dx + "px",
-            "--fly-dy": clone.dy + "px",
-            "--fly-target-w": clone.targetWidth + "px",
-            "--fly-target-h": clone.targetHeight + "px",
-          },
-        },
-        clone.text,
-      );
-    }
-
-    return React.createElement(
+  const flyCloneEls = flyClones.map((clone) =>
+    React.createElement(
       "div",
       {
         key: clone.id,
@@ -952,23 +786,8 @@ const MainCanvas = ({
         },
       },
       clone.text,
-    );
-  });
-
-  if (step >= 11) {
-    return React.createElement(
-      "div",
-      { className: "main-canvas-container main-canvas-summary" },
-      React.createElement(SummaryCanvas, {
-        step: step,
-        texts: APP_DATA.summaryCanvas,
-        translation: APP_DATA.translation,
-        onNavChange: onSummaryNavChange,
-        onStepAdvance: onStepAdvance,
-      }),
-      flyCloneEls,
-    );
-  }
+    ),
+  );
 
   return React.createElement(
     "div",
@@ -976,20 +795,10 @@ const MainCanvas = ({
     React.createElement(
       "div",
       {
-        className:
-          "main-canvas-left" +
-          (leftVisible ? " is-visible" : "") +
-          (panelTransferHidden ? " is-transfer-hidden" : ""),
+        className: "main-canvas-left" + (leftVisible ? " is-visible" : ""),
       },
-      showStep10Graph
-        ? React.createElement(TranslationGraphPanel, {
-            points: graphPoints,
-            infiniteLines: infiniteLines,
-            translationPaths: [],
-            translationOverlay: null,
-          })
-        : showMathPanel
-          ? React.createElement(MathPanel, {
+      showMathPanel
+        ? React.createElement(MathPanel, {
             texts: mp,
             equationVisible: math.equationVisible,
             equationCollapsed: math.equationCollapsed,
@@ -1037,19 +846,10 @@ const MainCanvas = ({
       "div",
       {
         className:
-          "main-canvas-right" +
-          (rightVisible ? " is-visible" : " is-visible") +
-          (panelTransferHidden ? " is-transfer-hidden" : ""),
+          "main-canvas-right" + (rightVisible ? " is-visible" : " is-visible"),
       },
-      showPlotLinePanel
-        ? React.createElement(PlotLinePanel, {
-            texts: mp,
-            contentVisible: step10.panelContentVisible,
-            coordBoxes: step10CoordBoxes,
-            onCoordClick: handleStep10CoordClick,
-          })
-        : showStepCards
-          ? React.createElement(StepCardsPanel, {
+      showStepCards
+        ? React.createElement(StepCardsPanel, {
             cards: cards,
             showConnectors: showConnectors,
             titlePhase: titlePhase,
@@ -1059,7 +859,7 @@ const MainCanvas = ({
             exploredCardIds: math.exploredCardIds,
             contentHighlightId: math.contentHighlightId,
           })
-          : null,
+        : null,
     ),
     flyCloneEls,
   );

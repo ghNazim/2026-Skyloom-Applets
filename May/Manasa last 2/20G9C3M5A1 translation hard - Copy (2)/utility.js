@@ -12,15 +12,7 @@ function normalizeRadicalAnswer(s) {
 }
 
 const audioCache = {};
-const sounds = [
-  "correct",
-  "wrong",
-  "click",
-  "congrats",
-  "tick",
-  "swoosh",
-  "swish",
-];
+const sounds = ["correct", "wrong", "click", "congrats", "tick", "swoosh", "swish"];
 sounds.forEach((name) => {
   const audio = new Audio(`sound/${name}.mp3`);
   audio.load(); // Preloads the audio
@@ -107,18 +99,16 @@ function handleComma(sentence) {
 }
 
 function renderMathVars(text) {
-  return String(text)
-    .split(/([xy])/g)
-    .map((part, index) => {
-      if (part === "x" || part === "y") {
-        return React.createElement(
-          "span",
-          { key: index, className: "math-var" },
-          part,
-        );
-      }
-      return part;
-    });
+  return String(text).split(/([xy])/g).map((part, index) => {
+    if (part === "x" || part === "y") {
+      return React.createElement(
+        "span",
+        { key: index, className: "math-var" },
+        part,
+      );
+    }
+    return part;
+  });
 }
 
 function confettiBurst() {

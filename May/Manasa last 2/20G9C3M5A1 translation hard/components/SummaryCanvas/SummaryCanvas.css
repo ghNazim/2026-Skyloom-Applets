@@ -1,0 +1,225 @@
+.summary-canvas {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.8vw;
+  padding: 1.2vw 3vw 1.5vw;
+  box-sizing: border-box;
+  background-color: #0b1d26;
+  border-radius: 1vw;
+}
+
+.summary-flow {
+  display: grid;
+  grid-template-columns: 17vw 44vw;
+  column-gap: 2vw;
+  row-gap: 0;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.summary-cell-label-top {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.summary-cell-box-top {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.summary-cell-arrow {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+.summary-cell-label-bottom {
+  grid-row: 3;
+  grid-column: 1;
+}
+
+.summary-cell-box-bottom {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+.summary-label,
+.summary-eq-box,
+.summary-arrow-block {
+  opacity: 0;
+  transform: translateY(0.6vw);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease;
+}
+
+.summary-label.is-visible,
+.summary-eq-box.is-visible,
+.summary-arrow-block.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.summary-label {
+  font-size: 3vw;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: right;
+  justify-self: end;
+  align-self: center;
+}
+
+.summary-label.is-yellow {
+  color: #ffd34d;
+}
+
+.summary-label.is-green {
+  color: #5ddf8a;
+}
+
+.summary-eq-box {
+  border: 0.16vw dashed rgba(255, 255, 255, 0.85);
+  border-radius: 0.65vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3vw;
+  font-weight: 600;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  padding: 1.4vw 2.2vw;
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.summary-eq-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65vw;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.summary-eq-token {
+  display: inline-flex;
+  align-items: center;
+  font-family: inherit;
+}
+
+.summary-eq-box.is-yellow {
+  color: #ffd34d;
+  width: 100%;
+  min-height: 6.5vw;
+  justify-self: center;
+}
+
+.summary-eq-box.is-green {
+  color: #5ddf8a;
+  width: 100%;
+  min-height: 7.5vw;
+}
+
+.summary-eq-box.is-green.is-clickable {
+  cursor: pointer;
+}
+
+.summary-eq-box.is-green.is-clickable:hover {
+  border-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0.8vw rgba(93, 223, 138, 0.35);
+}
+
+.summary-math-var {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  display: inline-flex;
+  align-items: center;
+}
+
+.summary-arrow-block {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6vw;
+  margin: 1.8vw 0;
+  justify-self: center;
+  width: 100%;
+  position: relative;
+  left: 16%;
+  transform: translateX(-50%);
+}
+
+.summary-arrow-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 10vw;
+}
+
+.summary-arrow-line {
+  width: 0.18vw;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.summary-arrow-head {
+  width: 0;
+  height: 0;
+  border-left: 0.55vw solid transparent;
+  border-right: 0.55vw solid transparent;
+  border-top: 0.8vw solid rgba(255, 255, 255, 0.9);
+}
+
+.summary-arrow-labels {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3vw;
+  font-size: 3vw;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.25;
+}
+
+.summary-arrow-coords {
+  font-size: 3vw;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.summary-coord-pink {
+  color: #e85d8a;
+}
+
+.summary-coord-orange {
+  color: #fb9b5b;
+}
+
+.summary-bottom-text {
+  width: 88%;
+  max-width: 88%;
+  background: rgba(15, 73, 103, 0.75);
+  border-radius: 1vw;
+  padding: 1.6vw 2.2vw;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 3vw;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(0.6vw);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease;
+}
+
+.summary-bottom-text.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
