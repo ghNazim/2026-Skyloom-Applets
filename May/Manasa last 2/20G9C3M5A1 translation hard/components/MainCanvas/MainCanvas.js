@@ -835,7 +835,7 @@ const MainCanvas = ({
         to: IMAGE_LINE_CLIP.to,
         color: colors.image,
         label: "x+y=5",
-        labelT: 0.55,
+        labelT: 0.82,
         labelAngleOffset: 180,
         growProgress: step10.imageLineGrow,
       });
@@ -955,7 +955,7 @@ const MainCanvas = ({
     );
   });
 
-  if (step >= 11) {
+  if (step >= 11 && step < 12) {
     return React.createElement(
       "div",
       { className: "main-canvas-container main-canvas-summary" },
@@ -963,8 +963,12 @@ const MainCanvas = ({
         step: step,
         texts: APP_DATA.summaryCanvas,
         translation: APP_DATA.translation,
+        colors: {
+          yellow: "#ffd34d",
+          pink: APP_DATA.colors.pointPink,
+          orange: APP_DATA.colors.object,
+        },
         onNavChange: onSummaryNavChange,
-        onStepAdvance: onStepAdvance,
       }),
       flyCloneEls,
     );

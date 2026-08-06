@@ -1,4 +1,4 @@
-const DEV_START_STEP = 11;
+const DEV_START_STEP = 0;
 
 const App = () => {
   const { useState, useMemo, useEffect, useCallback, useRef } = React;
@@ -20,6 +20,7 @@ const App = () => {
     text: "",
     hidden: true,
     nudgeId: null,
+    nextEnabled: false,
   });
   const [requestStep10, setRequestStep10] = useState(false);
 
@@ -29,7 +30,7 @@ const App = () => {
     setStep6Phase("initial");
     setVisibleHighlights([]);
     setMathNav({ text: "", hidden: true, nudgeId: null, nextEnabled: false });
-    setSummaryNav({ text: "", hidden: true, nudgeId: null });
+    setSummaryNav({ text: "", hidden: true, nudgeId: null, nextEnabled: false });
   }, []);
 
   const resetEverything = useCallback(() => {
@@ -71,6 +72,7 @@ const App = () => {
       text: nav.text != null ? nav.text : "",
       hidden: nav.hidden != null ? nav.hidden : true,
       nudgeId: nav.nudgeId != null ? nav.nudgeId : null,
+      nextEnabled: nav.nextEnabled === true,
     });
   }, []);
 
@@ -130,7 +132,7 @@ const App = () => {
     if (currentStep >= 7 && currentStep <= 10) {
       return mathNav.text;
     }
-    if (currentStep >= 11) {
+    if (currentStep >= 11 && currentStep < 12) {
       return summaryNav.text;
     }
     return "";
@@ -142,7 +144,8 @@ const App = () => {
     (currentStep === 6 &&
       (step6Phase === "initial" || step6Phase === "animating")) ||
     (currentStep >= 7 && currentStep <= 10 && mathNav.hidden) ||
-    (currentStep >= 11 && summaryNav.hidden);
+    (currentStep >= 11 && currentStep < 12 && summaryNav.hidden) ||
+    currentStep >= 12;
 
   const isAnimationRunning = navTextHidden;
 
@@ -153,7 +156,8 @@ const App = () => {
     (currentStep >= 7 && currentStep < 9) ||
     (currentStep === 9 && !mathNav.nextEnabled) ||
     (currentStep === 10 && !mathNav.nextEnabled) ||
-    currentStep >= 11;
+    (currentStep === 11 && !summaryNav.nextEnabled) ||
+    currentStep >= 12;
 
   const isPrevDisabled = currentStep <= 1 || isAnimationRunning;
 
@@ -170,8 +174,13 @@ const App = () => {
       return;
     }
     if (currentStep === 10 && mathNav.nextEnabled) {
-      setSummaryNav({ text: "", hidden: true, nudgeId: null });
+      setSummaryNav({ text: "", hidden: true, nudgeId: null, nextEnabled: false });
       setCurrentStep(11);
+      return;
+    }
+    if (currentStep === 11 && summaryNav.nextEnabled) {
+      setSummaryNav({ text: "", hidden: true, nudgeId: null, nextEnabled: false });
+      setCurrentStep(12);
       return;
     }
     if (currentStep < 7) {
@@ -201,8 +210,10 @@ const App = () => {
         addNudgeFor("step-card-clickable");
       } else if (currentStep >= 7 && currentStep <= 10 && mathNav.nudgeId) {
         addNudgeFor(mathNav.nudgeId);
-      } else if (currentStep >= 11 && summaryNav.nudgeId) {
+      } else if (currentStep >= 11 && currentStep < 12 && summaryNav.nudgeId) {
         addNudgeFor(summaryNav.nudgeId);
+      } else if (currentStep === 12) {
+        addNudgeFor("start-over-button");
       } else if (!isNextDisabled) {
         addNudgeFor("next-button");
       }
@@ -240,6 +251,22 @@ const App = () => {
           buttonText: APP_DATA.start.buttonText,
           onButtonClick: handleStart,
           buttonId: "start-button",
+        }),
+      ),
+      renderNudges(),
+    );
+  }
+
+  if (currentStep === 12) {
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(SummaryFinalScreen, {
+          texts: APP_DATA.final,
+          onStartOver: resetEverything,
         }),
       ),
       renderNudges(),

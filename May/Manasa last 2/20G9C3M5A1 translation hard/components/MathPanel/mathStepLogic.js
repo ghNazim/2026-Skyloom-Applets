@@ -943,7 +943,7 @@ const runStep10PointClick = async (ctx, pointIndex) => {
     onMathNavChange,
     setStep10State,
     colors,
-    imagePoints,
+    mp,
   } = ctx;
 
   if (typeof playSound === "function") playSound("click");
@@ -954,9 +954,13 @@ const runStep10PointClick = async (ctx, pointIndex) => {
     nextEnabled: false,
   });
 
-  const pt = imagePoints[pointIndex];
-  const label = "(" + pt.x + ", " + pt.y + ")";
-  const labelPlacement = pointIndex === 0 ? "right" : "below";
+  const coordText = pointIndex === 0 ? mp.imageCoord0 : mp.imageCoord1;
+  const match = String(coordText).match(/\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/);
+  if (!match) return;
+
+  const pt = { x: Number(match[1]), y: Number(match[2]) };
+  const label = coordText;
+  const labelPlacement = "right";
 
   setStep10State((prev) => ({
     ...prev,

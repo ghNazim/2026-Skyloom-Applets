@@ -13,10 +13,11 @@ const DATA = {
         buttonText: "START",
       },
       final: {
-        heading: "",
-        text:
-          "You have learned how to find the equation of a translated line.",
+        heading: "Activity Completed!",
         buttonText: "START OVER",
+        translatesLabel: "Translates",
+        ruleText:
+          'When a line translates by (<span class="summary-coord-pink">a</span>, <span class="summary-coord-orange">b</span>), just replace<br><span class="summary-final-replacements"><span class="summary-math-var">x</span> \u2192 (<span class="summary-math-var">x</span> <span class="summary-coord-pink">\u2212 a</span>)<br><span class="summary-math-var">y</span> \u2192 (<span class="summary-math-var">y</span> <span class="summary-coord-orange">\u2212 b</span>)</span><br>in the original equation.',
       },
       question: {
         text:
@@ -85,6 +86,10 @@ const DATA = {
         },
         11: {
           navTapExplore: "Tap to explore",
+          navTapRewrite: "Tap to rewrite equation",
+          navTapCompare: "Tap to compare both equations",
+          navTapGeneralize: "Tap to generalize",
+          navTapSummarize: "Tap \u00bb to summarize",
         },
       },
       summaryCanvas: {
@@ -95,6 +100,9 @@ const DATA = {
         translatesLabel: "Translates",
         bottomText:
           'Do you know that the translated line equation carries translation (<span class="summary-coord-pink">+2</span>,<span class="summary-coord-orange">+1</span>) in it ?',
+        bottomTextPattern: "Did you notice the pattern?",
+        bottomTextGeneralForm:
+          "General form of equation of a translated line",
       },
       colors: {
         object: "#fb9b5b",
@@ -136,10 +144,11 @@ const DATA = {
         buttonText: "MULAI",
       },
       final: {
-        heading: "",
-        text:
-          "Kamu telah belajar cara mencari persamaan garis hasil translasi.",
+        heading: "Aktivitas Selesai!",
         buttonText: "MULAI LAGI",
+        translatesLabel: "Mentranslasi",
+        ruleText:
+          'Ketika garis ditranslasi oleh (<span class="summary-coord-pink">a</span>, <span class="summary-coord-orange">b</span>), cukup ganti<br><span class="summary-final-replacements"><span class="summary-math-var">x</span> \u2192 (<span class="summary-math-var">x</span> <span class="summary-coord-pink">\u2212 a</span>)<br><span class="summary-math-var">y</span> \u2192 (<span class="summary-math-var">y</span> <span class="summary-coord-orange">\u2212 b</span>)</span><br>pada persamaan asli.',
       },
       question: {
         text:
@@ -212,6 +221,10 @@ const DATA = {
         },
         11: {
           navTapExplore: "Ketuk untuk menjelajahi",
+          navTapRewrite: "Ketuk untuk menulis ulang persamaan",
+          navTapCompare: "Ketuk untuk membandingkan kedua persamaan",
+          navTapGeneralize: "Ketuk untuk menggeneralisasi",
+          navTapSummarize: "Ketuk \u00bb untuk merangkum",
         },
       },
       summaryCanvas: {
@@ -222,6 +235,9 @@ const DATA = {
         translatesLabel: "Mentranslasi",
         bottomText:
           'Tahukah kamu bahwa persamaan garis hasil translasi membawa translasi (<span class="summary-coord-pink">+2</span>,<span class="summary-coord-orange">+1</span>) di dalamnya ?',
+        bottomTextPattern: "Apakah kamu melihat polanya?",
+        bottomTextGeneralForm:
+          "Bentuk umum persamaan garis hasil translasi",
       },
       colors: {
         object: "#fb9b5b",
