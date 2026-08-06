@@ -134,6 +134,7 @@ const RightPanel = ({
   revealHeading,
   mcqChoice,
   mcqCollapsed,
+  mcqMode,
   completedPaths,
   keptLabel,
   footerText,
@@ -144,14 +145,96 @@ const RightPanel = ({
   onNext,
 }) => {
   const labels = APP_DATA.labels;
+  const isPhase2Mcq = mcqMode === "phase2";
+  const mcqStage = isPhase2Mcq ? "step4" : "step2";
+  const mcqTitle = isPhase2Mcq
+    ? APP_DATA.panels.step4.title
+    : APP_DATA.panels.step2.title;
 
   const renderMcq = function () {
-    const onStep2 = stage === "step2";
-    const inActiveFlow = mcqChoice && mcqCollapsed && onStep2 === false;
+    const onMcqStep = stage === mcqStage;
+    const inActiveFlow = mcqChoice && mcqCollapsed && onMcqStep === false;
 
-    if (!onStep2 && !inActiveFlow) return null;
+    if (!onMcqStep && !inActiveFlow) return null;
 
-    const showBothOptions = onStep2 && !mcqCollapsed;
+    const showBothOptions = onMcqStep && !mcqCollapsed;
+
+    if (isPhase2Mcq) {
+      const showKeptDilateRotate =
+        showBothOptions ||
+        (mcqCollapsed && mcqChoice === "dilateFirstRotate");
+      const showKeptRotateDilate =
+        showBothOptions ||
+        (mcqCollapsed && mcqChoice === "rotateFirstDilate");
+
+      return React.createElement(
+        "div",
+        { className: "mcq-container" + (mcqCollapsed ? " is-collapsed" : "") },
+        React.createElement(
+          "div",
+          {
+            className: "mcq-title-wrap" + (mcqCollapsed ? " is-hidden" : ""),
+            onTransitionEnd: onMcqTransitionEnd,
+          },
+          React.createElement("h2", { className: "mcq-title" }, mcqTitle),
+        ),
+        React.createElement(
+          "div",
+          { className: "mcq-options" },
+          showKeptDilateRotate
+            ? React.createElement(
+                "button",
+                {
+                  id: "mcq-dilate-first-rotate",
+                  className:
+                    "mcq-option" +
+                    (mcqCollapsed && mcqChoice === "dilateFirstRotate"
+                      ? " kept"
+                      : "") +
+                    (completedPaths.dilateFirstRotate ? " is-completed" : "") +
+                    (mcqCollapsed && mcqChoice !== "dilateFirstRotate"
+                      ? " is-hidden"
+                      : ""),
+                  disabled:
+                    completedPaths.dilateFirstRotate ||
+                    mcqCollapsed ||
+                    mcqChoice === "dilateFirstRotate",
+                  onClick: function () {
+                    onMcqSelect("dilateFirstRotate");
+                  },
+                },
+                labels.dilateFirstThenRotate,
+              )
+            : null,
+          showKeptRotateDilate
+            ? React.createElement(
+                "button",
+                {
+                  id: "mcq-rotate-first-dilate",
+                  className:
+                    "mcq-option" +
+                    (mcqCollapsed && mcqChoice === "rotateFirstDilate"
+                      ? " kept"
+                      : "") +
+                    (completedPaths.rotateFirstDilate ? " is-completed" : "") +
+                    (mcqCollapsed && mcqChoice !== "rotateFirstDilate"
+                      ? " is-hidden"
+                      : ""),
+                  disabled:
+                    completedPaths.rotateFirstDilate ||
+                    mcqCollapsed ||
+                    mcqChoice === "rotateFirstDilate",
+                  onClick: function () {
+                    onMcqSelect("rotateFirstDilate");
+                  },
+                },
+                labels.rotateFirstThenDilate,
+              )
+            : null,
+        ),
+      );
+    }
+
     const showKeptDilate =
       showBothOptions || (mcqCollapsed && mcqChoice === "dilateFirst");
     const showKeptTranslate =
@@ -166,11 +249,7 @@ const RightPanel = ({
           className: "mcq-title-wrap" + (mcqCollapsed ? " is-hidden" : ""),
           onTransitionEnd: onMcqTransitionEnd,
         },
-        React.createElement(
-          "h2",
-          { className: "mcq-title" },
-          APP_DATA.panels.step2.title,
-        ),
+        React.createElement("h2", { className: "mcq-title" }, mcqTitle),
       ),
       React.createElement(
         "div",
@@ -228,7 +307,7 @@ const RightPanel = ({
   };
 
   const renderContent = function () {
-    if (stage === "revealPanel") {
+    if (stage === "revealPanel" || stage === "reveal2Panel") {
       return React.createElement(
         "div",
         { className: "reveal-content" },
@@ -249,7 +328,12 @@ const RightPanel = ({
       );
     }
 
-    if (stage === "translateSuccess" || stage === "translateSuccessB") {
+    if (
+      stage === "translateSuccess" ||
+      stage === "translateSuccessB" ||
+      stage === "p2SuccessA" ||
+      stage === "p2SuccessB"
+    ) {
       return React.createElement(
         React.Fragment,
         null,
@@ -268,7 +352,7 @@ const RightPanel = ({
       );
     }
 
-    if (stage === "step2") {
+    if (stage === "step2" || stage === "step4") {
       return null;
     }
 
@@ -334,7 +418,7 @@ const RightPanel = ({
     React.createElement(
       "div",
       { className: "right-main-row" },
-      mcqChoice || stage === "step2"
+      mcqChoice || stage === "step2" || stage === "step4"
         ? renderMcq()
         : null,
       showHistoryBox
@@ -346,7 +430,7 @@ const RightPanel = ({
           className:
             "right-text-panel" +
             (showHistoryBox ? " has-history" : "") +
-            (mcqChoice || stage === "step2" ? " has-mcq" : ""),
+            (mcqChoice || stage === "step2" || stage === "step4" ? " has-mcq" : ""),
         },
         renderContent(),
       ),

@@ -28,7 +28,7 @@
 
 .right-footer-text {
   margin: 0;
-  font-size: 2vw;
+  font-size: 2.5vw;
   line-height: 1.25;
   color: rgba(255, 231, 88, 1);
 }
@@ -94,8 +94,8 @@
   padding: 0.65vw 1.2vw;
   border: 0;
   border-radius: 0.75vw;
-  background: var(--button-bg);
-  color: var(--text-strong);
+  background: var(--action-btn-bg);
+  color: var(--action-btn-text);
   font-size: 2vw;
   font-weight: 500;
   line-height: 1.2;

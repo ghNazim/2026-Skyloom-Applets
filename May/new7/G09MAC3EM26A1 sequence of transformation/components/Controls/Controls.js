@@ -14,12 +14,14 @@ const DilateControls = ({
   scaleFactor,
   sliderPulse,
   disabled,
+  dilateMax,
   onSliderChange,
   onSliderDragStart,
   onSliderCommit,
 }) => {
   const labels = APP_DATA.labels;
-  const thumbPct = (scaleFactor / 3) * 100;
+  const max = dilateMax == null ? 3 : dilateMax;
+  const thumbPct = (scaleFactor / max) * 100;
   return React.createElement(
     "div",
     { className: "dilate-controls" },
@@ -62,7 +64,7 @@ const DilateControls = ({
           className: "degree-slider",
           type: "range",
           min: 0,
-          max: 3,
+          max: max,
           step: 0.01,
           value: scaleFactor,
           disabled: disabled,
@@ -168,6 +170,7 @@ const RotateControls = ({
             })
           : null,
         React.createElement("input", {
+          id: "rotate-slider",
           className: "degree-slider",
           type: "range",
           min: 0,
@@ -307,6 +310,8 @@ const Controls = ({
   reflectionAxis,
   enabledDirection,
   enabledReflectAxis,
+  dilateMax,
+  rotationLocked,
   toolsHidden,
   mainControlsHidden,
   showStartButton,
@@ -331,12 +336,23 @@ const Controls = ({
       activeTool === "dilate" &&
       (stage === "dilateSlider" ||
         stage === "dilateBSlider" ||
-        stage === "dilateSuccess")
+        stage === "dilateSuccess" ||
+        stage === "translateSuccessB" ||
+        stage === "p2DilateSlider" ||
+        stage === "p2DilateBSlider" ||
+        stage === "p2DilateSuccess" ||
+        stage === "p2SuccessB")
     ) {
+      const dilateLocked =
+        stage === "dilateSuccess" ||
+        stage === "p2DilateSuccess" ||
+        stage === "p2SuccessB" ||
+        stage === "translateSuccessB";
       return React.createElement(DilateControls, {
         scaleFactor: scaleFactor,
-        sliderPulse: sliderPulse,
-        disabled: stage === "dilateSuccess",
+        sliderPulse: sliderPulse && !dilateLocked,
+        disabled: dilateLocked,
+        dilateMax: dilateMax,
         onSliderChange: onScaleChange,
         onSliderDragStart: onScaleDragStart,
         onSliderCommit: onScaleCommit,
@@ -347,9 +363,9 @@ const Controls = ({
       return React.createElement(RotateControls, {
         direction: rotationDirection,
         sliderValue: rotationDegrees,
-        sliderDisabled: !rotationDirection,
-        controlsDisabled: false,
-        showSliderPulse: sliderPulse,
+        sliderDisabled: !rotationDirection || rotationLocked,
+        controlsDisabled: rotationLocked,
+        showSliderPulse: sliderPulse && !rotationLocked,
         enabledDirection: enabledDirection,
         onDirection: onDirection,
         onSliderChange: onSliderChange,

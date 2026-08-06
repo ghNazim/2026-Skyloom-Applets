@@ -32,6 +32,18 @@
   overflow: hidden;
 }
 
+.transformation-applet.fullscreen-stage {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  /* background: var(--surface-dark); */
+}
+
+.transformation-applet.fullscreen-stage .fullscreen-panel {
+  width: 100%;
+  height: 100%;
+}
+
 .transformation-canvas {
   width: 100%;
   height: 100%;

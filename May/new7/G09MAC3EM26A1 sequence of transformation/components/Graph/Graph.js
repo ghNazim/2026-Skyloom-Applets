@@ -52,14 +52,16 @@ const Graph = ({
   clone2Vertices,
   cloneIsCorrect,
   clone2IsCorrect,
+  cloneIsWrong,
   imageIsCorrect,
+  graphConfig,
   dilationAnchor,
   dilationLines,
   vertexPickers,
   onVertexPick,
 }) => {
   const labels = APP_DATA.labels;
-  const config = APP_DATA.graph;
+  const config = graphConfig || APP_DATA.graph;
   const xMin = config.xMin;
   const xMax = config.xMax;
   const yMin = config.yMin;
@@ -213,7 +215,7 @@ const Graph = ({
         className: "series-graph-svg",
         viewBox: "0 0 " + svgWidth + " " + svgHeight,
         role: "img",
-        "aria-label": "Coordinate graph with object and image triangles",
+        "aria-label": "Coordinate graph with object and image figures",
       },
       React.createElement(
         "defs",
@@ -317,7 +319,9 @@ const Graph = ({
         "clone2",
       ),
       renderPolygon(
-        "clone-triangle" + (cloneIsCorrect ? " is-correct" : ""),
+        "clone-triangle" +
+          (cloneIsCorrect ? " is-correct" : "") +
+          (cloneIsWrong ? " is-wrong" : ""),
         cloneVertices,
         "clone",
       ),
