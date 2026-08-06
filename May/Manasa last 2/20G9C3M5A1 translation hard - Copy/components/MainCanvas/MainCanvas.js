@@ -664,35 +664,6 @@ const MainCanvas = ({
     [step, math.step8Phase, mathCtx],
   );
 
-  const handleImagePointClick = useCallback(
-    (index) => {
-      if (step !== 9) return;
-      if (math.step9Phase === "tapCoord0" && index === 0) {
-        runStep9CoordClick(mathCtx, 0);
-      } else if (math.step9Phase === "tapCoord1" && index === 1) {
-        runStep9CoordClick(mathCtx, 1);
-      }
-    },
-    [step, math.step9Phase, mathCtx],
-  );
-
-  const handleFormulaClick = useCallback(() => {
-    if (step !== 9 || math.step9Phase !== "tapFormula") return;
-    runStep9Substitute(mathCtx);
-  }, [step, math.step9Phase, mathCtx]);
-
-  const handleFormulaSimplifyClick = useCallback(() => {
-    if (step !== 9 || math.step9Phase.indexOf("simplify-") !== 0) return;
-    if (math.simplifyAnimPhase !== "idle") return;
-    runStep9Simplify(mathCtx, math.simplifyStep);
-  }, [
-    step,
-    math.step9Phase,
-    math.simplifyStep,
-    math.simplifyAnimPhase,
-    mathCtx,
-  ]);
-
   useEffect(() => {
     if (step !== 7) {
       animStartedRef.current.step7Intro = false;
@@ -822,16 +793,7 @@ const MainCanvas = ({
             line3VectorInstant: math.line3VectorInstant,
             imageTitleVisible: math.imageTitleVisible,
             imagePoints: math.imagePoints,
-            onImagePointClick: handleImagePointClick,
             formulaVisible: math.formulaVisible,
-            formulaVarsYellow: math.formulaVarsYellow,
-            formulaClickable: math.formulaClickable,
-            formulaGlow: math.formulaGlow,
-            formulaComplete: math.formulaComplete,
-            simplifyStep: math.simplifyStep,
-            simplifyAnimPhase: math.simplifyAnimPhase,
-            onFormulaClick: handleFormulaClick,
-            onFormulaSimplifyClick: handleFormulaSimplifyClick,
           })
         : step >= 1
           ? React.createElement(TranslationGraphPanel, {

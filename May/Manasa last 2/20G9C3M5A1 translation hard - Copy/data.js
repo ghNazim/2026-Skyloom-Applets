@@ -74,9 +74,6 @@ const DATA = {
         },
         9: {
           navTapPoints: "Tap the points to name it",
-          navTapSubstitute: "Tap the equation to substitute the values",
-          navTapSimplify: "Tap the highlighted box to simplify",
-          navTapNext: "Tap \u00bb to draw the line",
         },
       },
       colors: {
@@ -184,9 +181,6 @@ const DATA = {
         },
         9: {
           navTapPoints: "Ketuk titik untuk menamai",
-          navTapSubstitute: "Ketuk persamaan untuk mensubstitusi nilai",
-          navTapSimplify: "Ketuk kotak yang disorot untuk menyederhanakan",
-          navTapNext: "Ketuk \u00bb untuk menggambar garis",
         },
       },
       colors: {

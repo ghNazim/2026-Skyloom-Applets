@@ -14,7 +14,6 @@ const App = () => {
     text: "",
     hidden: true,
     nudgeId: null,
-    nextEnabled: false,
   });
 
   const resetStepStates = useCallback(() => {
@@ -22,7 +21,7 @@ const App = () => {
     setStep2Phase("initial");
     setStep6Phase("initial");
     setVisibleHighlights([]);
-    setMathNav({ text: "", hidden: true, nudgeId: null, nextEnabled: false });
+    setMathNav({ text: "", hidden: true, nudgeId: null });
   }, []);
 
   const resetEverything = useCallback(() => {
@@ -60,12 +59,7 @@ const App = () => {
   }, []);
 
   const handleMathNavChange = useCallback((nav) => {
-    setMathNav({
-      text: nav.text != null ? nav.text : "",
-      hidden: nav.hidden != null ? nav.hidden : true,
-      nudgeId: nav.nudgeId != null ? nav.nudgeId : null,
-      nextEnabled: nav.nextEnabled === true,
-    });
+    setMathNav(nav);
   }, []);
 
   const restoreFreshStep = useCallback(
@@ -131,8 +125,7 @@ const App = () => {
     (currentStep === 1 && step1Phase !== "done") ||
     (currentStep === 2 && step2Phase !== "done") ||
     (currentStep === 6 && step6Phase !== "done") ||
-    (currentStep >= 7 && currentStep < 9) ||
-    (currentStep === 9 && !mathNav.nextEnabled);
+    currentStep >= 7;
 
   const isPrevDisabled = currentStep <= 1 || isAnimationRunning;
 

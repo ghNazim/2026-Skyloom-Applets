@@ -1,0 +1,572 @@
+const runStep7Intro = async (ctx) => {
+  const { delay, isCancelled, setMath, onMathNavChange } = ctx;
+
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  setMath((m) => ({ ...m, equationVisible: true }));
+  await delay(500);
+  if (isCancelled()) return;
+
+  setMath((m) => ({ ...m, line1Visible: true }));
+  await delay(450);
+  if (isCancelled()) return;
+
+  setMath((m) => ({ ...m, line2Visible: true }));
+  await delay(450);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    highlightVar: "x",
+    step7Phase: "tapX",
+  }));
+  onMathNavChange({
+    text: APP_DATA.steps[7].navTapX,
+    hidden: false,
+    nudgeId: "math-x-highlight",
+  });
+};
+
+const runStep7AfterXClick = async (ctx) => {
+  const { delay, isCancelled, setMath, onMathNavChange } = ctx;
+
+  if (typeof playSound === "function") playSound("click");
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  setMath((m) => ({
+    ...m,
+    highlightVar: null,
+    equationParts: {
+      left: "0",
+      showPlus: true,
+      middle: "y",
+      right: "2",
+    },
+    equationClickable: true,
+    step7Phase: "tapEquationX",
+  }));
+
+  await delay(200);
+  if (isCancelled()) return;
+
+  onMathNavChange({
+    text: APP_DATA.steps[7].navTapEquation,
+    hidden: false,
+    nudgeId: "math-equation-box",
+  });
+};
+
+const runStep7AfterEquationX = async (ctx) => {
+  const { delay, isCancelled, setMath, onMathNavChange, mp } = ctx;
+
+  if (typeof playSound === "function") playSound("click");
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  setMath((m) => ({
+    ...m,
+    equationClickable: false,
+    equationParts: {
+      left: "0",
+      showPlus: true,
+      middle: "y",
+      right: "2",
+      fadeLeft: true,
+      fadePlus: true,
+    },
+  }));
+
+  await delay(600);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    equationParts: { mode: "simplified", left: "y", right: "2" },
+    step7Phase: "flyPoint0",
+  }));
+
+  await delay(1000);
+  if (isCancelled()) return;
+
+  await runStep7FlyPoint(ctx, 0, "2", "0");
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    line2Text: mp.line2Y,
+    equationParts: {
+      left: "x",
+      showPlus: true,
+      middle: "y",
+      right: "2",
+    },
+    highlightVar: "y",
+    equationClickable: false,
+    step7Phase: "tapY",
+  }));
+
+  await delay(200);
+  if (isCancelled()) return;
+
+  onMathNavChange({
+    text: APP_DATA.steps[7].navTapY,
+    hidden: false,
+    nudgeId: "math-y-highlight",
+  });
+};
+
+const runStep7AfterYClick = async (ctx) => {
+  const { delay, isCancelled, setMath, onMathNavChange } = ctx;
+
+  if (typeof playSound === "function") playSound("click");
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  setMath((m) => ({
+    ...m,
+    highlightVar: null,
+    equationParts: {
+      left: "x",
+      showPlus: true,
+      middle: "0",
+      right: "2",
+    },
+    equationClickable: true,
+    step7Phase: "tapEquationY",
+  }));
+
+  await delay(200);
+  if (isCancelled()) return;
+
+  onMathNavChange({
+    text: APP_DATA.steps[7].navTapEquation,
+    hidden: false,
+    nudgeId: "math-equation-box",
+  });
+};
+
+const runStep7AfterEquationY = async (ctx) => {
+  const { delay, isCancelled, setMath, onMathNavChange } = ctx;
+
+  if (typeof playSound === "function") playSound("click");
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  setMath((m) => ({
+    ...m,
+    equationClickable: false,
+    equationParts: {
+      left: "x",
+      showPlus: true,
+      middle: "0",
+      right: "2",
+      fadeMiddle: true,
+      fadePlus: true,
+    },
+  }));
+
+  await delay(600);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    equationParts: { mode: "simplified", left: "x", right: "2" },
+    step7Phase: "flyPoint1",
+  }));
+
+  await delay(1000);
+  if (isCancelled()) return;
+
+  await runStep7FlyPoint(ctx, 1, "2", "0");
+  if (isCancelled()) return;
+
+  await delay(1000);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    equationCollapsed: true,
+    step7Phase: "showTitle",
+  }));
+
+  await delay(650);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    objectTitleVisible: true,
+    exploredCardIds: ["card-step1"],
+    activeCardId: "card-step2",
+    contentHighlightId: "card-step2",
+    step7Phase: "done",
+  }));
+
+  setCardsClickable(ctx, "card-step2");
+
+  onMathNavChange({
+    text: APP_DATA.steps[7].navTapStep2,
+    hidden: false,
+    nudgeId: "step-card-clickable",
+  });
+};
+
+const runStep7FlyPoint = async (ctx, pointIndex, digitFromEq, digitFromLine) => {
+  const { isCancelled, setMath, setFlyClones, MathStepHelpers, mp } = ctx;
+
+  const objectId = "math-object-" + pointIndex;
+  const objectText =
+    pointIndex === 0 ? mp.objectCoord0 : mp.objectCoord1;
+  const coordMatch = String(objectText).match(/\(\s*(\d+)\s*,\s*(\d+)\s*\)/);
+  const c0 = coordMatch ? coordMatch[1] : "0";
+  const c1 = coordMatch ? coordMatch[2] : "0";
+
+  const eqEl = document.getElementById("eq-part-two");
+  const lineEl = document.getElementById("math-line2-val");
+  const eqTargetEl = document.getElementById(
+    objectId + (digitFromEq === c0 ? "-d0" : "-d1"),
+  );
+  const lineTargetEl = document.getElementById(
+    objectId + (digitFromLine === c0 ? "-d0" : "-d1"),
+  );
+
+  await MathStepHelpers.createFlyClonesParallel(
+    [
+      {
+        sourceEl: eqEl,
+        targetEl: eqTargetEl,
+        options: { text: digitFromEq },
+      },
+      {
+        sourceEl: lineEl,
+        targetEl: lineTargetEl,
+        options: { text: digitFromLine },
+      },
+    ],
+    setFlyClones,
+  );
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    objectPoints: m.objectPoints.map((p, i) =>
+      i === pointIndex
+        ? { ...p, visible: true, instant: true, contentVisible: true }
+        : p,
+    ),
+  }));
+};
+
+const setCardsClickable = (ctx, cardId) => {
+  if (typeof ctx.setCards === "function") {
+    ctx.setCards((prev) =>
+      prev.map((c) => ({
+        ...c,
+        clickable: c.id === cardId,
+      })),
+    );
+  }
+};
+
+const runStep8Intro = async (ctx) => {
+  const {
+    delay,
+    isCancelled,
+    setMath,
+    onMathNavChange,
+    setFlyClones,
+    MathStepHelpers,
+    addHighlight,
+    mp,
+  } = ctx;
+
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  setMath((m) => ({
+    ...m,
+    activeCardId: "card-step2",
+    contentHighlightId: "card-step2",
+    exploredCardIds: ["card-step1"],
+    line3Visible: true,
+    line3PrefixVisible: true,
+    step8Phase: "line3Anim",
+  }));
+
+  await delay(500);
+  if (isCancelled()) return;
+
+  addHighlight("highlight-translation");
+
+  const questionEl = document.getElementById("highlight-translation");
+  const vectorEl = document.getElementById("math-line3-vector");
+
+  await MathStepHelpers.flyFromCenter(
+    mp.line3Vector,
+    vectorEl,
+    { colorClass: "is-purple" },
+    setFlyClones,
+  );
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    line3VectorVisible: true,
+    line3VectorInstant: true,
+    step8Phase: "tapPoints",
+  }));
+
+  await delay(300);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    objectPoints: m.objectPoints.map((p, i) =>
+      i === 0 ? { ...p, clickable: true } : p,
+    ),
+  }));
+
+  onMathNavChange({
+    text: APP_DATA.steps[8].navTapPoints,
+    hidden: false,
+    nudgeId: "math-object-0",
+  });
+};
+
+const runStep8TranslatePoint = async (ctx, pointIndex) => {
+  const {
+    delay,
+    isCancelled,
+    setMath,
+    onMathNavChange,
+    setFlyClones,
+    MathStepHelpers,
+    mp,
+  } = ctx;
+
+  if (typeof playSound === "function") playSound("click");
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  const imageId = "math-image-" + pointIndex;
+  const objectId = "math-object-" + pointIndex;
+  const objectText =
+    pointIndex === 0 ? mp.objectCoord0 : mp.objectCoord1;
+  const resultText =
+    pointIndex === 0 ? mp.imageCoord0 : mp.imageCoord1;
+
+  setMath((m) => ({
+    ...m,
+    objectPoints: m.objectPoints.map((p, i) => ({
+      ...p,
+      clickable: false,
+    })),
+    imagePoints: m.imagePoints.map((p, i) =>
+      i === pointIndex
+        ? {
+            ...p,
+            visible: true,
+            mode: "coords",
+            text: objectText,
+            contentVisible: false,
+          }
+        : p,
+    ),
+    step8Phase: "animating-" + pointIndex,
+  }));
+
+  await delay(100);
+  if (isCancelled()) return;
+
+  const sourceEl = document.getElementById(objectId);
+  const targetEl = document.getElementById(imageId);
+
+  await MathStepHelpers.createFlyClone(
+    sourceEl,
+    targetEl,
+    { text: objectText },
+    setFlyClones,
+  );
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    imagePoints: m.imagePoints.map((p, i) =>
+      i === pointIndex
+        ? {
+            ...p,
+            mode: "coords",
+            text: objectText,
+            instant: true,
+            contentVisible: true,
+          }
+        : p,
+    ),
+  }));
+
+  await delay(500);
+  if (isCancelled()) return;
+
+  const calcLeft = pointIndex === 0 ? "0" : "2";
+  const calcRight = pointIndex === 0 ? "2" : "0";
+
+  setMath((m) => ({
+    ...m,
+    imagePoints: m.imagePoints.map((p, i) =>
+      i === pointIndex
+        ? {
+            ...p,
+            mode: "calc",
+            calcLeft: calcLeft,
+            calcRight: calcRight,
+            calcIds: [
+              "calc-left-" + pointIndex,
+              "calc-plus2-" + pointIndex,
+              "calc-right-" + pointIndex,
+              "calc-plus1-" + pointIndex,
+            ],
+            plus2Visible: false,
+            plus1Visible: false,
+          }
+        : p,
+    ),
+  }));
+
+  await delay(100);
+  if (isCancelled()) return;
+
+  const plus2Source = document.getElementById("math-fly-plus2");
+  const plus1Source = document.getElementById("math-fly-plus1");
+  const plus2Target = document.getElementById("calc-plus2-" + pointIndex);
+  const plus1Target = document.getElementById("calc-plus1-" + pointIndex);
+
+  if (plus2Source && plus2Target && plus1Source && plus1Target) {
+    await MathStepHelpers.createFlyClonesParallel(
+      [
+        {
+          sourceEl: plus2Source,
+          targetEl: plus2Target,
+          options: { text: "+2", colorClass: "is-purple" },
+        },
+        {
+          sourceEl: plus1Source,
+          targetEl: plus1Target,
+          options: { text: "+1", colorClass: "is-purple" },
+        },
+      ],
+      setFlyClones,
+    );
+    if (isCancelled()) return;
+  }
+
+  setMath((m) => ({
+    ...m,
+    imagePoints: m.imagePoints.map((p, i) =>
+      i === pointIndex
+        ? { ...p, plus2Visible: true, plus1Visible: true, plus2Instant: true, plus1Instant: true }
+        : p,
+    ),
+  }));
+
+  await delay(400);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    imagePoints: m.imagePoints.map((p, i) =>
+      i === pointIndex ? { ...p, contentFading: true } : p,
+    ),
+  }));
+
+  await delay(600);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    imagePoints: m.imagePoints.map((p, i) =>
+      i === pointIndex
+        ? {
+            ...p,
+            mode: "result",
+            text: resultText,
+            contentFading: false,
+            resultVisible: true,
+            instant: true,
+          }
+        : p,
+    ),
+  }));
+
+  if (pointIndex === 0) {
+    setMath((m) => ({
+      ...m,
+      objectPoints: m.objectPoints.map((p, i) =>
+        i === 1 ? { ...p, clickable: true } : p,
+      ),
+      step8Phase: "tapPoint1",
+    }));
+    onMathNavChange({
+      text: APP_DATA.steps[8].navTapPoints,
+      hidden: false,
+      nudgeId: "math-object-1",
+    });
+    return;
+  }
+
+  await runStep8Finish(ctx);
+};
+
+const runStep8Finish = async (ctx) => {
+  const { delay, isCancelled, setMath, onMathNavChange } = ctx;
+
+  setMath((m) => ({
+    ...m,
+    objectRowHidden: true,
+    line3Hidden: true,
+    step8Phase: "finishing",
+  }));
+
+  await delay(650);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    imageTitleVisible: true,
+    exploredCardIds: ["card-step1", "card-step2"],
+    activeCardId: "card-step3",
+    contentHighlightId: "card-step3",
+    step8Phase: "done",
+  }));
+
+  setCardsClickable(ctx, "card-step3");
+
+  onMathNavChange({
+    text: APP_DATA.steps[8].navTapStep3,
+    hidden: false,
+    nudgeId: "step-card-clickable",
+  });
+};
+
+const runStep9Intro = async (ctx) => {
+  const { delay, isCancelled, setMath, onMathNavChange } = ctx;
+
+  onMathNavChange({ text: "", hidden: true, nudgeId: null });
+
+  setMath((m) => ({
+    ...m,
+    activeCardId: "card-step3",
+    contentHighlightId: "card-step3",
+    exploredCardIds: ["card-step1", "card-step2"],
+    formulaVisible: false,
+    step9Phase: "intro",
+  }));
+
+  await delay(300);
+  if (isCancelled()) return;
+
+  setMath((m) => ({
+    ...m,
+    formulaVisible: true,
+    step9Phase: "done",
+  }));
+
+  onMathNavChange({
+    text: APP_DATA.steps[9].navTapPoints,
+    hidden: false,
+    nudgeId: null,
+  });
+};
