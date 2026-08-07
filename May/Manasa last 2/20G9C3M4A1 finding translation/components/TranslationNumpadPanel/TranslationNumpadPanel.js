@@ -60,32 +60,32 @@ const TranslationNumpadPanel = ({ onComplete }) => {
     }, 500);
   };
 
-  const validate = () => {
-    const nextStatus = { ...status };
-    ["x", "y"].forEach((key) => {
-      if (status[key] === "correct") return;
-      nextStatus[key] = normalize(values[key]) === correct[key] ? "correct" : "wrong";
-    });
-    setStatus(nextStatus);
-
-    const allCorrect = nextStatus.x === "correct" && nextStatus.y === "correct";
-    if (allCorrect) {
-      if (typeof playSound === "function") playSound("congrats");
-      if (typeof onComplete === "function") onComplete();
-      return;
-    }
-
-    if (typeof playSound === "function") playSound("wrong");
-    shakeAndClearWrong(nextStatus);
-  };
-
   const handleSubmit = () => {
     if (clearingWrong) return;
-    if (active === "x" && status.y !== "correct" && values.y === "") {
-      setActive("y");
+    const key = active;
+    if (status[key] === "correct") {
+      if (key === "x" && status.y !== "correct") setActive("y");
       return;
     }
-    validate();
+    if (!normalize(values[key])) return;
+
+    if (normalize(values[key]) === correct[key]) {
+      const nextStatus = { ...status, [key]: "correct" };
+      setStatus(nextStatus);
+      if (key === "x") {
+        if (typeof playSound === "function") playSound("correct");
+        setActive("y");
+      } else if (nextStatus.x === "correct" && nextStatus.y === "correct") {
+        if (typeof playSound === "function") playSound("congrats");
+        if (typeof onComplete === "function") onComplete();
+      }
+      return;
+    }
+
+    const nextStatus = { ...status, [key]: "wrong" };
+    setStatus(nextStatus);
+    if (typeof playSound === "function") playSound("wrong");
+    shakeAndClearWrong(nextStatus);
   };
 
   const renderBox = (key) => {

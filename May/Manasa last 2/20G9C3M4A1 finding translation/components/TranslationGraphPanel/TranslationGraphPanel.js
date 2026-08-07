@@ -183,7 +183,9 @@ const TranslationGraphPanel = ({ phase, onAnimationComplete }) => {
   const positiveCount = Math.min(5, Math.floor(horizontalUnits + 0.04));
   const negativeCount = Math.min(2, Math.floor(verticalUnits + 0.04));
   const showPath = progress > 0;
-  const showImagePoint = phase === "done";
+  const atEnd = phase === "done" || progress >= 1;
+  const showLivePoint = showPath && !atEnd;
+  const showImagePoint = atEnd;
 
   return React.createElement(
     "div",
@@ -325,7 +327,7 @@ const TranslationGraphPanel = ({ phase, onAnimationComplete }) => {
           label,
         );
       }),
-      showPath && !showImagePoint
+      showLivePoint
         ? React.createElement("circle", {
             cx: liveSvg.x,
             cy: liveSvg.y,
@@ -338,12 +340,12 @@ const TranslationGraphPanel = ({ phase, onAnimationComplete }) => {
       showImagePoint
         ? React.createElement(
             "g",
-            { className: "translation-image-point" },
+            null,
             React.createElement(
               "text",
               {
                 x: endSvg.x + 6,
-                y: endSvg.y + 26,
+                y: endSvg.y + 29,
                 fill: colors.image,
                 fontSize: 22,
                 fontWeight: "700",

@@ -17,7 +17,7 @@ const DATA = {
       },
       start: {
         heading: "Finding Translation",
-        text: "Given the pre-image coordinates and the image coordinates,<br>find the translation (units of movement).<br><br>Click START to begin!",
+        text: "Given the pre-image coordinates and the image coordinates,<br>find the translation (units of movement).<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       question: {
@@ -230,7 +230,7 @@ const DATA = {
       },
       start: {
         heading: "Menemukan Translasi",
-        text: "Diberikan koordinat pra-bayangan dan koordinat bayangan,<br>temukan translasi (satuan perpindahan).<br><br>Klik MULAI untuk memulai!",
+        text: "Diberikan koordinat pra-bayangan dan koordinat bayangan,<br>temukan translasi (satuan perpindahan).<br><br><br>Klik MULAI untuk memulai!",
         buttonText: "MULAI",
       },
       question: {
