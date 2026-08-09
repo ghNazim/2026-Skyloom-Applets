@@ -1,0 +1,138 @@
+:root {
+  --dice-size: 12vw;
+  --dice-half: 6vw;
+}
+
+.dice-container {
+  display: flex;
+  gap: 1.5vw;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  perspective: 73vw;
+  perspective-origin: center center;
+}
+
+.dice {
+  width: var(--dice-size);
+  height: var(--dice-size);
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+  margin: 1.5vh 0;
+}
+
+.dice-clickable {
+  cursor: pointer;
+}
+
+.dice-clickable:hover .dice-cube {
+  transform: scale(1.05);
+}
+
+.dice-clickable:active .dice-cube {
+  transform: scale(0.95);
+}
+
+.dice-idle .dice-cube {
+  animation: diceShake 0.5s ease-in-out infinite;
+}
+
+@keyframes diceShake {
+  0%, 100% { transform: translateX(0) rotateX(0deg) rotateY(0deg); }
+  25% { transform: translateX(-0.35vw) rotateX(-2deg) rotateY(-2deg); }
+  75% { transform: translateX(0.35vw) rotateX(2deg) rotateY(2deg); }
+}
+
+@keyframes diceRoll3D {
+  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  50% { transform: rotateX(180deg) rotateY(180deg) rotateZ(45deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(90deg); }
+}
+
+.dice-rolling .dice-cube {
+  animation: diceRoll3D 1.5s ease-in-out infinite;
+}
+
+.dice-rolling--fast {
+  transition: none !important;
+}
+
+.dice-rolling--fast .dice-cube {
+  animation: diceRoll3DFast 0.12s linear infinite;
+}
+
+@keyframes diceRoll3DFast {
+  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(90deg); }
+}
+
+.dice-cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.dice-face {
+  position: absolute;
+  width: var(--dice-size);
+  height: var(--dice-size);
+  background: linear-gradient(145deg, #ffffff 0%, #f8f8f8 50%, #f0f0f0 100%);
+  border: 0.15vw solid #2a2a2a;
+  border-radius: 1.2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 0 0.8vw rgba(0, 0, 0, 0.08),
+    inset 0 0.2vw 0.4vw rgba(255, 255, 255, 0.5),
+    0 0.3vw 0.5vw rgba(0, 0, 0, 0.25);
+  backface-visibility: visible;
+  overflow: hidden;
+}
+
+.dice-face-front  { transform: rotateY(0deg) translateZ(var(--dice-half)); }
+.dice-face-back   { transform: rotateY(180deg) translateZ(var(--dice-half)); }
+.dice-face-right  { transform: rotateY(90deg) translateZ(var(--dice-half)); }
+.dice-face-left   { transform: rotateY(-90deg) translateZ(var(--dice-half)); }
+.dice-face-top    { transform: rotateX(90deg) translateZ(var(--dice-half)); }
+.dice-face-bottom { transform: rotateX(-90deg) translateZ(var(--dice-half)); }
+
+.dice-pips {
+  display: grid;
+  padding: 1.6vw;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-areas:
+    "a . c"
+    "e g f"
+    "d . b";
+  gap: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.dice-pip {
+  width: 1.6vw;
+  height: 1.6vw;
+  background: radial-gradient(circle at 30% 30%, #2a2a2a, #000000);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 -0.2vw 0.3vw rgba(0, 0, 0, 0.5),
+    inset 0 0.1vw 0.15vw rgba(255, 255, 255, 0.1),
+    0 0.15vw 0.2vw rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 11;
+}
+
+.dice-pip--pos-1 { grid-area: a; align-self: start; justify-self: start; }
+.dice-pip--pos-2 { grid-area: b; align-self: end; justify-self: end; }
+.dice-pip--pos-3 { grid-area: c; align-self: start; justify-self: end; }
+.dice-pip--pos-4 { grid-area: d; align-self: end; justify-self: start; }
+.dice-pip--pos-5 { grid-area: e; align-self: center; justify-self: start; }
+.dice-pip--pos-6 { grid-area: f; align-self: center; justify-self: end; }
+.dice-pip--pos-7 { grid-area: g; align-self: center; justify-self: center; }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Relative Frequency on Bar Diagram</title>
+
+    <script src="./react/react.development.js"></script>
+    <script src="./react/react-dom.development.js"></script>
+
+    <script>
+        window.APP_LANGUAGE = 'en';
+    </script>
+    <script src="data.js"></script>
+
+    <link rel="stylesheet" href="./styles/index.css">
+    <link rel="stylesheet" href="./styles/Applet.css">
+    <link rel="stylesheet" href="./components/WelcomeScreen/WelcomeScreen.css">
+    <link rel="stylesheet" href="./components/LowerPanel/LowerPanel.css">
+    <link rel="stylesheet" href="./components/Navigation/Navigation.css">
+    <link rel="stylesheet" href="./components/HandFtue/HandFtue.css">
+    <link rel="stylesheet" href="./components/AnimationSystem/AnimationSystem.css">
+    <link rel="stylesheet" href="./components/BarDiagram/BarDiagram.css">
+    <link rel="stylesheet" href="./components/NumPad/NumPad.css">
+    <link rel="stylesheet" href="./components/LessonScreen/LessonScreen.css">
+    <link rel="stylesheet" href="./css/dice.css">
+</head>
+<body>
+    <div id="hand-ftue">
+        <img src="assets/fingerTap.gif" alt="Hand Cursor" />
+    </div>
+    <div id="root"></div>
+
+    <script src="./components/WelcomeScreen/WelcomeScreen.js"></script>
+    <script src="./components/LowerPanel/LowerPanel.js"></script>
+    <script src="./components/Navigation/Navigation.js"></script>
+    <script src="./components/AnimationSystem/AnimationSystem.js"></script>
+    <script src="./components/Dice/Dice.js"></script>
+    <script src="./components/BarDiagram/BarDiagram.js"></script>
+    <script src="./components/NumPad/NumPad.js"></script>
+    <script src="./components/LessonScreen/LessonScreen.js"></script>
+    <script src="App.js"></script>
+
+    <script>
+        document.title = T.html_title;
+        ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+</body>
+</html>

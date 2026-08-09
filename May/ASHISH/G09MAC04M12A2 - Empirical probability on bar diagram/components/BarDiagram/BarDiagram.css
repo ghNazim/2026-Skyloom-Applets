@@ -1,0 +1,159 @@
+.bar-diagram-wrap {
+  width: 100%;
+  flex: 1;
+  min-height: 38vh;
+}
+
+.bar-diagram-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.grid-line {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 0.35;
+}
+
+.grid-line--vertical {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+.axis-line {
+  stroke: #ffffff;
+  stroke-width: 0.55;
+}
+
+.bar-diagram-svg .axis-text {
+  fill: #ffffff;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.bar-diagram-svg .y-text {
+  text-anchor: end;
+  dominant-baseline: central;
+}
+
+.bar-diagram-svg .axis-title {
+  fill: #c7ac88;
+  font-weight: 700;
+  font-style: italic;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.bar-rect {
+  fill: #24c9ff;
+  transition: height 0.45s ease, y 0.45s ease, opacity 0.25s ease, filter 0.25s ease;
+  animation: barGrow 0.45s ease both;
+  animation-delay: var(--bar-delay, 0ms);
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); transform-box: fill-box; transform-origin: bottom; }
+  to { transform: scaleY(1); transform-box: fill-box; transform-origin: bottom; }
+}
+
+.bar-rect--glow {
+  filter: drop-shadow(0 0 0.6vw #79f7ff);
+  stroke: #ffffff;
+  stroke-width: 0.35;
+}
+
+.bar-rect--dim {
+  opacity: 0.28;
+  filter: saturate(0.4);
+}
+
+.bar-rect--grow {
+  animation: barGrow 0.45s ease both;
+  animation-delay: 0ms;
+}
+
+.bar-diagram-wrap--fast .bar-rect {
+  transition: height 0.12s ease, y 0.12s ease;
+  animation: none;
+}
+
+.bar-rect--pending {
+  filter: drop-shadow(0 0 0.5vw #79f7ff);
+}
+
+.bar-rect--preview-overlay {
+  fill: #24c9ff;
+  opacity: 0.5;
+  pointer-events: none;
+  animation: none;
+}
+
+.bar-rect--preview-wrong {
+  fill: #ff6b6b;
+  filter: drop-shadow(0 0 0.6vw #ff6b6b);
+  stroke: #ffb3b3;
+  stroke-width: 0.35;
+}
+
+.preview-guide-line {
+  stroke: #ffe814;
+  stroke-width: 0.45;
+  stroke-dasharray: 1.2 0.8;
+  pointer-events: none;
+}
+
+.preview-guide-line--wrong {
+  stroke: #ff6b6b;
+}
+
+.bar-diagram-svg .freq-label {
+  fill: #88aad2;
+  font-weight: 700;
+  font-size: 5.5px;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  paint-order: stroke;
+  stroke: rgba(10, 24, 48, 0.75);
+  stroke-width: 0.25;
+}
+
+.bar-diagram-svg .freq-label--after-bar {
+  opacity: 0;
+  animation: freqLabelReveal 0.35s ease 0.45s forwards;
+}
+
+@keyframes freqLabelReveal {
+  from { opacity: 0; transform: translateY(0.8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bar-diagram-svg .freq-label--active {
+  fill: #ffe814;
+}
+
+.bar-diagram-svg .freq-label--preview {
+  fill: #ffe814;
+  pointer-events: none;
+}
+
+.bar-diagram-svg .freq-label--preview-high {
+  font-weight: 800;
+}
+
+.bar-diagram-svg .freq-label--preview.freq-label--wrong {
+  fill: #ff6b6b;
+}
+
+.bar-diagram-svg .x-label--active {
+  fill: #ffffff;
+  font-weight: 800;
+}
+
+.ghost-freq {
+  color: #ffe814;
+}
+
+.ghost-total {
+  color: #ffd36b;
+}

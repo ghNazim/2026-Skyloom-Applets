@@ -1,0 +1,85 @@
+:root {
+    --primary-color: #b266ff;
+    --primary-hover-color: #9933ff;
+    --background-color: #120c1c;
+    --text-color: #f0e6ff;
+    --text-shadow-color: rgba(224, 199, 255, 0.6);
+    --button-background-color: #1e1233;
+    --light-text-color: rgba(255, 255, 255, 0.87);
+    --muted-text-color: #94a3b8;
+    --accent-cyan: #38bdf8;
+    --accent-yellow: #fde68a;
+    --pastel-orange: #ff8e1c;
+    --start-button-gradient-start: #ff9800;
+    --start-button-gradient-end: #f57c00;
+    --start-button-shadow: rgb(198, 82, 0);
+    --restart-button-gradient-start: #00c6ff;
+    --restart-button-gradient-end: #0072ff;
+    --restart-button-shadow: rgb(0, 96, 198);
+    --white-color: #ffffff;
+    --dark-gray-color: #555;
+    --medium-gray-color: #666;
+    --button-border-color: #6c757d;
+    --button-hover-border-color: #ffc107;
+    --transparent-black-15: rgba(0, 0, 0, 0.15);
+    --transparent-black-20: rgba(0, 0, 0, 0.2);
+    --transparent-black-30: rgba(0, 0, 0, 0.3);
+    --transparent-purple-55: rgba(30, 20, 50, 0.55);
+    --transparent-purple-border: #c9a4ff90;
+    --transparent-dark-purple: rgba(23, 2, 65, 0.5);
+    --transparent-darker-purple: rgba(15, 10, 25, 0.65);
+    --surface-glass: rgba(23, 2, 65, 0.62);
+    --surface-border: rgba(201, 164, 255, 0.56);
+    --panel-fill: rgba(15, 23, 42, 0.35);
+    --panel-divider: rgba(255, 255, 255, 0.08);
+    --activity-fill: rgba(30, 45, 68, 0.72);
+    --activity-border: rgba(80, 110, 140, 0.55);
+    --header-fill: linear-gradient(100deg, rgba(70, 81, 104, 0.55) 0%, rgba(10, 76, 112, 0.55) 100%);
+    --disabled-button-opacity: 0.6;
+
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: light dark;
+    color: var(--light-text-color);
+    background-color: var(--background-color);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 3vw !important;
+    line-height: 1.1;
+}
+
+h2, h3, p {
+    font-size: 2.5vw !important;
+}
+
+button {
+    border-radius: 0.6vw;
+    border: 0.1vw solid transparent;
+    padding: 1vh 2vw;
+    font-size: 2vw !important;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: var(--button-background-color);
+    cursor: pointer;
+    transition: border-color 0.25s;
+}
+
+button:focus,
+button:focus-visible {
+    outline: 0.3vw auto -webkit-focus-ring-color;
+}
