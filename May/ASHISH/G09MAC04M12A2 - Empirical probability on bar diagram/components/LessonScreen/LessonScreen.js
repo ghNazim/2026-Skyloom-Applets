@@ -17,6 +17,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     onSpinnerSubmitCorrect,
     onSumExpressionTap,
     onQuizAnswer,
+    onQuizWrong,
     onBridgeContinue,
     onNumpadTap,
     handleStartOver,
@@ -32,8 +33,13 @@ const LessonScreen = React.forwardRef((props, ref) => {
   const [spinnerFlying, setSpinnerFlying] = useState(false);
   const [bridgeMorph, setBridgeMorph] = useState(false);
   const [quizFlying, setQuizFlying] = useState(false);
+  const [quizFlyChoice, setQuizFlyChoice] = useState(null);
+  const [quizSlotChoice, setQuizSlotChoice] = useState(null);
+  const [quizSlotWrong, setQuizSlotWrong] = useState(false);
+  const [quizChartRevealed, setQuizChartRevealed] = useState(false);
   const [eventFlips, setEventFlips] = useState({});
   const [eventGlow, setEventGlow] = useState({ bar: null, total: false, sumKey: null });
+  const [dismissedFtueKeys, setDismissedFtueKeys] = useState({});
   const prevTypeRef = useRef(type);
 
   const FLIP_MS = 600;
@@ -42,9 +48,19 @@ const LessonScreen = React.forwardRef((props, ref) => {
   const setFlip = (key, value) => setEventFlips((prev) => ({ ...prev, [key]: value }));
   const isFlipped = (key) => eventFlips[key] === true;
 
+  const dismissFtueNow = (key) => {
+    const handFtue = document.getElementById("hand-ftue");
+    if (handFtue) {
+      handFtue.classList.remove("hand-animating");
+      handFtue.classList.remove("hand-ftue--edge");
+    }
+    if (key) setDismissedFtueKeys((prev) => ({ ...prev, [key]: true }));
+  };
+
   useEffect(() => {
     setEventFlips({});
     setEventGlow({ bar: null, total: false, sumKey: null });
+    setDismissedFtueKeys({});
   }, [type, stepData.eventKey, stepData.id]);
 
   const renderFormulaVar = (suffix = "") =>
@@ -83,6 +99,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     }
 
     const flipped = isFlipped(flipKey);
+    const showFtue = isActive && flipKey && !dismissedFtueKeys[flipKey];
     return React.createElement(
       "div",
       { className: "flip-frac-slot frac-slot-fixed" },
@@ -93,7 +110,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
           "button",
           {
             type: "button",
-            className: `flip-frac-face flip-frac-front event-reveal-button ftue-target frac-tap ${isActive ? "frac-tap--active" : ""}`,
+            className: `flip-frac-face flip-frac-front event-reveal-button frac-tap ${showFtue ? "ftue-target " : ""}${isActive ? "frac-tap--active" : ""}`,
             disabled: disabled || flipped,
             onClick,
           },
@@ -163,6 +180,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     if (eventKey !== "A") return;
     const state = eventState.eventA;
     if (state.freqRevealed || eventFlying || isFlipped("A-freq")) return;
+    dismissFtueNow("A-freq");
     const event = T.diceEvents.A;
     setFlip("A-freq", true);
     setTimeout(() => {
@@ -185,6 +203,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     if (eventKey !== "A") return;
     const state = eventState.eventA;
     if (!state.freqRevealed || state.totalRevealed || eventFlying || isFlipped("A-total")) return;
+    dismissFtueNow("A-total");
     setFlip("A-total", true);
     setTimeout(() => {
       setEventGlow((prev) => ({ ...prev, total: true }));
@@ -205,6 +224,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
   const handleEventBuildStartTap = (eventKey) => {
     const state = eventState[`event${eventKey}`];
     if (state.buildStarted || state.isAnimating || eventFlying || isFlipped(`${eventKey}-build`)) return;
+    dismissFtueNow(`${eventKey}-build`);
     setFlip(`${eventKey}-build`, true);
     setTimeout(() => onEventBuildStart(eventKey), FLIP_MS);
   };
@@ -212,6 +232,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
   const handleEventSumTapAnimated = (eventKey) => {
     const state = eventState[`event${eventKey}`];
     if (!state.buildComplete || state.sumRevealed || eventFlying || !state.sumPromptReady || isFlipped(`${eventKey}-sum`)) return;
+    dismissFtueNow(`${eventKey}-sum`);
     setFlip(`${eventKey}-sum`, true);
     setTimeout(() => onEventSumTap(eventKey), FLIP_MS);
   };
@@ -285,13 +306,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
       onSpinnerSubmitWrong();
       return;
     }
-    flyValueSpinner(
-      `[data-freq-preview="${section}"]`,
-      "[data-entry-target]",
-      expected,
-      "ghost-freq",
-      onSpinnerSubmitCorrect
-    );
+    setTimeout(() => onSpinnerSubmitCorrect(), 350);
   };
 
   const getTitleText = () => {
@@ -316,44 +331,111 @@ const LessonScreen = React.forwardRef((props, ref) => {
     );
   };
 
+  const renderMergeExpr = (mergeAnim, revealedClass) => {
+    const { terms, hiddenPlus, hiddenTerms, phase, mergeLeft, mergeRight } = mergeAnim;
+    const isSlide = phase === "slide";
+    const exprClass = ["sum-expr", isSlide ? "sum-expr--phase-slide" : ""].filter(Boolean).join(" ");
+
+    const nodes = [];
+    terms.forEach((term, i) => {
+      if (i > 0) {
+        const plusHidden = hiddenPlus[i] || (isSlide && i === mergeRight);
+        nodes.push(
+          React.createElement(
+            "span",
+            {
+              key: `plus-wrap-${i}`,
+              className: ["sum-plus-wrap", plusHidden ? "sum-plus-wrap--hidden" : ""].filter(Boolean).join(" "),
+            },
+            React.createElement("span", { className: "sum-plus" }, " + ")
+          )
+        );
+      }
+      const termHidden = hiddenTerms[i];
+      const termHighlight =
+        (phase === "highlight" || phase === "slide") && (i === mergeLeft || i === mergeRight);
+      const termSlide = isSlide && i === mergeRight;
+      const slideStyle = termSlide
+        ? { "--merge-shift": `-${(mergeRight - mergeLeft) * 3.2 + 2}vw` }
+        : undefined;
+      nodes.push(
+        React.createElement(
+          "span",
+          {
+            key: `val-wrap-${i}`,
+            className: [
+              "sum-val-wrap",
+              termHidden ? "sum-val-wrap--hidden" : "",
+              termHighlight ? "sum-val-wrap--highlight" : "",
+              termSlide ? "sum-val-wrap--slide-active" : "",
+            ]
+              .filter(Boolean)
+              .join(" "),
+            style: slideStyle,
+          },
+          React.createElement("span", { className: revealedClass }, term)
+        )
+      );
+    });
+
+    return React.createElement("span", { className: exprClass }, nodes);
+  };
+
   const renderTotalTrialsBox = (total, exprParts, options = {}) => {
-    const { onClick, clickable, disabled, large, collapsing, blink, glow } = options;
+    const {
+      onClick,
+      clickable,
+      disabled,
+      large,
+      blink,
+      glow,
+      revealedClass = "hl-number",
+      mergeAnim = null,
+    } = options;
     const inner = [
-      React.createElement("span", { key: "label" }, `${T.ui.totalTrials} = `),
-      exprParts
-        ? exprParts.map((part, i) =>
-            React.createElement(
-              React.Fragment,
-              { key: `part-${i}` },
-              i > 0 && React.createElement("span", { key: `plus-${i}`, className: "sum-plus" }, " + "),
+      React.createElement("span", { key: "label", className: "sum-label" }, `${T.ui.totalTrials} = `),
+      mergeAnim
+        ? renderMergeExpr(mergeAnim, revealedClass)
+        : exprParts
+          ? exprParts.map((part, i) =>
               React.createElement(
-                "span",
-                { key: `val-${i}`, className: part.revealed ? "hl-number" : "sum-unknown" },
-                part.text
+                React.Fragment,
+                { key: `part-${i}` },
+                i > 0 && React.createElement("span", { key: `plus-${i}`, className: "sum-plus" }, " + "),
+                React.createElement(
+                  "span",
+                  { key: `val-${i}`, className: part.revealed ? revealedClass : "sum-unknown" },
+                  part.text
+                )
               )
             )
-          )
-        : total != null
-          ? React.createElement("span", { key: "total", className: "hl-number", "data-total-value": true }, total)
-          : React.createElement("span", { key: "unknown", className: "sum-unknown" }, "?"),
+          : total != null
+            ? React.createElement("span", { key: "total", className: revealedClass, "data-total-value": true }, total)
+            : React.createElement("span", { key: "unknown", className: "sum-unknown" }, "?"),
     ];
 
-    const boxClass = `total-trials-box ${large ? "total-trials-box--large" : ""} ${collapsing ? "total-trials-box--collapsing" : ""} ${glow ? "total-trials-box--glow" : ""}`;
+    const boxClass = `total-trials-box ${large ? "total-trials-box--large" : ""} ${mergeAnim ? "total-trials-box--merging" : ""} ${mergeAnim?.phase === "collapse-width" ? "total-trials-box--collapse-width" : ""} ${glow ? "total-trials-box--glow" : ""} ${blink ? "total-trials-box--blink" : ""} ${clickable ? "total-trials-box--tap ftue-target" : ""}`;
 
-    if (clickable) {
-      return React.createElement(
-        "button",
-        {
-          type: "button",
-          className: `total-trials-box total-trials-box--tap ftue-target ${large ? "total-trials-box--large" : ""} ${blink ? "total-trials-box--blink" : ""} ${glow ? "total-trials-box--glow" : ""}`,
-          onClick,
-          disabled,
-        },
-        inner
-      );
-    }
-
-    return React.createElement("div", { className: boxClass }, inner);
+    return React.createElement(
+      "div",
+      {
+        className: boxClass,
+        onClick: clickable && !disabled ? onClick : undefined,
+        role: clickable ? "button" : undefined,
+        tabIndex: clickable && !disabled ? 0 : undefined,
+        onKeyDown:
+          clickable && !disabled
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onClick();
+                }
+              }
+            : undefined,
+        "aria-disabled": clickable && disabled ? true : undefined,
+      },
+      inner
+    );
   };
 
   const renderFormulaBox = () =>
@@ -468,37 +550,84 @@ const LessonScreen = React.forwardRef((props, ref) => {
     prevTypeRef.current = type;
   }, [type]);
 
+  useEffect(() => {
+    setQuizFlying(false);
+    setQuizFlyChoice(null);
+    setQuizSlotChoice(null);
+    setQuizSlotWrong(false);
+    setQuizChartRevealed(false);
+  }, [stepData.id, type]);
+
+  const QUIZ_FLY_MS = 600;
+  const QUIZ_HOLD_MS = 600;
+  const QUIZ_FLY_BACK_MS = 600;
+
   const handleQuizSelect = (quizId, choice, quiz) => {
     if (quizFlying) return;
     const selected = spinnerState.quizAnswers[quizId];
     if (selected === quiz.correct) return;
+    setQuizChartRevealed(true);
     const root = ref.current;
-    const source = root?.querySelector(`[data-quiz-opt="${choice}"]`);
+    const sourceBtn = root?.querySelector(`[data-quiz-opt="${choice}"]`);
     const target = root?.querySelector("[data-quiz-answer-slot]");
-    if (!source || !target) {
-      onQuizAnswer(quizId, choice);
+    if (!sourceBtn || !target) {
+      if (choice === quiz.correct) onQuizAnswer(quizId, choice);
+      else onQuizWrong();
       return;
     }
     setQuizFlying(true);
+    setQuizFlyChoice(choice);
+    setQuizSlotChoice(null);
+    setQuizSlotWrong(false);
     triggerGhost({
-      sourceEl: source,
+      sourceEl: sourceBtn,
       targetEl: target,
       text: choice,
-      colorClass: choice === quiz.correct ? "ghost-freq" : "ghost-wrong",
-      onComplete: () => {
-        setQuizFlying(false);
-        onQuizAnswer(quizId, choice);
+      cloneFromEl: sourceBtn,
+      preserveSourceOpacity: true,
+      duration: QUIZ_FLY_MS,
+      onArrive: () => {
+        setQuizSlotChoice(choice);
+        if (choice === quiz.correct) {
+          setTimeout(() => {
+            setQuizFlying(false);
+            setQuizFlyChoice(null);
+            onQuizAnswer(quizId, choice);
+          }, QUIZ_HOLD_MS);
+          return;
+        }
+        setQuizSlotWrong(true);
+        onQuizWrong();
+        setTimeout(() => {
+          setQuizSlotChoice(null);
+          setQuizSlotWrong(false);
+          triggerGhost({
+            sourceEl: target,
+            targetEl: sourceBtn,
+            text: choice,
+            cloneFromEl: sourceBtn,
+            preserveSourceOpacity: true,
+            duration: QUIZ_FLY_BACK_MS,
+            onArrive: () => {
+              setQuizFlying(false);
+              setQuizFlyChoice(null);
+            },
+          });
+        }, QUIZ_HOLD_MS);
       },
     });
   };
 
   const renderSpinnerChart = (options = {}) => {
     const { highlightBars, glowBar, dimOthers, previewFreq, emptyExpr, large, confirmedSections } = options;
-    const showExpr = spinnerState.showExpr !== false;
+    const spinnerChartTypes = ["spinnerOverview", "spinnerEnter", "spinnerSum", "spinnerSumDone", "spinnerQuiz"];
+    const useSubYel = ["spinnerEnter", "spinnerSum", "spinnerSumDone", "spinnerQuiz"].includes(type);
+    const useExpr = emptyExpr || spinnerState.showExpr;
     const exprParts = emptyExpr
       ? T.spinnerSections.map(() => ({ text: "?", revealed: false }))
-      : spinnerState.sumCollapseParts || spinnerState.exprParts;
-    const isEntering = type === "spinnerEnter";
+      : spinnerState.sumMergeAnim
+        ? null
+        : spinnerState.exprParts;
     return React.createElement(
       "div",
       { className: "lesson-panel lesson-panel--chart spinner-chart-panel" },
@@ -507,23 +636,24 @@ const LessonScreen = React.forwardRef((props, ref) => {
         frequencies: spinnerState.frequencies,
         labels: T.spinnerSections,
         ymax: T.chartMax,
-        highlightBars,
-        glowBar,
-        dimOthers,
+        highlightBars: highlightBars || [],
+        glowBar: glowBar || null,
+        dimOthers: Boolean(dimOthers),
         previewFreq,
-        showFreqLabels: isEntering || type === "spinnerQuiz",
+        showFreqLabels: type === "spinnerQuiz",
         confirmedSections: confirmedSections || [],
         chartRef,
       }),
       renderTotalTrialsBox(
-        showExpr ? null : spinnerState.totalDisplay,
-        showExpr ? exprParts : null,
+        useExpr ? null : spinnerState.totalDisplay,
+        useExpr ? exprParts : null,
         {
-          large: large || type === "spinnerOverview" || type === "spinnerSumDone" || type === "spinnerSum",
-          collapsing: spinnerState.sumCollapseParts != null,
+          large: large || spinnerChartTypes.includes(type),
           clickable: type === "spinnerSum",
           onClick: type === "spinnerSum" ? onSumExpressionTap : undefined,
           blink: type === "spinnerSum",
+          revealedClass: useSubYel ? "sub-yel" : "hl-number",
+          mergeAnim: spinnerState.sumMergeAnim,
         }
       )
     );
@@ -661,7 +791,8 @@ const LessonScreen = React.forwardRef((props, ref) => {
 
       if (eventKey === "A") {
         const { freqRevealed, totalRevealed } = eventState.eventA;
-        const glowBar = eventGlow.bar ?? (!freqRevealed ? event.flyBar : null);
+        const freqAnimActive = Boolean(eventGlow.bar) || (eventFlying && !freqRevealed);
+        const activeBar = freqAnimActive ? event.flyBar : null;
 
         return React.createElement(
           "div",
@@ -673,9 +804,9 @@ const LessonScreen = React.forwardRef((props, ref) => {
               mode: "dice",
               frequencies: diceState.frequencies,
               ymax: T.chartMax,
-              highlightBars: event.faces,
-              glowBar,
-              dimOthers: !freqRevealed,
+              highlightBars: activeBar != null ? [activeBar] : [],
+              glowBar: activeBar,
+              dimOthers: activeBar != null,
               highlightFace: diceState.highlightFace,
               chartRef,
             }),
@@ -724,9 +855,9 @@ const LessonScreen = React.forwardRef((props, ref) => {
       }
 
       const state = eventState[`event${eventKey}`];
-      const highlight = state.buildStarted ? event.faces : state.terms.map((t) => t.face);
       const showCompact = state.sumCompact;
-      const compoundGlowBar = eventGlow.bar ?? state.animatingFace;
+      const buildAnimActive = state.buildStarted && !state.buildComplete;
+      const currentGlowBar = eventGlow.bar ?? state.animatingFace ?? null;
 
       return React.createElement(
         "div",
@@ -738,9 +869,9 @@ const LessonScreen = React.forwardRef((props, ref) => {
             mode: "dice",
             frequencies: diceState.frequencies,
             ymax: T.chartMax,
-            highlightBars: highlight,
-            glowBar: compoundGlowBar,
-            dimOthers: state.buildStarted,
+            highlightBars: buildAnimActive ? event.faces : [],
+            glowBar: buildAnimActive ? currentGlowBar : null,
+            dimOthers: buildAnimActive,
             chartRef,
           }),
           renderTotalTrialsBox(diceState.trialCount)
@@ -883,7 +1014,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
         React.createElement(
           "div",
           { className: "lesson-right lesson-right--caption" },
-          React.createElement("p", { className: "bridge-text bridge-text--center" }, T.ui.spinnerOverviewBody)
+          React.createElement("p", { className: "bridge-text bridge-text--center bridge-text--overview" }, T.ui.spinnerOverviewBody)
         )
       );
     }
@@ -892,15 +1023,20 @@ const LessonScreen = React.forwardRef((props, ref) => {
       const section = stepData.section;
       const confirmed = spinnerState.enteredValues[section] != null;
       const enteredSections = T.spinnerSections.filter((s) => spinnerState.enteredValues[s] != null);
-      const hasPreview = spinnerState.preview && !confirmed;
+      const isWrong = Boolean(spinnerState.preview?.wrong);
+      const hasSubmitPreview = Boolean(spinnerState.preview);
+      const numpadDisabled = confirmed || spinnerState.correctHold;
+      const entryValue = confirmed
+        ? String(spinnerState.enteredValues[section])
+        : spinnerState.currentInput;
       return React.createElement(
         "div",
         { className: "lesson-grid lesson-grid--spinner" },
         renderSpinnerChart({
-          glowBar: confirmed ? null : section,
-          highlightBars: enteredSections,
-          dimOthers: hasPreview || !confirmed,
-          previewFreq: spinnerState.preview,
+          highlightBars: isWrong ? [section] : [],
+          glowBar: isWrong ? section : null,
+          dimOthers: isWrong,
+          previewFreq: hasSubmitPreview ? spinnerState.preview : null,
           confirmedSections: enteredSections,
         }),
         React.createElement(
@@ -908,25 +1044,25 @@ const LessonScreen = React.forwardRef((props, ref) => {
           { className: "lesson-right lesson-right--entry entry-panel-fixed" },
           React.createElement(
             "p",
-            { className: "entry-label" },
+            { className: "entry-label entry-label--large" },
             T.ui.freqOfSection.replace("{section}", section)
           ),
           React.createElement(
             "div",
             {
-              className: `entry-slot ${confirmed ? "entry-slot--done" : ""} ${spinnerState.preview?.wrong ? "entry-slot--wrong" : ""} ${hasPreview && !spinnerState.preview?.wrong ? "entry-slot--preview" : ""}`,
+              className: `entry-slot ${confirmed ? "entry-slot--done" : ""} ${spinnerState.correctHold ? "entry-slot--correct-hold" : ""} ${spinnerState.preview?.wrong ? "entry-slot--wrong" : ""}`,
               "data-entry-target": true,
             },
-            confirmed ? String(spinnerState.enteredValues[section]) : spinnerState.currentInput
+            entryValue
           ),
-          !confirmed &&
-            React.createElement(NumPad, {
-              value: spinnerState.currentInput,
-              onChange: onSpinnerInputChange,
-              onSubmit: handleSpinnerSubmit,
-              onKeyTap: onNumpadTap,
-              disabled: spinnerFlying,
-            })
+          React.createElement(NumPad, {
+            value: spinnerState.currentInput,
+            onChange: onSpinnerInputChange,
+            onSubmit: handleSpinnerSubmit,
+            onKeyTap: onNumpadTap,
+            disabled: numpadDisabled,
+            freshStartOnNextKey: isWrong,
+          })
         )
       );
     }
@@ -946,6 +1082,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     }
 
     if (type === "spinnerSumDone") {
+      const showSumDoneText = spinnerState.totalDisplay != null;
       return React.createElement(
         "div",
         { className: "lesson-grid lesson-grid--spinner" },
@@ -953,7 +1090,12 @@ const LessonScreen = React.forwardRef((props, ref) => {
         React.createElement(
           "div",
           { className: "lesson-right lesson-right--caption" },
-          React.createElement("p", { className: "bridge-text bridge-text--center bridge-text--large" }, T.ui.spinnerSumDone)
+          showSumDoneText &&
+            React.createElement(
+              "p",
+              { className: "bridge-text bridge-text--center bridge-text--overview" },
+              T.ui.spinnerSumDone
+            )
         )
       );
     }
@@ -961,12 +1103,19 @@ const LessonScreen = React.forwardRef((props, ref) => {
     if (type === "spinnerQuiz") {
       const quiz = T.spinnerQuizzes[stepData.quizIndex];
       const selected = spinnerState.quizAnswers[quiz.id];
-      const highlight = quiz.highlight || (quiz.section ? [quiz.section] : quiz.labelParts);
+      const highlightRaw = quiz.highlight || (quiz.section ? [quiz.section] : quiz.labelParts);
+      const highlightBars = Array.isArray(highlightRaw) ? highlightRaw : [highlightRaw];
+      const showQuizChartHighlight = quizChartRevealed || selected === quiz.correct;
       const eventHtml = [T.ui.event1, T.ui.event2, T.ui.event3][stepData.quizIndex];
+      const slotChoice = selected || quizSlotChoice;
+      const slotFilled = Boolean(slotChoice);
       return React.createElement(
         "div",
         { className: "lesson-grid lesson-grid--quiz" },
-        renderSpinnerChart({ highlightBars: highlight, dimOthers: true }),
+        renderSpinnerChart({
+          highlightBars: showQuizChartHighlight ? highlightBars : [],
+          dimOthers: showQuizChartHighlight,
+        }),
         React.createElement(
           "div",
           { className: "lesson-right lesson-right--quiz equation-panel quiz-panel-fixed" },
@@ -989,29 +1138,36 @@ const LessonScreen = React.forwardRef((props, ref) => {
               React.createElement(
                 "span",
                 {
-                  className: `quiz-answer-slot ${selected === quiz.correct ? "quiz-answer-slot--correct" : selected ? "quiz-answer-slot--wrong" : ""}`,
+                  className: `quiz-answer-slot ${selected === quiz.correct || quizSlotChoice === quiz.correct ? "quiz-answer-slot--correct" : ""} ${quizSlotWrong ? "quiz-answer-slot--wrong" : ""}`,
                   "data-quiz-answer-slot": true,
                 },
-                selected && !quizFlying ? renderVerticalFraction(selected) : "?"
+                slotFilled ? renderVerticalFraction(slotChoice) : "?"
               )
             ),
             React.createElement(
               "div",
               { className: "quiz-options" },
-              quiz.options.map((opt) =>
-                React.createElement(
+              quiz.options.map((opt) => {
+                const hideOption =
+                  (quizFlying && quizFlyChoice === opt) || (selected === opt && opt === quiz.correct);
+                return React.createElement(
                   "button",
                   {
                     key: opt,
                     type: "button",
                     "data-quiz-opt": opt,
-                    className: `quiz-option ftue-target ${selected === opt ? (opt === quiz.correct ? "quiz-option--correct" : "quiz-option--wrong") : ""}`,
-                    disabled: selected === quiz.correct || quizFlying,
+                    className: `quiz-option ftue-target${hideOption ? " quiz-option--moved" : ""}`,
+                    disabled:
+                      selected === quiz.correct || (quizFlying && quizFlyChoice === opt),
                     onClick: () => handleQuizSelect(quiz.id, opt, quiz),
                   },
-                  renderVerticalFraction(opt)
-                )
-              )
+                  React.createElement(
+                    "span",
+                    { className: "quiz-option-content", "data-quiz-opt-content": opt },
+                    renderVerticalFraction(opt)
+                  )
+                );
+              })
             )
           )
         )

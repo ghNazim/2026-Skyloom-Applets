@@ -33,7 +33,8 @@ const App = () => {
   const [spinnerEntered, setSpinnerEntered] = useState({ A: null, B: null, C: null, D: null });
   const [spinnerInput, setSpinnerInput] = useState("?");
   const [spinnerTotalDisplay, setSpinnerTotalDisplay] = useState(null);
-  const [sumCollapseParts, setSumCollapseParts] = useState(null);
+  const [sumMergeAnim, setSumMergeAnim] = useState(null);
+  const [spinnerCorrectHold, setSpinnerCorrectHold] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({});
 
   const startButtonRef = useRef(null);
@@ -111,7 +112,8 @@ const App = () => {
     setSpinnerEntered({ A: null, B: null, C: null, D: null });
     setSpinnerInput("?");
     setSpinnerTotalDisplay(null);
-    setSumCollapseParts(null);
+    setSumMergeAnim(null);
+    setSpinnerCorrectHold(false);
     setQuizAnswers({});
     sumAnimatingRef.current = false;
     eventBuildRef.current = { idx: 0, eventKey: null };
@@ -165,9 +167,6 @@ const App = () => {
       const rollCycleMs = BATCH_SPIN_MS + DICE_SETTLE_MS + BATCH_FACE_MS;
       const perRollMs = Math.max(rollCycleMs + 20, Math.floor(BATCH_ROLL_TOTAL_MS / rolls.length));
       const gapBetweenRolls = perRollMs - rollCycleMs;
-      setRollStage("rolling");
-      setIsRolling(true);
-      playSfx("split");
       let index = 0;
 
       const tick = () => {
@@ -183,6 +182,7 @@ const App = () => {
         const face = rolls[index];
         setIsRolling(true);
         setRollStage("rolling");
+        playSfx("split");
 
         setTimeout(() => {
           setDieValue(face);
@@ -289,11 +289,7 @@ const App = () => {
 
   const getSpinnerFrequencies = () => {
     if (stepData.type === "spinnerOverview") {
-      const empty = {};
-      T.spinnerSections.forEach((s) => {
-        empty[s] = 0;
-      });
-      return empty;
+      return { ...T.spinnerFreq };
     }
     const freq = {};
     T.spinnerSections.forEach((s) => {
@@ -312,12 +308,7 @@ const App = () => {
   const handleSpinnerInputChange = (val) => {
     setSpinnerInput(val);
     setFeedback("");
-    const num = parseInt(val, 10);
-    if (!Number.isNaN(num) && val !== "?") {
-      setSpinnerPreview({ section: stepData.section, value: num });
-    } else {
-      setSpinnerPreview(null);
-    }
+    setSpinnerPreview(null);
   };
 
   const handleSpinnerShowSubmitPreview = () => {
@@ -339,8 +330,12 @@ const App = () => {
     setSpinnerEntered((prev) => ({ ...prev, [section]: T.spinnerFreq[section] }));
     setSpinnerPreview(null);
     setFeedback("");
+    setSpinnerCorrectHold(true);
     markComplete(stepData.id);
-    setTimeout(() => advanceStep(), 900);
+    setTimeout(() => {
+      setSpinnerCorrectHold(false);
+      advanceStep();
+    }, 1200);
   };
 
   const advanceStep = () => {
@@ -362,28 +357,90 @@ const App = () => {
     if (sumAnimatingRef.current) return;
     sumAnimatingRef.current = true;
     const values = T.spinnerSections.map((s) => T.spinnerFreq[s]);
-    const collapseSteps = [
-      values.map(String),
-      [String(values[0]), String(values[1]), String(values[2] + values[3])],
-      [String(values[0]), String(values[1] + values[2] + values[3])],
-      [String(T.spinnerTotalTrials)],
+    const mergeQueue = [
+      { left: 2, right: 3, sum: String(values[2] + values[3]) },
+      { left: 1, right: 2, sum: String(values[1] + values[2] + values[3]) },
+      { left: 0, right: 1, sum: String(T.spinnerTotalTrials) },
     ];
-    let step = 0;
-    setSumCollapseParts(collapseSteps[0].map((text) => ({ text, revealed: true })));
-    setSpinnerTotalDisplay(null);
-    const run = () => {
-      step += 1;
-      if (step >= collapseSteps.length) {
-        setSpinnerTotalDisplay(T.spinnerTotalTrials);
-        setSumCollapseParts(null);
-        markComplete("spinnerSumDone");
-        sumAnimatingRef.current = false;
+    const MERGE_HIGHLIGHT_MS = 450;
+    const MERGE_SLIDE_MS = 550;
+    const MERGE_COMMIT_MS = 200;
+    const MERGE_PAUSE_MS = 280;
+    const MERGE_COLLAPSE_MS = 800;
+
+    let terms = values.map(String);
+    let hiddenPlus = [false, false, false];
+    let hiddenTerms = [false, false, false, false];
+
+    const runMerge = (mergeIndex) => {
+      if (mergeIndex >= mergeQueue.length) {
+        setSumMergeAnim({
+          terms: [...terms],
+          hiddenPlus: [...hiddenPlus],
+          hiddenTerms: [...hiddenTerms],
+          phase: "idle",
+          mergeLeft: null,
+          mergeRight: null,
+        });
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setSumMergeAnim((prev) => ({ ...prev, phase: "collapse-width" }));
+          });
+        });
+        setTimeout(() => {
+          setSpinnerTotalDisplay(T.spinnerTotalTrials);
+          setSumMergeAnim(null);
+          markComplete("spinnerSumDone");
+          sumAnimatingRef.current = false;
+        }, MERGE_COLLAPSE_MS);
         return;
       }
-      setSumCollapseParts(collapseSteps[step].map((text) => ({ text, revealed: true })));
-      setTimeout(run, 750);
+
+      const { left, right, sum } = mergeQueue[mergeIndex];
+
+      setSumMergeAnim({
+        terms: [...terms],
+        hiddenPlus: [...hiddenPlus],
+        hiddenTerms: [...hiddenTerms],
+        phase: "highlight",
+        mergeLeft: left,
+        mergeRight: right,
+      });
+
+      setTimeout(() => {
+        setSumMergeAnim((prev) => ({ ...prev, phase: "slide" }));
+
+        setTimeout(() => {
+          terms = [...terms];
+          terms[left] = sum;
+          hiddenPlus = [...hiddenPlus];
+          hiddenPlus[right] = true;
+          hiddenTerms = [...hiddenTerms];
+          hiddenTerms[right] = true;
+
+          setSumMergeAnim({
+            terms: [...terms],
+            hiddenPlus: [...hiddenPlus],
+            hiddenTerms: [...hiddenTerms],
+            phase: "commit",
+            mergeLeft: left,
+            mergeRight: right,
+          });
+
+          setTimeout(() => {
+            setSumMergeAnim((prev) => ({
+              ...prev,
+              phase: "idle",
+              mergeLeft: null,
+              mergeRight: null,
+            }));
+            setTimeout(() => runMerge(mergeIndex + 1), MERGE_PAUSE_MS);
+          }, MERGE_COMMIT_MS);
+        }, MERGE_SLIDE_MS);
+      }, MERGE_HIGHLIGHT_MS);
     };
-    setTimeout(run, 750);
+
+    runMerge(0);
   };
 
   const handleBridgeContinue = () => {
@@ -394,10 +451,14 @@ const App = () => {
 
   const handleQuizAnswer = (quizId, choice) => {
     const quiz = T.spinnerQuizzes.find((q) => q.id === quizId);
-    const isCorrect = choice === quiz.correct;
+    if (choice !== quiz.correct) return;
     setQuizAnswers((prev) => ({ ...prev, [quizId]: choice }));
-    playSfx(isCorrect ? "correct" : "wrong");
-    if (isCorrect) markComplete(stepData.id);
+    playSfx("correct");
+    markComplete(stepData.id);
+  };
+
+  const handleQuizWrong = () => {
+    playSfx("wrong");
   };
 
   const handleStart = () => {
@@ -437,11 +498,13 @@ const App = () => {
     if (stepData.type === "spinnerEnter") {
       setSpinnerInput("?");
       setSpinnerPreview(null);
+      setSpinnerCorrectHold(false);
       setFeedback("");
     }
     if (stepData.type === "spinnerSumDone") {
       setSpinnerTotalDisplay(null);
-      setSumCollapseParts(null);
+      setSumMergeAnim(null);
+      setSpinnerCorrectHold(false);
       sumAnimatingRef.current = false;
       const timer = setTimeout(() => runSpinnerSumAnimation(), 450);
       return () => clearTimeout(timer);
@@ -549,13 +612,16 @@ const App = () => {
               ? null
               : spinnerTotalDisplay ?? T.spinnerTotalTrials,
         showExpr:
-          stepData.type === "spinnerEnter" || stepData.type === "spinnerSum"
+          stepData.type === "spinnerOverview" ||
+          stepData.type === "spinnerEnter" ||
+          stepData.type === "spinnerSum"
             ? true
             : stepData.type === "spinnerSumDone"
               ? spinnerTotalDisplay == null
               : false,
         sumExpression: "11 + 7 + 2 + 10",
-        sumCollapseParts,
+        sumMergeAnim,
+        correctHold: spinnerCorrectHold,
         quizAnswers,
       },
       eventState: {
@@ -576,6 +642,7 @@ const App = () => {
       onSpinnerSubmitCorrect: handleSpinnerSubmitCorrect,
       onSumExpressionTap: handleSumExpressionTap,
       onQuizAnswer: handleQuizAnswer,
+      onQuizWrong: handleQuizWrong,
       onBridgeContinue: handleBridgeContinue,
       onNumpadTap: () => playSfx("click"),
       handleStartOver,

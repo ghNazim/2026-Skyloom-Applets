@@ -15,13 +15,94 @@
     opacity: 1;
     text-shadow: 0 0 0.35vw rgba(0, 0, 0, 0.45);
     transition:
-        transform 0.72s cubic-bezier(0.33, 1, 0.68, 1),
-        opacity 0.72s cubic-bezier(0.33, 1, 0.68, 1);
+        transform var(--ghost-duration, 0.72s) cubic-bezier(0.33, 1, 0.68, 1),
+        opacity var(--ghost-duration, 0.72s) cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 .ghost-base-element.ghost-active {
     transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(var(--scale));
     opacity: 0.98;
+}
+
+.ghost-clone-quiz-content {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    text-shadow: none;
+    color: #fff;
+}
+
+.ghost-clone-quiz-content .frac-group--quiz {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2vh;
+}
+
+.ghost-clone-quiz-content .frac-num,
+.ghost-clone-quiz-content .frac-den {
+    font-size: 2.8vw !important;
+    line-height: 1;
+    font-style: normal;
+    font-weight: 700;
+    color: #fff;
+}
+
+.ghost-clone-quiz-content .frac-bar {
+    display: block;
+    width: 100%;
+    min-width: 2.2vw;
+    height: 0;
+    border-top: 0.14vw solid #fff;
+    margin: 0.1vh 0;
+    background: transparent;
+}
+
+.ghost-clone-quiz {
+    padding: 0.5vw;
+    margin: 0;
+    border: 0.08vw solid var(--button-border-color);
+    background: linear-gradient(145deg, var(--start-button-gradient-start), var(--start-button-gradient-end));
+    color: #fff;
+    box-shadow:
+        0 0.2vh 0.4vh var(--transparent-black-20),
+        0.2vh 0.2vh 0.1vh var(--start-button-shadow);
+    text-shadow: none;
+    box-sizing: border-box;
+    border-radius: 0.9vw;
+    pointer-events: none;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ghost-clone-quiz .frac-group--quiz {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15vh;
+}
+
+.ghost-clone-quiz .frac-num,
+.ghost-clone-quiz .frac-den {
+    font-size: 2.8vw !important;
+    line-height: 1;
+    font-style: normal;
+    font-weight: 700;
+    color: #fff;
+}
+
+.ghost-clone-quiz .frac-bar {
+    display: block;
+    width: 100%;
+    min-width: 2.4vw;
+    height: 0;
+    border-top: 0.14vw solid #fff;
+    margin: 0.1vh 0;
+    background: transparent;
 }
 
 /* Absolute Merge Layer Chips */

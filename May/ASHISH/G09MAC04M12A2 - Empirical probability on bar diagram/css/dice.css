@@ -39,15 +39,28 @@
 }
 
 @keyframes diceShake {
-  0%, 100% { transform: translateX(0) rotateX(0deg) rotateY(0deg); }
-  25% { transform: translateX(-0.35vw) rotateX(-2deg) rotateY(-2deg); }
-  75% { transform: translateX(0.35vw) rotateX(2deg) rotateY(2deg); }
+  0%,
+  100% {
+    transform: translateX(0) rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: translateX(-0.35vw) rotateX(-2deg) rotateY(-2deg);
+  }
+  75% {
+    transform: translateX(0.35vw) rotateX(2deg) rotateY(2deg);
+  }
 }
 
 @keyframes diceRoll3D {
-  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-  50% { transform: rotateX(180deg) rotateY(180deg) rotateZ(45deg); }
-  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(90deg); }
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  50% {
+    transform: rotateX(180deg) rotateY(180deg) rotateZ(45deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg) rotateZ(90deg);
+  }
 }
 
 .dice-rolling .dice-cube {
@@ -63,8 +76,12 @@
 }
 
 @keyframes diceRoll3DFast {
-  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(90deg); }
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg) rotateZ(90deg);
+  }
 }
 
 .dice-cube {
@@ -93,12 +110,24 @@
   overflow: hidden;
 }
 
-.dice-face-front  { transform: rotateY(0deg) translateZ(var(--dice-half)); }
-.dice-face-back   { transform: rotateY(180deg) translateZ(var(--dice-half)); }
-.dice-face-right  { transform: rotateY(90deg) translateZ(var(--dice-half)); }
-.dice-face-left   { transform: rotateY(-90deg) translateZ(var(--dice-half)); }
-.dice-face-top    { transform: rotateX(90deg) translateZ(var(--dice-half)); }
-.dice-face-bottom { transform: rotateX(-90deg) translateZ(var(--dice-half)); }
+.dice-face-front {
+  transform: rotateY(0deg) translateZ(var(--dice-half));
+}
+.dice-face-back {
+  transform: rotateY(180deg) translateZ(var(--dice-half));
+}
+.dice-face-right {
+  transform: rotateY(90deg) translateZ(var(--dice-half));
+}
+.dice-face-left {
+  transform: rotateY(-90deg) translateZ(var(--dice-half));
+}
+.dice-face-top {
+  transform: rotateX(90deg) translateZ(var(--dice-half));
+}
+.dice-face-bottom {
+  transform: rotateX(-90deg) translateZ(var(--dice-half));
+}
 
 .dice-pips {
   display: grid;
@@ -129,10 +158,38 @@
   z-index: 11;
 }
 
-.dice-pip--pos-1 { grid-area: a; align-self: start; justify-self: start; }
-.dice-pip--pos-2 { grid-area: b; align-self: end; justify-self: end; }
-.dice-pip--pos-3 { grid-area: c; align-self: start; justify-self: end; }
-.dice-pip--pos-4 { grid-area: d; align-self: end; justify-self: start; }
-.dice-pip--pos-5 { grid-area: e; align-self: center; justify-self: start; }
-.dice-pip--pos-6 { grid-area: f; align-self: center; justify-self: end; }
-.dice-pip--pos-7 { grid-area: g; align-self: center; justify-self: center; }
+.dice-pip--pos-1 {
+  grid-area: a;
+  align-self: start;
+  justify-self: start;
+}
+.dice-pip--pos-2 {
+  grid-area: b;
+  align-self: end;
+  justify-self: end;
+}
+.dice-pip--pos-3 {
+  grid-area: c;
+  align-self: start;
+  justify-self: end;
+}
+.dice-pip--pos-4 {
+  grid-area: d;
+  align-self: end;
+  justify-self: start;
+}
+.dice-pip--pos-5 {
+  grid-area: e;
+  align-self: center;
+  justify-self: start;
+}
+.dice-pip--pos-6 {
+  grid-area: f;
+  align-self: center;
+  justify-self: end;
+}
+.dice-pip--pos-7 {
+  grid-area: g;
+  align-self: center;
+  justify-self: center;
+}

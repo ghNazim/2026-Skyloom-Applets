@@ -38,42 +38,26 @@ body {
   flex-direction: column;
   color: var(--text-color);
   overflow: hidden;
-  /* background: rgba(4, 15, 67, 0.521);
-    backdrop-filter: blur(0.5vw); */
 }
 
-.applet-container .lesson-screen {
+.applet-container .challenge-screen,
+.applet-container .end-screen,
+.applet-container .welcome-screen {
   flex: 1;
   min-height: 0;
-  margin-bottom: 9vh;
+  margin-bottom: 11vh;
 }
 
 .applet-container .navigation {
   flex-shrink: 0;
 }
 
-.main-content {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
-  padding: 1vw;
-}
-
 .applet-container > .welcome-screen {
   flex: 1;
   min-height: 0;
-  margin-bottom: 0;
+  margin-bottom: 11vh;
 }
 
-.applet-container--no-nav .lesson-screen {
-  margin-bottom: 0;
-}
-
-.applet-container--no-nav .navigation {
-  display: none !important;
-  visibility: hidden !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  pointer-events: none !important;
+.hl-orange {
+  color: #ff9054;
 }

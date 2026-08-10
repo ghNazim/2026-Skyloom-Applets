@@ -1,0 +1,72 @@
+.numpad-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vw;
+  width: 100%;
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.55vw;
+}
+
+.numpad-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55vw;
+}
+
+.numpad-key,
+.numpad-submit {
+  border: 0.1vw solid rgba(94, 176, 255, 0.6);
+  border-radius: 0.7vw;
+  background: linear-gradient(180deg, #3d4f63 0%, #2a3545 100%);
+  color: #fff;
+  font-size: 2.2vw !important;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 5.5vh;
+  padding: 1vh 0.5vw;
+  box-shadow: 0 0.25vh 0.5vh rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+
+.numpad-key--plus {
+  background: linear-gradient(180deg, #2e8fd4 0%, #1a5f96 100%) !important;
+  border-color: #5eb0ff !important;
+}
+
+.numpad-key--minus {
+  background: linear-gradient(180deg, #e86b8f 0%, #c23b64 100%) !important;
+  border-color: #ff769d !important;
+}
+
+.numpad-submit {
+  background: linear-gradient(
+    145deg,
+    var(--start-button-gradient-start),
+    var(--start-button-gradient-end)
+  );
+  border-color: #ffd36b;
+  font-size: 2.6vw !important;
+  box-shadow:
+    0 0.42vh 0 #a95e00,
+    0 0.4vh 0.8vh rgba(0, 0, 0, 0.24);
+}
+
+.numpad-key:disabled,
+.numpad-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.numpad-key:not(:disabled):hover,
+.numpad-submit:not(:disabled):hover {
+  filter: brightness(1.12);
+}
+
+.numpad-key:not(:disabled):active,
+.numpad-submit:not(:disabled):active {
+  transform: translateY(0.15vh);
+}

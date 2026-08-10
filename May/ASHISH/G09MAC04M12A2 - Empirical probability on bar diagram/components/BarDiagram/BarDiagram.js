@@ -32,7 +32,6 @@ const BarDiagram = ({
   const yTitleX = 1;
   const yTitleY = (plotTop + plotBottom) / 2;
 
-  // Square grid: 1 y-unit = 1 cell tall; 1 x-integer = 3 cells wide (2 lines between labels).
   const X_CELLS_PER_LABEL = 3;
   const EXTRA_GRID_COLS_AFTER = 2;
   const squareSize = plotHeight / ymax;
@@ -45,9 +44,10 @@ const BarDiagram = ({
 
   const maxXValue = items.reduce(
     (max, label, index) => Math.max(max, getXValue(label, index)),
-    0
+    0,
   );
-  const plotEndX = axisX + maxXValue * xUnitSpacing + EXTRA_GRID_COLS_AFTER * squareSize;
+  const plotEndX =
+    axisX + maxXValue * xUnitSpacing + EXTRA_GRID_COLS_AFTER * squareSize;
   const viewBoxWidth = Math.max(100, plotEndX + 3);
   const barWidth = Math.min(xUnitSpacing * 0.58, squareSize * 2.4);
 
@@ -62,14 +62,35 @@ const BarDiagram = ({
     xGridLines.push(Math.round((axisX + n * squareSize) * 10000) / 10000);
   }
 
+  const previewWrong = Boolean(previewFreq?.wrong);
+  const rawPreviewWrongValue =
+    previewWrong && previewFreq != null ? Math.max(previewFreq.value, 0) : null;
+  const previewWrongValue =
+    rawPreviewWrongValue != null ? Math.min(rawPreviewWrongValue, ymax) : null;
+  const previewWrongWithinAxis =
+    rawPreviewWrongValue != null && rawPreviewWrongValue <= ymax;
+  const showOddWrongYLabel =
+    previewWrongWithinAxis && previewWrongValue % 2 !== 0;
+
+  const activeHighlights = (
+    Array.isArray(highlightBars)
+      ? highlightBars
+      : highlightBars
+        ? [highlightBars]
+        : []
+  ).filter((bar) => items.includes(bar));
+
   return React.createElement(
     "div",
-    { className: `bar-diagram-wrap${!animateLabels ? " bar-diagram-wrap--fast" : ""}`, ref: chartRef },
+    {
+      className: `bar-diagram-wrap${!animateLabels ? " bar-diagram-wrap--fast" : ""}`,
+      ref: chartRef,
+    },
     React.createElement(
       "svg",
       {
         className: "bar-diagram-svg",
-        viewBox: `0 0 ${viewBoxWidth} 92`,
+        viewBox: `-3 0 ${viewBoxWidth + 3} 92`,
         preserveAspectRatio: "xMidYMid meet",
       },
       yGridLines.map((tick) =>
@@ -80,7 +101,7 @@ const BarDiagram = ({
           y1: yFor(tick),
           x2: plotEndX,
           y2: yFor(tick),
-        })
+        }),
       ),
       xGridLines.map((x) =>
         React.createElement("line", {
@@ -90,21 +111,35 @@ const BarDiagram = ({
           y1: plotTop,
           x2: x,
           y2: plotBottom,
-        })
+        }),
       ),
-      yTicksLabeled.map((tick) =>
-        React.createElement(
+      yTicksLabeled.map((tick) => {
+        const isPreviewYTick =
+          previewWrongWithinAxis && previewWrongValue === tick;
+        return React.createElement(
           "text",
           {
             key: `y-label-${tick}`,
-            className: "axis-text y-text",
+            className: `axis-text y-text${isPreviewYTick ? " y-text--wrong-preview" : ""}`,
             x: axisX - 3,
             y: yFor(tick),
             fontSize: 3.5,
           },
-          tick
-        )
-      ),
+          tick,
+        );
+      }),
+      showOddWrongYLabel &&
+        React.createElement(
+          "text",
+          {
+            key: "y-label-wrong-odd",
+            className: "axis-text y-text y-text--wrong-preview",
+            x: axisX - 3,
+            y: yFor(previewWrongValue),
+            fontSize: 3.5,
+          },
+          previewWrongValue,
+        ),
       React.createElement("line", {
         className: "axis-line",
         x1: axisX,
@@ -125,10 +160,10 @@ const BarDiagram = ({
           className: "axis-title y-title",
           x: yTitleX,
           y: yTitleY,
-          fontSize: 3.5,
+          fontSize: 4.5,
           transform: `rotate(-90 ${yTitleX} ${yTitleY})`,
         },
-        T.ui.frequency
+        T.ui.frequency,
       ),
       React.createElement(
         "text",
@@ -136,9 +171,9 @@ const BarDiagram = ({
           className: "axis-title x-title",
           x: (axisX + plotEndX) / 2,
           y: xTitleY,
-          fontSize: 3.5,
+          fontSize: 4.5,
         },
-        mode === "dice" ? T.ui.dieFaces : T.ui.spinnerSection
+        mode === "dice" ? T.ui.dieFaces : T.ui.spinnerSection,
       ),
       items.map((label, index) => {
         const freq = frequencies[label] || 0;
@@ -147,6 +182,7 @@ const BarDiagram = ({
           ? Math.min(Math.max(previewFreq.value, 0), ymax)
           : null;
         const isJustUpdated = highlightFace === label;
+        const isConfirmed = confirmedSections.includes(label);
         const baseFreq = freq;
         const x = xFor(label, index);
         const baseBarTop = yFor(baseFreq);
@@ -154,16 +190,18 @@ const BarDiagram = ({
         const previewBarTop = previewValue != null ? yFor(previewValue) : null;
         const previewHeight =
           previewValue != null ? Math.max(0, plotBottom - previewBarTop) : 0;
-        const isHighlight = highlightBars.includes(label);
+        const isHighlight = activeHighlights.includes(label);
         const isGlow = glowBar === label || isJustUpdated;
-        const isDimmed = dimOthers && !isHighlight && !isGlow;
-        const isPreviewWrong = hasPreview && previewFreq.wrong;
+        const isDimmed = dimOthers && !isHighlight && !isGlow && !isConfirmed;
+        const isPreviewWrong = hasPreview && previewWrong;
         const showBarFreqLabel =
           showLabels &&
           freq > 0 &&
-          (mode === "dice" || showFreqLabels || confirmedSections.includes(label));
-        const showPreviewLabel = hasPreview && previewValue != null;
-        const previewExceedsActual = previewValue != null && previewValue > freq;
+          (mode === "dice" || showFreqLabels || isConfirmed);
+        const showPreviewLabel =
+          hasPreview && previewValue != null && !isConfirmed && !isPreviewWrong;
+        const previewExceedsActual =
+          previewValue != null && previewValue > freq;
         const previewLabelY =
           previewBarTop != null
             ? previewExceedsActual
@@ -171,20 +209,30 @@ const BarDiagram = ({
               : previewBarTop - labelGap
             : null;
         const guideY = previewValue != null ? yFor(previewValue) : null;
+        const confirmedGuideY = isConfirmed && freq > 0 ? yFor(freq) : null;
         return React.createElement(
           "g",
           { key: `${label}`, "data-bar-value": label },
-          previewValue != null &&
+          isConfirmed &&
+            confirmedGuideY != null &&
+            React.createElement("line", {
+              className: "confirmed-guide-line",
+              x1: axisX,
+              y1: confirmedGuideY,
+              x2: x + barWidth / 2,
+              y2: confirmedGuideY,
+            }),
+          hasPreview &&
             guideY != null &&
             React.createElement("line", {
-              className: `preview-guide-line ${isPreviewWrong ? "preview-guide-line--wrong" : ""}`,
+              className: `preview-guide-line ${isPreviewWrong ? "preview-guide-line--wrong" : "preview-guide-line--correct"}`,
               x1: axisX,
               y1: guideY,
               x2: x + barWidth / 2,
               y2: guideY,
             }),
           React.createElement("rect", {
-            className: `bar-rect ${isGlow ? "bar-rect--glow" : ""} ${isDimmed ? "bar-rect--dim" : ""} ${isJustUpdated ? "bar-rect--grow" : ""}`,
+            className: `bar-rect ${isGlow ? "bar-rect--glow" : ""} ${isDimmed ? "bar-rect--dim" : ""} ${isJustUpdated ? "bar-rect--grow" : ""} ${isHighlight && !isGlow ? "bar-rect--highlight" : ""}`,
             "data-bar-value": label,
             x: x - barWidth / 2,
             y: baseBarTop,
@@ -192,50 +240,42 @@ const BarDiagram = ({
             height: baseHeight,
             style: { "--bar-delay": isJustUpdated ? "0ms" : `${index * 40}ms` },
           }),
-          previewValue != null &&
-            React.createElement("rect", {
-              className: `bar-rect bar-rect--preview-overlay ${isPreviewWrong ? "bar-rect--preview-wrong" : ""}`,
-              x: x - barWidth / 2,
-              y: previewBarTop,
-              width: barWidth,
-              height: previewHeight,
-            }),
           showBarFreqLabel &&
             React.createElement(
               "text",
               {
-                className: `freq-label ${labelClass} ${isGlow || isHighlight ? "freq-label--active" : ""} ${isJustUpdated && animateLabels ? "freq-label--after-bar" : ""}`,
+                className: `freq-label freq-label--confirmed ${labelClass} ${isDimmed ? "freq-label--dim" : ""} ${isHighlight ? "freq-label--active" : ""} ${isJustUpdated && animateLabels ? "freq-label--after-bar" : ""}`,
                 "data-freq-label": label,
                 x,
                 y: yFor(freq) - labelGap,
-                fontSize: isGlow ? 5.75 : 5.5,
+                fontSize: 5.75,
               },
-              freq
+              freq,
             ),
           showPreviewLabel &&
             React.createElement(
               "text",
               {
-                className: `freq-label freq-label--preview ${isPreviewWrong ? "freq-label--wrong" : ""} ${previewExceedsActual ? "freq-label--preview-high" : ""}`,
+                className: `freq-label freq-label--preview ${isPreviewWrong ? "freq-label--wrong" : "freq-label--correct"} ${previewExceedsActual ? "freq-label--preview-high" : ""}`,
                 "data-freq-preview": label,
                 x,
                 y: previewLabelY,
-                fontSize: 4.5,
+                fontSize: 5.5,
               },
-              previewFreq.value
+              previewFreq.value,
             ),
           React.createElement(
             "text",
             {
-              className: `axis-text x-label ${isGlow ? "x-label--active" : ""}`,
+              className: `axis-text x-label ${isGlow || isHighlight ? "x-label--active" : ""} ${isDimmed ? "x-label--dim" : ""}`,
               x,
               y: xLabelY,
               fontSize: 3.5,
             },
-            label
-          )
+            label,
+          ),
         );
-      })
-    )
+      }),
+    ),
   );
 };

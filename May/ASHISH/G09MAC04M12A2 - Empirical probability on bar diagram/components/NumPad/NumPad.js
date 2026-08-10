@@ -1,10 +1,10 @@
-const NumPad = ({ value, onChange, onSubmit, disabled, onKeyTap }) => {
+const NumPad = ({ value, onChange, onSubmit, disabled, onKeyTap, freshStartOnNextKey = false }) => {
   const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 
   const handleKey = (key) => {
     if (disabled) return;
     if (onKeyTap) onKeyTap();
-    if (value === "?") onChange(key);
+    if (freshStartOnNextKey || value === "?") onChange(key);
     else if (value.length < 2) onChange(`${value}${key}`);
   };
 
