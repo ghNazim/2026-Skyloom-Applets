@@ -157,6 +157,22 @@ const DATA = {
             ],
           ],
         },
+        rotateDrag: {
+          lines: [
+            [
+              { text: "Rotate", color: "orange" },
+              { text: " and check if the object and image have the same " },
+              { text: "orientation", color: "yellow" },
+              { text: "." },
+            ],
+            [
+              { text: "Drag the slider to " },
+              { text: "rotate", color: "orange" },
+              { text: " the object by " },
+              { text: "90\u00b0 Clockwise about origin.", color: "orange" },
+            ],
+          ],
+        },
         rotationDone: {
           lines: [
             [
@@ -542,6 +558,22 @@ const DATA = {
               { text: "\u2019 untuk mengatur arah menjadi " },
               { text: "searah jarum jam", color: "orange" },
               { text: "." },
+            ],
+          ],
+        },
+        rotateDrag: {
+          lines: [
+            [
+              { text: "Rotasi", color: "orange" },
+              { text: " dan periksa apakah objek dan bayangan memiliki " },
+              { text: "orientasi", color: "yellow" },
+              { text: " yang sama." },
+            ],
+            [
+              { text: "Seret slider untuk " },
+              { text: "memutar", color: "orange" },
+              { text: " objek sebesar " },
+              { text: "90\u00b0 searah jarum jam terhadap titik asal.", color: "orange" },
             ],
           ],
         },

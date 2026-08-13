@@ -20,6 +20,11 @@
   padding: 0.1vw 0.15vw;
   background: rgba(0, 0, 0, 0.28);
   justify-content: flex-start;
+  max-height: 30vw;
+  scrollbar-width: thin;
+  scrollbar-color: white transparent;
+  justify-content: flex-start;
+  
 }
 
 .transform-list.is-reveal {
@@ -33,6 +38,8 @@
   scrollbar-color: white transparent;
   justify-content: flex-start;
 }
+
+
 
 .transform-card {
   position: relative;

@@ -100,6 +100,7 @@ const Glass = ({
   onGuessRelease = null,
   benchmarkPick = null,
   feedbackMode = null,
+  highlightNearWater = true,
   className = "",
 }) => {
   const { useState, useEffect, useRef, useCallback, useMemo } = React;
@@ -468,7 +469,7 @@ const Glass = ({
       h(
         "text",
         {
-          x: gp.meterTextX - 12,
+          x: gp.meterTextX - (current_language === "en" ? 12 : 60),
           y: gp.waterMaxFillY - 45,
           fill: "#ffffff",
           fontSize: 30,
@@ -480,7 +481,7 @@ const Glass = ({
         const info = glassTickInfo(value);
         const y = glassYForLevel(value);
         const isEndTick = Math.abs(value) < 0.005 || Math.abs(value - 1) < 0.005;
-        const isNearWater = Math.abs(level - value) <= 0.03;
+        const isNearWater = highlightNearWater && Math.abs(level - value) <= 0.03;
         const isPickedBenchmark =
           benchmarkLevel !== null && Math.abs(value - benchmarkLevel) < 0.005;
         let tickFill = "#ffffff";
@@ -500,6 +501,9 @@ const Glass = ({
           h(
             "text",
             {
+              className:
+                "glass-meter-label" +
+                (Math.abs(value - 0.25) < 0.005 ? " glass-meter-label-quarter" : ""),
               x: gp.meterTextX,
               y: y + 6,
               fill: tickFill,

@@ -82,6 +82,12 @@ const MainCanvas = ({
     cancelledRef.current = false;
     return () => {
       cancelledRef.current = true;
+      if (
+        MathStepHelpers &&
+        typeof MathStepHelpers.clearPendingLineEquationClone === "function"
+      ) {
+        MathStepHelpers.clearPendingLineEquationClone();
+      }
     };
   }, []);
 
@@ -693,6 +699,10 @@ const MainCanvas = ({
     (cardId) => {
       if (typeof playSound === "function") playSound("click");
       if (step === 6 && cardId === "card-step1") {
+        const labelEl = document.getElementById("object-line-equation-label");
+        if (labelEl && MathStepHelpers.captureLineEquationClone) {
+          MathStepHelpers.captureLineEquationClone(labelEl);
+        }
         if (typeof onStepAdvance === "function") onStepAdvance(7);
         return;
       }
@@ -866,8 +876,10 @@ const MainCanvas = ({
         to: OBJECT_LINE_CLIP.to,
         color: colors.object,
         label: APP_DATA.graph.objectLineLabel,
+        labelId: "object-line-equation-label",
         labelT: 0.82,
         labelAngleOffset: 180,
+        labelOffsetY: 27,
         growProgress: objectGrow,
       });
     }
@@ -1041,6 +1053,7 @@ const MainCanvas = ({
             equationVisible: math.equationVisible,
             equationCollapsed: math.equationCollapsed,
             line1Visible: math.line1Visible,
+            line1Text: math.line1Text,
             line2Visible: math.line2Visible,
             line2Text: math.line2Text,
             equationParts: math.equationParts,

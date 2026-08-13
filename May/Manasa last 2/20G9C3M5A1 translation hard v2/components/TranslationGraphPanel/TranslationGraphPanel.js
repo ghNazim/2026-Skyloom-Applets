@@ -436,10 +436,12 @@ const TranslationGraphPanel = ({
         ? React.createElement(
             "text",
             {
+              id: line.labelId || undefined,
+              "data-label-angle": String(angle),
               x: midX,
-              y: midY - 12,
+              y: midY + (line.labelOffsetY != null ? line.labelOffsetY : -12),
               fill: line.color,
-              fontSize: 20,
+              fontSize: 30,
               fontWeight: "700",
               textAnchor: "middle",
               fontFamily: "system-ui, sans-serif",

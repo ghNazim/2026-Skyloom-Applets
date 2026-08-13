@@ -34,6 +34,7 @@ const DATA = {
       cupUnit: "Cup",
       meterUnit: "cup",
       guessLabel: "Your guess",
+      completedNav: "Tap \u00BB to go next",
       count: {
         title: "WHAT WE FOUND",
         footerOne: "1 pour fill the glass",
@@ -162,6 +163,7 @@ const DATA = {
       cupUnit: "Cangkir",
       meterUnit: "cangkir",
       guessLabel: "Perkiraanmu",
+      completedNav: "Ketuk \u00BB untuk lanjut",
       count: {
         title: "YANG KAMI TEMUKAN",
         footerOne: "1 tuangan mengisi gelas",

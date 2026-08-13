@@ -32,6 +32,24 @@
   filter: brightness(1.05);
 }
 
+.cup-select-card.blink {
+  animation: cup-select-border-blink 1.1s ease-in-out infinite;
+}
+
+@keyframes cup-select-border-blink {
+  0%,
+  100% {
+    border-color: rgba(255, 184, 76, 0.35);
+    box-shadow: 0.12vw 0.16vw 0.3vw rgba(0, 0, 0, 0.28);
+  }
+  50% {
+    border-color: rgba(255, 184, 76, 1);
+    box-shadow:
+      0.12vw 0.16vw 0.3vw rgba(0, 0, 0, 0.28),
+      0 0 0 0.14vw rgba(255, 184, 76, 0.45);
+  }
+}
+
 .cup-select-card.picked-wrong {
   border-color: #ff7f82;
   box-shadow: 0 0 0 0.12vw rgba(255, 127, 130, 0.35);

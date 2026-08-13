@@ -4,11 +4,51 @@ const getStep9SimplifyNavText = (simplifyStep) =>
     : APP_DATA.steps[9].navTapSimplify;
 
 const runStep7Intro = async (ctx) => {
-  const { delay, isCancelled, setMath, onMathNavChange } = ctx;
+  const { delay, isCancelled, setMath, onMathNavChange, MathStepHelpers } = ctx;
+
+  const nextFrame = () =>
+    new Promise((resolve) => requestAnimationFrame(resolve));
 
   onMathNavChange({ text: "", hidden: true, nudgeId: null });
 
-  setMath((m) => ({ ...m, equationVisible: true }));
+  setMath((m) => ({ ...m, equationVisible: false }));
+
+  await nextFrame();
+  await nextFrame();
+  await delay(40);
+  if (isCancelled()) return;
+
+  const equationBox = document.getElementById("math-equation-box");
+  if (
+    equationBox &&
+    MathStepHelpers &&
+    typeof MathStepHelpers.flyPendingLineEquationTo === "function" &&
+    MathStepHelpers.hasPendingLineEquationClone &&
+    MathStepHelpers.hasPendingLineEquationClone()
+  ) {
+    await MathStepHelpers.flyPendingLineEquationTo(equationBox, {
+      duration: 780,
+      onLanded: () => {
+        setMath((m) => ({ ...m, equationVisible: true }));
+      },
+      overlapMs: 80,
+    });
+    if (isCancelled()) {
+      if (typeof MathStepHelpers.clearPendingLineEquationClone === "function") {
+        MathStepHelpers.clearPendingLineEquationClone();
+      }
+      return;
+    }
+  } else {
+    if (
+      MathStepHelpers &&
+      typeof MathStepHelpers.clearPendingLineEquationClone === "function"
+    ) {
+      MathStepHelpers.clearPendingLineEquationClone();
+    }
+    setMath((m) => ({ ...m, equationVisible: true }));
+  }
+
   await delay(500);
   if (isCancelled()) return;
 
@@ -97,6 +137,7 @@ const runStep7AfterEquationX = async (ctx) => {
 
   setMath((m) => ({
     ...m,
+    line1Text: mp.line1y,
     line2Text: mp.line2Y,
     equationParts: {
       left: "x",

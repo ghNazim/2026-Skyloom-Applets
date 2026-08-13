@@ -9,6 +9,8 @@ const CupSelectPanel = ({
   onSelect,
 }) => {
   const h = React.createElement;
+  const hasInteracted =
+    isAnswered || selectedDenominator !== null || wrongDenominator !== null;
 
   return h(
     "div",
@@ -25,6 +27,7 @@ const CupSelectPanel = ({
       } else if (selectedDenominator === denominator) {
         stateClass = " selected";
       }
+      if (!hasInteracted) stateClass += " blink";
 
       return h(
         "button",

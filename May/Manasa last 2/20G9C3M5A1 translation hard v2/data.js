@@ -43,6 +43,7 @@ const DATA = {
       step7Placeholder: "Step 7 \u2014 coming soon",
       mathPanel: {
         line1: "Let\u2019s assume an easy value for x",
+        line1y: "Let\u2019s assume an easy value for y",
         line2X: "Let x = 0",
         line2Y: "When y = 0",
         objectPointsTitle: "Points on line before Translation",
@@ -78,7 +79,7 @@ const DATA = {
           navTapPoints: "Tap the points to name it",
           navTapSubstitute: "Tap the equation to substitute the values",
           navTapSimplify: "Tap the highlighted box to simplify",
-          navTapRearrange: "Tap the highlighted box to rearrange items",
+          navTapRearrange: "Tap the highlighted box to rearrange terms",
           navTapNext: "Tap \u00bb to draw the line",
         },
         10: {
@@ -175,6 +176,7 @@ const DATA = {
       step7Placeholder: "Langkah 7 \u2014 segera hadir",
       mathPanel: {
         line1: "Mari kita asumsikan nilai x yang mudah",
+        line1y: "Mari kita asumsikan nilai y yang mudah",
         line2X: "Misalkan x = 0",
         line2Y: "Ketika y = 0",
         objectPointsTitle: "Titik pada garis sebelum translasi",

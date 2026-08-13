@@ -1,4 +1,4 @@
-const RecipePaper = ({ highlightIndex = null, fadedExceptIndex = null, estimates = {} }) => {
+const RecipePaper = ({ highlightIndex = null, fadedExceptIndex = null, estimates = {}, id }) => {
   const recipe = APP_DATA.recipe;
 
   const amountHTML = (item) => {
@@ -11,7 +11,7 @@ const RecipePaper = ({ highlightIndex = null, fadedExceptIndex = null, estimates
 
   return React.createElement(
     "div",
-    { className: "recipe-paper" },
+    { id: id, className: "recipe-paper" },
     React.createElement("div", { className: "recipe-title" }, recipe.title),
     React.createElement("div", { className: "recipe-subtitle" }, recipe.subtitle),
     React.createElement("div", { className: "recipe-rule" }),

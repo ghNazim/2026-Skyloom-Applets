@@ -116,6 +116,40 @@
   width: 43vw;
 }
 
+.slider-wrap.slider-wrong .degree-slider-track-active {
+  background: #e07070;
+}
+
+.slider-wrap.slider-wrong .degree-slider-thumb {
+  border-color: #e07070;
+  box-shadow:
+    0 0.1vw 0.35vw rgba(0, 0, 0, 0.38),
+    inset 0 0 0.35vw rgba(224, 112, 112, 0.35);
+}
+
+.slider-wrap.slider-wrong .degree-slider-shell {
+  animation: slider-shake 0.45s ease-in-out;
+}
+
+@keyframes slider-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-0.35vw);
+  }
+  40% {
+    transform: translateX(0.35vw);
+  }
+  60% {
+    transform: translateX(-0.22vw);
+  }
+  80% {
+    transform: translateX(0.22vw);
+  }
+}
+
 .degree-slider-shell {
   position: relative;
   width: 43vw;

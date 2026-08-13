@@ -39,7 +39,6 @@
 
 .reflection-axis-label {
   fill: #ffffff;
-  font-size: 22px;
   font-weight: 800;
   font-style: italic;
   font-family: "Times New Roman", Times, serif;
@@ -52,6 +51,17 @@
   stroke-linecap: round;
 }
 
+.reflection-axis-intersection-tick {
+  stroke: #fffb00;
+  stroke-linecap: round;
+}
+
+.reflection-hk-point {
+  fill: #facc15;
+  stroke: #fff7ad;
+  stroke-width: 2;
+}
+
 .reflection-reflector-line {
   stroke: #facc15;
   stroke-width: 3.7;
@@ -60,13 +70,12 @@
 
 .reflection-equation-label {
   fill: #fff7ad;
-  font-size: 18px;
   font-weight: 800;
   font-family: "Times New Roman", Times, serif;
   font-style: italic;
   paint-order: stroke;
   stroke: rgba(4, 14, 22, 0.82);
-  stroke-width: 4;
+  stroke-width: 5;
 }
 
 .reflection-h-arrow {
@@ -78,13 +87,12 @@
 .reflection-h-label,
 .reflection-origin-h-label {
   fill: #fff7ed;
-  font-size: 18px;
   font-weight: 800;
   font-style: italic;
   font-family: "Times New Roman", Times, serif;
   paint-order: stroke;
   stroke: rgba(4, 14, 22, 0.86);
-  stroke-width: 4;
+  stroke-width: 5;
 }
 
 .reflection-point,
@@ -102,25 +110,25 @@
 
 .reflection-point-label {
   fill: #ffffff;
-  font-size: 17px;
-  font-weight: 800;
+  font-weight: 600;
   paint-order: stroke;
   stroke: rgba(4, 14, 22, 0.86);
-  stroke-width: 4;
+  stroke-width: 3;
 }
 
-.reflection-point-label.reflected {
-  fill: #a5f3fc;
+.reflection-point-label .coord-x-token,
+.reflection-point-label .coord-y-token,
+.reflection-point-label .coord-h-token {
+  font-weight: 600;
 }
 
 .reflection-coordinate-label {
-  font-size: 17px;
   font-weight: 800;
   font-family: "Times New Roman", Times, serif;
   font-style: italic;
   paint-order: stroke;
   stroke: rgba(4, 14, 22, 0.88);
-  stroke-width: 4;
+  stroke-width: 5;
 }
 
 .coord-x-token {
@@ -201,9 +209,13 @@
   flex-direction: column;
   gap: 0.45vw;
   min-width: 40%;
-
   z-index: 3;
 }
+
+.reflection-result-boxes.wide {
+  left: 8%;
+}
+
 
 .reflection-result-box {
   min-height: 2.5vw;

@@ -13,7 +13,7 @@
   --panel-dark: #102636;
   --panel-darker: #0b202d;
   --grid-line: rgba(62, 112, 145, 0.68);
-  --axis-line: rgba(235, 244, 248, 0.68);
+  --axis-line: rgba(235, 244, 248, 0.32);
   --text-strong: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.58);
   --button-bg: #284d66;

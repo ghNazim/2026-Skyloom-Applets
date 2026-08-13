@@ -173,7 +173,8 @@ const PROBLEMS_EN = [
         "Line <y>A\u2032B\u2032</y><br>is the image of<br>line <y>AB</y><br>after reflection across <br><y>y-axis</y>.",
       abEquationLabel: "2x \u2212 y = 10",
       abLabelOffset: 20,
-      abLabelAngleOffset: 180,
+      abLabelAngleOffset: 0,
+      equationLabelAngleOffset: 180,
       equationLabel: "2x + y + 10 = 0",
       highlightYAxis: true,
     },
@@ -299,8 +300,8 @@ const PROBLEMS_EN = [
     coordOptionsB: ["(3, -2)", "(-3, -2)", "(3, 2)", "(3, -6)"],
     coordCorrectIndexB: 0,
     hints: {
-      type: "labels",
-      y: "Use -y + 2h",
+      type: "connectors",
+      y: "Change sign \n and add 2h",
       x: "No change",
     },
     step2: {
@@ -338,11 +339,14 @@ const PROBLEMS_EN = [
       rightText:
         "Line <y>A\u2032B\u2032</y><br>is the image of<br>line <y>AB</y><br>after reflection across <br><y>y = 2</y>.",
       abEquationLabel: "y = 2x",
-      abLabelOffset: 20,
+      abLabelOffset: 28,
       abLabelAtThroughMidpoint: true,
       equationLabel: "2x + y = 4",
       equationLabelAtThroughMidpoint: true,
       highlightYAxis: false,
+      equationLabelAngleOffset: 180,
+      abLabelAngleOffset: 180,
+      
       reflectionAxisLine: {
         through: [
           { x: 0, y: 2 },
@@ -351,7 +355,7 @@ const PROBLEMS_EN = [
         strokeWidth: 3.5,
         equationLabel: "y = 2",
         labelAngleOffset: 180,
-        labelOffset: 22,
+        labelOffset: 20,
         labelPositionRatio: 0.25,
       },
     },
@@ -431,7 +435,8 @@ const PROBLEMS_ID = [
         "Garis <y>A\u2032B\u2032</y><br>adalah bayangan<br>garis <y>AB</y><br>setelah refleksi terhadap <y>sumbu-y</y>.",
       abEquationLabel: "2x \u2212 y = 10",
       abLabelOffset: 20,
-      abLabelAngleOffset: 180,
+      abLabelAngleOffset: 0,
+      equationLabelAngleOffset: 180,
       equationLabel: "2x + y + 10 = 0",
       highlightYAxis: true,
     },
@@ -557,8 +562,8 @@ const PROBLEMS_ID = [
     coordOptionsB: ["(3, -2)", "(-3, -2)", "(3, 2)", "(3, -6)"],
     coordCorrectIndexB: 0,
     hints: {
-      type: "labels",
-      y: "Gunakan -y + 2h",
+      type: "connectors",
+      y: "Ubah tanda dan \n tambahkan 2h",
       x: "Tidak berubah",
     },
     step2: {
@@ -596,11 +601,13 @@ const PROBLEMS_ID = [
       rightText:
         "Garis <y>A\u2032B\u2032</y><br>adalah bayangan<br>garis <y>AB</y><br>setelah refleksi terhadap <y>y = 2</y>.",
       abEquationLabel: "y = 2x",
-      abLabelOffset: 20,
+      abLabelOffset: 28,
       abLabelAtThroughMidpoint: true,
       equationLabel: "2x + y = 4",
       equationLabelAtThroughMidpoint: true,
       highlightYAxis: false,
+      equationLabelAngleOffset: 180,
+      abLabelAngleOffset: 180,
       reflectionAxisLine: {
         through: [
           { x: 0, y: 2 },

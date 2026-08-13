@@ -20,6 +20,8 @@ const ReflectionCanvas = (props) => {
       ? APP_DATA.graph.resultBoxes[visual.caseId]
       : null;
   const tones = caseConfig ? caseConfig.resultTone : null;
+  const useWideResultBoxes =
+    visual.caseId === "lineYH" || visual.caseId === "lineXK";
 
   return React.createElement(
     "div",
@@ -43,7 +45,10 @@ const ReflectionCanvas = (props) => {
       resultBoxes
         ? React.createElement(
             "div",
-            { className: "reflection-result-boxes" },
+            {
+              className:
+                "reflection-result-boxes" + (useWideResultBoxes ? " wide" : ""),
+            },
             React.createElement(
               "div",
               { className: "reflection-result-box " + getResultToneClass(tones.x) },

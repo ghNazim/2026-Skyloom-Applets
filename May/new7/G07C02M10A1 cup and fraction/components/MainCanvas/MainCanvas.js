@@ -1,7 +1,9 @@
-const POUR_DURATION = 1.1;
+const POUR_DURATION = 1.43; // 1.1 * 1.3
 const EMPTY_DURATION = 0.9;
-const CUP_FLIGHT_DURATION = 0.9;
-const HOLD_MS = 1000;
+const CUP_FLIGHT_DURATION = 1.17; // 0.9 * 1.3
+const POST_POUR_PAUSE_MS = 700;
+const POST_FEEDBACK_PAUSE_MS = 2000;
+const POST_CARD_ADVANCE_MS = 2500;
 
 /** Width (vw) of the full-size 1-cup image in the visual column. */
 const CUP_VISUAL_BASE_WIDTH = 17;
@@ -30,6 +32,146 @@ const DENOMINATOR_LEVEL = {
   4: 0.25,
 };
 
+/**
+ * Final (completed) stage snapshot for a step — animations done,
+ * interactions finished, correct outcome visible.
+ */
+function getFinalStage(step) {
+  const config = (typeof APP_DATA !== "undefined" && APP_DATA.steps[step]) || {};
+
+  if (step === 1) {
+    return {
+      poured: true,
+      showFillText: true,
+      cupHidden: true,
+      isBusy: true,
+      guess: 0,
+      guessArmed: false,
+      hasGuessed: false,
+      guessHidden: true,
+      cardsVisible: 1,
+      wrongPick: null,
+      isAnswered: false,
+      estimateWrongPick: null,
+      estimateFeedback: null,
+      isEstimateAnswered: false,
+    };
+  }
+
+  if (step === 2) {
+    return {
+      poured: true,
+      showFillText: true,
+      cupHidden: true,
+      isBusy: true,
+      guess: 0.5,
+      guessArmed: false,
+      hasGuessed: true,
+      guessHidden: true,
+      cardsVisible: 2,
+      wrongPick: null,
+      isAnswered: false,
+      estimateWrongPick: null,
+      estimateFeedback: null,
+      isEstimateAnswered: false,
+    };
+  }
+
+  if (step === 3) {
+    return {
+      poured: true,
+      showFillText: true,
+      cupHidden: true,
+      isBusy: true,
+      guess: 1 / 3,
+      guessArmed: false,
+      hasGuessed: true,
+      guessHidden: true,
+      cardsVisible: 3,
+      wrongPick: null,
+      isAnswered: false,
+      estimateWrongPick: null,
+      estimateFeedback: null,
+      isEstimateAnswered: false,
+    };
+  }
+
+  if (step === 4) {
+    return {
+      poured: false,
+      showFillText: false,
+      cupHidden: false,
+      isBusy: false,
+      guess: 0,
+      guessArmed: false,
+      hasGuessed: false,
+      guessHidden: true,
+      cardsVisible: 3,
+      wrongPick: null,
+      isAnswered: true,
+      estimateWrongPick: null,
+      estimateFeedback: null,
+      isEstimateAnswered: false,
+    };
+  }
+
+  if (step === 5) {
+    return {
+      poured: true,
+      showFillText: true,
+      cupHidden: true,
+      isBusy: true,
+      guess: 0,
+      guessArmed: false,
+      hasGuessed: false,
+      guessHidden: true,
+      cardsVisible: 4,
+      wrongPick: null,
+      isAnswered: false,
+      estimateWrongPick: null,
+      estimateFeedback: null,
+      isEstimateAnswered: false,
+    };
+  }
+
+  if (step >= ESTIMATE_FIRST_STEP && step <= ESTIMATE_LAST_STEP) {
+    return {
+      poured: false,
+      showFillText: false,
+      cupHidden: false,
+      isBusy: false,
+      guess: 0,
+      guessArmed: false,
+      hasGuessed: false,
+      guessHidden: true,
+      cardsVisible: 4,
+      wrongPick: null,
+      isAnswered: false,
+      estimateWrongPick: null,
+      estimateFeedback: "correct",
+      isEstimateAnswered: true,
+      correctDenominator: config.correctDenominator || 2,
+    };
+  }
+
+  return {
+    poured: false,
+    showFillText: false,
+    cupHidden: false,
+    isBusy: false,
+    guess: 0,
+    guessArmed: false,
+    hasGuessed: false,
+    guessHidden: true,
+    cardsVisible: 0,
+    wrongPick: null,
+    isAnswered: false,
+    estimateWrongPick: null,
+    estimateFeedback: null,
+    isEstimateAnswered: false,
+  };
+}
+
 function buildCountCards(upTo) {
   const list = [];
   for (let i = 1; i <= upTo; i += 1) {
@@ -40,14 +182,17 @@ function buildCountCards(upTo) {
 
 const MainCanvas = ({
   step,
+  stageMode = "play",
   onSetNextEnabled,
   onUpdateNav,
   onAdvance,
+  onStepCompleted,
   onHideNudge,
   onShowNudgeAtElement,
 }) => {
   const { useState, useEffect, useLayoutEffect, useRef, useCallback } = React;
   const h = React.createElement;
+  const isCompletedView = stageMode === "completed";
 
   const [poured, setPoured] = useState(false);
   const [showFillText, setShowFillText] = useState(false);
@@ -98,18 +243,36 @@ const MainCanvas = ({
     flight.clone = null;
   }, []);
 
+  const applyStageState = useCallback((stage) => {
+    setPoured(!!stage.poured);
+    setShowFillText(!!stage.showFillText);
+    setCupHidden(!!stage.cupHidden);
+    setIsBusy(!!stage.isBusy);
+    setGuess(stage.guess || 0);
+    setGuessArmed(!!stage.guessArmed);
+    setHasGuessed(!!stage.hasGuessed);
+    setGuessHidden(!!stage.guessHidden);
+    setCardsVisible(stage.cardsVisible || 0);
+    setWrongPick(stage.wrongPick);
+    setIsAnswered(!!stage.isAnswered);
+    setEstimateWrongPick(stage.estimateWrongPick);
+    setEstimateFeedback(stage.estimateFeedback);
+    setIsEstimateAnswered(!!stage.isEstimateAnswered);
+  }, []);
+
   const finishCardAnimation = useCallback(() => {
     const current = stepRef.current;
     setGuessHidden(true);
     setCardsVisible(current === 5 ? 4 : current);
+    if (typeof onStepCompleted === "function") onStepCompleted(current);
     if (current === 5) {
       onUpdateNav(APP_DATA.steps[5].navDone);
       onSetNextEnabled(true);
       addTimer(400, () => onShowNudgeAtElement("next-button", "tap"));
       return;
     }
-    addTimer(HOLD_MS, () => onAdvance());
-  }, [addTimer, onAdvance, onSetNextEnabled, onShowNudgeAtElement, onUpdateNav]);
+    addTimer(POST_CARD_ADVANCE_MS, () => onAdvance());
+  }, [addTimer, onAdvance, onSetNextEnabled, onShowNudgeAtElement, onStepCompleted, onUpdateNav]);
 
   const flyCupToCard = useCallback(() => {
     const source = cupImgRef.current;
@@ -150,6 +313,16 @@ const MainCanvas = ({
   useLayoutEffect(() => {
     clearTimers();
     clearFlight();
+    onHideNudge();
+
+    if (isCompletedView) {
+      applyStageState(getFinalStage(step));
+      onUpdateNav(APP_DATA.completedNav || "Tap \u00BB to go next");
+      onSetNextEnabled(true);
+      addTimer(400, () => onShowNudgeAtElement("next-button", "tap"));
+      return undefined;
+    }
+
     setPoured(false);
     setShowFillText(false);
     setCupHidden(false);
@@ -177,18 +350,22 @@ const MainCanvas = ({
       addTimer(EMPTY_DURATION * 1000 + 250, () => onShowNudgeAtElement("guess-pointer", "drag"));
     } else if (step === 5) {
       setShowFillText(true);
-      addTimer(HOLD_MS, flyCupToCard);
+      addTimer(POST_FEEDBACK_PAUSE_MS, flyCupToCard);
     }
     return undefined;
   }, [
     step,
+    stageMode,
+    isCompletedView,
     addTimer,
+    applyStageState,
     clearFlight,
     clearTimers,
+    flyCupToCard,
+    onHideNudge,
     onSetNextEnabled,
     onShowNudgeAtElement,
     onUpdateNav,
-    flyCupToCard,
   ]);
 
   useEffect(
@@ -212,7 +389,15 @@ const MainCanvas = ({
   const tickSet = POUR_TICKS[step] || POUR_TICKS[1];
   const ticks = poured ? tickSet.after : tickSet.before;
   const showGuess = needsGuess && guessArmed && !guessHidden;
-  const isCupClickable = !isBusy && !poured && !cupHidden && (!needsGuess || hasGuessed);
+  const isCupClickable =
+    !isCompletedView && !isBusy && !poured && !cupHidden && (!needsGuess || hasGuessed);
+  const glassFillDuration = isCompletedView
+    ? 0
+    : isQuarterReveal
+      ? 0
+      : poured
+        ? POUR_DURATION
+        : EMPTY_DURATION;
 
   const cards = isEstimate
     ? buildCountCards(4)
@@ -247,14 +432,14 @@ const MainCanvas = ({
     setIsBusy(true);
     setPoured(true);
     onUpdateNav("");
-    addTimer(POUR_DURATION * 1000, () => {
+    addTimer(POUR_DURATION * 1000 + POST_POUR_PAUSE_MS, () => {
       setShowFillText(true);
-      addTimer(HOLD_MS, flyCupToCard);
+      addTimer(POST_FEEDBACK_PAUSE_MS, flyCupToCard);
     });
   };
 
   const handleCompareClick = (value) => {
-    if (isAnswered) return;
+    if (isCompletedView || isAnswered) return;
     onHideNudge();
     if (value !== COMPARE_CORRECT_DENOMINATOR) {
       playSnd("wrong");
@@ -264,13 +449,14 @@ const MainCanvas = ({
     playSnd("correct");
     setWrongPick(null);
     setIsAnswered(true);
+    if (typeof onStepCompleted === "function") onStepCompleted(4);
     onUpdateNav(APP_DATA.steps[4].navDone);
     onSetNextEnabled(true);
     addTimer(400, () => onShowNudgeAtElement("next-button", "tap"));
   };
 
   const handleEstimateSelect = (denominatorValue) => {
-    if (isEstimateAnswered) return;
+    if (isCompletedView || isEstimateAnswered) return;
     onHideNudge();
     const stepConfig = APP_DATA.steps[stepRef.current];
     if (denominatorValue !== stepConfig.correctDenominator) {
@@ -283,6 +469,7 @@ const MainCanvas = ({
     setEstimateWrongPick(null);
     setEstimateFeedback("correct");
     setIsEstimateAnswered(true);
+    if (typeof onStepCompleted === "function") onStepCompleted(stepRef.current);
     onUpdateNav(stepConfig.navDone);
     onSetNextEnabled(true);
     addTimer(400, () => onShowNudgeAtElement("next-button", "tap"));
@@ -297,7 +484,7 @@ const MainCanvas = ({
         { className: "cup-visual-left" },
         h(Glass, {
           fill: isQuarterReveal ? 0.25 : poured ? 1 / denominator : 0,
-          fillDuration: isQuarterReveal ? 0 : poured ? POUR_DURATION : EMPTY_DURATION,
+          fillDuration: glassFillDuration,
           ticks: isQuarterReveal ? FULL_TICKS : ticks,
           unitLabel: APP_DATA.meterUnit,
           showGuess: showGuess,
@@ -359,7 +546,7 @@ const MainCanvas = ({
         id: "compare-button-" + value,
         className: "compare-button" + stateClass,
         onClick: () => handleCompareClick(value),
-        disabled: isAnswered,
+        disabled: isAnswered || isCompletedView,
       },
       h(
         "span",
@@ -373,10 +560,28 @@ const MainCanvas = ({
   const renderCompareGlass = (value) =>
     h(
       "div",
-      { key: "compare-glass-" + value, className: "compare-glass-cell" },
+      {
+        key: "compare-glass-" + value,
+        id: "compare-glass-" + value,
+        className:
+          "compare-glass-cell" + (!isAnswered && !isCompletedView ? " clickable" : ""),
+        onClick:
+          isAnswered || isCompletedView ? undefined : () => handleCompareClick(value),
+        role: isAnswered || isCompletedView ? undefined : "button",
+        tabIndex: isAnswered || isCompletedView ? undefined : 0,
+        onKeyDown:
+          isAnswered || isCompletedView
+            ? undefined
+            : (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleCompareClick(value);
+                }
+              },
+      },
       h(Glass, {
         fill: isAnswered ? 1 / value : 0,
-        fillDuration: POUR_DURATION,
+        fillDuration: isCompletedView ? 0 : POUR_DURATION,
         ticks: value === 4 && isAnswered ? COMPARE_FOURTH_TICKS : COMPARE_BASE_TICKS,
         unitLabel: APP_DATA.meterUnit,
       }),
@@ -446,6 +651,7 @@ const MainCanvas = ({
           unitLabel: APP_DATA.meterUnit,
           benchmarkPick: pickedLevel,
           feedbackMode: estimateFeedback,
+          highlightNearWater: false,
         }),
       ),
       h(

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Soal Kelompok tentang Rata-rata</title>
+
+    <script src="./react/react.development.js"></script>
+    <script src="./react/react-dom.development.js"></script>
+
+    <script>
+        window.APP_LANGUAGE = 'id';
+    </script>
+    <script src="./assets/lib/confetti.min.js"></script>
+    <script src="data.js?v=3.7"></script>
+
+    <link rel="stylesheet" href="./styles/index.css?v=1.4">
+    <link rel="stylesheet" href="./styles/Applet.css?v=1.3">
+    <link rel="stylesheet" href="./components/WelcomeScreen/WelcomeScreen.css?v=3.1">
+    <link rel="stylesheet" href="./components/EndScreen/EndScreen.css?v=3.3">
+    <link rel="stylesheet" href="./components/LowerPanel/LowerPanel.css?v=1.3">
+    <link rel="stylesheet" href="./components/Navigation/Navigation.css?v=3.2">
+    <link rel="stylesheet" href="./components/HandFtue/HandFtue.css">
+    <link rel="stylesheet" href="./components/AnimationSystem/AnimationSystem.css?v=3.2">
+    <link rel="stylesheet" href="./components/CompareScreen/CompareScreen.css?v=3.4">
+    <link rel="stylesheet" href="./components/GroupBuilder/GroupBuilder.css?v=4.3">
+    <link rel="stylesheet" href="./components/ProblemSolver/ProblemSolver.css?v=4.2">
+</head>
+<body>
+    <div id="hand-ftue">
+        <img src="assets/fingerTap.gif" alt="Hand Cursor" />
+    </div>
+    <div id="root"></div>
+
+    <script src="./components/WelcomeScreen/WelcomeScreen.js?v=1.3"></script>
+    <script src="./components/EndScreen/EndScreen.js?v=3.3"></script>
+    <script src="./components/LowerPanel/LowerPanel.js?v=1.3"></script>
+    <script src="./components/Navigation/Navigation.js?v=3.2"></script>
+    <script src="./components/AnimationSystem/AnimationSystem.js?v=3.1"></script>
+    <script src="./components/GroupBuilder/GroupBuilder.js?v=4.0"></script>
+    <script src="./components/RuleExplorer/RuleExplorer.js?v=3.0"></script>
+    <script src="./components/ProblemSolver/ProblemSolver.js?v=3.8"></script>
+    <script src="./components/CompareScreen/CompareScreen.js?v=3.0"></script>
+    <script src="App.js?v=3.3"></script>
+
+    <script>
+        document.title = T.html_title;
+        ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+</body>
+</html>

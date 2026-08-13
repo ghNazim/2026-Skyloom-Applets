@@ -65,27 +65,27 @@ const DATA = {
         resultBoxes: {
           xAxis: {
             x: "x-coordinate: No change",
-            y: "y-coordinate: sign changes",
+            y: "y-coordinate: Sign changes",
           },
           yAxis: {
-            x: "x-coordinate: sign changes",
+            x: "x-coordinate: Sign changes",
             y: "y-coordinate: No change",
           },
           lineYH: {
             x: "x-coordinate: No change",
-            y: "y-coordinate: sign changes",
+            y: "y-coordinate: Change sign then add 2h",
           },
           lineXK: {
-            x: "x-coordinate: sign changes",
+            x: "x-coordinate: Change sign then add 2k",
             y: "y-coordinate: No change",
           },
           lineYX: {
-            x: "coordinates swap",
-            y: "signs do not change",
+            x: "Coordinates swap",
+            y: "Signs do not change",
           },
           lineYNegX: {
-            x: "coordinates swap",
-            y: "signs change",
+            x: "Coordinates swap",
+            y: "Signs change",
           },
         },
       },
@@ -151,28 +151,28 @@ const DATA = {
         },
         resultBoxes: {
           xAxis: {
-            x: "koordinat x: Tidak berubah",
-            y: "koordinat y: tanda berubah",
+            x: "Koordinat x: Tidak berubah",
+            y: "Koordinat y: Tanda berubah",
           },
           yAxis: {
-            x: "koordinat x: tanda berubah",
-            y: "koordinat y: Tidak berubah",
+            x: "Koordinat x: Tanda berubah",
+            y: "Koordinat y: Tidak berubah",
           },
           lineYH: {
-            x: "koordinat x: Tidak berubah",
-            y: "koordinat y: tanda berubah",
+            x: "Koordinat x: Tidak berubah",
+            y: "Koordinat y: Ubah tanda lalu tambahkan 2h",
           },
           lineXK: {
-            x: "koordinat x: tanda berubah",
-            y: "koordinat y: Tidak berubah",
+            x: "Koordinat x: Ubah tanda lalu tambahkan 2k",
+            y: "Koordinat y: Tidak berubah",
           },
           lineYX: {
-            x: "koordinat bertukar",
-            y: "koordinat y: tanda tidak berubah",
+            x: "Koordinat bertukar",
+            y: "Koordinat y: tanda tidak berubah",
           },
           lineYNegX: {
-            x: "koordinat bertukar",
-            y: "tanda berubah",
+            x: "Koordinat bertukar",
+            y: "Tanda berubah",
           },
         },
       },

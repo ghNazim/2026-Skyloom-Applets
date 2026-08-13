@@ -17,11 +17,11 @@ const DATA = {
       },
       start: {
         heading: "Finding Translation",
-        text: "Given the pre-image coordinates and the image coordinates,<br>find the translation (units of movement).<br><br><br>Click START to begin!",
+        text: "Given the object coordinates and the image coordinates,<br>find the translation (units of movement).<br><br><br>Click START to begin!",
         buttonText: "START",
       },
       question: {
-        text: 'The pre-image point <span id="fly-pre-label" class="fly-source">A</span>(<span id="fly-pre-x" class="fly-source">2</span>,<span id="fly-pre-y" class="fly-source">3</span>) moves to image point <span id="fly-image-label" class="fly-source">A\'</span>(<span id="fly-image-x" class="fly-source">7</span>,<span id="fly-image-y" class="fly-source">1</span>).<br>Find the translation.',
+        text: 'The object point <span id="fly-pre-label" class="fly-source">A</span>(<span id="fly-pre-x" class="fly-source">2</span>,<span id="fly-pre-y" class="fly-source">3</span>) moves to image point <span id="fly-image-label" class="fly-source">A\'</span>(<span id="fly-image-x" class="fly-source">7</span>,<span id="fly-image-y" class="fly-source">1</span>).<br>Find the translation.',
       },
       table: {
         x: "x",
@@ -46,7 +46,7 @@ const DATA = {
       },
       rightPanel: {
         instruction:
-          "Simply subtract the pre-image coordinate from the image coordinate.",
+          "Simply subtract the <br>object coordinate from<br> the image coordinate.",
         resultHtml:
           '<span class="translation-rule">The translation rule is <br>(+5, -2).</span><br>The point has moved<br>5 units to the right and<br>2 units downward',
         translateButton: "TRANSLATE",
@@ -223,7 +223,7 @@ const DATA = {
       },
       final: {
         heading: "",
-        text: "Great job! You can now find the translation (units of movement) <br>when the pre-image coordinates and image coordinates are given.",
+        text: "Great job! You can now find the translation (units of movement) <br>when the object coordinates and image coordinates are given.",
         buttonText: "START OVER",
       },
       steps: {
@@ -279,11 +279,11 @@ const DATA = {
       },
       start: {
         heading: "Menemukan Translasi",
-        text: "Diberikan koordinat pra-bayangan dan koordinat bayangan,<br>temukan translasi (satuan perpindahan).<br><br><br>Klik MULAI untuk memulai!",
+        text: "Diberikan koordinat objek dan koordinat bayangan,<br>temukan translasi (satuan perpindahan).<br><br><br>Klik MULAI untuk memulai!",
         buttonText: "MULAI",
       },
       question: {
-        text: 'Titik pra-bayangan <span id="fly-pre-label" class="fly-source">A</span>(<span id="fly-pre-x" class="fly-source">2</span>,<span id="fly-pre-y" class="fly-source">3</span>) bergerak ke titik bayangan <span id="fly-image-label" class="fly-source">A\'</span>(<span id="fly-image-x" class="fly-source">7</span>,<span id="fly-image-y" class="fly-source">1</span>).<br>Temukan translasinya.',
+        text: 'Titik objek <span id="fly-pre-label" class="fly-source">A</span>(<span id="fly-pre-x" class="fly-source">2</span>,<span id="fly-pre-y" class="fly-source">3</span>) bergerak ke titik bayangan <span id="fly-image-label" class="fly-source">A\'</span>(<span id="fly-image-x" class="fly-source">7</span>,<span id="fly-image-y" class="fly-source">1</span>).<br>Temukan translasinya.',
       },
       table: {
         x: "x",
@@ -308,7 +308,7 @@ const DATA = {
       },
       rightPanel: {
         instruction:
-          "Cukup kurangi koordinat pra-bayangan dari koordinat bayangan.",
+          "Cukup kurangi <br>koordinat objek dari<br> koordinat bayangan.",
         resultHtml:
           '<span class="translation-rule">Aturan translasinya adalah (+5, -2).</span><br>Titik tersebut bergerak<br>5 satuan ke kanan dan<br>2 satuan ke bawah',
         translateButton: "TRANSLASI",
@@ -486,7 +486,7 @@ const DATA = {
       },
       final: {
         heading: "",
-        text: "Bagus! Sekarang kamu dapat menemukan translasi (satuan perpindahan) <br>ketika koordinat pra-bayangan dan koordinat bayangan diberikan.",
+        text: "Bagus! Sekarang kamu dapat menemukan translasi (satuan perpindahan) <br>ketika koordinat objek dan koordinat bayangan diberikan.",
         buttonText: "MULAI LAGI",
       },
       steps: {

@@ -85,6 +85,31 @@
   stroke-dasharray: 4 5;
 }
 
+.clone-triangle.is-shaking {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: clone-shake 0.5s ease-in-out;
+}
+
+@keyframes clone-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
 .clone-triangle.is-flipping-y,
 .clone-flip-wrap.is-flipping-y,
 .raster-clone.is-flipping-y {

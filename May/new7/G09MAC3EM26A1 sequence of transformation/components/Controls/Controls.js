@@ -22,13 +22,27 @@ const DilateControls = ({
   const labels = APP_DATA.labels;
   const max = dilateMax == null ? 3 : dilateMax;
   const thumbPct = (scaleFactor / max) * 100;
+  const scaleLabel = labels.scaleFactor || "Scale factor (k)";
+  const kIndex = scaleLabel.indexOf("k");
+  const scaleLabelNodes =
+    kIndex === -1
+      ? scaleLabel
+      : [
+          scaleLabel.slice(0, kIndex),
+          React.createElement(
+            "span",
+            { key: "k", className: "scale-factor-k" },
+            "k",
+          ),
+          scaleLabel.slice(kIndex + 1),
+        ];
   return React.createElement(
     "div",
     { className: "dilate-controls" },
     React.createElement(
       "label",
       { className: "scale-factor-label", htmlFor: "dilate-slider" },
-      labels.scaleFactor,
+      scaleLabelNodes,
     ),
     React.createElement(
       "div",
@@ -111,7 +125,7 @@ const RotateControls = ({
           className:
             "mini-control rotate-accent" +
             (direction === "cw" ? " is-selected" : ""),
-          disabled: controlsDisabled || (enabledDirection && enabledDirection !== "cw"),
+          disabled: controlsDisabled,
           onClick: function () {
             onDirection("cw");
           },
@@ -125,7 +139,7 @@ const RotateControls = ({
           className:
             "mini-control rotate-accent" +
             (direction === "acw" ? " is-selected" : ""),
-          disabled: controlsDisabled || (enabledDirection && enabledDirection !== "acw"),
+          disabled: controlsDisabled,
           onClick: function () {
             onDirection("acw");
           },
@@ -241,7 +255,7 @@ const ReflectControls = ({ selectedAxis, enabledAxis, disabled, onReflect }) =>
     ),
   );
 
-const TranslateControls = ({ vector, enabledArrow, onMove }) =>
+const TranslateControls = ({ vector, enabledArrow, hintArrow, onMove }) =>
   React.createElement(
     "div",
     { className: "translate-controls" },
@@ -271,7 +285,7 @@ const TranslateControls = ({ vector, enabledArrow, onMove }) =>
           enabledArrow === "all" ||
           enabledArrow === dir ||
           (Array.isArray(enabledArrow) && enabledArrow.indexOf(dir) !== -1);
-        const isTarget = enabled && enabledArrow !== "all";
+        const showHint = hintArrow === dir;
         return React.createElement(
           "button",
           {
@@ -281,7 +295,7 @@ const TranslateControls = ({ vector, enabledArrow, onMove }) =>
               "arrow-button arrow-" +
               dir +
               (enabled ? " is-enabled" : "") +
-              (isTarget ? " is-target" : ""),
+              (showHint ? " is-hint" : ""),
             disabled: !enabled,
             "aria-label": APP_DATA.labels[dir],
             onClick: function () {
@@ -303,6 +317,7 @@ const Controls = ({
   sliderPulse,
   translationVector,
   enabledArrow,
+  hintArrow,
   canRotate,
   canReflect,
   canTranslate,
@@ -387,6 +402,7 @@ const Controls = ({
       return React.createElement(TranslateControls, {
         vector: translationVector,
         enabledArrow: enabledArrow,
+        hintArrow: hintArrow,
         onMove: onMove,
       });
     }

@@ -12,6 +12,7 @@ const Problem = ({ ingredientIndex = 0, estimates = {} }) => {
       "div",
       { className: "problem-recipe-column" },
       React.createElement(RecipePaper, {
+        id: "problem-recipe-paper",
         highlightIndex: flow.itemIndex,
         fadedExceptIndex: flow.itemIndex,
         estimates,
@@ -21,6 +22,7 @@ const Problem = ({ ingredientIndex = 0, estimates = {} }) => {
       "div",
       { className: "problem-card" },
       React.createElement("div", {
+        id: "problem-line-main",
         className: "problem-line problem-line-main",
         dangerouslySetInnerHTML: { __html: formatFractionsInText(flow.problemLine) },
       }),

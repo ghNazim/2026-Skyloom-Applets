@@ -169,11 +169,11 @@
 }
 
 .x-token {
-  color: #ff7a35;
+  color: #df61d8;
 }
 
 .y-token {
-  color: #df61d8;
+  color: #ff7a35;
 }
 
 /* ── Coordinate expressions in answer row ── */
@@ -213,10 +213,11 @@
   left: 50%;
   translate: -50% 0;
   z-index: 3;
-  font-size: 2.45vw;
+  font-size: 2.25vw;
   line-height: 1;
   background: #082d3b;
   padding: 0 0.5vw;
+  white-space: pre;
 }
 
 .x-hint {

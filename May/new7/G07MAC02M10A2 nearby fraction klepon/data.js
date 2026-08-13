@@ -76,7 +76,7 @@ const DATA = {
           placeQuestion: "Karina needs 9/10 cup of rice flour.",
           problemNav: "Tap \u00BB to place 9/10 on the number line.",
           placeNav: "Drag a dot to place 9/10 on the line.",
-          benchmarkQuestion: "estimate 9/10 to its nearest benchmark.",
+          benchmarkQuestion: "Estimate 9/10 to its nearest benchmark.",
           placeWrong: "Not quite - count the equal parts. You need the 9th mark from 0.",
           placeCorrect: "Correct! 9/10 is 9 of the 10 equal parts.",
           benchmarkCorrect:
@@ -96,7 +96,7 @@ const DATA = {
           placeQuestion: "Karina needs 2/9 cup of tapioca flour.",
           problemNav: "Tap \u00BB to place 2/9 on the number line.",
           placeNav: "Drag a dot to place 2/9 on the line.",
-          benchmarkQuestion: "estimate 2/9 to its nearest benchmark.",
+          benchmarkQuestion: "Estimate 2/9 to its nearest benchmark.",
           placeWrong: "Not quite - count the equal parts. You need the 2nd mark from 0.",
           placeCorrect: "Correct! 2/9 is 2 of the 9 equal parts.",
           benchmarkCorrect:
@@ -116,7 +116,7 @@ const DATA = {
           placeQuestion: "Karina needs 3/5 cup of coconut milk.",
           problemNav: "Tap \u00BB to place 3/5 on the number line.",
           placeNav: "Drag a dot to place 3/5 on the line.",
-          benchmarkQuestion: "estimate 3/5 to its nearest benchmark.",
+          benchmarkQuestion: "Estimate 3/5 to its nearest benchmark.",
           placeWrong: "Not quite - count the equal parts. You need the 3rd mark from 0.",
           placeCorrect: "Correct! 3/5 is 3 of the 5 equal parts.",
           benchmarkCorrect:
@@ -140,7 +140,7 @@ const DATA = {
           placeQuestion: "Karina needs 5/6 tbsp of vegetable oil.",
           problemNav: "Tap \u00BB to place 5/6 on the number line.",
           placeNav: "Drag a dot to place 5/6 on the line.",
-          benchmarkQuestion: "estimate 5/6 to its nearest benchmark.",
+          benchmarkQuestion: "Estimate 5/6 to its nearest benchmark.",
           placeWrong: "Not quite - count the equal parts. You need the 5th mark from 0.",
           placeCorrect: "Correct! 5/6 is 5 of the 6 equal parts.",
           benchmarkCorrect:
@@ -164,7 +164,7 @@ const DATA = {
           placeQuestion: "Karina needs 2/5 tsp of pandan paste.",
           problemNav: "Tap \u00BB to place 2/5 on the number line.",
           placeNav: "Drag a dot to place 2/5 on the line.",
-          benchmarkQuestion: "estimate 2/5 to its nearest benchmark.",
+          benchmarkQuestion: "Estimate 2/5 to its nearest benchmark.",
           placeWrong: "Not quite - count the equal parts. You need the 2nd mark from 0.",
           placeCorrect: "Correct! 2/5 is 2 of the 5 equal parts.",
           benchmarkCorrect:
@@ -192,7 +192,7 @@ const DATA = {
           placeQuestion: "Karina needs 3/4 tsp of salt.",
           problemNav: "Tap \u00BB to place 3/4 on the number line.",
           placeNav: "Drag a dot to place 3/4 on the line.",
-          benchmarkQuestion: "estimate 3/4 to its nearest benchmark.",
+          benchmarkQuestion: "Estimate 3/4 to its nearest benchmark.",
           placeWrong: "Not quite - count the equal parts. You need the 3rd mark from 0.",
           placeCorrect: "Correct! 3/4 is 3 of the 4 equal parts.",
           benchmarkCorrect:
@@ -217,7 +217,7 @@ const DATA = {
           correctFeedback: "Correct! 9/10 is 9 of the 10 equal parts.",
         },
         3: {
-          questionText: "estimate 9/10 to its nearest benchmark.",
+          questionText: "Estimate 9/10 to its nearest benchmark.",
           navText: "Tap 'Show Benchmarks' to see the measures.",
           showBenchmarks: "Show Benchmarks",
           navChoose: "Tap the benchmark the amount is nearest to.",
@@ -290,7 +290,7 @@ const DATA = {
           placeQuestion: "Karina membutuhkan 9/10 cangkir tepung beras.",
           problemNav: "Ketuk \u00BB untuk menempatkan 9/10 pada garis bilangan.",
           placeNav: "Seret titik untuk menempatkan 9/10 pada garis.",
-          benchmarkQuestion: "perkirakan 9/10 ke patokan terdekat.",
+          benchmarkQuestion: "Perkirakan 9/10 ke patokan terdekat.",
           placeWrong: "Belum tepat - hitung bagian yang sama. Kamu membutuhkan tanda ke-9 dari 0.",
           placeCorrect: "Benar! 9/10 adalah 9 dari 10 bagian yang sama.",
           benchmarkCorrect:
@@ -310,7 +310,7 @@ const DATA = {
           placeQuestion: "Karina membutuhkan 2/9 cangkir tepung tapioka.",
           problemNav: "Ketuk \u00BB untuk menempatkan 2/9 pada garis bilangan.",
           placeNav: "Seret titik untuk menempatkan 2/9 pada garis.",
-          benchmarkQuestion: "perkirakan 2/9 ke patokan terdekat.",
+          benchmarkQuestion: "Perkirakan 2/9 ke patokan terdekat.",
           placeWrong: "Belum tepat - hitung bagian yang sama. Kamu membutuhkan tanda ke-2 dari 0.",
           placeCorrect: "Benar! 2/9 adalah 2 dari 9 bagian yang sama.",
           benchmarkCorrect:
@@ -330,7 +330,7 @@ const DATA = {
           placeQuestion: "Karina membutuhkan 3/5 cangkir santan.",
           problemNav: "Ketuk \u00BB untuk menempatkan 3/5 pada garis bilangan.",
           placeNav: "Seret titik untuk menempatkan 3/5 pada garis.",
-          benchmarkQuestion: "perkirakan 3/5 ke patokan terdekat.",
+          benchmarkQuestion: "Perkirakan 3/5 ke patokan terdekat.",
           placeWrong: "Belum tepat - hitung bagian yang sama. Kamu membutuhkan tanda ke-3 dari 0.",
           placeCorrect: "Benar! 3/5 adalah 3 dari 5 bagian yang sama.",
           benchmarkCorrect:
@@ -354,7 +354,7 @@ const DATA = {
           placeQuestion: "Karina membutuhkan 5/6 sdm minyak sayur.",
           problemNav: "Ketuk \u00BB untuk menempatkan 5/6 pada garis bilangan.",
           placeNav: "Seret titik untuk menempatkan 5/6 pada garis.",
-          benchmarkQuestion: "perkirakan 5/6 ke patokan terdekat.",
+          benchmarkQuestion: "Perkirakan 5/6 ke patokan terdekat.",
           placeWrong: "Belum tepat - hitung bagian yang sama. Kamu membutuhkan tanda ke-5 dari 0.",
           placeCorrect: "Benar! 5/6 adalah 5 dari 6 bagian yang sama.",
           benchmarkCorrect:
@@ -378,7 +378,7 @@ const DATA = {
           placeQuestion: "Karina membutuhkan 2/5 sdt pasta pandan.",
           problemNav: "Ketuk \u00BB untuk menempatkan 2/5 pada garis bilangan.",
           placeNav: "Seret titik untuk menempatkan 2/5 pada garis.",
-          benchmarkQuestion: "perkirakan 2/5 ke patokan terdekat.",
+          benchmarkQuestion: "Perkirakan 2/5 ke patokan terdekat.",
           placeWrong: "Belum tepat - hitung bagian yang sama. Kamu membutuhkan tanda ke-2 dari 0.",
           placeCorrect: "Benar! 2/5 adalah 2 dari 5 bagian yang sama.",
           benchmarkCorrect:
@@ -406,7 +406,7 @@ const DATA = {
           placeQuestion: "Karina membutuhkan 3/4 sdt garam.",
           problemNav: "Ketuk \u00BB untuk menempatkan 3/4 pada garis bilangan.",
           placeNav: "Seret titik untuk menempatkan 3/4 pada garis.",
-          benchmarkQuestion: "perkirakan 3/4 ke patokan terdekat.",
+          benchmarkQuestion: "Perkirakan 3/4 ke patokan terdekat.",
           placeWrong: "Belum tepat - hitung bagian yang sama. Kamu membutuhkan tanda ke-3 dari 0.",
           placeCorrect: "Benar! 3/4 adalah 3 dari 4 bagian yang sama.",
           benchmarkCorrect:
@@ -431,7 +431,7 @@ const DATA = {
           correctFeedback: "Benar! 9/10 adalah 9 dari 10 bagian yang sama.",
         },
         3: {
-          questionText: "perkirakan 9/10 ke patokan terdekat.",
+          questionText: "Perkirakan 9/10 ke patokan terdekat.",
           navText: "Ketuk 'Tampilkan Patokan' untuk melihat takaran.",
           showBenchmarks: "Tampilkan Patokan",
           navChoose: "Ketuk patokan yang paling dekat dengan jumlah tersebut.",

@@ -120,6 +120,10 @@ const SwapArrow = () =>
 const MorphToken = ({ numberText, varText, className, morphing, done }) =>
   React.createElement('span', { className: `coord-morph ${className}` },
     React.createElement('span', {
+      className: 'coord-morph-sizer',
+      'aria-hidden': true,
+    }, morphing || done ? varText : numberText),
+    React.createElement('span', {
       className: `coord-morph-num${morphing ? ' morph-out' : ''}${done ? ' morph-hidden' : ''}`,
     }, numberText),
     React.createElement('span', {
@@ -128,10 +132,21 @@ const MorphToken = ({ numberText, varText, className, morphing, done }) =>
   );
 
 const BigSwapExpression = ({ mode, point, image }) => {
+  const { useEffect, useState } = React;
   const leftMorphing = mode === 'generalXOnly';
   const leftDone = mode === 'generalComplete';
-  const rightMorphing = mode === 'generalComplete';
-  const rightDone = false;
+  const [rightDone, setRightDone] = useState(false);
+  const rightMorphing = mode === 'generalComplete' && !rightDone;
+
+  useEffect(() => {
+    if (mode !== 'generalComplete') {
+      setRightDone(false);
+      return undefined;
+    }
+    const timer = setTimeout(() => setRightDone(true), 900);
+    return () => clearTimeout(timer);
+  }, [mode]);
+
   return React.createElement('div', { className: `big-swap-expression ${mode !== 'summary' ? 'big-swap-algebra' : ''}` },
     React.createElement('div', { className: 'big-coord-group' },
       React.createElement('div', { className: 'big-coordinate-row' },

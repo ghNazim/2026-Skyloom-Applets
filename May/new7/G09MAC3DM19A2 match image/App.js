@@ -98,6 +98,8 @@ const App = () => {
   const [translationVector, setTranslationVector] = useState({ x: 0, y: 0 });
   const [historyEntries, setHistoryEntries] = useState([]);
   const [sliderPulse, setSliderPulse] = useState(false);
+  const [sliderWrong, setSliderWrong] = useState(false);
+  const [cloneShaking, setCloneShaking] = useState(false);
   const [showVerticalGuides, setShowVerticalGuides] = useState(false);
   const [reflectionAxis, setReflectionAxis] = useState(null);
   const [nudgeRect, setNudgeRect] = useState(null);
@@ -105,6 +107,7 @@ const App = () => {
   const [freeRotateBaseMatrix, setFreeRotateBaseMatrix] = useState([1, 0, 0, 1, 0, 0]);
   const [flipAnimation, setFlipAnimation] = useState(null);
   const lastSliderCommitRef = useRef({ key: "", time: 0 });
+  const sliderWrongTimeoutRef = useRef(null);
 
   const currentExample = data.examples[exampleIndex] || data.examples[0];
   const isSecondExample = exampleIndex === 1;
@@ -128,6 +131,8 @@ const App = () => {
     setTranslationVector({ x: 0, y: 0 });
     setHistoryEntries([]);
     setSliderPulse(false);
+    setSliderWrong(false);
+    setCloneShaking(false);
     setShowVerticalGuides(false);
     setReflectionAxis(null);
     setFreeMatrix([1, 0, 0, 1, 0, 0]);
@@ -216,6 +221,30 @@ const App = () => {
     [data.history.translation, updateHistory],
   );
 
+  const triggerSliderWrong = useCallback(
+    function () {
+      play("wrong");
+      setSliderWrong(true);
+      if (sliderWrongTimeoutRef.current) {
+        window.clearTimeout(sliderWrongTimeoutRef.current);
+      }
+      sliderWrongTimeoutRef.current = window.setTimeout(function () {
+        setRotationDegrees(0);
+        setSliderWrong(false);
+        sliderWrongTimeoutRef.current = null;
+      }, 1000);
+    },
+    [play],
+  );
+
+  useEffect(function () {
+    return function () {
+      if (sliderWrongTimeoutRef.current) {
+        window.clearTimeout(sliderWrongTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleStart = function () {
     play("click");
     startExample(0);
@@ -235,6 +264,9 @@ const App = () => {
       setActiveTool(tool);
       if (tool === "rotate" && !rotationDirection) {
         setFreeRotateBaseMatrix(freeMatrix);
+      }
+      if (tool === "translate" && activeTool !== "translate") {
+        setTranslationVector({ x: 0, y: 0 });
       }
       return;
     }
@@ -291,6 +323,7 @@ const App = () => {
     setRotationDirection(direction);
     setRotationDegrees(0);
     setSliderPulse(true);
+    setSliderWrong(false);
     setStage(stage === "rotateAgainDirection" ? "rotateAgainSlider" : "rotateSlider");
   };
 
@@ -322,9 +355,9 @@ const App = () => {
         return;
       }
       lastSliderCommitRef.current = { key: commitKey, time: now };
-      play("click");
 
       if (stage === "freePlay" && activeTool === "rotate") {
+        play("click");
         if (degrees > 0 && degrees < 360) {
           const fixed = { direction: rotationDirection, degrees: degrees };
           const op = operationMatrix("rotate", fixed);
@@ -352,10 +385,13 @@ const App = () => {
         const isCorrect =
           (rotationDirection === "cw" && degrees === 90) ||
           (rotationDirection === "acw" && degrees === 270);
-        if (!isCorrect) return;
+        if (!isCorrect) {
+          if (degrees > 0) triggerSliderWrong();
+          return;
+        }
 
-        const fixed = { direction: rotationDirection, degrees: degrees };
         play("correct");
+        const fixed = { direction: rotationDirection, degrees: degrees };
         setRotationFixed(fixed);
         setRotationHistory(fixed);
         setSliderPulse(false);
@@ -365,7 +401,15 @@ const App = () => {
       }
 
       if (isSecondExample && stage === "rotateSlider") {
-        if (rotationDirection !== "cw" || degrees !== 90) return;
+        if (rotationDirection !== "cw" || degrees !== 90) {
+          if (degrees > 0) triggerSliderWrong();
+          return;
+        }
+        play("wrong");
+        setCloneShaking(true);
+        window.setTimeout(function () {
+          setCloneShaking(false);
+        }, 500);
         const fixed = { direction: "cw", degrees: 90 };
         setRotationFixed(fixed);
         setRotationHistory(fixed);
@@ -376,9 +420,12 @@ const App = () => {
       }
 
       if (isSecondExample && stage === "rotateAgainSlider") {
-        if (rotationDirection !== "cw" || degrees !== 90) return;
-        const fixed = { direction: "cw", degrees: 90 };
+        if (rotationDirection !== "cw" || degrees !== 90) {
+          if (degrees > 0) triggerSliderWrong();
+          return;
+        }
         play("correct");
+        const fixed = { direction: "cw", degrees: 90 };
         setRotationFixed(fixed);
         setRotationHistory(fixed);
         setSliderPulse(false);
@@ -400,6 +447,7 @@ const App = () => {
       rotationDirection,
       setRotationHistory,
       stage,
+      triggerSliderWrong,
     ],
   );
 
@@ -423,6 +471,7 @@ const App = () => {
 
   const handleSliderDragStart = function () {
     setSliderPulse(false);
+    setSliderWrong(false);
   };
 
   const handleSliderCommit = function () {
@@ -545,13 +594,14 @@ const App = () => {
       setFreeRotateBaseMatrix(nextMatrix);
       setTranslationVector(function (current) {
         const next = { x: current.x + delta.x, y: current.y + delta.y };
+        const isContinuingSession = current.x !== 0 || current.y !== 0;
         appendHistory(
           "translation",
           formatTemplate(data.history.translation, {
             x: next.x,
             y: next.y,
           }),
-          true,
+          isContinuingSession,
         );
         return next;
       });
@@ -783,10 +833,14 @@ const App = () => {
         ? currentExample.revealPanel
         : stage === "chooseRotate"
       ? "chooseRotate"
-      : stage === "rotateDirection" || stage === "rotateSlider"
+      : stage === "rotateDirection"
         ? isSecondExample
           ? "rotatePrompt2"
           : "rotatePrompt"
+        : stage === "rotateSlider"
+          ? isSecondExample
+            ? "rotatePrompt2"
+            : "rotateDrag"
         : stage === "wrongRotation"
           ? "wrongRotation"
           : stage === "reflectIntro"
@@ -1027,6 +1081,7 @@ const App = () => {
             flipScene: flipScene,
             cloneIsCorrect: isCorrectStage || isFreeSuccess,
             cloneStatus: stage === "wrongRotation" ? "wrong" : null,
+            cloneShaking: cloneShaking,
             imageIsCorrect: isCorrectStage || isFreeSuccess,
             showVerticalGuides: showVerticalGuides,
             showRotationGuide: showRotationGuide,
@@ -1061,6 +1116,7 @@ const App = () => {
           rotationDirection: rotationDirection,
           rotationDegrees: rotationDegrees,
         sliderPulse: sliderPulse,
+        sliderWrong: sliderWrong,
           translationVector: translationVector,
           enabledArrow: enabledArrow,
           canRotate: canRotate,

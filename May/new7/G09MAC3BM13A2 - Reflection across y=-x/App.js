@@ -231,39 +231,16 @@ const App = () => {
     }
   }, [markCoordinateLanded, startFly]);
 
-  const runDistanceAnimation = useCallback(() => {
+  const runPlotImageAnimation = useCallback(() => {
     clearTimeout(distanceTimerRef.current);
-    const total = Math.abs(pickedPoint.x + pickedPoint.y) / 2;
-    const wholeUnits = Math.max(0, Math.floor(total));
-    const steps = [];
-    for (let c = 1; c <= wholeUnits; c++) {
-      steps.push({ substep: 'count', count: c, ms: 850 });
-    }
-    if (total > wholeUnits) steps.push({ substep: 'count', count: total, ms: 850 });
-    steps.push({ substep: 'count-hold', count: total, ms: 700 });
-
-    let i = 0;
     setAutoLocked(true);
-    setDistanceAnim({ substep: 'pending', count: 0 });
+    sound('swoosh');
     move(() => setStepIndex((idx) => Math.min(idx + 1, T.steps.length - 1)));
 
-    const runNext = () => {
-      if (i >= steps.length) {
-        setDistanceAnim(null);
-        move(() => {
-          setAutoLocked(false);
-          setStepIndex((idx) => Math.min(idx + 2, T.steps.length - 1));
-        });
-        return;
-      }
-      const animStep = steps[i++];
-      setDistanceAnim(animStep);
-      sound('click');
-      distanceTimerRef.current = setTimeout(runNext, animStep.ms);
-    };
-
-    distanceTimerRef.current = setTimeout(runNext, 120);
-  }, [pickedPoint]);
+    distanceTimerRef.current = setTimeout(() => {
+      move(() => setStepIndex((idx) => Math.min(idx + 1, T.steps.length - 1)));
+    }, 900);
+  }, []);
 
   const handlePointDragEnd = (point) => {
     if (autoLocked || step.requires !== 'dragPoint') return;
@@ -276,7 +253,7 @@ const App = () => {
   const handleAction = () => {
     if (autoLocked) return;
     if (step.id === 'perp-drawn') {
-      runDistanceAnimation();
+      runPlotImageAnimation();
       return;
     }
     sound('swoosh');
@@ -333,8 +310,9 @@ const App = () => {
   }, [screen, stepIndex, step?.id, buttonPulse]);
 
   useEffect(() => {
+    const plotImageAnimating = ['plot-image-draw', 'same-distance-mark'].includes(step.id);
     if (screen !== 'lesson' || !step.autoNextMs) {
-      if (!distanceAnim) setAutoLocked(false);
+      if (!distanceAnim && !plotImageAnimating) setAutoLocked(false);
       return undefined;
     }
     if (fly) return undefined;
@@ -346,7 +324,7 @@ const App = () => {
       });
     }, step.autoNextMs);
     return () => clearTimeout(timer);
-  }, [screen, stepIndex, step?.autoNextMs, fly, distanceAnim]);
+  }, [screen, stepIndex, step?.autoNextMs, step?.id, fly, distanceAnim]);
 
   useEffect(() => {
     if (screen !== 'lesson') return undefined;

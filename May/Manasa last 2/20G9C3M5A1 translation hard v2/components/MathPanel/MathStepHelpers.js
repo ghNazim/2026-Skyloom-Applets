@@ -3,6 +3,7 @@ const createInitialMathState = (mp) => ({
   equationCollapsed: false,
   line1Visible: false,
   line2Visible: false,
+  line1Text: mp.line1,
   line2Text: mp.line2X,
   equationParts: {
     left: "x",
@@ -99,6 +100,7 @@ const createMathStateForRestoredStep = (step, mp) => {
     equationVisible: true,
     line1Visible: true,
     line2Visible: true,
+    line1Text: mp.line1,
     line2Text: mp.line2X,
     equationParts: {
       left: "x",
@@ -117,6 +119,8 @@ const createMathStateForRestoredStep = (step, mp) => {
 
   const step7Complete = {
     ...step7Entry,
+    line1Text: mp.line1y,
+    line2Text: mp.line2Y,
     highlightVar: null,
     equationCollapsed: true,
     objectTitleVisible: true,
@@ -274,6 +278,136 @@ const applyRestoredStepNav = (step, onMathNavChange) => {
 };
 
 const MathStepHelpers = {
+  _pendingLineEqClone: null,
+
+  hasPendingLineEquationClone: () => !!MathStepHelpers._pendingLineEqClone,
+
+  clearPendingLineEquationClone: () => {
+    const pending = MathStepHelpers._pendingLineEqClone;
+    if (!pending) return;
+    if (pending.el && pending.el.parentNode) {
+      pending.el.parentNode.removeChild(pending.el);
+    }
+    MathStepHelpers._pendingLineEqClone = null;
+  },
+
+  captureLineEquationClone: (sourceEl) => {
+    MathStepHelpers.clearPendingLineEquationClone();
+    if (!sourceEl) return null;
+
+    const src = sourceEl.getBoundingClientRect();
+    if (!src.width && !src.height) return null;
+
+    const angleAttr = sourceEl.getAttribute("data-label-angle");
+    const angle = angleAttr != null ? parseFloat(angleAttr) : 0;
+    const fill = sourceEl.getAttribute("fill") || APP_DATA.colors.object;
+    const attrSize = parseFloat(sourceEl.getAttribute("font-size")) || 30;
+    let fontSizePx = attrSize;
+    const svg = sourceEl.ownerSVGElement;
+    if (svg && svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.height) {
+      const svgRect = svg.getBoundingClientRect();
+      const scale = svgRect.height / svg.viewBox.baseVal.height;
+      if (scale > 0 && isFinite(scale)) fontSizePx = attrSize * scale;
+    }
+    const fontSize = fontSizePx + "px";
+    const text =
+      (typeof APP_DATA !== "undefined" &&
+        APP_DATA.graph &&
+        APP_DATA.graph.objectLineLabel) ||
+      sourceEl.textContent.trim();
+
+    const el = document.createElement("div");
+    el.className = "fly-line-eq-clone";
+    el.innerHTML =
+      typeof formatMathVarsHtml === "function"
+        ? formatMathVarsHtml(text)
+        : text;
+    el.style.left = src.left + src.width / 2 + "px";
+    el.style.top = src.top + src.height / 2 + "px";
+    el.style.color = fill;
+    el.style.fontSize = fontSize;
+    el.style.transform =
+      "translate(-50%, -50%) rotate(" + (isNaN(angle) ? 0 : angle) + "deg)";
+    document.body.appendChild(el);
+
+    sourceEl.style.visibility = "hidden";
+
+    MathStepHelpers._pendingLineEqClone = {
+      el: el,
+      startAngle: isNaN(angle) ? 0 : angle,
+      startFontSize: fontSize,
+      startColor: fill,
+    };
+    return el;
+  },
+
+  flyPendingLineEquationTo: (targetEl, options) => {
+    const opts = options || {};
+    const duration = opts.duration != null ? opts.duration : 780;
+    const easing = "cubic-bezier(0.4, 0, 0.2, 1)";
+
+    return new Promise((resolve) => {
+      const pending = MathStepHelpers._pendingLineEqClone;
+      if (!pending || !pending.el || !targetEl) {
+        MathStepHelpers.clearPendingLineEquationClone();
+        resolve();
+        return;
+      }
+
+      const el = pending.el;
+      const tgt = targetEl.getBoundingClientRect();
+      const tgtStyle = window.getComputedStyle(targetEl);
+      const tgtCenterX = tgt.left + tgt.width / 2;
+      const tgtCenterY = tgt.top + tgt.height / 2;
+
+      el.style.transition =
+        "left " +
+        duration +
+        "ms " +
+        easing +
+        ", top " +
+        duration +
+        "ms " +
+        easing +
+        ", transform " +
+        duration +
+        "ms " +
+        easing +
+        ", font-size " +
+        duration +
+        "ms " +
+        easing +
+        ", color " +
+        duration +
+        "ms " +
+        easing;
+      void el.offsetWidth;
+
+      el.classList.add("is-animating");
+      el.style.left = tgtCenterX + "px";
+      el.style.top = tgtCenterY + "px";
+      el.style.transform = "translate(-50%, -50%) rotate(0deg)";
+      el.style.fontSize = tgtStyle.fontSize || el.style.fontSize;
+      el.style.color = tgtStyle.color || "#ffffff";
+
+      setTimeout(() => {
+        const finish = () => {
+          MathStepHelpers.clearPendingLineEquationClone();
+          resolve();
+        };
+        if (typeof opts.onLanded === "function") {
+          opts.onLanded();
+          setTimeout(
+            finish,
+            opts.overlapMs != null ? opts.overlapMs : 80,
+          );
+        } else {
+          finish();
+        }
+      }, duration + 40);
+    });
+  },
+
   createFlyClone: (sourceEl, targetEl, options, setFlyClones) => {
     return new Promise((resolve) => {
       if (!sourceEl || !targetEl) {

@@ -3,6 +3,7 @@ const MathPanel = ({
   equationVisible,
   equationCollapsed,
   line1Visible,
+  line1Text,
   line2Visible,
   line2Text,
   equationParts,
@@ -684,7 +685,7 @@ const MathPanel = ({
           className: "math-line" + (line1Visible ? " is-visible" : ""),
           id: "math-line-1",
         },
-        renderMathVars(texts.line1),
+        renderMathVars(line1Text),
       ),
       React.createElement(
         "div",

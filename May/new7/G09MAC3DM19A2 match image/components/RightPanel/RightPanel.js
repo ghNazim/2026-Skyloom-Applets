@@ -71,10 +71,13 @@ function parseTranslationValue(value) {
   return match ? { x: match[1], y: match[2] } : null;
 }
 
-const TransformList = ({ entries, reveal }) =>
+const TransformList = ({ entries, reveal, listRef }) =>
   React.createElement(
     "div",
-    { className: "transform-list" + (reveal ? " is-reveal" : "") },
+    {
+      ref: reveal ? null : listRef,
+      className: "transform-list" + (reveal ? " is-reveal" : ""),
+    },
     entries.map(function (entry, index) {
       const parts = splitTransformText(entry.text);
       const vector =
@@ -138,6 +141,15 @@ const RightPanel = ({
   onReset,
 }) => {
   const labels = APP_DATA.labels;
+  const transformListRef = React.useRef(null);
+
+  React.useEffect(
+    function () {
+      if (!showHistoryBox || !transformListRef.current) return;
+      transformListRef.current.scrollTop = transformListRef.current.scrollHeight;
+    },
+    [historyEntries, showHistoryBox],
+  );
 
   const renderContent = function () {
     if (stage === "reveal") {
@@ -218,7 +230,10 @@ const RightPanel = ({
     "aside",
     { className: "right-workspace" },
     showHistoryBox
-      ? React.createElement(TransformList, { entries: historyEntries })
+      ? React.createElement(TransformList, {
+          entries: historyEntries,
+          listRef: transformListRef,
+        })
       : null,
     React.createElement(
       "div",

@@ -1603,21 +1603,22 @@ var MainCanvas = function (props) {
         dashed: false,
         growFromCenter: true,
       };
-      if (APP_DATA.step4.abEquationLabel) {
-        abLine.equationLabel = APP_DATA.step4.abEquationLabel;
-        abLine.showLabelAfterGrow = true;
-        abLine.labelColor = REFLECTION_GRAPH_YELLOW;
-        if (APP_DATA.step4.abLabelOffset != null) {
-          abLine.labelOffset = APP_DATA.step4.abLabelOffset;
-        }
-        if (APP_DATA.step4.abLabelAngleOffset != null) {
-          abLine.labelAngleOffset = APP_DATA.step4.abLabelAngleOffset;
-        }
-        if (APP_DATA.step4.abLabelAtThroughMidpoint != null) {
-          abLine.labelAtThroughMidpoint =
-            APP_DATA.step4.abLabelAtThroughMidpoint;
-        }
-      }
+      // Object-line equation labels hidden for now (data kept in step4.abEquationLabel*).
+      // if (APP_DATA.step4.abEquationLabel) {
+      //   abLine.equationLabel = APP_DATA.step4.abEquationLabel;
+      //   abLine.showLabelAfterGrow = true;
+      //   abLine.labelColor = REFLECTION_GRAPH_YELLOW;
+      //   if (APP_DATA.step4.abLabelOffset != null) {
+      //     abLine.labelOffset = APP_DATA.step4.abLabelOffset;
+      //   }
+      //   if (APP_DATA.step4.abLabelAngleOffset != null) {
+      //     abLine.labelAngleOffset = APP_DATA.step4.abLabelAngleOffset;
+      //   }
+      //   if (APP_DATA.step4.abLabelAtThroughMidpoint != null) {
+      //     abLine.labelAtThroughMidpoint =
+      //       APP_DATA.step4.abLabelAtThroughMidpoint;
+      //   }
+      // }
       extendedLines.push(abLine);
     }
     if (phase >= 7) {

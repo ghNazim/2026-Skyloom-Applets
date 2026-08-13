@@ -147,9 +147,18 @@ const RightPanel = ({
   const labels = APP_DATA.labels;
   const isPhase2Mcq = mcqMode === "phase2";
   const mcqStage = isPhase2Mcq ? "step4" : "step2";
-  const mcqTitle = isPhase2Mcq
-    ? APP_DATA.panels.step4.title
-    : APP_DATA.panels.step2.title;
+  const isMcqReturn = Boolean(
+    completedPaths &&
+      (isPhase2Mcq
+        ? completedPaths.dilateFirstRotate || completedPaths.rotateFirstDilate
+        : completedPaths.dilateFirst || completedPaths.translateFirst),
+  );
+  const mcqPanel = isPhase2Mcq
+    ? APP_DATA.panels.step4
+    : APP_DATA.panels.step2;
+  const mcqTitle = isMcqReturn
+    ? mcqPanel.titleReturn || mcqPanel.title
+    : mcqPanel.title;
 
   const renderMcq = function () {
     const onMcqStep = stage === mcqStage;

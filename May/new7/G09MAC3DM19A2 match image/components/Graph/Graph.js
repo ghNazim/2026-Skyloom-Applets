@@ -44,6 +44,7 @@ const Graph = ({
   flipScene,
   cloneIsCorrect,
   cloneStatus,
+  cloneShaking,
   imageIsCorrect,
   showVerticalGuides,
   showRotationGuide,
@@ -463,7 +464,8 @@ const Graph = ({
         ? renderPolygon(
             "clone-triangle" +
               (cloneIsCorrect ? " is-correct" : "") +
-              (cloneStatus ? " is-" + cloneStatus : ""),
+              (cloneStatus ? " is-" + cloneStatus : "") +
+              (cloneShaking ? " is-shaking" : ""),
             cloneVertices,
             "clone",
           )

@@ -172,18 +172,10 @@
 }
 
 .nearest-path-mask-line {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: growPath 0.7s ease 0.62s forwards;
+  fill: none;
 }
 
 @keyframes growLine {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes growPath {
   to {
     stroke-dashoffset: 0;
   }

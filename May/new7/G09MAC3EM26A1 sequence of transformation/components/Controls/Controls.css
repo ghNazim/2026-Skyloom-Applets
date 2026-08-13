@@ -116,9 +116,16 @@
 }
 
 .scale-factor-label {
+  position: relative;
+  top: 1.6vw;
   color: var(--text-strong);
   font-size: 1.85vw;
   font-weight: 500;
+}
+
+.scale-factor-k {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
 }
 
 .dilate-slider-wrap {
@@ -177,14 +184,20 @@
 
 .tool-button.tool-rotate.is-active {
   box-shadow: inset 0 0 0 0.2vw var(--orange);
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .tool-button.tool-reflect.is-active {
   box-shadow: inset 0 0 0 0.2vw var(--purple);
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .tool-button.tool-translate.is-active {
   box-shadow: inset 0 0 0 0.2vw var(--blue);
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .rotate-controls,
@@ -459,7 +472,12 @@
   opacity: 0.6;
 }
 
-.arrow-button.is-target {
+.arrow-button.is-enabled::before {
+  background: rgba(132, 204, 239, 1);
+  opacity: 1;
+}
+
+.arrow-button.is-hint {
   opacity: 1;
   filter:
     drop-shadow(0 0 0 var(--yellow))
@@ -467,12 +485,7 @@
   animation: active-arrow-blink 0.9s ease-in-out infinite;
 }
 
-.arrow-button.is-enabled::before {
-  background: rgba(132, 204, 239, 1);
-  opacity: 1;
-}
-
-.arrow-button.is-target::before {
+.arrow-button.is-hint::before {
   background: rgba(132, 204, 239, 1);
   opacity: 1;
 }
@@ -487,7 +500,7 @@
   opacity: 0.6;
 }
 
-.arrow-button.is-target::after {
+.arrow-button.is-hint::after {
   content: "";
   position: absolute;
   inset: -0.32vw;

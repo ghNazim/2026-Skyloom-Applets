@@ -1,0 +1,89 @@
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  gap: 2vh;
+  justify-content: center;
+  align-items: center;
+  padding: 2vw;
+  border-radius: 1vw;
+}
+
+.welcome-title {
+  color: #ffa31a;
+  margin: 0 0 1vh;
+  font-size: 3.5vw !important;
+  font-weight: 700;
+  text-shadow: 0 0.15vw 0.3vw rgba(0, 0, 0, 0.4);
+  position: absolute;
+  top: 2vw;
+  left: 50%;
+  width: 100%;
+  transform: translateX(-50%);
+}
+
+.welcome-message {
+  font-size: 2vw !important;
+  max-width: 82%;
+  color: white;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.tap-start-text {
+  font-size: 2.5vw !important;
+  margin-top: 4vh;
+  opacity: 0.95;
+}
+
+.start-button {
+  position: absolute;
+  bottom: 4vw;
+}
+
+.start-button,
+.start-over-button {
+  padding: 0.8vw 2.8vw;
+  border-radius: 0.8vw;
+  font-size: 2.5vw !important;
+  font-weight: 700;
+  cursor: pointer;
+  border: 0.052vw solid rgba(255, 255, 255, 0.28);
+  color: var(--white-color);
+  background: linear-gradient(145deg, #ffb13e, #f08b0b);
+  box-shadow: 0 0.25vw 0.6vw rgba(0, 0, 0, 0.28), inset 0 0.08vw 0.1vw rgba(255, 255, 255, 0.45);
+  margin-top: 2vh;
+  transition: transform 0.1s;
+}
+
+.start-button:active,
+.start-over-button:active {
+  transform: translateY(0.2vh);
+}
+
+.formula-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  text-align: center;
+  font-size: 2.25vw;
+  margin-left: 0.5vw;
+  margin-right: 0.5vw;
+  line-height: 1.1;
+}
+
+.formula-fraction .num {
+  border-bottom: 0.15vw solid currentColor;
+  padding-bottom: 0.2vh;
+}
+
+.formula-fraction .den {
+  padding-top: 0.2vh;
+}
+
+.hl-orange {
+  color: #ffa31a;
+  font-weight: 700;
+}

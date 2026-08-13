@@ -427,14 +427,17 @@ const MainCanvas0 = React.forwardRef(
       const sourceEl =
         event.currentTarget.querySelector(".teaching-option-answer") ||
         event.currentTarget;
-      const targetEl = document.querySelector(".teaching-rule-target");
-      animateTextClone(sourceEl, targetEl, () => {
-        setRuleStatus("correct");
-        queue(() => setShowRuleCard(true), TEACHING_PAUSE_MS);
-        queue(() => {
-          if (typeof onAutoAdvance === "function") onAutoAdvance();
-        }, TEACHING_PAUSE_MS + 1700);
-      });
+      // Wait for formula-only target (opacity 0) to mount before measuring the fly.
+      queue(() => {
+        const targetEl = document.querySelector(".teaching-rule-formula");
+        animateTextClone(sourceEl, targetEl, () => {
+          setRuleStatus("correct");
+          queue(() => setShowRuleCard(true), TEACHING_PAUSE_MS);
+          queue(() => {
+            if (typeof onAutoAdvance === "function") onAutoAdvance();
+          }, TEACHING_PAUSE_MS + 1700);
+        });
+      }, 40);
     };
 
     const handleExpress = () => {
@@ -541,6 +544,9 @@ const MainCanvas0 = React.forwardRef(
 
     const renderSummaryCard = (kind, visible = true) => {
       const isEquation = kind === "equation";
+      const showEquationValue = introDataCount >= 1 || step !== "A";
+      const showRuleLine =
+        (introDataCount >= 2 && introCount >= 3) || step !== "A";
       return React.createElement(
         "div",
         {
@@ -562,8 +568,12 @@ const MainCanvas0 = React.forwardRef(
               ),
               React.createElement(
                 "div",
-                { className: "teaching-summary-value teach-equation-target" },
-                introDataCount >= 1 ? renderMathText(data.lineEquation) : null,
+                {
+                  className:
+                    "teaching-summary-value teach-equation-target" +
+                    (showEquationValue ? "" : " is-hidden-content"),
+                },
+                renderMathText(data.lineEquation),
               ),
             )
           : React.createElement(
@@ -578,41 +588,47 @@ const MainCanvas0 = React.forwardRef(
                   {
                     className:
                       "axis-token teach-axis-target" +
-                      (introDataCount >= 2 ? "" : " is-placeholder"),
+                      (introDataCount >= 2 || step !== "A"
+                        ? ""
+                        : " is-placeholder"),
                   },
                   renderMathText(data.reflectionAxis),
                 ),
               ),
-              introDataCount >= 2 && introCount >= 3
-                ? React.createElement(
-                    "div",
-                    {
-                      className:
-                        "teaching-rule-line" +
-                        (ruleStatus === "correct" ? " is-formula-only" : ""),
-                    },
-                    ruleStatus === "correct"
-                      ? renderRuleFormula("teaching-rule-formula")
-                      : React.createElement(
-                          React.Fragment,
-                          null,
-                          React.createElement(
-                            "span",
-                            { className: "teaching-rule-label" },
-                            renderMathText(data.ruleLineLabel),
-                          ),
-                          React.createElement(
-                            "span",
-                            { className: "teaching-rule-target" },
-                            React.createElement(
-                              "span",
-                              { className: "jump-question" },
-                              data.stepA.rulePlaceholder,
-                            ),
-                          ),
+              React.createElement(
+                "div",
+                {
+                  className:
+                    "teaching-rule-line" +
+                    (ruleStatus === "animating" || ruleStatus === "correct"
+                      ? " is-formula-only"
+                      : "") +
+                    (showRuleLine ? "" : " is-hidden-content"),
+                },
+                ruleStatus === "animating" || ruleStatus === "correct"
+                  ? renderRuleFormula(
+                      "teaching-rule-formula" +
+                        (ruleStatus === "correct" ? "" : " is-hidden-content"),
+                    )
+                  : React.createElement(
+                      React.Fragment,
+                      null,
+                      React.createElement(
+                        "span",
+                        { className: "teaching-rule-label" },
+                        renderMathText(data.ruleLineLabel),
+                      ),
+                      React.createElement(
+                        "span",
+                        { className: "teaching-rule-target" },
+                        React.createElement(
+                          "span",
+                          { className: "jump-question" },
+                          data.stepA.rulePlaceholder,
                         ),
-                  )
-                : null,
+                      ),
+                    ),
+              ),
             ),
       );
     };

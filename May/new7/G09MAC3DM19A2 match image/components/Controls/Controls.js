@@ -13,6 +13,7 @@ const RotateControls = ({
   direction,
   sliderValue,
   sliderDisabled,
+  sliderWrong,
   controlsDisabled,
   showSliderPulse,
   enabledDirection,
@@ -61,7 +62,10 @@ const RotateControls = ({
     ),
     React.createElement(
       "div",
-      { id: "rotate-slider-wrap", className: "slider-wrap" },
+      {
+        id: "rotate-slider-wrap",
+        className: "slider-wrap" + (sliderWrong ? " slider-wrong" : ""),
+      },
       React.createElement(
         "div",
         { className: "degree-slider-shell" },
@@ -228,6 +232,7 @@ const Controls = ({
   rotationDirection,
   rotationDegrees,
   sliderPulse,
+  sliderWrong,
   translationVector,
   enabledArrow,
   canRotate,
@@ -252,9 +257,13 @@ const Controls = ({
         direction: rotationDirection,
         sliderValue: rotationDegrees,
         sliderDisabled: !rotationDirection,
+        sliderWrong: sliderWrong,
         controlsDisabled: stage === "rotationDone",
         showSliderPulse:
-          (stage === "rotateSlider" || stage === "freePlay") && sliderPulse,
+          (stage === "rotateSlider" ||
+            stage === "rotateAgainSlider" ||
+            stage === "freePlay") &&
+          sliderPulse,
         enabledDirection: enabledDirection,
         onDirection: onDirection,
         onSliderChange: onSliderChange,

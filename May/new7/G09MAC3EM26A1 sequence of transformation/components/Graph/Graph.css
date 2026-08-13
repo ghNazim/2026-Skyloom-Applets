@@ -31,7 +31,8 @@
 .graph-axis-name,
 .graph-origin-label {
   fill: rgba(255, 255, 255, 0.58);
-  font-family: var(--font-family);
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
   font-weight: 500;
 }
 
@@ -45,6 +46,7 @@
 
 .graph-origin-label {
   font-size: 19px;
+  font-style: italic;
 }
 
 .object-triangle {
@@ -84,11 +86,11 @@
 }
 
 .dilation-guide-line {
-  stroke: #ffffff;
-  stroke-width: 2.4;
-  stroke-dasharray: 7 6;
+  stroke: #f5e6c8;
+  stroke-width: 1.2;
+  stroke-dasharray: 6 5;
   stroke-linecap: round;
-  opacity: 0.7;
+  opacity: 0.85;
   pointer-events: none;
 }
 
@@ -183,7 +185,7 @@
 .graph-object-label,
 .graph-image-label {
   font-family: var(--font-family);
-  font-size: 25px;
+  font-size: 18px;
   font-weight: 500;
   fill: rgba(255, 255, 255, 0.42);
   pointer-events: none;

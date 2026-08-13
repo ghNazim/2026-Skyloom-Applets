@@ -40,3 +40,7 @@
   stroke-width: 4;
   stroke-linejoin: round;
 }
+
+.glass-meter-label-quarter {
+  transform: translateY(20px);
+}

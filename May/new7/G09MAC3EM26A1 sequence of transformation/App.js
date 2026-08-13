@@ -62,6 +62,63 @@ function offsetCloneToCentroid(vertices, centroid) {
   });
 }
 
+function getTranslationHint(current, expected) {
+  if (!current || !expected) return null;
+  const dx = expected.x - current.x;
+  const dy = expected.y - current.y;
+  if (dx === 0 && dy === 0) return null;
+  if (Math.abs(dx) >= Math.abs(dy) && dx !== 0) {
+    return dx < 0 ? "left" : "right";
+  }
+  if (dy !== 0) {
+    return dy < 0 ? "down" : "up";
+  }
+  return null;
+}
+
+function findMatchingVertexIndex(objectVerts, imageVerts, translation, tolerance) {
+  const eps = tolerance == null ? 0.05 : tolerance;
+  for (let i = 0; i < objectVerts.length; i++) {
+    const moved = translatePoint(objectVerts[i], translation);
+    if (
+      Math.abs(moved.x - imageVerts[i].x) <= eps &&
+      Math.abs(moved.y - imageVerts[i].y) <= eps
+    ) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function getNearestVertexTranslation(objectVerts, imageVerts, current) {
+  let best = null;
+  let bestDist = Infinity;
+  for (let i = 0; i < objectVerts.length; i++) {
+    const expected = {
+      x: imageVerts[i].x - objectVerts[i].x,
+      y: imageVerts[i].y - objectVerts[i].y,
+    };
+    const dist =
+      Math.abs(expected.x - current.x) + Math.abs(expected.y - current.y);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = expected;
+    }
+  }
+  return best;
+}
+
+function getCorrectRotationSnap(direction, degrees) {
+  if (!direction) return null;
+  if (direction === "acw" && Math.abs(degrees - 90) <= 5) {
+    return { degrees: 90, direction: "acw" };
+  }
+  if (direction === "cw" && Math.abs(degrees - 270) <= 5) {
+    return { degrees: 270, direction: "cw" };
+  }
+  return null;
+}
+
 function postMcqStage(choice) {
   return choice === "translateFirst" ? "stepB3" : "stepA3";
 }
@@ -139,11 +196,15 @@ const App = () => {
   const [showDilationClones, setShowDilationClones] = useState(false);
   const [translationVector, setTranslationVector] = useState({ x: 0, y: 0 });
   const [translatePhase, setTranslatePhase] = useState("left");
+  const [matchedVertexIndex, setMatchedVertexIndex] = useState(null);
   const [historyEntries, setHistoryEntries] = useState([]);
   const [sliderPulse, setSliderPulse] = useState(false);
+  const [isDilateDragging, setIsDilateDragging] = useState(false);
+  const [hintArrow, setHintArrow] = useState(null);
   const [nudgeRect, setNudgeRect] = useState(null);
   const mcqTransitionDoneRef = useRef(false);
   const mcqChoiceRef = useRef(null);
+  const translateIdleTimerRef = useRef(null);
 
   const isPhase2 = isPhase2Stage(stage);
   const activeGraph = isPhase2 ? graph2Config : graphConfig;
@@ -161,8 +222,11 @@ const App = () => {
     setShowDilationClones(false);
     setTranslationVector({ x: 0, y: 0 });
     setTranslatePhase("left");
+    setMatchedVertexIndex(null);
     setHistoryEntries([]);
     setSliderPulse(false);
+    setIsDilateDragging(false);
+    setHintArrow(null);
     setFlowPath(null);
     setMcqChoice(null);
     setMcqCollapsed(false);
@@ -181,6 +245,8 @@ const App = () => {
     setCloneIsWrong(false);
     setHistoryEntries([]);
     setSliderPulse(false);
+    setIsDilateDragging(false);
+    setHintArrow(null);
     setFlowPath(null);
     setMcqChoice(null);
     setMcqCollapsed(false);
@@ -219,16 +285,13 @@ const App = () => {
 
   const expectedBTranslation = useMemo(
     function () {
-      return {
-        x:
-          imageVertices[rightAngleIndex].x -
-          objectVertices[rightAngleIndex].x,
-        y:
-          imageVertices[rightAngleIndex].y -
-          objectVertices[rightAngleIndex].y,
-      };
+      return getNearestVertexTranslation(
+        objectVertices,
+        imageVertices,
+        translationVector,
+      );
     },
-    [imageVertices, objectVertices, rightAngleIndex],
+    [imageVertices, objectVertices, translationVector],
   );
 
   const translatedObjectVertices = useMemo(
@@ -300,6 +363,13 @@ const App = () => {
             stage === "p2SuccessA" ||
             stage === "reveal2Panel"
           ) {
+            if (rotationDirection && rotationDegrees) {
+              return rotateVertices(
+                dilatedAtCorrect,
+                rotationDegrees,
+                rotationDirection,
+              );
+            }
             return rotateVertices(
               dilatedAtCorrect,
               correctRotation,
@@ -327,11 +397,18 @@ const App = () => {
           );
         }
 
-        const rotatedAtCorrect = rotateVertices(
-          objectVertices,
-          correctRotation,
-          correctRotDir,
-        );
+        const rotatedAtCorrect =
+          rotationCorrect && rotationDirection
+            ? rotateVertices(
+                objectVertices,
+                rotationDegrees,
+                rotationDirection,
+              )
+            : rotateVertices(
+                objectVertices,
+                correctRotation,
+                correctRotDir,
+              );
 
         if (stage === "p2RotateBActive") {
           if (!rotationDirection) return null;
@@ -382,7 +459,9 @@ const App = () => {
         if (stage === "translateSuccessB" || stage === "revealPanel") {
           const center =
             dilationCenter ||
-            translatedObjectVertices[rightAngleIndex];
+            (matchedVertexIndex != null
+              ? translatedObjectVertices[matchedVertexIndex]
+              : translatedObjectVertices[rightAngleIndex]);
           return dilateVertices(
             translatedObjectVertices,
             center,
@@ -393,7 +472,9 @@ const App = () => {
         if (stage === "dilateBSlider") {
           const center =
             dilationCenter ||
-            translatedObjectVertices[rightAngleIndex];
+            (matchedVertexIndex != null
+              ? translatedObjectVertices[matchedVertexIndex]
+              : translatedObjectVertices[rightAngleIndex]);
           return dilateVertices(
             translatedObjectVertices,
             center,
@@ -442,10 +523,12 @@ const App = () => {
       isPathB,
       isPathB2,
       isPhase2,
+      matchedVertexIndex,
       objectVertices,
       rightAngleIndex,
       rotationDegrees,
       rotationDirection,
+      rotationCorrect,
       scaleFactor,
       showDilationClones,
       stage,
@@ -618,15 +701,18 @@ const App = () => {
       setActiveTool("translate");
       setTranslationVector({ x: 0, y: 0 });
       setTranslatePhase("left");
+      setMatchedVertexIndex(null);
+      setDilationCenter(null);
       setStage("translateBActive");
       return;
     }
 
     if (tool === "dilate" && stage === "dilateBIntro") {
-      const anchor = translatePoint(
-        objectVertices[rightAngleIndex],
-        translationVector,
-      );
+      const anchorIndex =
+        matchedVertexIndex != null ? matchedVertexIndex : rightAngleIndex;
+      const anchor =
+        dilationCenter ||
+        translatePoint(objectVertices[anchorIndex], translationVector);
       setDilationCenter(anchor);
       setActiveTool("dilate");
       setScaleFactor(1);
@@ -727,6 +813,7 @@ const App = () => {
       return;
     }
     setShowDilationClones(true);
+    setIsDilateDragging(true);
     setSliderPulse(false);
     setScaleFactor(value);
   };
@@ -734,6 +821,7 @@ const App = () => {
   const handleScaleDragStart = function () {
     setSliderPulse(false);
     setShowDilationClones(true);
+    setIsDilateDragging(true);
   };
 
   const handleScaleCommit = function () {
@@ -745,6 +833,7 @@ const App = () => {
     ) {
       return;
     }
+    setIsDilateDragging(false);
     const next = scaleFactor;
     const targetScale = isPhase2 ? correctScale : correctScale;
     if (Math.abs(next - targetScale) > 0.1) {
@@ -775,6 +864,8 @@ const App = () => {
         "dilation",
         formatTemplate(data.history.dilation, { k: targetScale }),
       );
+      setShowDilationClones(true);
+      setDilationCorrect(true);
       setStage("p2DilateSuccess");
       return;
     }
@@ -805,35 +896,23 @@ const App = () => {
   };
 
   const handleMoveA = function (direction) {
-    if (!expectedTranslation || !dilatedBaseVertices) return;
+    if (!dilatedBaseVertices) return;
 
     setTranslationVector(function (current) {
       const delta =
         direction === "left"
           ? { x: -1, y: 0 }
-          : direction === "up"
-            ? { x: 0, y: 1 }
-            : { x: 0, y: 0 };
-      let next = {
+          : direction === "right"
+            ? { x: 1, y: 0 }
+            : direction === "up"
+              ? { x: 0, y: 1 }
+              : direction === "down"
+                ? { x: 0, y: -1 }
+                : { x: 0, y: 0 };
+      const next = {
         x: current.x + delta.x,
         y: current.y + delta.y,
       };
-
-      if (translatePhase === "left" && next.x <= expectedTranslation.x) {
-        next = { x: expectedTranslation.x, y: current.y };
-        setTranslatePhase("up");
-      }
-
-      if (
-        translatePhase === "up" &&
-        next.x === expectedTranslation.x &&
-        next.y >= expectedTranslation.y
-      ) {
-        next = {
-          x: expectedTranslation.x,
-          y: expectedTranslation.y,
-        };
-      }
 
       updateHistory(
         "translation",
@@ -851,6 +930,7 @@ const App = () => {
         play("congrats");
         setStage("translateSuccess");
         setTranslatePhase("done");
+        setHintArrow(null);
       }
 
       return next;
@@ -862,29 +942,17 @@ const App = () => {
       const delta =
         direction === "left"
           ? { x: -1, y: 0 }
-          : direction === "up"
-            ? { x: 0, y: 1 }
-            : { x: 0, y: 0 };
-      let next = {
+          : direction === "right"
+            ? { x: 1, y: 0 }
+            : direction === "up"
+              ? { x: 0, y: 1 }
+              : direction === "down"
+                ? { x: 0, y: -1 }
+                : { x: 0, y: 0 };
+      const next = {
         x: current.x + delta.x,
         y: current.y + delta.y,
       };
-
-      if (translatePhase === "left" && next.x <= expectedBTranslation.x) {
-        next = { x: expectedBTranslation.x, y: current.y };
-        setTranslatePhase("up");
-      }
-
-      if (
-        translatePhase === "up" &&
-        next.x === expectedBTranslation.x &&
-        next.y >= expectedBTranslation.y
-      ) {
-        next = {
-          x: expectedBTranslation.x,
-          y: expectedBTranslation.y,
-        };
-      }
 
       updateHistory(
         "translation",
@@ -894,50 +962,93 @@ const App = () => {
         }),
       );
 
-      const cloneRightAngle = translatePoint(
-        objectVertices[rightAngleIndex],
+      const matchIndex = findMatchingVertexIndex(
+        objectVertices,
+        imageVertices,
         next,
       );
-      const targetRightAngle = imageVertices[rightAngleIndex];
 
-      if (
-        Math.abs(cloneRightAngle.x - targetRightAngle.x) <= 0.05 &&
-        Math.abs(cloneRightAngle.y - targetRightAngle.y) <= 0.05
-      ) {
+      if (matchIndex !== -1) {
         play("correct");
+        setMatchedVertexIndex(matchIndex);
+        setDilationCenter(imageVertices[matchIndex]);
         setStage("translateBSuccess");
         setTranslatePhase("done");
+        setHintArrow(null);
       }
 
       return next;
     });
   };
 
+  const clearTranslateIdleTimer = useCallback(function () {
+    if (translateIdleTimerRef.current) {
+      window.clearTimeout(translateIdleTimerRef.current);
+      translateIdleTimerRef.current = null;
+    }
+  }, []);
+
+  const scheduleTranslateHint = useCallback(
+    function () {
+      clearTranslateIdleTimer();
+      setHintArrow(null);
+      if (stage !== "translateActive" && stage !== "translateBActive") {
+        return;
+      }
+      translateIdleTimerRef.current = window.setTimeout(function () {
+        const expected =
+          stage === "translateBActive"
+            ? expectedBTranslation
+            : expectedTranslation;
+        setHintArrow(getTranslationHint(translationVector, expected));
+      }, 5000);
+    },
+    [
+      clearTranslateIdleTimer,
+      expectedBTranslation,
+      expectedTranslation,
+      stage,
+      translationVector,
+    ],
+  );
+
   const handleMove = function (direction) {
     if (activeTool !== "translate") return;
     if (stage === "translateActive") {
-      if (translatePhase === "left" && direction !== "left") return;
-      if (translatePhase === "up" && direction !== "up") return;
       play("click");
+      setHintArrow(null);
       handleMoveA(direction);
+      scheduleTranslateHint();
       return;
     }
     if (stage === "translateBActive") {
-      if (translatePhase === "left" && direction !== "left") return;
-      if (translatePhase === "up" && direction !== "up") return;
       play("click");
+      setHintArrow(null);
       handleMoveB(direction);
+      scheduleTranslateHint();
     }
   };
+
+  useEffect(
+    function () {
+      if (stage === "translateActive" || stage === "translateBActive") {
+        scheduleTranslateHint();
+        return function () {
+          clearTranslateIdleTimer();
+        };
+      }
+      clearTranslateIdleTimer();
+      setHintArrow(null);
+    },
+    [clearTranslateIdleTimer, scheduleTranslateHint, stage],
+  );
 
   const handleDirection = function (direction) {
     if (activeTool !== "rotate") return;
     play("click");
     setRotationDirection(direction);
     setCloneIsWrong(false);
-    if (direction === "acw") {
-      setSliderPulse(true);
-    }
+    setSliderPulse(true);
   };
 
   const handleRotationChange = function (value) {
@@ -955,11 +1066,12 @@ const App = () => {
     if (stage !== "p2RotateActive" && stage !== "p2RotateBActive") return;
     if (!rotationDirection) return;
 
-    const isCorrect =
-      rotationDirection === correctRotDir &&
-      Math.abs(rotationDegrees - correctRotation) <= 5;
+    const snapped = getCorrectRotationSnap(
+      rotationDirection,
+      rotationDegrees,
+    );
 
-    if (!isCorrect) {
+    if (!snapped) {
       play("wrong");
       setCloneIsWrong(true);
       setSliderPulse(true);
@@ -967,15 +1079,19 @@ const App = () => {
     }
 
     play("congrats");
-    setRotationDegrees(correctRotation);
+    setRotationDirection(snapped.direction);
+    setRotationDegrees(snapped.degrees);
     setRotationCorrect(true);
     setCloneIsWrong(false);
     setSliderPulse(false);
     updateHistory(
       "rotation",
       formatTemplate(data.history.rotation, {
-        degrees: correctRotation,
-        direction: data.labels.anticlockwise,
+        degrees: snapped.degrees,
+        direction:
+          snapped.direction === "acw"
+            ? data.labels.anticlockwise
+            : data.labels.clockwise,
       }),
     );
 
@@ -1114,9 +1230,22 @@ const App = () => {
       ) {
         return "";
       }
+      if (
+        stage === "step2" &&
+        (completedPaths.dilateFirst || completedPaths.translateFirst)
+      ) {
+        return data.panels.step2.footerReturn || panel.footer || "";
+      }
+      if (
+        stage === "step4" &&
+        (completedPaths2.dilateFirstRotate ||
+          completedPaths2.rotateFirstDilate)
+      ) {
+        return data.panels.step4.footerReturn || panel.footer || "";
+      }
       return panel.footer || "";
     },
-    [panel, stage],
+    [completedPaths, completedPaths2, data.panels.step2, data.panels.step4, panel, stage],
   );
 
   const footerAction =
@@ -1194,26 +1323,27 @@ const App = () => {
 
   const enabledArrow =
     stage === "translateActive" || stage === "translateBActive"
-      ? translatePhase === "left"
-        ? "left"
-        : translatePhase === "up"
-          ? "up"
-          : null
+      ? "all"
       : null;
 
   const showHistoryBox = false;
 
   const showDilationLines =
-    stage === "dilateSlider" ||
-    stage === "dilateBSlider" ||
-    stage === "p2DilateSlider" ||
-    stage === "p2DilateBSlider";
-  const showDilationAnchor =
-    dilationCenter &&
+    isDilateDragging &&
     (stage === "dilateSlider" ||
       stage === "dilateBSlider" ||
       stage === "p2DilateSlider" ||
       stage === "p2DilateBSlider");
+  const showDilationAnchor =
+    dilationCenter &&
+    (stage === "dilateSlider" ||
+      stage === "dilateSuccess" ||
+      stage === "dilateBSlider" ||
+      stage === "translateSuccessB" ||
+      stage === "p2DilateSlider" ||
+      stage === "p2DilateSuccess" ||
+      stage === "p2DilateBSlider" ||
+      stage === "p2SuccessB");
   const showClone2 =
     (!isPathB && stage === "dilateSlider" && showDilationClones) ||
     (!isPathB2 && stage === "p2DilateSlider" && showDilationClones);
@@ -1223,6 +1353,7 @@ const App = () => {
         stage === "dilateSuccess" ||
         stage === "dilateBSlider" ||
         stage === "p2DilateSlider" ||
+        stage === "p2DilateSuccess" ||
         stage === "p2DilateBSlider")) ||
     rotationCorrect ||
     stage === "translateSuccess" ||
@@ -1279,7 +1410,7 @@ const App = () => {
             imageIsCorrect: imageIsCorrect,
             graphConfig: activeGraph,
             dilationAnchor: showDilationAnchor ? dilationCenter : null,
-            dilationLines: dilationLineVertices,
+            dilationLines: showDilationLines ? dilationLineVertices : null,
             vertexPickers:
               stage === "dilateVertexPick" ? objectVertices : null,
             onVertexPick: handleVertexPick,
@@ -1294,6 +1425,7 @@ const App = () => {
           sliderPulse: sliderPulse,
           translationVector: translationVector,
           enabledArrow: enabledArrow,
+          hintArrow: hintArrow,
           canRotate:
             stage === "step5B" ||
             stage === "p2DilateSuccess" ||
@@ -1307,10 +1439,7 @@ const App = () => {
             stage === "step5A" ||
             stage === "p2DilateBIntro",
           reflectionAxis: null,
-          enabledDirection:
-            stage === "p2RotateActive" || stage === "p2RotateBActive"
-              ? "acw"
-              : null,
+          enabledDirection: null,
           dilateMax: 3,
           rotationLocked:
             stage === "p2SuccessA" || stage === "p2RotateBSuccess",

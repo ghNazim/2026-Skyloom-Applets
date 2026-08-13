@@ -1,3 +1,80 @@
+const svg_font_size = 17 * 1.6;
+const LABEL_OFFSET_SCALE = 0.85;
+
+// Tweak these to adjust label placement across the graph.
+const AXIS_LABEL_OFFSET = 0.28;
+const POINT_LABEL_OFFSET = 0.38;
+const POINT_LABEL_ABOVE_RIGHT_OFFSET = 0.45;
+const XK_REFLECTED_LABEL_LEFT_OFFSET = 0.45;
+const YNEG_X_REFLECTED_LABEL_LEFT_OFFSET = 0.45;
+
+const AXIS_INTERSECTION_OFFSETS = {
+  positiveX: { x: AXIS_LABEL_OFFSET, y: -AXIS_LABEL_OFFSET },
+  negativeX: { x: -AXIS_LABEL_OFFSET, y: -AXIS_LABEL_OFFSET },
+  positiveY: { x: -AXIS_LABEL_OFFSET, y: AXIS_LABEL_OFFSET },
+  negativeY: { x: -AXIS_LABEL_OFFSET, y: -AXIS_LABEL_OFFSET },
+};
+
+const HK_INTERSECTION_LABEL_OFFSET = AXIS_LABEL_OFFSET;
+const AXIS_INTERSECTION_TICK_SIZE = 0.5;
+const AXIS_INTERSECTION_TICK_WIDTH = 6;
+const XK_EQUATION_LABEL_RIGHT_OFFSET = 0.35;
+const Y_AXIS_EQUATION_LABEL_RIGHT_OFFSET = 0.4;
+const LINE_YX_EQUATION_LABEL_LEFT_OFFSET = 0.45;
+const LINE_YNEG_X_EQUATION_LABEL_LEFT_OFFSET = 0.45;
+const HK_POINT_RADIUS = 5;
+
+const HK_INTERSECTION_TOP_RIGHT = {
+  offset: {
+    x: HK_INTERSECTION_LABEL_OFFSET,
+    y: HK_INTERSECTION_LABEL_OFFSET,
+  },
+  anchor: "start",
+  baseline: "text-after-edge",
+};
+
+const HK_INTERSECTION_BOTTOM_RIGHT = {
+  offset: {
+    x: HK_INTERSECTION_LABEL_OFFSET,
+    y: -HK_INTERSECTION_LABEL_OFFSET,
+  },
+  anchor: "start",
+  baseline: "hanging",
+};
+
+const POINT_LABEL_ABOVE = {
+  offset: { x: 0, y: POINT_LABEL_OFFSET },
+  anchor: "middle",
+  baseline: "text-after-edge",
+};
+
+const POINT_LABEL_BELOW = {
+  offset: { x: 0, y: -POINT_LABEL_OFFSET },
+  anchor: "middle",
+  baseline: "text-before-edge",
+};
+
+const POINT_LABEL_ABOVE_RIGHT = {
+  offset: {
+    x: POINT_LABEL_OFFSET * POINT_LABEL_ABOVE_RIGHT_OFFSET,
+    y: POINT_LABEL_OFFSET,
+  },
+  anchor: "start",
+  baseline: "text-after-edge",
+};
+
+const POINT_LABEL_ABOVE_LEFT = {
+  offset: { x: -XK_REFLECTED_LABEL_LEFT_OFFSET, y: POINT_LABEL_OFFSET },
+  anchor: "end",
+  baseline: "text-after-edge",
+};
+
+const POINT_LABEL_BELOW_LEFT = {
+  offset: { x: -YNEG_X_REFLECTED_LABEL_LEFT_OFFSET, y: -POINT_LABEL_OFFSET },
+  anchor: "end",
+  baseline: "text-before-edge",
+};
+
 const ReflectionGraph = ({ visual }) => {
   const caseConfig = visual.caseId ? REFLECTION_CASES[visual.caseId] : null;
   const graphText = APP_DATA.graph;
@@ -17,8 +94,15 @@ const ReflectionGraph = ({ visual }) => {
     });
   };
 
-  const renderLabel = (point, text, className, key, offset = { x: 0, y: 0 }) => {
-    const p = graphToSvg({ x: point.x + offset.x, y: point.y + offset.y });
+  const renderLabel = (
+    point,
+    text,
+    className,
+    key,
+    placement = { offset: { x: 0, y: 0 }, anchor: "middle", baseline: "middle" },
+  ) => {
+    const scaled = scaleLabelOffset(placement.offset);
+    const p = graphToSvg({ x: point.x + scaled.x, y: point.y + scaled.y });
     return React.createElement(
       "text",
       {
@@ -26,8 +110,9 @@ const ReflectionGraph = ({ visual }) => {
         x: p.x,
         y: p.y,
         className,
-        textAnchor: "middle",
-        dominantBaseline: "middle",
+        textAnchor: placement.anchor,
+        dominantBaseline: placement.baseline,
+        style: { fontSize: svg_font_size },
       },
       text,
     );
@@ -52,7 +137,8 @@ const ReflectionGraph = ({ visual }) => {
         y: p.y,
         className: "reflection-point-label" + (reflected ? " reflected" : ""),
         textAnchor: placement.anchor,
-        dominantBaseline: "middle",
+        dominantBaseline: placement.baseline,
+        style: { fontSize: svg_font_size },
       },
       parts.map((part, index) =>
         React.createElement(
@@ -63,6 +149,47 @@ const ReflectionGraph = ({ visual }) => {
       ),
       label ? null : null,
     );
+  };
+
+  const renderAxisIntersectionTick = (point, key) => {
+    const epsilon = 0.001;
+    const half = AXIS_INTERSECTION_TICK_SIZE / 2;
+    const tickStyle = { strokeWidth: AXIS_INTERSECTION_TICK_WIDTH };
+
+    if (Math.abs(point.y) < epsilon) {
+      return renderLine(
+        { x: point.x, y: -half },
+        { x: point.x, y: half },
+        "reflection-axis-intersection-tick",
+        key,
+        1,
+        tickStyle,
+      );
+    }
+
+    if (Math.abs(point.x) < epsilon) {
+      return renderLine(
+        { x: -half, y: point.y },
+        { x: half, y: point.y },
+        "reflection-axis-intersection-tick",
+        key,
+        1,
+        tickStyle,
+      );
+    }
+
+    return null;
+  };
+
+  const renderHkIntersectionPoint = (point, key) => {
+    const p = graphToSvg(point);
+    return React.createElement("circle", {
+      key,
+      cx: p.x,
+      cy: p.y,
+      r: HK_POINT_RADIUS,
+      className: "reflection-hk-point",
+    });
   };
 
   const renderGrid = () => {
@@ -115,13 +242,19 @@ const ReflectionGraph = ({ visual }) => {
         },
       ),
       renderLabel(
-        { x: GRAPH_RANGE - 0.32, y: 0.48 },
+        {
+          x: GRAPH_RANGE - 0.32,
+          y: 0.42,
+        },
         graphText.xAxisLabel,
         "reflection-axis-label",
         "axis-label-x",
       ),
       renderLabel(
-        { x: 0.42, y: GRAPH_RANGE - 0.35 },
+        {
+          x: 0.42,
+          y: GRAPH_RANGE - 0.35,
+        },
         graphText.yAxisLabel,
         "reflection-axis-label",
         "axis-label-y",
@@ -151,12 +284,18 @@ const ReflectionGraph = ({ visual }) => {
         visual.initialGuideProgress,
       ),
       visual.initialGuideProgress >= 1
+        ? renderAxisIntersectionTick(verticalEnd, "initial-tick-x")
+        : null,
+      visual.initialGuideProgress >= 1
+        ? renderAxisIntersectionTick(horizontalEnd, "initial-tick-y")
+        : null,
+      visual.initialGuideProgress >= 1
         ? renderLabel(
             verticalEnd,
             graphText.coordinateLabels.x,
             "reflection-coordinate-label coord-x-token",
             "initial-label-x",
-            { x: 0.25, y: -0.35 },
+            getAxisIntersectionPlacement(verticalEnd),
           )
         : null,
       visual.initialGuideProgress >= 1
@@ -165,7 +304,7 @@ const ReflectionGraph = ({ visual }) => {
             graphText.coordinateLabels.y,
             "reflection-coordinate-label coord-y-token",
             "initial-label-y",
-            { x: -0.35, y: 0.25 },
+            getAxisIntersectionPlacement(horizontalEnd),
           )
         : null,
     );
@@ -189,7 +328,11 @@ const ReflectionGraph = ({ visual }) => {
       ),
       visual.reflectorProgress >= 1
         ? renderLabel(
-            caseConfig.equationOffset,
+            nudgeAwayFromLine(
+              caseConfig.line,
+              getEquationLabelPoint(visual.caseId, caseConfig.equationOffset),
+              0.12,
+            ),
             graphText.equations[visual.caseId],
             "reflection-equation-label",
             "reflector-equation",
@@ -212,7 +355,9 @@ const ReflectionGraph = ({ visual }) => {
     const to = isHorizontal
       ? { x: visual.hMeasureProgress, y: -3.4 }
       : { x: -3.4, y: visual.hMeasureProgress };
-    const labelPoint = isHorizontal ? { x: 0.5, y: -3.02 } : { x: -3.08, y: 0.5 };
+    const labelPoint = isHorizontal
+      ? { x: 0.5, y: -3.4 + 0.32 }
+      : { x: -3.4 + 0.28, y: 0.5 };
     const intersection = isHorizontal ? { x: 1, y: 0 } : { x: 0, y: 1 };
     const measureLabel = isHorizontal
       ? graphText.coordinateLabels.k
@@ -220,6 +365,10 @@ const ReflectionGraph = ({ visual }) => {
     const intersectionLabel = isHorizontal
       ? graphText.coordinateLabels.kZero
       : graphText.coordinateLabels.zeroH;
+
+    const intersectionPlacement = isHorizontal
+      ? HK_INTERSECTION_BOTTOM_RIGHT
+      : HK_INTERSECTION_TOP_RIGHT;
 
     return React.createElement(
       "g",
@@ -246,11 +395,14 @@ const ReflectionGraph = ({ visual }) => {
           )
         : null,
       visual.hMeasureProgress >= 1
+        ? renderHkIntersectionPoint(intersection, "line-yh-hk-point")
+        : null,
+      visual.hMeasureProgress >= 1
         ? renderOffsetIntersectionLabel(
             intersection,
             intersectionLabel,
             "line-yh-origin-h-label",
-            isHorizontal ? { x: 0.72, y: -0.42 } : { x: 0.72, y: 0.42 },
+            intersectionPlacement,
           )
         : null,
     );
@@ -312,12 +464,18 @@ const ReflectionGraph = ({ visual }) => {
             visual.finalGuideProgress,
           ),
           visual.finalGuideProgress >= 1
+            ? renderAxisIntersectionTick(
+                guide.to,
+                "final-guide-tick-" + index,
+              )
+            : null,
+          visual.finalGuideProgress >= 1
             ? renderLabel(
                 guide.to,
                 graphText.coordinateLabels[guide.labelKey],
                 "reflection-coordinate-label " + getCoordinateLabelClass(guide.labelKey),
                 "final-guide-label-" + index,
-                guide.labelOffset,
+                getAxisIntersectionPlacement(guide.to),
               )
             : null,
         ),
@@ -466,6 +624,50 @@ const ReflectionGraph = ({ visual }) => {
   );
 };
 
+function scaleLabelOffset(offset) {
+  return {
+    x: offset.x * LABEL_OFFSET_SCALE,
+    y: offset.y * LABEL_OFFSET_SCALE,
+  };
+}
+
+function nudgeAwayFromLine(line, point, extraDistance) {
+  if (!extraDistance) return point;
+  const side = signedGraphDistance(line, point) >= 0 ? 1 : -1;
+  return {
+    x: point.x + side * extraDistance * line.a,
+    y: point.y + side * extraDistance * line.b,
+  };
+}
+
+function getEquationLabelPoint(caseId, equationOffset) {
+  if (caseId === "lineXK") {
+    return {
+      x: equationOffset.x + XK_EQUATION_LABEL_RIGHT_OFFSET,
+      y: equationOffset.y,
+    };
+  }
+  if (caseId === "yAxis") {
+    return {
+      x: equationOffset.x + Y_AXIS_EQUATION_LABEL_RIGHT_OFFSET,
+      y: equationOffset.y,
+    };
+  }
+  if (caseId === "lineYX") {
+    return {
+      x: equationOffset.x - LINE_YX_EQUATION_LABEL_LEFT_OFFSET,
+      y: equationOffset.y,
+    };
+  }
+  if (caseId === "lineYNegX") {
+    return {
+      x: equationOffset.x - LINE_YNEG_X_EQUATION_LABEL_LEFT_OFFSET,
+      y: equationOffset.y,
+    };
+  }
+  return equationOffset;
+}
+
 function getCoordinateLabelClass(labelKey) {
   if (labelKey === "x" || labelKey === "negativeX" || labelKey === "reflectedXK") {
     return "coord-x-token";
@@ -482,21 +684,77 @@ function getResultToneClass(tone) {
   return "tone-x";
 }
 
-function getPointLabelPlacement(caseId, reflected) {
-  if (!reflected) {
-    return { offset: { x: 0.88, y: 0.18 }, anchor: "start" };
+function getAxisIntersectionPlacement(point) {
+  const epsilon = 0.001;
+
+  if (Math.abs(point.y) < epsilon) {
+    if (point.x >= 0) {
+      return {
+        offset: AXIS_INTERSECTION_OFFSETS.positiveX,
+        anchor: "start",
+        baseline: "hanging",
+      };
+    }
+    return {
+      offset: AXIS_INTERSECTION_OFFSETS.negativeX,
+      anchor: "end",
+      baseline: "hanging",
+    };
   }
-  if (caseId === "yAxis" || caseId === "lineXK") {
-    return { offset: { x: -0.36, y: 0.62 }, anchor: "end" };
+
+  if (Math.abs(point.x) < epsilon) {
+    if (point.y >= 0) {
+      return {
+        offset: AXIS_INTERSECTION_OFFSETS.positiveY,
+        anchor: "end",
+        baseline: "text-after-edge",
+      };
+    }
+    return {
+      offset: AXIS_INTERSECTION_OFFSETS.negativeY,
+      anchor: "end",
+      baseline: "hanging",
+    };
   }
-  if (caseId === "lineYNegX") {
-    return { offset: { x: -0.36, y: -0.62 }, anchor: "end" };
-  }
-  return { offset: { x: 0.88, y: 0.18 }, anchor: "start" };
+
+  return {
+    offset: { x: 0, y: 0 },
+    anchor: "middle",
+    baseline: "middle",
+  };
 }
 
-function renderOffsetIntersectionLabel(point, label, key, offset) {
-  const p = graphToSvg({ x: point.x + offset.x, y: point.y + offset.y });
+function getPointLabelPlacement(caseId, reflected) {
+  if (caseId === "xAxis") {
+    return reflected ? POINT_LABEL_BELOW : POINT_LABEL_ABOVE;
+  }
+
+  if (caseId === "yAxis") {
+    return POINT_LABEL_ABOVE;
+  }
+
+  if (caseId === "lineXK") {
+    return reflected ? POINT_LABEL_ABOVE_LEFT : POINT_LABEL_ABOVE;
+  }
+
+  if (caseId === "lineYH") {
+    return reflected ? POINT_LABEL_BELOW : POINT_LABEL_ABOVE;
+  }
+
+  if (caseId === "lineYNegX") {
+    return reflected ? POINT_LABEL_BELOW_LEFT : POINT_LABEL_ABOVE;
+  }
+
+  if (caseId === "lineYX") {
+    return reflected ? POINT_LABEL_ABOVE : POINT_LABEL_ABOVE_RIGHT;
+  }
+
+  return reflected ? POINT_LABEL_BELOW : POINT_LABEL_ABOVE;
+}
+
+function renderOffsetIntersectionLabel(point, label, key, placement) {
+  const scaled = scaleLabelOffset(placement.offset);
+  const p = graphToSvg({ x: point.x + scaled.x, y: point.y + scaled.y });
   const symbolIndex = Math.max(label.indexOf("h"), label.indexOf("k"));
   const parts =
     symbolIndex >= 0
@@ -514,8 +772,9 @@ function renderOffsetIntersectionLabel(point, label, key, offset) {
       x: p.x,
       y: p.y,
       className: "reflection-origin-h-label",
-      textAnchor: "middle",
-      dominantBaseline: "middle",
+      textAnchor: placement.anchor,
+      dominantBaseline: placement.baseline,
+      style: { fontSize: svg_font_size },
     },
     parts.map((part, index) =>
       React.createElement(

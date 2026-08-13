@@ -98,8 +98,8 @@ const ActivityGraph = ({
 
     els.push(
       React.createElement("text", { key: "origin-o", x: ORIGIN_X - 20, y: ORIGIN_Y + 24, ...axisProps }, "O"),
-      React.createElement("text", { key: "axis-x", x: gridRight + 14, y: ORIGIN_Y + 6, ...axisProps }, "X"),
-      React.createElement("text", { key: "axis-y", x: ORIGIN_X - 4, y: cfg.padTop - 8, ...axisProps }, "Y"),
+      React.createElement("text", { key: "axis-x", x: gridRight + 14, y: ORIGIN_Y + 6, ...axisProps }, "x"),
+      React.createElement("text", { key: "axis-y", x: ORIGIN_X - 4, y: cfg.padTop - 8, ...axisProps }, "y"),
     );
     return els;
   }, [GRID_W]);

@@ -1,0 +1,17 @@
+.lower-panel-container {
+  text-align: center;
+  flex: 1;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.055);
+  border-radius: 0.8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3vw;
+}
+
+.instruction-text {
+  text-align: center;
+  font-size: 2.2vw !important;
+  color: #ffffff;
+}

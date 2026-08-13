@@ -6,7 +6,11 @@ const StartScreen = ({ onStart }) => {
   return React.createElement(
     "div",
     { className: "cupfrac-start" },
-    React.createElement("div", { className: "cupfrac-start-title" }, APP_DATA.start.heading),
+    React.createElement(
+      "div",
+      { className: "cupfrac-start-title" },
+      APP_DATA.start.heading,
+    ),
     React.createElement(
       "div",
       { className: "cupfrac-start-content" },
@@ -45,7 +49,11 @@ const BenchmarkScreen = ({ onContinue }) => {
   return React.createElement(
     "div",
     { className: "cupfrac-benchmark" },
-    React.createElement("div", { className: "cupfrac-benchmark-title" }, config.heading),
+    React.createElement(
+      "div",
+      { className: "cupfrac-benchmark-title" },
+      config.heading,
+    ),
     React.createElement(
       "div",
       { className: "cupfrac-benchmark-content" },
@@ -84,7 +92,11 @@ const FinalScreen = ({ onStartOver }) => {
   return React.createElement(
     "div",
     { className: "cupfrac-final" },
-    React.createElement("div", { className: "cupfrac-final-title" }, APP_DATA.final.heading),
+    React.createElement(
+      "div",
+      { className: "cupfrac-final-title" },
+      APP_DATA.final.heading,
+    ),
     React.createElement(
       "div",
       { className: "cupfrac-final-card" },
@@ -109,10 +121,14 @@ const App = () => {
   const { useState, useEffect, useCallback, useRef } = React;
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [stageMode, setStageMode] = useState("play");
+  const [farthestCompleted, setFarthestCompleted] = useState(0);
   const [isNextDisabled, setIsNextDisabled] = useState(true);
   const [navText, setNavText] = useState("");
   const [nudge, setNudge] = useState(null);
   const nudgeIdRef = useRef(null);
+  const farthestRef = useRef(0);
+  farthestRef.current = farthestCompleted;
 
   const playSnd = (name) => {
     if (typeof playSound === "function") playSound(name);
@@ -155,55 +171,120 @@ const App = () => {
     setNavText(text || "");
   }, []);
 
+  const markStepCompleted = useCallback((step) => {
+    setFarthestCompleted((prev) => (step > prev ? step : prev));
+  }, []);
+
+  const goToStep = useCallback(
+    (step, mode) => {
+      hideNudge();
+      setStageMode(mode);
+      setCurrentStep(step);
+    },
+    [hideNudge],
+  );
+
   const advanceStep = useCallback(() => {
     hideNudge();
-    setCurrentStep((prev) => (prev < LAST_NAV_STEP ? prev + 1 : prev));
+    setCurrentStep((prev) => {
+      setFarthestCompleted((f) => (prev > f ? prev : f));
+      return prev < LAST_NAV_STEP ? prev + 1 : prev;
+    });
+    setStageMode("play");
   }, [hideNudge]);
 
   const handleStart = () => {
     playSnd("click");
     hideNudge();
+    setFarthestCompleted(0);
+    setStageMode("play");
     setCurrentStep(1);
   };
 
   const handleBenchmarkContinue = () => {
     playSnd("click");
     hideNudge();
-    setCurrentStep(7);
+    const sevenAlreadyDone = farthestRef.current >= 7;
+    markStepCompleted(BENCHMARK_STEP);
+    if (sevenAlreadyDone) {
+      goToStep(7, "completed");
+    } else {
+      goToStep(7, "play");
+    }
   };
 
   const handleStartOver = () => {
     playSnd("click");
     hideNudge();
     setCurrentStep(0);
+    setStageMode("play");
+    setFarthestCompleted(0);
     setIsNextDisabled(true);
     setNavText("");
+  };
+
+  const handlePrev = () => {
+    if (currentStep <= 1) return;
+    playSnd("click");
+    const prevStep = currentStep - 1;
+    if (prevStep === BENCHMARK_STEP) {
+      goToStep(BENCHMARK_STEP, "play");
+      return;
+    }
+    goToStep(prevStep, "completed");
   };
 
   const handleNext = () => {
     if (isNextDisabled || currentStep >= FINAL_STEP) return;
     playSnd("click");
     hideNudge();
-    setCurrentStep((prev) => prev + 1);
+
+    if (stageMode === "completed") {
+      if (currentStep < farthestRef.current) {
+        const nextStep = currentStep + 1;
+        if (nextStep === BENCHMARK_STEP) {
+          goToStep(BENCHMARK_STEP, "play");
+        } else {
+          goToStep(nextStep, "completed");
+        }
+      } else {
+        // At farthest completed step — start the following step from initial.
+        goToStep(currentStep + 1, "play");
+      }
+      return;
+    }
+
+    // Play mode: leave this step (already completed) and start the next from initial.
+    markStepCompleted(currentStep);
+    goToStep(currentStep + 1, "play");
   };
 
   useEffect(() => {
     if (currentStep !== 0) return undefined;
     setIsNextDisabled(true);
     setNavText("");
-    const tid = window.setTimeout(() => showNudgeAtElement("start-button"), 500);
+    const tid = window.setTimeout(
+      () => showNudgeAtElement("start-button"),
+      500,
+    );
     return () => window.clearTimeout(tid);
   }, [currentStep, showNudgeAtElement]);
 
   useEffect(() => {
     if (currentStep !== BENCHMARK_STEP) return undefined;
-    const tid = window.setTimeout(() => showNudgeAtElement("benchmark-continue-button"), 500);
+    const tid = window.setTimeout(
+      () => showNudgeAtElement("benchmark-continue-button"),
+      500,
+    );
     return () => window.clearTimeout(tid);
   }, [currentStep, showNudgeAtElement]);
 
   useEffect(() => {
     if (currentStep !== FINAL_STEP) return undefined;
-    const tid = window.setTimeout(() => showNudgeAtElement("start-over-button"), 500);
+    const tid = window.setTimeout(
+      () => showNudgeAtElement("start-over-button"),
+      500,
+    );
     return () => window.clearTimeout(tid);
   }, [currentStep, showNudgeAtElement]);
 
@@ -231,7 +312,9 @@ const App = () => {
       React.createElement(
         "div",
         { className: "app-main-content" },
-        React.createElement(BenchmarkScreen, { onContinue: handleBenchmarkContinue }),
+        React.createElement(BenchmarkScreen, {
+          onContinue: handleBenchmarkContinue,
+        }),
       ),
       React.createElement(Nudge, {
         show: !!nudge,
@@ -259,6 +342,7 @@ const App = () => {
   }
 
   const stepConfig = APP_DATA.steps[currentStep] || {};
+  const isPrevDisabled = currentStep <= 1;
 
   return React.createElement(
     "div",
@@ -271,10 +355,13 @@ const App = () => {
       "div",
       { className: "app-main-content" },
       React.createElement(MainCanvas, {
+        key: currentStep + "-" + stageMode,
         step: currentStep,
+        stageMode: stageMode,
         onSetNextEnabled: setNextEnabled,
         onUpdateNav: updateNav,
         onAdvance: advanceStep,
+        onStepCompleted: markStepCompleted,
         onHideNudge: hideNudge,
         onShowNudgeAtElement: showNudgeAtElement,
       }),
@@ -285,9 +372,10 @@ const App = () => {
       React.createElement(Navigation, {
         onNav: (dir) => {
           if (dir === "next") handleNext();
+          else if (dir === "prev") handlePrev();
         },
         isNextDisabled: isNextDisabled,
-        isPrevDisabled: true,
+        isPrevDisabled: isPrevDisabled,
         navText: formatFractionsInText(navText),
       }),
     ),

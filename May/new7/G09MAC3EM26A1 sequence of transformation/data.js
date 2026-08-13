@@ -33,10 +33,10 @@ const DATA = {
         down: "translate downward",
         left: "translate left",
         right: "translate right",
-        axisX: "X",
-        axisXPrime: "X\u2019",
-        axisY: "Y",
-        axisYPrime: "Y\u2019",
+        axisX: "x",
+        axisXPrime: "x\u2019",
+        axisY: "y",
+        axisYPrime: "y\u2019",
         origin: "O",
         dilateFirstThenTranslate: "Dilate first, then translate it.",
         translateFirstThenDilate: "Translate first, then dilate it.",
@@ -101,7 +101,9 @@ const DATA = {
         },
         step2: {
           title: "This transformation can be performed in two ways:",
+          titleReturn: "Now let\u2019s perform the transformation in the second way.",
           footer: "Tap a way.",
+          footerReturn: "Tap the button.",
         },
         stepA3: {
           lines: [
@@ -237,7 +239,9 @@ const DATA = {
         },
         step4: {
           title: "This transformation can be performed in two ways:",
+          titleReturn: "Now let\u2019s perform the transformation in the second way.",
           footer: "Tap a way.",
+          footerReturn: "Tap the button.",
         },
         step5A: {
           lines: [
@@ -400,10 +404,10 @@ const DATA = {
         down: "translasi ke bawah",
         left: "translasi ke kiri",
         right: "translasi ke kanan",
-        axisX: "X",
-        axisXPrime: "X\u2019",
-        axisY: "Y",
-        axisYPrime: "Y\u2019",
+        axisX: "x",
+        axisXPrime: "x\u2019",
+        axisY: "y",
+        axisYPrime: "y\u2019",
         origin: "O",
         dilateFirstThenTranslate: "Dilatasi dulu, lalu translasi.",
         translateFirstThenDilate: "Translasi dulu, lalu dilatasi.",
@@ -468,7 +472,9 @@ const DATA = {
         },
         step2: {
           title: "Transformasi ini dapat dilakukan dengan dua cara:",
+          titleReturn: "Sekarang mari lakukan transformasi dengan cara kedua.",
           footer: "Ketuk salah satu cara.",
+          footerReturn: "Ketuk tombolnya.",
         },
         stepA3: {
           lines: [
@@ -604,7 +610,9 @@ const DATA = {
         },
         step4: {
           title: "Transformasi ini dapat dilakukan dengan dua cara:",
+          titleReturn: "Sekarang mari lakukan transformasi dengan cara kedua.",
           footer: "Ketuk salah satu cara.",
+          footerReturn: "Ketuk tombolnya.",
         },
         step5A: {
           lines: [

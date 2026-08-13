@@ -37,10 +37,11 @@ const ReflectionPlane = ({
   const summaryVisuals = ['summary', 'generalXOnly', 'generalComplete'];
   const patternVisuals = ['patternA', 'patternYFirst', 'patternXSecond', 'patternComplete'];
   const showPoint = !['intro', 'lineBuild', 'lineComplete', 'pickPoint', ...summaryVisuals].includes(step.visual);
-  const showPerp = ['perpendicular', 'distanceOneCount', 'distanceOne', 'distanceTwo', 'find-image', 'imageFound', ...patternVisuals, 'dragExplore'].includes(step.visual);
+  const showPerp = ['perpendicular', 'plotImageDraw', 'distanceOneCount', 'distanceOne', 'distanceTwo', 'find-image', 'imageFound', ...patternVisuals, 'dragExplore'].includes(step.visual);
   const showImage = ['imageFound', ...patternVisuals, 'dragExplore'].includes(step.visual);
   const showDistanceOne = ['distanceOneCount', 'distanceOne', 'distanceTwo', 'find-image', 'imageFound', ...patternVisuals].includes(step.visual);
   const showDistanceTwo = ['distanceTwo', 'find-image', 'imageFound', ...patternVisuals].includes(step.visual);
+  const showDirectPerpSegment = ['plotImageDraw', 'distanceTwo', 'find-image', 'imageFound', ...patternVisuals, 'dragExplore'].includes(step.visual);
   const showLineComplete = !['intro', 'lineBuild'].includes(step.visual);
   const isInteractive = Boolean(step.requires);
   const diagonalDistance = Math.abs(activePoint.x + activePoint.y) / 2;
@@ -446,13 +447,13 @@ const ReflectionPlane = ({
 
   const distanceConstruction = () => {
     if (!showPerp) return null;
-    const showGuideToFoot = ['perpendicular', 'distanceOneCount', 'distanceOne', 'distanceTwo', 'find-image'].includes(step.visual);
+    const showGuideToFoot = ['perpendicular', 'plotImageDraw', 'distanceOneCount', 'distanceOne', 'distanceTwo', 'find-image'].includes(step.visual);
     const showJoinedSegment = ['find-image', 'imageFound', ...patternVisuals, 'dragExplore'].includes(step.visual);
-    const showSourceCount = ['distanceOneCount', 'distanceOne', 'distanceTwo', 'imageFound'].includes(step.visual);
+    const showSourceCount = ['distanceOneCount', 'distanceOne'].includes(step.visual);
     const showFlip = step.visual === 'distanceTwo';
     const showImageTravel = step.visual === 'find-image';
     const showAnimatedCount = Boolean(distanceAnim && ['distanceOneCount', 'distanceOne'].includes(step.visual));
-    const showStaticMeasuredSource = ['same-distance-prompt', 'same-distance-mark'].includes(step.id);
+    const showStaticMeasuredSource = false;
     const showBothMarkers = ['distanceTwo', 'find-image', 'imageFound'].includes(step.visual);
     const showJoinedMarkers = ['patternComplete', 'dragExplore'].includes(step.visual);
     const pivot = `${footSvg.x}px ${footSvg.y}px`;
@@ -472,7 +473,15 @@ const ReflectionPlane = ({
         y2: perpEnd.y,
         className: 'joined-reflection-distance',
       }),
-      ['perpendicular', 'distanceOneCount', 'distanceOne', 'distanceTwo', 'find-image', 'imageFound', ...patternVisuals].includes(step.visual) && rightAngleMark(),
+      ['perpendicular', 'plotImageDraw', 'distanceOneCount', 'distanceOne', 'distanceTwo', 'find-image', 'imageFound', ...patternVisuals].includes(step.visual) && rightAngleMark(),
+      showDirectPerpSegment && React.createElement('line', {
+        x1: perpStart.x,
+        y1: perpStart.y,
+        x2: footSvg.x,
+        y2: footSvg.y,
+        pathLength: 1,
+        className: step.visual === 'plotImageDraw' ? 'first-segment-draw' : 'count-segment',
+      }),
       showStaticMeasuredSource && staticMeasuredSourceDistance(),
       showSourceCount && !showAnimatedCount && !showStaticMeasuredSource && unitFlipDistance(
         activePoint,
@@ -491,7 +500,7 @@ const ReflectionPlane = ({
         style: { transformOrigin: pivot },
       }),
       showFlip && unitFlipDistance(foot, diagonalUnitDirection, diagonalDistance, 'distance-two', {
-        showLabel: true,
+        showLabel: false,
         travel: true,
       }),
       showBothMarkers && equidistanceMarker(activePoint, diagonalUnitDirection, diagonalDistance, 'orange-marker', 'marker-source'),
