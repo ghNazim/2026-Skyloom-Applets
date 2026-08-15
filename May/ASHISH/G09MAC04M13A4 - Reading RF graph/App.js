@@ -1,8 +1,8 @@
 const App = () => {
   const { useState, useEffect, useRef } = React;
 
-  const [gameState, setGameState] = useState("playing");
-  const [step, setStep] = useState(5);
+  const [gameState, setGameState] = useState("welcome");
+  const [step, setStep] = useState(0);
   const [farthestStep, setFarthestStep] = useState(-1);
 
   const [tappedPoints, setTappedPoints] = useState([]);
@@ -20,6 +20,7 @@ const App = () => {
   const [revealAnimating, setRevealAnimating] = useState(false);
   const [recordAnimating, setRecordAnimating] = useState(false);
   const [recordIntroLock, setRecordIntroLock] = useState(false);
+  const [deduceIntroLock, setDeduceIntroLock] = useState(false);
   const [activeRecordRow, setActiveRecordRow] = useState(null);
 
   const revealTimersRef = useRef([]);
@@ -54,10 +55,13 @@ const App = () => {
     const rect = element.getBoundingClientRect();
     const isButton =
       element.tagName === "BUTTON" || element.classList.contains("nav-chevron");
+    const isRevealOverlay = element.classList.contains("reveal-overlay");
     const top = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
     const leftPoint = isButton
       ? rect.right - window.innerWidth * 0.02
-      : rect.left + rect.width / 2;
+      : isRevealOverlay
+        ? rect.right - window.innerWidth * 0.015
+        : rect.left + rect.width / 2;
     const left = (leftPoint / window.innerWidth) * 100;
     handFtue.style.top = `${top}vh`;
     handFtue.style.left = `${left}vw`;
@@ -141,6 +145,7 @@ const App = () => {
     setRevealAnimating(false);
     setRecordAnimating(false);
     setRecordIntroLock(false);
+    setDeduceIntroLock(false);
     setActiveRevealRow(null);
     setActiveRevealStep(0);
     setActiveRecordRow(null);
@@ -306,6 +311,7 @@ const App = () => {
     setOutcomesRevealed(0);
     setChangesRecorded(0);
     setRecordIntroLock(false);
+    setDeduceIntroLock(false);
   };
 
   const handleStart = () => {
@@ -483,6 +489,7 @@ const App = () => {
   };
 
   const handleDeduceIntroComplete = () => {
+    setDeduceIntroLock(false);
     if (stepData.type !== "deduceOutcomes") return;
     if (outcomesRevealed === 0) setOutcomesRevealed(1);
   };
@@ -497,20 +504,16 @@ const App = () => {
         : T.ui.tapNextOutcome;
     }
     if (stepData.type === "formulaQuiz") {
+      if (deduceIntroLock) return " ";
       if (quizAnswer !== "option2") return T.ui.tapCorrectOption;
       if (!formulaFlyDone) return T.ui.instructionTapContinue;
       if (headsRevealed < 5) return T.ui.tapRevealHeads;
       return T.ui.tapWhatDoesThisTellUs;
     }
     if (stepData.type === "deduceOutcomes") {
-      if (outcomesRevealed < 5) {
-        return outcomesRevealed === 0
-          ? T.ui.tapNextOutcome
-          : outcomesRevealed === 4
-            ? T.ui.tapNextPattern
-            : T.ui.tapNextExplore;
-      }
-      return T.ui.instructionTapContinue;
+      if (deduceIntroLock || outcomesRevealed === 0) return " ";
+      if (outcomesRevealed < 5) return T.ui.tapNextExplore;
+      return T.ui.tapNextPattern;
     }
     if (stepData.type === "recordChange") {
       if (recordAnimating) return T.ui.instructionTapContinue;
@@ -569,6 +572,7 @@ const App = () => {
       onFormulaFlyComplete: handleFormulaFlyComplete,
       onHeadsReveal: handleHeadsReveal,
       onWhatDoesTellUs: handleWhatDoesTellUs,
+      onDeduceIntroStart: () => setDeduceIntroLock(true),
       onDeduceIntroComplete: handleDeduceIntroComplete,
       onDeduceCalloutNext: handleDeduceCalloutNext,
       onRecordIntroStart: () => setRecordIntroLock(true),

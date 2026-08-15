@@ -22,6 +22,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     onFormulaFlyComplete,
     onHeadsReveal,
     onWhatDoesTellUs,
+    onDeduceIntroStart,
     onDeduceIntroComplete,
     onDeduceCalloutNext,
     onRecordIntroStart,
@@ -2158,6 +2159,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
             className: "story-action what-does-tell-us-btn ftue-target",
             onClick: () => {
               if (deduceIntroPhase === "banner-out") return;
+              if (onDeduceIntroStart) onDeduceIntroStart();
               setDeduceIntroPhase("banner-out");
             },
             disabled: deduceIntroPhase === "banner-out",
