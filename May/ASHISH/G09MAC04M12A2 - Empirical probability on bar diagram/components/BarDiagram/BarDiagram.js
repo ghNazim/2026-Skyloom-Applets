@@ -183,13 +183,10 @@ const BarDiagram = ({
           : null;
         const isJustUpdated = highlightFace === label;
         const isConfirmed = confirmedSections.includes(label);
-        const baseFreq = freq;
         const x = xFor(label, index);
-        const baseBarTop = yFor(baseFreq);
+        const baseBarTop = yFor(freq);
         const baseHeight = Math.max(0, plotBottom - baseBarTop);
         const previewBarTop = previewValue != null ? yFor(previewValue) : null;
-        const previewHeight =
-          previewValue != null ? Math.max(0, plotBottom - previewBarTop) : 0;
         const isHighlight = activeHighlights.includes(label);
         const isGlow = glowBar === label || isJustUpdated;
         const isDimmed = dimOthers && !isHighlight && !isGlow && !isConfirmed;
@@ -208,29 +205,9 @@ const BarDiagram = ({
               ? previewBarTop - labelGap * 1.6
               : previewBarTop - labelGap
             : null;
-        const guideY = previewValue != null ? yFor(previewValue) : null;
-        const confirmedGuideY = isConfirmed && freq > 0 ? yFor(freq) : null;
         return React.createElement(
           "g",
           { key: `${label}`, "data-bar-value": label },
-          isConfirmed &&
-            confirmedGuideY != null &&
-            React.createElement("line", {
-              className: "confirmed-guide-line",
-              x1: axisX,
-              y1: confirmedGuideY,
-              x2: x + barWidth / 2,
-              y2: confirmedGuideY,
-            }),
-          hasPreview &&
-            guideY != null &&
-            React.createElement("line", {
-              className: `preview-guide-line ${isPreviewWrong ? "preview-guide-line--wrong" : "preview-guide-line--correct"}`,
-              x1: axisX,
-              y1: guideY,
-              x2: x + barWidth / 2,
-              y2: guideY,
-            }),
           React.createElement("rect", {
             className: `bar-rect ${isGlow ? "bar-rect--glow" : ""} ${isDimmed ? "bar-rect--dim" : ""} ${isJustUpdated ? "bar-rect--grow" : ""} ${isHighlight && !isGlow ? "bar-rect--highlight" : ""}`,
             "data-bar-value": label,
@@ -274,6 +251,41 @@ const BarDiagram = ({
             },
             label,
           ),
+        );
+      }),
+      items.map((label, index) => {
+        const freq = frequencies[label] || 0;
+        const hasPreview = previewFreq && previewFreq.section === label;
+        const previewValue = hasPreview
+          ? Math.min(Math.max(previewFreq.value, 0), ymax)
+          : null;
+        const isConfirmed = confirmedSections.includes(label);
+        const isPreviewWrong = hasPreview && previewWrong;
+        const x = xFor(label, index);
+        const guideY = previewValue != null ? yFor(previewValue) : null;
+        const confirmedGuideY = isConfirmed && freq > 0 ? yFor(freq) : null;
+        if (!hasPreview && confirmedGuideY == null) return null;
+        return React.createElement(
+          "g",
+          { key: `guide-${label}`, className: "bar-guide-overlay" },
+          isConfirmed &&
+            confirmedGuideY != null &&
+            React.createElement("line", {
+              className: "confirmed-guide-line",
+              x1: axisX,
+              y1: confirmedGuideY,
+              x2: x + barWidth / 2,
+              y2: confirmedGuideY,
+            }),
+          hasPreview &&
+            guideY != null &&
+            React.createElement("line", {
+              className: `preview-guide-line ${isPreviewWrong ? "preview-guide-line--wrong" : "preview-guide-line--correct"}`,
+              x1: axisX,
+              y1: guideY,
+              x2: isPreviewWrong ? plotEndX : x + barWidth / 2,
+              y2: guideY,
+            }),
         );
       }),
     ),

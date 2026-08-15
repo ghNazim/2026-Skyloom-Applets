@@ -18,7 +18,7 @@ var MACHINE_COLOR_MAP = {
   yellow: "#FFE631",
   purple: "#B93EE5",
   orange: "#FA6B18",
-  pink: "#FE3A67",
+  pink: "#ED50A7",
 };
 
 function mcParseHex(hex) {
@@ -103,6 +103,7 @@ var MachineVisual = function (props) {
   var onServeStep = props.onServeStep;
   var onServesDone = props.onServesDone;
   var machineRef = props.machineRef;
+  var onAnimBusy = props.onAnimBusy;
 
   var containerRef = useRef(null);
   var animRef = useRef(null);
@@ -212,11 +213,21 @@ var MachineVisual = function (props) {
   // Fill: load animation with colours and play scene 1 (index 0)
   useEffect(function () {
     if (!autoFill) return;
+    if (onAnimBusy) onAnimBusy(true);
     loadAnim(tubeColors, function (inst, data) {
       var scenes = mcGetScenes(data);
-      if (scenes[0]) playSceneOnce(inst, scenes[0]);
+      if (scenes[0]) {
+        playSceneOnce(inst, scenes[0], function () {
+          if (onAnimBusy) onAnimBusy(false);
+        });
+      } else if (onAnimBusy) {
+        onAnimBusy(false);
+      }
     });
-    return cleanup;
+    return function () {
+      cleanup();
+      if (onAnimBusy) onAnimBusy(false);
+    };
   }, [colorKey, autoFill]);
 
   // Serve: when triggerServe bumps, run 10-serve sequence

@@ -63,13 +63,22 @@ const App = () => {
     if (!handFtue) return;
     const rect = element.getBoundingClientRect();
     const handWidth = window.innerWidth * 0.045;
-    const needsEdgeFlip = rect.right + handWidth * 0.7 > window.innerWidth;
-    const isButton = element.tagName === "BUTTON" || element.classList.contains("nav-chevron");
-    const top = ((rect.top + rect.height * (isButton ? 0.55 : 0.5)) / window.innerHeight) * 100;
-    const leftPoint = isButton ? rect.right - window.innerWidth * 0.015 : rect.left + rect.width / 2;
-    const left = (leftPoint / window.innerWidth) * 100;
-    handFtue.style.top = `${top}vh`;
-    handFtue.style.left = `${left}vw`;
+    const isNavButton = element.classList.contains("nav-chevron");
+    const isButton = element.tagName === "BUTTON" || isNavButton;
+    const needsEdgeFlip = !isNavButton && rect.right + handWidth * 0.7 > window.innerWidth;
+    handFtue.classList.toggle("ftue-on-nav", isNavButton);
+    if (isNavButton) {
+      handFtue.style.top = `${(rect.top / window.innerHeight) * 100}vh`;
+      handFtue.style.left = `${(rect.left / window.innerWidth) * 100}vw`;
+      handFtue.style.setProperty("--ftue-btn-w", `${rect.width}px`);
+      handFtue.style.setProperty("--ftue-btn-h", `${rect.height}px`);
+    } else {
+      const top = ((rect.top + rect.height * (isButton ? 0.55 : 0.5)) / window.innerHeight) * 100;
+      const leftPoint = isButton ? rect.right - window.innerWidth * 0.015 : rect.left + rect.width / 2;
+      const left = (leftPoint / window.innerWidth) * 100;
+      handFtue.style.top = `${top}vh`;
+      handFtue.style.left = `${left}vw`;
+    }
     handFtue.classList.toggle("hand-ftue--edge", needsEdgeFlip);
     handFtue.classList.add("hand-animating");
   };
@@ -79,6 +88,7 @@ const App = () => {
     if (handFtue) {
       handFtue.classList.remove("hand-animating");
       handFtue.classList.remove("hand-ftue--edge");
+      handFtue.classList.remove("ftue-on-nav");
     }
   };
 
@@ -91,8 +101,10 @@ const App = () => {
     return completed[id] === true;
   };
 
-  const canGoNext = gameState === "playing" && !isEndStep && isStepComplete();
-  const canGoBack = gameState === "playing" && history.length > 0 && isStepComplete();
+  const canGoNext =
+    gameState === "playing" && !isEndStep && isStepComplete() && stepData.type !== "spinnerEnter";
+  const canGoBack =
+    gameState === "playing" && history.length > 0 && isStepComplete() && stepData.type !== "spinnerEnter";
 
   const resetAll = () => {
     setStep(0);
@@ -308,7 +320,6 @@ const App = () => {
   const handleSpinnerInputChange = (val) => {
     setSpinnerInput(val);
     setFeedback("");
-    setSpinnerPreview(null);
   };
 
   const handleSpinnerShowSubmitPreview = () => {
@@ -453,13 +464,10 @@ const App = () => {
     const quiz = T.spinnerQuizzes.find((q) => q.id === quizId);
     if (choice !== quiz.correct) return;
     setQuizAnswers((prev) => ({ ...prev, [quizId]: choice }));
-    playSfx("correct");
     markComplete(stepData.id);
   };
 
-  const handleQuizWrong = () => {
-    playSfx("wrong");
-  };
+  const handleQuizWrong = () => {};
 
   const handleStart = () => {
     playSfx("click");
@@ -520,8 +528,14 @@ const App = () => {
       timeoutId = setTimeout(() => showFtue(startOverButtonRef.current), 800);
     } else if (stepData.type === "spinnerBridge") {
       timeoutId = setTimeout(() => showFtue(lessonRef.current?.querySelector(".bridge-continue-btn")), 700);
-    } else if (stepData.type === "spinnerEnter" || stepData.type === "spinnerQuiz") {
+    } else if (stepData.type === "spinnerEnter") {
       hideFtue();
+    } else if (stepData.type === "spinnerQuiz") {
+      if (canGoNext) {
+        timeoutId = setTimeout(() => showFtue(nextButtonRef.current), 700);
+      } else {
+        hideFtue();
+      }
     } else {
       timeoutId = setTimeout(() => {
         const target = lessonRef.current?.querySelector(".ftue-target:not(:disabled)");
@@ -568,7 +582,7 @@ const App = () => {
     if (type === "spinnerBridge") return "";
     if (type === "spinnerOverview") return T.ui.instructionSpinnerOverview;
     if (type === "spinnerEnter") {
-      if (spinnerEntered[stepData.section] != null) return T.ui.instructionTapContinue;
+      if (spinnerEntered[stepData.section] != null || spinnerCorrectHold) return "";
       return T.ui.instructionSpinnerEnter.replace("{section}", stepData.section);
     }
     if (type === "spinnerSum") return T.ui.instructionSpinnerSum;

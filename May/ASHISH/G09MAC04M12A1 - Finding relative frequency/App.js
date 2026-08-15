@@ -189,7 +189,14 @@ const App = () => {
     for (let i = 0; i < needed; i += 1) {
       if (!current[order[i]]) return;
     }
-    playSfx(part === "freq" ? "click" : part === "sum" ? "click" : "correct");
+    const totalAlreadyKnown = part !== "total" && !!current.total;
+    const sfx =
+      part === "freq" && totalAlreadyKnown
+        ? "correct"
+        : part === "freq" || part === "sum"
+          ? "click"
+          : "correct";
+    playSfx(sfx);
     const next = { ...eventProgress[key] || {}, [part]: true };
     setEventProgress((prev) => ({ ...prev, [key]: next }));
     if (part === "percentage") markComplete(stepData.id);
@@ -208,13 +215,21 @@ const App = () => {
     const isNavButton = element.classList.contains("nav-chevron");
     const isButton = element.tagName === "BUTTON" || isNavButton;
     const needsEdgeFlip = !isNavButton && rect.right + handWidth * 0.7 > window.innerWidth;
-    const top = ((rect.top + rect.height * (isButton ? 0.55 : 0.5)) / window.innerHeight) * 100;
-    const leftPoint = isButton
-      ? rect.right - window.innerWidth * 0.015
-      : rect.left + rect.width / 2;
-    const left = (leftPoint / window.innerWidth) * 100;
-    handFtue.style.top = `${top}vh`;
-    handFtue.style.left = `${left}vw`;
+    handFtue.classList.toggle("ftue-on-nav", isNavButton);
+    if (isNavButton) {
+      handFtue.style.top = `${(rect.top / window.innerHeight) * 100}vh`;
+      handFtue.style.left = `${(rect.left / window.innerWidth) * 100}vw`;
+      handFtue.style.setProperty("--ftue-btn-w", `${rect.width}px`);
+      handFtue.style.setProperty("--ftue-btn-h", `${rect.height}px`);
+    } else {
+      const top = ((rect.top + rect.height * (isButton ? 0.55 : 0.5)) / window.innerHeight) * 100;
+      const leftPoint = isButton
+        ? rect.right - window.innerWidth * 0.015
+        : rect.left + rect.width / 2;
+      const left = (leftPoint / window.innerWidth) * 100;
+      handFtue.style.top = `${top}vh`;
+      handFtue.style.left = `${left}vw`;
+    }
     handFtue.classList.toggle("hand-ftue--edge", needsEdgeFlip);
     handFtue.classList.add("hand-animating");
   };
@@ -225,6 +240,7 @@ const App = () => {
     if (handFtue) {
       handFtue.classList.remove("hand-animating");
       handFtue.classList.remove("hand-ftue--edge");
+      handFtue.classList.remove("ftue-on-nav");
     }
   };
 

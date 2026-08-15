@@ -8,5 +8,6 @@
   object-fit: contain;
   width: 5vw;
   height: 5vw;
-  transform: translate(50%, 50%);
+  transform: translate(30%, 35%);
+  opacity: 0.55;
 }

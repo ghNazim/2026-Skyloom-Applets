@@ -52,7 +52,8 @@ const DATA = {
         2: {
           denominator: 2,
           questionText: "This is the \u00BD cup.",
-          questionSub: "Predict how high one \u00BD cup will reach in the glass.",
+          questionSub:
+            "Predict how high one \u00BD cup will reach in the glass.",
           navText: "Drag the line to show your prediction.",
           navPour: "Tap the \u00BD cup to pour it in.",
           fillText:
@@ -61,7 +62,8 @@ const DATA = {
         3: {
           denominator: 3,
           questionText: "This is the \u2153 cup.",
-          questionSub: "Predict how high one \u2153 cup will reach in the glass.",
+          questionSub:
+            "Predict how high one \u2153 cup will reach in the glass.",
           navText: "Drag the line to show your prediction.",
           navPour: "Tap the \u2153 cup to pour it in.",
           fillText:
@@ -76,7 +78,7 @@ const DATA = {
             "Not quite. Which fraction is greater: the one with the larger denominator, or the one with the smaller denominator?",
           correctFeedback:
             "A bigger denominator means a smaller cup.<br>" +
-            "So, \u00BC cup < \u2153 cup.",
+            "So, \u2153 cup > \u00BC cup.",
         },
         5: {
           denominator: 4,
@@ -96,8 +98,7 @@ const DATA = {
           buttonText: "Continue",
         },
         7: {
-          questionText:
-            "Karina needs this much, but she has no cup for it.",
+          questionText: "Karina needs this much, but she has no cup for it.",
           questionSub: "Which cup gets closest?",
           needsTitle: "KARINA NEEDS",
           waterLevel: 0.6,
@@ -110,8 +111,7 @@ const DATA = {
             "Good estimate. The \u00BD mark is nearest to what Karina needs.",
         },
         8: {
-          questionText:
-            "Karina needs this much, but she has no cup for it.",
+          questionText: "Karina needs this much, but she has no cup for it.",
           questionSub: "Which cup gets closest?",
           needsTitle: "KARINA NEEDS",
           waterLevel: 0.26,
@@ -124,8 +124,7 @@ const DATA = {
             "Good estimate. The \u00BC mark is nearest to what Karina needs.",
         },
         9: {
-          questionText:
-            "Karina needs this much, but she has no cup for it.",
+          questionText: "Karina needs this much, but she has no cup for it.",
           questionSub: "Which cup gets closest?",
           needsTitle: "KARINA NEEDS",
           waterLevel: 0.37,
@@ -176,12 +175,14 @@ const DATA = {
           questionSub: "Tuang untuk melihat gelas terisi.",
           navText: "Ketuk cangkir 1 untuk menuangkannya.",
           navPour: "Ketuk cangkir 1 untuk menuangkannya.",
-          fillText: "Gelas ini berisi satu cangkir \u2014 satu cangkir penuh mengisinya.",
+          fillText:
+            "Gelas ini berisi satu cangkir \u2014 satu cangkir penuh mengisinya.",
         },
         2: {
           denominator: 2,
           questionText: "Ini cangkir \u00BD.",
-          questionSub: "Perkirakan seberapa tinggi satu cangkir \u00BD akan mencapai di gelas.",
+          questionSub:
+            "Perkirakan seberapa tinggi satu cangkir \u00BD akan mencapai di gelas.",
           navText: "Seret garis untuk menunjukkan perkiraanmu.",
           navPour: "Ketuk cangkir \u00BD untuk menuangkannya.",
           fillText:
@@ -190,14 +191,16 @@ const DATA = {
         3: {
           denominator: 3,
           questionText: "Ini cangkir \u2153.",
-          questionSub: "Perkirakan seberapa tinggi satu cangkir \u2153 akan mencapai di gelas.",
+          questionSub:
+            "Perkirakan seberapa tinggi satu cangkir \u2153 akan mencapai di gelas.",
           navText: "Seret garis untuk menunjukkan perkiraanmu.",
           navPour: "Ketuk cangkir \u2153 untuk menuangkannya.",
           fillText:
             "Satu cangkir \u2153 mencapai sepertiga \u2014 tiga cangkir \u2153 mengisi gelas.",
         },
         4: {
-          questionText: "Kamu telah menempatkan \u2153. Sekarang bandingkan dengan \u00BC",
+          questionText:
+            "Kamu telah menempatkan \u2153. Sekarang bandingkan dengan \u00BC",
           questionSub: "\u2014 cangkir mana yang berisi lebih banyak?",
           navText: "Ketuk cangkir yang menurutmu berisi lebih banyak.",
           navDone: "Ketuk \u00BB untuk menjelajahi cangkir \u00BC.",
@@ -205,7 +208,7 @@ const DATA = {
             "Belum tepat. Pecahan mana yang lebih besar: yang penyebutnya lebih besar, atau yang penyebutnya lebih kecil?",
           correctFeedback:
             "Penyebut yang lebih besar berarti cangkir yang lebih kecil.<br>" +
-            "Jadi, cangkir \u00BC < cangkir \u2153.",
+            "Jadi, cangkir \u2153 > cangkir \u00BC.",
         },
         5: {
           denominator: 4,

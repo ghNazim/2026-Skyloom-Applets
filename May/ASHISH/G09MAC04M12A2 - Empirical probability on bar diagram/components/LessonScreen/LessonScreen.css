@@ -342,14 +342,19 @@
 .formula-event-panel .formula-box--hero,
 .equation-panel .formula-box--hero {
   width: 95%;
-  min-height: 11vh;
+  /* min-height: 14vw; */
   margin: 0;
   border-radius: 0.8vw;
   background: rgba(255, 255, 255, 0.11);
   /* border: 0.08vw solid rgba(255, 160, 26, 0.35); */
   color: #ffffff;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 2.4vw !important;
+  font-size: 2.7vw !important;
+  padding: 2.5vw;
+  
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
 }
 
 .formula-event-panel .formula-box--hero .formula-var,
@@ -367,7 +372,7 @@
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-around;
   width: 94%;
   min-height: 0;
   margin-top: 0.8vh;
@@ -383,7 +388,7 @@
 }
 
 .event-card--no-dice {
-  justify-content: center;
+  justify-content: space-around;
   padding: 4vh 2vw 3vh;
 }
 
@@ -411,7 +416,38 @@
 }
 
 .equation-panel .frac-line {
-  font-size: 2.8vw !important;
+  font-size: 3.4vw !important;
+}
+
+.equation-panel .frac-box,
+.equation-panel .frac-tap,
+.equation-panel .flip-frac-back {
+  font-size: 3.1vw !important;
+}
+
+.equation-panel .frac-slot-fixed {
+  width: 9.2vw;
+  min-width: 9.2vw;
+  height: 7.6vh;
+  min-height: 7.6vh;
+  max-height: 7.6vh;
+}
+
+.equation-panel .frac-bar {
+  min-width: 9.2vw;
+}
+
+.equation-panel .event-numerator-group {
+  min-width: 12vw;
+  width: 12vw;
+  align-items: stretch;
+}
+
+.equation-panel .event-numerator-group .frac-slot-fixed,
+.equation-panel .event-numerator-group .event-numerator-slot,
+.equation-panel .event-numerator-group .flip-frac-slot {
+  width: 100%;
+  min-width: 12vw;
 }
 
 .quiz-event-card {
@@ -506,8 +542,8 @@
 
 .flip-frac-back {
   transform: rotateY(180deg);
-  background: rgba(10, 24, 48, 0.88);
-  border: 0.1vw solid #ffa01a;
+  background: #ffa01a75;
+  border: 0.2vw solid #ffa01a;
   color: #ffffff;
   font-size: 2.4vw !important;
   font-weight: 700;
@@ -631,6 +667,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1.5vh;
 }
 
@@ -713,8 +750,8 @@
 }
 
 .frac-tap--done {
-  border-color: #ffa01a;
-  background: rgba(159, 105, 35, 0.3);
+  background: #ffa01a75;
+  border: 0.2vw solid #ffa01a;
   color: #ffffff;
   box-shadow: none;
 }
@@ -757,14 +794,14 @@
 
 .event-numerator-group,
 .event-numerator-slot {
-  min-width: 8vw;
+  min-width: 12vw;
   width: auto;
 }
 
 .event-numerator-slot {
-  min-height: 6.2vh;
-  max-height: 6.2vh;
-  height: 6.2vh;
+  min-height: 7.6vh;
+  max-height: 7.6vh;
+  height: 7.6vh;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1107,6 +1144,13 @@
   cursor: default;
   opacity: 1;
   filter: none;
+}
+
+.quiz-option.quiz-option--dim,
+.quiz-option.quiz-option--dim:disabled {
+  opacity: 0.5;
+  filter: none;
+  pointer-events: none;
 }
 
 .quiz-option--correct {

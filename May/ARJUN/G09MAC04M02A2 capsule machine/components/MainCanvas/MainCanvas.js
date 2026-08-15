@@ -14,6 +14,12 @@ var MainCanvas = function (props) {
   var onNavTextChange = props.onNavTextChange;
   var onPositionFilled = props.onPositionFilled;
   var onPositionRevealed = props.onPositionRevealed;
+  var startAtCompleted = !!props.startAtCompleted;
+  var onBusyChange = props.onBusyChange;
+
+  var fillingState = useState(false);
+  var isFilling = fillingState[0];
+  var setIsFilling = fillingState[1];
 
   var phaseState = useState("initial");
   var phase = phaseState[0];
@@ -63,18 +69,44 @@ var MainCanvas = function (props) {
     : currentStep;
 
   useEffect(function () {
-    setPhase("initial");
     setWrongPositions([]);
     setIsAnimating(false);
     setShowSparkle(false);
-    setGridBalls([]);
-    setServeCounter(0);
     setIsServing(false);
-    setCapturedSvgHtml("");
-    setShowServeButton(mode === "serve");
+    setServeCounter(0);
     scaleImagesRef.current = {};
     correctScaleSlotRef.current = null;
-  }, [resetKey]);
+
+    if (startAtCompleted && stepData) {
+      var completedPhase = mode === "challenge" ? "served" : "placed";
+      setPhase(completedPhase);
+      setGridBalls((stepData.serves || []).slice());
+      setShowServeButton(true);
+      var stored = filledPositions[stepData.correctPosition];
+      setCapturedSvgHtml(
+        typeof stored === "string" && stored.indexOf("<svg") === 0 ? stored : ""
+      );
+      if (onNavTextChange) {
+        onNavTextChange(
+          mode === "challenge" ? stepData.afterServeNav : stepData.navAfterPlace
+        );
+      }
+      if (onStepComplete) onStepComplete();
+    } else {
+      setPhase("initial");
+      setGridBalls([]);
+      setCapturedSvgHtml("");
+      setShowServeButton(mode === "serve");
+    }
+  }, [resetKey, startAtCompleted]);
+
+  useEffect(function () {
+    var busy = isServing || isAnimating || isFilling;
+    if (onBusyChange) onBusyChange(busy);
+    return function () {
+      if (onBusyChange) onBusyChange(false);
+    };
+  }, [isServing, isAnimating, isFilling]);
 
   var registerImageRef = useCallback(
     function (position, el) {
@@ -101,6 +133,7 @@ var MainCanvas = function (props) {
 
   var handleServeStep = function (idx) {
     var serves = stepData.serves;
+    playSound("tick");
     setGridBalls(function (prev) {
       var next = prev.slice();
       next.push(serves[idx]);
@@ -109,6 +142,7 @@ var MainCanvas = function (props) {
   };
 
   var handleServesDone = function () {
+    playSound("done");
     setIsServing(false);
     setIsAnimating(false);
     if (mode === "serve") {
@@ -262,6 +296,7 @@ var MainCanvas = function (props) {
           serveSequence: [],
           autoFill: true,
           triggerServe: 0,
+          onAnimBusy: setIsFilling,
         }),
         React.createElement(
           "div",
@@ -352,6 +387,7 @@ var MainCanvas = function (props) {
           onServeStep: handleServeStep,
           onServesDone: handleServesDone,
           machineRef: machineRef,
+          onAnimBusy: setIsFilling,
         }),
         React.createElement(
           "div",
@@ -498,6 +534,7 @@ var MainCanvas = function (props) {
           onServeStep: handleServeStep,
           onServesDone: handleServesDone,
           machineRef: machineRef,
+          onAnimBusy: setIsFilling,
         }),
         React.createElement(
           "div",

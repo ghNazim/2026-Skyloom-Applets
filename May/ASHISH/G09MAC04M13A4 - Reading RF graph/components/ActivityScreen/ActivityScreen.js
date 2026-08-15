@@ -22,7 +22,10 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     onFormulaFlyComplete,
     onHeadsReveal,
     onWhatDoesTellUs,
+    onDeduceIntroComplete,
     onDeduceCalloutNext,
+    onRecordIntroStart,
+    onRecordIntroComplete,
     showWhatDoesTellUs = false,
   } = props || {};
 
@@ -34,12 +37,16 @@ const ActivityScreen = React.forwardRef((props, ref) => {
   const [formulaFlight, setFormulaFlight] = React.useState(null);
   const deduceIntroRef = React.useRef(false);
   const [deduceCalloutReady, setDeduceCalloutReady] = React.useState(false);
+  const [deduceIntroPhase, setDeduceIntroPhase] = React.useState("idle");
+  const [recordIntroPhase, setRecordIntroPhase] = React.useState("idle");
   const [settledCells, setSettledCells] = React.useState([]);
   const [landedTrials, setLandedTrials] = React.useState([]);
   const [landedRf, setLandedRf] = React.useState([]);
+  const [axisHighlight, setAxisHighlight] = React.useState(null);
   const [colSwapAnimating, setColSwapAnimating] = React.useState(false);
   const [quizExitAnimating, setQuizExitAnimating] = React.useState(false);
   const [quizExitActive, setQuizExitActive] = React.useState(false);
+  const [quizIntroPhase, setQuizIntroPhase] = React.useState("idle");
   const [formulaTransformDone, setFormulaTransformDone] = React.useState(false);
   const [quizOptionsDimmed, setQuizOptionsDimmed] = React.useState(false);
   const [calloutLayout, setCalloutLayout] = React.useState({
@@ -82,9 +89,12 @@ const ActivityScreen = React.forwardRef((props, ref) => {
   const GRAPH_AXIS_TOP = 10;
   const GRAPH_AXIS_BOTTOM = 76;
   const GRAPH_PLOT_H = GRAPH_AXIS_BOTTOM - GRAPH_AXIS_TOP;
-  const GRAPH_X_LABEL_Y = GRAPH_AXIS_BOTTOM + 6.2;
+  const GRAPH_X_LABEL_Y = GRAPH_AXIS_BOTTOM + 7.2;
   const GRAPH_X_TITLE_Y = 88.5;
   const GRAPH_Y_TITLE_X = -12;
+  const Y_AXIS_TICKS = [0, 0.2, 0.4, 0.6, 0.8, 1];
+  const AXIS_NUMBER_FONT_SIZE = 5.25;
+  const AXIS_HOLD_MS = 500;
 
   const getTrialX = (trial) => {
     const plotWidth = GRAPH_AXIS_RIGHT - GRAPH_AXIS_X;
@@ -100,6 +110,20 @@ const ActivityScreen = React.forwardRef((props, ref) => {
   const GUIDE_DRAW_MS = 700;
   const VALUE_FLIGHT_MS = 900;
   const VALUE_FLIGHT_GAP_MS = 450;
+
+  const playGraphSfx = (name) => {
+    try {
+      const src = T.sfx[name];
+      if (!src) return;
+      const audio = new Audio(src);
+      audio.play().catch(() => {});
+    } catch (e) {
+      // Audio play restriction is harmless
+    }
+  };
+
+  const matchingYTick = (rfVal) =>
+    Y_AXIS_TICKS.find((tick) => Math.abs(tick - rfVal) < 0.001);
   const FORMULA_FLIGHT_MS = 1100;
   const FORMULA_FLY_HOLD_MS = 600;
   const REVEAL_FLASH_MS = 500;
@@ -117,7 +141,31 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
   const polylinePoints = points.map((p) => `${p.x},${p.y}`).join(" ");
 
+  const skipQuizIntro =
+    type === "formulaQuiz" &&
+    (quizAnswer === "option2" || revealTriggered || headsRevealed > 0);
+  const quizIntroEffectivePhase =
+    type !== "formulaQuiz"
+      ? "ready"
+      : skipQuizIntro
+        ? "ready"
+        : quizIntroPhase === "idle"
+          ? "centering"
+          : quizIntroPhase;
+  const isQuizIntroCentering = quizIntroEffectivePhase === "centering";
+  const isQuizIntroSwapping = quizIntroEffectivePhase === "swapping";
+  const isQuizIntroReady = quizIntroEffectivePhase === "ready";
+  const isQuizIntroShake = quizIntroEffectivePhase === "shake";
+  const quizChoicesLocked = type === "formulaQuiz" && !isQuizIntroReady && !isQuizIntroShake;
   const MORPH_MS = 650;
+  const QUIZ_SIDES_MS = 560;
+  const QUIZ_SHAKE_MS = 520;
+  const DEDUCE_BANNER_MS = 480;
+  const DEDUCE_TABLE_LEFT_MS = 650;
+  const DEDUCE_COL_MS = 550;
+  const RECORD_CALLOUT_OUT_MS = 400;
+  const RECORD_TABLE_CENTER_MS = 650;
+  const RECORD_COL_MS = 550;
 
   const showGraph = [
     "intro",
@@ -132,10 +180,19 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       ? "intro"
       : ["tableIntro", "pointsInteraction"].includes(type)
         ? "split"
-        : type === "formulaQuiz" && quizExitAnimating
+        : type === "formulaQuiz" && (quizExitAnimating || isQuizIntroCentering)
           ? "split"
-          : type === "deduceOutcomes" && outcomesRevealed > 0
+          : type === "deduceOutcomes" &&
+              (deduceIntroPhase === "ready" ||
+                (deduceIntroPhase === "idle" && outcomesRevealed >= 5))
             ? "callout"
+            : type === "deduceOutcomes"
+              ? "table-only"
+            : type === "recordChange" &&
+                ["callout-out", "table-center", "insert-col"].includes(
+                  recordIntroPhase,
+                )
+              ? "callout"
             : ["recordChange", "summary"].includes(type)
               ? "stack"
               : ["formulaQuiz", "calculateHeads"].includes(type)
@@ -146,7 +203,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     type,
   )
     ? "split-left"
-    : type === "formulaQuiz" && quizExitAnimating
+    : type === "formulaQuiz" && (quizExitAnimating || isQuizIntroCentering)
       ? quizExitActive
         ? "exit"
         : "split-left"
@@ -178,14 +235,37 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     : type === "formulaQuiz"
       ? headsRevealed > 0
       : false;
-  const showOutcomeCol = ["deduceOutcomes", "recordChange", "summary"].includes(
-    type,
-  );
-  const showChangeCol = ["recordChange", "summary"].includes(type);
-  const dimLeadCols = ["recordChange", "summary"].includes(type);
+  const showOutcomeCol =
+    ["recordChange", "summary"].includes(type) ||
+    (type === "deduceOutcomes" &&
+      (deduceIntroPhase === "outcome-col" ||
+        deduceIntroPhase === "ready" ||
+        (deduceIntroPhase === "idle" && outcomesRevealed >= 5)));
+  const showChangeCol =
+    type === "summary" ||
+    (type === "recordChange" &&
+      (recordIntroPhase === "insert-col" ||
+        recordIntroPhase === "ready" ||
+        (recordIntroPhase === "idle" && changesRecorded > 0)));
+  const dimLeadCols =
+    type === "summary" ||
+    (type === "recordChange" &&
+      (recordIntroPhase === "insert-col" ||
+        recordIntroPhase === "ready" ||
+        (recordIntroPhase === "idle" && changesRecorded > 0)));
   const prevColsRef = React.useRef({ change: false, outcome: false });
-  const changeColEntering = showChangeCol && !prevColsRef.current.change;
-  const outcomeColEntering = showOutcomeCol && !prevColsRef.current.outcome;
+  const displayedOutcomesRevealed =
+    type === "deduceOutcomes" &&
+    deduceIntroPhase !== "ready" &&
+    deduceIntroPhase !== "idle"
+      ? 0
+      : outcomesRevealed;
+  const changeColEntering =
+    (showChangeCol && !prevColsRef.current.change) ||
+    (type === "recordChange" && recordIntroPhase === "insert-col");
+  const outcomeColEntering =
+    (showOutcomeCol && !prevColsRef.current.outcome) ||
+    (type === "deduceOutcomes" && deduceIntroPhase === "outcome-col");
 
   React.useLayoutEffect(() => {
     prevColsRef.current = { change: showChangeCol, outcome: showOutcomeCol };
@@ -195,10 +275,29 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     if (type !== "deduceOutcomes") {
       deduceIntroRef.current = false;
       setDeduceCalloutReady(false);
+      if (type !== "formulaQuiz") {
+        setDeduceIntroPhase("idle");
+      }
     }
 
     if (type === "deduceOutcomes") {
-      if (outcomesRevealed <= 0) {
+      if (recordIntroPhase === "callout-out") {
+        setDeduceCalloutReady(true);
+        return;
+      }
+
+      if (outcomesRevealed >= 5) {
+        deduceIntroRef.current = true;
+        setDeduceIntroPhase("ready");
+        setDeduceCalloutReady(true);
+        return;
+      }
+
+      if (deduceIntroPhase === "idle") {
+        setDeduceIntroPhase("table-left");
+      }
+
+      if (deduceIntroPhase !== "ready") {
         setDeduceCalloutReady(false);
         return;
       }
@@ -206,7 +305,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       if (!deduceIntroRef.current) {
         deduceIntroRef.current = true;
         setDeduceCalloutReady(false);
-        const timer = setTimeout(() => setDeduceCalloutReady(true), 550);
+        const timer = setTimeout(() => setDeduceCalloutReady(true), 200);
         return () => clearTimeout(timer);
       }
 
@@ -224,22 +323,34 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       stackCalloutRef.current.style.minHeight = "";
       stackCalloutRef.current.style.top = "";
     }
-  }, [type, outcomesRevealed]);
+  }, [type, outcomesRevealed, deduceIntroPhase, recordIntroPhase]);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (type !== "formulaQuiz") {
       setQuizExitAnimating(false);
       setQuizExitActive(false);
       setColSwapAnimating(false);
+      setQuizIntroPhase("idle");
       return;
     }
 
+    if (quizAnswer === "option2" || revealTriggered || headsRevealed > 0) {
+      setQuizExitAnimating(false);
+      setQuizExitActive(false);
+      setColSwapAnimating(false);
+      setQuizIntroPhase("ready");
+      return;
+    }
+
+    setQuizIntroPhase("centering");
     setQuizExitAnimating(true);
     setQuizExitActive(false);
     setColSwapAnimating(false);
 
     let exitTimer;
     let swapTimer;
+    let sidesTimer;
+    let shakeTimer;
     let raf2;
 
     const raf1 = requestAnimationFrame(() => {
@@ -250,16 +361,108 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       setQuizExitAnimating(false);
       setQuizExitActive(false);
       setColSwapAnimating(true);
-      swapTimer = setTimeout(() => setColSwapAnimating(false), MORPH_MS);
+      setQuizIntroPhase("swapping");
     }, MORPH_MS);
+
+    swapTimer = setTimeout(() => {
+      setColSwapAnimating(false);
+      setQuizIntroPhase("sides");
+    }, MORPH_MS * 2);
+
+    sidesTimer = setTimeout(() => {
+      setQuizIntroPhase("shake");
+    }, MORPH_MS * 2 + QUIZ_SIDES_MS);
+
+    shakeTimer = setTimeout(() => {
+      setQuizIntroPhase("ready");
+    }, MORPH_MS * 2 + QUIZ_SIDES_MS + QUIZ_SHAKE_MS);
 
     return () => {
       cancelAnimationFrame(raf1);
       if (raf2) cancelAnimationFrame(raf2);
       clearTimeout(exitTimer);
       clearTimeout(swapTimer);
+      clearTimeout(sidesTimer);
+      clearTimeout(shakeTimer);
     };
   }, [type]);
+
+  React.useEffect(() => {
+    if (type !== "formulaQuiz" || deduceIntroPhase !== "banner-out") return;
+    const timer = setTimeout(() => {
+      if (onWhatDoesTellUs) onWhatDoesTellUs();
+      setDeduceIntroPhase("table-left");
+    }, DEDUCE_BANNER_MS);
+    return () => clearTimeout(timer);
+  }, [type, deduceIntroPhase]);
+
+  React.useEffect(() => {
+    if (type !== "deduceOutcomes") return;
+    if (deduceIntroPhase === "table-left") {
+      const timer = setTimeout(
+        () => setDeduceIntroPhase("outcome-col"),
+        DEDUCE_TABLE_LEFT_MS,
+      );
+      return () => clearTimeout(timer);
+    }
+    if (deduceIntroPhase === "outcome-col") {
+      const timer = setTimeout(() => {
+        setDeduceIntroPhase("ready");
+        if (onDeduceIntroComplete) onDeduceIntroComplete();
+      }, DEDUCE_COL_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [type, deduceIntroPhase]);
+
+  React.useEffect(() => {
+    if (type !== "deduceOutcomes" && type !== "recordChange") {
+      setRecordIntroPhase("idle");
+      return;
+    }
+
+    if (type === "deduceOutcomes" && recordIntroPhase === "callout-out") {
+      if (onRecordIntroStart) onRecordIntroStart();
+      const timer = setTimeout(() => {
+        setRecordIntroPhase("table-center");
+        if (onDeduceCalloutNext) onDeduceCalloutNext();
+      }, RECORD_CALLOUT_OUT_MS);
+      return () => clearTimeout(timer);
+    }
+
+    if (type !== "recordChange") return;
+
+    if (
+      changesRecorded >= 5 &&
+      recordIntroPhase !== "ready" &&
+      recordIntroPhase !== "insert-col"
+    ) {
+      setRecordIntroPhase("idle");
+      if (onRecordIntroComplete) onRecordIntroComplete();
+      return;
+    }
+
+    if (recordIntroPhase === "idle") {
+      if (onRecordIntroStart) onRecordIntroStart();
+      setRecordIntroPhase("table-center");
+      return;
+    }
+
+    if (recordIntroPhase === "table-center") {
+      const timer = setTimeout(
+        () => setRecordIntroPhase("insert-col"),
+        RECORD_TABLE_CENTER_MS,
+      );
+      return () => clearTimeout(timer);
+    }
+
+    if (recordIntroPhase === "insert-col") {
+      const timer = setTimeout(() => {
+        setRecordIntroPhase("ready");
+        if (onRecordIntroComplete) onRecordIntroComplete();
+      }, RECORD_COL_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [type, recordIntroPhase, changesRecorded]);
 
   React.useEffect(() => {
     if (type !== "formulaQuiz") {
@@ -298,8 +501,6 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     }
 
     const N_FLY_DUR = 0.62;
-    const RHS_FADE_OUT = 0.4;
-    const RHS_FADE_IN = 0.45;
 
     gsap.set(mult, { opacity: 0 });
     gsap.set(denFly, { opacity: 0 });
@@ -321,15 +522,15 @@ const ActivityScreen = React.forwardRef((props, ref) => {
         scale: 1,
         clearProps: "transform",
       });
-      gsap.set(mult, { opacity: 1 });
-      gsap.set(denFly, { opacity: 1 });
+      gsap.set(mult, { opacity: 1, duration: 0 });
+      gsap.set(denFly, { opacity: 1, duration: 0 });
+      gsap.set(fraction, { opacity: 0, scale: 1, duration: 0 });
+      gsap.set(fh, { opacity: 1, duration: 0 });
     };
 
     const tl = gsap.timeline({
       onComplete: () => {
         snapLeftSide();
-        gsap.set(fraction, { opacity: 0, scale: 1, clearProps: "transform" });
-        gsap.set(fh, { opacity: 1, clearProps: "transform" });
         setFormulaTransformDone(true);
         formulaTransformTlRef.current = null;
       },
@@ -337,26 +538,11 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
     formulaTransformTlRef.current = tl;
 
-    // Right: subtle crossfade while n travels
-    tl.to(
-      fraction,
-      { opacity: 0, scale: 0.97, duration: RHS_FADE_OUT, ease: "power2.inOut" },
-      0.06,
-    );
-    tl.to(
-      fh,
-      { opacity: 1, duration: RHS_FADE_IN, ease: "power2.inOut" },
-      0.12,
-    );
-
-    // n flies from denominator to its final left position
     tl.to(
       denOrig,
       { x: dx, y: dy, duration: N_FLY_DUR, ease: "power3.out" },
       0,
     );
-
-    // Snap left side the moment n lands — × and n appear together
     tl.add(snapLeftSide, N_FLY_DUR);
   }, [formulaTransformDone]);
 
@@ -450,7 +636,8 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
   const usePreSwapColumnOrder =
     ["tableIntro", "pointsInteraction"].includes(type) ||
-    (type === "formulaQuiz" && (quizExitAnimating || colSwapAnimating));
+    (type === "formulaQuiz" &&
+      (quizExitAnimating || colSwapAnimating || isQuizIntroCentering || isQuizIntroSwapping));
   const showPromptBanner = ![
     "deduceOutcomes",
     "recordChange",
@@ -499,8 +686,8 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       return classes;
     }
 
-    if (type === "deduceOutcomes" && idx < outcomesRevealed) {
-      const activeIdx = outcomesRevealed - 1;
+    if (type === "deduceOutcomes" && displayedOutcomesRevealed > 0) {
+      const activeIdx = displayedOutcomesRevealed - 1;
       if (idx === activeIdx) {
         classes.push(
           isFreqUnchanged(idx)
@@ -522,27 +709,17 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
     if (type === "recordChange" || type === "summary") {
       if (type === "summary") {
-        classes.push("heads-cell--summary-col");
         return classes;
       }
       const activeIdx =
         activeRecordRow !== null && activeRecordRow !== undefined
           ? activeRecordRow
-          : changesRecorded > 0
-            ? changesRecorded - 1
-            : -1;
+          : -1;
       if (activeIdx >= 0) {
         if (idx === activeIdx) {
           classes.push("heads-cell--record-active");
-        } else if (idx === activeIdx - 1 && activeIdx > 0) {
-          if (
-            isHeadsOutcome(trials[activeIdx]) &&
-            trials[activeIdx].heads > row.heads
-          ) {
-            classes.push("heads-cell--record-prev");
-          } else if (isFreqUnchanged(activeIdx)) {
-            classes.push("heads-cell--record-prev");
-          }
+        } else if (idx === activeIdx - 1) {
+          classes.push("heads-cell--record-prev");
         }
       }
       return classes;
@@ -553,10 +730,10 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
   const getOutcomeCellClasses = (row, idx) => {
     const classes = ["outcome-cell"];
-    if (idx >= outcomesRevealed) return classes;
+    if (idx >= displayedOutcomesRevealed) return classes;
 
     if (type === "deduceOutcomes") {
-      const activeIdx = outcomesRevealed - 1;
+      const activeIdx = displayedOutcomesRevealed - 1;
       if (idx !== activeIdx) return classes;
       if (isHeadsOutcome(row)) {
         classes.push("outcome-cell--deduce-h");
@@ -583,9 +760,6 @@ const ActivityScreen = React.forwardRef((props, ref) => {
         classes.push(
           row.change !== "0" ? "change-cell--pos" : "change-cell--zero",
         );
-        if (idx === changesRecorded - 1) {
-          classes.push("change-cell--recording-active");
-        }
       } else {
         classes.push("change-cell--col-focus");
       }
@@ -622,6 +796,8 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       return;
     }
 
+    playGraphSfx("zoom");
+
     const scrollX = window.scrollX || document.documentElement.scrollLeft;
     const scrollY = window.scrollY || document.documentElement.scrollTop;
     const point = points[idx];
@@ -649,7 +825,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
         startX_Trial = screenPtX.x + scrollX;
         startY_Trial = screenPtX.y + scrollY;
 
-        svgPt.x = GRAPH_AXIS_X;
+        svgPt.x = GRAPH_AXIS_X - 3.4;
         svgPt.y = point.y;
         const screenPtY = svgPt.matrixTransform(ctm);
         startX_Rf = screenPtY.x + scrollX;
@@ -665,6 +841,21 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       startY_Rf = startY_Trial;
     }
 
+    const getSvgUserUnitPx = (svg) => {
+      if (!svg) return 1;
+      const rect = svg.getBoundingClientRect();
+      const vb = svg.viewBox && svg.viewBox.baseVal;
+      const vbW = vb && vb.width ? vb.width : 100;
+      const vbH = vb && vb.height ? vb.height : 92;
+      return Math.min(rect.width / vbW, rect.height / vbH);
+    };
+
+    const startFontPx = AXIS_NUMBER_FONT_SIZE * getSvgUserUnitPx(svgEl);
+    const trialEndFontPx =
+      parseFloat(window.getComputedStyle(trialCell).fontSize) || startFontPx;
+    const rfEndFontPx =
+      parseFloat(window.getComputedStyle(rfCell).fontSize) || startFontPx;
+
     setActiveAnimation({
       trial: trialNum,
       idx,
@@ -674,11 +865,15 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       flightTrial: null,
       flightRf: null,
     });
+    setAxisHighlight(null);
 
-    const trialFlightStart = GUIDE_DRAW_MS;
-    const rfFlightStart =
-      trialFlightStart + VALUE_FLIGHT_MS + VALUE_FLIGHT_GAP_MS;
+    const yTick = matchingYTick(point.floatVal);
+    const spawnYText = yTick == null ? formatRf(trials[idx].rf) : null;
+
+    const trialHighlightAt = GUIDE_DRAW_MS;
+    const trialFlightStart = trialHighlightAt + AXIS_HOLD_MS;
     const trialLandAt = trialFlightStart + VALUE_FLIGHT_MS;
+    const rfFlightStart = trialLandAt + VALUE_FLIGHT_GAP_MS;
     const rfLandAt = rfFlightStart + VALUE_FLIGHT_MS;
 
     setTimeout(() => {
@@ -688,12 +883,33 @@ const ActivityScreen = React.forwardRef((props, ref) => {
               ...prev,
               linesDrawComplete: true,
               pointFilled: true,
+            }
+          : null,
+      );
+      setAxisHighlight({
+        xTrial: trialNum,
+        yTick: yTick == null ? null : yTick,
+        spawnY:
+          spawnYText == null
+            ? null
+            : { text: spawnYText, y: point.y },
+      });
+    }, trialHighlightAt);
+
+    setTimeout(() => {
+      playGraphSfx("swoosh");
+      setActiveAnimation((prev) =>
+        prev
+          ? {
+              ...prev,
               flightTrial: {
                 text: String(trialNum),
                 startX: startX_Trial,
                 startY: startY_Trial,
                 endX: endX_Trial,
                 endY: endY_Trial,
+                startSize: startFontPx,
+                endSize: trialEndFontPx,
               },
             }
           : null,
@@ -708,6 +924,10 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     }, trialLandAt);
 
     setTimeout(() => {
+      playGraphSfx("swoosh");
+      setAxisHighlight((prev) =>
+        prev ? { ...prev, spawnY: null } : null,
+      );
       setActiveAnimation((prev) =>
         prev
           ? {
@@ -718,6 +938,8 @@ const ActivityScreen = React.forwardRef((props, ref) => {
                 startY: startY_Rf,
                 endX: endX_Rf,
                 endY: endY_Rf,
+                startSize: startFontPx,
+                endSize: rfEndFontPx,
               },
             }
           : null,
@@ -727,6 +949,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     setTimeout(() => {
       setLandedRf((prev) => [...prev, trialNum]);
       setActiveAnimation(null);
+      setAxisHighlight(null);
       pendingPointTapsRef.current.delete(trialNum);
       onPointTap(trialNum);
       setSettledCells((prev) => [...prev, trialNum]);
@@ -789,8 +1012,8 @@ const ActivityScreen = React.forwardRef((props, ref) => {
   ]);
 
   const getSideCalloutHtml = () => {
-    if (type === "deduceOutcomes" && outcomesRevealed > 0) {
-      return T.ui[`trial${outcomesRevealed}OutcomeMsg`] || "";
+    if (type === "deduceOutcomes" && displayedOutcomesRevealed > 0) {
+      return T.ui[`trial${displayedOutcomesRevealed}OutcomeMsg`] || "";
     }
     return "";
   };
@@ -825,19 +1048,14 @@ const ActivityScreen = React.forwardRef((props, ref) => {
         "tbody td.heads-cell--quiz-pending",
       );
       if (headsHeader && headsCells.length) {
-        const headerRect = headsHeader.getBoundingClientRect();
-        const lastCell = headsCells[headsCells.length - 1];
-        const lastRect = lastCell.getBoundingClientRect();
-        const overlayTop = headerRect.top - shellRect.top;
-        const overlayLeft = headerRect.left - shellRect.left;
-        const overlayWidth = headerRect.width;
-        const overlayHeight = lastRect.bottom - headerRect.top;
+        const firstRect = headsCells[0].getBoundingClientRect();
+        const lastRect = headsCells[headsCells.length - 1].getBoundingClientRect();
         const overlay = shell.querySelector(".reveal-overlay");
         if (overlay) {
-          overlay.style.top = `${overlayTop}px`;
-          overlay.style.left = `${overlayLeft}px`;
-          overlay.style.width = `${overlayWidth}px`;
-          overlay.style.height = `${overlayHeight}px`;
+          overlay.style.top = `${firstRect.top - shellRect.top}px`;
+          overlay.style.left = `${firstRect.left - shellRect.left}px`;
+          overlay.style.width = `${firstRect.width}px`;
+          overlay.style.height = `${lastRect.bottom - firstRect.top}px`;
         }
       }
       return;
@@ -859,45 +1077,27 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       return;
     }
 
-    if (type === "deduceOutcomes" && outcomesRevealed > 0) {
-      const rowIdx = outcomesRevealed - 1;
+    if (type === "deduceOutcomes" && displayedOutcomesRevealed > 0) {
+      const rowIdx = displayedOutcomesRevealed - 1;
       const rowEl = document.getElementById(`table-row-${rowIdx}`);
-      if (!rowEl || !calloutColumn) return;
+      if (!rowEl || !callout) return;
 
-      const tableHeight = shell.offsetHeight;
-      if (tableHeight > 0) {
-        calloutColumn.style.height = `${tableHeight}px`;
-        calloutColumn.style.minHeight = `${tableHeight}px`;
-      }
-
-      const columnRect = calloutColumn.getBoundingClientRect();
-      const trialNum = outcomesRevealed;
-      const outcomeCell =
-        document.getElementById(`outcome-cell-${trialNum}`) ||
-        rowEl.querySelector(".outcome-cell");
-
-      let targetY =
-        rowEl.getBoundingClientRect().top +
-        rowEl.getBoundingClientRect().height / 2;
-      if (outcomeCell) {
-        const outcomeRect = outcomeCell.getBoundingClientRect();
-        targetY = outcomeRect.top + outcomeRect.height / 2;
-      }
-
-      const calloutRect = callout
-        ? callout.getBoundingClientRect()
-        : columnRect;
-      const calloutHeight = calloutRect.height || callout?.offsetHeight || 1;
-      const pointerPx = targetY - calloutRect.top;
+      const targetEl =
+        document.getElementById(`outcome-cell-${displayedOutcomesRevealed}`) ||
+        rowEl.querySelector(".outcome-cell") ||
+        rowEl;
+      const targetRect = targetEl.getBoundingClientRect();
+      const calloutRect = callout.getBoundingClientRect();
+      const calloutHeight = calloutRect.height || 1;
+      const pointerPx = targetRect.top + targetRect.height / 2 - calloutRect.top;
       const pointerPercent = Math.min(
-        95,
-        Math.max(5, (pointerPx / calloutHeight) * 100),
+        96,
+        Math.max(4, (pointerPx / calloutHeight) * 100),
       );
-      const pointerTop = `${pointerPercent}%`;
 
       setCalloutLayout({
         calloutTop: 0,
-        pointerTop,
+        pointerTop: `${pointerPercent}%`,
         pointerLeft: null,
         pointer2Left: null,
         revealColLeft: "62%",
@@ -997,12 +1197,16 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     activeRecordRow,
     outcomesRevealed,
     changesRecorded,
+    formulaFlyDone,
+    quizAnswer,
+    deduceCalloutReady,
   ]);
 
   React.useEffect(() => {
     pendingPointTapsRef.current.clear();
     setLandedTrials([]);
     setLandedRf([]);
+    setAxisHighlight(null);
   }, [type]);
 
   const renderGraph = () =>
@@ -1062,8 +1266,12 @@ const ActivityScreen = React.forwardRef((props, ref) => {
             x2: GRAPH_AXIS_X,
             y2: GRAPH_AXIS_BOTTOM + 2,
           }),
-          [0, 0.2, 0.4, 0.6, 0.8, 1].map((val) => {
+          Y_AXIS_TICKS.map((val) => {
             const y = GRAPH_AXIS_BOTTOM - val * GRAPH_PLOT_H;
+            const isYHighlight =
+              axisHighlight &&
+              axisHighlight.yTick != null &&
+              Math.abs(axisHighlight.yTick - val) < 0.001;
             return React.createElement(
               "g",
               { key: val },
@@ -1077,18 +1285,40 @@ const ActivityScreen = React.forwardRef((props, ref) => {
               React.createElement(
                 "text",
                 {
-                  className: "axis-label y-axis-label",
-                  x: GRAPH_AXIS_X - 3,
+                  className: [
+                    "axis-label",
+                    "y-axis-label",
+                    isYHighlight ? "axis-label--highlight" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" "),
+                  x: GRAPH_AXIS_X - 3.4,
                   y,
-                  fontSize: 3.5,
+                  fontSize: AXIS_NUMBER_FONT_SIZE,
                   textAnchor: "end",
+                  fill: isYHighlight ? "#ffff00" : undefined,
                 },
                 val.toFixed(1),
               ),
             );
           }),
+          axisHighlight?.spawnY &&
+            React.createElement(
+              "text",
+              {
+                className:
+                  "axis-label y-axis-label axis-label--highlight axis-label--spawn",
+                x: GRAPH_AXIS_X - 3.4,
+                y: axisHighlight.spawnY.y,
+                fontSize: AXIS_NUMBER_FONT_SIZE,
+                textAnchor: "end",
+                fill: "#ffff00",
+              },
+              axisHighlight.spawnY.text,
+            ),
           [1, 2, 3, 4, 5].map((t) => {
             const x = getTrialX(t);
+            const isXHighlight = axisHighlight && axisHighlight.xTrial === t;
             return React.createElement(
               "g",
               { key: t },
@@ -1102,11 +1332,18 @@ const ActivityScreen = React.forwardRef((props, ref) => {
               React.createElement(
                 "text",
                 {
-                  className: "axis-label x-axis-label",
+                  className: [
+                    "axis-label",
+                    "x-axis-label",
+                    isXHighlight ? "axis-label--highlight" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" "),
                   x,
                   y: GRAPH_X_LABEL_Y,
-                  fontSize: 3.5,
+                  fontSize: AXIS_NUMBER_FONT_SIZE,
                   textAnchor: "middle",
+                  fill: isXHighlight ? "#ffff00" : undefined,
                 },
                 t,
               ),
@@ -1181,21 +1418,56 @@ const ActivityScreen = React.forwardRef((props, ref) => {
                 React.createElement(
                   React.Fragment,
                   null,
+                  isDrawing &&
+                    React.createElement(
+                      "defs",
+                      null,
+                      React.createElement(
+                        "mask",
+                        {
+                          id: `guide-mask-h-${p.trial}`,
+                          maskUnits: "userSpaceOnUse",
+                        },
+                        React.createElement("line", {
+                          className: "guide-line-grow-mask",
+                          pathLength: 100,
+                          x1: p.x,
+                          y1: p.y,
+                          x2: GRAPH_AXIS_X,
+                          y2: p.y,
+                        }),
+                      ),
+                      React.createElement(
+                        "mask",
+                        {
+                          id: `guide-mask-v-${p.trial}`,
+                          maskUnits: "userSpaceOnUse",
+                        },
+                        React.createElement("line", {
+                          className: "guide-line-grow-mask",
+                          pathLength: 100,
+                          x1: p.x,
+                          y1: p.y,
+                          x2: p.x,
+                          y2: GRAPH_AXIS_BOTTOM,
+                        }),
+                      ),
+                    ),
                   React.createElement("line", {
-                    className: isDrawing
-                      ? "guide-line-draw"
-                      : "guide-line-dotted",
-                    pathLength: isDrawing ? 100 : undefined,
+                    className: "guide-line-dotted",
+                    mask: isDrawing
+                      ? `url(#guide-mask-h-${p.trial})`
+                      : undefined,
                     x1: p.x,
                     y1: p.y,
                     x2: GRAPH_AXIS_X,
                     y2: p.y,
                   }),
                   React.createElement("line", {
-                    className: isDrawing
-                      ? "guide-line-draw"
-                      : "guide-line-dotted",
-                    pathLength: isDrawing ? 100 : undefined,
+                    className: "guide-line-dotted",
+                    mask: isDrawing
+                      ? `url(#guide-mask-v-${p.trial})`
+                      : undefined,
                     x1: p.x,
                     y1: p.y,
                     x2: p.x,
@@ -1274,15 +1546,24 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
     if (type === "formulaQuiz") {
       if (revealTriggered) {
-        const valueClass =
-          idx < headsRevealed
-            ? "heads-value"
-            : activeRevealRow === idx
-              ? "heads-value heads-value--active-reveal"
-              : "heads-value heads-value--pre-reveal";
+        const showAnswer =
+          idx < headsRevealed ||
+          (activeRevealRow === idx && activeRevealStep >= 5);
+        if (!showAnswer) {
+          return React.createElement(
+            "span",
+            { className: "heads-quiz-qmark" },
+            "?",
+          );
+        }
         return React.createElement(
           "span",
-          { className: valueClass },
+          {
+            className:
+              activeRevealRow === idx && activeRevealStep >= 5
+                ? "heads-value heads-value--active-reveal"
+                : "heads-value",
+          },
           row.heads,
         );
       }
@@ -1320,7 +1601,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
   const renderOutcomeCell = (row, idx) => {
     if (!showOutcomeCol) return "";
-    if (idx < outcomesRevealed) {
+    if (idx < displayedOutcomesRevealed) {
       const label = getOutcomeLabel(row);
       return label;
     }
@@ -1354,6 +1635,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
           : "data-table--cols-2",
       colSwapAnimating ? "data-table--col-swap-anim" : "",
       outcomeColEntering ? "data-table--outcome-col-intro" : "",
+      changeColEntering ? "data-table--change-col-intro" : "",
     ]
       .filter(Boolean)
       .join(" ");
@@ -1521,6 +1803,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
           "data-table-wrap--morph",
           isStackLayout ? "data-table-wrap--stack-top" : "",
           outcomeColEntering ? "data-table-wrap--outcome-intro" : "",
+          changeColEntering ? "data-table-wrap--change-intro" : "",
         ]
           .filter(Boolean)
           .join(" "),
@@ -1598,7 +1881,8 @@ const ActivityScreen = React.forwardRef((props, ref) => {
                     type === "calculateHeads" && idx < headsExplored - 1
                       ? "row-calc-explored"
                       : "",
-                    type === "deduceOutcomes" && idx === outcomesRevealed - 1
+                    type === "deduceOutcomes" &&
+                    idx === displayedOutcomesRevealed - 1
                       ? "row-deduce-active"
                       : "",
                     type === "recordChange" && idx === changesRecorded - 1
@@ -1658,18 +1942,22 @@ const ActivityScreen = React.forwardRef((props, ref) => {
         showRevealOverlay &&
           React.createElement(
             "div",
-            { className: "reveal-overlay ftue-target", onClick: onHeadsReveal },
-            React.createElement(
-              "button",
-              {
-                type: "button",
-                className: `story-action reveal-col-btn ${revealAnimating ? "reveal-col-btn--animating" : ""}`,
-                onClick: (e) => {
-                  e.stopPropagation();
-                  onHeadsReveal();
-                },
-                disabled: revealAnimating,
+            {
+              className: [
+                "reveal-overlay",
+                "ftue-target",
+                revealAnimating ? "reveal-overlay--animating" : "",
+              ]
+                .filter(Boolean)
+                .join(" "),
+              role: "button",
+              onClick: () => {
+                if (!revealAnimating) onHeadsReveal();
               },
+            },
+            React.createElement(
+              "span",
+              { className: "reveal-overlay-label" },
               T.ui.revealButton,
             ),
           ),
@@ -1684,6 +1972,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
         className: [
           "formula-box formula-box--known",
           isQuizWrong ? "formula-box--blink-wrong" : "",
+          isQuizCorrect ? "formula-box--simplify-prep" : "",
           formulaTransformDone ? "formula-box--transformed" : "",
           formulaFlight ? "formula-box--flying" : "",
         ]
@@ -1754,15 +2043,35 @@ const ActivityScreen = React.forwardRef((props, ref) => {
   const renderQuizPanel = () => {
     if (type !== "formulaQuiz") return null;
 
+    const showSides =
+      quizIntroEffectivePhase === "sides" ||
+      quizIntroEffectivePhase === "shake" ||
+      quizIntroEffectivePhase === "ready";
+    const playSideEnter = !skipQuizIntro && showSides;
+
     return React.createElement(
       "div",
-      { className: "formula-panel" },
+      {
+        className: [
+          "formula-panel",
+          showSides ? "formula-panel--sides-in" : "formula-panel--waiting",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      },
       React.createElement(
         "div",
         { className: "formula-panel-inner" },
         React.createElement(
           "div",
-          { className: "formula-side formula-side--known" },
+          {
+            className: [
+              "formula-side formula-side--known",
+              playSideEnter ? "formula-side--enter-left" : "",
+            ]
+              .filter(Boolean)
+              .join(" "),
+          },
           React.createElement(
             "p",
             { className: "formula-side-title" },
@@ -1776,6 +2085,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
             className: [
               "formula-side formula-side--quiz",
               quizOptionsDimmed ? "formula-side--quiz-dimmed" : "",
+              playSideEnter ? "formula-side--enter-right" : "",
             ]
               .filter(Boolean)
               .join(" "),
@@ -1798,7 +2108,8 @@ const ActivityScreen = React.forwardRef((props, ref) => {
               type: "button",
               className: [
                 "quiz-option-btn",
-                !isQuizCorrect && !quizOptionsDimmed && !quizAnswer
+                isQuizIntroShake ? "quiz-option-btn--enter-shake" : "",
+                isQuizIntroReady && !isQuizCorrect && !quizOptionsDimmed && !quizAnswer
                   ? "teeter-anim"
                   : "",
                 quizAnswer === "option1" ? "quiz-option-btn--wrong" : "",
@@ -1808,14 +2119,15 @@ const ActivityScreen = React.forwardRef((props, ref) => {
                 .filter(Boolean)
                 .join(" "),
               onClick: () => onQuizAnswer("option1"),
-              disabled: isQuizCorrect,
+              disabled: isQuizCorrect || quizChoicesLocked,
               dangerouslySetInnerHTML: { __html: T.ui.formulaOption1 },
             }),
             React.createElement("button", {
               type: "button",
               className: [
                 "quiz-option-btn",
-                !isQuizCorrect && !quizOptionsDimmed && !isQuizWrong
+                isQuizIntroShake ? "quiz-option-btn--enter-shake" : "",
+                isQuizIntroReady && !isQuizCorrect && !quizOptionsDimmed && !isQuizWrong
                   ? "teeter-anim"
                   : "",
                 quizAnswer === "option2" ? "quiz-option-btn--correct" : "",
@@ -1824,7 +2136,7 @@ const ActivityScreen = React.forwardRef((props, ref) => {
                 .filter(Boolean)
                 .join(" "),
               onClick: () => onQuizAnswer("option2"),
-              disabled: isQuizCorrect,
+              disabled: isQuizCorrect || quizChoicesLocked,
               dangerouslySetInnerHTML: { __html: T.ui.formulaOption2 },
             }),
           ),
@@ -1844,14 +2156,18 @@ const ActivityScreen = React.forwardRef((props, ref) => {
           React.createElement("button", {
             type: "button",
             className: "story-action what-does-tell-us-btn ftue-target",
-            onClick: onWhatDoesTellUs,
+            onClick: () => {
+              if (deduceIntroPhase === "banner-out") return;
+              setDeduceIntroPhase("banner-out");
+            },
+            disabled: deduceIntroPhase === "banner-out",
             dangerouslySetInnerHTML: { __html: T.ui.whatDoesThisTellUsButton },
           }),
         );
       }
       return React.createElement(
         "div",
-        { className: "prompt-banner fade-in" },
+        { className: "prompt-banner" },
         renderQuizPanel(),
       );
     }
@@ -1921,7 +2237,16 @@ const ActivityScreen = React.forwardRef((props, ref) => {
               {
                 type: "button",
                 className: "callout-box__next ftue-target",
-                onClick: onDeduceCalloutNext,
+                onClick: () => {
+                  if (recordIntroPhase === "callout-out") return;
+                  if (outcomesRevealed >= 5) {
+                    if (onRecordIntroStart) onRecordIntroStart();
+                    setRecordIntroPhase("callout-out");
+                    return;
+                  }
+                  if (onDeduceCalloutNext) onDeduceCalloutNext();
+                },
+                disabled: recordIntroPhase === "callout-out",
                 "aria-label": T.ui.nextButton,
               },
               T.ui.nextButton,
@@ -1964,14 +2289,20 @@ const ActivityScreen = React.forwardRef((props, ref) => {
     if (type === "recordChange") {
       const html = getBottomCalloutHtml();
       if (!html) return null;
-      return React.createElement("div", {
-        key: "stack-bottom-callout",
-        ref: stackCalloutRef,
-        className:
-          "summary-callout stack-callout stack-callout--yellow fade-in",
-        style: { "--callout-pointer-left": calloutLayout.pointerLeft },
-        dangerouslySetInnerHTML: { __html: html },
-      });
+      return React.createElement(
+        "div",
+        {
+          key: "stack-bottom-callout",
+          ref: stackCalloutRef,
+          className:
+            "summary-callout stack-callout stack-callout--yellow fade-in",
+          style: { "--callout-pointer-left": calloutLayout.pointerLeft },
+        },
+        React.createElement("div", {
+          className: "stack-callout__body",
+          dangerouslySetInnerHTML: { __html: html },
+        }),
+      );
     }
 
     return null;
@@ -2026,7 +2357,10 @@ const ActivityScreen = React.forwardRef((props, ref) => {
                   className: "morph-table-inner morph-table-inner--stack",
                 },
                 renderTable(),
-                (type === "recordChange" || type === "summary") &&
+                (type === "summary" ||
+                  (type === "recordChange" &&
+                    (recordIntroPhase === "ready" ||
+                      recordIntroPhase === "idle"))) &&
                   renderBottomCallout(),
               )
             : renderTable(),
@@ -2035,11 +2369,30 @@ const ActivityScreen = React.forwardRef((props, ref) => {
 
   return React.createElement(
     "div",
-    { className: `activity-screen activity-screen--${type}`, ref },
+    {
+      className: [
+        "activity-screen",
+        `activity-screen--${type}`,
+        type === "formulaQuiz" ? `quiz-intro--${quizIntroEffectivePhase}` : "",
+        type === "deduceOutcomes" || deduceIntroPhase === "banner-out"
+          ? `deduce-intro--${deduceIntroPhase}`
+          : "",
+        recordIntroPhase !== "idle" ? `record-intro--${recordIntroPhase}` : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+      ref,
+    },
     React.createElement(
       "div",
       {
-        className: `work-area ${showPromptBanner ? "" : "work-area--no-banner"}`,
+        className: [
+          "work-area",
+          showPromptBanner ? "" : "work-area--no-banner",
+          deduceIntroPhase === "banner-out" ? "work-area--banner-collapse" : "",
+        ]
+          .filter(Boolean)
+          .join(" "),
       },
       React.createElement(
         "div",
@@ -2057,12 +2410,17 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       React.createElement(
         "div",
         {
-          className: "flying-element flying-element--trial",
+          className:
+            "flying-element flying-element--trial flying-element--graph-clone",
           style: {
             "--start-x": `${activeAnimation.flightTrial.startX}px`,
             "--start-y": `${activeAnimation.flightTrial.startY}px`,
             "--end-x": `${activeAnimation.flightTrial.endX}px`,
             "--end-y": `${activeAnimation.flightTrial.endY}px`,
+            "--start-size": `${activeAnimation.flightTrial.startSize}px`,
+            "--end-size": `${activeAnimation.flightTrial.endSize}px`,
+            fontSize: `${activeAnimation.flightTrial.startSize}px`,
+            color: "#ffff00",
           },
         },
         activeAnimation.flightTrial.text,
@@ -2071,12 +2429,17 @@ const ActivityScreen = React.forwardRef((props, ref) => {
       React.createElement(
         "div",
         {
-          className: "flying-element flying-element--rf",
+          className:
+            "flying-element flying-element--rf flying-element--graph-clone",
           style: {
             "--start-x": `${activeAnimation.flightRf.startX}px`,
             "--start-y": `${activeAnimation.flightRf.startY}px`,
             "--end-x": `${activeAnimation.flightRf.endX}px`,
             "--end-y": `${activeAnimation.flightRf.endY}px`,
+            "--start-size": `${activeAnimation.flightRf.startSize}px`,
+            "--end-size": `${activeAnimation.flightRf.endSize}px`,
+            fontSize: `${activeAnimation.flightRf.startSize}px`,
+            color: "#ffff00",
           },
         },
         activeAnimation.flightRf.text,

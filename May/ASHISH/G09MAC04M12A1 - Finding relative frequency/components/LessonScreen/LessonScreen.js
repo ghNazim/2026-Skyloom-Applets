@@ -246,10 +246,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     }
     return React.createElement(
       "div",
-      { className: `lesson-title ${isFlying ? "lesson-title--quiet" : ""}` },
-      !isFlying && React.createElement(
-        React.Fragment,
-        null,
+      { className: "lesson-title" },
       React.createElement("span", null, `${T.ui.formulaTitlePrefix} `),
       React.createElement(
         "span",
@@ -260,7 +257,6 @@ const LessonScreen = React.forwardRef((props, ref) => {
         " )",
       ),
       React.createElement("span", null, ` ${T.ui.formulaTitleSuffix || ""}`),
-      ),
     );
   };
 

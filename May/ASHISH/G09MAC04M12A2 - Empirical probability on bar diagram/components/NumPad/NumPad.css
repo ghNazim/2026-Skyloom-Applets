@@ -13,13 +13,14 @@
 .numpad-submit {
   border: none;
   border-radius: 0.55vw;
-  background: linear-gradient(180deg, #695a3e 0%, #544016 55%, #252a30 100%);
+  background: rgba(255, 160, 26, 0.2);
   color: #fff;
   font-size: 2.2vw !important;
   font-weight: 700;
   cursor: pointer;
   min-height: 5.5vh;
   padding: 1vh 0.5vw;
+  border: 0.2vw solid rgba(46, 27, 1, 0.394);
   box-shadow:
     inset 0 0.12vh 0 rgba(255, 255, 255, 0.14),
     0 0.28vh 0 rgba(0, 0, 0, 0.55);
@@ -27,7 +28,7 @@
 }
 
 .numpad-submit {
-  background: linear-gradient(180deg, #ffc94a 0%, #f0a020 55%, #d88712 100%);
+  background: linear-gradient(180deg, #f6b03a 0%, #ee9a1c 50%, #e08610 100%);
   color: #fff;
   font-size: 2.6vw !important;
   box-shadow:

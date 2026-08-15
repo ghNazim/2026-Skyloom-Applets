@@ -91,23 +91,28 @@
 
             setGhosts((prev) => [...prev, newGhost]);
 
+            let arrived = false;
+            const fireArrive = () => {
+                if (arrived) return;
+                arrived = true;
+                setGhosts((prev) => prev.filter((g) => g.id !== ghostId));
+                if (onArrive) onArrive();
+            };
+
+            let arriveTimer;
+            let cleanupTimer;
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     setGhosts((prev) => prev.map((g) => (g.id === ghostId ? { ...g, active: true } : g)));
+                    arriveTimer = setTimeout(fireArrive, duration);
+                    cleanupTimer = setTimeout(() => {
+                        if (!preserveSourceOpacity) {
+                            sourceEl.style.opacity = prevOpacity || "";
+                        }
+                        if (onComplete) onComplete();
+                    }, duration + 60);
                 });
             });
-
-            const arriveTimer = setTimeout(() => {
-                setGhosts((prev) => prev.filter((g) => g.id !== ghostId));
-                if (onArrive) onArrive();
-            }, duration);
-
-            const cleanupTimer = setTimeout(() => {
-                if (!preserveSourceOpacity) {
-                    sourceEl.style.opacity = prevOpacity || "";
-                }
-                if (onComplete) onComplete();
-            }, duration + 60);
 
             return () => {
                 clearTimeout(arriveTimer);

@@ -12,6 +12,26 @@
   background: rgba(20, 42, 77, 0.78);
   border-top: 0.08vw solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 -0.4vh 1.2vw rgba(0, 0, 0, 0.16);
+  transition: opacity 0.42s ease;
+}
+
+.applet-container:has(.quiz-intro--centering) .navigation,
+.applet-container:has(.quiz-intro--swapping) .navigation {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.applet-container:has(.quiz-intro--panel) .navigation {
+  animation: quizNavFade 0.42s ease both;
+}
+
+@keyframes quizNavFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .nav-chevron {

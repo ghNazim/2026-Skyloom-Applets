@@ -1411,7 +1411,7 @@
   /* border: 0.1vw solid rgba(36, 201, 255, 0.35); */
   /* border-radius: 0.8vw; */
   background: rgba(20, 42, 77, 0.78);
-  color: var(--white-color);
+  color: #ffa01a;
   font-size: 2.5vw !important;
   font-weight: 600;
   line-height: 1.35;
@@ -2110,12 +2110,12 @@
 .numpad-callout::before {
   content: "";
   position: absolute;
-  left: -1.15vw;
+  left: -3vw;
   top: var(--callout-pointer-top, 50%);
   transform: translateY(-50%);
-  border-top: 1.2vh solid transparent;
-  border-bottom: 1.2vh solid transparent;
-  border-right: 1.2vw solid #c4a035;
+  border-top: 2vw solid transparent;
+  border-bottom: 2vw solid transparent;
+  border-right: 3vw solid #c4a03598;
   transition: top 0.35s ease;
 }
 

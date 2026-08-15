@@ -39,7 +39,7 @@ var Nudge = function (props) {
   const { left, top, width, height } = position;
   const style = {
     position: "fixed",
-    left: left + width / 2,
+    left: left + width * 0.85,
     top: top + height / 2,
     transform: "translate(-50%, -50%)",
     pointerEvents: "none",

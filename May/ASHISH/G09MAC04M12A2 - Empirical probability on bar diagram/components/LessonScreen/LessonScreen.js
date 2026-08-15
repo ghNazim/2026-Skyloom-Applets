@@ -40,6 +40,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
   const [eventFlips, setEventFlips] = useState({});
   const [eventGlow, setEventGlow] = useState({ bar: null, total: false, sumKey: null });
   const [dismissedFtueKeys, setDismissedFtueKeys] = useState({});
+  const [numpadFreshStart, setNumpadFreshStart] = useState(false);
   const prevTypeRef = useRef(type);
 
   const FLIP_MS = 600;
@@ -53,6 +54,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     if (handFtue) {
       handFtue.classList.remove("hand-animating");
       handFtue.classList.remove("hand-ftue--edge");
+      handFtue.classList.remove("ftue-on-nav");
     }
     if (key) setDismissedFtueKeys((prev) => ({ ...prev, [key]: true }));
   };
@@ -61,6 +63,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     setEventFlips({});
     setEventGlow({ bar: null, total: false, sumKey: null });
     setDismissedFtueKeys({});
+    setNumpadFreshStart(false);
   }, [type, stepData.eventKey, stepData.id]);
 
   const renderFormulaVar = (suffix = "") =>
@@ -132,6 +135,13 @@ const LessonScreen = React.forwardRef((props, ref) => {
     flyValue(sourceSel, targetSel, text, "", onDone);
   };
 
+  const playSfx = (name) => {
+    try {
+      const audio = new Audio(T.sfx[name]);
+      audio.play().catch(() => {});
+    } catch (e) {}
+  };
+
   const flyValue = (sourceSel, targetSel, text, colorClass, cb) => {
     const root = ref.current;
     const source = root?.querySelector(sourceSel);
@@ -141,6 +151,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
       return;
     }
     setEventFlying(true);
+    playSfx("swoosh");
     triggerGhost({
       sourceEl: source,
       targetEl: target,
@@ -163,6 +174,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
       return;
     }
     setSpinnerFlying(true);
+    playSfx("swoosh");
     triggerGhost({
       sourceEl: source,
       targetEl: target,
@@ -303,6 +315,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     if (input === "?" || input === "") return;
     onSpinnerShowSubmitPreview();
     if (input !== expected) {
+      setNumpadFreshStart(true);
       onSpinnerSubmitWrong();
       return;
     }
@@ -571,6 +584,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     const sourceBtn = root?.querySelector(`[data-quiz-opt="${choice}"]`);
     const target = root?.querySelector("[data-quiz-answer-slot]");
     if (!sourceBtn || !target) {
+      playSfx(choice === quiz.correct ? "correct" : "wrong");
       if (choice === quiz.correct) onQuizAnswer(quizId, choice);
       else onQuizWrong();
       return;
@@ -587,17 +601,15 @@ const LessonScreen = React.forwardRef((props, ref) => {
       preserveSourceOpacity: true,
       duration: QUIZ_FLY_MS,
       onArrive: () => {
+        playSfx(choice === quiz.correct ? "correct" : "wrong");
         setQuizSlotChoice(choice);
         if (choice === quiz.correct) {
-          setTimeout(() => {
-            setQuizFlying(false);
-            setQuizFlyChoice(null);
-            onQuizAnswer(quizId, choice);
-          }, QUIZ_HOLD_MS);
+          onQuizAnswer(quizId, choice);
+          setQuizFlying(false);
+          setQuizFlyChoice(null);
           return;
         }
         setQuizSlotWrong(true);
-        onQuizWrong();
         setTimeout(() => {
           setQuizSlotChoice(null);
           setQuizSlotWrong(false);
@@ -890,7 +902,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
               !state.buildStarted
                 ? React.createElement(
                     "span",
-                    { className: "frac-group" },
+                    { className: "frac-group event-numerator-group" },
                     renderFlipSlot({
                       flipKey: `${eventKey}-build`,
                       frontContent: freqSymbol,
@@ -1050,18 +1062,21 @@ const LessonScreen = React.forwardRef((props, ref) => {
           React.createElement(
             "div",
             {
-              className: `entry-slot ${confirmed ? "entry-slot--done" : ""} ${spinnerState.correctHold ? "entry-slot--correct-hold" : ""} ${spinnerState.preview?.wrong ? "entry-slot--wrong" : ""}`,
+              className: `entry-slot ${confirmed ? "entry-slot--done" : ""} ${spinnerState.correctHold ? "entry-slot--correct-hold" : ""} ${spinnerState.preview?.wrong && numpadFreshStart ? "entry-slot--wrong" : ""}`,
               "data-entry-target": true,
             },
             entryValue
           ),
           React.createElement(NumPad, {
             value: spinnerState.currentInput,
-            onChange: onSpinnerInputChange,
+            onChange: (val) => {
+              onSpinnerInputChange(val);
+              setNumpadFreshStart(false);
+            },
             onSubmit: handleSpinnerSubmit,
             onKeyTap: onNumpadTap,
             disabled: numpadDisabled,
-            freshStartOnNextKey: isWrong,
+            freshStartOnNextKey: numpadFreshStart,
           })
         )
       );
@@ -1150,13 +1165,17 @@ const LessonScreen = React.forwardRef((props, ref) => {
               quiz.options.map((opt) => {
                 const hideOption =
                   (quizFlying && quizFlyChoice === opt) || (selected === opt && opt === quiz.correct);
+                const dimOthers =
+                  (selected === quiz.correct || quizSlotChoice === quiz.correct) &&
+                  opt !== quiz.correct &&
+                  !hideOption;
                 return React.createElement(
                   "button",
                   {
                     key: opt,
                     type: "button",
                     "data-quiz-opt": opt,
-                    className: `quiz-option ftue-target${hideOption ? " quiz-option--moved" : ""}`,
+                    className: `quiz-option ftue-target${hideOption ? " quiz-option--moved" : ""}${dimOthers ? " quiz-option--dim" : ""}`,
                     disabled:
                       selected === quiz.correct || (quizFlying && quizFlyChoice === opt),
                     onClick: () => handleQuizSelect(quiz.id, opt, quiz),

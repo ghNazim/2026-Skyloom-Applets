@@ -1,7 +1,7 @@
 /** Normalize typed radical answers for comparison (√74, √(74), sqrt(74), spaces). */
 
 const audioCache = {};
-const sounds = ["correct", "wrong", "click", "congrats", "tick"];
+const sounds = ["correct", "wrong", "click", "congrats", "tick", "fill"];
 sounds.forEach((name) => {
   const audio = new Audio(`sound/${name}.mp3`);
   audio.load(); // Preloads the audio

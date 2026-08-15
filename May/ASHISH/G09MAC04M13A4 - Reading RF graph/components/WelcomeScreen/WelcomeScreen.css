@@ -14,12 +14,12 @@
 }
 
 .welcome-title {
-  color: #ffe814;
+  color: #ff9800;
   margin: 0 0 1vh;
   font-size: 3vw !important;
   text-shadow: 0 0.15vw 0.3vw rgba(0, 0, 0, 0.4);
   position: absolute;
-  top: 2vw;
+  top: 8vw;
   left: 50%;
   width: 100%;
   transform: translateX(-50%);
@@ -41,7 +41,7 @@
 
 .start-button {
   position: absolute;
-  bottom: 4vw;
+  bottom: 7vw;
 }
 
 .start-button,

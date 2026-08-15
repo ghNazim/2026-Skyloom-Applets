@@ -36,6 +36,7 @@
   overflow: hidden;
   align-items: center;
   justify-content: center;
+  transition: flex 0.42s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .morph-stage-container .morph-stage {
@@ -49,9 +50,15 @@
 .prompt-banner-container {
   flex: 38;
   min-height: 0;
+  max-height: 50vh;
+  opacity: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition:
+    flex 0.48s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.48s ease,
+    max-height 0.48s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .work-area--no-banner .morph-stage-container {
@@ -60,6 +67,26 @@
 
 .work-area--no-banner .prompt-banner-container {
   display: none;
+}
+
+.work-area--banner-collapse .morph-stage-container {
+  flex: 1;
+}
+
+.work-area--banner-collapse .prompt-banner-container {
+  flex: 0.001;
+  opacity: 0;
+  max-height: 0;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.work-area--banner-collapse .data-table-wrap--morph,
+.work-area--banner-collapse .data-table-shell,
+.activity-screen--deduceOutcomes .data-table-wrap--morph,
+.activity-screen--deduceOutcomes .data-table-shell {
+  height: auto;
+  max-height: 100%;
 }
 
 .content-stage {
@@ -100,7 +127,8 @@
     grid-template-columns 0.65s cubic-bezier(0.4, 0, 0.2, 1),
     grid-template-rows 0.65s cubic-bezier(0.4, 0, 0.2, 1),
     gap 0.65s cubic-bezier(0.4, 0, 0.2, 1),
-    width 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+    width 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .morph-stage--intro {
@@ -134,6 +162,31 @@
   grid-template-rows: 1fr;
   width: 100%;
   justify-content: center;
+}
+
+.deduce-intro--table-left .morph-stage--table-only {
+  justify-content: center;
+  grid-template-columns: minmax(0, 42vw);
+  transform: translateX(calc(-50% + 23vw));
+}
+
+.deduce-intro--outcome-col .morph-stage--table-only {
+  justify-content: start;
+  padding-left: 2vw;
+  grid-template-columns: minmax(0, calc(56vw + 0.65vw));
+  overflow: visible;
+  transform: none;
+  transition:
+    grid-template-columns 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activity-screen--deduceOutcomes .morph-stage--callout,
+.activity-screen--recordChange .morph-stage--callout {
+  width: 100%;
+  justify-content: start;
+  padding-left: 2vw;
+  grid-template-columns: minmax(0, 100%);
+  transform: none;
 }
 
 .morph-stage--callout {
@@ -456,19 +509,91 @@
 }
 
 .activity-screen--deduceOutcomes .morph-table-area .morph-table-row {
-  height: 100%;
-  align-content: stretch;
+  height: auto;
+  align-self: center;
+  align-items: stretch;
+  grid-template-columns: calc(56vw + 0.65vw) minmax(0, 1fr);
+  gap: 1.4vw;
+  justify-content: start;
 }
 
 .activity-screen--deduceOutcomes .morph-table-row .data-table-wrap {
-  align-self: start;
+  align-self: stretch;
+  width: calc(56vw + 0.65vw);
+  max-width: calc(56vw + 0.65vw);
+  height: auto;
 }
 
 .activity-screen--deduceOutcomes .callout-column {
   align-self: stretch;
-  justify-content: center;
-  height: 100%;
-  min-height: 100%;
+  justify-content: stretch;
+  height: auto;
+  min-height: 0;
+}
+
+.record-intro--callout-out .callout-box--deduce,
+.record-intro--callout-out .callout-column {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.activity-screen--recordChange .morph-table-area .morph-table-row {
+  height: auto;
+  align-self: center;
+  align-items: stretch;
+  grid-template-columns: calc(56vw + 0.65vw) minmax(0, 1fr);
+  gap: 1.4vw;
+  justify-content: start;
+  transition:
+    grid-template-columns 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    gap 0.4s ease,
+    transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.record-intro--table-center .morph-table-row {
+  grid-template-columns: calc(56vw + 0.65vw) 0fr;
+  gap: 0;
+  transform: translateX(calc(50% - 30vw));
+}
+
+.record-intro--insert-col .morph-table-row {
+  grid-template-columns: calc(70vw + 1.3vw) 0fr;
+  gap: 0;
+  transform: translateX(calc(50% - 37vw));
+}
+
+.activity-screen--recordChange .morph-table-row .data-table-wrap {
+  align-self: stretch;
+  height: auto;
+}
+
+.record-intro--table-center .data-table-wrap--morph {
+  width: calc(56vw + 0.65vw);
+  max-width: calc(56vw + 0.65vw);
+}
+
+.record-intro--insert-col .data-table-wrap--morph,
+.record-intro--ready .data-table-wrap--morph {
+  width: calc(70vw + 1.3vw);
+  max-width: calc(70vw + 1.3vw);
+}
+
+.activity-screen--recordChange .data-table-wrap--morph,
+.activity-screen--recordChange .data-table-shell {
+  height: auto;
+  max-height: 100%;
+}
+
+.deduce-intro--table-left .data-table-wrap--morph {
+  width: 42vw;
+  max-width: 42vw;
+}
+
+.deduce-intro--outcome-col .data-table-wrap--morph,
+.deduce-intro--ready .data-table-wrap--morph {
+  width: calc(56vw + 0.65vw);
+  max-width: calc(56vw + 0.65vw);
 }
 
 .graph-panel--morph {
@@ -485,7 +610,7 @@
 }
 
 .graph-panel--border-yellow {
-  border-color: #ffd36b !important;
+  border-color: yellow !important;
   border-width: 0.25vw !important;
 }
 
@@ -589,27 +714,151 @@
 
 .data-table--outcome-col-intro th:not(.table-col-morph--enter),
 .data-table--outcome-col-intro td:not(.table-col-morph--enter) {
-  transition:
-    width 0.55s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  width: calc(42vw / 3);
+  min-width: calc(42vw / 3);
+  max-width: calc(42vw / 3);
+}
+
+.data-table--outcome-col-intro th.table-col-morph--enter,
+.data-table--outcome-col-intro td.table-col-morph--enter,
+.data-table--step-deduceOutcomes.data-table--outcome-col-intro
+  th.table-col-morph--enter,
+.data-table--step-deduceOutcomes.data-table--outcome-col-intro
+  td.table-col-morph--enter {
+  min-width: 0;
+  max-width: none;
+  overflow: hidden;
+  white-space: nowrap;
+  word-wrap: normal;
+  overflow-wrap: normal;
+  height: 4.5vw;
+  max-height: 4.5vw;
+  animation: tableOutcomeColExpand 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .data-table-wrap--outcome-intro {
   transition:
     width 0.55s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width 0.55s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: left center;
 }
 
 @keyframes tableColExpand {
   from {
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
     opacity: 0;
-    transform: scaleX(0.6);
+    overflow: hidden;
+    border-left-width: 0;
+    border-right-width: 0;
   }
   to {
     opacity: 1;
-    transform: scaleX(1);
   }
+}
+
+@keyframes tableOutcomeColExpand {
+  from {
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    height: 4.5vw;
+    max-height: 4.5vw;
+    border-left-width: 0;
+    border-right-width: 0;
+  }
+  to {
+    width: calc(42vw / 3);
+    min-width: calc(42vw / 3);
+    max-width: calc(42vw / 3);
+    opacity: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    height: 4.5vw;
+    max-height: 4.5vw;
+  }
+}
+
+.data-table--change-col-intro th:not(.table-col-morph--enter),
+.data-table--change-col-intro td:not(.table-col-morph--enter) {
+  width: calc(42vw / 3);
+  min-width: calc(42vw / 3);
+  max-width: calc(42vw / 3);
+}
+
+.data-table--change-col-intro th.table-col-morph--enter,
+.data-table--change-col-intro td.table-col-morph--enter {
+  min-width: 0;
+  max-width: none;
+  position: relative;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  overflow-wrap: normal !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
+  height: 4.5vw;
+  max-height: 4.5vw;
+  line-height: 1.15;
+  animation: tableChangeColExpand 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.data-table--change-col-intro th.table-col-morph--enter br {
+  display: none;
+}
+
+.data-table--change-col-intro th.table-col-morph--enter span {
+  position: absolute;
+  left: 0.2vw;
+  right: 0.2vw;
+  top: 50%;
+  transform: translateY(-50%);
+  overflow: hidden;
+  max-height: 4.5vw;
+  white-space: nowrap;
+  line-height: 1.15;
+}
+
+@keyframes tableChangeColExpand {
+  from {
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    height: 4.5vw;
+    max-height: 4.5vw;
+    border-left-width: 0;
+    border-right-width: 0;
+  }
+  to {
+    width: calc(42vw / 3);
+    min-width: calc(42vw / 3);
+    max-width: calc(42vw / 3);
+    opacity: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    height: 4.5vw;
+    max-height: 4.5vw;
+  }
+}
+
+.deduce-intro--table-left .callout-column,
+.deduce-intro--outcome-col .callout-column,
+.deduce-intro--table-left .callout-box--side,
+.deduce-intro--outcome-col .callout-box--side {
+  opacity: 0;
 }
 
 .callout-box--side.fade-in,
@@ -734,6 +983,12 @@
   fill: #ffffff;
   font-weight: 600;
   dominant-baseline: central;
+  transition: fill 0.2s ease;
+}
+
+.graph-svg .axis-label--highlight {
+  fill: #ffff00 !important;
+  font-weight: 700;
 }
 
 .graph-svg .y-axis-label {
@@ -741,8 +996,9 @@
 }
 
 .graph-svg .axis-title-text {
-  fill: #79d9ff;
+  fill: #c7ac88;
   font-weight: 700;
+  font-style: italic;
   text-anchor: middle;
   dominant-baseline: central;
 }
@@ -777,8 +1033,9 @@
 }
 
 .axis-title-text {
-  fill: #79d9ff;
+  fill: #c7ac88;
   font-weight: 700;
+  font-style: italic;
 }
 
 .graph-polyline {
@@ -825,14 +1082,17 @@
 }
 
 .guide-line-dotted {
-  stroke: #ffd36b;
+  stroke: #ffff00;
   stroke-width: 0.5;
   stroke-dasharray: 1 1;
+  fill: none;
 }
 
-.guide-line-draw {
-  stroke: #ffd36b;
-  stroke-width: 0.5;
+.guide-line-grow-mask {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.2;
+  stroke-linecap: round;
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
   animation: guideLineDraw 0.7s ease-out forwards;
@@ -899,6 +1159,13 @@
   animation: flyAnimate 0.9s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 }
 
+.flying-element--graph-clone {
+  color: #ffff00;
+  -webkit-text-fill-color: #ffff00;
+  font-size: var(--start-size);
+  animation: flyAnimateSize 0.9s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
 @keyframes flyAnimate {
   0% {
     left: var(--start-x);
@@ -914,9 +1181,25 @@
   }
 }
 
+@keyframes flyAnimateSize {
+  0% {
+    left: var(--start-x);
+    top: var(--start-y);
+    font-size: var(--start-size);
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  100% {
+    left: var(--end-x);
+    top: var(--end-y);
+    font-size: var(--end-size);
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+
 .cell-flying-settled {
-  color: #ffffff;
-  transition: color 0.5s ease;
+  color: #ffff00;
 }
 
 .data-table-wrap {
@@ -1034,7 +1317,7 @@
 }
 
 .data-table-shell--border-yellow {
-  border: 0.25vw solid #ffd36b;
+  border: 0.25vw solid yellow;
   border-radius: 0.6vw;
   box-sizing: border-box;
   height: 100%;
@@ -1070,6 +1353,11 @@
 
 .data-table tbody td {
   background: rgba(31, 92, 153, 0.3);
+}
+
+.activity-screen--pointsInteraction .data-table tbody td,
+.activity-screen--pointsInteraction .data-table tbody td .cell-flying-settled {
+  color: #ffff00;
 }
 
 .data-table--cols-5 th:nth-child(1),
@@ -1124,6 +1412,10 @@
   font-weight: 600;
   margin-top: 0.3vh;
   line-height: 1.1;
+}
+
+.data-table--step-formulaQuiz .col-sub {
+  color: #ffff00;
 }
 
 .heads-calc-part {
@@ -1258,19 +1550,27 @@
 }
 
 .callout-box--deduce {
-  display: block;
+  display: flex;
   position: relative;
   top: auto !important;
-  height: 90%;
-  min-height: 90%;
+  height: 100%;
+  min-height: 100%;
+  flex: 1 1 auto;
   flex-shrink: 0;
   box-sizing: border-box;
-  background: rgba(255, 211, 107, 0.5) !important;
-  border: 0.14vw solid rgba(255, 211, 107, 0.75) !important;
+  background: rgba(255, 192, 0, 0.35) !important;
+  border: 0.14vw solid rgba(255, 192, 0, 0.85) !important;
   -webkit-backdrop-filter: blur(0.2vw);
   backdrop-filter: blur(0.2vw);
   padding: 0;
   transition: none;
+}
+
+.record-intro--callout-out .callout-box--deduce,
+.record-intro--callout-out .callout-column {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
 }
 
 .callout-box--deduce .callout-box__body {
@@ -1323,7 +1623,7 @@
   left: -1.65vw;
   border-top: 1.65vh solid transparent;
   border-bottom: 1.65vh solid transparent;
-  border-right: 1.65vw solid rgba(255, 211, 107, 0.75);
+  border-right: 1.65vw solid rgba(255, 192, 0, 0.85);
   transition: top 0.35s ease;
 }
 
@@ -1335,7 +1635,7 @@
   transform: translateY(-50%);
   border-top: 1.45vh solid transparent;
   border-bottom: 1.45vh solid transparent;
-  border-right: 1.45vw solid rgba(255, 211, 107, 0.5);
+  border-right: 1.45vw solid rgba(255, 192, 0, 0.35);
   transition: top 0.35s ease;
   pointer-events: none;
 }
@@ -1439,6 +1739,19 @@
   color: var(--white-color);
 }
 
+.formula-panel .vfrac,
+.formula-panel .vfrac-num,
+.formula-panel .vfrac-den,
+.formula-panel .formula-rf,
+.formula-panel .formula-eq,
+.formula-panel .formula-mult,
+.formula-panel .formula-den-fly,
+.formula-panel .formula-den-orig,
+.formula-panel .formula-fh-final,
+.formula-panel .formula-fly-source {
+  font-size: 2.5vw !important;
+}
+
 /* ── M19A1-style pastel highlights (white text on tinted cells) ── */
 .data-table--step-formulaQuiz .heads-col-header--focus {
   background: rgba(121, 217, 255, 0.22) !important;
@@ -1466,7 +1779,8 @@
 }
 
 .data-table--step-formulaQuiz .heads-cell--quiz-col.heads-cell--quiz-pending {
-  background: rgba(255, 141, 215, 0.14);
+  background: rgba(120, 72, 28, 0.42);
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .data-table--step-formulaQuiz .heads-cell--quiz-revealed,
@@ -1518,8 +1832,8 @@
 .data-table--step-deduceOutcomes .outcome-cell--deduce-h,
 .data-table--step-deduceOutcomes .outcome-cell--deduce-noth,
 .data-table--step-deduceOutcomes .outcome-cell--deduce-same-freq {
-  background: rgba(255, 211, 107, 0.5) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(255, 211, 107, 0.65);
+  background: rgba(255, 192, 0, 0.35) !important;
+  box-shadow: inset 0 0 0 0.08vw rgba(255, 192, 0, 0.85);
   color: #ffffff;
   font-weight: 700;
 }
@@ -1543,56 +1857,66 @@
 .data-table--step-recordChange .change-cell--pos,
 .data-table--step-recordChange .change-cell--zero {
   background: rgba(255, 141, 215, 0.14);
+  color: #ffffff !important;
+  font-weight: 700;
 }
 
 .data-table--step-recordChange .heads-cell--record-active {
-  background: rgba(140, 207, 71, 0.22) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(140, 207, 71, 0.5);
-  color: #ffd36b;
+  color: #ffffff;
   font-weight: 700;
+  animation:
+    cellPulse 1s ease-in-out infinite alternate,
+    recordYellowBgPulse 1s ease-in-out infinite alternate;
 }
 
 .data-table--step-recordChange .heads-cell--record-prev {
-  background: rgba(140, 207, 71, 0.22) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(140, 207, 71, 0.5);
   color: #ffffff;
   font-weight: 700;
+  animation:
+    cellPulse 1s ease-in-out infinite alternate,
+    recordGreenBgPulse 1s ease-in-out infinite alternate;
 }
 
 .data-table--step-recordChange .change-cell--recording-active {
-  background: rgba(255, 141, 215, 0.32) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(255, 141, 215, 0.55);
-  color: #ffffff;
+  background: rgba(255, 141, 215, 0.14) !important;
+  box-shadow: none;
+  color: #ffffff !important;
   font-weight: 700;
+  animation: none;
 }
 
 .data-table--step-summary .heads-cell--summary-col {
-  background: rgba(121, 217, 255, 0.22) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(121, 217, 255, 0.4);
-  color: #ffffff;
-  font-weight: 700;
+  background: rgba(31, 92, 153, 0.3) !important;
+  box-shadow: none;
+  color: var(--white-color);
+  font-weight: 600;
 }
 
 .data-table--step-summary .change-col-header--summary,
 .data-table--step-summary .outcome-col-header--summary {
-  background: rgba(165, 180, 252, 0.2) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(165, 180, 252, 0.4);
+  background: rgba(45, 48, 58, 0.92) !important;
+  box-shadow: none;
 }
 
 .data-table--step-summary .change-cell--summary-h,
 .data-table--step-summary .outcome-cell--summary-h {
-  background: rgba(255, 141, 215, 0.26) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(255, 141, 215, 0.45);
+  background: rgba(166, 92, 38, 0.48) !important;
+  box-shadow: none;
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .data-table--step-summary .change-cell--summary-noth,
 .data-table--step-summary .outcome-cell--summary-noth {
-  background: rgba(121, 217, 255, 0.24) !important;
-  box-shadow: inset 0 0 0 0.08vw rgba(121, 217, 255, 0.45);
+  background: rgba(31, 92, 153, 0.45) !important;
+  box-shadow: none;
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+.data-table--step-summary .change-cell--pos,
+.data-table--step-summary .change-cell--zero {
+  color: #ffffff;
 }
 
 .data-table .cell-filled {
@@ -1614,7 +1938,7 @@
 }
 
 .data-table .change-cell--zero {
-  color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
   font-weight: 700;
 }
 
@@ -1781,7 +2105,10 @@
 .data-table--step-deduceOutcomes.data-table--cols-5 td,
 .data-table--step-deduceOutcomes.data-table--cols-5-swapped th,
 .data-table--step-deduceOutcomes.data-table--cols-5-swapped td {
-  width: 25%;
+  width: calc(42vw / 3);
+  min-width: calc(42vw / 3);
+  max-width: calc(42vw / 3);
+  box-sizing: border-box;
 }
 
 .what-does-tell-us-btn {
@@ -1794,28 +2121,34 @@
 
 .activity-screen--recordChange .data-table-wrap--stack-top,
 .activity-screen--summary .data-table-wrap--stack-top {
-  width: 70%;
-  max-width: 70%;
+  width: calc(70vw + 1.3vw);
+  max-width: calc(70vw + 1.3vw);
 }
 
 .activity-screen--recordChange .callout-box--bottom,
 .stack-callout {
   width: 78%;
-  height: 12vw;
-  min-height: 12vw;
-  max-height: 12vw;
+  height: auto;
+  min-height: 0;
+  max-height: none;
   flex: 0 0 auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  overflow: visible;
   text-align: center;
   font-size: 2vw !important;
   font-weight: 600;
   line-height: 1.35;
   color: var(--white-color);
+  padding: 1.8vh 3%;
+}
+
+.stack-callout__body {
+  width: 100%;
+  text-align: center;
 }
 
 .summary-callout.stack-callout {
@@ -1835,8 +2168,14 @@
 }
 
 .stack-callout .formula-pink,
-.stack-callout .hl-yellow {
-  color: #ffd36b;
+.stack-callout .hl-yellow,
+.stack-callout .hl-gold {
+  color: #ffc000;
+  font-weight: 700;
+}
+
+.stack-callout .hl-bright {
+  color: #ffff00;
   font-weight: 700;
 }
 
@@ -1845,15 +2184,15 @@
 }
 
 .stack-callout--yellow {
-  background: rgba(255, 211, 107, 0.5) !important;
-  border: 0.14vw solid rgba(255, 211, 107, 0.75) !important;
+  background: rgba(255, 192, 0, 0.35) !important;
+  border: 0.14vw solid rgba(255, 192, 0, 0.85) !important;
   -webkit-backdrop-filter: blur(0.2vw);
   backdrop-filter: blur(0.2vw);
   color: var(--white-color);
 }
 
 .stack-callout--yellow::before {
-  border-bottom-color: rgba(255, 211, 107, 0.75) !important;
+  border-bottom-color: rgba(255, 192, 0, 0.85) !important;
 }
 
 .stack-callout--yellow:not(.stack-callout--dual)::after {
@@ -1869,7 +2208,7 @@
   top: -1.8vh;
   border-left: 1.5vw solid transparent;
   border-right: 1.5vw solid transparent;
-  border-bottom: 1.8vh solid rgba(255, 211, 107, 0.75);
+  border-bottom: 1.8vh solid rgba(255, 192, 0, 0.85);
   z-index: 3;
   pointer-events: none;
   transform: translateX(-50%);
@@ -1900,10 +2239,23 @@
   animation: cellRevealFlashOverlay 0.5s linear forwards;
 }
 
+.data-table--step-recordChange.data-table--cols-5-swapped th,
+.data-table--step-recordChange.data-table--cols-5-swapped td,
+.data-table--step-summary.data-table--cols-5-swapped th,
+.data-table--step-summary.data-table--cols-5-swapped td {
+  width: 20%;
+  box-sizing: border-box;
+}
+
 .activity-screen--recordChange .data-table--dim-lead thead th.col-dim,
-.activity-screen--recordChange .data-table--dim-lead tbody td.col-dim {
+.activity-screen--recordChange .data-table--dim-lead tbody td.col-dim,
+.activity-screen--summary .data-table--dim-lead thead th.col-dim,
+.activity-screen--summary .data-table--dim-lead tbody td.col-dim {
   color: rgba(255, 255, 255, 0.35) !important;
   background: rgba(255, 255, 255, 0.02) !important;
+  transition:
+    color 0.45s ease,
+    background 0.45s ease;
 }
 
 .formula-panel {
@@ -1912,7 +2264,68 @@
   flex: 1;
   min-height: 0;
   display: flex;
-  animation: morphPanelEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.activity-screen--formulaQuiz.quiz-intro--centering .formula-side--known,
+.activity-screen--formulaQuiz.quiz-intro--swapping .formula-side--known,
+.formula-panel--waiting .formula-side--known {
+  opacity: 0;
+  transform: translateX(-10vw);
+}
+
+.activity-screen--formulaQuiz.quiz-intro--centering .formula-side--quiz,
+.activity-screen--formulaQuiz.quiz-intro--swapping .formula-side--quiz,
+.formula-panel--waiting .formula-side--quiz {
+  opacity: 0;
+  transform: translateX(10vw);
+}
+
+.activity-screen--formulaQuiz.quiz-intro--panel .formula-panel,
+.prompt-banner--quiz-enter {
+  animation: none;
+}
+
+.activity-screen--formulaQuiz.quiz-intro--panel .formula-side {
+  opacity: 0;
+}
+
+.formula-side--enter-left {
+  animation: quizSideFromLeft 0.56s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.formula-side--enter-right {
+  animation: quizSideFromRight 0.56s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes quizPanelFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes quizSideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes quizSideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(10vw);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .formula-panel-inner {
@@ -1943,7 +2356,7 @@
 }
 
 .formula-side-title {
-  font-size: 2vw !important;
+  font-size: 2.5vw !important;
   font-weight: 700;
   color: var(--white-color);
   text-align: center;
@@ -1951,7 +2364,7 @@
 }
 
 .formula-question {
-  font-size: 2vw !important;
+  font-size: 2.5vw !important;
   font-weight: 600;
   color: var(--white-color);
   text-align: center;
@@ -1965,7 +2378,7 @@
   background: linear-gradient(145deg, #1a8fa8, #0d6e8a);
   border: 0.1vw solid #36c7ec;
   color: var(--white-color);
-  font-size: 2vw !important;
+  font-size: 2.5vw !important;
   font-weight: 700;
   text-align: center;
   line-height: 1.25;
@@ -1996,7 +2409,16 @@
 }
 
 .formula-mult,
-.formula-den-fly,
+.formula-den-fly {
+  visibility: hidden;
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .formula-fh-final {
   opacity: 0;
 }
@@ -2043,19 +2465,40 @@
   will-change: transform, opacity;
 }
 
+.formula-box--simplify-prep .formula-mult,
+.formula-box--simplify-prep .formula-den-fly {
+  visibility: visible;
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
 .formula-box--transformed .formula-mult,
 .formula-box--transformed .formula-den-fly {
+  visibility: visible;
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
   opacity: 1;
+  pointer-events: auto;
+  transition: none;
 }
 
 .formula-box--transformed .formula-fh-final {
   opacity: 1;
   transform: translateY(-50%);
+  transition: none;
 }
 
 .formula-box--transformed .formula-rhs-block {
   opacity: 0;
   pointer-events: none;
+  transition: none;
 }
 
 .formula-box--transformed .formula-den-orig {
@@ -2111,7 +2554,7 @@
   min-height: 7vh;
   padding: 0.8vh 1vw;
   border-radius: 0.6vw;
-  font-size: 2vw !important;
+  font-size: 2.5vw !important;
   font-weight: 700;
   color: var(--white-color);
   border: 0.12vw solid #ffd36b;
@@ -2178,6 +2621,10 @@
 .quiz-option-btn--disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.quiz-option-btn--enter-shake {
+  animation: shakeBtn 0.52s ease;
 }
 
 @keyframes shakeBtn {
@@ -2268,10 +2715,11 @@
   text-align: center;
   line-height: 1.35;
   color: var(--white-color);
+  margin: 0;
 }
 
 .summary-rule--yellow {
-  color: #ffd36b;
+  color: #ffc000;
 }
 
 .summary-rule--blue {
@@ -2279,7 +2727,7 @@
 }
 
 .hl-yellow {
-  color: #ffd36b;
+  color: yellow;
   font-weight: 700;
 }
 
@@ -2360,8 +2808,8 @@
 
 @keyframes deduceYellowBgPulse {
   from {
-    background: rgba(255, 211, 107, 0.5);
-    box-shadow: inset 0 0 0 0.08vw rgba(255, 211, 107, 0.65);
+    background: rgba(255, 192, 0, 0.35);
+    box-shadow: inset 0 0 0 0.08vw rgba(255, 192, 0, 0.85);
   }
   to {
     background: rgba(31, 92, 153, 0.3);
@@ -2380,12 +2828,34 @@
   }
 }
 
+@keyframes recordYellowBgPulse {
+  from {
+    background: rgba(255, 192, 0, 0.35);
+    box-shadow: inset 0 0 0 0.08vw rgba(255, 192, 0, 0.85);
+  }
+  to {
+    background: rgba(31, 92, 153, 0.3);
+    box-shadow: inset 0 0 0 0.08vw rgba(255, 255, 255, 0.18);
+  }
+}
+
+@keyframes recordGreenBgPulse {
+  from {
+    background: rgba(140, 207, 71, 0.38);
+    box-shadow: inset 0 0 0 0.08vw rgba(140, 207, 71, 0.75);
+  }
+  to {
+    background: rgba(31, 92, 153, 0.3);
+    box-shadow: inset 0 0 0 0.08vw rgba(255, 255, 255, 0.18);
+  }
+}
+
 .reveal-overlay {
   position: absolute;
-  background: rgba(169, 94, 0, 0.35);
-  border: 0.12vw solid #ffd36b;
-  border-radius: 0.5vw;
-  box-shadow: inset 0 0 1vw rgba(0, 0, 0, 0.4);
+  background: rgba(139, 84, 32, 0.48);
+  border: 0.1vw solid rgba(201, 148, 80, 0.7);
+  border-radius: 0.35vw;
+  box-shadow: inset 0 0 1.2vw rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2393,10 +2863,17 @@
   cursor: pointer;
 }
 
-.reveal-overlay .reveal-col-btn {
-  position: static;
-  transform: none;
-  min-width: 9vw;
+.reveal-overlay-label {
+  font-size: 2.5vw;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 0.25vh 0.7vh rgba(0, 0, 0, 0.45);
+}
+
+.reveal-overlay--animating {
+  pointer-events: none;
 }
 
 .heads-reveal-expr,
@@ -2473,12 +2950,10 @@
   }
 }
 
-.flying-element--trial {
-  color: #79d9ff;
-}
-
+.flying-element--trial,
 .flying-element--rf {
-  color: #ffd36b;
+  color: #ffff00;
+  -webkit-text-fill-color: #ffff00;
 }
 
 .flying-element--reveal {
@@ -2516,11 +2991,6 @@
 .summary-callout {
   background: rgba(55, 76, 108, 0.82);
   border: 0.14vw solid rgba(104, 191, 232, 0.55);
-}
-
-.data-table--step-recordChange .heads-cell--record-active,
-.data-table--step-recordChange .change-cell--recording-active {
-  animation: cellPulse 1s ease-in-out infinite alternate;
 }
 
 .data-table th:first-child {

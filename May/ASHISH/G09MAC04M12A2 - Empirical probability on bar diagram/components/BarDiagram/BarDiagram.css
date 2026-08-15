@@ -57,8 +57,6 @@
     y 0.45s ease,
     opacity 0.25s ease,
     filter 0.25s ease;
-  animation: barGrow 0.45s ease both;
-  animation-delay: var(--bar-delay, 0ms);
 }
 
 @keyframes barGrow {
@@ -117,7 +115,7 @@
 
 .preview-guide-line {
   stroke: #ffe814;
-  stroke-width: 0.45;
+  stroke-width: 0.55;
   pointer-events: none;
 }
 

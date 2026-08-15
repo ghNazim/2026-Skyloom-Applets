@@ -9,6 +9,102 @@ function buildSplash2ImageSrcs(filled) {
   return out;
 }
 
+/**
+ * Completed view for a step so Previous can jump there without replaying it.
+ * step 12 also needs problemIndex (challenge 1–5).
+ */
+function getCompletedStage(step, problemIndex) {
+  problemIndex = problemIndex || 0;
+
+  if (step >= 1 && step <= 4) {
+    var introKeys = {
+      1: "introStep1",
+      2: "introStep2",
+      3: "introStep3",
+      4: "introStep4",
+    };
+    return {
+      step: step,
+      problemIndex: 0,
+      phase: null,
+      navText: APP_DATA[introKeys[step]].navText,
+      isStepComplete: true,
+      restoreCanvas: false,
+    };
+  }
+
+  if (step >= 5 && step <= 9) {
+    var machine = APP_DATA.machines[step - 5];
+    return {
+      step: step,
+      problemIndex: 0,
+      phase: "placed",
+      navText: machine.navAfterPlace,
+      isStepComplete: true,
+      restoreCanvas: true,
+      gridBalls: (machine.serves || []).slice(),
+    };
+  }
+
+  if (step === 10) {
+    return {
+      step: 10,
+      problemIndex: 0,
+      phase: null,
+      navText: APP_DATA.splash2.navText,
+      isStepComplete: true,
+      restoreCanvas: false,
+    };
+  }
+
+  if (step === 11) {
+    return {
+      step: 11,
+      problemIndex: 0,
+      phase: null,
+      navText: "",
+      isStepComplete: true,
+      restoreCanvas: false,
+    };
+  }
+
+  if (step === 12) {
+    var problem = APP_DATA.problems[problemIndex];
+    return {
+      step: 12,
+      problemIndex: problemIndex,
+      phase: "served",
+      navText: problem.afterServeNav,
+      isStepComplete: true,
+      restoreCanvas: true,
+      gridBalls: (problem.serves || []).slice(),
+    };
+  }
+
+  if (step === 13) {
+    return {
+      step: 13,
+      problemIndex: 0,
+      phase: null,
+      navText: "",
+      isStepComplete: true,
+      restoreCanvas: false,
+    };
+  }
+
+  return null;
+}
+
+function getPreviousLocation(step, problemIndex) {
+  if (step === 12 && problemIndex > 0) {
+    return { step: 12, problemIndex: problemIndex - 1 };
+  }
+  if (step <= 1) {
+    return { step: 0, problemIndex: 0 };
+  }
+  return { step: step - 1, problemIndex: 0 };
+}
+
 var App = function () {
   var useState = React.useState;
   var useRef = React.useRef;
@@ -38,6 +134,18 @@ var App = function () {
   var revealedPositions = revealedState[0];
   var setRevealedPositions = revealedState[1];
 
+  var restoreState = useState(false);
+  var restoreCanvas = restoreState[0];
+  var setRestoreCanvas = restoreState[1];
+
+  var farthestProblemState = useState(-1);
+  var farthestCompletedProblem = farthestProblemState[0];
+  var setFarthestCompletedProblem = farthestProblemState[1];
+
+  var busyState = useState(false);
+  var isCanvasBusy = busyState[0];
+  var setIsCanvasBusy = busyState[1];
+
   var fullscreenButtonRef = useRef(null);
   var nextButtonRef = useRef(null);
 
@@ -53,6 +161,8 @@ var App = function () {
     setProblemIndex(0);
     setCurrentStep(12);
     setIsStepComplete(false);
+    setRestoreCanvas(false);
+    setFarthestCompletedProblem(-1);
     setNavText(APP_DATA.challengeNavInitial);
   };
 
@@ -64,10 +174,26 @@ var App = function () {
     setFilledPositions({});
     setRevealedPositions([1, 5]);
     setProblemIndex(0);
+    setRestoreCanvas(false);
+    setFarthestCompletedProblem(-1);
   };
 
   var handleStepComplete = function () {
     setIsStepComplete(true);
+    if (currentStep === 12) {
+      setFarthestCompletedProblem(function (prev) {
+        return problemIndex > prev ? problemIndex : prev;
+      });
+    }
+  };
+
+  var applyCompletedStage = function (stage) {
+    if (!stage) return;
+    setCurrentStep(stage.step);
+    setProblemIndex(stage.problemIndex || 0);
+    setIsStepComplete(stage.isStepComplete);
+    setNavText(stage.navText);
+    setRestoreCanvas(!!stage.restoreCanvas);
   };
 
   var handleNavTextChange = function (text) {
@@ -96,57 +222,72 @@ var App = function () {
 
       if (currentStep >= 1 && currentStep <= 3) {
         var nextStep = currentStep + 1;
+        setRestoreCanvas(false);
         setCurrentStep(nextStep);
-        setIsStepComplete(false);
+        setIsStepComplete(true);
         if (nextStep === 2) setNavText(APP_DATA.introStep2.navText);
         else if (nextStep === 3) setNavText(APP_DATA.introStep3.navText);
         else if (nextStep === 4) setNavText(APP_DATA.introStep4.navText);
       } else if (currentStep === 4) {
-        setFilledPositions({});
-        setCurrentStep(5);
-        setIsStepComplete(false);
-        setNavText(APP_DATA.machines[0].navInitial);
+        var machine0Done = !!filledPositions[APP_DATA.machines[0].correctPosition];
+        if (machine0Done) {
+          applyCompletedStage(getCompletedStage(5));
+        } else {
+          setCurrentStep(5);
+          setIsStepComplete(false);
+          setRestoreCanvas(false);
+          setNavText(APP_DATA.machines[0].navInitial);
+        }
       } else if (currentStep >= 5 && currentStep <= 8 && isStepComplete) {
-        var machineIdx = currentStep - 5 + 1;
-        setCurrentStep(currentStep + 1);
-        setIsStepComplete(false);
-        if (machineIdx < APP_DATA.machines.length) {
-          setNavText(APP_DATA.machines[machineIdx].navInitial);
+        var destStep = currentStep + 1;
+        var destMachine = APP_DATA.machines[destStep - 5];
+        var destDone = destMachine && filledPositions[destMachine.correctPosition];
+        if (destDone) {
+          applyCompletedStage(getCompletedStage(destStep));
+        } else {
+          setCurrentStep(destStep);
+          setIsStepComplete(false);
+          setRestoreCanvas(false);
+          setNavText(destMachine.navInitial);
         }
       } else if (currentStep === 9 && isStepComplete) {
-        setCurrentStep(10);
-        setIsStepComplete(false);
-        setNavText(APP_DATA.splash2.navText);
+        applyCompletedStage(getCompletedStage(10));
       } else if (currentStep === 10) {
         setCurrentStep(11);
         setIsStepComplete(false);
+        setRestoreCanvas(false);
         setNavText("");
       } else if (currentStep === 12 && isStepComplete) {
         var nextProbIdx = problemIndex + 1;
         if (nextProbIdx < APP_DATA.problems.length) {
           setFilledPositions({});
-          setProblemIndex(nextProbIdx);
-          setIsStepComplete(false);
-          setNavText(APP_DATA.challengeNavInitial);
+          if (nextProbIdx <= farthestCompletedProblem) {
+            applyCompletedStage(getCompletedStage(12, nextProbIdx));
+          } else {
+            setProblemIndex(nextProbIdx);
+            setIsStepComplete(false);
+            setRestoreCanvas(false);
+            setNavText(APP_DATA.challengeNavInitial);
+          }
         } else {
           setCurrentStep(13);
           setIsStepComplete(false);
+          setRestoreCanvas(false);
           setNavText("");
         }
       }
     } else if (direction === "prev") {
+      if (isCanvasBusy) return;
       playSound("click");
-      if (currentStep === 1) {
+      var loc = getPreviousLocation(currentStep, problemIndex);
+      if (loc.step === 0) {
         setCurrentStep(0);
         setIsStepComplete(false);
-      } else if (currentStep >= 2 && currentStep <= 4) {
-        var prevStep = currentStep - 1;
-        setCurrentStep(prevStep);
-        setIsStepComplete(false);
-        if (prevStep === 1) setNavText(APP_DATA.introStep1.navText);
-        else if (prevStep === 2) setNavText(APP_DATA.introStep2.navText);
-        else if (prevStep === 3) setNavText(APP_DATA.introStep3.navText);
+        setRestoreCanvas(false);
+        setNavText("");
+        return;
       }
+      applyCompletedStage(getCompletedStage(loc.step, loc.problemIndex));
     }
   };
 
@@ -159,7 +300,9 @@ var App = function () {
   };
 
   var getIsPrevDisabled = function () {
-    if (currentStep >= 1 && currentStep <= 4) return false;
+    if (isCanvasBusy) return true;
+    if (currentStep >= 1 && currentStep <= 10) return false;
+    if (currentStep === 12) return false;
     return true;
   };
 
@@ -198,6 +341,7 @@ var App = function () {
           mode: "intro",
           currentStep: currentStep,
           revealedPositions: revealedPositions,
+          onBusyChange: setIsCanvasBusy,
         })
       ),
       React.createElement(
@@ -228,7 +372,7 @@ var App = function () {
         "div",
         { className: "app-main-content" },
         React.createElement(MainCanvas, {
-          key: "serve-" + currentStep,
+          key: "serve-" + currentStep + (restoreCanvas ? "-done" : ""),
           mode: "serve",
           currentStep: currentStep,
           machineData: APP_DATA.machines[machineIdx],
@@ -238,6 +382,8 @@ var App = function () {
           onNavTextChange: handleNavTextChange,
           onPositionFilled: handlePositionFilled,
           onPositionRevealed: handlePositionRevealed,
+          startAtCompleted: restoreCanvas,
+          onBusyChange: setIsCanvasBusy,
         })
       ),
       React.createElement(
@@ -246,7 +392,7 @@ var App = function () {
         React.createElement(Navigation, {
           onNav: handleNav,
           isNextDisabled: getIsNextDisabled(),
-          isPrevDisabled: true,
+          isPrevDisabled: getIsPrevDisabled(),
           navText: navText,
           nextButtonRef: nextButtonRef,
         })
@@ -276,7 +422,7 @@ var App = function () {
         React.createElement(Navigation, {
           onNav: handleNav,
           isNextDisabled: false,
-          isPrevDisabled: true,
+          isPrevDisabled: getIsPrevDisabled(),
           navText: navText,
           nextButtonRef: nextButtonRef,
         })
@@ -323,13 +469,15 @@ var App = function () {
         "div",
         { className: "app-main-content" },
         React.createElement(MainCanvas, {
-          key: "challenge-" + problemIndex,
+          key: "challenge-" + problemIndex + (restoreCanvas ? "-done" : ""),
           mode: "challenge",
           currentStep: currentStep,
           problemData: problem,
           problemIndex: problemIndex,
           onStepComplete: handleStepComplete,
           onNavTextChange: handleNavTextChange,
+          startAtCompleted: restoreCanvas,
+          onBusyChange: setIsCanvasBusy,
         })
       ),
       React.createElement(
@@ -338,7 +486,7 @@ var App = function () {
         React.createElement(Navigation, {
           onNav: handleNav,
           isNextDisabled: getIsNextDisabled(),
-          isPrevDisabled: true,
+          isPrevDisabled: getIsPrevDisabled(),
           navText: navText,
           nextButtonRef: nextButtonRef,
         })

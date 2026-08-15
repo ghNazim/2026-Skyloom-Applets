@@ -11,11 +11,18 @@
 }
 #hand-ftue img {
     width: 100%;
-    opacity: 0.82;
+    opacity: 0.52;
     filter: drop-shadow(0 0 0.2vw rgba(10, 10, 10, 0.5));
 }
 #hand-ftue.hand-ftue--edge {
     transform: translate(-92%, -15%);
+}
+#hand-ftue.ftue-on-nav {
+    /* Finger point: 20% from the right of the nav button, 5% from the top */
+    transform: translate(
+        calc(var(--ftue-btn-w) * 0.8 - 45%),
+        calc(var(--ftue-btn-h) * 0.05 - 5%)
+    );
 }
 .hand-animating {
     display: block !important;

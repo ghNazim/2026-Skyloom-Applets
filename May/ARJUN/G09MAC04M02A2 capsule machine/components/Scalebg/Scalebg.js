@@ -44,6 +44,20 @@ function scaleBgIsSvgHtml(val) {
   return typeof val === "string" && val.indexOf("<svg") === 0;
 }
 
+function scaleBgSvgForSlot(html) {
+  if (!scaleBgIsSvgHtml(html) || typeof document === "undefined") return html;
+  var tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  var svg = tmp.querySelector("svg");
+  if (!svg) return html;
+  svg.removeAttribute("width");
+  svg.removeAttribute("height");
+  svg.style.width = "100%";
+  svg.style.height = "100%";
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  return svg.outerHTML;
+}
+
 const Scalebg = function (props) {
   props = props || {};
   var columns = props.columns || (APP_DATA.introScaleBg ? APP_DATA.introScaleBg.columns : APP_DATA.splash2.scaleColumns);
@@ -101,7 +115,7 @@ const Scalebg = function (props) {
         if (scaleBgIsSvgHtml(src)) {
           visualChild = React.createElement("div", {
             className: "scale-bg-visual-svg",
-            dangerouslySetInnerHTML: { __html: src },
+            dangerouslySetInnerHTML: { __html: scaleBgSvgForSlot(src) },
           });
         } else {
           visualChild = React.createElement("img", {

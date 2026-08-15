@@ -1,8 +1,8 @@
 const App = () => {
   const { useState, useEffect, useRef } = React;
 
-  const [gameState, setGameState] = useState("welcome");
-  const [step, setStep] = useState(0);
+  const [gameState, setGameState] = useState("playing");
+  const [step, setStep] = useState(5);
   const [farthestStep, setFarthestStep] = useState(-1);
 
   const [tappedPoints, setTappedPoints] = useState([]);
@@ -19,6 +19,7 @@ const App = () => {
   const [changesRecorded, setChangesRecorded] = useState(0);
   const [revealAnimating, setRevealAnimating] = useState(false);
   const [recordAnimating, setRecordAnimating] = useState(false);
+  const [recordIntroLock, setRecordIntroLock] = useState(false);
   const [activeRecordRow, setActiveRecordRow] = useState(null);
 
   const revealTimersRef = useRef([]);
@@ -139,6 +140,7 @@ const App = () => {
     setChangesRecorded(state.changesRecorded ?? 0);
     setRevealAnimating(false);
     setRecordAnimating(false);
+    setRecordIntroLock(false);
     setActiveRevealRow(null);
     setActiveRevealStep(0);
     setActiveRecordRow(null);
@@ -199,9 +201,11 @@ const App = () => {
     !isEndStep &&
     !revealAnimating &&
     !recordAnimating &&
+    !recordIntroLock &&
     (isBrowsingCompletedSteps ||
-      (!(stepData.type === "deduceOutcomes" && outcomesRevealed > 0) &&
-        (canRevealOnNext || isStepComplete())));
+      (!(stepData.type === "deduceOutcomes" && outcomesRevealed !== 0) &&
+        (canRevealOnNext || isStepComplete()))) &&
+    !(stepData.type === "deduceOutcomes" && outcomesRevealed === 0);
 
   const canGoBack = canGoNext && getNavigableStep(step, "prev") !== null;
 
@@ -218,6 +222,17 @@ const App = () => {
       timeoutId = setTimeout(() => showFtue(startOverButtonRef.current), 800);
     } else if (stepData.type === "formulaQuiz" && quizAnswer !== "option2") {
       // No FTUE on MCQ until answered
+    } else if (
+      stepData.type === "formulaQuiz" &&
+      formulaFlyDone &&
+      !revealTriggered &&
+      headsRevealed < 5 &&
+      !revealAnimating
+    ) {
+      timeoutId = setTimeout(() => {
+        const target = screenRef.current?.querySelector(".reveal-overlay");
+        if (target) showFtue(target);
+      }, 500);
     } else if (showWhatDoesTellUs) {
       timeoutId = setTimeout(() => {
         const target = screenRef.current?.querySelector(
@@ -225,6 +240,8 @@ const App = () => {
         );
         if (target) showFtue(target);
       }, 700);
+    } else if (recordIntroLock) {
+      // Keep FTUE hidden during the record-change table intro.
     } else if (stepData.type === "deduceOutcomes" && outcomesRevealed > 0) {
       timeoutId = setTimeout(() => {
         const target = screenRef.current?.querySelector(
@@ -258,12 +275,14 @@ const App = () => {
     step,
     tappedPoints,
     quizAnswer,
+    formulaFlyDone,
     headsRevealed,
     headsExplored,
     outcomesRevealed,
     changesRecorded,
     revealAnimating,
     recordAnimating,
+    recordIntroLock,
     revealTriggered,
     isEndStep,
     canGoNext,
@@ -286,6 +305,7 @@ const App = () => {
     setHeadsExplored(0);
     setOutcomesRevealed(0);
     setChangesRecorded(0);
+    setRecordIntroLock(false);
   };
 
   const handleStart = () => {
@@ -375,7 +395,6 @@ const App = () => {
 
   const handlePointTap = (trialNum) => {
     if (tappedPoints.includes(trialNum)) return;
-    playSfx("split");
     setTappedPoints((prev) => [...prev, trialNum]);
   };
 
@@ -415,7 +434,11 @@ const App = () => {
       setActiveRevealRow(row);
       setActiveRevealStep(stepVal);
 
-      if (stepVal === 1) playSfx("split");
+      if (stepVal === 1 || stepVal === 2 || stepVal === 3 || stepVal === 4) {
+        playSfx("tick");
+      } else if (stepVal === 5) {
+        playSfx("correct");
+      }
 
       if (stepVal < 5) {
         scheduleReveal(() => runRowStep(row, stepVal + 1), REVEAL_STEP_MS);
@@ -430,7 +453,6 @@ const App = () => {
         if (row < 4) {
           scheduleReveal(() => startRow(row + 1), REVEAL_ROW_GAP_MS);
         } else {
-          playSfx("correct");
           setRevealAnimating(false);
         }
       }, REVEAL_STEP_MS);
@@ -455,9 +477,14 @@ const App = () => {
     setFarthestStep(step);
     applyStepState({
       ...getCompletedStepState(step),
-      outcomesRevealed: 1,
+      outcomesRevealed: 0,
     });
     setStep(deduceStep);
+  };
+
+  const handleDeduceIntroComplete = () => {
+    if (stepData.type !== "deduceOutcomes") return;
+    if (outcomesRevealed === 0) setOutcomesRevealed(1);
   };
 
   const getInstructionText = () => {
@@ -542,7 +569,10 @@ const App = () => {
       onFormulaFlyComplete: handleFormulaFlyComplete,
       onHeadsReveal: handleHeadsReveal,
       onWhatDoesTellUs: handleWhatDoesTellUs,
+      onDeduceIntroComplete: handleDeduceIntroComplete,
       onDeduceCalloutNext: handleDeduceCalloutNext,
+      onRecordIntroStart: () => setRecordIntroLock(true),
+      onRecordIntroComplete: () => setRecordIntroLock(false),
       showWhatDoesTellUs,
       handleStartOver,
       startOverButtonRef,

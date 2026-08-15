@@ -34,8 +34,7 @@ body {
     flex-direction: column;
     color: var(--text-color);
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.23);
-    backdrop-filter: blur(0.5vw);
+    
 }
 
 .applet-container .lesson-screen {

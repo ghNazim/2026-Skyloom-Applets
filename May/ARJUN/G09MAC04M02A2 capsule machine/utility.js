@@ -23,7 +23,7 @@ function tapNext() {
 
 
 const audioCache = {};
-const sounds = ["correct", "wrong", "click", "congrats"];
+const sounds = ["correct", "wrong", "click", "congrats", "done", "tick", "zoom"];
 sounds.forEach((name) => {
   const audio = new Audio(`sound/${name}.mp3`);
   audio.load(); // Preloads the audio

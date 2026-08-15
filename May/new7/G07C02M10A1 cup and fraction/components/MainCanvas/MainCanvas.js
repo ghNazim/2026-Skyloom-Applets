@@ -1,4 +1,4 @@
-const POUR_DURATION = 1.43; // 1.1 * 1.3
+const POUR_DURATION = 1.7;
 const EMPTY_DURATION = 0.9;
 const CUP_FLIGHT_DURATION = 1.17; // 0.9 * 1.3
 const POST_POUR_PAUSE_MS = 700;
@@ -429,6 +429,7 @@ const MainCanvas = ({
     if (!isCupClickable) return;
     onHideNudge();
     playSnd("click");
+    playSnd("fill");
     setIsBusy(true);
     setPoured(true);
     onUpdateNav("");
@@ -447,6 +448,7 @@ const MainCanvas = ({
       return;
     }
     playSnd("correct");
+    playSnd("fill");
     setWrongPick(null);
     setIsAnswered(true);
     if (typeof onStepCompleted === "function") onStepCompleted(4);
