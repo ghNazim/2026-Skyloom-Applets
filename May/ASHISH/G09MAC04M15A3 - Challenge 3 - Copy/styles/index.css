@@ -1,0 +1,86 @@
+:root {
+    --system-font-size: 2vw;
+
+    --background-color: #120c1c;
+    --text-color: #f0e6ff;
+    --white-color: #ffffff;
+    --muted-text-color: #94a3b8;
+    --dimmed-text-color: #6b7280;
+    --accent-cyan: #38bdf8;
+    --accent-yellow: #fde68a;
+    --pastel-orange: #ff8e1c;
+    --success-color: #22c55e;
+    --error-color: #ef4444;
+    --error-soft: rgba(239, 68, 68, 0.15);
+
+    --surface-glass: rgba(23, 2, 65, 0.62);
+    --surface-border: rgba(201, 164, 255, 0.56);
+    --panel-fill: rgba(15, 23, 42, 0.45);
+    --panel-divider: rgba(255, 255, 255, 0.08);
+    --transparent-purple-55: rgba(30, 20, 50, 0.55);
+    --transparent-purple-border: #c9a4ff90;
+    --transparent-dark-purple: rgba(23, 2, 65, 0.5);
+    --transparent-darker-purple: rgba(15, 10, 25, 0.65);
+    --transparent-black-15: rgba(0, 0, 0, 0.15);
+    --transparent-black-20: rgba(0, 0, 0, 0.2);
+    --transparent-black-30: rgba(0, 0, 0, 0.3);
+
+    --start-button-gradient-start: #ff9800;
+    --start-button-gradient-end: #f57c00;
+    --start-button-shadow: rgb(198, 82, 0);
+    --button-border-color: #6c757d;
+    --disabled-button-opacity: 0.6;
+
+    font-family: "Outfit", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 3vw !important;
+    line-height: 1.1;
+}
+
+h2, h3, p {
+    font-size: 2.5vw !important;
+}
+
+button {
+    border-radius: 0.6vw;
+    border: 0.1vw solid transparent;
+    padding: 1vh 2vw;
+    font-size: 2vw !important;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: var(--button-background-color, #1e1233);
+    cursor: pointer;
+    transition: border-color 0.25s;
+}
+
+button:focus,
+button:focus-visible {
+    outline: 0.3vw auto -webkit-focus-ring-color;
+}
+
+.teeter-anim {
+    animation: teeterWiggle 0.5s ease-in-out 3;
+}
+
+@keyframes teeterWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-4deg); }
+    75% { transform: rotate(4deg); }
+}

@@ -102,13 +102,6 @@ const App = () => {
 
   const canGoNext = () => {
     if (gameState !== "playing" || isEndStep || revealAnimating) return false;
-    if (stepData.type === "enterChanges") {
-      const personId = stepData.person;
-      if (changePanelHold[personId]) return true;
-      if (changeAwaitingNext[personId]) return true;
-      if (changeIndex[personId] >= 5) return true;
-      return false;
-    }
     return isStepComplete();
   };
   const canGoBack = gameState === "playing" && history.length > 0 && !revealAnimating;
@@ -212,10 +205,9 @@ const App = () => {
     setRevealAnimating(true);
     setRevealIndex(0);
 
-    const FLIGHT_MS = 900;
-    const STEP_GAP = 400;
-    const ANSWER_HOLD = 750;
-    const ROW_GAP = 350;
+    const STEP_MS = 546;
+    const ANSWER_HOLD = 910;
+    const ROW_GAP = 364;
 
     const runRowStep = (row, stepVal) => {
       setActiveRevealRow(row);
@@ -223,14 +215,15 @@ const App = () => {
 
       if (stepVal === 1) {
         playSfx("split");
-        setTimeout(() => runRowStep(row, 2), FLIGHT_MS + STEP_GAP);
+        setTimeout(() => runRowStep(row, 2), STEP_MS);
       } else if (stepVal === 2) {
-        playSfx("split");
-        setTimeout(() => runRowStep(row, 3), STEP_GAP + 300);
+        setTimeout(() => runRowStep(row, 3), STEP_MS);
       } else if (stepVal === 3) {
         playSfx("split");
-        setTimeout(() => runRowStep(row, 4), FLIGHT_MS + STEP_GAP);
+        setTimeout(() => runRowStep(row, 4), STEP_MS);
       } else if (stepVal === 4) {
+        setTimeout(() => runRowStep(row, 5), STEP_MS);
+      } else if (stepVal === 5) {
         playSfx("correct");
         setTimeout(() => {
           setRevealIndex(row + 1);
@@ -272,11 +265,7 @@ const App = () => {
 
     if (value === expected) {
       playSfx("correct");
-      const message =
-        idx === 0
-          ? buildChangeMessage(person, idx, expected, T.ui.correctFirstChange)
-          : buildChangeMessage(person, idx, expected, T.ui.correctLaterChange);
-      setChangeFeedback({ type: "correct", message });
+      setChangeFeedback(null);
       setChangeAwaitingNext((prev) => ({ ...prev, [personId]: true }));
       
       // Auto-advance to the next trial/step after 2 seconds
@@ -286,7 +275,7 @@ const App = () => {
           const nextState = { ...prev, [personId]: false };
           if (idx >= LAST_CHANGE_IDX) {
             setChangeIndex((pIndex) => ({ ...pIndex, [personId]: LAST_CHANGE_IDX + 1 }));
-            setChangePanelHold((pHold) => ({ ...pHold, [personId]: true }));
+            setChangePanelHold((pHold) => ({ ...pHold, [personId]: false }));
           } else {
             setChangeFeedback(null);
             setChangeInputs((pInputs) => ({ ...pInputs, [personId]: "?" }));
@@ -320,6 +309,7 @@ const App = () => {
 
   const getInstructionText = () => {
     if (isEndStep) return T.ui.instructionStartOver;
+    if (gameState === "welcome") return T.ui.tapStartToBegin;
     if (revealAnimating) return "";
     if (stepData.type === "intro") return T.ui.instructionSeeTable;
     if (stepData.type === "graphRecord") {
@@ -358,9 +348,18 @@ const App = () => {
       setActiveRevealStep(0);
     }
 
-    if (personId === "sondang" && ["revealFreq", "enterChanges", "mistakeQuestion", "explainMistake"].includes(type)) {
+    if (personId === "sondang" && ["enterChanges", "mistakeQuestion", "explainMistake"].includes(type)) {
       setFormulaAnswer("right");
       setFormulaFlyDone(true);
+    }
+
+    if (personId === "sondang" && type === "revealFreq") {
+      setFormulaAnswer("right");
+      if (revealedFreq[personId] || revealTriggered[personId]) {
+        setFormulaFlyDone(true);
+      } else {
+        setFormulaFlyDone(false);
+      }
     }
 
     if (type === "formula") {
@@ -417,24 +416,6 @@ const App = () => {
     questionBlinkWrong,
   ]);
 
-  if (gameState === "welcome") {
-    return React.createElement(
-      "div",
-      { className: "applet-container" },
-      React.createElement(WelcomeScreen, null),
-      React.createElement(Navigation, {
-        onNext: handleStart,
-        onBack: () => {},
-        showNext: true,
-        showBack: false,
-        nextButtonRef: startButtonRef,
-        nextLabel: T.ui.startButton,
-        nextClassName: "nav-chevron next nav-start-btn ftue-target",
-        children: React.createElement(LowerPanel, { text: T.ui.tapStartToBegin }),
-      })
-    );
-  }
-
   if (isEndStep) {
     return React.createElement(
       "div",
@@ -443,11 +424,15 @@ const App = () => {
     );
   }
 
+  const isWelcome = gameState === "welcome";
+  const isExplain = stepData.type === "explainMistake";
+
   return React.createElement(
     "div",
     { className: "applet-container" },
     React.createElement(ChallengeScreen, {
       ref: screenRef,
+      isWelcome,
       stepConfig,
       recordedPoints,
       formulaAnswer,
@@ -473,17 +458,22 @@ const App = () => {
       onChangeSubmit: handleChangeSubmit,
       onQuestionAnswer: handleQuestionAnswer,
       onFormulaFlyComplete: handleFormulaFlyComplete,
+      onHideFtue: hideFtue,
     }),
     React.createElement(Navigation, {
-      onNext: stepData.type === "explainMistake" ? handleStartOver : handleNext,
+      onNext: isWelcome ? handleStart : isExplain ? handleStartOver : handleNext,
       onBack: handleBack,
-      showNext: stepData.type === "explainMistake" || canGoNext(),
-      showBack: canGoBack,
+      showNext: isWelcome || isExplain || canGoNext(),
+      showBack: !isWelcome && canGoBack,
       showTeeter: gameState === "playing" && !isEndStep && canGoNext() && !revealAnimating,
-      nextButtonRef: stepData.type === "explainMistake" ? startOverButtonRef : nextButtonRef,
+      nextButtonRef: isWelcome ? startButtonRef : isExplain ? startOverButtonRef : nextButtonRef,
       backButtonRef,
-      nextLabel: stepData.type === "explainMistake" ? T.ui.startOverButton : undefined,
-      nextClassName: stepData.type === "explainMistake" ? "nav-chevron next nav-start-btn" : undefined,
+      nextLabel: isWelcome ? T.ui.startButton : isExplain ? T.ui.startOverButton : undefined,
+      nextClassName: isWelcome
+        ? "nav-chevron next nav-start-btn ftue-target"
+        : isExplain
+          ? "nav-chevron next nav-start-btn"
+          : undefined,
       children: React.createElement(LowerPanel, { text: getInstructionText() }),
     })
   );

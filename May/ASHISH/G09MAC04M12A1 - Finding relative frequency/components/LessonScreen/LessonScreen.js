@@ -1,3 +1,13 @@
+const createCallout = (text, tailPosition = 50, className = "") =>
+  React.createElement(
+    "div",
+    {
+      className: `shoutout-callout ${className}`.trim(),
+      style: { "--tail-pos": `${tailPosition}%` },
+    },
+    text,
+  );
+
 const LessonScreen = React.forwardRef((props, ref) => {
   const { useEffect, useState } = React;
   const {
@@ -19,8 +29,12 @@ const LessonScreen = React.forwardRef((props, ref) => {
   const [isFlying, setIsFlying] = useState(false);
   const [revealPhase, setRevealPhase] = useState(null);
   const [compoundTerms, setCompoundTerms] = useState([]);
+  const [compoundExpanded, setCompoundExpanded] = useState(false);
+  const [compoundSlotsReady, setCompoundSlotsReady] = useState(false);
   const [flyingLabel, setFlyingLabel] = useState(null);
   const [tableGlowBusy, setTableGlowBusy] = useState(false);
+  const [percentageReady, setPercentageReady] = useState(false);
+  const [animatePercentage, setAnimatePercentage] = useState(false);
 
   const playSfx = (name) => {
     try {
@@ -34,17 +48,23 @@ const LessonScreen = React.forwardRef((props, ref) => {
   const isEnd = type === "end";
 
   useEffect(() => {
-    if (onInteractionBusyChange) onInteractionBusyChange(isFlying);
+    if (onInteractionBusyChange) onInteractionBusyChange(isFlying || tableGlowBusy);
     return () => {
       if (onInteractionBusyChange) onInteractionBusyChange(false);
     };
-  }, [isFlying, onInteractionBusyChange]);
+  }, [isFlying, tableGlowBusy, onInteractionBusyChange]);
 
   useEffect(() => {
     setCompoundTerms([]);
+    setCompoundExpanded(false);
+    setCompoundSlotsReady(false);
     setFlyingLabel(null);
     setRevealPhase(null);
     setIsFlying(false);
+    setAnimatePercentage(false);
+    const existing =
+      eventProgress[`${stepData.experiment}-${stepData.eventKey}`] || {};
+    setPercentageReady(!!existing.decimal);
   }, [stepConfig.step, stepData.id]);
 
   useEffect(() => {
@@ -100,7 +120,20 @@ const LessonScreen = React.forwardRef((props, ref) => {
     if (isFlying) return;
     setIsFlying(true);
     setRevealPhase(part);
-    setTimeout(() => finishReveal(part), 340);
+    const flipMs = part === "decimal" ? 560 : 340;
+    setTimeout(() => {
+      if (part !== "decimal") {
+        finishReveal(part);
+        return;
+      }
+      onRevealEventPart("decimal");
+      setRevealPhase(null);
+      setTimeout(() => {
+        setAnimatePercentage(true);
+        setPercentageReady(true);
+        setIsFlying(false);
+      }, 700);
+    }, flipMs);
   };
 
   const flyThenReveal = (sourceSelectors, targetSelector, texts, part, colorClasses = []) => {
@@ -144,7 +177,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
     const root = ref.current;
     const label = event.labels[index];
     const source = root?.querySelector(`[data-freq-label="${label}"]`);
-    const target = root?.querySelector("[data-freq-target]");
+    const target = root?.querySelector(`[data-compound-slot="${index}"]`);
     if (!source || !target) {
       finishReveal("freq");
       return;
@@ -174,9 +207,17 @@ const LessonScreen = React.forwardRef((props, ref) => {
     setIsFlying(true);
     setRevealPhase("freq");
     setCompoundTerms([]);
+    setCompoundExpanded(false);
+    setCompoundSlotsReady(false);
     setFlyingLabel(null);
     playSfx("click");
-    setTimeout(() => flyNextCompoundTerm(event, 0), 360);
+    setTimeout(() => {
+      setCompoundExpanded(true);
+      setTimeout(() => {
+        setCompoundSlotsReady(true);
+        setTimeout(() => flyNextCompoundTerm(event, 0), 50);
+      }, 320);
+    }, 340);
   };
 
   const renderTitle = () => {
@@ -322,7 +363,7 @@ const LessonScreen = React.forwardRef((props, ref) => {
       "button",
       {
         type: "button",
-        className: `spinner-button ${spinnerState.isSpinning || spinnerState.spins >= T.spinnerSequence.length ? "spinner-button--inactive" : "ftue-target"}`,
+        className: `spinner-button ${spinnerState.spins >= T.spinnerSequence.length ? "spinner-button--inactive" : spinnerState.isSpinning ? "" : "ftue-target"}`,
         disabled:
           spinnerState.isSpinning ||
           spinnerState.spins >= T.spinnerSequence.length,
@@ -384,84 +425,75 @@ const LessonScreen = React.forwardRef((props, ref) => {
     const sumReady = !needsSum || progress.sum;
     const totalKnown = progress.total;
     const showDecimalSlot = progress.freq && totalKnown && sumReady;
-    const showPercentageSlot = progress.decimal;
-    const shiftForDecimal = progress.decimal;
-    const shiftForPercentage = progress.percentage;
+    const showPercentageSlot = percentageReady;
+    const percentageInteractive = progress.decimal && percentageReady;
+    const tailClass = animatePercentage ? "frac-tail frac-tail--in" : "frac-tail";
     const receivingFreq = revealPhase === "freq";
     const receivingTotal = revealPhase === "total";
     const receivingSum = revealPhase === "sum";
     const receivingDecimal = revealPhase === "decimal";
     const receivingPercentage = revealPhase === "percentage";
     const totalIsPreset = stepData.eventKey !== "A" && isExperimentTotalKnown();
-    const buildingCompound = needsSum && compoundTerms.length > 0 && !progress.freq;
+    const showSameTotalNote =
+      stepData.eventKey === "B" && (totalIsPreset || totalKnown) && !showDecimalSlot;
+    const compoundWide =
+      needsSum && (compoundExpanded || progress.freq) && !progress.sum;
+    const arrivedCount = needsSum
+      ? progress.freq
+        ? event.parts.length
+        : compoundTerms.length
+      : 0;
+    const showCompoundLayout =
+      needsSum && (compoundSlotsReady || progress.freq) && !progress.sum && !receivingSum;
 
-    const numeratorContent = receivingFreq && !buildingCompound
+    const renderCompoundNumerator = () =>
+      React.createElement(
+        "span",
+        { className: "compound-numerator" },
+        event.parts.map((value, index) =>
+          React.createElement(
+            React.Fragment,
+            { key: `${event.labels[index]}-${index}` },
+            index > 0 &&
+              React.createElement(
+                "span",
+                {
+                  className: `compound-plus ${arrivedCount >= 2 ? "is-visible" : ""}`,
+                },
+                " + ",
+              ),
+            React.createElement(
+              "span",
+              {
+                className: `compound-term color-text-${event.labels[index]} ${arrivedCount > index ? "is-visible" : ""}`,
+                "data-compound-slot": index,
+              },
+              value,
+            ),
+          ),
+        ),
+      );
+
+    const numeratorContent = receivingFreq && !compoundSlotsReady
       ? "\u00a0"
+      : receivingSum
+        ? "\u00a0"
+      : showCompoundLayout
+        ? renderCompoundNumerator()
       : !showNumerator
         ? `f(${stepData.eventKey})`
-      : buildingCompound
-        ? React.createElement(
+        : React.createElement(
             "span",
-            { className: "compound-numerator" },
-            compoundTerms.map((term, index) =>
-              React.createElement(
-                React.Fragment,
-                { key: `${term.label}-${index}` },
-                index > 0 && React.createElement("span", { className: "compound-plus" }, " + "),
-                React.createElement(
-                  "span",
-                  { className: `color-text-${term.label}` },
-                  term.value,
-                ),
-              ),
-            ),
-          )
-      : needsSum && !progress.sum
-        ? React.createElement(
-            "span",
-            { className: "compound-numerator" },
-            event.parts.map((value, index) =>
-              React.createElement(
-                React.Fragment,
-                { key: `${value}-${index}` },
-                index > 0 && React.createElement("span", { className: "compound-plus" }, " + "),
-                React.createElement(
-                  "span",
-                  { className: `color-text-${event.labels[index]}` },
-                  value,
-                ),
-              ),
-            ),
-            React.createElement("span", { className: "compound-equals" }, " = "),
-            React.createElement("span", null, receivingSum ? "\u00a0" : "?"),
-          )
-        : needsSum
-          ? React.createElement(
-              "span",
-              { className: "compound-numerator" },
-              event.parts.map((value, index) =>
-                React.createElement(
-                  React.Fragment,
-                  { key: `${value}-${index}` },
-                  index > 0 && React.createElement("span", { className: "compound-plus" }, " + "),
-                  React.createElement(
-                    "span",
-                    { className: `color-text-${event.labels[index]}` },
-                    value,
-                  ),
-                ),
-              ),
-              React.createElement("span", { className: "compound-equals" }, " = "),
-              React.createElement("span", null, event.numerator),
-            )
-          : React.createElement("span", { className: `color-text-${event.labels[0]}` }, event.numerator);
+            { className: needsSum ? "" : `color-text-${event.labels[0]}` },
+            event.numerator,
+          );
 
     return React.createElement(
       "div",
       { className: "event-formula-block" },
       React.createElement(
         "div",
-        { className: `frac-line ${shiftForDecimal ? "frac-line--has-decimal" : ""} ${shiftForPercentage ? "frac-line--has-percentage" : ""}` },
+        { className: "frac-line" },
         React.createElement(
           "span",
           { className: "frac-primary" },
@@ -474,32 +506,39 @@ const LessonScreen = React.forwardRef((props, ref) => {
           React.createElement(
             "span",
             { className: "frac-eq" },
-            `(${stepData.eventKey}) =`,
+            `(${stepData.eventKey})`,
           ),
+          React.createElement("span", { className: "frac-eq frac-eq-sign" }, "="),
           React.createElement(
             "span",
             { className: "frac-group" },
             React.createElement(
-              "button",
-              {
-                type: "button",
-                className: `frac-tap ftue-target ${progress.freq && sumReady ? "frac-tap--done" : "frac-tap--active"} ${receivingFreq || receivingSum ? "reveal-control--receiving" : ""}`,
-                "data-freq-target": true,
-                disabled: (progress.freq && sumReady) || isFlying,
-                onClick: () =>
-                  progress.freq && needsSum && !progress.sum
-                    ? flipThenReveal("sum")
-                    : needsSum
-                      ? startCompoundFly(event)
-                      : flyThenReveal(
-                        event.labels.map((label) => `[data-freq-label="${label}"]`),
-                        "[data-freq-target]",
-                        [String(event.numerator)],
-                        "freq",
-                        [`ghost-freq ghost-freq--${event.labels[0]}`],
-                      ),
-              },
-              numeratorContent,
+              "span",
+              { className: "frac-tap-wrap" },
+              React.createElement(
+                "button",
+                {
+                  type: "button",
+                  className: `frac-tap ftue-target ${progress.freq && sumReady ? "frac-tap--done" : "frac-tap--active"} ${receivingFreq || receivingSum ? "reveal-control--receiving" : ""} ${compoundWide ? "frac-tap--compound-wide" : ""}`,
+                  "data-freq-target": true,
+                  disabled: (progress.freq && sumReady) || isFlying,
+                  onClick: () =>
+                    progress.freq && needsSum && !progress.sum
+                      ? flipThenReveal("sum")
+                      : needsSum
+                        ? startCompoundFly(event)
+                        : flyThenReveal(
+                          event.labels.map((label) => `[data-freq-label="${label}"]`),
+                          "[data-freq-target]",
+                          [String(event.numerator)],
+                          "freq",
+                          [`ghost-freq ghost-freq--${event.labels[0]}`],
+                        ),
+                },
+                numeratorContent,
+              ),
+              needsSum && showNumerator && !progress.sum && !receivingSum &&
+                createCallout(T.ui.shoutOut, 50, "shoutout-callout--sum"),
             ),
             React.createElement("span", { className: "frac-bar" }),
             totalIsPreset || totalKnown
@@ -509,11 +548,6 @@ const LessonScreen = React.forwardRef((props, ref) => {
                   event.denominator,
                 )
               : React.createElement(
-              React.Fragment,
-              null,
-              !totalKnown && progress.freq && sumReady &&
-                React.createElement("span", { className: "total-bridge-arrow", "aria-hidden": "true" }, "→"),
-              React.createElement(
               "button",
               {
                 type: "button",
@@ -531,7 +565,21 @@ const LessonScreen = React.forwardRef((props, ref) => {
               },
               receivingTotal ? "\u00a0" : totalKnown ? event.denominator : "n",
             ),
-            ),
+            showSameTotalNote &&
+              React.createElement(
+                "div",
+                { className: "same-total-note" },
+                React.createElement("img", {
+                  className: "same-total-arrow",
+                  src: T.images.arrow,
+                  alt: "",
+                }),
+                React.createElement(
+                  "div",
+                  { className: "same-total-note-box" },
+                  T.ui.instructionEventSameTotal,
+                ),
+              ),
           ),
         ),
 
@@ -544,18 +592,20 @@ const LessonScreen = React.forwardRef((props, ref) => {
             "button",
             {
               type: "button",
-              className: `reveal-pill ftue-target ${progress.decimal ? "reveal-pill--done" : ""} ${receivingDecimal ? "reveal-control--receiving" : ""}`,
+              className: `reveal-pill ftue-target ${progress.decimal ? "reveal-pill--done" : ""} ${receivingDecimal ? "reveal-control--receiving reveal-control--receiving-slow" : ""}`,
               disabled: progress.decimal || isFlying,
               onClick: () => flipThenReveal("decimal"),
             },
             receivingDecimal ? "\u00a0" : progress.decimal ? event.decimal : "?",
           ),
-          !progress.decimal &&
-            React.createElement("div", { className: "shoutout-callout" }, T.ui.shoutOut),
+          !progress.decimal && createCallout(T.ui.shoutOut, 10),
         ),
 
-        showPercentageSlot && React.createElement("span", { className: "frac-eq" }, "="),
         showPercentageSlot && React.createElement(
+          "span",
+          { className: `frac-percentage-group ${tailClass}` },
+          React.createElement("span", { className: "frac-eq" }, "="),
+          React.createElement(
           "div",
           { className: "inline-pill-container" },
           React.createElement("span", { className: "inline-label" }, T.ui.percentage),
@@ -563,18 +613,18 @@ const LessonScreen = React.forwardRef((props, ref) => {
             "button",
             {
               type: "button",
-              className: `reveal-pill ftue-target ${progress.percentage ? "reveal-pill--done" : ""} ${receivingPercentage ? "reveal-control--receiving" : ""}`,
-              disabled: !progress.decimal || progress.percentage || isFlying,
+              className: `reveal-pill ${percentageInteractive ? "ftue-target" : ""} ${progress.percentage ? "reveal-pill--done" : ""} ${receivingPercentage ? "reveal-control--receiving" : ""}`,
+              disabled: !percentageInteractive || progress.percentage || isFlying,
               onClick: () => flipThenReveal("percentage"),
             },
             receivingPercentage ? "\u00a0" : progress.percentage ? event.percentage : "?",
           ),
-          !progress.percentage &&
-            React.createElement("div", { className: "shoutout-callout" }, T.ui.shoutOut),
-        )
+          percentageInteractive &&
+            !progress.percentage &&
+            createCallout(T.ui.shoutOut, 75),
+        ),
+        ),
       ),
-      needsSum && showNumerator && !progress.sum && !receivingSum &&
-        React.createElement("div", { className: "shoutout-callout shoutout-callout--sum" }, T.ui.shoutOut),
     );
   };
 
@@ -584,8 +634,6 @@ const LessonScreen = React.forwardRef((props, ref) => {
     const progress = getEffectiveProgress();
     const counts = isSpinner ? T.spinnerFinal : T.marbleFinal;
     const labels = isSpinner ? T.spinnerColors : T.marbleColors;
-    const showSameTotalNote =
-      stepData.eventKey === "B" && isExperimentTotalKnown();
     return React.createElement(
       "div",
       { className: "storyboard-grid storyboard-grid--event" },
@@ -624,8 +672,6 @@ const LessonScreen = React.forwardRef((props, ref) => {
             className: "event-text",
             dangerouslySetInnerHTML: { __html: event.label },
           }),
-          showSameTotalNote &&
-            React.createElement("p", { className: "event-note" }, T.ui.instructionEventSameTotal),
           renderFormulaFraction(event, progress),
         ),
       ),

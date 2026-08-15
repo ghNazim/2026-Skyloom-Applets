@@ -27,6 +27,7 @@
     images: {
       background: "./assets/DarkBG2.jpg",
       hand_cursor: "./assets/fingerTap.gif",
+      arrow: "./assets/arrow.svg",
     },
     sfx: {
       click: "./assets/sfx/click.mp3",
@@ -72,7 +73,7 @@
         formulaTitlePrefix: "Find relative frequency",
         formulaTitleSuffix: "of the given event.",
         formulaGeneral:
-          "<span class='formula-var'>f</span><sub>r</sub> = <span class='formula-fraction'><span>Frequency of the event</span><span>Total number of trials</span></span>",
+          "<span class='formula-var'>f</span><sub>r</sub><span class='formula-eq'> = </span><span class='formula-fraction'><span>Frequency of the event</span><span>Total number of trials</span></span>",
         decimal: "Decimal",
         percentage: "Percentage",
 
@@ -140,7 +141,7 @@
         formulaTitlePrefix: "Temukan frekuensi relatif",
         formulaTitleSuffix: "dari kejadian berikut.",
         formulaGeneral:
-          "<span class='formula-var'>f</span><sub>r</sub> = <span class='formula-fraction'><span>Frekuensi kejadian</span><span>Total percobaan</span></span>",
+          "<span class='formula-var'>f</span><sub>r</sub><span class='formula-eq'> = </span><span class='formula-fraction'><span>Frekuensi kejadian</span><span>Total percobaan</span></span>",
         decimal: "Desimal",
         percentage: "Persentase",
 

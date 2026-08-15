@@ -9,9 +9,9 @@
     width: 100%;
     justify-content: space-between;
     padding: 0 1vw;
-    background: rgba(20, 42, 77, 0.78);
-    border-top: 0.08vw solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 -0.4vh 1.2vw rgba(0, 0, 0, 0.16);
+    background: rgba(255, 255, 255, 0.13);
+    /* border-top: 0.08vw solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 -0.4vh 1.2vw rgba(0, 0, 0, 0.16); */
 }
 
 .nav-chevron {
@@ -35,7 +35,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-bottom: 1.5vw;
+    padding-bottom: 1vw;
 }
 
 .nav-chevron:not(:disabled) {

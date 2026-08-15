@@ -12,7 +12,7 @@
 }
 
 .welcome-title {
-  color: var(--title-color);
+  color: #ff9800;
   margin: 0 0 1vh;
   font-size: 2.75vw !important;
   text-shadow: 0 0.15vw 0.3vw rgba(0, 0, 0, 0.4);
@@ -37,21 +37,42 @@
   justify-content: center;
   min-width: 34vw;
   padding: 1.2vh 2vw;
-  color: var(--title-color);
+  color: #ff9800;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 2.4vw;
   font-style: italic;
+}
+
+.welcome-formula .formula-var,
+.welcome-formula .formula-eq,
+.welcome-formula .formula-fraction,
+.welcome-formula .formula-fraction span,
+.welcome-formula sub {
+  color: #ff9800;
+}
+
+.welcome-formula sub {
+  font-size: 0.58em;
+  line-height: 1;
+  vertical-align: baseline;
+  position: relative;
+  top: 0.42em;
+  margin-left: 0.04em;
+}
+
+.welcome-formula .formula-eq {
+  margin-left: 0.45vw;
 }
 
 .welcome-formula .formula-fraction {
   display: inline-flex;
   flex-direction: column;
   margin-left: 0.45vw;
-  color: #ffffff;
+  color: #ff9800;
 }
 
 .welcome-formula .formula-fraction span:first-child {
-  border-bottom: 0.1vw solid #ffffff;
+  border-bottom: 0.1vw solid #ff9800;
   padding: 0 0.6vw 0.18vh;
 }
 

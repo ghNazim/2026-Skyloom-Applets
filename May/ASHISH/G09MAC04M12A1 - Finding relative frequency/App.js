@@ -27,6 +27,7 @@ const App = () => {
   const nextButtonRef = useRef(null);
   const backButtonRef = useRef(null);
   const lessonRef = useRef(null);
+  const ftueGenRef = useRef(0);
 
   const stepConfig = getStepConfig(step);
   const stepData = stepConfig.stepData || {};
@@ -47,7 +48,7 @@ const App = () => {
 
   const markComplete = (id) => setCompleted((prev) => ({ ...prev, [id]: true }));
   const isStepComplete = () => isEndStep || completed[stepData.id] === true;
-  const canGoNext = gameState === "playing" && !isEndStep && isStepComplete();
+  const canGoNext = gameState === "playing" && !isEndStep && isStepComplete() && !interactionBusy;
   const canGoBack = gameState === "playing" && history.length > 0 && isStepComplete();
 
   const resetAll = () => {
@@ -219,6 +220,7 @@ const App = () => {
   };
 
   const hideFtue = () => {
+    ftueGenRef.current += 1;
     const handFtue = document.getElementById("hand-ftue");
     if (handFtue) {
       handFtue.classList.remove("hand-animating");
@@ -227,8 +229,19 @@ const App = () => {
   };
 
   useEffect(() => {
+    const onPointerDown = (event) => {
+      if (event.target.closest("button, .ftue-target, .nav-chevron")) hideFtue();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, []);
+
+  useEffect(() => {
     hideFtue();
+    if (interactionBusy) return undefined;
+    const gen = ftueGenRef.current;
     const timer = setTimeout(() => {
+      if (gen !== ftueGenRef.current) return;
       if (gameState === "welcome") showFtue(startButtonRef.current);
       else if (isEndStep) showFtue(startOverButtonRef.current);
       else {
@@ -240,7 +253,7 @@ const App = () => {
       clearTimeout(timer);
       hideFtue();
     };
-  }, [gameState, step, completed, isEndStep, canGoNext, marbleDraws, isDrawing, machineFilled, isFilling, eventProgress, spinnerSpins, spinnerRunning, outcomeGlowBusy]);
+  }, [gameState, step, completed, isEndStep, canGoNext, marbleDraws, isDrawing, machineFilled, isFilling, eventProgress, spinnerSpins, spinnerRunning, outcomeGlowBusy, lessonBusy, interactionBusy]);
 
   const getInstructionText = () => {
     if (isEndStep) return T.ui.instructionStartOver;

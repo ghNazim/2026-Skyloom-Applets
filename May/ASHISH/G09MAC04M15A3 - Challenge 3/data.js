@@ -65,6 +65,7 @@
         welcomeMessage:
           "<strong>Putu</strong> and <strong>Sondang</strong> each tossed a coin 5 times and plotted the relative frequency of heads. One of them made a mistake.<br><span class='hl-orange'>Who made the mistake? Where did they go wrong?</span>",
         tapStartToBegin: "Tap START to start solving.",
+        readQuestionPrompt: "Read the question carefully.",
         startButton: "START",
         startOverButton: "START OVER",
         nextButton: "»",
@@ -101,11 +102,11 @@
         wrongFirstChange:
           "The frequency of head on first trial is <span class='hl-freq'>{current}</span>, so change is <span class='hl-change-wrong'>{answer}</span>.",
         wrongLaterChange:
-          "The f(H) of trial <span class='hl-trial'>{prevTrial}</span> is <span class='hl-freq'>{prev}</span> and of trial <span class='hl-trial'>{trial}</span> is <span class='hl-freq'>{current}</span>. So, change is {current} − {prev} = <span class='hl-change-wrong'>{answer}</span>.",
+          "The f(H) of trial <span class='hl-trial'>{prevTrial}</span> is <span class='hl-freq'>{prev}</span> and of trial <span class='hl-trial'>{trial}</span> is <span class='hl-freq'>{current}</span>. So, change is <span class='hl-freq'>{current}</span> − <span class='hl-freq'>{prev}</span> = <span class='hl-change-wrong'>{answer}</span>.",
         correctFirstChange:
           "The frequency of head on first trial is <span class='hl-freq'>{current}</span>, so change is <span class='hl-change-correct'>{answer}</span>.",
         correctLaterChange:
-          "The f(H) of trial <span class='hl-trial'>{prevTrial}</span> is <span class='hl-freq'>{prev}</span> and of trial <span class='hl-trial'>{trial}</span> is <span class='hl-freq'>{current}</span>. So, change is {current} − {prev} = <span class='hl-change-correct'>{answer}</span>.",
+          "The f(H) of trial <span class='hl-trial'>{prevTrial}</span> is <span class='hl-freq'>{prev}</span> and of trial <span class='hl-trial'>{trial}</span> is <span class='hl-freq'>{current}</span>. So, change is <span class='hl-freq'>{current}</span> − <span class='hl-freq'>{prev}</span> = <span class='hl-change-correct'>{answer}</span>.",
         changesDonePrompt:
           "All changes recorded. Tap » to answer the main question.",
         answerMainQuestion: "Answer the main question.",
@@ -148,6 +149,7 @@
         welcomeMessage:
           "<strong>Putu</strong> dan <strong>Sondang</strong> masing-masing melempar koin 5 kali dan membuat grafik frekuensi relatif munculnya angka.<br><span class='hl-orange'>Salah satu dari mereka melakukan kesalahan. Siapa yang salah? Di mana letak kesalahannya?</span>",
         tapStartToBegin: "Ketuk MULAI untuk mulai menyelesaikan.",
+        readQuestionPrompt: "Bacalah pertanyaannya dengan saksama.",
         startButton: "MULAI",
         startOverButton: "MULAI LAGI",
         nextButton: "»",
@@ -184,11 +186,11 @@
         wrongFirstChange:
           "Frekuensi angka pada uji coba pertama adalah <span class='hl-freq'>{current}</span>, jadi perubahannya <span class='hl-change-wrong'>{answer}</span>.",
         wrongLaterChange:
-          "f(A) pada uji coba <span class='hl-trial'>{prevTrial}</span> adalah <span class='hl-freq'>{prev}</span> dan pada uji coba <span class='hl-trial'>{trial}</span> adalah <span class='hl-freq'>{current}</span>. Jadi, perubahannya {current} − {prev} = <span class='hl-change-wrong'>{answer}</span>.",
+          "f(A) pada uji coba <span class='hl-trial'>{prevTrial}</span> adalah <span class='hl-freq'>{prev}</span> dan pada uji coba <span class='hl-trial'>{trial}</span> adalah <span class='hl-freq'>{current}</span>. Jadi, perubahannya <span class='hl-freq'>{current}</span> − <span class='hl-freq'>{prev}</span> = <span class='hl-change-wrong'>{answer}</span>.",
         correctFirstChange:
           "Frekuensi angka pada uji coba pertama adalah <span class='hl-freq'>{current}</span>, jadi perubahannya <span class='hl-change-correct'>{answer}</span>.",
         correctLaterChange:
-          "f(A) pada uji coba <span class='hl-trial'>{prevTrial}</span> adalah <span class='hl-freq'>{prev}</span> dan pada uji coba <span class='hl-trial'>{trial}</span> adalah <span class='hl-freq'>{current}</span>. Jadi, perubahannya {current} − {prev} = <span class='hl-change-correct'>{answer}</span>.",
+          "f(A) pada uji coba <span class='hl-trial'>{prevTrial}</span> adalah <span class='hl-freq'>{prev}</span> dan pada uji coba <span class='hl-trial'>{trial}</span> adalah <span class='hl-freq'>{current}</span>. Jadi, perubahannya <span class='hl-freq'>{current}</span> − <span class='hl-freq'>{prev}</span> = <span class='hl-change-correct'>{answer}</span>.",
         changesDonePrompt:
           "Semua perubahan tercatat. Ketuk » untuk menjawab pertanyaan utama.",
         answerMainQuestion: "Jawab pertanyaan utama.",
