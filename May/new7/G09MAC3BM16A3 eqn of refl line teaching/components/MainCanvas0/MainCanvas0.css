@@ -186,14 +186,10 @@
 }
 
 .teaching-b-card {
-  width: 86%;
-  min-height: 10vw;
-  border-radius: 1vw;
   background: rgba(59, 40, 32, 0.95);
-  border: 0.16vw solid rgba(12, 86, 111, 0.75);
+  border-color: rgba(12, 86, 111, 0.75);
   opacity: 0;
   transform: translateY(0.6vw);
-  margin-top: 0;
 }
 
 .teaching-b-card.is-visible {
@@ -202,9 +198,29 @@
 }
 
 .teaching-sol-card {
-  width: 92%;
+  --teaching-sol-card-width: 92%;
+  --teaching-sol-card-height: 10.5vw;
+  --teaching-sol-card-border: 0.16vw;
+  --teaching-sol-card-pad-x: 5vw;
+  --teaching-sol-card-pad-y: 0;
+  box-sizing: border-box;
+  flex: 0 0 var(--teaching-sol-card-height);
+  width: var(--teaching-sol-card-width);
+  height: var(--teaching-sol-card-height);
+  min-width: var(--teaching-sol-card-width);
+  max-width: var(--teaching-sol-card-width);
+  min-height: 0;
+  max-height: var(--teaching-sol-card-height);
+  margin: 0;
+  padding: var(--teaching-sol-card-pad-y) var(--teaching-sol-card-pad-x);
+  overflow: hidden;
+  border: var(--teaching-sol-card-border) solid transparent;
   border-radius: 1vw;
   color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   transition:
     opacity 0.38s ease,
     transform 0.38s ease,
@@ -214,14 +230,12 @@
 
 .teaching-c-card {
   position: relative;
-  min-height: 9.8vw;
-  margin-top: 0.2vw;
-  padding: 1vw 5vw;
   background: rgba(59, 40, 32, 0.96);
-  border: 0.16vw solid rgba(12, 86, 111, 0.75);
+  border-color: rgba(12, 86, 111, 0.75);
 }
 
 .teaching-coordinate-grid {
+  width: 100%;
   height: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -234,6 +248,15 @@
   justify-items: center;
   align-content: center;
   gap: 0.55vw;
+  transition: gap 0.38s ease;
+}
+
+.teaching-coordinate-column.is-hiding-blue {
+  gap: 0;
+}
+
+.teaching-coordinate-column.is-hiding-blue .teaching-coordinate-yellow {
+  margin-top: 0;
 }
 
 .teaching-coordinate-blue,
@@ -259,6 +282,29 @@
   background: rgba(58, 70, 66, 0.72);
   border-color: transparent;
   color: #ffffff;
+  overflow: hidden;
+  max-height: 4.4vw;
+  transition:
+    opacity 0.38s ease,
+    transform 0.38s ease,
+    min-height 0.38s ease,
+    max-height 0.38s ease,
+    padding 0.38s ease,
+    margin 0.38s ease,
+    border-width 0.38s ease;
+}
+
+.teaching-coordinate-blue:not(.is-visible) {
+  opacity: 0;
+  min-height: 0;
+  max-height: 0;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  border-width: 0;
+  transform: none;
+  pointer-events: none;
 }
 
 .teaching-coordinate-yellow {
@@ -334,24 +380,15 @@
 }
 
 .teaching-d-card {
-  min-height: 10.6vw;
-  margin-top: 0.15vw;
-  padding: 1vw 5vw;
   background: rgba(20, 49, 28, 0.96);
-  border: 0.16vw solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  border-color: rgba(12, 86, 111, 0.75);
   gap: 1vw;
 }
 
 .teaching-d-card.is-final {
-  min-height: 10.8vw;
-  width: 86%;
   background: rgba(48, 72, 25, 0.98);
-  border: 0.16vw dashed #ffff00;
-  padding: 0;
+  border-style: dashed;
+  border-color: #ffff00;
 }
 
 .teaching-d-rules {
@@ -359,6 +396,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   justify-items: center;
+  align-items: center;
   gap: 6vw;
 }
 
@@ -377,6 +415,13 @@
 .math-var {
   font-family: "Times New Roman", Times, serif;
   font-style: italic;
+  font-weight: 400;
+}
+
+.teaching-action-button .math-var {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-weight: 700;
 }
 
 .teaching-d-equation {
@@ -420,9 +465,13 @@
 
 .teaching-final-equation-card {
   width: 100%;
-  min-height: 10.8vw;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
   border: none;
-  border-radius: 1vw;
+  border-radius: 0;
   background: transparent;
   color: #ffffff;
   cursor: default;
@@ -430,6 +479,7 @@
   font-size: 2.1vw;
   line-height: 1.1;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -460,6 +510,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.teach-d-prime {
+  display: inline-block;
+  max-width: 1.2vw;
+  overflow: hidden;
+  line-height: 1;
+  transition:
+    opacity 0.825s ease,
+    transform 0.825s ease,
+    max-width 1.125s ease,
+    margin 1.125s ease;
+}
+
+.teach-d-prime.is-gone {
+  opacity: 0;
+  max-width: 0;
+  margin-left: -0.1vw;
+  margin-right: -0.1vw;
+  transform: scaleX(0.25);
 }
 
 .teaching-generalize-screen {
@@ -527,6 +597,16 @@
   text-shadow:
     0 0.12vw 0.2vw rgba(0, 0, 0, 0.95),
     0 0 0.35vw rgba(0, 0, 0, 0.7);
+}
+
+.teaching-fly-clone.teach-express-fly {
+  color: #ffffff;
+}
+
+.teaching-fly-clone.teach-express-fly .math-var {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  font-weight: 700;
 }
 
 @keyframes teaching-callout-in {

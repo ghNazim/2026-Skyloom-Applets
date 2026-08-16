@@ -1,5 +1,5 @@
 function tokenizeReflectionExpression(text) {
-  const matches = String(text || "").match(/\d+|[xyk]|[()+\-\u2212=\u00d7]/g);
+  const matches = String(text || "").match(/\d+|[xy]'?|k|[()+\-\u2212=\u00d7]/g);
   return (matches || []).map((value, index) => ({
     value: value === "-" ? "\u2212" : value,
     id: "reflection-token-" + index + "-" + value,
@@ -34,8 +34,110 @@ const Q2_STEP_GAP_MS = 500;
 const Q2_BRACKET_FADE_MS = 900;
 const Q2_WRAP_DONE_MS = 2100;
 const Q2_SIMPLIFY_DONE_MS = 2000;
+const STEP4_FLY_MS = 1140;
+const STEP4_PAUSE_MS = 250;
+const STEP4_READ_PAUSE_MS = Math.round(500 * 1.3);
+const STEP4_GUIDE_FADE_MS = 280;
+const STEP4_PRIME_HOLD_MS = 450;
+const STEP4_PRIME_FADE_MS = 1125;
 
-const ReflectionRearrangeAnimation = ({ from, to, renderText }) => {
+const getStepFourGuideSpecs = (kind) => {
+  const copy = { id: "copy", textKey: "copyEquation", animMs: STEP4_FLY_MS };
+  const finalStep = {
+    id: "final",
+    textKey: "dropPrimes",
+    animMs: STEP4_PRIME_HOLD_MS + STEP4_PRIME_FADE_MS,
+  };
+  if (kind === "verticalLineK") {
+    return [
+      copy,
+      { id: "replaceK", textKey: "replaceK", animMs: STEP4_FLY_MS },
+      { id: "simplifyK", textKey: "simplifyK", animMs: Q4_SWAP_DONE_MS },
+      {
+        id: "distribute",
+        textKey: "distribute",
+        animMs: STEP4_PAUSE_MS + STEP4_FLY_MS,
+      },
+      {
+        id: "removeProductParens",
+        textKey: "removeProductParens",
+        animMs: Q4_REMOVAL_MS + 80,
+      },
+      {
+        id: "substitute8",
+        textKey: "substituteProduct",
+        animMs: Q4_SWAP_DONE_MS,
+      },
+      {
+        id: "removeInnerParens",
+        textKey: "removeInnerParens",
+        animMs: Q4_SIGN_SWAP_DONE_MS,
+      },
+      { id: "cleanSigns", textKey: "cleanSigns", animMs: Q4_SWAP_DONE_MS },
+      {
+        id: "rearrangeFinal",
+        textKey: "rearrangeTerms",
+        animMs: Q4_REARRANGE_MS,
+      },
+      {
+        id: "combineConstants",
+        textKey: "combineConstants",
+        animMs: Q4_SWAP_DONE_MS,
+      },
+      finalStep,
+    ];
+  }
+  if (kind === "reflectNegativeDiagonal") {
+    return [
+      copy,
+      {
+        id: "combineNegatives",
+        textKey: "rearrangeTerms",
+        animMs: Q4_REARRANGE_MS,
+      },
+      {
+        id: "multipliedWithBrackets",
+        textKey: "writeWithBrackets",
+        animMs: Q2_STEP_GAP_MS,
+      },
+      {
+        id: "removeBrackets",
+        textKey: "removeBrackets",
+        animMs: Q2_BRACKET_FADE_MS,
+      },
+      {
+        id: "multiplyByMinus1",
+        textKey: "multiplyByMinusOne",
+        animMs: Q2_WRAP_DONE_MS,
+      },
+      {
+        id: "simplifyMultiply",
+        textKey: "simplifyProduct",
+        animMs: Q2_SIMPLIFY_DONE_MS,
+      },
+      finalStep,
+    ];
+  }
+  return [
+    copy,
+    { id: "combineNegatives", textKey: "combineNegatives", animMs: 1000 },
+    { id: "removeBrackets", textKey: "removeBrackets", animMs: 1200 },
+    finalStep,
+  ];
+};
+
+const renderStep4Prime = () =>
+  React.createElement("span", { className: "step4-prime" }, "'");
+
+const renderStep4PrimedToken = (renderText, letter, tokenClass, key) =>
+  React.createElement(
+    "span",
+    { key: key, className: tokenClass },
+    renderText(letter),
+    renderStep4Prime(),
+  );
+
+const ReflectionRearrangeAnimation = ({ from, to, renderText, instant }) => {
   const { useEffect, useMemo, useRef, useState } = React;
   const fromTokens = useMemo(() => tokenizeReflectionExpression(from), [from]);
   const toTokens = useMemo(() => tokenizeReflectionExpression(to), [to]);
@@ -79,17 +181,20 @@ const ReflectionRearrangeAnimation = ({ from, to, renderText }) => {
       });
 
       setTokenMoves(moves);
-      requestAnimationFrame(() => setIsPlaying(true));
+      requestAnimationFrame(() => {
+        setIsPlaying(true);
+        if (instant) setIsSettled(true);
+      });
     });
 
     return () => cancelAnimationFrame(measureFrame);
-  }, [from, to, fromTokens, matches]);
+  }, [from, to, fromTokens, matches, instant]);
 
   useEffect(() => {
-    if (!isPlaying) return undefined;
+    if (!isPlaying || instant) return undefined;
     const timer = setTimeout(() => setIsSettled(true), Q4_REARRANGE_MS);
     return () => clearTimeout(timer);
-  }, [isPlaying]);
+  }, [isPlaying, instant]);
 
   return React.createElement(
     "span",
@@ -186,7 +291,7 @@ const Q4_REMOVAL_MS = 750;
 const Q4_SWAP_DONE_MS = Q4_FADE_SWAP_MS + Q4_FADE_COLLAPSE_MS + 120;
 const Q4_SIGN_SWAP_DONE_MS = Q4_SIGN_FADE_MS + Q4_SIGN_COLLAPSE_MS + 120;
 
-const Q4FadeOutToken = ({ children, fade }) => {
+const Q4FadeOutToken = ({ children, fade, instant }) => {
   const { useEffect, useState } = React;
   const [active, setActive] = useState(false);
 
@@ -195,12 +300,16 @@ const Q4FadeOutToken = ({ children, fade }) => {
       setActive(false);
       return;
     }
+    if (instant) {
+      setActive(true);
+      return;
+    }
     setActive(false);
     const frame = requestAnimationFrame(() => {
       requestAnimationFrame(() => setActive(true));
     });
     return () => cancelAnimationFrame(frame);
-  }, [fade]);
+  }, [fade, instant]);
 
   return React.createElement(
     "span",
@@ -213,7 +322,7 @@ const Q4FadeOutToken = ({ children, fade }) => {
   );
 };
 
-const Q4FadeSwap = ({ out, inContent, renderText, signSwap }) => {
+const Q4FadeSwap = ({ out, inContent, renderText, signSwap, instant }) => {
   const { useLayoutEffect, useRef, useState } = React;
   const outMeasureRef = useRef(null);
   const inMeasureRef = useRef(null);
@@ -223,7 +332,7 @@ const Q4FadeSwap = ({ out, inContent, renderText, signSwap }) => {
   const collapseMs = signSwap ? Q4_SIGN_COLLAPSE_MS : Q4_FADE_COLLAPSE_MS;
 
   useLayoutEffect(() => {
-    setIsCollapsed(false);
+    setIsCollapsed(!!instant);
     setWidths(null);
 
     const outWidth = outMeasureRef.current?.getBoundingClientRect().width ?? 0;
@@ -237,12 +346,14 @@ const Q4FadeSwap = ({ out, inContent, renderText, signSwap }) => {
       height: Math.max(outHeight, inHeight),
     });
 
+    if (instant) return undefined;
+
     const collapseTimer = setTimeout(() => {
       requestAnimationFrame(() => setIsCollapsed(true));
     }, fadeMs);
 
     return () => clearTimeout(collapseTimer);
-  }, [out, inContent, fadeMs]);
+  }, [out, inContent, fadeMs, instant]);
 
   const widthStyle =
     widths == null
@@ -295,20 +406,22 @@ const Q4FadeSwap = ({ out, inContent, renderText, signSwap }) => {
 const renderQ3MathFragment = (renderText, text) => {
   if (!text) return null;
   return String(text)
-    .split(/([xy])/)
+    .split(/(x'|y'|[xy])/)
     .map((part, index) => {
-      if (part === "x") {
-        return React.createElement(
-          "span",
-          { key: "q3-x-" + index, className: "x-token" },
-          renderText("x"),
+      if (part === "x" || part === "x'") {
+        return renderStep4PrimedToken(
+          renderText,
+          "x",
+          "x-token",
+          "q3-x-" + index,
         );
       }
-      if (part === "y") {
-        return React.createElement(
-          "span",
-          { key: "q3-y-" + index, className: "y-token" },
-          renderText("y"),
+      if (part === "y" || part === "y'") {
+        return renderStep4PrimedToken(
+          renderText,
+          "y",
+          "y-token",
+          "q3-y-" + index,
         );
       }
       return part
@@ -322,19 +435,11 @@ const renderQ3MathFragment = (renderText, text) => {
 };
 
 const renderQ3RearrangeText = (renderText, text) => {
-  if (text === "x") {
-    return React.createElement(
-      "span",
-      { className: "x-token" },
-      renderText("x"),
-    );
+  if (text === "x" || text === "x'") {
+    return renderStep4PrimedToken(renderText, "x", "x-token");
   }
-  if (text === "y") {
-    return React.createElement(
-      "span",
-      { className: "y-token" },
-      renderText("y"),
-    );
+  if (text === "y" || text === "y'") {
+    return renderStep4PrimedToken(renderText, "y", "y-token");
   }
   return renderText(text);
 };
@@ -346,46 +451,58 @@ const getCloneTokenClass = (el) => {
   return null;
 };
 
-const renderQ3YTail = (renderText, fadeYBrackets) =>
+const getCloneFontStyle = (el) => {
+  if (!el) {
+    return { fontFamily: "inherit", fontStyle: "normal", fontWeight: "400" };
+  }
+  const style = window.getComputedStyle(el);
+  return {
+    fontFamily: style.fontFamily,
+    fontStyle: style.fontStyle,
+    fontWeight: style.fontWeight,
+  };
+};
+
+const renderQ3YTail = (renderText, fadeYBrackets, instant) =>
   React.createElement(
     React.Fragment,
     null,
     renderText("\u2212"),
     React.createElement(
       Q4FadeOutToken,
-      { fade: fadeYBrackets },
+      { fade: fadeYBrackets, instant: instant },
       renderText("("),
     ),
-    React.createElement("span", { className: "y-token" }, renderText("y")),
+    renderStep4PrimedToken(renderText, "y", "y-token"),
     React.createElement(
       Q4FadeOutToken,
-      { fade: fadeYBrackets },
+      { fade: fadeYBrackets, instant: instant },
       renderText(")"),
     ),
     renderText("+1=0"),
   );
 
-const renderQ3DistributeLine = (renderText, fadeOuterParens) =>
+const renderQ3DistributeLine = (renderText, fadeOuterParens, instant) =>
   React.createElement(
     React.Fragment,
     null,
     React.createElement(
       Q4FadeOutToken,
-      { fade: fadeOuterParens },
+      { fade: fadeOuterParens, instant: instant },
       renderText("("),
     ),
     renderText("\u22122\u00d7\u22124\u2212(\u22122)"),
-    React.createElement("span", { className: "x-token" }, renderText("x")),
+    renderStep4PrimedToken(renderText, "x", "x-token"),
     React.createElement(
       Q4FadeOutToken,
-      { fade: fadeOuterParens },
+      { fade: fadeOuterParens, instant: instant },
       renderText(")"),
     ),
-    renderQ3YTail(renderText, false),
+    renderQ3YTail(renderText, false, instant),
   );
 
 const renderQ3SubstitutedLine = (renderText, options) => {
-  const { fadeInnerParens, fadeYBrackets, leading } = options;
+  const { fadeInnerParens, fadeYBrackets, leading, instant } = options;
   return React.createElement(
     React.Fragment,
     null,
@@ -393,21 +510,21 @@ const renderQ3SubstitutedLine = (renderText, options) => {
     renderText("\u2212"),
     React.createElement(
       Q4FadeOutToken,
-      { fade: fadeInnerParens },
+      { fade: fadeInnerParens, instant: instant },
       renderText("("),
     ),
     renderText("\u22122"),
     React.createElement(
       Q4FadeOutToken,
-      { fade: fadeInnerParens },
+      { fade: fadeInnerParens, instant: instant },
       renderText(")"),
     ),
-    React.createElement("span", { className: "x-token" }, renderText("x")),
-    renderQ3YTail(renderText, fadeYBrackets),
+    renderStep4PrimedToken(renderText, "x", "x-token"),
+    renderQ3YTail(renderText, fadeYBrackets, instant),
   );
 };
 
-const renderQ3RemoveInnerParensLine = (renderText) =>
+const renderQ3RemoveInnerParensLine = (renderText, instant) =>
   React.createElement(
     React.Fragment,
     null,
@@ -417,25 +534,31 @@ const renderQ3RemoveInnerParensLine = (renderText) =>
       inContent: "+2",
       renderText: renderText,
       signSwap: true,
+      instant: instant,
     }),
-    React.createElement("span", { className: "x-token" }, renderText("x")),
-    renderQ3YTail(renderText, true),
+    renderStep4PrimedToken(renderText, "x", "x-token"),
+    renderQ3YTail(renderText, true, instant),
   );
 
-const Q2MinusOneExpression = ({ stage, renderText }) => {
+const Q2MinusOneExpression = ({ stage, renderText, instant }) => {
   const { useEffect, useState } = React;
   const showInnerBrackets = stage === "bracketed";
   const [wrapActive, setWrapActive] = useState(
-    stage === "simplify" || stage === "final",
+    stage === "simplify" || stage === "final" || instant,
   );
   const [simplifyActive, setSimplifyActive] = useState(
-    stage === "simplify" || stage === "final",
+    stage === "simplify" || stage === "final" || (instant && stage === "wrap"),
   );
 
   useEffect(() => {
-    if (stage === "final") {
-      setWrapActive(true);
-      setSimplifyActive(true);
+    if (stage === "final" || instant) {
+      setWrapActive(stage !== "bracketed");
+      setSimplifyActive(stage === "simplify" || stage === "final");
+      if (instant && stage === "wrap") setWrapActive(true);
+      if (instant && stage === "simplify") {
+        setWrapActive(true);
+        setSimplifyActive(true);
+      }
       return undefined;
     }
     if (stage === "simplify") {
@@ -457,7 +580,7 @@ const Q2MinusOneExpression = ({ stage, renderText }) => {
     setWrapActive(false);
     setSimplifyActive(false);
     return undefined;
-  }, [stage]);
+  }, [stage, instant]);
 
   const renderFactor = () =>
     React.createElement(
@@ -488,11 +611,7 @@ const Q2MinusOneExpression = ({ stage, renderText }) => {
     );
 
   const renderVariable = (letter, tokenClass) => {
-    const token = React.createElement(
-      "span",
-      { className: tokenClass },
-      renderText(letter),
-    );
+    const token = renderStep4PrimedToken(renderText, letter, tokenClass);
     if (!showInnerBrackets) return token;
     return React.createElement(
       React.Fragment,
@@ -602,10 +721,25 @@ const MainCanvas = React.forwardRef(
     const [stepFourNegativesCombined, setStepFourNegativesCombined] =
       useState(false);
     const [stepFourBracketsGone, setStepFourBracketsGone] = useState(false);
+    const [stepFourPrimesGone, setStepFourPrimesGone] = useState(false);
+    const [stepFourGuideIndex, setStepFourGuideIndex] = useState(-1);
+    const [stepFourManual, setStepFourManual] = useState(false);
+    const [stepFourInstant, setStepFourInstant] = useState(false);
+    const [stepFourGuideVisible, setStepFourGuideVisible] = useState(false);
+    const [stepFourGuideDisplay, setStepFourGuideDisplay] = useState({
+      title: "",
+      note: "",
+    });
     const [flyClone, setFlyClone] = useState(null);
     const [flyClones, setFlyClones] = useState([]);
     const [formingSources, setFormingSources] = useState([]);
     const timersRef = useRef([]);
+    const stepFourManualRef = useRef(false);
+    const stepFourGuideIndexRef = useRef(-1);
+    const stepFourGuideDisplayRef = useRef({ title: "", note: "" });
+    const stepFourInstantRef = useRef(false);
+    const applyStepFourVisualRef = useRef(() => {});
+    const playStepFourAutoRef = useRef(() => {});
 
     const data = APP_DATA;
     const labels = data.common.labels;
@@ -774,10 +908,65 @@ const MainCanvas = React.forwardRef(
         setStepFourPhase("idle");
         setStepFourNegativesCombined(false);
         setStepFourBracketsGone(false);
+        setStepFourPrimesGone(false);
+        setStepFourGuideIndex(-1);
+        setStepFourManual(false);
+        setStepFourInstant(false);
+        setStepFourGuideVisible(false);
+        setStepFourGuideDisplay({ title: "", note: "" });
+        stepFourManualRef.current = false;
+        stepFourGuideIndexRef.current = -1;
+        stepFourGuideDisplayRef.current = { title: "", note: "" };
+        stepFourInstantRef.current = false;
       }
 
       return clearTimers;
     }, [step, plainProblem, activeQuestion, clearTimers, makeReady, queue]);
+
+    useEffect(() => {
+      const notes = activeQuestion.step4.simplificationArray || [];
+      const guide = step4Data.guide || {};
+      const shouldShow = step === 4 && stepFourGuideIndex >= 1;
+      const nextTitle = shouldShow
+        ? String(guide.title || "Step {n}:").replace(
+            "{n}",
+            String(stepFourGuideIndex),
+          )
+        : "";
+      const nextNote = shouldShow
+        ? (notes[stepFourGuideIndex] || {}).note || ""
+        : "";
+      const current = stepFourGuideDisplayRef.current;
+
+      if (!shouldShow) {
+        setStepFourGuideVisible(false);
+        return undefined;
+      }
+
+      if (current.title === nextTitle && current.note === nextNote) {
+        setStepFourGuideVisible(true);
+        return undefined;
+      }
+
+      const isFirst = !current.title && !current.note;
+      if (isFirst) {
+        stepFourGuideDisplayRef.current = { title: nextTitle, note: nextNote };
+        setStepFourGuideDisplay(stepFourGuideDisplayRef.current);
+        setStepFourGuideVisible(false);
+        const frame = requestAnimationFrame(() => {
+          requestAnimationFrame(() => setStepFourGuideVisible(true));
+        });
+        return () => cancelAnimationFrame(frame);
+      }
+
+      setStepFourGuideVisible(false);
+      const timer = setTimeout(() => {
+        stepFourGuideDisplayRef.current = { title: nextTitle, note: nextNote };
+        setStepFourGuideDisplay(stepFourGuideDisplayRef.current);
+        requestAnimationFrame(() => setStepFourGuideVisible(true));
+      }, STEP4_GUIDE_FADE_MS);
+      return () => clearTimeout(timer);
+    }, [step, stepFourGuideIndex, activeQuestion, step4Data]);
 
     useEffect(() => {
       if (step !== 4) return;
@@ -791,6 +980,11 @@ const MainCanvas = React.forwardRef(
 
       if (!wantNegativesCombined) {
         setStepFourNegativesCombined(false);
+        return;
+      }
+
+      if (stepFourInstantRef.current) {
+        setStepFourNegativesCombined(true);
         return;
       }
 
@@ -814,11 +1008,36 @@ const MainCanvas = React.forwardRef(
         return;
       }
 
+      if (stepFourInstantRef.current) {
+        setStepFourBracketsGone(true);
+        return;
+      }
+
       setStepFourBracketsGone(false);
       const frame = requestAnimationFrame(() => {
         requestAnimationFrame(() => setStepFourBracketsGone(true));
       });
       return () => cancelAnimationFrame(frame);
+    }, [step, stepFourPhase]);
+
+    useEffect(() => {
+      if (step !== 4) return;
+
+      if (stepFourPhase !== "final") {
+        setStepFourPrimesGone(false);
+        return undefined;
+      }
+
+      if (stepFourInstantRef.current) {
+        setStepFourPrimesGone(true);
+        return undefined;
+      }
+
+      setStepFourPrimesGone(false);
+      const timer = setTimeout(() => {
+        setStepFourPrimesGone(true);
+      }, STEP4_PRIME_HOLD_MS);
+      return () => clearTimeout(timer);
     }, [step, stepFourPhase]);
 
     useLayoutEffect(() => {
@@ -874,8 +1093,6 @@ const MainCanvas = React.forwardRef(
     const normalizeCloneText = (text) =>
       String(text || "").replace(/-/g, "\u2212");
 
-    const STEP4_FLY_MS = 1140;
-    const STEP4_PAUSE_MS = 250;
     const step4Schedule = (baseMs, pauseIndex) =>
       Math.round(baseMs * 1.5) + STEP4_PAUSE_MS * pauseIndex;
 
@@ -985,10 +1202,10 @@ const MainCanvas = React.forwardRef(
             React.Fragment,
             { key: index },
             renderWorkingBracket("("),
-            React.createElement(
-              "span",
-              { className: simplePositive[1] + "-token" },
-              renderMathText(simplePositive[1]),
+            renderStep4PrimedToken(
+              renderMathText,
+              simplePositive[1],
+              simplePositive[1] + "-token",
             ),
             renderWorkingBracket(")"),
           );
@@ -1003,10 +1220,10 @@ const MainCanvas = React.forwardRef(
               { className: "working-inner-negative" },
               renderMathText("\u2212"),
             ),
-            React.createElement(
-              "span",
-              { className: simpleNegative[2] + "-token" },
-              renderMathText(simpleNegative[2]),
+            renderStep4PrimedToken(
+              renderMathText,
+              simpleNegative[2],
+              simpleNegative[2] + "-token",
             ),
             renderWorkingBracket(")"),
           );
@@ -1027,11 +1244,7 @@ const MainCanvas = React.forwardRef(
               renderMathText("k"),
             ),
             renderMathText(" \u2212 "),
-            React.createElement(
-              "span",
-              { className: "x-token" },
-              renderMathText("x"),
-            ),
+            renderStep4PrimedToken(renderMathText, "x", "x-token"),
             renderWorkingBracket(")"),
           );
         }
@@ -1158,6 +1371,7 @@ const MainCanvas = React.forwardRef(
         (sourceRect.top + sourceRect.height / 2);
       const flyDuration = options.duration || 760;
       const preserveHtml = options.preserveHtml === true;
+      const cloneFont = getCloneFontStyle(sourceEl);
       setFlyClone({
         text: preserveHtml
           ? null
@@ -1170,6 +1384,9 @@ const MainCanvas = React.forwardRef(
         dy: dy,
         sourceFontSize: sourceFontSize,
         targetFontSize: targetFontSize,
+        fontFamily: cloneFont.fontFamily,
+        fontStyle: cloneFont.fontStyle,
+        fontWeight: cloneFont.fontWeight,
         active: false,
         duration: flyDuration,
       });
@@ -1212,6 +1429,7 @@ const MainCanvas = React.forwardRef(
         const targetFontSize =
           parseFloat(window.getComputedStyle(targetEl).fontSize) ||
           sourceFontSize;
+        const cloneFont = getCloneFontStyle(sourceEl);
         nextClones.push({
           id: "token-clone-" + Date.now() + "-" + index,
           text: normalizeCloneText(sourceEl.textContent.trim()),
@@ -1228,6 +1446,9 @@ const MainCanvas = React.forwardRef(
             (sourceRect.top + sourceRect.height / 2),
           sourceFontSize: sourceFontSize,
           targetFontSize: targetFontSize,
+          fontFamily: cloneFont.fontFamily,
+          fontStyle: cloneFont.fontStyle,
+          fontWeight: cloneFont.fontWeight,
           active: false,
           duration: flyDuration,
         });
@@ -1259,6 +1480,162 @@ const MainCanvas = React.forwardRef(
         );
         if (typeof onDone === "function") onDone();
       }, flyDuration);
+    };
+
+    const STEP4_FLY = { duration: STEP4_FLY_MS, preserveHtml: true };
+
+    const setStepFourInstantMode = (instant) => {
+      stepFourInstantRef.current = instant;
+      setStepFourInstant(instant);
+    };
+
+    const applyStepFourVisual = (id, mode) => {
+      setFlyClone(null);
+      setFlyClones([]);
+      const instant = mode === "complete";
+      setStepFourInstantMode(instant);
+      if (id !== "final" || mode === "start") makeReady(false);
+
+      const startCopy = () => {
+        setStepFourPhase("building");
+        queue(() => {
+          animateSelectorClone(
+            ".step4-substitution-expression",
+            ".step4-working-line-target",
+            () => setStepFourPhase("copied"),
+            STEP4_FLY,
+          );
+        }, 30);
+      };
+
+      const startReplaceK = () => {
+        setStepFourPhase("copied");
+        queue(() => {
+          animateSelectorClone(
+            ".axis-value-source",
+            ".q4-k-target",
+            () => setStepFourPhase("replaceK"),
+            STEP4_FLY,
+          );
+        }, 40);
+      };
+
+      const startDistribute = () => {
+        setStepFourPhase("distributePrep");
+        queue(() => {
+          animateTokenClones(
+            [
+              [".q4-distribute-source", ".q4-distribute-target-a"],
+              [".q4-distribute-source", ".q4-distribute-target-b"],
+            ],
+            () => setStepFourPhase("distribute"),
+            STEP4_FLY,
+          );
+        }, STEP4_PAUSE_MS);
+      };
+
+      if (id === "copy") {
+        if (mode === "start") startCopy();
+        else setStepFourPhase("copied");
+        return;
+      }
+      if (id === "replaceK") {
+        if (mode === "start") startReplaceK();
+        else setStepFourPhase("replaceK");
+        return;
+      }
+      if (id === "distribute") {
+        if (mode === "start") startDistribute();
+        else setStepFourPhase("distribute");
+        return;
+      }
+      if (id === "final") {
+        setStepFourPhase("final");
+        if (typeof playSound === "function" && mode === "start") {
+          playSound("congrats");
+        }
+        if (mode === "complete") {
+          setStepFourPrimesGone(true);
+          makeReady(true);
+        } else {
+          queue(
+            () => makeReady(true),
+            STEP4_PRIME_HOLD_MS + STEP4_PRIME_FADE_MS,
+          );
+        }
+        return;
+      }
+
+      const phaseById = {
+        simplifyK: "simplifyK",
+        removeProductParens: "removeProductParens",
+        substitute8: "substitute8",
+        removeInnerParens: "removeInnerParens",
+        cleanSigns: "cleanSigns",
+        rearrangeFinal: "rearrangeFinal",
+        combineConstants: "combineConstants",
+        combineNegatives: "combineNegatives",
+        multipliedWithBrackets: "multipliedWithBrackets",
+        removeBrackets: "removeBrackets",
+        multiplyByMinus1: "multiplyByMinus1",
+        simplifyMultiply: "simplifyMultiply",
+      };
+      if (phaseById[id]) setStepFourPhase(phaseById[id]);
+    };
+
+    applyStepFourVisualRef.current = applyStepFourVisual;
+
+    const playStepFourAutoFrom = (index) => {
+      if (stepFourManualRef.current) return;
+      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      if (index < 0 || index >= specs.length) return;
+      stepFourGuideIndexRef.current = index;
+      setStepFourGuideIndex(index);
+      applyStepFourVisual(specs[index].id, "start");
+      queue(() => {
+        if (stepFourManualRef.current) return;
+        if (index >= specs.length - 1) {
+          applyStepFourVisualRef.current(specs[index].id, "complete");
+          return;
+        }
+        playStepFourAutoRef.current(index + 1);
+      }, specs[index].animMs + STEP4_READ_PAUSE_MS);
+    };
+
+    playStepFourAutoRef.current = playStepFourAutoFrom;
+
+    const enterStepFourManual = () => {
+      clearTimers();
+      setFlyClone(null);
+      setFlyClones([]);
+      if (!stepFourManualRef.current) {
+        stepFourManualRef.current = true;
+        setStepFourManual(true);
+      }
+    };
+
+    const handleStepFourPrev = () => {
+      enterStepFourManual();
+      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      const current = Math.max(0, stepFourGuideIndexRef.current);
+      const target = current <= 1 ? 1 : current - 1;
+      stepFourGuideIndexRef.current = target;
+      setStepFourGuideIndex(target);
+      applyStepFourVisual(specs[target].id, "complete");
+    };
+
+    const handleStepFourNext = () => {
+      enterStepFourManual();
+      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      const current = Math.max(1, stepFourGuideIndexRef.current);
+      if (current >= specs.length - 1) {
+        applyStepFourVisual(specs[specs.length - 1].id, "complete");
+        return;
+      }
+      const next = current + 1;
+      stepFourGuideIndexRef.current = next;
+      setStepFourGuideIndex(next);
+      applyStepFourVisual(specs[next].id, "start");
     };
 
     const animateYellowCoordinateBox = (side, onDone) => {
@@ -1524,16 +1901,11 @@ const MainCanvas = React.forwardRef(
             React.createElement(
               "span",
               { className: isX ? "coord-x-rhs" : "coord-y-rhs" },
-              rhsVisible
-                ? React.createElement(
-                    React.Fragment,
-                    null,
-                    renderCoordinateTokens(
-                      coordinateTokens.rhs,
-                      bluePrefix + "rhs-",
-                    ),
-                  )
-                : null,
+              renderCoordinateTokens(
+                coordinateTokens.rhs,
+                bluePrefix + "rhs-",
+                rhsVisible,
+              ),
             ),
           ),
         ),
@@ -1789,143 +2161,14 @@ const MainCanvas = React.forwardRef(
 
       setSimplifyStatus("correct");
       setStepFourPhase("selected");
+      stepFourGuideIndexRef.current = 0;
+      setStepFourGuideIndex(0);
       queue(() => setStepFourPhase("feedbackCollapsed"), step4Schedule(600, 1));
-      queue(
-        () => {
-          setStepFourPhase("building");
-          const step4Fly = {
-            duration: STEP4_FLY_MS,
-            preserveHtml: true,
-          };
-          animateSelectorClone(
-            ".step4-substitution-expression",
-            ".step4-working-line-target",
-            () => {
-              setStepFourPhase("copied");
-              if (activeQuestion.step4.simplifyKind === "verticalLineK") {
-                let pauseIndex = 2;
-                queue(
-                  () =>
-                    animateSelectorClone(
-                      ".axis-value-source",
-                      ".q4-k-target",
-                      () => {
-                        setStepFourPhase("replaceK");
-                      },
-                      step4Fly,
-                    ),
-                  step4Schedule(850, pauseIndex++),
-                );
-                queue(
-                  () => setStepFourPhase("simplifyK"),
-                  step4Schedule(2400, pauseIndex++),
-                );
-                queue(
-                  () => {
-                    setStepFourPhase("distributePrep");
-                    queue(
-                      () =>
-                        animateTokenClones(
-                          [
-                            [
-                              ".q4-distribute-source",
-                              ".q4-distribute-target-a",
-                            ],
-                            [
-                              ".q4-distribute-source",
-                              ".q4-distribute-target-b",
-                            ],
-                          ],
-                          () => setStepFourPhase("distribute"),
-                          step4Fly,
-                        ),
-                      STEP4_PAUSE_MS,
-                    );
-                  },
-                  step4Schedule(3700, pauseIndex++),
-                );
-                queue(
-                  () => {
-                    setStepFourPhase("removeProductParens");
-                    queue(() => {
-                      setStepFourPhase("substitute8");
-                      queue(() => {
-                        setStepFourPhase("removeInnerParens");
-                        queue(() => {
-                          setStepFourPhase("cleanSigns");
-                          queue(() => {
-                            setStepFourPhase("rearrangeFinal");
-                            queue(() => {
-                              setStepFourPhase("combineConstants");
-                              queue(() => {
-                                setStepFourPhase("final");
-                                if (typeof playSound === "function")
-                                  playSound("congrats");
-                                makeReady(true);
-                              }, Q4_SWAP_DONE_MS);
-                            }, Q4_REARRANGE_MS);
-                          }, Q4_SWAP_DONE_MS);
-                        }, Q4_SIGN_SWAP_DONE_MS);
-                      }, Q4_SWAP_DONE_MS);
-                    }, Q4_REMOVAL_MS + 80);
-                  },
-                  step4Schedule(5600, pauseIndex++),
-                );
-                return;
-              }
-              if (
-                activeQuestion.step4.simplifyKind === "reflectNegativeDiagonal"
-              ) {
-                let pauseIndex = 2;
-                queue(
-                  () => {
-                    setStepFourPhase("combineNegatives");
-                    queue(() => {
-                      setStepFourPhase("multipliedWithBrackets");
-                      queue(() => {
-                        setStepFourPhase("removeBrackets");
-                        queue(() => {
-                          setStepFourPhase("multiplyByMinus1");
-                          queue(() => {
-                            setStepFourPhase("simplifyMultiply");
-                            queue(() => {
-                              setStepFourPhase("final");
-                              if (typeof playSound === "function")
-                                playSound("congrats");
-                              queue(() => makeReady(true), Q2_STEP_GAP_MS);
-                            }, Q2_SIMPLIFY_DONE_MS + Q2_STEP_GAP_MS);
-                          }, Q2_WRAP_DONE_MS + Q2_STEP_GAP_MS);
-                        }, Q2_BRACKET_FADE_MS + Q2_STEP_GAP_MS);
-                      }, Q2_STEP_GAP_MS);
-                    }, Q4_REARRANGE_MS + Q2_STEP_GAP_MS);
-                  },
-                  step4Schedule(900, pauseIndex++),
-                );
-                return;
-              }
-              let pauseIndex = 2;
-              queue(
-                () => setStepFourPhase("combineNegatives"),
-                step4Schedule(900, pauseIndex++),
-              );
-              queue(
-                () => setStepFourPhase("removeBrackets"),
-                step4Schedule(2100, pauseIndex++),
-              );
-              queue(
-                () => {
-                  setStepFourPhase("final");
-                  if (typeof playSound === "function") playSound("congrats");
-                  makeReady(true);
-                },
-                step4Schedule(3600, pauseIndex++),
-              );
-            },
-            step4Fly,
-          );
-        },
-        step4Schedule(1300, 2),
-      );
+      queue(() => {
+        stepFourManualRef.current = false;
+        setStepFourManual(false);
+        playStepFourAutoFrom(0);
+      }, step4Schedule(1300, 2));
     };
 
     const renderStepFourWorkingLine = () => {
@@ -1950,6 +2193,8 @@ const MainCanvas = React.forwardRef(
       const final = stepFourPhase === "final";
       const bracketsGone = stepFourBracketsGone;
       const negativesCombined = stepFourNegativesCombined;
+      const primesGone = stepFourPrimesGone;
+      const instant = stepFourInstant;
 
       const className =
         "step4-working-line step4-working-line-target " +
@@ -1957,6 +2202,7 @@ const MainCanvas = React.forwardRef(
         (visible ? " is-visible" : "") +
         (bracketsGone ? " brackets-gone" : "") +
         (negativesCombined ? " negatives-combined" : "") +
+        (primesGone ? " primes-gone" : "") +
         (final ? " is-final" : "");
 
       if (activeQuestion.step4.simplifyKind === "plusNegative") {
@@ -1965,11 +2211,7 @@ const MainCanvas = React.forwardRef(
           { className: className },
           React.createElement("span", null, "4"),
           React.createElement("span", { className: "working-bracket" }, "("),
-          React.createElement(
-            "span",
-            { className: "x-token" },
-            renderMathText("x"),
-          ),
+          renderStep4PrimedToken(renderMathText, "x", "x-token"),
           React.createElement("span", { className: "working-bracket" }, ")"),
           React.createElement(
             "span",
@@ -1991,11 +2233,7 @@ const MainCanvas = React.forwardRef(
             { className: "working-inner-negative" },
             renderMathText("\u2212"),
           ),
-          React.createElement(
-            "span",
-            { className: "y-token" },
-            renderMathText("y"),
-          ),
+          renderStep4PrimedToken(renderMathText, "y", "y-token"),
           React.createElement("span", { className: "working-bracket" }, ")"),
           React.createElement("span", null, " = 6"),
         );
@@ -2017,9 +2255,10 @@ const MainCanvas = React.forwardRef(
             "div",
             { className: className },
             React.createElement(ReflectionRearrangeAnimation, {
-              from: "8+2x\u2212y+1=0",
-              to: "2x\u2212y+8+1=0",
+              from: "8+2x'\u2212y'+1=0",
+              to: "2x'\u2212y'+8+1=0",
               renderText: (text) => renderQ3RearrangeText(renderMathText, text),
+              instant: instant,
             }),
           );
         }
@@ -2032,6 +2271,7 @@ const MainCanvas = React.forwardRef(
               out: "8+1",
               inContent: "9",
               renderText: renderMathText,
+              instant: instant,
             }),
             renderMathText("=0"),
           );
@@ -2045,9 +2285,11 @@ const MainCanvas = React.forwardRef(
                 out: "\u22122\u00d7\u22124",
                 inContent: "8",
                 renderText: renderMathText,
+                instant: instant,
               }),
               fadeInnerParens: false,
               fadeYBrackets: false,
+              instant: instant,
             }),
           );
         }
@@ -2055,7 +2297,7 @@ const MainCanvas = React.forwardRef(
           return React.createElement(
             "div",
             { className: className + " q4-phase-line" },
-            renderQ3RemoveInnerParensLine(renderMathText),
+            renderQ3RemoveInnerParensLine(renderMathText, instant),
           );
         }
         if (stepFourPhase === "cleanSigns") {
@@ -2105,14 +2347,14 @@ const MainCanvas = React.forwardRef(
           return React.createElement(
             "div",
             { className: className + " q4-phase-line" },
-            renderQ3DistributeLine(renderMathText, false),
+            renderQ3DistributeLine(renderMathText, false, instant),
           );
         }
         if (stepFourPhase === "removeProductParens") {
           return React.createElement(
             "div",
             { className: className + " q4-phase-line" },
-            renderQ3DistributeLine(renderMathText, true),
+            renderQ3DistributeLine(renderMathText, true, instant),
           );
         }
         if (stepFourPhase === "simplifyK") {
@@ -2124,6 +2366,7 @@ const MainCanvas = React.forwardRef(
               out: "2\u00d7(\u22122)",
               inContent: "\u22124",
               renderText: renderMathText,
+              instant: instant,
             }),
             renderQ3MathFragment(renderMathText, "\u2212x)\u2212(y)+1=0"),
           );
@@ -2184,6 +2427,7 @@ const MainCanvas = React.forwardRef(
                 React.createElement(Q2MinusOneExpression, {
                   stage: minusStage,
                   renderText: renderMathText,
+                  instant: instant,
                 }),
               ),
               showRearrange
@@ -2191,10 +2435,11 @@ const MainCanvas = React.forwardRef(
                     "div",
                     { className: "q2-working-overlay" },
                     React.createElement(ReflectionRearrangeAnimation, {
-                      from: "5(\u2212y)+(\u2212x)\u22126=0",
-                      to: "\u22125(y)\u2212(x)\u22126=0",
+                      from: "5(\u2212y')+(\u2212x')\u22126=0",
+                      to: "\u22125(y')\u2212(x')\u22126=0",
                       renderText: (text) =>
                         renderQ3RearrangeText(renderMathText, text),
+                      instant: instant,
                     }),
                   )
                 : null,
@@ -2226,11 +2471,7 @@ const MainCanvas = React.forwardRef(
         { className: className },
         React.createElement("span", null, "3"),
         React.createElement("span", { className: "working-bracket" }, "("),
-        React.createElement(
-          "span",
-          { className: "x-token" },
-          renderMathText("x"),
-        ),
+        renderStep4PrimedToken(renderMathText, "x", "x-token"),
         React.createElement("span", { className: "working-bracket" }, ")"),
         React.createElement(
           "span",
@@ -2249,11 +2490,7 @@ const MainCanvas = React.forwardRef(
           { className: "working-inner-negative" },
           renderMathText("\u2212"),
         ),
-        React.createElement(
-          "span",
-          { className: "y-token" },
-          renderMathText("y"),
-        ),
+        renderStep4PrimedToken(renderMathText, "y", "y-token"),
         React.createElement("span", { className: "working-bracket" }, ")"),
         React.createElement("span", null, " = 1"),
       );
@@ -2282,6 +2519,61 @@ const MainCanvas = React.forwardRef(
         ),
         renderStepFourWorkingLine(),
       );
+
+    const renderStepFourGuideBox = () => {
+      if (step !== 4) return null;
+      if (stepFourGuideIndex < 1 && !stepFourGuideDisplay.title) return null;
+      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      return React.createElement(
+        "div",
+        { className: "steps-box" + (stepFourManual ? " is-manual" : "") },
+        React.createElement(
+          "div",
+          {
+            className:
+              "steps-box-body" + (stepFourGuideVisible ? " is-visible" : ""),
+          },
+          React.createElement(
+            "div",
+            { className: "steps-box-title" },
+            stepFourGuideDisplay.title,
+          ),
+          React.createElement("div", {
+            className: "steps-box-copy",
+            dangerouslySetInnerHTML: { __html: stepFourGuideDisplay.note },
+          }),
+        ),
+        React.createElement(
+          "div",
+          { className: "steps-box-nav" },
+          React.createElement(
+            "button",
+            {
+              type: "button",
+              className: "steps-box-nav-btn",
+              "aria-label": "Previous step",
+              disabled: stepFourGuideIndex <= 1,
+              onClick: handleStepFourPrev,
+            },
+            "<",
+          ),
+          React.createElement(
+            "button",
+            {
+              type: "button",
+              className: "steps-box-nav-btn",
+              "aria-label": "Next step",
+              disabled:
+                stepFourGuideIndex >= specs.length - 1 &&
+                stepFourPhase === "final" &&
+                stepFourPrimesGone,
+              onClick: handleStepFourNext,
+            },
+            ">",
+          ),
+        ),
+      );
+    };
 
     const renderSimplifyOptions = () =>
       React.createElement(
@@ -2440,6 +2732,7 @@ const MainCanvas = React.forwardRef(
           { className: "action-column" },
           renderRightPanel(),
         ),
+        renderStepFourGuideBox(),
       ),
       flyClone
         ? React.createElement(
@@ -2458,6 +2751,9 @@ const MainCanvas = React.forwardRef(
                   (flyClone.active
                     ? flyClone.targetFontSize
                     : flyClone.sourceFontSize) + "px",
+                fontFamily: flyClone.fontFamily,
+                fontStyle: flyClone.fontStyle,
+                fontWeight: flyClone.fontWeight,
                 transform: flyClone.active
                   ? "translate(calc(-50% + " +
                     flyClone.dx +
@@ -2489,6 +2785,9 @@ const MainCanvas = React.forwardRef(
               fontSize:
                 (clone.active ? clone.targetFontSize : clone.sourceFontSize) +
                 "px",
+              fontFamily: clone.fontFamily,
+              fontStyle: clone.fontStyle,
+              fontWeight: clone.fontWeight,
               transform: clone.active
                 ? "translate(calc(-50% + " +
                   clone.dx +

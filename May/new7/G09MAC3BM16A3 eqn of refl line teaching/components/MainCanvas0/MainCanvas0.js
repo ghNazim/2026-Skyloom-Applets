@@ -15,18 +15,39 @@ const teachingGetTokenClass = (el) => {
   if (!el) return null;
   if (el.classList.contains("x-token")) return "x-token";
   if (el.classList.contains("y-token")) return "y-token";
+  if (
+    el.classList.contains("teach-express-x-prime") ||
+    el.classList.contains("teach-express-y-prime")
+  )
+    return "teach-express-fly";
   return null;
 };
 
+const teachingGetCloneFontStyle = (el) => {
+  if (!el) {
+    return { fontFamily: "inherit", fontStyle: "normal", fontWeight: "400" };
+  }
+  const style = window.getComputedStyle(el);
+  return {
+    fontFamily: style.fontFamily,
+    fontStyle: style.fontStyle,
+    fontWeight: style.fontWeight,
+  };
+};
+
 const MainCanvas0 = React.forwardRef(
-  ({ step, onReadyChange, onAutoAdvance, onNavTextChange, onNudgeTargetsChange }, ref) => {
-    const {
-      useState,
-      useEffect,
-      useRef,
-      useImperativeHandle,
-      useCallback,
-    } = React;
+  (
+    {
+      step,
+      onReadyChange,
+      onAutoAdvance,
+      onNavTextChange,
+      onNudgeTargetsChange,
+    },
+    ref,
+  ) => {
+    const { useState, useEffect, useRef, useImperativeHandle, useCallback } =
+      React;
 
     const data = APP_DATA.teaching;
     const [introCount, setIntroCount] = useState(0);
@@ -109,7 +130,8 @@ const MainCanvas0 = React.forwardRef(
       window.addEventListener("resize", update);
       return () => {
         window.removeEventListener("resize", update);
-        if (typeof onNudgeTargetsChange === "function") onNudgeTargetsChange([]);
+        if (typeof onNudgeTargetsChange === "function")
+          onNudgeTargetsChange([]);
       };
     }, [reportNudgeTargets, onNudgeTargetsChange]);
 
@@ -142,7 +164,10 @@ const MainCanvas0 = React.forwardRef(
             ),
           1200,
         );
-        queue(() => setIntroCount(2), 1200 + TEACHING_FLY_MS + TEACHING_PAUSE_MS);
+        queue(
+          () => setIntroCount(2),
+          1200 + TEACHING_FLY_MS + TEACHING_PAUSE_MS,
+        );
         queue(
           () =>
             animateSelectorClone(
@@ -157,10 +182,13 @@ const MainCanvas0 = React.forwardRef(
           () => setIntroCount(3),
           1200 + TEACHING_FLY_MS * 2 + TEACHING_PAUSE_MS * 2 + 650,
         );
-        queue(() => {
-          makeReady(true);
-          setNav(data.stepA.nav.ready);
-        }, 1200 + TEACHING_FLY_MS * 2 + TEACHING_PAUSE_MS * 3 + 900);
+        queue(
+          () => {
+            makeReady(true);
+            setNav(data.stepA.nav.ready);
+          },
+          1200 + TEACHING_FLY_MS * 2 + TEACHING_PAUSE_MS * 3 + 900,
+        );
       }
 
       if (step === "B") {
@@ -279,7 +307,9 @@ const MainCanvas0 = React.forwardRef(
           { className: "teach-problem-equation" },
           renderMathText(equation),
         ),
-        renderMathText(problem.slice(equationIndex + equation.length, axisIndex)),
+        renderMathText(
+          problem.slice(equationIndex + equation.length, axisIndex),
+        ),
         React.createElement(
           "span",
           { className: "teach-problem-axis axis-token" },
@@ -308,6 +338,7 @@ const MainCanvas0 = React.forwardRef(
           ? targetRect.left + targetPaddingLeft + sourceRect.width / 2
           : targetRect.left + targetRect.width / 2;
 
+      const cloneFont = teachingGetCloneFontStyle(sourceEl);
       setFlyClone({
         text: teachingNormalizeCloneText(sourceEl.textContent.trim()),
         tokenClass: teachingGetTokenClass(sourceEl),
@@ -320,6 +351,9 @@ const MainCanvas0 = React.forwardRef(
           (sourceRect.top + sourceRect.height / 2),
         sourceFontSize: sourceFontSize,
         targetFontSize: targetFontSize,
+        fontFamily: cloneFont.fontFamily,
+        fontStyle: cloneFont.fontStyle,
+        fontWeight: cloneFont.fontWeight,
         active: false,
         duration: options.duration || TEACHING_FLY_MS,
       });
@@ -336,7 +370,12 @@ const MainCanvas0 = React.forwardRef(
       }, options.duration || TEACHING_FLY_MS);
     };
 
-    const animateSelectorClone = (sourceSelector, targetSelector, onDone, options) =>
+    const animateSelectorClone = (
+      sourceSelector,
+      targetSelector,
+      onDone,
+      options,
+    ) =>
       animateTextClone(
         document.querySelector(sourceSelector),
         document.querySelector(targetSelector),
@@ -358,6 +397,7 @@ const MainCanvas0 = React.forwardRef(
         const targetFontSize =
           parseFloat(window.getComputedStyle(targetEl).fontSize) ||
           sourceFontSize;
+        const cloneFont = teachingGetCloneFontStyle(sourceEl);
         nextClones.push({
           id: "teach-fly-" + Date.now() + "-" + index,
           text: teachingNormalizeCloneText(sourceEl.textContent.trim()),
@@ -374,6 +414,9 @@ const MainCanvas0 = React.forwardRef(
             (sourceRect.top + sourceRect.height / 2),
           sourceFontSize: sourceFontSize,
           targetFontSize: targetFontSize,
+          fontFamily: cloneFont.fontFamily,
+          fontStyle: cloneFont.fontStyle,
+          fontWeight: cloneFont.fontWeight,
           active: false,
           duration: duration,
         });
@@ -444,48 +487,62 @@ const MainCanvas0 = React.forwardRef(
       if (cPhase !== "idle") return;
       if (typeof playSound === "function") playSound("click");
       setCPhase("animating");
-      animateTokenClones(
-        [
-          [".teach-express-x-prime", ".teach-c-x-lhs"],
-          [".teach-express-y-prime", ".teach-c-y-lhs"],
-        ],
-        () => {
-          setCPhase("lhs");
-          queue(
-            () =>
-              animateTokenClones(
-                [
-                  [".teach-rule-rhs-x", ".teach-c-x-rhs"],
-                  [".teach-rule-rhs-y", ".teach-c-y-rhs"],
-                ],
-                () => {
-                  setCPhase("rhs");
-                  queue(() => setCPhase("callout"), TEACHING_PAUSE_MS);
-                  queue(() => setCPhase("yellowBox"), TEACHING_PAUSE_MS + 850);
-                  queue(
-                    () =>
-                      animateTokenClones(
-                        [
-                          [".teach-c-x-rhs", ".teach-c-x-yellow-lhs"],
-                          [".teach-c-x-eq", ".teach-c-x-yellow-eq"],
-                          [".teach-c-x-lhs", ".teach-c-x-yellow-rhs"],
-                          [".teach-c-y-rhs-var", ".teach-c-y-yellow-lhs"],
-                          [".teach-c-y-eq", ".teach-c-y-yellow-eq"],
-                          [".teach-c-y-rhs-sign", ".teach-c-y-yellow-rhs-sign"],
-                          [".teach-c-y-lhs", ".teach-c-y-yellow-rhs-var"],
-                        ],
-                        () => setCPhase("yellow"),
-                      ),
-                    TEACHING_PAUSE_MS + 1400,
-                  );
-                  queue(() => {
-                    if (typeof onAutoAdvance === "function") onAutoAdvance();
-                  }, TEACHING_PAUSE_MS + 1400 + TEACHING_FLY_MS + 1300);
-                },
-              ),
-            TEACHING_PAUSE_MS,
-          );
-        },
+      queue(
+        () =>
+          animateTokenClones(
+            [
+              [".teach-express-x-prime", ".teach-c-x-lhs"],
+              [".teach-express-y-prime", ".teach-c-y-lhs"],
+            ],
+            () => {
+              setCPhase("lhs");
+              queue(
+                () =>
+                  animateTokenClones(
+                    [
+                      [".teach-rule-rhs-x", ".teach-c-x-rhs"],
+                      [".teach-rule-rhs-y", ".teach-c-y-rhs"],
+                    ],
+                    () => {
+                      setCPhase("rhs");
+                      queue(() => setCPhase("callout"), TEACHING_PAUSE_MS);
+                      queue(
+                        () => setCPhase("yellowBox"),
+                        TEACHING_PAUSE_MS + 850,
+                      );
+                      queue(
+                        () =>
+                          animateTokenClones(
+                            [
+                              [".teach-c-x-rhs", ".teach-c-x-yellow-lhs"],
+                              [".teach-c-x-eq", ".teach-c-x-yellow-eq"],
+                              [".teach-c-x-lhs", ".teach-c-x-yellow-rhs"],
+                              [".teach-c-y-rhs-var", ".teach-c-y-yellow-lhs"],
+                              [".teach-c-y-eq", ".teach-c-y-yellow-eq"],
+                              [
+                                ".teach-c-y-rhs-sign",
+                                ".teach-c-y-yellow-rhs-sign",
+                              ],
+                              [".teach-c-y-lhs", ".teach-c-y-yellow-rhs-var"],
+                            ],
+                            () => setCPhase("yellow"),
+                          ),
+                        TEACHING_PAUSE_MS + 1400,
+                      );
+                      queue(
+                        () => {
+                          if (typeof onAutoAdvance === "function")
+                            onAutoAdvance();
+                        },
+                        TEACHING_PAUSE_MS + 1400 + TEACHING_FLY_MS + 1300,
+                      );
+                    },
+                  ),
+                TEACHING_PAUSE_MS,
+              );
+            },
+          ),
+        40,
       );
     };
 
@@ -502,25 +559,32 @@ const MainCanvas0 = React.forwardRef(
               setDPhase("line");
               queue(
                 () =>
-                  animateSelectorClone(".teach-d-x-rhs-source", ".teach-d-eq-x", () => {
-                    setDPhase("x");
-                    queue(
-                      () =>
-                        animateSelectorClone(
-                          ".teach-d-y-rhs-source",
-                          ".teach-d-eq-y",
-                          () => {
-                            setDPhase("y");
-                            queue(() => setDPhase("prime"), TEACHING_PAUSE_MS + 450);
-                            queue(() => {
-                              setDPhase("final");
-                              setNav(data.stepD.nav.tapGeneralize);
-                            }, TEACHING_PAUSE_MS + 1250);
-                          },
-                        ),
-                      TEACHING_PAUSE_MS,
-                    );
-                  }),
+                  animateSelectorClone(
+                    ".teach-d-x-rhs-source",
+                    ".teach-d-eq-x",
+                    () => {
+                      setDPhase("x");
+                      queue(
+                        () =>
+                          animateSelectorClone(
+                            ".teach-d-y-rhs-source",
+                            ".teach-d-eq-y",
+                            () => {
+                              setDPhase("y");
+                              queue(
+                                () => setDPhase("prime"),
+                                TEACHING_PAUSE_MS + 450,
+                              );
+                              queue(() => {
+                                setDPhase("final");
+                                setNav(data.stepD.nav.tapGeneralize);
+                              }, TEACHING_PAUSE_MS + 1250);
+                            },
+                          ),
+                        TEACHING_PAUSE_MS,
+                      );
+                    },
+                  ),
                 TEACHING_PAUSE_MS,
               );
             },
@@ -582,7 +646,11 @@ const MainCanvas0 = React.forwardRef(
               React.createElement(
                 "div",
                 { className: "teaching-reflection-line" },
-                React.createElement("span", null, data.summary.lineReflection + " "),
+                React.createElement(
+                  "span",
+                  null,
+                  data.summary.lineReflection + " ",
+                ),
                 React.createElement(
                   "span",
                   {
@@ -678,8 +746,9 @@ const MainCanvas0 = React.forwardRef(
       );
 
     const renderCoordinateTeachingCard = () => {
-      const hasLhs = cPhase !== "idle" && cPhase !== "animating";
-      const hasRhs =
+      const showBlueBox = cPhase !== "idle" && cPhase !== "yellow";
+      const showLhs = cPhase !== "idle" && cPhase !== "animating";
+      const showRhs =
         cPhase === "rhs" ||
         cPhase === "callout" ||
         cPhase === "yellowBox" ||
@@ -694,42 +763,56 @@ const MainCanvas0 = React.forwardRef(
           {
             className:
               "coordinate-box blue-box teaching-coordinate-blue" +
-              (hasLhs ? " is-visible" : ""),
+              (showBlueBox ? " is-visible" : ""),
           },
           React.createElement(
             "span",
-            { className: "teach-c-" + side + "-lhs" },
-            hasLhs ? renderMathText(isX ? "x'" : "y'") : null,
-          ),
-          React.createElement(
-            "span",
-            { className: "teach-c-" + side + "-eq" },
-            hasLhs ? "=" : "",
+            {
+              className:
+                "teach-c-" +
+                side +
+                "-lhs" +
+                (showLhs ? "" : " is-hidden-content"),
+            },
+            renderMathText(isX ? "x'" : "y'"),
           ),
           React.createElement(
             "span",
             {
               className:
-                "teach-c-" + side + "-rhs" + (isX ? " x-token" : " y-token"),
+                "teach-c-" +
+                side +
+                "-eq" +
+                (showLhs ? "" : " is-hidden-content"),
             },
-            hasRhs
-              ? isX
-                ? renderMathText("x")
-                : React.createElement(
-                    React.Fragment,
-                    null,
-                    React.createElement(
-                      "span",
-                      { className: "teach-c-y-rhs-sign" },
-                      renderMathText("-"),
-                    ),
-                    React.createElement(
-                      "span",
-                      { className: "teach-c-y-rhs-var" },
-                      renderMathText("y"),
-                    ),
-                  )
-              : null,
+            "=",
+          ),
+          React.createElement(
+            "span",
+            {
+              className:
+                "teach-c-" +
+                side +
+                "-rhs" +
+                (isX ? " x-token" : " y-token") +
+                (showRhs ? "" : " is-hidden-content"),
+            },
+            isX
+              ? renderMathText("x")
+              : React.createElement(
+                  React.Fragment,
+                  null,
+                  React.createElement(
+                    "span",
+                    { className: "teach-c-y-rhs-sign" },
+                    renderMathText("-"),
+                  ),
+                  React.createElement(
+                    "span",
+                    { className: "teach-c-y-rhs-var" },
+                    renderMathText("y"),
+                  ),
+                ),
           ),
         );
       };
@@ -806,13 +889,21 @@ const MainCanvas0 = React.forwardRef(
           { className: "teaching-coordinate-grid" },
           React.createElement(
             "div",
-            { className: "teaching-coordinate-column" },
+            {
+              className:
+                "teaching-coordinate-column" +
+                (showBlueBox ? "" : " is-hiding-blue"),
+            },
             blueBox("x"),
             yellowBox("x"),
           ),
           React.createElement(
             "div",
-            { className: "teaching-coordinate-column" },
+            {
+              className:
+                "teaching-coordinate-column" +
+                (showBlueBox ? "" : " is-hiding-blue"),
+            },
             blueBox("y"),
             yellowBox("y"),
           ),
@@ -826,7 +917,10 @@ const MainCanvas0 = React.forwardRef(
         { className: "teaching-d-rules" },
         React.createElement(
           "div",
-          { className: "coordinate-box yellow-box teaching-d-rule teach-d-x-source" },
+          {
+            className:
+              "coordinate-box yellow-box teaching-d-rule teach-d-x-source",
+          },
           React.createElement("span", null, renderMathText("x = ")),
           React.createElement(
             "span",
@@ -836,7 +930,10 @@ const MainCanvas0 = React.forwardRef(
         ),
         React.createElement(
           "div",
-          { className: "coordinate-box yellow-box teaching-d-rule teach-d-y-source" },
+          {
+            className:
+              "coordinate-box yellow-box teaching-d-rule teach-d-y-source",
+          },
           React.createElement("span", null, renderMathText("y = ")),
           React.createElement(
             "span",
@@ -865,8 +962,7 @@ const MainCanvas0 = React.forwardRef(
           "span",
           {
             className:
-              "teach-d-eq-x x-token" +
-              (dPhase === "line" ? " is-dimmed" : ""),
+              "teach-d-eq-x x-token" + (dPhase === "line" ? " is-dimmed" : ""),
           },
           renderMathText(dPhase === "line" ? "x" : "x'"),
         ),
@@ -874,8 +970,7 @@ const MainCanvas0 = React.forwardRef(
           "span",
           {
             className:
-              "teach-d-eq-plus" +
-              (dPhase === "y" ? " is-hidden-op" : ""),
+              "teach-d-eq-plus" + (dPhase === "y" ? " is-hidden-op" : ""),
           },
           renderMathText(" + "),
         ),
@@ -908,7 +1003,27 @@ const MainCanvas0 = React.forwardRef(
         React.createElement(
           "div",
           { className: "teaching-final-equation" },
-          renderMathText(dPhase === "prime" ? "2x' - y' = 4" : data.summary.finalEquation),
+          renderMathText("2"),
+          renderMathText("x"),
+          React.createElement(
+            "span",
+            {
+              className:
+                "teach-d-prime" + (dPhase === "final" ? " is-gone" : ""),
+            },
+            "'",
+          ),
+          renderMathText(" \u2212 "),
+          renderMathText("y"),
+          React.createElement(
+            "span",
+            {
+              className:
+                "teach-d-prime" + (dPhase === "final" ? " is-gone" : ""),
+            },
+            "'",
+          ),
+          renderMathText(" = 4"),
         ),
       );
     };
@@ -966,10 +1081,15 @@ const MainCanvas0 = React.forwardRef(
             disabled: cPhase !== "idle",
             onClick: handleExpress,
             dangerouslySetInnerHTML: {
-              __html:
-                data.stepC.buttonText
-                  .replace("x&rsquo;", "<span class=\"teach-express-x-prime\">x&rsquo;</span>")
-                  .replace("y&rsquo;", "<span class=\"teach-express-y-prime\">y&rsquo;</span>"),
+              __html: data.stepC.buttonText
+                .replace(
+                  "x&rsquo;",
+                  '<span class="teach-express-x-prime"><span class="math-var">x</span>\'</span>',
+                )
+                .replace(
+                  "y&rsquo;",
+                  '<span class="teach-express-y-prime"><span class="math-var">y</span>\'</span>',
+                ),
             },
           }),
         );
@@ -1069,8 +1189,8 @@ const MainCanvas0 = React.forwardRef(
                 null,
                 renderCoordinateTeachingCard(),
                 cPhase === "callout" ||
-                cPhase === "yellowBox" ||
-                cPhase === "yellow"
+                  cPhase === "yellowBox" ||
+                  cPhase === "yellow"
                   ? React.createElement("div", {
                       className: "teaching-callout",
                       dangerouslySetInnerHTML: { __html: data.stepC.callout },
@@ -1106,6 +1226,9 @@ const MainCanvas0 = React.forwardRef(
                   (flyClone.active
                     ? flyClone.targetFontSize
                     : flyClone.sourceFontSize) + "px",
+                fontFamily: flyClone.fontFamily,
+                fontStyle: flyClone.fontStyle,
+                fontWeight: flyClone.fontWeight,
                 transform: flyClone.active
                   ? "translate(calc(-50% + " +
                     flyClone.dx +
@@ -1134,6 +1257,9 @@ const MainCanvas0 = React.forwardRef(
               fontSize:
                 (clone.active ? clone.targetFontSize : clone.sourceFontSize) +
                 "px",
+              fontFamily: clone.fontFamily,
+              fontStyle: clone.fontStyle,
+              fontWeight: clone.fontWeight,
               transform: clone.active
                 ? "translate(calc(-50% + " +
                   clone.dx +
@@ -1141,7 +1267,8 @@ const MainCanvas0 = React.forwardRef(
                   clone.dy +
                   "px))"
                 : "translate(-50%, -50%)",
-              transitionDuration: (clone.duration || TEACHING_FLY_MS) / 1000 + "s",
+              transitionDuration:
+                (clone.duration || TEACHING_FLY_MS) / 1000 + "s",
             },
           },
           renderMathText(clone.text),
