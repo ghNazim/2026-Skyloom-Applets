@@ -69,13 +69,15 @@ const App = () => {
       const target =
         gameState === "welcome"
           ? startButtonRef.current
-          : screenComplete && screenIndex < screens.length - 1
-            ? nextButtonRef.current
-            : instruction === T.ui.identifyPrompt ||
-                instruction === T.ui.classificationCompletePrompt ||
-                instruction === T.ui.startFinding
+          : screens[screenIndex]?.type === "end"
+            ? startOverButtonRef.current
+            : screenComplete && screenIndex < screens.length - 1
               ? nextButtonRef.current
-              : document.querySelector(".ftue-target:not(:disabled)");
+              : instruction === T.ui.identifyPrompt ||
+                  instruction === T.ui.classificationCompletePrompt ||
+                  instruction === T.ui.startFinding
+                ? nextButtonRef.current
+                : document.querySelector(".ftue-target:not(:disabled)");
       if (target) showFtue(target);
       else if (attempts++ < 40) timer = setTimeout(showWhenReady, 250);
     };

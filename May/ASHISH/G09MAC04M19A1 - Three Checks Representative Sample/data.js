@@ -59,8 +59,7 @@ const DATA = {
           navText: "",
           afterButtonsNav: "Tap ‘Draw…’ to draw shape pattern.",
           afterAllDrawnQuestion: "Check both samples for shape…",
-          afterAllDrawnNav:
-            "Tap » to find which sample passes the Shape test",
+          afterAllDrawnNav: "Tap » to find which sample passes the Shape test",
         },
         A2: {
           questionText: "Does Sample 1 pass or fail the Shape test?",
@@ -75,8 +74,7 @@ const DATA = {
           afterBothNav: "Tap » to continue with other tests.",
         },
         A3: {
-          questionText:
-            "Shape test done. Let’s check samples for other tests.",
+          questionText: "Shape test done. Let’s check samples for other tests.",
           navCentreOrSpread: "Tap Centre or Spread.",
           navCentreOnly: "Tap Centre.",
           navSpreadOnly: "Tap Spread.",
@@ -93,8 +91,7 @@ const DATA = {
           navReveal: "Tap ? to reveal the final answer.",
           navRemaining:
             "Tap ‘Range…’ to find the spread of remaining diagrams.",
-          afterAllNav:
-            "Tap » to find which sample passes the Spread test.",
+          afterAllNav: "Tap » to find which sample passes the Spread test.",
         },
         B1: {
           questionText: "Check both samples for Centre (Mean)…",
@@ -105,10 +102,8 @@ const DATA = {
           navDenominator:
             "Tap the highlighted button to find the sum of frequencies.",
           navReveal: "Tap ? to reveal the final answer.",
-          navRemaining:
-            "Tap ‘Mean…’ to find the centre of remaining diagrams.",
-          afterAllNav:
-            "Tap » to find which sample passes the Centre test.",
+          navRemaining: "Tap ‘Mean…’ to find the centre of remaining diagrams.",
+          afterAllNav: "Tap » to find which sample passes the Centre test.",
         },
         B2: {
           questionText: "Does Sample 1 pass or fail the Centre test?",
@@ -164,7 +159,8 @@ const DATA = {
           afterCorrectQuestion:
             "Great job! Sample 2 is the representative sample as it passes all three tests.",
           afterCorrectNav: "Tap \u00BB to summarize.",
-          allDoneNav: "All tests done. Tap \u00BB to choose the representative sample.",
+          allDoneNav:
+            "All tests done. Tap \u00BB to choose the representative sample.",
         },
         4: {
           heading: "Well Done!",
@@ -180,7 +176,8 @@ const DATA = {
   id: {
     app: {
       start: {
-        heading: "Tiga Pemeriksaan untuk Mengidentifikasi Sampel Representatif!",
+        heading:
+          "Tiga Pemeriksaan untuk Mengidentifikasi Sampel Representatif!",
         text:
           "Sampel representatif harus lolos tiga tes:<br>" +
           "<y>1. Bentuk</y> - Pola bentuk harus sesuai dengan populasi<br>" +
@@ -248,8 +245,7 @@ const DATA = {
             "Perhatikan dengan saksama pola bentuk populasi dan sampel. Kenaikan, puncak, dan penurunannya tidak sama.",
           feedbackS2:
             "Perhatikan dengan saksama pola bentuk populasi dan sampel. Kenaikan, puncak, dan penurunannya hampir sama.",
-          afterBothQuestion:
-            "Sampel 1 gagal dan sampel 2 lolos tes Bentuk.",
+          afterBothQuestion: "Sampel 1 gagal dan sampel 2 lolos tes Bentuk.",
           afterBothNav: "Ketuk » untuk melanjutkan dengan tes lainnya.",
         },
         A3: {
@@ -298,8 +294,7 @@ const DATA = {
             "Perhatikan dengan saksama rata-rata populasi dan sampel. Keduanya tidak berdekatan.",
           feedbackS2:
             "Perhatikan dengan saksama rata-rata populasi dan sampel. Keduanya berdekatan.",
-          afterBothQuestion:
-            "Sampel 1 gagal dan sampel 2 lolos tes Pusat.",
+          afterBothQuestion: "Sampel 1 gagal dan sampel 2 lolos tes Pusat.",
           afterBothNav: "Ketuk » untuk melanjutkan dengan tes lainnya.",
         },
         B3: {
@@ -320,8 +315,7 @@ const DATA = {
             "Perhatikan dengan saksama jangkauan populasi dan sampel. Keduanya tidak berdekatan.",
           feedbackS2:
             "Perhatikan dengan saksama jangkauan populasi dan sampel. Keduanya berdekatan.",
-          afterBothQuestion:
-            "Sampel 1 gagal dan sampel 2 lolos tes Sebaran.",
+          afterBothQuestion: "Sampel 1 gagal dan sampel 2 lolos tes Sebaran.",
           afterBothNav: "Ketuk » untuk melanjutkan dengan tes lainnya.",
         },
         C3: {
@@ -344,7 +338,8 @@ const DATA = {
           afterCorrectQuestion:
             "Kerja bagus! Sampel 2 adalah sampel representatif karena lolos ketiga tes.",
           afterCorrectNav: "Ketuk \u00BB untuk merangkum.",
-          allDoneNav: "Semua tes selesai. Ketuk \u00BB untuk memilih sampel representatif.",
+          allDoneNav:
+            "Semua tes selesai. Ketuk \u00BB untuk memilih sampel representatif.",
         },
         4: {
           heading: "Bagus Sekali!",
@@ -381,7 +376,7 @@ const GRAPH_COLORS = {
   s2Stroke: "rgb(255, 220, 90)",
   blinkGreen: "#7CFC00",
   blinkRed: "#ff5252",
-  pathStrokeWidth: 7.5,
+  pathStrokeWidth: 11.25,
 };
 
 const APP_DATA = DATA[current_language].app;

@@ -83,7 +83,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
   useEffect(() => {
     let text = T.ui.identifyPrompt;
     if (phase === "classify")
-      text = statusOptionsVisible ? T.ui.chooseOption : "";
+      text = classifyInteractionReady ? T.ui.chooseOption : " ";
     if (phase === "classified") text = T.ui.classificationCompletePrompt;
     if (phase === "explain") text = T.ui.startFinding;
     if (phase === "solve")
@@ -98,7 +98,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
     if (phase === "done") text = T.ui.nextProblem;
     onInstruction(text);
     onComplete(phase === "done");
-  }, [phase, classifyIndex, solveIndex, formulaChosen, statusOptionsVisible, solved]);
+  }, [phase, classifyIndex, solveIndex, formulaChosen, statusOptionsVisible, solved, classifyInteractionReady]);
 
   const renderQuestionCopy = () => {
     if (!highlights.length) return question;
@@ -161,6 +161,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
         flyOne(index + 1);
         return;
       }
+      playSfx("swoosh");
       triggerGhost({
         sourceEl: source,
         targetEl: target,
@@ -252,6 +253,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
         tableRevealTimersRef.current.push(
           setTimeout(
             () => {
+              playSfx("tick");
               setRevealedRows((prev) => ({ ...prev, [field]: true }));
             },
             panelStart + (rowIndex + 1) * 250,
@@ -316,6 +318,19 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
     }, 550);
   };
 
+  const hideSourceNow = (element) => {
+    if (!element) return;
+    element.style.transition = "none";
+    element.style.opacity = "0";
+    element.style.pointerEvents = "none";
+  };
+  const restoreSource = (element) => {
+    if (!element) return;
+    element.style.transition = "";
+    element.style.opacity = "";
+    element.style.pointerEvents = "";
+  };
+
   const animateWrongChoice = ({
     choice,
     displayText,
@@ -325,6 +340,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
     playLandSound = false,
   }) => {
     const sourceElement = event?.currentTarget;
+    hideSourceNow(sourceElement);
     if (solveKey) setWrongChoices((prev) => ({ ...prev, [solveKey]: true }));
     setAttemptingChoice(choice);
     setPendingField(field);
@@ -341,6 +357,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
             `#cell-${field} .value-attempt`,
           );
           if (!dockedAttempt || !sourceElement) {
+            restoreSource(sourceElement);
             setWrongAttempt(null);
             setPendingField("");
             setAttemptingChoice("");
@@ -353,6 +370,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
             colorClass: "ghost-wrong-return",
             duration: 520,
             onComplete: () => {
+              restoreSource(sourceElement);
               setPendingField("");
               setAttemptingChoice("");
             },
@@ -377,6 +395,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
     }
 
     const startBtn = e?.currentTarget;
+    hideSourceNow(startBtn);
     const currentTargetField = currentClassify.field;
     const isSpecial = ["notGiven", "toFind"].includes(answer);
     const originalClassName = startBtn ? startBtn.className : "";
@@ -389,6 +408,11 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
       originalClassName,
       () => {
         playSfx("correct");
+        if (!isSpecial) {
+          setIdentified((state) => ({ ...state, [`fade-${answer}`]: true }));
+        } else {
+          restoreSource(startBtn);
+        }
         setAttemptingChoice("");
         setIdentified((state) => ({
           ...state,
@@ -397,9 +421,6 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
         setCorrectCell(currentTargetField);
         setTimeout(() => setCorrectCell(""), 900);
 
-        if (!isSpecial) {
-          setIdentified((state) => ({ ...state, [`fade-${answer}`]: true }));
-        }
         if (classifyIndex === problem.classify.length - 1)
           setPhase("classified");
         else setClassifyIndex((value) => value + 1);
@@ -439,6 +460,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
       return;
     }
     const startBtn = e?.currentTarget;
+    hideSourceNow(startBtn);
     const currentTargetField = currentSolve.field;
     const originalClassName = startBtn ? startBtn.className : "";
     setPendingField(currentTargetField);
@@ -450,7 +472,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
       currentTargetField,
       originalClassName,
       () => {
-        setAttemptingChoice("");
+        setFormulaChosen(true);
         setSolveLandingFeedback({
           field: currentTargetField,
           text: localizeMathText(choice),
@@ -459,8 +481,8 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
         playSfx("correct");
         setTimeout(() => {
           setSolveLandingFeedback(null);
-          setFormulaChosen(true);
           setPendingField("");
+          setAttemptingChoice("");
           setTimeout(() => setCorrectCell(""), 900);
         }, 500);
       },
@@ -623,6 +645,9 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
 
   const getScreenTitle = () => {
     if (phase === "read") return { __html: T.ui.readCarefully };
+    if (phase === "classify" && !classifyInteractionReady) {
+      return { __html: " " };
+    }
     if (phase === "classify" || phase === "classified") {
       return {
         __html: formatText(T.ui.identifyField, {
@@ -854,11 +879,14 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
             formulaChoices.map((choice) => {
               const isCorrect =
                 formulaChosen && choice === currentSolve.display;
+              const solveKind = problem.classify.find(
+                (item) => item.field === currentSolve.field,
+              )?.kind;
               return h(
                 "button",
                 {
                   key: choice,
-                  className: `formula-option ${isCorrect ? "choice--correct" : ""} ${attemptingChoice === choice ? "choice--attempting" : ""}`,
+                  className: `formula-option ${solveKind === "toFind" ? "formula-option--to-find" : ""} ${isCorrect ? "choice--correct" : ""} ${attemptingChoice === choice ? "choice--attempting" : ""}`,
                   disabled:
                     formulaChosen || !!flyingToken || !!attemptingChoice,
                   onClick: (e) => chooseFormula(choice, e),

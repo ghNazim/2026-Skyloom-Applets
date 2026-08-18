@@ -24,13 +24,14 @@
   /* border-bottom: 0.1vw solid rgba(255, 255, 255, 0.32); */
   box-sizing: border-box;
   font-size: 2.5vw !important;
+  padding-top: 0;
 }
 .storyboard-title__stack {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.45vh;
+  /* gap: 0.45vh; */
   width: 100%;
 }
 .storyboard-title .hl-yellow {
@@ -504,6 +505,7 @@
   margin: 0;
   color: #fff;
   line-height: 1.25;
+  font-size: 2.5vw !important;
 }
 
 .explain-card .hl-yellow {
@@ -894,6 +896,14 @@
 .choice--attempting {
   opacity: 0 !important;
   pointer-events: none !important;
+  transition: none !important;
+}
+.formula-option--to-find {
+  background: #dec3a3;
+  border-color: #e6d3bd;
+  box-shadow:
+    0 0.28vh 0 rgba(171, 143, 112, 0.95),
+    inset 0 0.18vh 0.08vh rgba(255, 255, 255, 0.22);
 }
 .value-attempt {
   margin: 0;

@@ -60,8 +60,7 @@ function deriveMeanOps(eq, kind) {
   var tOn = !!(eq.visT && eq.t !== "");
   var visTimes = aOn && mOn ? 1 : 0;
   var visBn = bOn && nOn ? 1 : 0;
-  var leftPlus =
-    kind === "den" || eq.leftIsSum ? aOn : mOn ? !!visTimes : aOn;
+  var leftPlus = kind === "den" || eq.leftIsSum ? aOn : mOn ? !!visTimes : aOn;
   var rightPlus = kind === "den" ? bOn : !!visBn;
   return Object.assign({}, eq, {
     visTimes: visTimes,
@@ -212,7 +211,9 @@ function fillPathD(pts, baseY) {
 function originRect(svgEl) {
   if (!svgEl) return null;
   var origin = svgEl.querySelector(".plot-origin");
-  return origin ? origin.getBoundingClientRect() : svgEl.getBoundingClientRect();
+  return origin
+    ? origin.getBoundingClientRect()
+    : svgEl.getBoundingClientRect();
 }
 
 function pixelsPerY(svgEl) {
@@ -411,6 +412,10 @@ const MainCanvas = (props) => {
   var showMainNudges = _mainNudges[0];
   var setShowMainNudges = _mainNudges[1];
 
+  var _pendingExplored = useState(null);
+  var pendingExplored = _pendingExplored[0];
+  var setPendingExplored = _pendingExplored[1];
+
   var _drawNudges = useState(false);
   var showDrawNudges = _drawNudges[0];
   var setShowDrawNudges = _drawNudges[1];
@@ -432,6 +437,10 @@ const MainCanvas = (props) => {
   var _drawing = useState(false);
   var isDrawing = _drawing[0];
   var setIsDrawing = _drawing[1];
+
+  var _drawFocus = useState(null);
+  var drawFocus = _drawFocus[0];
+  var setDrawFocus = _drawFocus[1];
 
   var _mcqTarget = useState(isMcqStep && startAtFinal ? "done" : "s1");
   var mcqTarget = _mcqTarget[0];
@@ -462,10 +471,20 @@ const MainCanvas = (props) => {
   var feedbackSide = _fb[0];
   var setFeedbackSide = _fb[1];
 
-  var _s1Box = useState(!!(isA2 && startAtFinal) || isA3 || isStep3 || completedTests.indexOf("shape") !== -1);
+  var _s1Box = useState(
+    !!(isA2 && startAtFinal) ||
+      isA3 ||
+      isStep3 ||
+      completedTests.indexOf("shape") !== -1,
+  );
   var showShapeS1Box = _s1Box[0];
   var setShowShapeS1Box = _s1Box[1];
-  var _s2Box = useState(!!(isA2 && startAtFinal) || isA3 || isStep3 || completedTests.indexOf("shape") !== -1);
+  var _s2Box = useState(
+    !!(isA2 && startAtFinal) ||
+      isA3 ||
+      isStep3 ||
+      completedTests.indexOf("shape") !== -1,
+  );
   var showShapeS2Box = _s2Box[0];
   var setShowShapeS2Box = _s2Box[1];
 
@@ -608,10 +627,20 @@ const MainCanvas = (props) => {
   var s2Label = _s2Label[0];
   var setS2Label = _s2Label[1];
 
-  var _spreadS1Box = useState(!!(isC2 && startAtFinal) || isC3 || isStep3 || completedTests.indexOf("spread") !== -1);
+  var _spreadS1Box = useState(
+    !!(isC2 && startAtFinal) ||
+      isC3 ||
+      isStep3 ||
+      completedTests.indexOf("spread") !== -1,
+  );
   var showSpreadS1Box = _spreadS1Box[0];
   var setShowSpreadS1Box = _spreadS1Box[1];
-  var _spreadS2Box = useState(!!(isC2 && startAtFinal) || isC3 || isStep3 || completedTests.indexOf("spread") !== -1);
+  var _spreadS2Box = useState(
+    !!(isC2 && startAtFinal) ||
+      isC3 ||
+      isStep3 ||
+      completedTests.indexOf("spread") !== -1,
+  );
   var showSpreadS2Box = _spreadS2Box[0];
   var setShowSpreadS2Box = _spreadS2Box[1];
 
@@ -710,12 +739,18 @@ const MainCanvas = (props) => {
   var s2MeanMark = _s2MeanMark[0];
   var setS2MeanMark = _s2MeanMark[1];
   var _centreS1Box = useState(
-    !!(isB2 && startAtFinal) || isB3 || isStep3 || completedTests.indexOf("centre") !== -1,
+    !!(isB2 && startAtFinal) ||
+      isB3 ||
+      isStep3 ||
+      completedTests.indexOf("centre") !== -1,
   );
   var showCentreS1Box = _centreS1Box[0];
   var setShowCentreS1Box = _centreS1Box[1];
   var _centreS2Box = useState(
-    !!(isB2 && startAtFinal) || isB3 || isStep3 || completedTests.indexOf("centre") !== -1,
+    !!(isB2 && startAtFinal) ||
+      isB3 ||
+      isStep3 ||
+      completedTests.indexOf("centre") !== -1,
   );
   var showCentreS2Box = _centreS2Box[0];
   var setShowCentreS2Box = _centreS2Box[1];
@@ -1019,13 +1054,11 @@ const MainCanvas = (props) => {
         attr: { stroke: colors.blinkRed, "stroke-width": PATH_W },
         duration: 0.35,
       });
-      pathEl.classList.add("blink-red");
     } else if (mode === "green") {
       gsap.to(pathEl, {
         attr: { stroke: colors.blinkGreen, "stroke-width": PATH_W },
         duration: 0.35,
       });
-      pathEl.classList.add("blink-green");
     } else {
       gsap.to(pathEl, {
         attr: { stroke: normalStroke, "stroke-width": PATH_W },
@@ -1034,7 +1067,7 @@ const MainCanvas = (props) => {
     }
   }
 
-  function animateOutline(pathEl, fillEl, clipEl, done) {
+  function animateOutline(pathEl, fillEl, clipEl, done, withSound) {
     if (!pathEl) {
       if (done) done();
       return;
@@ -1044,6 +1077,7 @@ const MainCanvas = (props) => {
       attr: { "stroke-dasharray": len, "stroke-dashoffset": len },
       opacity: 1,
     });
+    if (withSound && typeof playSound === "function") playSound("zoom");
     var tl = gsap.timeline({
       onComplete: function () {
         if (done) done();
@@ -1057,6 +1091,7 @@ const MainCanvas = (props) => {
     tl.call(
       function () {
         if (fillEl) gsap.set(fillEl, { opacity: 1 });
+        if (withSound && typeof playSound === "function") playSound("fill");
       },
       null,
       "+=0.4",
@@ -1120,19 +1155,16 @@ const MainCanvas = (props) => {
     );
   }
 
-  useEffect(
-    function () {
-      mountedRef.current = true;
-      return function () {
-        mountedRef.current = false;
-        timersRef.current.forEach(function (id) {
-          clearTimeout(id);
-        });
-        clearClones();
-      };
-    },
-    [],
-  );
+  useEffect(function () {
+    mountedRef.current = true;
+    return function () {
+      mountedRef.current = false;
+      timersRef.current.forEach(function (id) {
+        clearTimeout(id);
+      });
+      clearClones();
+    };
+  }, []);
 
   useEffect(
     function () {
@@ -1144,6 +1176,8 @@ const MainCanvas = (props) => {
 
       if (isStep2) {
         onSetNextEnabled(false);
+        setPendingExplored(null);
+        setDrawFocus(null);
         drawnRef.current = { pop: false, s1: false, s2: false };
         setDrawnPop(false);
         setDrawnS1(false);
@@ -1191,6 +1225,8 @@ const MainCanvas = (props) => {
         setShowOverlap(true);
         setShowButtonRows(true);
         onSetNextEnabled(false);
+        setPendingExplored(null);
+        setDrawFocus(null);
         setGraphFocus("both");
         setHideLeftSample(false);
         setHideRightSample(false);
@@ -1289,7 +1325,11 @@ const MainCanvas = (props) => {
         );
         if (startAtFinal) {
           onUpdateQuestionText(copy.steps.A2.afterBothQuestion);
-          onUpdateNavText(completedTests.length >= 2 ? copy.steps[3].allDoneNav : copy.steps.A2.afterBothNav);
+          onUpdateNavText(
+            completedTests.length >= 2
+              ? copy.steps[3].allDoneNav
+              : copy.steps.A2.afterBothNav,
+          );
           onSetNextEnabled(true);
           onSetNavLocked(false);
           return;
@@ -1327,6 +1367,7 @@ const MainCanvas = (props) => {
         setShowOverlap(true);
         setShowButtonRows(true);
         onSetNextEnabled(false);
+        setPendingExplored(null);
         setGraphFocus("both");
         setHideLeftSample(false);
         setHideRightSample(false);
@@ -1462,7 +1503,11 @@ const MainCanvas = (props) => {
         }
         if (startAtFinal) {
           onUpdateQuestionText(copy.steps.C2.afterBothQuestion);
-          onUpdateNavText(completedTests.length >= 2 ? copy.steps[3].allDoneNav : copy.steps.C2.afterBothNav);
+          onUpdateNavText(
+            completedTests.length >= 2
+              ? copy.steps[3].allDoneNav
+              : copy.steps.C2.afterBothNav,
+          );
           onSetNextEnabled(true);
           onSetNavLocked(false);
           return;
@@ -1518,6 +1563,7 @@ const MainCanvas = (props) => {
         setShowOverlap(true);
         setShowButtonRows(true);
         onSetNextEnabled(false);
+        setPendingExplored(null);
         setGraphFocus("both");
         setHideLeftSample(false);
         setHideRightSample(false);
@@ -1615,7 +1661,11 @@ const MainCanvas = (props) => {
         }
         if (startAtFinal) {
           onUpdateQuestionText(copy.steps.B2.afterBothQuestion);
-          onUpdateNavText(completedTests.length >= 2 ? copy.steps[3].allDoneNav : copy.steps.B2.afterBothNav);
+          onUpdateNavText(
+            completedTests.length >= 2
+              ? copy.steps[3].allDoneNav
+              : copy.steps.B2.afterBothNav,
+          );
           onSetNextEnabled(true);
           onSetNavLocked(false);
           return;
@@ -1708,11 +1758,19 @@ const MainCanvas = (props) => {
       }
       var colIdx = step3SelectedGraph === "s1" ? 1 : 2;
       var tableRect = step3TableRef.current.getBoundingClientRect();
-      var rows = step3TableRef.current.querySelectorAll(".step3-header-row, .step3-data-row");
-      if (!rows.length) { overlay.style.display = "none"; return; }
+      var rows = step3TableRef.current.querySelectorAll(
+        ".step3-header-row, .step3-data-row",
+      );
+      if (!rows.length) {
+        overlay.style.display = "none";
+        return;
+      }
       var firstCell = rows[0].children[colIdx];
       var lastCell = rows[rows.length - 1].children[colIdx];
-      if (!firstCell || !lastCell) { overlay.style.display = "none"; return; }
+      if (!firstCell || !lastCell) {
+        overlay.style.display = "none";
+        return;
+      }
       var topRect = firstCell.getBoundingClientRect();
       var botRect = lastCell.getBoundingClientRect();
       var left = topRect.left - tableRect.left;
@@ -1777,8 +1835,7 @@ const MainCanvas = (props) => {
       var info = growArrowRef.current;
       if (!info) return;
       growArrowRef.current = null;
-      var svg =
-        info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
+      var svg = info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
       var g = svg ? svg.querySelector(".range-arrow-grow-" + info.id) : null;
       if (!svg || !g) {
         if (info.onDone) info.onDone();
@@ -1810,12 +1867,9 @@ const MainCanvas = (props) => {
       var info = growVlineRef.current;
       if (!info) return;
       growVlineRef.current = null;
-      var svg =
-        info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
+      var svg = info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
       var line = svg
-        ? svg.querySelector(
-            ".range-vline-grow-" + info.kind + "-" + info.id,
-          )
+        ? svg.querySelector(".range-vline-grow-" + info.kind + "-" + info.id)
         : null;
       if (!svg || !line) {
         if (info.onDone) info.onDone();
@@ -1845,8 +1899,7 @@ const MainCanvas = (props) => {
       var info = growMeanLineRef.current;
       if (!info) return;
       growMeanLineRef.current = null;
-      var svg =
-        info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
+      var svg = info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
       var line = svg
         ? svg.querySelector(".mean-vline-grow-" + info.id + "-" + info.side)
         : null;
@@ -1927,7 +1980,8 @@ const MainCanvas = (props) => {
           opacity: 0,
           duration: 0.18,
           onComplete: function () {
-            if (packed.clone.parentNode) packed.clone.parentNode.removeChild(packed.clone);
+            if (packed.clone.parentNode)
+              packed.clone.parentNode.removeChild(packed.clone);
             if (done) done();
           },
         });
@@ -1957,7 +2011,8 @@ const MainCanvas = (props) => {
       duration: 1.05,
       ease: "power2.inOut",
       onComplete: function () {
-        if (packed.clone.parentNode) packed.clone.parentNode.removeChild(packed.clone);
+        if (packed.clone.parentNode)
+          packed.clone.parentNode.removeChild(packed.clone);
         if (done) done();
       },
     });
@@ -2165,6 +2220,7 @@ const MainCanvas = (props) => {
   function finishDraw() {
     if (!mountedRef.current) return;
     setIsDrawing(false);
+    setDrawFocus(null);
     onSetNavLocked(false);
     if (drawnRef.current.pop && drawnRef.current.s1 && drawnRef.current.s2) {
       onUpdateQuestionText(copy.steps.A1.afterAllDrawnQuestion);
@@ -2184,6 +2240,7 @@ const MainCanvas = (props) => {
     if (typeof playSound === "function") playSound("click");
     setShowDrawNudges(false);
     setIsDrawing(true);
+    setDrawFocus(kind);
     drawnRef.current[kind] = true;
     if (kind === "pop") setDrawnPop(true);
     if (kind === "s1") setDrawnS1(true);
@@ -2201,12 +2258,14 @@ const MainCanvas = (props) => {
         leftPopFillRef.current,
         leftPopClipRef.current,
         oneDone,
+        true,
       );
       animateOutline(
         rightPopPathRef.current,
         rightPopFillRef.current,
         rightPopClipRef.current,
         oneDone,
+        false,
       );
       return;
     }
@@ -2218,6 +2277,7 @@ const MainCanvas = (props) => {
         function () {
           finishDraw();
         },
+        true,
       );
       return;
     }
@@ -2228,15 +2288,24 @@ const MainCanvas = (props) => {
       function () {
         finishDraw();
       },
+      true,
     );
   }
 
   function handleMainClick(id) {
     if (isStep2 || isA3 || isC3 || isB3) {
       if (remainingTests.indexOf(id) === -1) return;
+      if (pendingExplored) return;
       if (typeof playSound === "function") playSound("click");
       setShowMainNudges(false);
-      if (onSelectTest) onSelectTest(id);
+      setPendingExplored(id);
+      onSetNavLocked(true);
+      addTimer(
+        setTimeout(function () {
+          if (!mountedRef.current) return;
+          if (onSelectTest) onSelectTest(id);
+        }, 450),
+      );
     }
   }
 
@@ -2255,7 +2324,15 @@ const MainCanvas = (props) => {
   }
 
   function handleRangeClick(id) {
-    if (!isC1 || rangeBusy || rangeActive || rangePending || rangeGone[id] || !rangeReady) return;
+    if (
+      !isC1 ||
+      rangeBusy ||
+      rangeActive ||
+      rangePending ||
+      rangeGone[id] ||
+      !rangeReady
+    )
+      return;
     if (typeof playSound === "function") playSound("click");
     var cfg = RANGE_CFG[id];
     setShowRangeNudges(false);
@@ -2315,11 +2392,16 @@ const MainCanvas = (props) => {
   }
 
   function handleHighestTap() {
-    if (rangeBusy || rangeStage !== "high" || highValue !== null || !rangeActive) return;
+    if (
+      rangeBusy ||
+      rangeStage !== "high" ||
+      highValue !== null ||
+      !rangeActive
+    )
+      return;
     if (typeof playSound === "function") playSound("click");
     var cfg = RANGE_CFG[rangeActive];
-    var svg =
-      cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
+    var svg = cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
     setShowHighNudge(false);
     setHighClicked(true);
     setRangeBusy(true);
@@ -2349,11 +2431,11 @@ const MainCanvas = (props) => {
   }
 
   function handleLowestTap() {
-    if (rangeBusy || rangeStage !== "low" || lowValue !== null || !rangeActive) return;
+    if (rangeBusy || rangeStage !== "low" || lowValue !== null || !rangeActive)
+      return;
     if (typeof playSound === "function") playSound("click");
     var cfg = RANGE_CFG[rangeActive];
-    var svg =
-      cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
+    var svg = cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
     setShowLowNudge(false);
     setLowClicked(true);
     setRangeBusy(true);
@@ -2384,7 +2466,8 @@ const MainCanvas = (props) => {
   }
 
   function handleAnswerTap() {
-    if (rangeBusy || rangeStage !== "answer" || answerFlipped || !rangeActive) return;
+    if (rangeBusy || rangeStage !== "answer" || answerFlipped || !rangeActive)
+      return;
     if (typeof playSound === "function") playSound("click");
     setShowAnswerNudge(false);
     setAnswerFlipped(true);
@@ -2408,11 +2491,8 @@ const MainCanvas = (props) => {
     var id = rangeActive;
     if (!id) return;
     var cfg = RANGE_CFG[id];
-    var svg =
-      cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
-    var dest = svg
-      ? svg.querySelector(".range-label-anchor-" + cfg.id)
-      : null;
+    var svg = cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
+    var dest = svg ? svg.querySelector(".range-label-anchor-" + cfg.id) : null;
     flyNumberToEl(resultBtnRef.current, dest, cfg.result, function () {
       if (!mountedRef.current) return;
       if (id === "pop") {
@@ -2512,7 +2592,14 @@ const MainCanvas = (props) => {
   }
 
   function handleMeanClick(id) {
-    if (!isB1 || meanBusy || meanActive || meanPending || meanGone[id] || !meanReady)
+    if (
+      !isB1 ||
+      meanBusy ||
+      meanActive ||
+      meanPending ||
+      meanGone[id] ||
+      !meanReady
+    )
       return;
     if (typeof playSound === "function") playSound("click");
     var cfg = MEAN_CFG[id];
@@ -2553,7 +2640,8 @@ const MainCanvas = (props) => {
   }
 
   function handleMeanNumTap() {
-    if (meanBusy || meanStage !== "num" || meanNumFlipped || !meanActive) return;
+    if (meanBusy || meanStage !== "num" || meanNumFlipped || !meanActive)
+      return;
     if (typeof playSound === "function") playSound("click");
     setShowMeanNumNudge(false);
     setMeanNumFlipped(true);
@@ -2604,152 +2692,170 @@ const MainCanvas = (props) => {
     dimPrevFiLabels();
     setMeanGuide(null);
     addTimer(
-      setTimeout(function () {
-        if (!mountedRef.current) return;
-        highlightMeanBar(bar);
-        addTimer(
-          setTimeout(function () {
-            if (!mountedRef.current) return;
-            var svg = meanActiveSvg(cfg);
-            var xEl = svg ? svg.querySelector(".x-label-" + bar.x) : null;
-            var fiEl = svg ? svg.querySelector(".mean-fi-" + bar.x) : null;
-            var newTotal = running + bar.xf;
+      setTimeout(
+        function () {
+          if (!mountedRef.current) return;
+          highlightMeanBar(bar);
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              var svg = meanActiveSvg(cfg);
+              var xEl = svg ? svg.querySelector(".x-label-" + bar.x) : null;
+              var fiEl = svg ? svg.querySelector(".mean-fi-" + bar.x) : null;
+              var newTotal = running + bar.xf;
 
-            if (index === 0) {
-              var left = 2;
-              function landed() {
-                left -= 1;
-                if (left > 0) return;
-                setMeanEq(
-                  Object.assign({}, EMPTY_MEAN_EQ, {
-                    a: String(bar.x),
-                    m: String(bar.f),
-                    t: String(bar.xf),
-                    visA: 1,
-                    visTimes: 1,
-                    visM: 1,
-                    visPlus: 1,
-                    visB: 1,
-                    visBn: 1,
-                    visN: 1,
-                    visEq: 1,
-                    visT: 1,
-                    leftIsSum: false,
-                  }),
-                );
-                continueNum(cfg, index, newTotal, done);
+              if (index === 0) {
+                var left = 2;
+                function landed() {
+                  left -= 1;
+                  if (left > 0) return;
+                  setMeanEq(
+                    Object.assign({}, EMPTY_MEAN_EQ, {
+                      a: String(bar.x),
+                      m: String(bar.f),
+                      t: String(bar.xf),
+                      visA: 1,
+                      visTimes: 1,
+                      visM: 1,
+                      visPlus: 1,
+                      visB: 1,
+                      visBn: 1,
+                      visN: 1,
+                      visEq: 1,
+                      visT: 1,
+                      leftIsSum: false,
+                    }),
+                  );
+                  continueNum(cfg, index, newTotal, done);
+                }
+                flyFromEl(xEl, eqARef.current, bar.x, function () {
+                  setMeanEq(function (prev) {
+                    return Object.assign({}, prev, {
+                      a: String(bar.x),
+                      visA: 1,
+                    });
+                  });
+                  landed();
+                });
+                flyFromEl(fiEl, eqMRef.current, bar.f, function () {
+                  setMeanEq(function (prev) {
+                    return Object.assign({}, prev, {
+                      m: String(bar.f),
+                      visM: 1,
+                    });
+                  });
+                  landed();
+                });
+                return;
               }
-              flyFromEl(xEl, eqARef.current, bar.x, function () {
-                setMeanEq(function (prev) {
-                  return Object.assign({}, prev, { a: String(bar.x), visA: 1 });
-                });
-                landed();
-              });
-              flyFromEl(fiEl, eqMRef.current, bar.f, function () {
-                setMeanEq(function (prev) {
-                  return Object.assign({}, prev, { m: String(bar.f), visM: 1 });
-                });
-                landed();
-              });
-              return;
-            }
 
-            function showPlusSlots(afterSetup) {
-              setMeanEq(function (prev) {
-                var base =
-                  index === 1
-                    ? Object.assign({}, prev, { leftIsSum: false })
-                    : Object.assign({}, EMPTY_MEAN_EQ, {
-                        a: String(running),
-                        t: String(running),
-                        visA: 1,
-                        visEq: 1,
-                        visT: 1,
-                        leftIsSum: true,
-                      });
-                return Object.assign({}, base, {
-                  visPlus: 1,
-                  visB: 1,
-                  visBn: 1,
-                  visN: 1,
-                  b: "",
-                  n: "",
-                  m: index === 1 ? prev.m : "",
-                  visM: index === 1 ? prev.visM : 0,
-                  visTimes: index === 1 ? prev.visTimes : 0,
-                  leftIsSum: index >= 2,
-                });
-              });
-              addTimer(
-                setTimeout(function () {
-                  if (!mountedRef.current) return;
-                  afterSetup();
-                }, index === 1 ? 40 : 280),
-              );
-            }
-
-            function flyBn() {
-              var leftBn = 2;
-              function landedBn() {
-                leftBn -= 1;
-                if (leftBn > 0) return;
+              function showPlusSlots(afterSetup) {
                 setMeanEq(function (prev) {
-                  return Object.assign({}, prev, {
-                    b: String(bar.x),
-                    n: String(bar.f),
-                    t: String(newTotal),
-                    visB: 1,
-                    visN: 1,
-                    visBn: 1,
+                  var base =
+                    index === 1
+                      ? Object.assign({}, prev, { leftIsSum: false })
+                      : Object.assign({}, EMPTY_MEAN_EQ, {
+                          a: String(running),
+                          t: String(running),
+                          visA: 1,
+                          visEq: 1,
+                          visT: 1,
+                          leftIsSum: true,
+                        });
+                  return Object.assign({}, base, {
                     visPlus: 1,
-                    visEq: 1,
-                    visT: 1,
-                    visA: 1,
+                    visB: 1,
+                    visBn: 1,
+                    visN: 1,
+                    b: "",
+                    n: "",
+                    m: index === 1 ? prev.m : "",
+                    visM: index === 1 ? prev.visM : 0,
+                    visTimes: index === 1 ? prev.visTimes : 0,
                     leftIsSum: index >= 2,
-                    m: index >= 2 ? "" : prev.m,
-                    visM: index >= 2 ? 0 : prev.visM,
-                    visTimes: index >= 2 ? 0 : prev.visTimes,
                   });
                 });
-                continueNum(cfg, index, newTotal, done);
+                addTimer(
+                  setTimeout(
+                    function () {
+                      if (!mountedRef.current) return;
+                      afterSetup();
+                    },
+                    index === 1 ? 40 : 280,
+                  ),
+                );
               }
-              flyFromEl(xEl, eqBRef.current, bar.x, function () {
-                setMeanEq(function (prev) {
-                  return Object.assign({}, prev, { b: String(bar.x), visB: 1 });
-                });
-                landedBn();
-              });
-              flyFromEl(fiEl, eqNRef.current, bar.f, function () {
-                setMeanEq(function (prev) {
-                  return Object.assign({}, prev, { n: String(bar.f), visN: 1 });
-                });
-                landedBn();
-              });
-            }
 
-            if (index >= 2) {
-              setMeanEq(
-                Object.assign({}, EMPTY_MEAN_EQ, {
-                  a: String(running),
-                  t: String(running),
-                  visA: 1,
-                  visEq: 1,
-                  visT: 1,
-                  leftIsSum: true,
-                }),
-              );
-              addTimer(
-                setTimeout(function () {
-                  if (!mountedRef.current) return;
-                  showPlusSlots(flyBn);
-                }, 400),
-              );
-              return;
-            }
-            showPlusSlots(flyBn);
-          }, 280),
-        );
-      }, index === 0 ? 80 : 220),
+              function flyBn() {
+                var leftBn = 2;
+                function landedBn() {
+                  leftBn -= 1;
+                  if (leftBn > 0) return;
+                  setMeanEq(function (prev) {
+                    return Object.assign({}, prev, {
+                      b: String(bar.x),
+                      n: String(bar.f),
+                      t: String(newTotal),
+                      visB: 1,
+                      visN: 1,
+                      visBn: 1,
+                      visPlus: 1,
+                      visEq: 1,
+                      visT: 1,
+                      visA: 1,
+                      leftIsSum: index >= 2,
+                      m: index >= 2 ? "" : prev.m,
+                      visM: index >= 2 ? 0 : prev.visM,
+                      visTimes: index >= 2 ? 0 : prev.visTimes,
+                    });
+                  });
+                  continueNum(cfg, index, newTotal, done);
+                }
+                flyFromEl(xEl, eqBRef.current, bar.x, function () {
+                  setMeanEq(function (prev) {
+                    return Object.assign({}, prev, {
+                      b: String(bar.x),
+                      visB: 1,
+                    });
+                  });
+                  landedBn();
+                });
+                flyFromEl(fiEl, eqNRef.current, bar.f, function () {
+                  setMeanEq(function (prev) {
+                    return Object.assign({}, prev, {
+                      n: String(bar.f),
+                      visN: 1,
+                    });
+                  });
+                  landedBn();
+                });
+              }
+
+              if (index >= 2) {
+                setMeanEq(
+                  Object.assign({}, EMPTY_MEAN_EQ, {
+                    a: String(running),
+                    t: String(running),
+                    visA: 1,
+                    visEq: 1,
+                    visT: 1,
+                    leftIsSum: true,
+                  }),
+                );
+                addTimer(
+                  setTimeout(function () {
+                    if (!mountedRef.current) return;
+                    showPlusSlots(flyBn);
+                  }, 400),
+                );
+                return;
+              }
+              showPlusSlots(flyBn);
+            }, 280),
+          );
+        },
+        index === 0 ? 80 : 220,
+      ),
     );
   }
 
@@ -2782,7 +2888,8 @@ const MainCanvas = (props) => {
   }
 
   function handleMeanDenTap() {
-    if (meanBusy || meanStage !== "den" || meanDenFlipped || !meanActive) return;
+    if (meanBusy || meanStage !== "den" || meanDenFlipped || !meanActive)
+      return;
     if (typeof playSound === "function") playSound("click");
     setShowMeanDenNudge(false);
     setMeanDenFlipped(true);
@@ -2833,63 +2940,31 @@ const MainCanvas = (props) => {
     dimPrevFiLabels();
     setMeanGuide(null);
     addTimer(
-      setTimeout(function () {
-        if (!mountedRef.current) return;
-        highlightMeanBar(bar);
-        addTimer(
-          setTimeout(function () {
-            if (!mountedRef.current) return;
-            var svg = meanActiveSvg(cfg);
-            var fiEl = svg ? svg.querySelector(".mean-fi-" + bar.x) : null;
-            var newTotal = running + bar.f;
+      setTimeout(
+        function () {
+          if (!mountedRef.current) return;
+          highlightMeanBar(bar);
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              var svg = meanActiveSvg(cfg);
+              var fiEl = svg ? svg.querySelector(".mean-fi-" + bar.x) : null;
+              var newTotal = running + bar.f;
 
-            function removeFiSource() {
-              setMeanFiLabels(function (prev) {
-                var next = Object.assign({}, prev);
-                delete next[bar.x];
-                return next;
-              });
-            }
+              function removeFiSource() {
+                setMeanFiLabels(function (prev) {
+                  var next = Object.assign({}, prev);
+                  delete next[bar.x];
+                  return next;
+                });
+              }
 
-            if (index === 0) {
-              flyFromEl(fiEl, eqDenARef.current, bar.f, function () {
-                setMeanDenEq(
-                  Object.assign({}, EMPTY_MEAN_EQ, {
-                    a: String(bar.f),
-                    t: String(bar.f),
-                    visA: 1,
-                    visPlus: 1,
-                    visB: 1,
-                    visEq: 1,
-                    visT: 1,
-                  }),
-                );
-                continueDen(cfg, index, newTotal, done);
-              });
-              removeFiSource();
-              return;
-            }
-
-            setMeanDenEq(
-              Object.assign({}, EMPTY_MEAN_EQ, {
-                a: String(running),
-                t: String(running),
-                visA: 1,
-                visPlus: 1,
-                visB: 1,
-                visEq: 1,
-                visT: 1,
-              }),
-            );
-            addTimer(
-              setTimeout(function () {
-                if (!mountedRef.current) return;
-                flyFromEl(fiEl, eqDenBRef.current, bar.f, function () {
+              if (index === 0) {
+                flyFromEl(fiEl, eqDenARef.current, bar.f, function () {
                   setMeanDenEq(
                     Object.assign({}, EMPTY_MEAN_EQ, {
-                      a: String(running),
-                      b: String(bar.f),
-                      t: String(newTotal),
+                      a: String(bar.f),
+                      t: String(bar.f),
                       visA: 1,
                       visPlus: 1,
                       visB: 1,
@@ -2897,30 +2972,65 @@ const MainCanvas = (props) => {
                       visT: 1,
                     }),
                   );
-                  addTimer(
-                    setTimeout(function () {
-                      if (!mountedRef.current) return;
-                      setMeanDenEq(
-                        Object.assign({}, EMPTY_MEAN_EQ, {
-                          a: String(newTotal),
-                          t: String(newTotal),
-                          visA: 1,
-                          visPlus: 1,
-                          visB: 1,
-                          visEq: 1,
-                          visT: 1,
-                        }),
-                      );
-                      continueDen(cfg, index, newTotal, done);
-                    }, 280),
-                  );
+                  continueDen(cfg, index, newTotal, done);
                 });
                 removeFiSource();
-              }, 200),
-            );
-          }, 280),
-        );
-      }, index === 0 ? 80 : 220),
+                return;
+              }
+
+              setMeanDenEq(
+                Object.assign({}, EMPTY_MEAN_EQ, {
+                  a: String(running),
+                  t: String(running),
+                  visA: 1,
+                  visPlus: 1,
+                  visB: 1,
+                  visEq: 1,
+                  visT: 1,
+                }),
+              );
+              addTimer(
+                setTimeout(function () {
+                  if (!mountedRef.current) return;
+                  flyFromEl(fiEl, eqDenBRef.current, bar.f, function () {
+                    setMeanDenEq(
+                      Object.assign({}, EMPTY_MEAN_EQ, {
+                        a: String(running),
+                        b: String(bar.f),
+                        t: String(newTotal),
+                        visA: 1,
+                        visPlus: 1,
+                        visB: 1,
+                        visEq: 1,
+                        visT: 1,
+                      }),
+                    );
+                    addTimer(
+                      setTimeout(function () {
+                        if (!mountedRef.current) return;
+                        setMeanDenEq(
+                          Object.assign({}, EMPTY_MEAN_EQ, {
+                            a: String(newTotal),
+                            t: String(newTotal),
+                            visA: 1,
+                            visPlus: 1,
+                            visB: 1,
+                            visEq: 1,
+                            visT: 1,
+                          }),
+                        );
+                        continueDen(cfg, index, newTotal, done);
+                      }, 280),
+                    );
+                  });
+                  removeFiSource();
+                }, 200),
+              );
+            }, 280),
+          );
+        },
+        index === 0 ? 80 : 220,
+      ),
     );
   }
 
@@ -2953,7 +3063,8 @@ const MainCanvas = (props) => {
   }
 
   function handleMeanAnsTap() {
-    if (meanBusy || meanStage !== "answer" || meanAnsFlipped || !meanActive) return;
+    if (meanBusy || meanStage !== "answer" || meanAnsFlipped || !meanActive)
+      return;
     if (typeof playSound === "function") playSound("click");
     setShowMeanAnsNudge(false);
     setMeanAnsFlipped(true);
@@ -3155,7 +3266,9 @@ const MainCanvas = (props) => {
       }
       onUpdateQuestionText(mcqCopy.afterBothQuestion);
       var allTestsDone = completedTests.length >= 2;
-      onUpdateNavText(allTestsDone ? copy.steps[3].allDoneNav : mcqCopy.afterBothNav);
+      onUpdateNavText(
+        allTestsDone ? copy.steps[3].allDoneNav : mcqCopy.afterBothNav,
+      );
       onSetNextEnabled(true);
       setMcqBusy(false);
     });
@@ -3585,81 +3698,87 @@ const MainCanvas = (props) => {
       sampleBarOpts.highlightX = meanHighlight;
       sampleBarOpts.bright = MEAN_CFG[workingMean].bright;
     }
+    var hideSample =
+      (isLeft && hideLeftSample) || (!isLeft && hideRightSample);
+    var dimPop =
+      (drawFocus === "s1" && isLeft) || (drawFocus === "s2" && !isLeft);
+    var dimSample = drawFocus === "pop";
+    var popSeriesOp = hidePopBars ? 0 : dimPop ? 0.2 : 1;
+    var samSeriesOp = hideSample ? 0 : dimSample ? 0.2 : 1;
+    function seriesStyle(op) {
+      return { opacity: op, transition: "opacity 0.4s ease" };
+    }
     ch.push(
       e(
         "g",
-        {
-          key: "pop-bars",
-          style: {
-            opacity: hidePopBars ? 0 : 1,
-            transition: "opacity 0.4s ease",
-          },
-        },
+        { key: "pop-series", style: seriesStyle(popSeriesOp) },
         renderBars(popData, popLayout, colors.popBar, "pop-b", popBarOpts),
+        e("path", {
+          key: "pf",
+          ref: popFillRef,
+          d: popFillD,
+          fill: colors.popFill,
+          opacity: 0,
+          clipPath: "url(#" + popClipId + ")",
+        }),
       ),
     );
-    ch.push(
-      e("path", {
-        key: "pf",
-        ref: popFillRef,
-        d: popFillD,
-        fill: colors.popFill,
-        opacity: 0,
-        clipPath: "url(#" + popClipId + ")",
-      }),
-    );
     if (showOverlap) {
-      var hideSample =
-        (isLeft && hideLeftSample) || (!isLeft && hideRightSample);
       ch.push(
         e(
           "g",
-          {
-            key: "sam-bars",
-            style: {
-              opacity: hideSample ? 0 : 1,
-              transition: "opacity 0.4s ease",
-            },
-          },
-          renderBars(sampleData, popLayout, sampleColor, "sam-b", sampleBarOpts),
+          { key: "sam-series", style: seriesStyle(samSeriesOp) },
+          renderBars(
+            sampleData,
+            popLayout,
+            sampleColor,
+            "sam-b",
+            sampleBarOpts,
+          ),
+          e("path", {
+            key: "sf",
+            ref: samFillRef,
+            d: sampleFillD,
+            fill: sampleFill,
+            opacity: 0,
+            clipPath: "url(#" + samClipId + ")",
+          }),
         ),
-      );
-      ch.push(
-        e("path", {
-          key: "sf",
-          ref: samFillRef,
-          d: sampleFillD,
-          fill: sampleFill,
-          opacity: 0,
-          clipPath: "url(#" + samClipId + ")",
-        }),
       );
     }
     ch.push(
-      e("path", {
-        key: "pp",
-        ref: popPathRef,
-        d: popPathD,
-        fill: "none",
-        stroke: colors.popStroke,
-        strokeWidth: PATH_W,
-        strokeLinejoin: "round",
-        strokeLinecap: "round",
-        opacity: 0,
-      }),
+      e(
+        "g",
+        { key: "pop-outline", style: seriesStyle(popSeriesOp) },
+        e("path", {
+          key: "pp",
+          ref: popPathRef,
+          d: popPathD,
+          fill: "none",
+          stroke: colors.popStroke,
+          strokeWidth: PATH_W,
+          strokeLinejoin: "round",
+          strokeLinecap: "round",
+          opacity: 0,
+        }),
+      ),
     );
     ch.push(
-      e("path", {
-        key: "sp",
-        ref: samPathRef,
-        d: samplePathD,
-        fill: "none",
-        stroke: sampleStroke,
-        strokeWidth: PATH_W,
-        strokeLinejoin: "round",
-        strokeLinecap: "round",
-        opacity: 0,
-      }),
+      e(
+        "g",
+        { key: "sam-outline", style: seriesStyle(samSeriesOp) },
+        e("path", {
+          key: "sp",
+          ref: samPathRef,
+          d: samplePathD,
+          fill: "none",
+          stroke: sampleStroke,
+          strokeWidth: PATH_W,
+          strokeLinejoin: "round",
+          strokeLinecap: "round",
+          opacity: 0,
+        }),
+      ),
     );
 
     if (isLeft) {
@@ -3811,8 +3930,7 @@ const MainCanvas = (props) => {
   }
 
   function renderMcqHalf(side) {
-    var dim =
-      (mcqTarget !== "done" && side !== mcqTarget);
+    var dim = mcqTarget !== "done" && side !== mcqTarget;
     var cls = "mcq-half";
     if (dim) cls += " is-dim";
     return e(
@@ -3907,7 +4025,8 @@ const MainCanvas = (props) => {
     addTimer(
       setTimeout(function () {
         clones.forEach(function (item) {
-          if (item.clone.parentNode) item.clone.parentNode.removeChild(item.clone);
+          if (item.clone.parentNode)
+            item.clone.parentNode.removeChild(item.clone);
           var idx = cloneElsRef.current.indexOf(item.clone);
           if (idx !== -1) cloneElsRef.current.splice(idx, 1);
         });
@@ -3957,6 +4076,7 @@ const MainCanvas = (props) => {
       cls += " explored";
       return cls;
     }
+    var isPending = pendingExplored === id;
     var isActive =
       (id === "shape" && shapeActive) ||
       (id === "spread" && spreadActive) ||
@@ -3965,13 +4085,14 @@ const MainCanvas = (props) => {
       (id === "shape" && shapeDone) ||
       (id === "spread" && spreadDone) ||
       (id === "centre" && centreDone);
-    if (isActive) cls += " explored";
+    if (isActive || isPending) cls += " explored";
     else if (isDone) cls += " explored dehighlighted";
-    else if (anyTestActive) cls += " dehighlighted";
+    else if (anyTestActive || pendingExplored) cls += " dehighlighted";
     return cls;
   }
 
   function canClickMain(id) {
+    if (pendingExplored) return false;
     if (isStep2) return true;
     if (isA3 || isC3 || isB3) return remainingTests.indexOf(id) !== -1;
     return false;
@@ -3984,18 +4105,24 @@ const MainCanvas = (props) => {
   if (graphFocus === "right") rightHalfClass += " is-centered-from-right";
   if (graphFocus === "left") rightHalfClass += " is-hidden-graph";
 
-  var step3LeftBorder = isStep3 && step3AnimDone
-    ? step3SelectedGraph === "s1"
-      ? "3px solid #ff5252"
-      : "3px solid #F2C94C"
-    : undefined;
-  var step3RightBorder = isStep3 && step3AnimDone
-    ? step3Correct
-      ? "3px solid #7CFC00"
-      : "3px solid #F2C94C"
-    : undefined;
+  var step3LeftBorder =
+    isStep3 && step3AnimDone
+      ? step3SelectedGraph === "s1"
+        ? "3px solid #ff5252"
+        : "3px solid #F2C94C"
+      : undefined;
+  var step3RightBorder =
+    isStep3 && step3AnimDone
+      ? step3Correct
+        ? "3px solid #7CFC00"
+        : "3px solid #F2C94C"
+      : undefined;
   var step3SelectedColumn =
-    step3SelectedGraph === "s1" ? "sample1" : step3SelectedGraph === "s2" ? "sample2" : null;
+    step3SelectedGraph === "s1"
+      ? "sample1"
+      : step3SelectedGraph === "s2"
+        ? "sample2"
+        : null;
 
   var graphRow = e(
     "div",
@@ -4004,17 +4131,31 @@ const MainCanvas = (props) => {
       "div",
       {
         className: leftHalfClass,
-        style: isStep3 && step3AnimDone ? { border: step3LeftBorder, borderRadius: "1vw", cursor: step3Correct ? "default" : "pointer" } : undefined,
-        onClick: isStep3 && step3AnimDone && !step3Correct
-          ? function () { handleStep3GraphClick("s1"); }
-          : undefined,
+        style:
+          isStep3 && step3AnimDone
+            ? {
+                border: step3LeftBorder,
+                borderRadius: "1vw",
+                cursor: step3Correct ? "default" : "pointer",
+              }
+            : undefined,
+        onClick:
+          isStep3 && step3AnimDone && !step3Correct
+            ? function () {
+                handleStep3GraphClick("s1");
+              }
+            : undefined,
       },
       e(
         "div",
         {
           className: "graph-dim-wrap",
           style: {
-            opacity: leftPopVisible ? (leftDim ? 0.2 : 1) : 0,
+            opacity: leftPopVisible
+              ? drawFocus === "s2" || leftDim
+                ? 0.2
+                : 1
+              : 0,
           },
         },
         renderPopGraph("left"),
@@ -4034,16 +4175,28 @@ const MainCanvas = (props) => {
       "div",
       {
         className: rightHalfClass,
-        style: isStep3 && step3AnimDone ? { border: step3RightBorder, borderRadius: "1vw", cursor: step3Correct ? "default" : "pointer" } : undefined,
-        onClick: isStep3 && step3AnimDone && !step3Correct
-          ? function () { handleStep3GraphClick("s2"); }
-          : undefined,
+        style:
+          isStep3 && step3AnimDone
+            ? {
+                border: step3RightBorder,
+                borderRadius: "1vw",
+                cursor: step3Correct ? "default" : "pointer",
+              }
+            : undefined,
+        onClick:
+          isStep3 && step3AnimDone && !step3Correct
+            ? function () {
+                handleStep3GraphClick("s2");
+              }
+            : undefined,
       },
       e(
         "div",
         {
           className: "graph-dim-wrap",
-          style: { opacity: rightDim ? 0.2 : 1 },
+          style: {
+            opacity: drawFocus === "s1" || rightDim ? 0.2 : 1,
+          },
         },
         renderPopGraph("right"),
       ),
@@ -4073,38 +4226,50 @@ const MainCanvas = (props) => {
     ),
   );
 
-  var drawButtons =     e(
-      "div",
-      { className: "action-buttons-row", key: "action-btns" },
+  var drawButtons = e(
+    "div",
+    { className: "action-buttons-row", key: "action-btns" },
     e("button", {
       ref: drawPopBtnRef,
-      className:
-        "draw-btn draw-pop" + (drawnPop ? " is-hidden" : ""),
+      className: "draw-btn draw-pop" + (drawnPop ? " is-hidden" : ""),
       disabled: isDrawing || drawnPop || !drawReady,
-      onClick: drawnPop || isDrawing || !drawReady ? undefined : function () { handleDraw("pop"); },
+      onClick:
+        drawnPop || isDrawing || !drawReady
+          ? undefined
+          : function () {
+              handleDraw("pop");
+            },
       dangerouslySetInnerHTML: { __html: btns.drawPopulation },
     }),
     e("button", {
       ref: drawS1BtnRef,
-      className:
-        "draw-btn draw-s1" + (drawnS1 ? " is-hidden" : ""),
+      className: "draw-btn draw-s1" + (drawnS1 ? " is-hidden" : ""),
       disabled: isDrawing || drawnS1 || !drawReady,
-      onClick: drawnS1 || isDrawing || !drawReady ? undefined : function () { handleDraw("s1"); },
+      onClick:
+        drawnS1 || isDrawing || !drawReady
+          ? undefined
+          : function () {
+              handleDraw("s1");
+            },
       dangerouslySetInnerHTML: { __html: btns.drawSample1 },
     }),
     e("button", {
       ref: drawS2BtnRef,
-      className:
-        "draw-btn draw-s2" + (drawnS2 ? " is-hidden" : ""),
+      className: "draw-btn draw-s2" + (drawnS2 ? " is-hidden" : ""),
       disabled: isDrawing || drawnS2 || !drawReady,
-      onClick: drawnS2 || isDrawing || !drawReady ? undefined : function () { handleDraw("s2"); },
+      onClick:
+        drawnS2 || isDrawing || !drawReady
+          ? undefined
+          : function () {
+              handleDraw("s2");
+            },
       dangerouslySetInnerHTML: { __html: btns.drawSample2 },
     }),
   );
 
-  var mcqRow =     e(
-      "div",
-      { className: "action-buttons-row mcq-row", key: "mcq-row" },
+  var mcqRow = e(
+    "div",
+    { className: "action-buttons-row mcq-row", key: "mcq-row" },
     renderMcqHalf("s1"),
     renderMcqHalf("s2"),
   );
@@ -4132,7 +4297,14 @@ const MainCanvas = (props) => {
     var kids = [title];
     if (active && !gone) {
       kids.push(e("span", { className: "range-eq", key: "eq1" }, "="));
-      function renderRangeValFlip(key, ref, flipped, frontChild, backText, onClick) {
+      function renderRangeValFlip(
+        key,
+        ref,
+        flipped,
+        frontChild,
+        backText,
+        onClick,
+      ) {
         return e(
           "div",
           {
@@ -4144,11 +4316,18 @@ const MainCanvas = (props) => {
           e(
             "div",
             {
-              className:
-                "range-flip-inner" + (flipped ? " is-flipped" : ""),
+              className: "range-flip-inner" + (flipped ? " is-flipped" : ""),
             },
-            e("div", { className: "range-flip-face range-flip-front" }, frontChild),
-            e("div", { className: "range-flip-face range-flip-back" }, backText),
+            e(
+              "div",
+              { className: "range-flip-face range-flip-front" },
+              frontChild,
+            ),
+            e(
+              "div",
+              { className: "range-flip-face range-flip-back" },
+              backText,
+            ),
           ),
         );
       }
@@ -4285,7 +4464,11 @@ const MainCanvas = (props) => {
     ];
     if (!eq.leftIsSum) {
       kids.push(
-        e("span", { key: "times", className: "mean-eq-op", style: fade(eq.visTimes) }, "×"),
+        e(
+          "span",
+          { key: "times", className: "mean-eq-op", style: fade(eq.visTimes) },
+          "×",
+        ),
         e(
           "span",
           {
@@ -4299,7 +4482,11 @@ const MainCanvas = (props) => {
       );
     }
     kids.push(
-      e("span", { key: "plus", className: "mean-eq-op", style: fade(eq.visPlus) }, "+"),
+      e(
+        "span",
+        { key: "plus", className: "mean-eq-op", style: fade(eq.visPlus) },
+        "+",
+      ),
       e(
         "span",
         {
@@ -4310,7 +4497,11 @@ const MainCanvas = (props) => {
         },
         eq.b || "\u00a0",
       ),
-      e("span", { key: "bn", className: "mean-eq-op", style: fade(eq.visBn) }, "×"),
+      e(
+        "span",
+        { key: "bn", className: "mean-eq-op", style: fade(eq.visBn) },
+        "×",
+      ),
       e(
         "span",
         {
@@ -4321,7 +4512,11 @@ const MainCanvas = (props) => {
         },
         eq.n || "\u00a0",
       ),
-      e("span", { key: "eq", className: "mean-eq-op", style: fade(eq.visEq) }, "="),
+      e(
+        "span",
+        { key: "eq", className: "mean-eq-op", style: fade(eq.visEq) },
+        "=",
+      ),
       e(
         "span",
         {
@@ -4607,7 +4802,14 @@ const MainCanvas = (props) => {
         {
           ref: step3TableRef,
           className: "step3-table",
-          style: { opacity: step3TableVisible ? 1 : 0, position: "absolute", width: "34vw", left: "50%", top: "50%", transform: "translate(-50%, -50%)" },
+          style: {
+            opacity: step3TableVisible ? 1 : 0,
+            position: "absolute",
+            width: "34vw",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+          },
         },
         e(
           "div",
@@ -4616,16 +4818,14 @@ const MainCanvas = (props) => {
           e(
             "div",
             {
-              className:
-                "step3-cell step3-sample-col step3-sample1-col",
+              className: "step3-cell step3-sample-col step3-sample1-col",
             },
             copy.sample1Label.replace(":", ""),
           ),
           e(
             "div",
             {
-              className:
-                "step3-cell step3-sample-col step3-sample2-col",
+              className: "step3-cell step3-sample-col step3-sample2-col",
             },
             copy.sample2Label.replace(":", ""),
           ),
@@ -4638,8 +4838,7 @@ const MainCanvas = (props) => {
             "div",
             {
               className:
-                "step3-cell step3-fail step3-sample-col step3-sample1-col" +
-                "",
+                "step3-cell step3-fail step3-sample-col step3-sample1-col" + "",
             },
             btns.fail,
           ),
@@ -4647,8 +4846,7 @@ const MainCanvas = (props) => {
             "div",
             {
               className:
-                "step3-cell step3-pass step3-sample-col step3-sample2-col" +
-                "",
+                "step3-cell step3-pass step3-sample-col step3-sample2-col" + "",
             },
             btns.pass,
           ),
@@ -4661,8 +4859,7 @@ const MainCanvas = (props) => {
             "div",
             {
               className:
-                "step3-cell step3-fail step3-sample-col step3-sample1-col" +
-                "",
+                "step3-cell step3-fail step3-sample-col step3-sample1-col" + "",
             },
             btns.fail,
           ),
@@ -4670,8 +4867,7 @@ const MainCanvas = (props) => {
             "div",
             {
               className:
-                "step3-cell step3-pass step3-sample-col step3-sample2-col" +
-                "",
+                "step3-cell step3-pass step3-sample-col step3-sample2-col" + "",
             },
             btns.pass,
           ),
@@ -4684,8 +4880,7 @@ const MainCanvas = (props) => {
             "div",
             {
               className:
-                "step3-cell step3-fail step3-sample-col step3-sample1-col" +
-                "",
+                "step3-cell step3-fail step3-sample-col step3-sample1-col" + "",
             },
             btns.fail,
           ),
@@ -4693,8 +4888,7 @@ const MainCanvas = (props) => {
             "div",
             {
               className:
-                "step3-cell step3-pass step3-sample-col step3-sample2-col" +
-                "",
+                "step3-cell step3-pass step3-sample-col step3-sample2-col" + "",
             },
             btns.pass,
           ),
@@ -4707,18 +4901,27 @@ const MainCanvas = (props) => {
       )
     : null;
 
-  var step3FeedbackBox = isStep3 && step3Feedback
-    ? e(
-        "div",
-        {
-          className: "step3-feedback-box " + (step3Feedback === "correct" ? "correct" : "wrong"),
-          style: { position: "absolute", right: "2vw", top: "50%", transform: "translateY(-50%)", width: "22vw" },
-        },
-        step3Feedback === "correct"
-          ? copy.steps[3].correctS2Feedback
-          : copy.steps[3].wrongS1Feedback,
-      )
-    : null;
+  var step3FeedbackBox =
+    isStep3 && step3Feedback
+      ? e(
+          "div",
+          {
+            className:
+              "step3-feedback-box " +
+              (step3Feedback === "correct" ? "correct" : "wrong"),
+            style: {
+              position: "absolute",
+              right: "2vw",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "22vw",
+            },
+          },
+          step3Feedback === "correct"
+            ? copy.steps[3].correctS2Feedback
+            : copy.steps[3].wrongS1Feedback,
+        )
+      : null;
 
   var actionInner = null;
   if (isStep3) {
@@ -4732,12 +4935,21 @@ const MainCanvas = (props) => {
       {
         key: "main-btns-s3-wrap",
         style: step3HideMainBtns
-          ? { opacity: 0, pointerEvents: "none", transition: "opacity 0.3s ease" }
+          ? {
+              opacity: 0,
+              pointerEvents: "none",
+              transition: "opacity 0.3s ease",
+            }
           : { transition: "opacity 0.3s ease" },
       },
       mainButtons,
     );
-    actionInner = [placeholderTopRow, step3MainBtnsWrapper, step3Table, step3FeedbackBox];
+    actionInner = [
+      placeholderTopRow,
+      step3MainBtnsWrapper,
+      step3Table,
+      step3FeedbackBox,
+    ];
   } else if (showSamplesPanel) {
     actionInner = samplesRow;
   } else if (showButtonRows) {
@@ -4746,7 +4958,11 @@ const MainCanvas = (props) => {
     else if (isA2 || isC2 || isB2) topRow = mcqRow;
     else if (isC1 && !rangeAllDone) topRow = rangeButtons;
     else if (isB1 && !meanAllDone) topRow = meanButtons;
-    else topRow = e("div", { className: "action-buttons-row", key: "action-empty" });
+    else
+      topRow = e("div", {
+        className: "action-buttons-row",
+        key: "action-empty",
+      });
     actionInner = [topRow, mainButtons];
   }
 
@@ -4823,9 +5039,7 @@ const MainCanvas = (props) => {
     );
   }
   if (isC1 && showLowNudge) {
-    nudges.push(
-      e(Nudge, { key: "n-low", targetRef: lowBtnRef, active: true }),
-    );
+    nudges.push(e(Nudge, { key: "n-low", targetRef: lowBtnRef, active: true }));
   }
   if (isC1 && showAnswerNudge) {
     nudges.push(

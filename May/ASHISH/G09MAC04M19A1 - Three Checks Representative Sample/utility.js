@@ -1,8 +1,5 @@
-
-
-
 const audioCache = {};
-const sounds = ["correct", "wrong", "click", "congrats","tick"];
+const sounds = ["correct", "wrong", "click", "congrats", "tick", "zoom", "fill"];
 sounds.forEach((name) => {
   const audio = new Audio(`sound/${name}.mp3`);
   audio.load(); // Preloads the audio
@@ -17,12 +14,11 @@ function playSound(filename) {
   sound.play();
 }
 
-
 function handleComma(sentence) {
   if (current_language !== "id" || !sentence) {
     return sentence;
   }
-  
+
   return sentence.replace(/,/g, "<cm>,</cm>");
 }
 

@@ -16,7 +16,10 @@
   overflow: hidden;
   padding: 0 0.4vw;
   gap: 0;
-  transition: flex-basis 0.55s ease, height 0.55s ease, padding 0.55s ease,
+  transition:
+    flex-basis 0.55s ease,
+    height 0.55s ease,
+    padding 0.55s ease,
     gap 0.55s ease;
 }
 
@@ -46,7 +49,10 @@
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
-  transition: transform 0.7s ease, opacity 0.45s ease, border-color 0.35s ease,
+  transition:
+    transform 0.7s ease,
+    opacity 0.45s ease,
+    border-color 0.35s ease,
     box-shadow 0.35s ease;
 }
 
@@ -214,9 +220,12 @@
   padding: 0.7vw 2.2vw;
   border-radius: 0.8vw;
   min-width: 10vw;
-  box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20),
+  box-shadow:
+    0 0.2vh 0.4vh var(--transparent-black-20),
     0.2vh 0.2vh 0.1vh var(--start-button-shadow);
-  transition: background 0.3s ease, opacity 0.3s ease;
+  transition:
+    background 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .mcq-btn:disabled {
@@ -273,22 +282,28 @@
   align-items: center;
   justify-content: center;
   gap: 0.55vw;
-  transition: width 0.45s ease, opacity 0.35s ease, background 0.35s ease,
-    border-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
+  transition:
+    width 0.45s ease,
+    opacity 0.35s ease,
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    color 0.35s ease;
   white-space: nowrap;
+  text-shadow: 0 0.1vw 0.6vw rgba(0, 0, 0, 0.45);
 }
 
 .main-btn.shape {
-  background: #3db8a0;
+  background: #48d2b6;
 }
 
 .main-btn.centre {
-  background: #5aa8dc;
+  background: #5db2e7;
 }
 
 .main-btn.spread {
-  background: #e0c09a;
-  color: #2a2a2a;
+  background: #dec3a3;
+  /* color: #2a2a2a; */
 }
 
 .main-btn.explored {
@@ -302,21 +317,18 @@
 
 /* Different explored colors per main button */
 .main-btn.shape.explored {
-  background: rgba(61, 184, 160, 0.28);
-  border-color: rgba(124, 252, 0, 0.95);
-  box-shadow: 0 0 0.7vw rgba(124, 252, 0, 0.35);
+  background: #46cdb24c;
+  border-color: #46cdb2;
 }
 
 .main-btn.centre.explored {
-  background: rgba(90, 168, 220, 0.28);
-  border-color: rgba(90, 168, 220, 0.95);
-  box-shadow: 0 0 0.7vw rgba(90, 168, 220, 0.35);
+  background: #5cb0e552;
+  border-color: #5cb1e5;
 }
 
 .main-btn.spread.explored {
-  background: rgba(224, 192, 154, 0.28);
-  border-color: rgba(242, 201, 76, 0.95);
-  box-shadow: 0 0 0.7vw rgba(242, 201, 76, 0.35);
+  background: #dec4a348;
+  border-color: #dec3a3;
 }
 
 .main-btn.dehighlighted {
@@ -356,6 +368,21 @@
   background: rgba(124, 252, 0, 0.22);
 }
 
+.main-btn.shape .s1, .main-btn.shape .s2{
+  background: #46cdb2a9;
+  border: 0.25vw solid #46cdb2;
+}
+
+.main-btn.centre .s1, .main-btn.centre .s2{
+  background: #5cb0e552;
+  border: 0.25vw solid #5cb1e5;
+}
+
+.main-btn.spread .s1, .main-btn.spread .s2{
+  background: #dec4a348;
+  border: 0.25vw solid #dec3a3;
+}
+
 .feedback-box {
   position: absolute;
   inset: 10% 7%;
@@ -387,38 +414,10 @@
   }
 }
 
-@keyframes blinkGreen {
-  0%,
-  100% {
-    opacity: 1;
-    filter: drop-shadow(0 0 4px #7cfc00)
-      drop-shadow(0 0 8px rgba(124, 252, 0, 0.5));
-  }
-  50% {
-    opacity: 0.35;
-    filter: none;
-  }
-}
-
-.blink-green {
-  animation: blinkGreen 1.2s ease-in-out infinite;
-}
-
-@keyframes blinkRed {
-  0%,
-  100% {
-    opacity: 1;
-    filter: drop-shadow(0 0 4px #ff5252)
-      drop-shadow(0 0 8px rgba(255, 82, 82, 0.5));
-  }
-  50% {
-    opacity: 0.35;
-    filter: none;
-  }
-}
-
+.blink-green,
 .blink-red {
-  animation: blinkRed 1.2s ease-in-out infinite;
+  animation: none;
+  filter: none;
 }
 
 .flying-clone {
@@ -462,8 +461,13 @@
   padding: 0.55vw 0.7vw;
   border-radius: 0.8vw;
   box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20);
-  transition: width 0.45s ease, opacity 0.35s ease, padding 0.35s ease,
-    min-width 0.45s ease, margin 0.35s ease, border-width 0.35s ease;
+  transition:
+    width 0.45s ease,
+    opacity 0.35s ease,
+    padding 0.35s ease,
+    min-width 0.45s ease,
+    margin 0.35s ease,
+    border-width 0.35s ease;
   position: relative;
   transform-origin: 50% 50%;
   display: flex;
@@ -633,7 +637,10 @@
   max-width: 42vw;
   opacity: 1;
   flex-shrink: 1;
-  transition: max-width 0.5s ease, opacity 0.45s ease, margin 0.5s ease;
+  transition:
+    max-width 0.5s ease,
+    opacity 0.45s ease,
+    margin 0.5s ease;
 }
 
 .range-btn.is-collapsed .range-formula-mid {
@@ -651,7 +658,9 @@
   max-width: 0;
   opacity: 0;
   flex-shrink: 0;
-  transition: max-width 0.5s ease, opacity 0.45s ease;
+  transition:
+    max-width 0.5s ease,
+    opacity 0.45s ease;
 }
 
 .range-btn.is-collapsed .range-result-slot {
@@ -674,8 +683,13 @@
   padding: 0.45vw 0.65vw;
   border-radius: 0.8vw;
   box-shadow: 0 0.2vh 0.4vh var(--transparent-black-20);
-  transition: width 0.45s ease, opacity 0.35s ease, padding 0.35s ease,
-    min-width 0.45s ease, margin 0.35s ease, border-width 0.35s ease;
+  transition:
+    width 0.45s ease,
+    opacity 0.35s ease,
+    padding 0.35s ease,
+    min-width 0.45s ease,
+    margin 0.35s ease,
+    border-width 0.35s ease;
   position: relative;
   transform-origin: 50% 50%;
   display: flex;
@@ -743,7 +757,10 @@
   overflow: visible;
   max-width: 26vw;
   opacity: 1;
-  transition: max-width 0.5s ease, opacity 0.45s ease, margin 0.5s ease;
+  transition:
+    max-width 0.5s ease,
+    opacity 0.45s ease,
+    margin 0.5s ease;
 }
 
 .mean-btn.is-collapsed .mean-fraction {
@@ -835,7 +852,10 @@
   max-width: none;
   opacity: 1;
   flex-shrink: 0;
-  transition: max-width 0.5s ease, opacity 0.45s ease, margin 0.5s ease;
+  transition:
+    max-width 0.5s ease,
+    opacity 0.45s ease,
+    margin 0.5s ease;
 }
 
 .mean-formula-mid:empty {
