@@ -105,7 +105,7 @@
         tapNextExplore: "Tap » to explore more",
         tapNextPattern: "Tap » to identify the pattern",
         changeIntroMsg:
-          "<span class='hl-gold'>f(H)</span> only changes when the outcome is <span class='hl-gold'>HEADS</span>,<br>otherwise it stays the same.<br><strong class='hl-bright'>Change = Current f(H) − Previous f(H)</strong>",
+          "<span class='hl-gold'>f(H)</span> only changes when the outcome is <span class='hl-gold'>HEADS</span>,<br>otherwise it stays the same.<br><span class='formula-pink'>Change = Current f(H) − Previous f(H)</span>",
         changeIntroMsgRecording:
           "f(H) only changes when the outcome is HEADS, otherwise it stays the same. Let us record that change in the table.<br><span class='formula-pink'>Change = Current f(H) − Previous f(H)</span>",
         tapNextRecordChange: "Tap » to record the change.",
@@ -190,7 +190,7 @@
         tapNextExplore: "Ketuk » untuk mempelajari lebih lanjut",
         tapNextPattern: "Ketuk » untuk menemukan pola",
         changeIntroMsg:
-          "<span class='hl-gold'>f(A)</span> hanya berubah ketika hasilnya <span class='hl-gold'>ANGKA</span>,<br>jika tidak, nilainya tetap sama.<br><strong class='hl-bright'>Perubahan = f(A) saat ini − f(A) sebelumnya</strong>",
+          "<span class='hl-gold'>f(A)</span> hanya berubah ketika hasilnya <span class='hl-gold'>ANGKA</span>,<br>jika tidak, nilainya tetap sama.<br><span class='formula-pink'>Perubahan = f(A) saat ini − f(A) sebelumnya</span>",
         changeIntroMsgRecording:
           "f(A) hanya berubah ketika hasilnya ANGKA, jika tidak, nilainya tetap sama. Mari kita catat perubahan itu di tabel.<br><span class='formula-pink'>Perubahan = f(A) saat ini − f(A) sebelumnya</span>",
         tapNextRecordChange: "Ketuk » untuk mencatat perubahan.",

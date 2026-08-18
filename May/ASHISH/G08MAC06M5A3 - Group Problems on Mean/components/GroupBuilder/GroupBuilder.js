@@ -158,7 +158,11 @@ const GroupButton = ({ label, actionStage, stage, muted, onAdvance }) => React.c
   type: "button",
   className: `group-action ${stage === actionStage ? "ftue-target group-action--active" : ""} ${muted ? "group-action--muted" : ""}`,
   disabled: stage !== actionStage,
-  onClick: () => onAdvance(actionStage),
+  onClick: () => {
+    const hand = document.getElementById("hand-ftue");
+    if (hand) hand.classList.remove("hand-animating", "hand-nudge-right");
+    onAdvance(actionStage);
+  },
 }, label);
 
 const AddGroup = ({ groupKey, label, revealStage, actionStage, suffix, stage, item, groupAPileCount, animatedGroups, onAdvance }) => {
@@ -177,19 +181,37 @@ const AddGroup = ({ groupKey, label, revealStage, actionStage, suffix, stage, it
   );
 };
 
-const FinalAddGroup = ({ stage, stageReady, data, onAdvance }) => {
+const getGroupBuilderFinalState = (mode) => {
+  const isAdd = mode === "add";
+  const data = T.lesson.groups[mode];
+  return {
+    stage: isAdd ? 6 : 3,
+    stageReady: true,
+    skipAnimations: true,
+    countDone: true,
+    totalDone: true,
+    meanDone: true,
+    countAnimStage: isAdd ? data.result.count : -1,
+    meanRound: isAdd ? Number(data.result.mean) : 0,
+  };
+};
+
+const FinalAddGroup = ({ stage, stageReady, data, onAdvance, playSfx, initialState }) => {
   const h = React.createElement;
   const { useEffect, useLayoutEffect, useRef, useState } = React;
-  const [countAnimStage, setCountAnimStage] = useState(-1);
-  const [countDone, setCountDone] = useState(false);
-  const [totalDone, setTotalDone] = useState(false);
-  const [meanRound, setMeanRound] = useState(0);
-  const [meanDone, setMeanDone] = useState(false);
+  const resume = initialState || {};
+  const [countAnimStage, setCountAnimStage] = useState(resume.countAnimStage ?? -1);
+  const [countDone, setCountDone] = useState(!!resume.countDone);
+  const [totalDone, setTotalDone] = useState(!!resume.totalDone);
+  const [meanRound, setMeanRound] = useState(resume.meanRound ?? 0);
+  const [meanDone, setMeanDone] = useState(!!resume.meanDone);
 
-  const countStartedRef = useRef(false);
-  const totalStartedRef = useRef(false);
-  const meanStartedRef = useRef(false);
+  const countStartedRef = useRef(!!resume.skipAnimations);
+  const totalStartedRef = useRef(!!resume.skipAnimations);
+  const meanStartedRef = useRef(!!resume.skipAnimations);
   const flownCoinsRef = useRef(new Set());
+  const countSoundStepRef = useRef(resume.skipAnimations ? 99 : -1);
+  const meanSoundRoundRef = useRef(resume.skipAnimations ? 4 : 0);
 
   const slotCount = data.result.count;
   const meanVal = Number(data.result.mean);
@@ -209,6 +231,7 @@ const FinalAddGroup = ({ stage, stageReady, data, onAdvance }) => {
     if (stage !== 4) {
       if (stage < 4) {
         countStartedRef.current = false;
+        countSoundStepRef.current = -1;
         setCountAnimStage(-1);
         setCountDone(false);
       }
@@ -233,6 +256,16 @@ const FinalAddGroup = ({ stage, stageReady, data, onAdvance }) => {
   }, [stage, slotCount]);
 
   useEffect(() => {
+    if (resume.skipAnimations) return undefined;
+    if (stage !== 4) return undefined;
+    if (countAnimStage < 0 || countAnimStage >= slotCount) return undefined;
+    if (countSoundStepRef.current === countAnimStage) return undefined;
+    countSoundStepRef.current = countAnimStage;
+    playSfx("tick");
+    return undefined;
+  }, [stage, countAnimStage, slotCount, playSfx]);
+
+  useEffect(() => {
     if (stage !== 5) {
       if (stage < 5) {
         totalStartedRef.current = false;
@@ -242,15 +275,17 @@ const FinalAddGroup = ({ stage, stageReady, data, onAdvance }) => {
     }
     if (totalStartedRef.current) return undefined;
     totalStartedRef.current = true;
+    playSfx("zoom");
 
     const timer = setTimeout(() => setTotalDone(true), 1400);
     return () => clearTimeout(timer);
-  }, [stage]);
+  }, [stage, playSfx]);
 
   useEffect(() => {
     if (stage !== 6) {
       if (stage < 6) {
         meanStartedRef.current = false;
+        meanSoundRoundRef.current = 0;
         flownCoinsRef.current = new Set();
         setMeanRound(0);
         setMeanDone(false);
@@ -273,6 +308,16 @@ const FinalAddGroup = ({ stage, stageReady, data, onAdvance }) => {
     }, 950);
     return () => clearInterval(interval);
   }, [stage]);
+
+  useEffect(() => {
+    if (resume.skipAnimations) return undefined;
+    if (stage !== 6) return undefined;
+    if (meanRound <= 0 || meanRound > 4) return undefined;
+    if (meanSoundRoundRef.current === meanRound) return undefined;
+    meanSoundRoundRef.current = meanRound;
+    playSfx("swoosh");
+    return undefined;
+  }, [stage, meanRound, playSfx]);
 
   const slotsVisible = stage >= 4;
   const totalVisible = stage >= 5;
@@ -309,7 +354,7 @@ const FinalAddGroup = ({ stage, stageReady, data, onAdvance }) => {
             slotCoinCount > 0 && h(DistributedSlotStack, {
               amount: slotCoinCount,
               slotIndex: index,
-              meanRound: stage === 6 ? meanRound : 0,
+              meanRound: stage === 6 && !meanDone ? meanRound : 0,
               flownCoins: flownCoinsRef,
             })
           );
@@ -379,14 +424,15 @@ const FormulaGroup = ({ label, actionStage, suffix, stage, animatedGroups, formu
   );
 };
 
-const GroupBuilder = ({ mode, onComplete, onInstruction, onAnimationBusy = () => {}, playSfx }) => {
+const GroupBuilder = ({ mode, onComplete, onInstruction, onAnimationBusy = () => {}, playSfx, initialState }) => {
   const h = React.createElement;
   const { useEffect, useRef, useState } = React;
-  const [stage, setStage] = useState(0);
-  const [stageReady, setStageReady] = useState(true);
+  const resume = initialState || {};
   const data = T.lesson.groups[mode];
   const isAdd = mode === "add";
   const maxStage = isAdd ? 6 : 3;
+  const [stage, setStage] = useState(resume.stage ?? 0);
+  const [stageReady, setStageReady] = useState(resume.stageReady ?? true);
   const prompts = isAdd
     ? [T.ui.tapGroupA, T.ui.tapGroupB, T.ui.tapFinal, T.ui.tapCount, T.ui.tapTotal, T.ui.tapMean, T.ui.continuePrompt]
     : [T.ui.tapGroupA, T.ui.tapGroupBSubtract, T.ui.tapFinalSubtract, T.ui.continuePrompt];
@@ -394,19 +440,18 @@ const GroupBuilder = ({ mode, onComplete, onInstruction, onAnimationBusy = () =>
   const animatedGroupsRef = useRef(new Set());
   const advance = (needed) => {
     if (stage !== needed) return;
-    if (isAdd && needed === 5) {
-      playSfx("split");
-      setTimeout(() => playSfx("correct"), 4750);
-    } else {
-      playSfx(needed === maxStage - 1 ? "correct" : "click");
-    }
+    playSfx(isAdd && needed === 5 ? "click" : (needed === maxStage - 1 ? "correct" : "click"));
     setStageReady(false);
     setStage((value) => value + 1);
   };
 
   useEffect(() => {
+    if (resume.skipAnimations) {
+      setStageReady(true);
+      return undefined;
+    }
     const animationDurations = isAdd
-      ? [0, 1700, 1200, 500, 3450, 2200, 4900]
+      ? [0, 1700, 1200, 500, 3450, 1400, 4900]
       : [0, 500, 500, 500];
     const duration = animationDurations[stage] || 0;
     if (!duration) {
@@ -454,13 +499,13 @@ const GroupBuilder = ({ mode, onComplete, onInstruction, onAnimationBusy = () =>
     : T.ui.buildSubtractTitle;
 
   return h("section", { className: `lesson-screen group-builder group-builder--${mode} fade-in` },
-    h("h2", { className: "rule-title", dangerouslySetInnerHTML: { __html: title } }),
+    h("div", { className: "rule-title", dangerouslySetInnerHTML: { __html: title } }),
     isAdd ? h("div", { className: "group-equation" },
       h(AddGroup, { groupKey: "a", label: T.ui.groupA, revealStage: 0, actionStage: 0, suffix: "1", stage, item: data.a, groupAPileCount: data.a.piles.length, animatedGroups: animatedGroupsRef, onAdvance: advance }),
       h("span", { className: "math-operator" }, "+"),
       h(AddGroup, { groupKey: "b", label: T.ui.groupB, revealStage: 1, actionStage: 1, suffix: "2", stage, item: data.b, groupAPileCount: data.a.piles.length, animatedGroups: animatedGroupsRef, onAdvance: advance }),
       h("span", { className: "math-operator" }, "="),
-      h(FinalAddGroup, { stage, stageReady, data, onAdvance: advance })
+      h(FinalAddGroup, { stage, stageReady, data, onAdvance: advance, playSfx, initialState: resume })
     ) : subtractScene
   );
 };

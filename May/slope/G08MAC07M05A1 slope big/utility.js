@@ -51,6 +51,45 @@ function renderFeedbackHtml(html) {
   );
 }
 
+function formatMathVariablesHtml(html) {
+  if (!html) return "";
+  return String(html)
+    .split(/(<[^>]+>)/g)
+    .map((segment) =>
+      segment.startsWith("<")
+        ? segment
+        : segment.replace(
+            /\b([xy])\b/gi,
+            '<span class="math-variable">$1</span>',
+          ),
+    )
+    .join("");
+}
+
+function getInsetLineEnds(start, end, startInset, endInset) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const length = Math.hypot(dx, dy);
+  if (!length) {
+    return {
+      start: { x: start.x, y: start.y },
+      end: { x: end.x, y: end.y },
+    };
+  }
+  const ux = dx / length;
+  const uy = dy / length;
+  return {
+    start: {
+      x: start.x + ux * (startInset || 0),
+      y: start.y + uy * (startInset || 0),
+    },
+    end: {
+      x: end.x - ux * (endInset || 0),
+      y: end.y - uy * (endInset || 0),
+    },
+  };
+}
+
 const dilationAudioCtx =
   typeof window !== "undefined"
     ? new (window.AudioContext || window.webkitAudioContext)()

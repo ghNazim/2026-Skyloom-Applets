@@ -100,6 +100,7 @@
       wrong: "./assets/sfx/wrong.mp3",
       split: "./assets/sfx/split.mp3",
       swoosh: "./assets/sfx/swoosh.mp3",
+      tick: "./assets/sfx/tick.mp3",
     },
     diceFirstRolls,
     diceFinalFreq,

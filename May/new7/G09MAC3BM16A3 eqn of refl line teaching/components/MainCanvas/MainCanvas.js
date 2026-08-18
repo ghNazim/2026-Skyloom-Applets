@@ -41,89 +41,35 @@ const STEP4_GUIDE_FADE_MS = 280;
 const STEP4_PRIME_HOLD_MS = 450;
 const STEP4_PRIME_FADE_MS = 1125;
 
-const getStepFourGuideSpecs = (kind) => {
-  const copy = { id: "copy", textKey: "copyEquation", animMs: STEP4_FLY_MS };
-  const finalStep = {
-    id: "final",
-    textKey: "dropPrimes",
-    animMs: STEP4_PRIME_HOLD_MS + STEP4_PRIME_FADE_MS,
-  };
-  if (kind === "verticalLineK") {
-    return [
-      copy,
-      { id: "replaceK", textKey: "replaceK", animMs: STEP4_FLY_MS },
-      { id: "simplifyK", textKey: "simplifyK", animMs: Q4_SWAP_DONE_MS },
-      {
-        id: "distribute",
-        textKey: "distribute",
-        animMs: STEP4_PAUSE_MS + STEP4_FLY_MS,
-      },
-      {
-        id: "removeProductParens",
-        textKey: "removeProductParens",
-        animMs: Q4_REMOVAL_MS + 80,
-      },
-      {
-        id: "substitute8",
-        textKey: "substituteProduct",
-        animMs: Q4_SWAP_DONE_MS,
-      },
-      {
-        id: "removeInnerParens",
-        textKey: "removeInnerParens",
-        animMs: Q4_SIGN_SWAP_DONE_MS,
-      },
-      { id: "cleanSigns", textKey: "cleanSigns", animMs: Q4_SWAP_DONE_MS },
-      {
-        id: "rearrangeFinal",
-        textKey: "rearrangeTerms",
-        animMs: Q4_REARRANGE_MS,
-      },
-      {
-        id: "combineConstants",
-        textKey: "combineConstants",
-        animMs: Q4_SWAP_DONE_MS,
-      },
-      finalStep,
-    ];
-  }
-  if (kind === "reflectNegativeDiagonal") {
-    return [
-      copy,
-      {
-        id: "combineNegatives",
-        textKey: "rearrangeTerms",
-        animMs: Q4_REARRANGE_MS,
-      },
-      {
-        id: "multipliedWithBrackets",
-        textKey: "writeWithBrackets",
-        animMs: Q2_STEP_GAP_MS,
-      },
-      {
-        id: "removeBrackets",
-        textKey: "removeBrackets",
-        animMs: Q2_BRACKET_FADE_MS,
-      },
-      {
-        id: "multiplyByMinus1",
-        textKey: "multiplyByMinusOne",
-        animMs: Q2_WRAP_DONE_MS,
-      },
-      {
-        id: "simplifyMultiply",
-        textKey: "simplifyProduct",
-        animMs: Q2_SIMPLIFY_DONE_MS,
-      },
-      finalStep,
-    ];
-  }
-  return [
-    copy,
-    { id: "combineNegatives", textKey: "combineNegatives", animMs: 1000 },
-    { id: "removeBrackets", textKey: "removeBrackets", animMs: 1200 },
-    finalStep,
-  ];
+const STEP4_STEP_IDS_BY_KIND = {
+  minusTimesNegative: [
+    "copy",
+    "combineNegatives",
+    "removeBrackets",
+    "final",
+  ],
+  reflectNegativeDiagonal: [
+    "copy",
+    "combineNegatives",
+    "multipliedWithBrackets",
+    "removeBrackets",
+    "multiplyByMinus1",
+    "simplifyMultiply",
+    "final",
+  ],
+  verticalLineK: [
+    "copy",
+    "replaceK",
+    "simplifyK",
+    "distribute",
+    "removeProductParens",
+    "substitute8",
+    "removeInnerParens",
+    "cleanSigns",
+    "rearrangeFinal",
+    "combineConstants",
+    "final",
+  ],
 };
 
 const renderStep4Prime = () =>
@@ -290,6 +236,66 @@ const Q4_SIGN_COLLAPSE_MS = 900;
 const Q4_REMOVAL_MS = 750;
 const Q4_SWAP_DONE_MS = Q4_FADE_SWAP_MS + Q4_FADE_COLLAPSE_MS + 120;
 const Q4_SIGN_SWAP_DONE_MS = Q4_SIGN_FADE_MS + Q4_SIGN_COLLAPSE_MS + 120;
+
+const getStepFourAnimMs = (kind, id) => {
+  switch (id) {
+    case "copy":
+      return STEP4_FLY_MS;
+    case "final":
+      return STEP4_PRIME_HOLD_MS + STEP4_PRIME_FADE_MS;
+    case "combineNegatives":
+      return kind === "reflectNegativeDiagonal" ? Q4_REARRANGE_MS : 1000;
+    case "removeBrackets":
+      return kind === "reflectNegativeDiagonal" ? Q2_BRACKET_FADE_MS : 1200;
+    case "multipliedWithBrackets":
+      return Q2_STEP_GAP_MS;
+    case "multiplyByMinus1":
+      return Q2_WRAP_DONE_MS;
+    case "simplifyMultiply":
+      return Q2_SIMPLIFY_DONE_MS;
+    case "replaceK":
+      return STEP4_FLY_MS;
+    case "simplifyK":
+      return Q4_SWAP_DONE_MS;
+    case "distribute":
+      return STEP4_PAUSE_MS + STEP4_FLY_MS;
+    case "removeProductParens":
+      return Q4_REMOVAL_MS + 80;
+    case "substitute8":
+      return Q4_SWAP_DONE_MS;
+    case "removeInnerParens":
+      return Q4_SIGN_SWAP_DONE_MS;
+    case "cleanSigns":
+      return Q4_SWAP_DONE_MS;
+    case "rearrangeFinal":
+      return Q4_REARRANGE_MS;
+    case "combineConstants":
+      return Q4_SWAP_DONE_MS;
+    default:
+      return STEP4_FLY_MS;
+  }
+};
+
+const getStepFourGuideSpecs = (step4) => {
+  const kind = step4.simplifyKind;
+  const ids =
+    STEP4_STEP_IDS_BY_KIND[kind] || STEP4_STEP_IDS_BY_KIND.minusTimesNegative;
+  const arrayLen = (step4.simplificationArray || []).length;
+  if (ids.length !== arrayLen) {
+    console.warn(
+      "simplificationArray length (" +
+        arrayLen +
+        ") does not match step count (" +
+        ids.length +
+        ") for " +
+        kind,
+    );
+  }
+  return ids.map((id) => ({
+    id,
+    animMs: getStepFourAnimMs(kind, id),
+  }));
+};
 
 const Q4FadeOutToken = ({ children, fade, instant }) => {
   const { useEffect, useState } = React;
@@ -894,6 +900,18 @@ const MainCanvas = React.forwardRef(
         );
       }
 
+      if (step !== 4) {
+        setStepFourGuideIndex(-1);
+        setStepFourManual(false);
+        setStepFourInstant(false);
+        setStepFourGuideVisible(false);
+        setStepFourGuideDisplay({ title: "", note: "" });
+        stepFourManualRef.current = false;
+        stepFourGuideIndexRef.current = -1;
+        stepFourGuideDisplayRef.current = { title: "", note: "" };
+        stepFourInstantRef.current = false;
+      }
+
       if (step === 4) {
         setTypedProblem(plainProblem);
         setRightVisible(true);
@@ -940,6 +958,10 @@ const MainCanvas = React.forwardRef(
 
       if (!shouldShow) {
         setStepFourGuideVisible(false);
+        if (current.title || current.note) {
+          stepFourGuideDisplayRef.current = { title: "", note: "" };
+          setStepFourGuideDisplay({ title: "", note: "" });
+        }
         return undefined;
       }
 
@@ -1587,7 +1609,7 @@ const MainCanvas = React.forwardRef(
 
     const playStepFourAutoFrom = (index) => {
       if (stepFourManualRef.current) return;
-      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      const specs = getStepFourGuideSpecs(activeQuestion.step4);
       if (index < 0 || index >= specs.length) return;
       stepFourGuideIndexRef.current = index;
       setStepFourGuideIndex(index);
@@ -1616,7 +1638,7 @@ const MainCanvas = React.forwardRef(
 
     const handleStepFourPrev = () => {
       enterStepFourManual();
-      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      const specs = getStepFourGuideSpecs(activeQuestion.step4);
       const current = Math.max(0, stepFourGuideIndexRef.current);
       const target = current <= 1 ? 1 : current - 1;
       stepFourGuideIndexRef.current = target;
@@ -1626,7 +1648,7 @@ const MainCanvas = React.forwardRef(
 
     const handleStepFourNext = () => {
       enterStepFourManual();
-      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      const specs = getStepFourGuideSpecs(activeQuestion.step4);
       const current = Math.max(1, stepFourGuideIndexRef.current);
       if (current >= specs.length - 1) {
         applyStepFourVisual(specs[specs.length - 1].id, "complete");
@@ -2521,9 +2543,8 @@ const MainCanvas = React.forwardRef(
       );
 
     const renderStepFourGuideBox = () => {
-      if (step !== 4) return null;
-      if (stepFourGuideIndex < 1 && !stepFourGuideDisplay.title) return null;
-      const specs = getStepFourGuideSpecs(activeQuestion.step4.simplifyKind);
+      if (step !== 4 || stepFourGuideIndex < 1) return null;
+      const specs = getStepFourGuideSpecs(activeQuestion.step4);
       return React.createElement(
         "div",
         { className: "steps-box" + (stepFourManual ? " is-manual" : "") },

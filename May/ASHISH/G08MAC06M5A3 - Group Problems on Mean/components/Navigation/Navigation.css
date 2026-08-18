@@ -4,10 +4,12 @@
   gap: 0.8vw;
   width: 100%;
   justify-content: space-between;
-  flex: 0 0 7vh;
-  height: 7vh;
-  min-height: 7vh;
-  max-height: 7vh;
+  flex: 0 0 5vw;
+  height: 5vw;
+  min-height: 5vw;
+  max-height: 5vw;
+  padding: 0 0.5vw;
+  background: rgba(255, 255, 255, 0.15);
 }
 .navigation__instruction {
   flex: 1;

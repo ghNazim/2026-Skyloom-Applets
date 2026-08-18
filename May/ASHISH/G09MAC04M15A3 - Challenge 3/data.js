@@ -49,6 +49,8 @@
       correct: "./assets/sfx/correct.mp3",
       wrong: "./assets/sfx/wrong.mp3",
       split: "./assets/sfx/split.mp3",
+      swoosh: "./assets/sfx/swoosh.mp3",
+      zoom: "./assets/sfx/zoom.mp3",
     },
   };
 

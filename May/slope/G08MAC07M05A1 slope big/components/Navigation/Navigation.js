@@ -19,7 +19,9 @@ const Navigation = ({
     ),
     React.createElement("div", {
       className: "nav-text-container",
-      dangerouslySetInnerHTML: { __html: navText || "" },
+      dangerouslySetInnerHTML: {
+        __html: formatMathVariablesHtml(navText || ""),
+      },
     }),
     React.createElement(
       "button",

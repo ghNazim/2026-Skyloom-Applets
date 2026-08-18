@@ -1,19 +1,25 @@
-const NumPad = ({ value, onChange, onSubmit, disabled }) => {
+const NumPad = ({ value, onChange, onSubmit, disabled, resetOnNextKey }) => {
   const topKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "+", "-"];
 
   const handleKey = (key) => {
     if (disabled) return;
+    const shouldReset = resetOnNextKey && key !== "⌫";
+    const currentValue = shouldReset ? "?" : value;
+
     if (key === "⌫") {
-      if (value === "?" || value.length <= 1) onChange("?");
-      else onChange(value.slice(0, -1));
+      if (currentValue === "?" || currentValue.length <= 1) onChange("?");
+      else onChange(currentValue.slice(0, -1));
       return;
     }
     if (key === "+" || key === "-") {
-      const digits = value === "?" ? "" : value.replace(/[+-]/g, "");
+      const digits =
+        currentValue === "?" ? "" : currentValue.replace(/[+-]/g, "").slice(0, 1);
       onChange(`${key}${digits}`);
       return;
     }
-    onChange(value === "?" ? key : `${value}${key}`);
+    const nextValue = currentValue === "?" ? key : `${currentValue}${key}`;
+    if (nextValue.length > 2) return;
+    onChange(nextValue);
   };
 
   return React.createElement(

@@ -131,20 +131,20 @@ const DATA = {
             correctIndex: 0,
             simplificationArray: [
               {
-                expr: "3x' &minus; 2(&minus;y') = 1",
+                expr: "3(x') &minus; 2(&minus;y') = 1",
                 note: "Substitute <i>x</i> = <i>x</i>&prime; and <i>y</i> = &minus;<i>y</i>&prime; into the equation of the given line.",
               },
               {
-                expr: "3x' + 2y' = 1",
-                note: "Open the brackets: 3 &times; <i>x</i>&prime; = 3<i>x</i>&prime; and &minus;2 &times; (&minus;<i>y</i>&prime;) = +2<i>y</i>&prime;.",
+                expr: "3(x') + 2(y') = 1",
+                note: "A negative multiplied by a negative gives a positive: &minus;2 &times; (&minus;<i>y</i>&prime;) = +2<i>y</i>&prime;.",
               },
               {
                 expr: "3x' + 2y' = 1",
-                note: "Remove the brackets around the variable terms.",
+                note: "Nothing is left to multiply out, so the brackets can be removed.",
               },
               {
                 expr: "3x + 2y = 1",
-                note: "Write <i>x</i>&prime; as <i>x</i> and <i>y</i>&prime; as <i>y</i>.",
+                note: "This holds for every point on the reflected line, so write <i>x</i>&prime; as <i>x</i> and <i>y</i>&prime; as <i>y</i>.",
               },
             ],
           },
@@ -217,28 +217,28 @@ const DATA = {
                 note: "Substitute <i>x</i> = &minus;<i>y</i>&prime; and <i>y</i> = &minus;<i>x</i>&prime; into the equation of the given line.",
               },
               {
-                expr: "&minus;5y' &minus; x' &minus; 6 = 0",
-                note: "Open the brackets: 5 &times; (&minus;<i>y</i>&prime;) = &minus;5<i>y</i>&prime; and +(&minus;<i>x</i>&prime;) = &minus;<i>x</i>&prime;.",
+                expr: "&minus;5(y') &minus; (x') &minus; 6 = 0",
+                note: "Move each negative sign to the front of its term: 5 &times; (&minus;<i>y</i>&prime;) becomes &minus;5(<i>y</i>&prime;), and +(&minus;<i>x</i>&prime;) becomes &minus;(<i>x</i>&prime;).",
               },
               {
                 expr: "&minus;5(y') &minus; (x') &minus; 6 = 0",
-                note: "Rewrite the terms with brackets around each variable.",
+                note: "Both variable terms are now negative. The brackets are only marking what each negative sign applies to.",
               },
               {
                 expr: "&minus;5y' &minus; x' &minus; 6 = 0",
-                note: "Remove the brackets.",
+                note: "Nothing is left to multiply out, so the brackets can be removed.",
               },
               {
                 expr: "&minus;1 &times; (&minus;5y' &minus; x' &minus; 6) = &minus;1 &times; 0",
-                note: "Multiply both sides by &minus;1 so that the terms become positive.",
+                note: "Every term on the left is negative. Multiply both sides by &minus;1 to make them positive.",
               },
               {
                 expr: "5y' + x' + 6 = 0",
-                note: "Every term changes its sign, and &minus;1 &times; 0 = 0.",
+                note: "Each term changes sign, and &minus;1 &times; 0 is still 0.",
               },
               {
                 expr: "x + 5y + 6 = 0",
-                note: "Write the <i>x</i>&prime; term first, as in the answer options. Write <i>x</i>&prime; as <i>x</i> and <i>y</i>&prime; as <i>y</i>.",
+                note: "Write the <i>x</i>&prime; term first to match the answer options, then write <i>x</i>&prime; as <i>x</i> and <i>y</i>&prime; as <i>y</i>.",
               },
             ],
           },
@@ -285,39 +285,39 @@ const DATA = {
               },
               {
                 expr: "&minus;2(2 &times; (&minus;2) &minus; x') &minus; (y') + 1 = 0",
-                note: "Replace <i>k</i> with &minus;2, the given value of the vertical line.",
+                note: "Here <i>k</i> is the <i>x</i>&minus;value of the line of reflection, <i>x</i> = &minus;2, so replace <i>k</i> with &minus;2.",
               },
               {
                 expr: "&minus;2(&minus;4 &minus; x') &minus; (y') + 1 = 0",
-                note: "Simplify 2 &times; (&minus;2) to get &minus;4.",
+                note: "Work out 2 &times; (&minus;2) = &minus;4.",
               },
               {
                 expr: "(&minus;2) &times; (&minus;4) &minus; (&minus;2)x' &minus; (y') + 1 = 0",
-                note: "Distribute &minus;2 across the terms inside the brackets.",
+                note: "Multiply the &minus;2 by each term inside the bracket.",
               },
               {
                 expr: "&minus;2 &times; (&minus;4) &minus; (&minus;2)x' &minus; (y') + 1 = 0",
-                note: "Remove the product brackets.",
+                note: "The outer bracket only marked off the &minus;2 being multiplied, so it is no longer needed.",
               },
               {
                 expr: "8 &minus; (&minus;2)x' &minus; (y') + 1 = 0",
-                note: "Replace (&minus;2) &times; (&minus;4) with 8.",
+                note: "A negative multiplied by a negative gives a positive: &minus;2 &times; (&minus;4) = 8.",
               },
               {
                 expr: "8 + 2x' &minus; y' + 1 = 0",
-                note: "Remove the inner brackets: &minus;(&minus;2)<i>x</i>&prime; becomes +2<i>x</i>&prime;.",
+                note: "Subtracting a negative adds: &minus;(&minus;2)<i>x</i>&prime; becomes +2<i>x</i>&prime;, and &minus;(<i>y</i>&prime;) becomes &minus;<i>y</i>&prime;.",
               },
               {
                 expr: "8 + 2x' &minus; y' + 1 = 0",
-                note: "Simplify the signs so each term is written in standard form.",
+                note: "Every term now carries a single sign in front of it.",
               },
               {
                 expr: "2x' &minus; y' + 8 + 1 = 0",
-                note: "Rearrange the terms so the variable terms come first, as in the answer options.",
+                note: "Move the variable terms to the front so the equation matches the form of the answer options.",
               },
               {
                 expr: "2x' &minus; y' + 9 = 0",
-                note: "Combine the constants: 8 + 1 = 9.",
+                note: "Add the constants: 8 + 1 = 9.",
               },
               {
                 expr: "2x &minus; y + 9 = 0",
@@ -479,20 +479,20 @@ const DATA = {
             correctIndex: 0,
             simplificationArray: [
               {
-                expr: "3x' &minus; 2(&minus;y') = 1",
+                expr: "3(x') &minus; 2(&minus;y') = 1",
                 note: "Substitusikan <i>x</i> = <i>x</i>&prime; dan <i>y</i> = &minus;<i>y</i>&prime; ke persamaan garis yang diberikan.",
               },
               {
-                expr: "3x' + 2y' = 1",
-                note: "Buka kurung: 3 &times; <i>x</i>&prime; = 3<i>x</i>&prime; dan &minus;2 &times; (&minus;<i>y</i>&prime;) = +2<i>y</i>&prime;.",
+                expr: "3(x') + 2(y') = 1",
+                note: "Negatif dikali negatif menghasilkan positif: &minus;2 &times; (&minus;<i>y</i>&prime;) = +2<i>y</i>&prime;.",
               },
               {
                 expr: "3x' + 2y' = 1",
-                note: "Hilangkan kurung pada suku-suku peubah.",
+                note: "Tidak ada lagi yang perlu dikalikan, jadi tanda kurungnya dapat dihilangkan.",
               },
               {
                 expr: "3x + 2y = 1",
-                note: "Tulis <i>x</i>&prime; sebagai <i>x</i> dan <i>y</i>&prime; sebagai <i>y</i>.",
+                note: "Persamaan ini berlaku untuk setiap titik pada garis bayangan, jadi tulis <i>x</i>&prime; sebagai <i>x</i> dan <i>y</i>&prime; sebagai <i>y</i>.",
               },
             ],
           },
@@ -533,28 +533,28 @@ const DATA = {
                 note: "Substitusikan <i>x</i> = &minus;<i>y</i>&prime; dan <i>y</i> = &minus;<i>x</i>&prime; ke persamaan garis yang diberikan.",
               },
               {
-                expr: "&minus;5y' &minus; x' &minus; 6 = 0",
-                note: "Buka kurung: 5 &times; (&minus;<i>y</i>&prime;) = &minus;5<i>y</i>&prime; dan +(&minus;<i>x</i>&prime;) = &minus;<i>x</i>&prime;.",
+                expr: "&minus;5(y') &minus; (x') &minus; 6 = 0",
+                note: "Pindahkan setiap tanda negatif ke depan sukunya: 5 &times; (&minus;<i>y</i>&prime;) menjadi &minus;5(<i>y</i>&prime;), dan +(&minus;<i>x</i>&prime;) menjadi &minus;(<i>x</i>&prime;).",
               },
               {
                 expr: "&minus;5(y') &minus; (x') &minus; 6 = 0",
-                note: "Tulis ulang suku-sukunya dengan kurung pada setiap peubah.",
+                note: "Kedua suku variabel kini bernilai negatif. Tanda kurung hanya menandai bagian yang dikenai tanda negatif.",
               },
               {
                 expr: "&minus;5y' &minus; x' &minus; 6 = 0",
-                note: "Hilangkan kurung.",
+                note: "Tidak ada lagi yang perlu dikalikan, jadi tanda kurungnya dapat dihilangkan.",
               },
               {
                 expr: "&minus;1 &times; (&minus;5y' &minus; x' &minus; 6) = &minus;1 &times; 0",
-                note: "Kalikan kedua ruas dengan &minus;1 agar suku-sukunya menjadi positif.",
+                note: "Semua suku di ruas kiri bernilai negatif. Kalikan kedua ruas dengan &minus;1 agar menjadi positif.",
               },
               {
                 expr: "5y' + x' + 6 = 0",
-                note: "Setiap suku berubah tanda, dan &minus;1 &times; 0 = 0.",
+                note: "Setiap suku berubah tanda, dan &minus;1 &times; 0 tetap 0.",
               },
               {
                 expr: "x + 5y + 6 = 0",
-                note: "Tulis suku <i>x</i>&prime; di depan, seperti pada pilihan jawaban. Tulis <i>x</i>&prime; sebagai <i>x</i> dan <i>y</i>&prime; sebagai <i>y</i>.",
+                note: "Tulis suku <i>x</i>&prime; di depan agar sesuai dengan pilihan jawaban, lalu tulis <i>x</i>&prime; sebagai <i>x</i> dan <i>y</i>&prime; sebagai <i>y</i>.",
               },
             ],
           },
@@ -601,39 +601,39 @@ const DATA = {
               },
               {
                 expr: "&minus;2(2 &times; (&minus;2) &minus; x') &minus; (y') + 1 = 0",
-                note: "Ganti <i>k</i> dengan &minus;2, nilai garis vertikal yang diberikan.",
+                note: "Di sini <i>k</i> adalah nilai <i>x</i> dari garis refleksi, yaitu <i>x</i> = &minus;2, jadi ganti <i>k</i> dengan &minus;2.",
               },
               {
                 expr: "&minus;2(&minus;4 &minus; x') &minus; (y') + 1 = 0",
-                note: "Sederhanakan 2 &times; (&minus;2) menjadi &minus;4.",
+                note: "Hitung 2 &times; (&minus;2) = &minus;4.",
               },
               {
                 expr: "(&minus;2) &times; (&minus;4) &minus; (&minus;2)x' &minus; (y') + 1 = 0",
-                note: "Distribusikan &minus;2 ke suku-suku di dalam kurung.",
+                note: "Kalikan &minus;2 dengan setiap suku di dalam tanda kurung.",
               },
               {
                 expr: "&minus;2 &times; (&minus;4) &minus; (&minus;2)x' &minus; (y') + 1 = 0",
-                note: "Hilangkan kurung pada hasil kali.",
+                note: "Tanda kurung luar hanya menandai &minus;2 yang dikalikan, jadi sudah tidak diperlukan lagi.",
               },
               {
                 expr: "8 &minus; (&minus;2)x' &minus; (y') + 1 = 0",
-                note: "Ganti (&minus;2) &times; (&minus;4) dengan 8.",
+                note: "Negatif dikali negatif menghasilkan positif: &minus;2 &times; (&minus;4) = 8.",
               },
               {
                 expr: "8 + 2x' &minus; y' + 1 = 0",
-                note: "Hilangkan kurung dalam: &minus;(&minus;2)<i>x</i>&prime; menjadi +2<i>x</i>&prime;.",
+                note: "Mengurangi bilangan negatif sama dengan menambah: &minus;(&minus;2)<i>x</i>&prime; menjadi +2<i>x</i>&prime;, dan &minus;(<i>y</i>&prime;) menjadi &minus;<i>y</i>&prime;.",
               },
               {
                 expr: "8 + 2x' &minus; y' + 1 = 0",
-                note: "Sederhanakan tanda-tandanya agar setiap suku tertulis dalam bentuk baku.",
+                note: "Kini setiap suku ditulis dengan satu tanda di depannya.",
               },
               {
                 expr: "2x' &minus; y' + 8 + 1 = 0",
-                note: "Susun ulang suku-sukunya sehingga suku peubah di depan, seperti pada pilihan jawaban.",
+                note: "Pindahkan suku-suku variabel ke depan agar bentuk persamaannya sesuai dengan pilihan jawaban.",
               },
               {
                 expr: "2x' &minus; y' + 9 = 0",
-                note: "Gabungkan konstantanya: 8 + 1 = 9.",
+                note: "Jumlahkan konstantanya: 8 + 1 = 9.",
               },
               {
                 expr: "2x &minus; y + 9 = 0",

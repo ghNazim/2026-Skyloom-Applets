@@ -77,10 +77,7 @@ const App = () => {
       arrowSigns.x &&
       arrowSigns.y
     ) {
-      const id = setTimeout(
-        () => setCurrentStep(currentStep + 1),
-        350,
-      );
+      const id = setTimeout(() => setCurrentStep(currentStep + 1), 350);
       return () => clearTimeout(id);
     }
     return undefined;
@@ -147,7 +144,9 @@ const App = () => {
     if (currentStep === 21 && summaryComplete) {
       return APP_DATA.steps[21].doneQuestionText;
     }
-    return APP_DATA.steps[currentStep] ? APP_DATA.steps[currentStep].questionText : "";
+    return APP_DATA.steps[currentStep]
+      ? APP_DATA.steps[currentStep].questionText
+      : "";
   }, [currentStep, slopeComplete, summaryComplete]);
 
   const navText = useMemo(() => {

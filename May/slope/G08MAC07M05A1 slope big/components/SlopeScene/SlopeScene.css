@@ -118,11 +118,19 @@
   opacity: 0.3;
 }
 
+.scene-climber-sprite {
+  transform: translateX(20px);
+}
+
 .movement-arrow {
-  stroke-linecap: square;
+  stroke-linecap: butt;
   stroke-width: 8;
   cursor: pointer;
   paint-order: stroke;
+}
+
+.movement-arrow-head {
+  pointer-events: none;
 }
 
 .arrow-hit-zone {
@@ -143,8 +151,18 @@
   filter: drop-shadow(0 0.12vw 0.18vw rgba(0, 0, 0, 0.32));
 }
 
+.blue-arrow-head {
+  fill: #82c9ed;
+  filter: drop-shadow(0 0.12vw 0.18vw rgba(0, 0, 0, 0.32));
+}
+
 .yellow-arrow {
   stroke: #f7c534;
+  filter: drop-shadow(0 0.12vw 0.18vw rgba(0, 0, 0, 0.32));
+}
+
+.yellow-arrow-head {
+  fill: #f7c534;
   filter: drop-shadow(0 0.12vw 0.18vw rgba(0, 0, 0, 0.32));
 }
 
@@ -152,6 +170,11 @@
   stroke: rgba(45, 35, 27, 0.72);
   stroke-width: 7;
   stroke-linecap: round;
+}
+
+.surface-arrow-head {
+  fill: #b6dd69;
+  filter: drop-shadow(0 0.12vw 0.15vw rgba(0, 0, 0, 0.25));
 }
 
 .movement-text {

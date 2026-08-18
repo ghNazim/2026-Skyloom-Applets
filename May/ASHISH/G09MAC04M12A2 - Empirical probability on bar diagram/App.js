@@ -144,6 +144,7 @@ const App = () => {
       setTimeout(() => {
         setRollStage("chart");
         setFrequencies((prev) => ({ ...prev, [face]: (prev[face] || 0) + 1 }));
+        playSfx("tick");
         setTrialCount((prev) => {
           const next = prev + 1;
           setHighlightFace(face);
@@ -202,6 +203,7 @@ const App = () => {
           setTimeout(() => {
             setRollStage("chart");
             setFrequencies((prev) => ({ ...prev, [face]: (prev[face] || 0) + 1 }));
+            playSfx("tick");
             setTrialCount((prev) => prev + 1);
             setHighlightFace(face);
 

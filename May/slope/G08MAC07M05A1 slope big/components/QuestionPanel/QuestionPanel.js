@@ -31,9 +31,9 @@ const QuestionPanel = ({ text, step }) => {
         orangeHighlight
       );
 
-      setHighlightedText(highlighted);
+      setHighlightedText(formatMathVariablesHtml(highlighted));
     } else {
-      setHighlightedText(text);
+      setHighlightedText(formatMathVariablesHtml(text));
     }
   }, [text, step]);
 

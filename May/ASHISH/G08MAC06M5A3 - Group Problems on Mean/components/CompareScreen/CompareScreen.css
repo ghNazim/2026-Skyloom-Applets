@@ -28,16 +28,17 @@
   flex: 0 0 11.5vh;
   width: calc(100% + 1.2vw);
   min-height: 11.5vh;
-  margin: 0 -0.6vw 1.2vh;
-  padding: 0.8vh 2vw;
+  /* margin: 0 -0.6vw 1.2vh; */
+  /* padding: 0.8vh 2vw; */
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   border-radius: 0;
-  background: rgba(4, 26, 75, 0.82);
+    background: rgba(255, 255, 255, 0.15);
+
   border: 0;
-  border-bottom: 0.1vw solid rgba(255, 255, 255, 0.32);
+  /* border-bottom: 0.1vw solid rgba(255, 255, 255, 0.32); */
   max-width: none;
   color: #ff9f18;
   text-align: center;
@@ -65,8 +66,8 @@ sub {
   border-color: #ffd36b;
   transform: translateY(-0.093vh);
 }
-.fade-in {
-  animation: fadeIn 0.35s ease both;
+.compare-screen .fade-in {
+  animation: none;
 }
 .hl-yellow {
   color: var(--pastel-orange);
@@ -119,16 +120,6 @@ sub {
   font-size: 3vw;
   font-weight: 600;
   box-shadow: 0 0 2vw rgba(105, 175, 166, 0.38);
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(0.8vh);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 @media (max-aspect-ratio: 4/3) {
   .phase-kicker {

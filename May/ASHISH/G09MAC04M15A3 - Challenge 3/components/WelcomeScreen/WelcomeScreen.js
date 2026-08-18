@@ -12,6 +12,11 @@ const WelcomeScreen = () => {
   const getTrialX = (trial) =>
     GRAPH_AXIS_X + (trial * (GRAPH_AXIS_RIGHT - GRAPH_AXIS_X)) / GRAPH_X_MAX_TRIAL;
 
+  const formatYAxisTick = (val) => {
+    const text = val === 1 ? "1" : val.toFixed(1);
+    return window.APP_LANGUAGE === "id" ? text.replace(".", ",") : text;
+  };
+
   const getSvgCoords = (trial, rf) => {
     const x = getTrialX(trial);
     const y = GRAPH_AXIS_BOTTOM - Number(rf) * GRAPH_PLOT_H;
@@ -98,7 +103,7 @@ const WelcomeScreen = () => {
                   textAnchor: "end",
                   dominantBaseline: "central",
                 },
-                val === 1 ? "1" : val.toFixed(1)
+                formatYAxisTick(val)
               )
             );
           }),

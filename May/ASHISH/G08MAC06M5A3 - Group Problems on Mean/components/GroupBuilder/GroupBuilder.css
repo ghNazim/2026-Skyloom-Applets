@@ -1,3 +1,11 @@
+.group-builder,
+.rule-explorer {
+  --builder-card-width: 28.5vw;
+  --builder-result-width: 31vw;
+  --builder-card-height: 65vh;
+  --builder-card-gap: 1vw;
+}
+
 .group-builder {
   overflow: hidden;
 }
@@ -5,12 +13,12 @@
   position: relative;
   z-index: 20;
   color: #ff9f18;
-  font-size: 2.35vw !important;
-  font-weight: 500;
-  line-height: 1.35;
+  font-size: 2.5vw !important;
+  /* font-weight: 500; */
+  line-height: 1.2;
   text-align: center;
-  background: rgba(4, 26, 75, 0.82);
-  border: 0.1vw solid rgba(255, 255, 255, 0.32);
+
+  /* border: 0.1vw solid rgba(255, 255, 255, 0.32); */
 }
 .group-equation,
 .subtraction-equation {
@@ -20,7 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1vw;
+  gap: var(--builder-card-gap);
   padding: 2vh 1.2vw;
   border-radius: 1.4vw;
   background: rgba(4, 26, 75, 0.5);
@@ -30,8 +38,8 @@
 }
 .story-group {
   position: relative;
-  width: 28.5vw;
-  height: 65vh;
+  width: var(--builder-card-width);
+  height: var(--builder-card-height);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,7 +73,7 @@
   opacity: 1;
 }
 .story-group--result {
-  width: 31vw;
+  width: var(--builder-result-width);
 }
 .group-action {
   min-width: 18vw;
@@ -350,14 +358,10 @@
   border-color: var(--pastel-teal);
   background: var(--pastel-teal-strong);
 }
-.subtraction-equation {
-  justify-content: center;
-  gap: 4vw;
-}
 .formula-group {
   position: relative;
-  width: 28.5vw;
-  height: 65vh;
+  width: var(--builder-card-width);
+  height: var(--builder-card-height);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -394,7 +398,7 @@
   justify-content: center;
 }
 .formula-group--result {
-  width: 31vw;
+  width: var(--builder-result-width);
 }
 .formula-stack {
   width: 100%;
@@ -529,62 +533,112 @@
 /* Storyboard slider/rule scene */
 .rule-explorer {
   justify-content: flex-start;
+  --rule-explorer-card-height: var(--builder-card-height);
+  --rule-card-density-scale: 1;
+  --rule-tile-scale: 1;
+  --rule-tile-gap-scale: 1;
+}
+.rule-explorer--settled {
+  --rule-explorer-card-height: calc(var(--builder-card-height) * 0.85 * var(--rule-card-density-scale));
 }
 .rule-explorer .rule-title {
   position: relative;
   z-index: 5;
   color: #ff9f18;
   font-weight: 500;
-  background: rgba(4, 26, 75, 0.82);
-  border: 0.1vw solid rgba(255, 255, 255, 0.32);
 }
 .rule-cards {
   flex: 1;
   width: 100%;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 3vw 27vw;
+  grid-template-columns: minmax(0, calc(var(--builder-card-width) * 2 + var(--builder-card-gap))) 3vw var(--builder-result-width);
   align-items: center;
-  gap: 1vw;
-  padding: 0 1vw;
+  justify-content: space-between;
+  gap: var(--builder-card-gap);
+  padding: 2vh 1.2vw;
   overflow: hidden;
+}
+.rule-cards--2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rule-explorer .rule-formula-group {
+  height: var(--rule-explorer-card-height);
+}
+.rule-cards--2 .rule-formula-group {
+  width: var(--builder-card-width);
+}
+.rule-cards--2 .rule-formula-group.formula-group--result {
+  width: var(--builder-result-width);
+}
+.rule-cards--2 .rule-formula-group .group-section-title {
+  font-size: 1.8vw !important;
+}
+.rule-cards--2 .rule-formula-group .formula-stack {
+  flex: 1;
+  justify-content: center;
+  margin: 0;
+  gap: calc(1.3vh * var(--rule-tile-gap-scale));
+}
+.rule-cards--2 .rule-formula-group .metric-tile {
+  min-height: calc(9vh * var(--rule-tile-scale));
+  padding: calc(0.7vh * var(--rule-tile-scale)) 0.5vw;
+  font-size: 2vw !important;
+  line-height: normal;
 }
 .rule-groups-wrap {
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(var(--group-count, 2), minmax(0, 1fr));
-  align-content: center;
-  justify-content: center;
-  gap: 0.7vw;
+  width: 100%;
+  height: var(--rule-explorer-card-height);
+  grid-template-columns: repeat(var(--rule-cols, 2), minmax(0, 1fr));
+  grid-auto-rows: calc((var(--rule-explorer-card-height) - ((var(--rule-rows, 1) - 1) * var(--builder-card-gap))) / var(--rule-rows, 1));
+  align-content: stretch;
+  justify-content: stretch;
+  gap: var(--builder-card-gap);
+  transition:
+    height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    grid-auto-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .rule-group-item {
   min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   gap: 0.5vw;
 }
-.rule-group-item .mini-group {
+.rule-group-item .rule-formula-group {
+  flex: 1;
   width: 100%;
+  height: 100%;
   min-width: 0;
 }
-.mini-group {
-  width: 100%;
-  min-width: 0;
-  padding: 1.2vh clamp(0.25vw, calc(1.1vw - var(--group-count, 2) * 0.08vw), 0.8vw);
-  display: flex;
-  flex-direction: column;
-  gap: 0.7vh;
-  border: 0.1vw solid var(--surface-border);
-  border-radius: 1vw;
-  background: rgba(255, 255, 255, 0.09);
-  text-align: center;
+.rule-formula-group {
+  overflow: hidden;
   transition:
-    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    min-height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.rule-cards .mini-group strong,
-.rule-cards .mini-group span {
-  font-size: clamp(1.05vw, calc(2.15vw - var(--group-count, 2) * 0.12vw), 1.8vw) !important;
+.rule-formula-group .group-section-title {
+  font-size: clamp(1vw, calc(2.15vw - var(--rule-cols, 2) * 0.12vw - (var(--rule-rows, 1) - 1) * 0.16vw), 1.8vw) !important;
+}
+.rule-formula-group .formula-stack {
+  flex: 0 0 auto;
+  justify-content: center;
+  margin: auto 0;
+  gap: calc(1.3vh * var(--rule-tile-gap-scale));
+}
+.rule-formula-group .metric-tile {
+  min-height: calc(7.8vh * var(--rule-tile-scale));
+  padding: calc(0.7vh * var(--rule-tile-scale)) clamp(0.25vw, calc(0.95vw - var(--rule-cols, 2) * 0.08vw), 0.75vw);
+  font-size: clamp(0.9vw, calc(2vw - var(--rule-cols, 2) * 0.14vw - (var(--rule-rows, 1) - 1) * 0.18vw), 2vw) !important;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.rule-formula-group .metric-tile sub {
+  font-size: 0.72em;
 }
 .group-builder .rule-title .title-formula {
   flex-basis: 100%;
@@ -594,28 +648,20 @@
   font-weight: 600;
   text-align: center;
 }
-.mini-group strong {
-  color: #fff;
-  font-size: 2vw;
-}
-.mini-group span {
-  padding: 0.55vh 0.5vw;
-  border-radius: 0.45vw;
-  font-size: 2vw;
-  font-weight: 600;
-}
-.mini-group span:nth-child(2) {
-  background: var(--pastel-pink-strong);
-}
-.mini-group span:nth-child(3) {
-  background: var(--pastel-blue-strong);
-}
-.mini-group span:nth-child(4) {
-  background: var(--pastel-teal-strong);
-}
-.mini-group--result {
-  width: 100%;
+.rule-formula-group--result {
   border-color: var(--pastel-teal);
+}
+.rule-formula-group--result .formula-stack {
+  gap: calc(1.1vh * var(--rule-tile-gap-scale));
+}
+.rule-formula-group--result .metric-tile {
+  min-height: calc(7.6vh * var(--rule-tile-scale));
+  padding: calc(0.65vh * var(--rule-tile-scale)) 0.9vw;
+  font-size: 2vw !important;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .rule-final-operator {
   align-self: center;
@@ -627,9 +673,9 @@
   font-weight: 600;
 }
 .group-slider-label {
+  display: block;
   width: 76%;
-  margin: 0.7vh auto 1.4vh;
-  padding: 1.5vh 4vw 2vh;
+  margin: 0 auto;
   border: 0.1vw solid var(--surface-border);
   border-radius: 1vw;
   background: rgba(255, 255, 255, 0.09);
@@ -637,6 +683,20 @@
   font-size: 2vw;
   font-weight: 600;
   text-align: left;
+  height: auto;
+  max-height: 0;
+  padding: 0 1.2vw;
+  margin-top: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rule-explorer--settled .group-slider-label {
+  max-height: 18vh;
+  padding: 1vw 1.2vw 1.5vw;
+  margin-top: 1vw;
 }
 .group-slider {
   display: block;
@@ -692,6 +752,9 @@
 }
 .rule-notes {
   display: none;
+}
+.rule-cards--2 .rule-groups-wrap {
+  display: contents;
 }
 @media (max-aspect-ratio: 4/3) {
   .story-group {

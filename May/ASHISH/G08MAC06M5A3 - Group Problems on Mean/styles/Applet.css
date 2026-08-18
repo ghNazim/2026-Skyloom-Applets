@@ -35,7 +35,7 @@ body {
   position: relative;
   overflow: hidden;
   color: var(--text-color);
-  padding: 0 1vh 1vw;
+  /* padding: 0 1vh 1vw; */
   gap: 1vh;
 }
 

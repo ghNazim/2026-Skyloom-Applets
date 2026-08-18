@@ -223,7 +223,7 @@
 
 .challenge-screen--mistakeQuestion .pair-formula {
   align-self: stretch;
-  height: 42vh;
+  height: 46vh;
 }
 
 .challenge-screen--revealFreq .pair-table {
@@ -553,6 +553,7 @@
   fill: #ffffff;
   font-weight: 600;
   dominant-baseline: central;
+  transition: fill 0.2s ease, opacity 0.2s ease;
 }
 
 .y-axis-label {
@@ -567,6 +568,7 @@
   fill: #94a3b8;
   font-weight: 600;
   font-style: italic;
+  font-synthesis: style;
   dominant-baseline: central;
   font-size: 6px;
 }
@@ -593,17 +595,32 @@
 }
 
 .guide-line-dotted {
-  stroke: #ffd36b;
+  stroke: var(--accent-yellow);
   stroke-width: 0.5;
   stroke-dasharray: 1 1;
 }
 
 .guide-line-draw {
-  stroke: #ffd36b;
+  stroke: var(--accent-yellow);
   stroke-width: 0.5;
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: guideLineDraw 0.7s ease-out forwards;
+  stroke-dasharray: 1 1;
+}
+
+.guide-line-clip {
+  animation-duration: 0.7s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  transform-box: fill-box;
+}
+
+.guide-line-clip--x {
+  transform-origin: right center;
+  animation-name: guideLineWipeX;
+}
+
+.guide-line-clip--y {
+  transform-origin: center top;
+  animation-name: guideLineWipeY;
 }
 
 .graph-point-target {
@@ -612,12 +629,17 @@
 }
 
 .graph-point-halo {
-  fill: rgba(255, 211, 107, 0.32);
-  stroke: #ffd36b;
+  fill: rgba(255, 255, 0, 0.24);
+  stroke: var(--accent-yellow);
   stroke-width: 0.45;
   transform-box: fill-box;
   transform-origin: center;
   animation: pointHaloBlink 1.05s ease-in-out infinite;
+}
+
+.axis-label--projection-active {
+  fill: var(--accent-yellow);
+  font-weight: 700;
 }
 
 @keyframes pointHaloBlink {
@@ -640,8 +662,8 @@
 }
 
 .mistake-thumbs-down {
-  --graph-thumbs-x: -0.55em;
-  --graph-thumbs-y: -1.75em;
+  --graph-thumbs-x: -0em;
+  --graph-thumbs-y: -1.45em;
   transform: translate(var(--graph-thumbs-x), var(--graph-thumbs-y));
   transform-box: fill-box;
   transform-origin: center;
@@ -862,6 +884,9 @@
   min-width: 0;
   position: relative;
   overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 :is(.challenge-screen--formula, .challenge-screen--revealFreq)
@@ -894,15 +919,6 @@
   .morph-pair-table
   .data-table {
   overflow: visible;
-}
-
-.challenge-screen--revealFreq
-  .morph-pair-table
-  .data-table--gap-style
-  td:nth-child(2) {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 :is(.challenge-screen--formula, .challenge-screen--revealFreq)
@@ -1125,6 +1141,13 @@
   border-spacing: 0;
   height: auto;
   flex: none;
+  transition: grid-template-columns 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:is(.challenge-screen--mistakeQuestion, .challenge-screen--explainMistake)
+  .morph-pair-table
+  .data-table--collapsed-middle {
+  grid-template-columns: 1.5fr 0.5fr 0.5fr 1.5fr;
 }
 
 :is(.challenge-screen--enterChanges, .challenge-screen--mistakeQuestion, .challenge-screen--explainMistake)
@@ -1156,6 +1179,11 @@
   text-align: center;
   padding: 0.3vh 0.2vw;
   overflow: visible;
+  transition:
+    font-size 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :is(.challenge-screen--enterChanges, .challenge-screen--mistakeQuestion, .challenge-screen--explainMistake)
@@ -1377,12 +1405,12 @@
 .challenge-screen--graphRecord .cell-flying-settled,
 .challenge-screen--graphRecord .rf-value-part,
 .challenge-screen--graphRecord .data-table--gap-style td {
-  color: #ffd36b;
+  color: var(--accent-yellow);
 }
 
 .challenge-screen--graphRecord .flying-element--trial,
 .challenge-screen--graphRecord .flying-element--rf {
-  color: #ffd36b;
+  color: var(--accent-yellow);
 }
 
 .challenge-screen--formula .data-table td,
@@ -1401,7 +1429,7 @@
 }
 
 .challenge-screen--revealFreq td.cell-reveal-answer {
-  color: #ffd36b !important;
+  color: var(--accent-yellow) !important;
 }
 
 .prompt-banner {
@@ -1553,18 +1581,26 @@
 .data-table .col-sub {
   display: block;
   font-size: 1.45vw;
-  color: #79d9ff;
+  color: var(--accent-yellow);
   font-weight: 600;
   margin-top: 0.2vh;
   line-height: 1.15;
-  min-height: 0;
   opacity: 0;
-  visibility: hidden;
+  transform: translateY(0.2vh);
+  pointer-events: none;
+  transition:
+    font-size 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.data-table .col-sub sub {
+  color: var(--accent-yellow);
 }
 
 .data-table .col-sub--visible {
   opacity: 1;
-  visibility: visible;
+  transform: translateY(0);
 }
 
 .data-table tbody tr:nth-child(odd) td,
@@ -1583,6 +1619,19 @@
   color: #ffffff !important;
 }
 
+:is(.challenge-screen--mistakeQuestion, .challenge-screen--explainMistake)
+  .data-table--collapsed-middle
+  :is(thead th:nth-child(2), thead th:nth-child(3), tbody td:nth-child(2), tbody td:nth-child(3)) {
+  font-size: 1vw;
+}
+
+:is(.challenge-screen--mistakeQuestion, .challenge-screen--explainMistake)
+  .data-table--collapsed-middle
+  :is(thead th:nth-child(2), thead th:nth-child(3))
+  .col-sub {
+  font-size: 0.725vw;
+}
+
 .data-table--dim-lead thead th.col-dim,
 .data-table--dim-lead tbody td.col-dim {
   color: rgba(255, 255, 255, 0.35);
@@ -1590,7 +1639,7 @@
 
 .cell-filled,
 .cell-revealed {
-  color: #ffd36b;
+  color: var(--accent-yellow);
   font-weight: 700;
 }
 
@@ -1615,7 +1664,7 @@
 
 .cell-revealing--step3 .reveal-part--rf,
 .cell-revealing--step4 .reveal-part--rf {
-  color: #ffd36b;
+  color: var(--accent-yellow);
   font-weight: 700;
 }
 
@@ -1665,11 +1714,10 @@
   }
 }
 
-.cell-mistake,
-.mistake-row td.change-cell--pos {
+/* .cell-mistake {
   color: #ff5050 !important;
   font-weight: 700;
-}
+} */
 
 .mistake-row {
   outline: 0.12vw solid #ff5050;
@@ -1702,7 +1750,7 @@
 }
 
 .heads-calc-expr .calc-result {
-  color: #ffd36b;
+  color: var(--accent-yellow);
   font-weight: 700;
 }
 
@@ -1718,7 +1766,7 @@
 .data-table--step-recordChange .heads-cell--record-active {
   background: rgba(140, 207, 71, 0.22) !important;
   box-shadow: inset 0 0 0 0.08vw rgba(140, 207, 71, 0.5);
-  color: #ffd36b;
+  color: var(--accent-yellow);
   font-weight: 700;
 }
 
@@ -1755,7 +1803,7 @@
 }
 
 .feedback-card .hl-yellow {
-  color: #ffd36b;
+  color: var(--accent-yellow);
   font-weight: 700;
 }
 
@@ -1776,11 +1824,11 @@
 }
 
 .data-table--reveal-pending tbody td:nth-child(2) {
-  background: linear-gradient(
+  /* background: linear-gradient(
     145deg,
     var(--start-button-gradient-start),
     var(--start-button-gradient-end)
-  ) !important;
+  ) !important; */
 }
 
 .reveal-col-label {
@@ -1798,13 +1846,19 @@
   z-index: 8;
   margin: 0;
   padding: 0;
-  border: none;
-  background: transparent;
+  border: 0.08vw solid rgba(255, 211, 107, 0.35);
+  border-radius: 0.45vw;
+  background: #eb99257b;
+  box-shadow:
+    inset 0 0 1vw rgba(255, 211, 107, 0.08),
+    0 0.3vh 0.8vh rgba(0, 0, 0, 0.16);
   cursor: pointer;
+  /* transition: none !important; */
 }
 
 .reveal-col-hitarea:disabled {
   pointer-events: none;
+  opacity: 0.7;
 }
 
 .reveal-op {
@@ -1906,7 +1960,7 @@
 
 .formula-hint-label {
   color: #ffffff;
-  font-size: 1.7vw !important;
+  font-size: 2vw !important;
   font-weight: 600;
   text-align: center;
 }
@@ -2040,6 +2094,15 @@
   border-color: #ff769d !important;
 }
 
+.quiz-option-btn--muted,
+.yes-no-btn.quiz-option-btn--muted,
+.quiz-option-btn:disabled.quiz-option-btn--muted,
+.yes-no-btn:disabled.quiz-option-btn--muted {
+  opacity: 0.5;
+  box-shadow: none;
+  filter: saturate(0.55) brightness(0.9);
+}
+
 .question-card {
   width: 100%;
   height: 100%;
@@ -2087,9 +2150,11 @@
 
 .numpad-callout {
   width: 100%;
-  height: 100%;
-  min-height: 0;
-  padding: 1.6vh 1.2vw 1.4vh;
+  height: 110%;
+  min-height: 110%;
+  margin-top: -5%;
+  margin-bottom: -5%;
+  padding: 2.1vh 1.2vw 1.9vh;
   background: #c4a03598;
   border: none;
   border-radius: 1.1vw;
@@ -2105,6 +2170,7 @@
   gap: 1.2vh;
   align-items: stretch;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .numpad-callout::before {
@@ -2128,12 +2194,14 @@
 }
 
 .numpad-feedback {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   margin-top: 0;
   width: 100%;
   color: #ffffff;
   background: rgba(240, 73, 73, 0.702);
   border: 0.08vw solid rgba(180, 40, 40, 0.35);
+  overflow: auto;
 }
 
 .vfrac {
@@ -2176,6 +2244,24 @@
   }
 }
 
+@keyframes guideLineWipeX {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes guideLineWipeY {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @keyframes pointPulse {
   0% {
     stroke: rgba(255, 211, 107, 0.3);
@@ -2211,7 +2297,7 @@
   }
   100% {
     transform: scale(1);
-    color: #ffd36b;
+    color: var(--accent-yellow);
   }
 }
 
@@ -2274,14 +2360,17 @@
 
 .reveal-overlay {
   position: absolute;
-  background: transparent;
-  border: none;
-  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 8;
-  pointer-events: none;
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.reveal-overlay--exiting {
+  opacity: 0;
 }
 
 .reveal-overlay--fallback {
@@ -2295,7 +2384,11 @@
   position: static;
   transform: none;
   min-width: 9vw;
-  pointer-events: auto;
+  color: #ffffff;
+  font-size: 2vw;
+  font-weight: 700;
+  text-shadow: 0 0.16vh 0.35vh rgba(0, 0, 0, 0.35);
+  pointer-events: none;
 }
 
 .faded-question-mark {
@@ -2348,15 +2441,15 @@
 }
 
 .flying-element--trial {
-  color: #ffd36b;
+  color: var(--accent-yellow);
 }
 
 .flying-element--rf {
-  color: #ffd36b;
+  color: var(--accent-yellow);
 }
 
 .flying-element--formula {
-  color: #ffd36b;
+  color: var(--accent-yellow);
   font-size: 2vw;
   font-weight: 700;
 }
@@ -2401,7 +2494,7 @@
 .hl-freq,
 .hl-change-wrong,
 .hl-change-correct {
-  color: #ffd36b;
+  color: var(--accent-yellow);
   font-weight: 700;
 }
 

@@ -30,7 +30,7 @@
 
 .summary-slope-arrow {
   stroke-width: 5;
-  stroke-linecap: round;
+  stroke-linecap: butt;
   fill: none;
   filter: drop-shadow(0 0.12vw 0.16vw rgba(0, 0, 0, 0.3));
 }
@@ -49,6 +49,26 @@
 
 .summary-slope-arrow.undefined {
   stroke: #f7c534;
+}
+
+.summary-slope-arrow.positive-head {
+  fill: #9bd24c;
+  filter: drop-shadow(0 0.12vw 0.16vw rgba(0, 0, 0, 0.3));
+}
+
+.summary-slope-arrow.negative-head {
+  fill: #ff7f37;
+  filter: drop-shadow(0 0.12vw 0.16vw rgba(0, 0, 0, 0.3));
+}
+
+.summary-slope-arrow.zero-head {
+  fill: #8fdcff;
+  filter: drop-shadow(0 0.12vw 0.16vw rgba(0, 0, 0, 0.3));
+}
+
+.summary-slope-arrow.undefined-head {
+  fill: #f7c534;
+  filter: drop-shadow(0 0.12vw 0.16vw rgba(0, 0, 0, 0.3));
 }
 
 .summary-slope-label {

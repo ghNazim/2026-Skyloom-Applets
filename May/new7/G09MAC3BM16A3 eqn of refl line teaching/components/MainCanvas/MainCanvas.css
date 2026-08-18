@@ -299,7 +299,7 @@
 }
 
 .blue-box {
-  width: 11.5vw;
+  min-width: 11.5vw;
   
   box-sizing: border-box;
   border: 0.15vw solid #135c79;

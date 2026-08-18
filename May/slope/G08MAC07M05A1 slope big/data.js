@@ -18,7 +18,7 @@ const DATA = {
         },
         3: {
           questionText: "Notice the change in position of the cyclist...",
-          navText: "Tap the cyclist to move them forward...",
+          navText: "Tap the cyclist to move him forward...",
           blueMovement: "As the movement is<br>from LEFT to RIGHT",
           yellowMovement: "The movement is<br>also DOWN to UP",
         },
@@ -45,7 +45,7 @@ const DATA = {
         },
         8: {
           questionText: "Notice the change in position of the cyclist...",
-          navText: "Tap the cyclist to move them forward...",
+          navText: "Tap the cyclist to move him forward...",
           blueMovement: "As the movement is<br>from LEFT to RIGHT",
           yellowMovement: "The movement is<br>from UP to DOWN",
         },
@@ -72,7 +72,7 @@ const DATA = {
         },
         13: {
           questionText: "Notice the change in position of the cyclist...",
-          navText: "Tap the cyclist to move them forward...",
+          navText: "Tap the cyclist to move him forward...",
           blueMovement: "As the movement is<br>from LEFT to RIGHT",
           yellowMovement: "There is no UP or<br> DOWN movement",
         },

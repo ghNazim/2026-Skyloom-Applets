@@ -26,6 +26,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
     onQuestionAnswer,
     onFormulaFlyComplete,
     onHideFtue,
+    onPlaySfx,
     isWelcome,
   } = props;
 
@@ -53,6 +54,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
   const FORMULA_FLIGHT_MS = 1100;
   const THUMBS_FLIGHT_MS = 950;
   const GUIDE_DRAW_MS = 700;
+  const AXIS_LABEL_HOLD_MS = 280;
   const VALUE_FLIGHT_MS = 900;
   const VALUE_FLIGHT_GAP_MS = 450;
   const REVEAL_FLIGHT_DELAY_MS = 60;
@@ -66,6 +68,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
     pointerTop: "50%",
     pointerLeft: "68%",
   });
+  const [revealOverlayExitingFor, setRevealOverlayExitingFor] = React.useState(null);
 
   const tableShellRef = React.useRef(null);
   const calloutRef = React.useRef(null);
@@ -79,6 +82,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
   const [welcomeSlotHeight, setWelcomeSlotHeight] = React.useState("auto");
   const [formulaColsSwapped, setFormulaColsSwapped] = React.useState(false);
   const swapFirstRectsRef = React.useRef(null);
+  const revealOverlayTimerRef = React.useRef(null);
 
   const GRAPH_VIEW_W = 150;
   const GRAPH_VIEW_H = 82;
@@ -91,6 +95,8 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
   const GRAPH_X_TITLE_Y = 79;
   const GRAPH_Y_TITLE_X = 8;
   const GRAPH_X_MAX_TRIAL = 5;
+  const GRAPH_AXIS_LABEL_X = GRAPH_AXIS_X - 4;
+  const Y_AXIS_TICKS = [0, 0.2, 0.4, 0.6, 0.8, 1];
 
   const getName = (id) => T.peopleText[id];
 
@@ -131,6 +137,34 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
     const x = getTrialX(trial);
     const y = GRAPH_AXIS_BOTTOM - Number(rf) * GRAPH_PLOT_H;
     return { x, y };
+  };
+
+  const formatYAxisTick = (val) =>
+    formatRf(val === 1 ? "1" : val.toFixed(1));
+
+  const getProjectionLabelInfo = (trial, rf, pointY) => {
+    const numericRf = Number(rf);
+    const matchedYValue = Y_AXIS_TICKS.find(
+      (tick) => Math.abs(tick - numericRf) < 0.001,
+    );
+
+    return {
+      x: {
+        text: String(trial),
+        trial,
+        temporary: false,
+        active: false,
+      },
+      y: {
+        text:
+          matchedYValue !== undefined ? formatYAxisTick(matchedYValue) : formatRf(rf),
+        value: matchedYValue,
+        x: GRAPH_AXIS_LABEL_X,
+        y: pointY,
+        temporary: matchedYValue === undefined,
+        active: false,
+      },
+    };
   };
 
   const updateCalloutLayout = React.useCallback(() => {
@@ -237,6 +271,25 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
     setLandedTrials([]);
     setLandedRf([]);
   }, [type, personId]);
+
+  React.useEffect(() => {
+    if (type !== "revealFreq") {
+      setRevealOverlayExitingFor(null);
+      if (revealOverlayTimerRef.current) {
+        window.clearTimeout(revealOverlayTimerRef.current);
+        revealOverlayTimerRef.current = null;
+      }
+    }
+  }, [type, personId]);
+
+  React.useEffect(
+    () => () => {
+      if (revealOverlayTimerRef.current) {
+        window.clearTimeout(revealOverlayTimerRef.current);
+      }
+    },
+    [],
+  );
 
   React.useEffect(() => {
     if (type !== "explainMistake") {
@@ -522,11 +575,14 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
       showLines: true,
       linesDrawComplete: false,
       pointFilled: false,
+      axisLabels: getProjectionLabelInfo(trial, person.rf[idx], point.y),
       flightX: null,
       flightY: null,
     });
 
-    const trialFlightStart = GUIDE_DRAW_MS;
+    if (typeof onPlaySfx === "function") onPlaySfx("zoom");
+
+    const trialFlightStart = GUIDE_DRAW_MS + AXIS_LABEL_HOLD_MS;
     const rfFlightStart =
       trialFlightStart + VALUE_FLIGHT_MS + VALUE_FLIGHT_GAP_MS;
     const trialLandAt = trialFlightStart + VALUE_FLIGHT_MS;
@@ -539,6 +595,25 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
               ...prev,
               linesDrawComplete: true,
               pointFilled: true,
+              axisLabels: {
+                x: { ...prev.axisLabels.x, active: true },
+                y: { ...prev.axisLabels.y, active: true },
+              },
+            }
+          : null,
+      );
+    }, GUIDE_DRAW_MS);
+
+    setTimeout(() => {
+      if (typeof onPlaySfx === "function") onPlaySfx("swoosh");
+      setActiveAnimation((prev) =>
+        prev
+          ? {
+              ...prev,
+              axisLabels: {
+                ...prev.axisLabels,
+                x: { ...prev.axisLabels.x, active: false },
+              },
               flightX: {
                 text: String(trial),
                 startX: startX_Trial,
@@ -557,10 +632,15 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
     }, trialLandAt);
 
     setTimeout(() => {
+      if (typeof onPlaySfx === "function") onPlaySfx("swoosh");
       setActiveAnimation((prev) =>
         prev
           ? {
               ...prev,
+              axisLabels: {
+                ...prev.axisLabels,
+                y: { ...prev.axisLabels.y, active: false },
+              },
               flightY: {
                 text: formatRf(person.rf[idx]),
                 startX: startX_Rf,
@@ -669,6 +749,11 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
           }),
           [0, 0.2, 0.4, 0.6, 0.8, 1].map((val) => {
             const y = GRAPH_AXIS_BOTTOM - val * GRAPH_PLOT_H;
+            const isProjectionHighlighted =
+              activeAnimation &&
+              activeAnimation.personId === person.id &&
+              activeAnimation.axisLabels?.y?.active &&
+              activeAnimation.axisLabels.y.value === val;
             return React.createElement(
               "g",
               { key: `y-${val}` },
@@ -682,19 +767,24 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
               React.createElement(
                 "text",
                 {
-                  className: "axis-label y-axis-label",
-                  x: GRAPH_AXIS_X - 4,
+                  className: `axis-label y-axis-label${isProjectionHighlighted ? " axis-label--projection-active" : ""}`,
+                  x: GRAPH_AXIS_LABEL_X,
                   y,
                   fontSize: 5.6,
                   textAnchor: "end",
                   dominantBaseline: "central",
                 },
-                val === 1 ? "1" : val.toFixed(1),
+                formatYAxisTick(val),
               ),
             );
           }),
           [1, 2, 3, 4, 5].map((trial) => {
             const x = getTrialX(trial);
+            const isProjectionHighlighted =
+              activeAnimation &&
+              activeAnimation.personId === person.id &&
+              activeAnimation.axisLabels?.x?.active &&
+              activeAnimation.axisLabels.x.trial === trial;
             return React.createElement(
               "g",
               { key: `x-${trial}` },
@@ -708,7 +798,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
               React.createElement(
                 "text",
                 {
-                  className: "axis-label x-axis-label",
+                  className: `axis-label x-axis-label${isProjectionHighlighted ? " axis-label--projection-active" : ""}`,
                   x,
                   y: GRAPH_X_LABEL_Y,
                   fontSize: 5.6,
@@ -728,8 +818,10 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
               fontSize: 5.4,
               textAnchor: "middle",
               dominantBaseline: "central",
+              fontStyle: "italic",
+              style: { fontStyle: "italic", fontSynthesis: "style" },
             },
-            T.ui.trialsLabel,
+            React.createElement("tspan", { fontStyle: "italic" }, T.ui.trialsLabel),
           ),
           React.createElement(
             "text",
@@ -741,16 +833,18 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
               fontSize: 5.4,
               textAnchor: "middle",
               dominantBaseline: "central",
+              fontStyle: "italic",
+              style: { fontStyle: "italic", fontSynthesis: "style" },
             },
-            React.createElement("tspan", null, "f"),
+            React.createElement("tspan", { fontStyle: "italic" }, "f"),
             React.createElement(
               "tspan",
-              { baselineShift: "sub", fontSize: 3.6, dy: 1.4 },
+              { baselineShift: "sub", fontSize: 3.6, dy: 1.4, fontStyle: "italic" },
               "r",
             ),
             React.createElement(
               "tspan",
-              { dy: -1.4 },
+              { dy: -1.4, fontStyle: "italic" },
               window.APP_LANGUAGE === "id" ? "(A)" : "(H)",
             ),
           ),
@@ -768,13 +862,9 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
             const interactive =
               type === "graphRecord" &&
               isCurrent &&
+              !activeAnimation &&
               !recordedPoints[person.id]?.includes(p.trial) &&
-              !pendingPointTapsRef.current.has(p.trial) &&
-              !(
-                activeAnimation &&
-                activeAnimation.personId === person.id &&
-                activeAnimation.trial === p.trial
-              );
+              !pendingPointTapsRef.current.has(p.trial);
             const isMistake =
               type === "explainMistake" &&
               person.id === "sondang" &&
@@ -799,21 +889,55 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
                   return React.createElement(
                     React.Fragment,
                     null,
+                    isDrawing &&
+                      React.createElement(
+                        "clipPath",
+                        {
+                          id: `${person.id}-guide-x-${p.trial}`,
+                          clipPathUnits: "userSpaceOnUse",
+                        },
+                        React.createElement("rect", {
+                          className: "guide-line-clip guide-line-clip--x",
+                          x: GRAPH_AXIS_X,
+                          y: p.y - 0.8,
+                          width: p.x - GRAPH_AXIS_X,
+                          height: 1.6,
+                        }),
+                      ),
                     React.createElement("line", {
                       className: isDrawing
                         ? "guide-line-draw"
                         : "guide-line-dotted",
-                      pathLength: isDrawing ? 100 : undefined,
+                      clipPath: isDrawing
+                        ? `url(#${person.id}-guide-x-${p.trial})`
+                        : undefined,
                       x1: p.x,
                       y1: p.y,
                       x2: GRAPH_AXIS_X,
                       y2: p.y,
                     }),
+                    isDrawing &&
+                      React.createElement(
+                        "clipPath",
+                        {
+                          id: `${person.id}-guide-y-${p.trial}`,
+                          clipPathUnits: "userSpaceOnUse",
+                        },
+                        React.createElement("rect", {
+                          className: "guide-line-clip guide-line-clip--y",
+                          x: p.x - 0.8,
+                          y: p.y,
+                          width: 1.6,
+                          height: GRAPH_AXIS_BOTTOM - p.y,
+                        }),
+                      ),
                     React.createElement("line", {
                       className: isDrawing
                         ? "guide-line-draw"
                         : "guide-line-dotted",
-                      pathLength: isDrawing ? 100 : undefined,
+                      clipPath: isDrawing
+                        ? `url(#${person.id}-guide-y-${p.trial})`
+                        : undefined,
                       x1: p.x,
                       y1: p.y,
                       x2: p.x,
@@ -821,6 +945,22 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
                     }),
                   );
                 })(),
+              activeAnimation &&
+                activeAnimation.personId === person.id &&
+                activeAnimation.axisLabels?.y?.temporary &&
+                activeAnimation.axisLabels.y.active &&
+                React.createElement(
+                  "text",
+                  {
+                    className: "axis-label y-axis-label axis-label--projection-active axis-label--temp",
+                    x: activeAnimation.axisLabels.y.x,
+                    y: activeAnimation.axisLabels.y.y,
+                    fontSize: 5.6,
+                    textAnchor: "end",
+                    dominantBaseline: "central",
+                  },
+                  activeAnimation.axisLabels.y.text,
+                ),
               isMistake &&
                 React.createElement(
                   React.Fragment,
@@ -902,14 +1042,11 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
     }
     if (type === "revealFreq" && !revealTriggered[person.id]) {
       if (person.id === "sondang" && !formulaFlyDone) return "\u00a0";
-      if (idx === 2) {
-        return React.createElement(
-          "span",
-          { className: "reveal-col-label" },
-          T.ui.revealButton,
-        );
-      }
-      return "\u00a0";
+      return React.createElement(
+        "span",
+        { className: "faded-question-mark" },
+        "?",
+      );
     }
     if (idx < revealIndex) return person.freq[idx];
     if (idx === activeRevealRow && activeRevealStep >= 5)
@@ -969,6 +1106,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
       `data-table--cols-${colCount}`,
       `data-table--step-${type}`,
       collapsed ? "data-table--dim-lead" : "",
+      collapsed ? "data-table--collapsed-middle" : "",
       type === "enterChanges" ? "data-table--step-recordChange" : "",
       type === "formula" && formulaColsSwapped
         ? "data-table--cols-swapped"
@@ -991,6 +1129,10 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
       .join(" ");
 
     const showSubHeading =
+      (type === "formula" && formulaAnswer === "right") ||
+      (type === "revealFreq" && (formulaFlyDone || person.id === "sondang")) ||
+      ["enterChanges", "mistakeQuestion", "explainMistake"].includes(type);
+    const showSubHeadingVisible =
       (type === "formula" && formulaAnswer === "right" && formulaFlyDone) ||
       (type === "revealFreq" && (formulaFlyDone || person.id === "sondang")) ||
       ["enterChanges", "mistakeQuestion", "explainMistake"].includes(type);
@@ -1013,10 +1155,11 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
             className: "col-main",
             dangerouslySetInnerHTML: { __html: T.ui.freqCol },
           }),
-          React.createElement("span", {
-            className: `col-sub${showSubHeading ? " col-sub--visible" : ""}`,
-            dangerouslySetInnerHTML: { __html: T.ui.formulaOptionRight },
-          }),
+          showSubHeading &&
+            React.createElement("span", {
+              className: `col-sub${showSubHeadingVisible ? " col-sub--visible" : ""}`,
+              dangerouslySetInnerHTML: { __html: T.ui.formulaOptionRight },
+            }),
         )
       : null;
     const rfHeader = showRf
@@ -1263,24 +1406,38 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
           !revealedFreq[person.id] &&
           !revealTriggered[person.id] &&
           (person.id !== "sondang" || formulaFlyDone) &&
-          React.createElement("button", {
-            type: "button",
-            className: "reveal-col-hitarea ftue-target",
-            style: revealOverlayRect
-              ? {
-                  left: `${revealOverlayRect.left}px`,
-                  top: `${revealOverlayRect.top}px`,
-                  width: `${revealOverlayRect.width}px`,
-                  height: `${revealOverlayRect.height}px`,
-                }
-              : undefined,
-            onClick: (e) => {
-              e.stopPropagation();
-              onRevealFreq(person.id);
+          React.createElement(
+            "button",
+            {
+              type: "button",
+              className: `reveal-overlay reveal-col-hitarea ftue-target${revealOverlayRect ? "" : " reveal-overlay--fallback"}${revealOverlayExitingFor === person.id ? " reveal-overlay--exiting" : ""}`,
+              style: revealOverlayRect
+                ? {
+                    left: `${revealOverlayRect.left}px`,
+                    top: `${revealOverlayRect.top}px`,
+                    width: `${revealOverlayRect.width}px`,
+                    height: `${revealOverlayRect.height}px`,
+                  }
+                : undefined,
+              onClick: (e) => {
+                e.stopPropagation();
+                if (revealOverlayExitingFor === person.id) return;
+                setRevealOverlayExitingFor(person.id);
+                revealOverlayTimerRef.current = window.setTimeout(() => {
+                  revealOverlayTimerRef.current = null;
+                  onRevealFreq(person.id);
+                }, 500);
+              },
+              disabled:
+                revealAnimating || revealOverlayExitingFor === person.id,
+              "aria-label": T.ui.revealButton,
             },
-            disabled: revealAnimating,
-            "aria-label": T.ui.revealButton,
-          }),
+            React.createElement(
+              "span",
+              { className: "reveal-col-btn" },
+              T.ui.revealButton,
+            ),
+          ),
       ),
     );
   };
@@ -1316,7 +1473,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
         { className: "formula-options" },
         React.createElement("button", {
           type: "button",
-          className: `quiz-option-btn formula-option${!isCorrect ? " teeter-anim" : ""} ${formulaAnswer === "wrong" ? "quiz-option-btn--wrong" : ""} ${formulaBlinkWrong && formulaAnswer === "wrong" ? "quiz-option-btn--blink" : ""}`,
+          className: `quiz-option-btn formula-option${!isCorrect ? " teeter-anim" : ""} ${formulaAnswer === "wrong" ? "quiz-option-btn--wrong" : ""} ${isCorrect ? " quiz-option-btn--muted" : ""} ${formulaBlinkWrong && formulaAnswer === "wrong" ? "quiz-option-btn--blink" : ""}`,
           onClick: () => onFormulaAnswer("wrong"),
           disabled: isCorrect,
           dangerouslySetInnerHTML: { __html: T.ui.formulaOptionWrong },
@@ -1360,6 +1517,7 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
           value: changeInputs[person.id],
           onChange: (value) => onChangeInput(person.id, value),
           onSubmit: () => onChangeSubmit(person.id),
+          resetOnNextKey: changeFeedback?.type === "wrong",
           disabled: panelHold || awaitingNext,
         }),
     );
@@ -1405,7 +1563,9 @@ const ChallengeScreen = React.forwardRef((props, ref) => {
                   ? choice === expected
                     ? "quiz-option-btn--correct"
                     : "quiz-option-btn--wrong"
-                  : "",
+                  : isDone
+                    ? "quiz-option-btn--muted"
+                    : "",
                 questionBlinkWrong && answer === choice && choice !== expected
                   ? "quiz-option-btn--blink"
                   : "",

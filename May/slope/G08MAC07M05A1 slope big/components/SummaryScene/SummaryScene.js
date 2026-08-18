@@ -34,11 +34,32 @@ const SummaryScene = ({ onComplete }) => {
   const [segmentIndex, setSegmentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [shownLabels, setShownLabels] = useState([]);
+  const [cycleFrame, setCycleFrame] = useState(0);
+  const [climbFrame, setClimbFrame] = useState(0);
+  const [summaryStarted, setSummaryStarted] = useState(false);
+  const cycleFrames = useMemo(
+    () =>
+      Array.from({ length: 36 }, (_, index) =>
+        "assets/cycle/" + String(index).padStart(2, "0") + ".png",
+      ),
+    [],
+  );
+  const climbFrames = useMemo(
+    () =>
+      Array.from({ length: 48 }, (_, index) =>
+        "assets/climb/" + String(index).padStart(2, "0") + ".png",
+      ),
+    [],
+  );
 
   useEffect(() => {
     let frameId = null;
     let timeoutId = null;
     let mounted = true;
+
+    setSummaryStarted(false);
+    setCycleFrame(0);
+    setClimbFrame(0);
 
     const playSegment = (index) => {
       if (!mounted) return;
@@ -49,15 +70,17 @@ const SummaryScene = ({ onComplete }) => {
 
       setSegmentIndex(index);
       setProgress(0);
+      if (index < 3) {
+        setCycleFrame(0);
+      } else {
+        setClimbFrame(0);
+      }
       const start = performance.now();
       const duration = segments[index].duration;
 
       const tick = (now) => {
         const raw = Math.min(1, (now - start) / duration);
-        const eased = raw < 0.5
-          ? 2 * raw * raw
-          : 1 - Math.pow(-2 * raw + 2, 2) / 2;
-        setProgress(eased);
+        setProgress(raw);
         if (raw < 1) {
           frameId = requestAnimationFrame(tick);
         } else {
@@ -74,7 +97,11 @@ const SummaryScene = ({ onComplete }) => {
       frameId = requestAnimationFrame(tick);
     };
 
-    playSegment(0);
+    timeoutId = setTimeout(() => {
+      if (!mounted) return;
+      setSummaryStarted(true);
+      playSegment(0);
+    }, 600);
 
     return () => {
       mounted = false;
@@ -96,13 +123,95 @@ const SummaryScene = ({ onComplete }) => {
       180) /
     Math.PI;
   const showCycle = segmentIndex < 3;
-  const showEmptyCycle = segmentIndex >= 3 || shownLabels.includes("zero");
+  const showEmptyCycle = segmentIndex >= 3 || shownLabels.includes("undefined");
+  const cycleMoving = summaryStarted && segmentIndex < 3 && progress < 1;
+  const climbMoving = summaryStarted && segmentIndex === 3 && progress < 1;
   const climberPoint =
     segmentIndex === 3
       ? point
       : shownLabels.includes("undefined")
         ? segments[3].to
         : segments[3].from;
+
+  useEffect(() => {
+    if (!cycleMoving) return undefined;
+    const intervalId = setInterval(() => {
+      setCycleFrame((prev) => (prev + 1) % cycleFrames.length);
+    }, 1000 / 30);
+    return () => clearInterval(intervalId);
+  }, [cycleMoving, cycleFrames.length]);
+
+  useEffect(() => {
+    if (!climbMoving) return undefined;
+    const intervalId = setInterval(() => {
+      setClimbFrame((prev) => (prev + 1) % climbFrames.length);
+    }, 1000 / 30);
+    return () => clearInterval(intervalId);
+  }, [climbMoving, climbFrames.length]);
+
+  const getArrowGeometry = (start, end, headLength, headWidth) => {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const length = Math.hypot(dx, dy);
+    if (!length) return null;
+    const ux = dx / length;
+    const uy = dy / length;
+    const shaftEnd = {
+      x: end.x - ux * headLength,
+      y: end.y - uy * headLength,
+    };
+    const halfWidth = headWidth / 2;
+    const left = {
+      x: shaftEnd.x - uy * halfWidth,
+      y: shaftEnd.y + ux * halfWidth,
+    };
+    const right = {
+      x: shaftEnd.x + uy * halfWidth,
+      y: shaftEnd.y - ux * halfWidth,
+    };
+    return {
+      shaftEnd,
+      headPoints:
+        end.x +
+        "," +
+        end.y +
+        " " +
+        left.x +
+        "," +
+        left.y +
+        " " +
+        right.x +
+        "," +
+        right.y,
+    };
+  };
+
+  const renderDoubleHeadArrow = (start, end, className) => {
+    const headLength = 18;
+    const headWidth = 18;
+    const forward = getArrowGeometry(start, end, headLength, headWidth);
+    const backward = getArrowGeometry(end, start, headLength, headWidth);
+    if (!forward || !backward) return null;
+    return React.createElement(
+      "g",
+      null,
+      React.createElement("line", {
+        x1: backward.shaftEnd.x,
+        y1: backward.shaftEnd.y,
+        x2: forward.shaftEnd.x,
+        y2: forward.shaftEnd.y,
+        className: className,
+      }),
+      React.createElement("polygon", {
+        points: forward.headPoints,
+        className: className + "-head",
+      }),
+      React.createElement("polygon", {
+        points: backward.headPoints,
+        className: className + "-head",
+      }),
+    );
+  };
 
   const labelVisible = (name) => shownLabels.includes(name);
 
@@ -140,37 +249,6 @@ const SummaryScene = ({ onComplete }) => {
           }),
           React.createElement("circle", { cx: "14", cy: "12", r: "1.2", fill: "#476f34", opacity: "0.45" }),
           React.createElement("circle", { cx: "42", cy: "35", r: "1.1", fill: "#476f34", opacity: "0.4" }),
-        ),
-        React.createElement(
-          "pattern",
-          {
-            id: "summaryRockPattern",
-            width: "88",
-            height: "88",
-            patternUnits: "userSpaceOnUse",
-          },
-          React.createElement("rect", { width: "88", height: "88", fill: "#8b6a4d" }),
-          React.createElement("path", {
-            d: "M4 18 C20 2 38 8 50 20 C65 35 77 22 90 35 L90 57 C73 48 62 68 45 57 C31 48 20 62 5 52 Z",
-            fill: "#b18760",
-            opacity: "0.86",
-          }),
-          React.createElement("path", {
-            d: "M-4 78 C12 62 30 72 43 62 C58 51 74 64 92 56 L92 90 L-4 90 Z",
-            fill: "#624838",
-            opacity: "0.74",
-          }),
-          React.createElement("path", {
-            d: "M22 0 L12 88 M50 0 L40 88 M76 0 L65 88",
-            stroke: "#3e3027",
-            strokeWidth: "3",
-            opacity: "0.36",
-          }),
-          React.createElement("path", {
-            d: "M62 20 C68 10 78 9 84 15 C76 16 75 25 68 30 Z",
-            fill: "#72a34e",
-            opacity: "0.7",
-          }),
         ),
         React.createElement("marker", {
           id: "summaryArrowGreen",
@@ -217,7 +295,7 @@ const SummaryScene = ({ onComplete }) => {
         className: "summary-sky",
       }),
       React.createElement("path", {
-        d: "M 34 452 L 520 220 L 755 425 L 892 425 L 892 490 L 0 490 L 0 470 Z",
+        d: "M 34 452 L 520 220 L 755 425 L 892 425 L 892 560 L 0 560 L 0 470 Z",
         fill: "url(#summaryGrassPattern)",
         className: "summary-ground",
       }),
@@ -229,27 +307,24 @@ const SummaryScene = ({ onComplete }) => {
         d: "M 300 385 C 410 326 533 338 655 358 C 585 398 455 418 330 405 C 315 403 307 395 300 385 Z",
         className: "summary-mountain-band yellow",
       }),
-      React.createElement("rect", {
+      React.createElement("image", {
+        href: "assets/mountain.png",
         x: 892,
         y: 15,
-        width: 104,
-        height: 475,
-        fill: "url(#summaryRockPattern)",
+        width: 108,
+        height: 545,
+        preserveAspectRatio: "none",
         className: "summary-wall",
       }),
       labelVisible("positive")
         ? React.createElement(
             "g",
             { className: "summary-label-group fade-in" },
-            React.createElement("line", {
-              x1: 58,
-              y1: 436,
-              x2: 512,
-              y2: 228,
-              className: "summary-slope-arrow positive",
-              markerStart: "url(#summaryArrowGreen)",
-              markerEnd: "url(#summaryArrowGreen)",
-            }),
+            renderDoubleHeadArrow(
+              { x: 58, y: 436 },
+              { x: 512, y: 228 },
+              "summary-slope-arrow positive",
+            ),
             React.createElement(
               "text",
               {
@@ -266,15 +341,11 @@ const SummaryScene = ({ onComplete }) => {
         ? React.createElement(
             "g",
             { className: "summary-label-group fade-in" },
-            React.createElement("line", {
-              x1: 536,
-              y1: 232,
-              x2: 742,
-              y2: 414,
-              className: "summary-slope-arrow negative",
-              markerStart: "url(#summaryArrowOrange)",
-              markerEnd: "url(#summaryArrowOrange)",
-            }),
+            renderDoubleHeadArrow(
+              { x: 536, y: 232 },
+              { x: 742, y: 414 },
+              "summary-slope-arrow negative",
+            ),
             React.createElement(
               "text",
               {
@@ -291,15 +362,11 @@ const SummaryScene = ({ onComplete }) => {
         ? React.createElement(
             "g",
             { className: "summary-label-group fade-in" },
-            React.createElement("line", {
-              x1: 762,
-              y1: 452,
-              x2: 884,
-              y2: 452,
-              className: "summary-slope-arrow zero",
-              markerStart: "url(#summaryArrowBlue)",
-              markerEnd: "url(#summaryArrowBlue)",
-            }),
+            renderDoubleHeadArrow(
+              { x: 762, y: 452 },
+              { x: 884, y: 452 },
+              "summary-slope-arrow zero",
+            ),
             React.createElement(
               "text",
               { x: 820, y: 478, className: "summary-slope-label zero" },
@@ -311,15 +378,11 @@ const SummaryScene = ({ onComplete }) => {
         ? React.createElement(
             "g",
             { className: "summary-label-group fade-in" },
-            React.createElement("line", {
-              x1: 850,
-              y1: 430,
-              x2: 850,
-              y2: 115,
-              className: "summary-slope-arrow undefined",
-              markerStart: "url(#summaryArrowYellow)",
-              markerEnd: "url(#summaryArrowYellow)",
-            }),
+            renderDoubleHeadArrow(
+              { x: 850, y: 430 },
+              { x: 850, y: 115 },
+              "summary-slope-arrow undefined",
+            ),
             React.createElement(
               "text",
               {
@@ -344,7 +407,7 @@ const SummaryScene = ({ onComplete }) => {
         : null,
       showCycle
         ? React.createElement("image", {
-            href: "assets/cycle.png",
+            href: cycleFrames[cycleFrame] || cycleFrames[0],
             x: point.x - 46,
             y: point.y - 65,
             width: 92,
@@ -362,12 +425,12 @@ const SummaryScene = ({ onComplete }) => {
         : null,
       segmentIndex >= 3 || labelVisible("undefined")
         ? React.createElement("image", {
-            href: "assets/guy.png",
+            href: climbFrames[climbFrame] || climbFrames[0],
             x: climberPoint.x - 90,
             y: climberPoint.y - 105,
             width: 108,
             height: 150,
-            className: "summary-climber",
+            className: "summary-climber scene-climber-sprite",
           })
         : null,
     ),

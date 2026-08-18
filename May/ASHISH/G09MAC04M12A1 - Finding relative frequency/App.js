@@ -189,12 +189,15 @@ const App = () => {
     for (let i = 0; i < needed; i += 1) {
       if (!current[order[i]]) return;
     }
+    const hasSum = event?.parts?.length > 1;
     const totalAlreadyKnown = part !== "total" && !!current.total;
     const sfx =
-      part === "freq" && totalAlreadyKnown
+      part === "sum"
         ? "correct"
-        : part === "freq" || part === "sum"
-          ? "click"
+        : part === "freq"
+          ? !hasSum && totalAlreadyKnown
+            ? "correct"
+            : "click"
           : "correct";
     playSfx(sfx);
     const next = { ...eventProgress[key] || {}, [part]: true };

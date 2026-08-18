@@ -14,6 +14,8 @@ const SlopeScene = (props) => {
 
   const [introClicked, setIntroClicked] = useState(false);
   const [rideClicked, setRideClicked] = useState(false);
+  const [motionSpriteFrame, setMotionSpriteFrame] = useState(0);
+  const [spriteAnimating, setSpriteAnimating] = useState(false);
   const [formulaPhase, setFormulaPhase] = useState("idle");
   const [progress, setProgress] = useState(
     scenario === "negative"
@@ -176,6 +178,168 @@ const SlopeScene = (props) => {
   const zeroYellowTextOffset = { x: 34, y: -8 };
   const undefinedBlueTextOffset = { x: 42, y: -46 };
   const undefinedFinalLabelOffset = { x: -52, y: 0, angle: -90 };
+  const movementArrowHeadLength = 40;
+  const movementArrowHeadWidth = 40;
+  const surfaceArrowHeadLength = 18;
+  const surfaceArrowHeadWidth = 18;
+  const rideAnimationDuration = 2000;
+  const cycleFrames = useMemo(
+    () =>
+      Array.from({ length: 36 }, (_, index) =>
+        "assets/cycle/" + String(index).padStart(2, "0") + ".png",
+      ),
+    [],
+  );
+  const climbFrames = useMemo(
+    () =>
+      Array.from({ length: 48 }, (_, index) =>
+        "assets/climb/" + String(index).padStart(2, "0") + ".png",
+      ),
+    [],
+  );
+
+  const renderMathSvgSegments = (text, keyPrefix) =>
+    String(text || "")
+      .split(/(\b[xy]\b)/gi)
+      .filter((segment) => segment !== "")
+      .map((segment, index) =>
+        /^[xy]$/i.test(segment)
+          ? React.createElement(
+              "tspan",
+              {
+                key: keyPrefix + "-math-" + index,
+                className: "math-variable",
+              },
+              segment.toLowerCase(),
+            )
+          : segment,
+      );
+
+  const renderMathHtmlSegments = (text, keyPrefix) =>
+    String(text || "")
+      .split(/(\b[xy]\b)/gi)
+      .filter((segment) => segment !== "")
+      .map((segment, index) =>
+        /^[xy]$/i.test(segment)
+          ? React.createElement(
+              "span",
+              {
+                key: keyPrefix + "-math-" + index,
+                className: "math-variable",
+              },
+              segment.toLowerCase(),
+            )
+          : segment,
+      );
+
+  const getArrowGeometry = (start, end, headLength, headWidth) => {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const length = Math.hypot(dx, dy);
+    if (!length) return null;
+    const ux = dx / length;
+    const uy = dy / length;
+    const shaftEnd = {
+      x: end.x - ux * headLength,
+      y: end.y - uy * headLength,
+    };
+    const halfWidth = headWidth / 2;
+    const left = {
+      x: shaftEnd.x - uy * halfWidth,
+      y: shaftEnd.y + ux * halfWidth,
+    };
+    const right = {
+      x: shaftEnd.x + uy * halfWidth,
+      y: shaftEnd.y - ux * halfWidth,
+    };
+    return {
+      shaftStart: start,
+      shaftEnd,
+      headPoints:
+        end.x +
+        "," +
+        end.y +
+        " " +
+        left.x +
+        "," +
+        left.y +
+        " " +
+        right.x +
+        "," +
+        right.y,
+    };
+  };
+
+  const renderSingleHeadArrow = (
+    start,
+    end,
+    shaftClassName,
+    headClassName,
+    onClick,
+  ) => {
+    const geometry = getArrowGeometry(
+      start,
+      end,
+      movementArrowHeadLength,
+      movementArrowHeadWidth,
+    );
+    if (!geometry) return null;
+    return React.createElement(
+      "g",
+      { onClick: onClick },
+      React.createElement("line", {
+        x1: geometry.shaftStart.x,
+        y1: geometry.shaftStart.y,
+        x2: geometry.shaftEnd.x,
+        y2: geometry.shaftEnd.y,
+        className: shaftClassName,
+      }),
+      React.createElement("polygon", {
+        points: geometry.headPoints,
+        className: headClassName,
+      }),
+    );
+  };
+
+  const renderDoubleHeadArrow = (
+    start,
+    end,
+    shaftClassName,
+    headClassName,
+  ) => {
+    const forward = getArrowGeometry(
+      start,
+      end,
+      surfaceArrowHeadLength,
+      surfaceArrowHeadWidth,
+    );
+    const backward = getArrowGeometry(
+      end,
+      start,
+      surfaceArrowHeadLength,
+      surfaceArrowHeadWidth,
+    );
+    if (!forward || !backward) return null;
+    return React.createElement(
+      "g",
+      null,
+      React.createElement("line", {
+        x1: backward.shaftEnd.x,
+        y1: backward.shaftEnd.y,
+        x2: forward.shaftEnd.x,
+        y2: forward.shaftEnd.y,
+        className: shaftClassName,
+      }),
+      React.createElement("polygon", {
+        points: forward.headPoints,
+        className: headClassName,
+      }),
+      React.createElement("polygon", {
+        points: backward.headPoints,
+        className: headClassName,
+      }),
+    );
+  };
 
   const renderSvgLines = (text, lineHeight) =>
     String(text || "")
@@ -206,7 +370,10 @@ const SlopeScene = (props) => {
         const children =
           signIndex >= 0
             ? [
-                line.slice(0, signIndex),
+                ...renderMathSvgSegments(
+                  line.slice(0, signIndex),
+                  "line-" + index + "-before",
+                ),
                 React.createElement(
                   "tspan",
                   {
@@ -218,9 +385,12 @@ const SlopeScene = (props) => {
                   },
                   signWord,
                 ),
-                line.slice(signIndex + signWord.length),
+                ...renderMathSvgSegments(
+                  line.slice(signIndex + signWord.length),
+                  "line-" + index + "-after",
+                ),
               ]
-            : line;
+            : renderMathSvgSegments(line, "line-" + index);
         return React.createElement(
           "tspan",
           {
@@ -275,8 +445,7 @@ const SlopeScene = (props) => {
     const start = performance.now();
     const tick = (now) => {
       const raw = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - raw, 3);
-      setProgress(fromT + (toT - fromT) * eased);
+      setProgress(fromT + (toT - fromT) * raw);
       if (raw < 1) {
         frameRef.current = requestAnimationFrame(tick);
       } else {
@@ -300,6 +469,8 @@ const SlopeScene = (props) => {
       setFormulaMotion(null);
       setFormulaTravel(false);
       setProgress(rideLine.startT);
+      setSpriteAnimating(false);
+      setMotionSpriteFrame(0);
     }
     if (stage === 3) {
       setRideClicked(false);
@@ -309,15 +480,27 @@ const SlopeScene = (props) => {
       setFormulaMotion(null);
       setFormulaTravel(false);
       setProgress(rideLine.startT);
+      setSpriteAnimating(false);
+      setMotionSpriteFrame(0);
     }
     if (stage === 4 || stage === 5) {
       setProgress(rideLine.endT);
+      setSpriteAnimating(false);
     }
     return () => {
       clearTimers();
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
   }, [step, scenario]);
+
+  useEffect(() => {
+    if (!spriteAnimating) return undefined;
+    const frameCount = isUndefinedScenario ? climbFrames.length : cycleFrames.length;
+    const intervalId = setInterval(() => {
+      setMotionSpriteFrame((prev) => (prev + 1) % frameCount);
+    }, 1000 / 30);
+    return () => clearInterval(intervalId);
+  }, [spriteAnimating, isUndefinedScenario, climbFrames.length, cycleFrames.length]);
 
   useEffect(() => {
     if (formulaPhase !== "clone-y" && formulaPhase !== "clone-x") return;
@@ -408,7 +591,10 @@ const SlopeScene = (props) => {
     if (typeof playSound === "function") playSound("click");
     if (typeof onClearNudges === "function") onClearNudges();
     setRideClicked(true);
-    animateCycle(rideLine.startT, rideLine.endT, 1000, () => {
+    setSpriteAnimating(true);
+    setMotionSpriteFrame(0);
+    animateCycle(rideLine.startT, rideLine.endT, rideAnimationDuration, () => {
+      setSpriteAnimating(false);
       addTimer(onRideComplete, 600);
     });
   };
@@ -509,8 +695,16 @@ const SlopeScene = (props) => {
         y2: top + height + 22,
         className: "axis-line",
       }),
-      React.createElement("text", { key: "x-label", x: 825, y: 256, className: "axis-label" }, "X"),
-      React.createElement("text", { key: "y-label", x: 444, y: 35, className: "axis-label" }, "Y"),
+      React.createElement(
+        "text",
+        { key: "x-label", x: 825, y: 256, className: "axis-label math-variable" },
+        "x",
+      ),
+      React.createElement(
+        "text",
+        { key: "y-label", x: 444, y: 35, className: "axis-label math-variable" },
+        "y",
+      ),
       React.createElement("text", { key: "origin-label", x: 444, y: 270, className: "axis-number" }, "O"),
       React.createElement("text", { key: "ten-label", x: 432, y: 112, className: "axis-number" }, "10"),
       React.createElement("text", { key: "minus-ten-label", x: 425, y: 407, className: "axis-number" }, "-10"),
@@ -525,6 +719,9 @@ const SlopeScene = (props) => {
       ? currentPoint.x - w * 0.82
       : currentPoint.x - w * 0.53;
     const y = isUndefinedScenario ? currentPoint.y - h * 0.52 : currentPoint.y - h;
+    const spriteHref = isUndefinedScenario
+      ? climbFrames[motionSpriteFrame] || climbFrames[0]
+      : cycleFrames[motionSpriteFrame] || cycleFrames[0];
     return React.createElement(
       "g",
       {
@@ -536,11 +733,14 @@ const SlopeScene = (props) => {
         onClick: handleCycleClick,
       },
       React.createElement("image", {
-        href: isUndefinedScenario ? "assets/guy.png" : "assets/cycle.png",
+        href: spriteHref,
         x: x,
         y: y,
         width: w,
         height: h,
+        className: isUndefinedScenario
+          ? "scene-climber-sprite"
+          : undefined,
         transform: isUndefinedScenario
           ? undefined
           : "rotate(" +
@@ -629,24 +829,24 @@ const SlopeScene = (props) => {
               x: corner.x + 44,
               y: (corner.y + currentPoint.y) / 2 + 4,
             };
+    const blueTargetActive = stage === 4 && !arrowSigns.x;
+    const yellowTargetActive = stage === 4 && !arrowSigns.y;
     return React.createElement(
       "g",
       { className: "movement-layer" },
       showBlueArrow
-        ? React.createElement("line", {
-            x1: blueArrowStart.x,
-            y1: blueArrowStart.y,
-            x2: blueArrowEnd.x,
-            y2: blueArrowEnd.y,
-            className: "movement-arrow blue-arrow",
-            markerEnd: "url(#arrow-blue)",
-            onClick: () => onArrowTap("x"),
-          })
+        ? renderSingleHeadArrow(
+            blueArrowStart,
+            blueArrowEnd,
+            "movement-arrow blue-arrow",
+            "movement-arrow-head blue-arrow-head",
+            () => onArrowTap("x"),
+          )
         : null,
       showBlueArrow
         ? React.createElement("line", {
             id:
-              stage === 4 && !arrowSigns.x
+              blueTargetActive
                 ? "blue-arrow-click-target"
                 : undefined,
             x1: blueArrowStart.x,
@@ -658,20 +858,18 @@ const SlopeScene = (props) => {
           })
         : null,
       showYellowArrow
-        ? React.createElement("line", {
-            x1: yellowArrowStart.x,
-            y1: yellowArrowStart.y,
-            x2: yellowArrowEnd.x,
-            y2: yellowArrowEnd.y,
-            className: "movement-arrow yellow-arrow",
-            markerEnd: "url(#arrow-yellow)",
-            onClick: () => onArrowTap("y"),
-          })
+        ? renderSingleHeadArrow(
+            yellowArrowStart,
+            yellowArrowEnd,
+            "movement-arrow yellow-arrow",
+            "movement-arrow-head yellow-arrow-head",
+            () => onArrowTap("y"),
+          )
         : null,
       showYellowArrow
         ? React.createElement("line", {
             id:
-              stage === 4 && !arrowSigns.y
+              yellowTargetActive
                 ? "yellow-arrow-click-target"
                 : undefined,
             x1: yellowArrowStart.x,
@@ -687,21 +885,19 @@ const SlopeScene = (props) => {
             "text",
             {
               id:
-                isUndefinedScenario && stage === 4 && !arrowSigns.x
+                blueTargetActive
                   ? "blue-text-click-target"
                   : undefined,
               transform:
                 "translate(" + blueTextPosition.x + " " + blueTextPosition.y + ")",
-            className:
-              "movement-text blue-text" +
-              (isNegativeScenario || isZeroScenario ? " centered-movement-text" : "") +
-              (isUndefinedScenario && stage === 4 && !arrowSigns.x
-                ? " clickable-movement-text"
-                : ""),
+              className:
+                "movement-text blue-text" +
+                (isNegativeScenario || isZeroScenario
+                  ? " centered-movement-text"
+                  : "") +
+                (blueTargetActive ? " clickable-movement-text" : ""),
               onClick:
-                isUndefinedScenario && stage === 4 && !arrowSigns.x
-                  ? () => onArrowTap("x")
-                  : undefined,
+                blueTargetActive ? () => onArrowTap("x") : undefined,
             },
             renderMovementLabelText(
               blueText,
@@ -717,7 +913,7 @@ const SlopeScene = (props) => {
             "text",
             {
               id:
-                isZeroScenario && stage === 4 && !arrowSigns.y
+                yellowTargetActive
                   ? "yellow-text-click-target"
                   : undefined,
               transform:
@@ -728,13 +924,9 @@ const SlopeScene = (props) => {
                 ")",
               className:
                 "movement-text yellow-text" +
-                (isZeroScenario && stage === 4 && !arrowSigns.y
-                  ? " clickable-movement-text"
-                  : ""),
+                (yellowTargetActive ? " clickable-movement-text" : ""),
               onClick:
-                isZeroScenario && stage === 4 && !arrowSigns.y
-                  ? () => onArrowTap("y")
-                  : undefined,
+                yellowTargetActive ? () => onArrowTap("y") : undefined,
             },
             renderMovementLabelText(
               yellowText,
@@ -851,6 +1043,12 @@ const SlopeScene = (props) => {
     const movingLabelAngle = isUndefinedScenario
       ? undefinedFinalLabelOffset.angle
       : hillAngle;
+    const numeratorText = numeratorSigned
+      ? ySignWord
+      : renderMathHtmlSegments(APP_DATA.formula.changeY, "formula-y");
+    const denominatorText = denominatorSigned
+      ? xSignWord
+      : renderMathHtmlSegments(APP_DATA.formula.changeX, "formula-x");
     return React.createElement(
       React.Fragment,
       null,
@@ -877,7 +1075,7 @@ const SlopeScene = (props) => {
                     (formulaPhase === "blink-y" ? " blink-word" : ""),
                   ref: numeratorRef,
                 },
-                numeratorSigned ? ySignWord : APP_DATA.formula.changeY,
+                numeratorText,
               ),
               React.createElement("span", { className: "fraction-bar" }),
               React.createElement(
@@ -888,7 +1086,7 @@ const SlopeScene = (props) => {
                     (formulaPhase === "blink-x" ? " blink-word" : ""),
                   ref: denominatorRef,
                 },
-                denominatorSigned ? xSignWord : APP_DATA.formula.changeX,
+                denominatorText,
               ),
             ),
       ),
@@ -972,7 +1170,6 @@ const SlopeScene = (props) => {
     " " +
     SLOPE_SCENE.hill.rightBase.y +
     " Z";
-
   const renderTerrain = () => {
     const terrainProps = {
       id:
@@ -991,14 +1188,14 @@ const SlopeScene = (props) => {
         "g",
         terrainProps,
         React.createElement("rect", {
-          x: -20,
+          x: -320,
           y: rideLine.a.y,
-          width: 1040,
-          height: 180,
+          width: 1640,
+          height: 260,
           fill: "url(#grassPattern)",
         }),
         React.createElement("path", {
-          d: "M -20 360 C 180 350 350 372 540 360 C 720 348 850 368 1020 356 L 1020 520 L -20 520 Z",
+          d: "M -320 362 C -20 350 280 372 540 360 C 820 348 1040 368 1320 356 L 1320 620 L -320 620 Z",
           fill: "url(#grassPattern)",
           opacity: 0.92,
         }),
@@ -1010,26 +1207,20 @@ const SlopeScene = (props) => {
         "g",
         terrainProps,
         React.createElement("rect", {
-          x: -20,
+          x: -320,
           y: 430,
-          width: rideLine.a.x + 18,
-          height: 100,
+          width: rideLine.a.x + 360,
+          height: 150,
           fill: "url(#grassPattern)",
         }),
-        React.createElement("rect", {
+        React.createElement("image", {
           id: stage === 2 && !introClicked ? "hill-click-target" : undefined,
+          href: "assets/mountain.png",
           x: rideLine.a.x - 4,
           y: -20,
-          width: 370,
-          height: 560,
-          fill: "url(#rockPattern)",
-        }),
-        React.createElement("line", {
-          x1: rideLine.a.x,
-          y1: -20,
-          x2: rideLine.a.x,
-          y2: 530,
-          className: "rock-wall-edge",
+          width: 460,
+          height: 600,
+          preserveAspectRatio: "none",
         }),
       );
     }
@@ -1079,39 +1270,6 @@ const SlopeScene = (props) => {
           React.createElement("circle", { cx: "26", cy: "31", r: "1", fill: "#476f34", opacity: "0.45" }),
           React.createElement("circle", { cx: "44", cy: "17", r: "1.1", fill: "#476f34", opacity: "0.42" }),
         ),
-        React.createElement(
-          "pattern",
-          {
-            id: "rockPattern",
-            width: "92",
-            height: "92",
-            patternUnits: "userSpaceOnUse",
-          },
-          React.createElement("rect", { width: "92", height: "92", fill: "#7b654e" }),
-          React.createElement("path", {
-            d: "M6 12 C24 -2 42 6 54 18 C68 31 82 22 94 34 L94 54 C78 47 65 64 49 54 C35 46 22 58 8 48 Z",
-            fill: "#9c8666",
-            opacity: "0.9",
-          }),
-          React.createElement("path", {
-            d: "M-5 76 C12 61 27 70 42 62 C58 53 75 64 96 58 L96 95 L-5 95 Z",
-            fill: "#5f4e3f",
-            opacity: "0.82",
-          }),
-          React.createElement("path", {
-            d: "M20 0 L12 92 M48 0 L39 92 M77 0 L68 92",
-            stroke: "#3f342b",
-            strokeWidth: "3",
-            opacity: "0.42",
-          }),
-          React.createElement("circle", { cx: "24", cy: "29", r: "4", fill: "#b69c76", opacity: "0.55" }),
-          React.createElement("circle", { cx: "66", cy: "70", r: "5", fill: "#4f4236", opacity: "0.5" }),
-          React.createElement("path", {
-            d: "M71 18 C75 9 85 7 90 13 C83 14 82 22 76 26 Z",
-            fill: "#6f9d4f",
-            opacity: "0.75",
-          }),
-        ),
         React.createElement("marker", {
           id: "arrow-green",
           markerWidth: "18",
@@ -1150,15 +1308,12 @@ const SlopeScene = (props) => {
               className: "slope-line-group" + (stage === 5 ? " clickable" : ""),
               onClick: handleGreenLineClick,
             },
-            React.createElement("line", {
-              x1: surfaceLineStart.x,
-              y1: surfaceLineStart.y,
-              x2: surfaceLineEnd.x,
-              y2: surfaceLineEnd.y,
-              className: "surface-line",
-              markerEnd: "url(#arrow-green)",
-              markerStart: "url(#arrow-green)",
-            }),
+            renderDoubleHeadArrow(
+              surfaceLineStart,
+              surfaceLineEnd,
+              "surface-line",
+              "surface-arrow-head",
+            ),
             React.createElement("line", {
               x1: surfaceLineStart.x,
               y1: surfaceLineStart.y,
