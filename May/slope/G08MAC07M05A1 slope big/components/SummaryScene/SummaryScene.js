@@ -1,35 +1,50 @@
 const SummaryScene = ({ onComplete }) => {
-  const { useEffect, useMemo, useState } = React;
+  const { useEffect, useMemo, useRef, useState } = React;
+
+  const VIEWBOX_WIDTH = 1000;
+  const VIEWBOX_HEIGHT = 520;
+  const MOUNTAIN_NATIVE_WIDTH = 544;
+  const MOUNTAIN_NATIVE_HEIGHT = 1536;
+  const mountainWidth =
+    VIEWBOX_HEIGHT * (MOUNTAIN_NATIVE_WIDTH / MOUNTAIN_NATIVE_HEIGHT);
+  const mountainRightNudge = 0;
+  const mountainStartX = 930;
+  const zeroRideStartX = 650;
+  const zeroRideEndX = mountainStartX - 70;
+  const climbX = mountainStartX + 24;
+  const flatY = 425;
 
   const segments = useMemo(
     () => [
       {
-        from: { x: 74, y: 425 },
-        to: { x: 520, y: 220 },
+        from: { x: 50, y: 394 },
+        to: { x: 440, y: 220 },
         duration: 2300,
         label: "positive",
       },
       {
-        from: { x: 520, y: 220 },
-        to: { x: 755, y: 425 },
+        from: { x: 440, y: 220 },
+        to: { x: 612, y: 388 },
         duration: 1800,
         label: "negative",
       },
       {
-        from: { x: 755, y: 425 },
-        to: { x: 890, y: 425 },
-        duration: 1100,
+        from: { x: zeroRideStartX, y: flatY },
+        to: { x: zeroRideEndX, y: flatY },
+        duration: 1400,
         label: "zero",
       },
       {
-        from: { x: 900, y: 425 },
-        to: { x: 900, y: 105 },
+        from: { x: climbX, y: flatY },
+        to: { x: climbX, y: 105 },
         duration: 2200,
         label: "undefined",
       },
     ],
-    [],
+    [zeroRideStartX, zeroRideEndX, climbX, flatY],
   );
+  const svgRef = useRef(null);
+  const [mountainRightEdge, setMountainRightEdge] = useState(VIEWBOX_WIDTH);
 
   const [segmentIndex, setSegmentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -109,6 +124,27 @@ const SummaryScene = ({ onComplete }) => {
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [segments, onComplete]);
+
+  useEffect(() => {
+    const updateWallEdge = () => {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const canvasWidth = svg.clientWidth;
+      const canvasHeight = svg.clientHeight;
+      if (!canvasWidth || !canvasHeight) return;
+      const scale = Math.min(
+        canvasWidth / VIEWBOX_WIDTH,
+        canvasHeight / VIEWBOX_HEIGHT,
+      );
+      const visibleWidth = canvasWidth / scale;
+      const extra = Math.max(0, visibleWidth - VIEWBOX_WIDTH);
+      setMountainRightEdge(VIEWBOX_WIDTH + extra / 2 + mountainRightNudge);
+    };
+
+    updateWallEdge();
+    window.addEventListener("resize", updateWallEdge);
+    return () => window.removeEventListener("resize", updateWallEdge);
+  }, [mountainRightNudge]);
 
   const activeSegment = segments[Math.min(segmentIndex, segments.length - 1)];
   const point = {
@@ -214,6 +250,18 @@ const SummaryScene = ({ onComplete }) => {
   };
 
   const labelVisible = (name) => shownLabels.includes(name);
+  const cycleWidth = 150;
+  const cycleHeight = 120;
+  const parkedCycleX = zeroRideEndX - cycleWidth * 0.53;
+  const parkedCycleY = 425 - cycleHeight + 6;
+  const terrainPath =
+    "M -400 594 L 440 220 L 650 425 L 1400 425 L 1400 900 L -400 900 Z";
+  const cycleRad = (angle * Math.PI) / 180;
+  const cycleLift = segmentIndex === 1 ? 8 : -6;
+  const cycleDraw = {
+    x: point.x - Math.sin(cycleRad) * cycleLift,
+    y: point.y - Math.cos(cycleRad) * cycleLift,
+  };
 
   return React.createElement(
     "div",
@@ -222,8 +270,9 @@ const SummaryScene = ({ onComplete }) => {
       "svg",
       {
         className: "summary-scene-svg",
-        viewBox: "0 0 1000 520",
+        viewBox: "0 0 " + VIEWBOX_WIDTH + " " + VIEWBOX_HEIGHT,
         preserveAspectRatio: "xMidYMid meet",
+        ref: svgRef,
       },
       React.createElement(
         "defs",
@@ -258,7 +307,7 @@ const SummaryScene = ({ onComplete }) => {
           refY: "9",
           orient: "auto-start-reverse",
           markerUnits: "userSpaceOnUse",
-        }, React.createElement("path", { d: "M 0 0 L 18 9 L 0 18 z", fill: "#9bd24c" })),
+        }, React.createElement("path", { d: "M 0 0 L 18 9 L 0 18 z", fill: "#8bf281" })),
         React.createElement("marker", {
           id: "summaryArrowOrange",
           markerWidth: "18",
@@ -286,34 +335,45 @@ const SummaryScene = ({ onComplete }) => {
           orient: "auto-start-reverse",
           markerUnits: "userSpaceOnUse",
         }, React.createElement("path", { d: "M 0 0 L 18 9 L 0 18 z", fill: "#f7c534" })),
+        React.createElement(
+          "clipPath",
+          { id: "summaryTerrainClip" },
+          React.createElement("path", {
+            d: terrainPath,
+          }),
+        ),
       ),
       React.createElement("rect", {
-        x: 0,
-        y: 0,
-        width: 1000,
-        height: 520,
+        x: -800,
+        y: -200,
+        width: 2600,
+        height: 1000,
         className: "summary-sky",
       }),
       React.createElement("path", {
-        d: "M 34 452 L 520 220 L 755 425 L 892 425 L 892 560 L 0 560 L 0 470 Z",
+        d: terrainPath,
         fill: "url(#summaryGrassPattern)",
         className: "summary-ground",
       }),
-      React.createElement("path", {
-        d: "M 205 372 C 320 302 410 275 520 220 L 640 325 C 530 305 430 344 335 358 C 285 365 246 357 205 372 Z",
-        className: "summary-mountain-band",
-      }),
-      React.createElement("path", {
-        d: "M 300 385 C 410 326 533 338 655 358 C 585 398 455 418 330 405 C 315 403 307 395 300 385 Z",
-        className: "summary-mountain-band yellow",
-      }),
+      React.createElement(
+        "g",
+        { clipPath: "url(#summaryTerrainClip)" },
+        React.createElement("path", {
+          d: "M -220 530 C 40 410 240 290 440 220 L 560 325 C 350 300 160 390 10 470 C -90 510 -150 530 -220 530 Z",
+          className: "summary-mountain-band",
+        }),
+        React.createElement("path", {
+          d: "M 90 410 C 230 338 395 330 535 358 C 465 398 335 418 148 420 C 120 420 100 416 90 410 Z",
+          className: "summary-mountain-band yellow",
+        }),
+      ),
       React.createElement("image", {
-        href: "assets/mountain.png",
-        x: 892,
-        y: 15,
-        width: 108,
-        height: 545,
-        preserveAspectRatio: "none",
+        href: "assets/mountainxs.png",
+        x: 0,
+        y: 0,
+        width: mountainRightEdge,
+        height: VIEWBOX_HEIGHT,
+        preserveAspectRatio: "xMaxYMid meet",
         className: "summary-wall",
       }),
       labelVisible("positive")
@@ -321,17 +381,17 @@ const SummaryScene = ({ onComplete }) => {
             "g",
             { className: "summary-label-group fade-in" },
             renderDoubleHeadArrow(
-              { x: 58, y: 436 },
-              { x: 512, y: 228 },
+              { x: 42, y: 391 },
+              { x: 394, y: 234 },
               "summary-slope-arrow positive",
             ),
             React.createElement(
               "text",
               {
-                x: 256,
-                y: 330,
+                x: 211,
+                y: 298,
                 className: "summary-slope-label positive",
-                transform: "rotate(-25 256 330)",
+                transform: "rotate(-24 211 298)",
               },
               "positive",
             ),
@@ -342,17 +402,17 @@ const SummaryScene = ({ onComplete }) => {
             "g",
             { className: "summary-label-group fade-in" },
             renderDoubleHeadArrow(
-              { x: 536, y: 232 },
-              { x: 742, y: 414 },
+              { x: 454, y: 232 },
+              { x: 638, y: 414 },
               "summary-slope-arrow negative",
             ),
             React.createElement(
               "text",
               {
-                x: 650,
-                y: 314,
+                x: 556,
+                y: 312,
                 className: "summary-slope-label negative",
-                transform: "rotate(42 650 314)",
+                transform: "rotate(44 556 312)",
               },
               "negative",
             ),
@@ -363,13 +423,13 @@ const SummaryScene = ({ onComplete }) => {
             "g",
             { className: "summary-label-group fade-in" },
             renderDoubleHeadArrow(
-              { x: 762, y: 452 },
-              { x: 884, y: 452 },
+              { x: 668, y: 452 },
+              { x: 876, y: 452 },
               "summary-slope-arrow zero",
             ),
             React.createElement(
               "text",
-              { x: 820, y: 478, className: "summary-slope-label zero" },
+              { x: 772, y: 478, className: "summary-slope-label zero" },
               "zero",
             ),
           )
@@ -379,17 +439,17 @@ const SummaryScene = ({ onComplete }) => {
             "g",
             { className: "summary-label-group fade-in" },
             renderDoubleHeadArrow(
-              { x: 850, y: 430 },
-              { x: 850, y: 115 },
+              { x: climbX - 40, y: 430 },
+              { x: climbX - 40, y: 115 },
               "summary-slope-arrow undefined",
             ),
             React.createElement(
               "text",
               {
-                x: 822,
+                x: climbX - 68,
                 y: 270,
                 className: "summary-slope-label undefined",
-                transform: "rotate(-90 822 270)",
+                transform: "rotate(-90 " + (climbX - 68) + " 270)",
               },
               "undefined",
             ),
@@ -398,27 +458,27 @@ const SummaryScene = ({ onComplete }) => {
       showEmptyCycle
         ? React.createElement("image", {
             href: "assets/cycle_without_rider.png",
-            x: 828,
-            y: 362,
-            width: 88,
-            height: 72,
+            x: parkedCycleX,
+            y: parkedCycleY,
+            width: cycleWidth,
+            height: cycleHeight,
             className: "summary-empty-cycle fade-in",
           })
         : null,
       showCycle
         ? React.createElement("image", {
             href: cycleFrames[cycleFrame] || cycleFrames[0],
-            x: point.x - 46,
-            y: point.y - 65,
-            width: 92,
-            height: 76,
+            x: cycleDraw.x - cycleWidth * 0.53,
+            y: cycleDraw.y - cycleHeight,
+            width: cycleWidth,
+            height: cycleHeight,
             transform:
               "rotate(" +
               angle +
               " " +
-              point.x +
+              cycleDraw.x +
               " " +
-              point.y +
+              cycleDraw.y +
               ")",
             className: "summary-cycle",
           })

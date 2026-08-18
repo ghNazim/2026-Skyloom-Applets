@@ -3,12 +3,14 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: #14536a;
 }
 
 .summary-scene-svg {
   width: 100%;
   height: 100%;
   display: block;
+  overflow: visible;
 }
 
 .summary-sky {
@@ -36,7 +38,7 @@
 }
 
 .summary-slope-arrow.positive {
-  stroke: #9bd24c;
+  stroke: #8bf281;
 }
 
 .summary-slope-arrow.negative {
@@ -52,7 +54,7 @@
 }
 
 .summary-slope-arrow.positive-head {
-  fill: #9bd24c;
+  fill: #8bf281;
   filter: drop-shadow(0 0.12vw 0.16vw rgba(0, 0, 0, 0.3));
 }
 
@@ -81,7 +83,7 @@
 }
 
 .summary-slope-label.positive {
-  fill: #9bd24c;
+  fill: #8bf281;
 }
 
 .summary-slope-label.negative {
@@ -103,6 +105,15 @@
 .summary-empty-cycle {
   filter: drop-shadow(0 0.15vw 0.14vw rgba(0, 0, 0, 0.25));
 }
+
+.summary-climber.scene-climber-sprite {
+  transform: translateX(10px);
+}
+
+.summary-empty-cycle {
+  transform: translateY(16px) translateX(20px);
+}
+
 
 .fade-in {
   animation: summary-fade-in 0.35s ease both;

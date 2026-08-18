@@ -1,0 +1,23 @@
+I want to create a new applet that will have similar structure as the given one. 
+It will have question panel at the top, navigation at the bottom and main canvas in the middle. 
+
+
+Step 0:
+heading - 
+text - 
+
+button : START
+
+step 1: 
+question text (q) - 
+nav text (n) - 
+
+
+-----------------
+I am adding a few images from the storyboard. Take a look at the images to get an understanding about the layout and elements. 
+
+Modify the required files or create new files to achieve the above mentioned flow. 
+All English words and sentences must be defined in the data.js file under "en" object , also translate to "id" to have the Indonesian version of the texts. 
+Please use es6 syntaxes for all files. 
+Code
+No need to test using browser, I will manually test by myself, just recheck the code to make sure everything is correctly done. 

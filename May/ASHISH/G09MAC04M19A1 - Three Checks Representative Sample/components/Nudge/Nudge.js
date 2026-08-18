@@ -7,6 +7,7 @@ const Nudge = ({
   active,
   onDismiss,
   src = "assets/tap.gif",
+  delay = 0,
 }) => {
   const { useState, useEffect, createElement: e } = React;
 
@@ -19,8 +20,19 @@ const Nudge = ({
       setLayout(null);
       return;
     }
-    setVisible(true);
-  }, [active]);
+    if (!delay) {
+      setVisible(true);
+      return;
+    }
+    setVisible(false);
+    setLayout(null);
+    var t = setTimeout(function () {
+      setVisible(true);
+    }, delay);
+    return function () {
+      clearTimeout(t);
+    };
+  }, [active, delay]);
 
   useEffect(() => {
     if (!active || !visible) return;

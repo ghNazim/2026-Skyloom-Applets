@@ -4,7 +4,7 @@ var SAM_SVG_H = 270;
 var ML = 70;
 var MR = 16;
 var MT = 12;
-var MB = 44;
+var MB = 58;
 var XMIN = 0;
 var XMAX = 12.7;
 var AXIS_LABEL_SIZE = 24;
@@ -17,6 +17,82 @@ function toData(values) {
   }
   return out;
 }
+
+function dataRange(values) {
+  var min = null;
+  var max = null;
+  for (var i = 0; i < values.length; i++) {
+    if (values[i] > 0) {
+      var x = i + 1;
+      if (min === null) min = x;
+      max = x;
+    }
+  }
+  return { min: min, max: max, result: max - min };
+}
+
+function meanStats(values) {
+  var bars = [];
+  var sumXF = 0;
+  var sumF = 0;
+  for (var i = 0; i < values.length; i++) {
+    var f = values[i];
+    if (!f) continue;
+    var x = i + 1;
+    bars.push({ x: x, f: f, xf: x * f });
+    sumXF += x * f;
+    sumF += f;
+  }
+  return {
+    bars: bars,
+    sumXF: sumXF,
+    sumF: sumF,
+    mean: Math.round((sumXF / sumF) * 10) / 10,
+  };
+}
+
+function deriveMeanOps(eq, kind) {
+  if (!eq || eq.sumOnly) return eq;
+  var aOn = !!(eq.visA && eq.a !== "");
+  var mOn = !!(eq.visM && eq.m !== "");
+  var bOn = !!(eq.visB && eq.b !== "");
+  var nOn = !!(eq.visN && eq.n !== "");
+  var tOn = !!(eq.visT && eq.t !== "");
+  var visTimes = aOn && mOn ? 1 : 0;
+  var visBn = bOn && nOn ? 1 : 0;
+  var leftPlus =
+    kind === "den" || eq.leftIsSum ? aOn : mOn ? !!visTimes : aOn;
+  var rightPlus = kind === "den" ? bOn : !!visBn;
+  return Object.assign({}, eq, {
+    visTimes: visTimes,
+    visBn: visBn,
+    visPlus: leftPlus && rightPlus ? 1 : 0,
+    visEq: tOn ? 1 : 0,
+  });
+}
+
+var EMPTY_MEAN_EQ = {
+  a: "",
+  m: "",
+  b: "",
+  n: "",
+  t: "",
+  visA: 0,
+  visTimes: 0,
+  visM: 0,
+  visPlus: 0,
+  visB: 0,
+  visBn: 0,
+  visN: 0,
+  visEq: 0,
+  visT: 0,
+  sumOnly: false,
+  leftIsSum: false,
+};
+
+var ARROW_Y_POP = 11.2;
+var ARROW_Y_SAMPLE = 4.35;
+var RANGE_VLINE_COLOR = "#7ee7f2";
 
 function graphLayout(svgH, yMax) {
   var pW = SVG_W - ML - MR;
@@ -157,6 +233,8 @@ const MainCanvas = (props) => {
   var onUpdateNavText = props.onUpdateNavText;
   var onUpdateQuestionText = props.onUpdateQuestionText;
   var onSelectTest = props.onSelectTest;
+  var remainingTests = props.remainingTests || [];
+  var completedTests = props.completedTests || [];
 
   var useState = React.useState;
   var useEffect = React.useEffect;
@@ -177,6 +255,90 @@ const MainCanvas = (props) => {
   var popLayout = graphLayout(POP_SVG_H, GRAPH_DATA.popYRange.max);
   var samLayout = graphLayout(SAM_SVG_H, GRAPH_DATA.sampleYRange.max);
 
+  var RANGE_CFG = {
+    pop: {
+      id: "pop",
+      graph: "left",
+      hideSample: true,
+      min: dataRange(GRAPH_DATA.population).min,
+      max: dataRange(GRAPH_DATA.population).max,
+      result: dataRange(GRAPH_DATA.population).result,
+      arrow: "#8fd4ee",
+      valueFill: "#1d4e89",
+      resultClass: "result-blue",
+    },
+    s1: {
+      id: "s1",
+      graph: "left",
+      hideSample: false,
+      min: dataRange(GRAPH_DATA.sample1).min,
+      max: dataRange(GRAPH_DATA.sample1).max,
+      result: dataRange(GRAPH_DATA.sample1).result,
+      arrow: "#f07090",
+      valueFill: "#c4455c",
+      resultClass: "result-s1",
+    },
+    s2: {
+      id: "s2",
+      graph: "right",
+      hideSample: false,
+      min: dataRange(GRAPH_DATA.sample2).min,
+      max: dataRange(GRAPH_DATA.sample2).max,
+      result: dataRange(GRAPH_DATA.sample2).result,
+      arrow: "#f0a030",
+      valueFill: "#c4841a",
+      resultClass: "result-s2",
+    },
+  };
+
+  var popMean = meanStats(GRAPH_DATA.population);
+  var s1Mean = meanStats(GRAPH_DATA.sample1);
+  var s2Mean = meanStats(GRAPH_DATA.sample2);
+  var MEAN_CFG = {
+    pop: {
+      id: "pop",
+      graph: "left",
+      hideSample: true,
+      hidePop: false,
+      bars: popMean.bars,
+      sumXF: popMean.sumXF,
+      sumF: popMean.sumF,
+      mean: popMean.mean,
+      line: "#7ee7f2",
+      valueFill: "#1d4e89",
+      resultClass: "result-blue",
+      bright: "#7ec8e3",
+    },
+    s1: {
+      id: "s1",
+      graph: "left",
+      hideSample: false,
+      hidePop: true,
+      bars: s1Mean.bars,
+      sumXF: s1Mean.sumXF,
+      sumF: s1Mean.sumF,
+      mean: s1Mean.mean,
+      line: "#f07090",
+      valueFill: "#c4455c",
+      resultClass: "result-s1",
+      bright: "#ff8aa0",
+    },
+    s2: {
+      id: "s2",
+      graph: "right",
+      hideSample: false,
+      hidePop: true,
+      bars: s2Mean.bars,
+      sumXF: s2Mean.sumXF,
+      sumF: s2Mean.sumF,
+      mean: s2Mean.mean,
+      line: "#f0a030",
+      valueFill: "#c4841a",
+      resultClass: "result-s2",
+      bright: "#ffd166",
+    },
+  };
+
   var popPts = getPathPoints(popData, popLayout);
   var s1Pts = getPathPoints(s1Data, popLayout);
   var s2Pts = getPathPoints(s2Data, popLayout);
@@ -191,8 +353,27 @@ const MainCanvas = (props) => {
   var isA1 = step === "A1";
   var isA2 = step === "A2";
   var isA3 = step === "A3";
+  var isC1 = step === "C1";
+  var isC2 = step === "C2";
+  var isC3 = step === "C3";
+  var isB1 = step === "B1";
+  var isB2 = step === "B2";
+  var isB3 = step === "B3";
+  var isStep3 = step === 3;
+  var isMcqStep = isA2 || isC2 || isB2;
   var showOverlapDefault =
-    startAtFinal || isA1 || isA2 || isA3 || (isStep2 && startAtFinal);
+    startAtFinal ||
+    isA1 ||
+    isA2 ||
+    isA3 ||
+    isC1 ||
+    isC2 ||
+    isC3 ||
+    isB1 ||
+    isB2 ||
+    isB3 ||
+    isStep3 ||
+    (isStep2 && startAtFinal);
 
   var _leftPop = useState(step !== 1 && showOverlapDefault);
   var leftPopVisible = _leftPop[0];
@@ -210,7 +391,19 @@ const MainCanvas = (props) => {
   var showOverlap = _overlap[0];
   var setShowOverlap = _overlap[1];
 
-  var _buttons = useState((isStep2 && startAtFinal) || isA1 || isA2 || isA3);
+  var _buttons = useState(
+    (isStep2 && startAtFinal) ||
+      isA1 ||
+      isA2 ||
+      isA3 ||
+      isC1 ||
+      isC2 ||
+      isC3 ||
+      isB1 ||
+      isB2 ||
+      isB3 ||
+      isStep3,
+  );
   var showButtonRows = _buttons[0];
   var setShowButtonRows = _buttons[1];
 
@@ -240,14 +433,14 @@ const MainCanvas = (props) => {
   var isDrawing = _drawing[0];
   var setIsDrawing = _drawing[1];
 
-  var _mcqTarget = useState(isA2 && startAtFinal ? "done" : "s1");
+  var _mcqTarget = useState(isMcqStep && startAtFinal ? "done" : "s1");
   var mcqTarget = _mcqTarget[0];
   var setMcqTarget = _mcqTarget[1];
 
-  var _s1Sel = useState(isA2 && startAtFinal ? "fail" : null);
+  var _s1Sel = useState(isMcqStep && startAtFinal ? "fail" : null);
   var s1Selected = _s1Sel[0];
   var setS1Selected = _s1Sel[1];
-  var _s2Sel = useState(isA2 && startAtFinal ? "pass" : null);
+  var _s2Sel = useState(isMcqStep && startAtFinal ? "pass" : null);
   var s2Selected = _s2Sel[0];
   var setS2Selected = _s2Sel[1];
 
@@ -258,10 +451,10 @@ const MainCanvas = (props) => {
   var s2Retry = _s2Retry[0];
   var setS2Retry = _s2Retry[1];
 
-  var _s1Lock = useState(!!(isA2 && startAtFinal));
+  var _s1Lock = useState(!!(isMcqStep && startAtFinal));
   var s1Locked = _s1Lock[0];
   var setS1Locked = _s1Lock[1];
-  var _s2Lock = useState(!!(isA2 && startAtFinal));
+  var _s2Lock = useState(!!(isMcqStep && startAtFinal));
   var s2Locked = _s2Lock[0];
   var setS2Locked = _s2Lock[1];
 
@@ -269,12 +462,12 @@ const MainCanvas = (props) => {
   var feedbackSide = _fb[0];
   var setFeedbackSide = _fb[1];
 
-  var _s1Box = useState(!!(isA2 && startAtFinal) || isA3);
-  var showS1Box = _s1Box[0];
-  var setShowS1Box = _s1Box[1];
-  var _s2Box = useState(!!(isA2 && startAtFinal) || isA3);
-  var showS2Box = _s2Box[0];
-  var setShowS2Box = _s2Box[1];
+  var _s1Box = useState(!!(isA2 && startAtFinal) || isA3 || isStep3 || completedTests.indexOf("shape") !== -1);
+  var showShapeS1Box = _s1Box[0];
+  var setShowShapeS1Box = _s1Box[1];
+  var _s2Box = useState(!!(isA2 && startAtFinal) || isA3 || isStep3 || completedTests.indexOf("shape") !== -1);
+  var showShapeS2Box = _s2Box[0];
+  var setShowShapeS2Box = _s2Box[1];
 
   var _busy = useState(false);
   var mcqBusy = _busy[0];
@@ -283,6 +476,272 @@ const MainCanvas = (props) => {
   var _hideSampleSources = useState(false);
   var hideSampleSources = _hideSampleSources[0];
   var setHideSampleSources = _hideSampleSources[1];
+
+  var c1Final = isC1 && startAtFinal;
+  var rangeDoneInit = c1Final || isC2 || isC3;
+
+  var _graphFocus = useState("both");
+  var graphFocus = _graphFocus[0];
+  var setGraphFocus = _graphFocus[1];
+  var _hideLeftSample = useState(false);
+  var hideLeftSample = _hideLeftSample[0];
+  var setHideLeftSample = _hideLeftSample[1];
+  var _hideRightSample = useState(false);
+  var hideRightSample = _hideRightSample[0];
+  var setHideRightSample = _hideRightSample[1];
+
+  var _rangeActive = useState(null);
+  var rangeActive = _rangeActive[0];
+  var setRangeActive = _rangeActive[1];
+  var _rangePending = useState(null);
+  var rangePending = _rangePending[0];
+  var setRangePending = _rangePending[1];
+  var _rangeStage = useState("idle");
+  var rangeStage = _rangeStage[0];
+  var setRangeStage = _rangeStage[1];
+  var _rangeBusy = useState(false);
+  var rangeBusy = _rangeBusy[0];
+  var setRangeBusy = _rangeBusy[1];
+  var _highClicked = useState(false);
+  var highClicked = _highClicked[0];
+  var setHighClicked = _highClicked[1];
+  var _lowClicked = useState(false);
+  var lowClicked = _lowClicked[0];
+  var setLowClicked = _lowClicked[1];
+  var _highValue = useState(null);
+  var highValue = _highValue[0];
+  var setHighValue = _highValue[1];
+  var _lowValue = useState(null);
+  var lowValue = _lowValue[0];
+  var setLowValue = _lowValue[1];
+  var _showAnswerSlot = useState(false);
+  var showAnswerSlot = _showAnswerSlot[0];
+  var setShowAnswerSlot = _showAnswerSlot[1];
+  var _answerFlipped = useState(false);
+  var answerFlipped = _answerFlipped[0];
+  var setAnswerFlipped = _answerFlipped[1];
+  var _rangeCollapsed = useState(false);
+  var rangeCollapsed = _rangeCollapsed[0];
+  var setRangeCollapsed = _rangeCollapsed[1];
+  var _rangeReady = useState(false);
+  var rangeReady = _rangeReady[0];
+  var setRangeReady = _rangeReady[1];
+  var _showRangeNudges = useState(false);
+  var showRangeNudges = _showRangeNudges[0];
+  var setShowRangeNudges = _showRangeNudges[1];
+  var _showHighNudge = useState(false);
+  var showHighNudge = _showHighNudge[0];
+  var setShowHighNudge = _showHighNudge[1];
+  var _showLowNudge = useState(false);
+  var showLowNudge = _showLowNudge[0];
+  var setShowLowNudge = _showLowNudge[1];
+  var _showAnswerNudge = useState(false);
+  var showAnswerNudge = _showAnswerNudge[0];
+  var setShowAnswerNudge = _showAnswerNudge[1];
+
+  var _rangeGone = useState({
+    pop: rangeDoneInit,
+    s1: rangeDoneInit,
+    s2: rangeDoneInit,
+  });
+  var rangeGone = _rangeGone[0];
+  var setRangeGone = _rangeGone[1];
+  var _rangeCompleted = useState({
+    pop: rangeDoneInit,
+    s1: rangeDoneInit,
+    s2: rangeDoneInit,
+  });
+  var rangeCompleted = _rangeCompleted[0];
+  var setRangeCompleted = _rangeCompleted[1];
+  var _rangeAllDone = useState(rangeDoneInit);
+  var rangeAllDone = _rangeAllDone[0];
+  var setRangeAllDone = _rangeAllDone[1];
+
+  var _popArrow = useState({
+    left: rangeDoneInit && !isC3,
+    right: rangeDoneInit && !isC3,
+  });
+  var popArrow = _popArrow[0];
+  var setPopArrow = _popArrow[1];
+  var _popMaxLine = useState({
+    left: rangeDoneInit && !isC3,
+    right: rangeDoneInit && !isC3,
+  });
+  var popMaxLine = _popMaxLine[0];
+  var setPopMaxLine = _popMaxLine[1];
+  var _popMinLine = useState({
+    left: rangeDoneInit && !isC3,
+    right: rangeDoneInit && !isC3,
+  });
+  var popMinLine = _popMinLine[0];
+  var setPopMinLine = _popMinLine[1];
+  var _popLabel = useState({
+    left: rangeDoneInit && !isC3 ? RANGE_CFG.pop.result : null,
+    right: rangeDoneInit && !isC3 ? RANGE_CFG.pop.result : null,
+  });
+  var popLabel = _popLabel[0];
+  var setPopLabel = _popLabel[1];
+
+  var _s1Arrow = useState(rangeDoneInit && !isC3);
+  var s1Arrow = _s1Arrow[0];
+  var setS1Arrow = _s1Arrow[1];
+  var _s1MaxLine = useState(rangeDoneInit && !isC3);
+  var s1MaxLine = _s1MaxLine[0];
+  var setS1MaxLine = _s1MaxLine[1];
+  var _s1MinLine = useState(rangeDoneInit && !isC3);
+  var s1MinLine = _s1MinLine[0];
+  var setS1MinLine = _s1MinLine[1];
+  var _s1Label = useState(rangeDoneInit && !isC3 ? RANGE_CFG.s1.result : null);
+  var s1Label = _s1Label[0];
+  var setS1Label = _s1Label[1];
+
+  var _s2Arrow = useState(rangeDoneInit && !isC3);
+  var s2Arrow = _s2Arrow[0];
+  var setS2Arrow = _s2Arrow[1];
+  var _s2MaxLine = useState(rangeDoneInit && !isC3);
+  var s2MaxLine = _s2MaxLine[0];
+  var setS2MaxLine = _s2MaxLine[1];
+  var _s2MinLine = useState(rangeDoneInit && !isC3);
+  var s2MinLine = _s2MinLine[0];
+  var setS2MinLine = _s2MinLine[1];
+  var _s2Label = useState(rangeDoneInit && !isC3 ? RANGE_CFG.s2.result : null);
+  var s2Label = _s2Label[0];
+  var setS2Label = _s2Label[1];
+
+  var _spreadS1Box = useState(!!(isC2 && startAtFinal) || isC3 || isStep3 || completedTests.indexOf("spread") !== -1);
+  var showSpreadS1Box = _spreadS1Box[0];
+  var setShowSpreadS1Box = _spreadS1Box[1];
+  var _spreadS2Box = useState(!!(isC2 && startAtFinal) || isC3 || isStep3 || completedTests.indexOf("spread") !== -1);
+  var showSpreadS2Box = _spreadS2Box[0];
+  var setShowSpreadS2Box = _spreadS2Box[1];
+
+  var b1Final = isB1 && startAtFinal;
+  var meanDoneInit = b1Final || isB2 || isB3;
+
+  var _hidePopBars = useState(false);
+  var hidePopBars = _hidePopBars[0];
+  var setHidePopBars = _hidePopBars[1];
+  var _meanActive = useState(null);
+  var meanActive = _meanActive[0];
+  var setMeanActive = _meanActive[1];
+  var _meanPending = useState(null);
+  var meanPending = _meanPending[0];
+  var setMeanPending = _meanPending[1];
+  var _meanStage = useState("idle");
+  var meanStage = _meanStage[0];
+  var setMeanStage = _meanStage[1];
+  var _meanBusy = useState(false);
+  var meanBusy = _meanBusy[0];
+  var setMeanBusy = _meanBusy[1];
+  var _meanReady = useState(false);
+  var meanReady = _meanReady[0];
+  var setMeanReady = _meanReady[1];
+  var _meanNumFlipped = useState(false);
+  var meanNumFlipped = _meanNumFlipped[0];
+  var setMeanNumFlipped = _meanNumFlipped[1];
+  var _meanDenFlipped = useState(false);
+  var meanDenFlipped = _meanDenFlipped[0];
+  var setMeanDenFlipped = _meanDenFlipped[1];
+  var _meanAnsFlipped = useState(false);
+  var meanAnsFlipped = _meanAnsFlipped[0];
+  var setMeanAnsFlipped = _meanAnsFlipped[1];
+  var _meanShowAnswer = useState(false);
+  var meanShowAnswer = _meanShowAnswer[0];
+  var setMeanShowAnswer = _meanShowAnswer[1];
+  var _meanCollapsed = useState(false);
+  var meanCollapsed = _meanCollapsed[0];
+  var setMeanCollapsed = _meanCollapsed[1];
+  var _meanNumDone = useState(false);
+  var meanNumDone = _meanNumDone[0];
+  var setMeanNumDone = _meanNumDone[1];
+  var _meanDenDone = useState(false);
+  var meanDenDone = _meanDenDone[0];
+  var setMeanDenDone = _meanDenDone[1];
+  var _showMeanNudges = useState(false);
+  var showMeanNudges = _showMeanNudges[0];
+  var setShowMeanNudges = _showMeanNudges[1];
+  var _showMeanNumNudge = useState(false);
+  var showMeanNumNudge = _showMeanNumNudge[0];
+  var setShowMeanNumNudge = _showMeanNumNudge[1];
+  var _showMeanDenNudge = useState(false);
+  var showMeanDenNudge = _showMeanDenNudge[0];
+  var setShowMeanDenNudge = _showMeanDenNudge[1];
+  var _showMeanAnsNudge = useState(false);
+  var showMeanAnsNudge = _showMeanAnsNudge[0];
+  var setShowMeanAnsNudge = _showMeanAnsNudge[1];
+  var _meanGone = useState({
+    pop: meanDoneInit,
+    s1: meanDoneInit,
+    s2: meanDoneInit,
+  });
+  var meanGone = _meanGone[0];
+  var setMeanGone = _meanGone[1];
+  var _meanAllDone = useState(meanDoneInit);
+  var meanAllDone = _meanAllDone[0];
+  var setMeanAllDone = _meanAllDone[1];
+  var _meanEq = useState(EMPTY_MEAN_EQ);
+  var meanEq = _meanEq[0];
+  var setMeanEq = _meanEq[1];
+  var _meanDenEq = useState(EMPTY_MEAN_EQ);
+  var meanDenEq = _meanDenEq[0];
+  var setMeanDenEq = _meanDenEq[1];
+  var _meanHighlight = useState(null);
+  var meanHighlight = _meanHighlight[0];
+  var setMeanHighlight = _meanHighlight[1];
+  var _meanDimBars = useState(false);
+  var meanDimBars = _meanDimBars[0];
+  var setMeanDimBars = _meanDimBars[1];
+  var _meanGuide = useState(null);
+  var meanGuide = _meanGuide[0];
+  var setMeanGuide = _meanGuide[1];
+  var _meanFiLabels = useState({});
+  var meanFiLabels = _meanFiLabels[0];
+  var setMeanFiLabels = _meanFiLabels[1];
+  var _popMeanMark = useState({
+    left: meanDoneInit && !isB3,
+    right: meanDoneInit && !isB3,
+  });
+  var popMeanMark = _popMeanMark[0];
+  var setPopMeanMark = _popMeanMark[1];
+  var _s1MeanMark = useState(meanDoneInit && !isB3);
+  var s1MeanMark = _s1MeanMark[0];
+  var setS1MeanMark = _s1MeanMark[1];
+  var _s2MeanMark = useState(meanDoneInit && !isB3);
+  var s2MeanMark = _s2MeanMark[0];
+  var setS2MeanMark = _s2MeanMark[1];
+  var _centreS1Box = useState(
+    !!(isB2 && startAtFinal) || isB3 || isStep3 || completedTests.indexOf("centre") !== -1,
+  );
+  var showCentreS1Box = _centreS1Box[0];
+  var setShowCentreS1Box = _centreS1Box[1];
+  var _centreS2Box = useState(
+    !!(isB2 && startAtFinal) || isB3 || isStep3 || completedTests.indexOf("centre") !== -1,
+  );
+  var showCentreS2Box = _centreS2Box[0];
+  var setShowCentreS2Box = _centreS2Box[1];
+
+  var _step3TableVisible = useState(false);
+  var step3TableVisible = _step3TableVisible[0];
+  var setStep3TableVisible = _step3TableVisible[1];
+  var _step3AnimDone = useState(false);
+  var step3AnimDone = _step3AnimDone[0];
+  var setStep3AnimDone = _step3AnimDone[1];
+  var _step3SelectedGraph = useState(null);
+  var step3SelectedGraph = _step3SelectedGraph[0];
+  var setStep3SelectedGraph = _step3SelectedGraph[1];
+  var _step3Feedback = useState(null);
+  var step3Feedback = _step3Feedback[0];
+  var setStep3Feedback = _step3Feedback[1];
+  var _step3Correct = useState(false);
+  var step3Correct = _step3Correct[0];
+  var setStep3Correct = _step3Correct[1];
+  var _step3HideMainBtns = useState(false);
+  var step3HideMainBtns = _step3HideMainBtns[0];
+  var setStep3HideMainBtns = _step3HideMainBtns[1];
+
+  var step3TableRef = useRef(null);
+  var step3ColOverlayRef = useRef(null);
+  var step3AnimTriesRef = useRef(0);
 
   var introRef = useRef(null);
   var leftSvgRef = useRef(null);
@@ -311,16 +770,55 @@ const MainCanvas = (props) => {
   var drawS2BtnRef = useRef(null);
   var s1FailBtnRef = useRef(null);
   var s2PassBtnRef = useRef(null);
-  var s1BoxRef = useRef(null);
-  var s2BoxRef = useRef(null);
+  var shapeS1BoxRef = useRef(null);
+  var shapeS2BoxRef = useRef(null);
+  var spreadS1BoxRef = useRef(null);
+  var spreadS2BoxRef = useRef(null);
+  var rangePopBtnRef = useRef(null);
+  var rangeS1BtnRef = useRef(null);
+  var rangeS2BtnRef = useRef(null);
+  var highBtnRef = useRef(null);
+  var lowBtnRef = useRef(null);
+  var answerBtnRef = useRef(null);
+  var resultBtnRef = useRef(null);
+  var meanPopBtnRef = useRef(null);
+  var meanS1BtnRef = useRef(null);
+  var meanS2BtnRef = useRef(null);
+  var meanNumBtnRef = useRef(null);
+  var meanDenBtnRef = useRef(null);
+  var meanAnsBtnRef = useRef(null);
+  var meanResultRef = useRef(null);
+  var eqARef = useRef(null);
+  var eqMRef = useRef(null);
+  var eqBRef = useRef(null);
+  var eqNRef = useRef(null);
+  var eqDenARef = useRef(null);
+  var eqDenBRef = useRef(null);
+  var centreS1BoxRef = useRef(null);
+  var centreS2BoxRef = useRef(null);
 
   var cloneElsRef = useRef([]);
   var mountedRef = useRef(true);
   var drawEmergedRef = useRef(false);
+  var rangeEmergedRef = useRef(false);
+  var meanEmergedRef = useRef(false);
+  var meanCompletedRef = useRef({
+    pop: meanDoneInit,
+    s1: meanDoneInit,
+    s2: meanDoneInit,
+  });
+  var growArrowRef = useRef(null);
+  var growVlineRef = useRef(null);
+  var growMeanLineRef = useRef(null);
   var drawnRef = useRef({
     pop: (isA1 && startAtFinal) || isA2,
     s1: (isA1 && startAtFinal) || isA2,
     s2: (isA1 && startAtFinal) || isA2,
+  });
+  var rangeCompletedRef = useRef({
+    pop: rangeDoneInit,
+    s1: rangeDoneInit,
+    s2: rangeDoneInit,
   });
   var timersRef = useRef([]);
 
@@ -360,6 +858,105 @@ const MainCanvas = (props) => {
         },
       },
     );
+  }
+
+  function flyAxisLabel(svgEl, xNum, destEl, done) {
+    if (!svgEl || !destEl) {
+      if (done) done();
+      return;
+    }
+    var src = svgEl.querySelector(".x-label-" + xNum);
+    if (!src) {
+      if (done) done();
+      return;
+    }
+    var srcRect = src.getBoundingClientRect();
+    var destRect = destEl.getBoundingClientRect();
+    var destSize = parseFloat(window.getComputedStyle(destEl).fontSize) || 22;
+    var clone = document.createElement("div");
+    clone.className = "flying-axis-label";
+    clone.textContent = String(xNum);
+    clone.style.left = srcRect.left + srcRect.width / 2 + "px";
+    clone.style.top = srcRect.top + srcRect.height / 2 + "px";
+    clone.style.fontSize = Math.max(srcRect.height * 0.72, 12) + "px";
+    document.body.appendChild(clone);
+    cloneElsRef.current.push(clone);
+    gsap.to(clone, {
+      left: destRect.left + destRect.width / 2,
+      top: destRect.top + destRect.height / 2,
+      fontSize: destSize + "px",
+      duration: 0.95,
+      ease: "power2.inOut",
+      onComplete: function () {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        var idx = cloneElsRef.current.indexOf(clone);
+        if (idx !== -1) cloneElsRef.current.splice(idx, 1);
+        if (mountedRef.current && done) done();
+      },
+    });
+  }
+
+  function flyNumberToEl(fromEl, toEl, text, done) {
+    if (!fromEl || !toEl) {
+      if (done) done();
+      return;
+    }
+    var fromRect = fromEl.getBoundingClientRect();
+    var toRect = toEl.getBoundingClientRect();
+    var startSize = parseFloat(window.getComputedStyle(fromEl).fontSize) || 22;
+    var clone = document.createElement("div");
+    clone.className = "flying-axis-label";
+    clone.textContent = String(text);
+    clone.style.left = fromRect.left + fromRect.width / 2 + "px";
+    clone.style.top = fromRect.top + fromRect.height / 2 + "px";
+    clone.style.fontSize = startSize + "px";
+    document.body.appendChild(clone);
+    cloneElsRef.current.push(clone);
+    gsap.to(clone, {
+      left: toRect.left + toRect.width / 2,
+      top: toRect.top + toRect.height / 2,
+      fontSize: "1.7vw",
+      duration: 1.05,
+      ease: "power2.inOut",
+      onComplete: function () {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        var idx = cloneElsRef.current.indexOf(clone);
+        if (idx !== -1) cloneElsRef.current.splice(idx, 1);
+        if (mountedRef.current && done) done();
+      },
+    });
+  }
+
+  function flyFromEl(fromEl, toEl, text, done) {
+    if (!fromEl || !toEl) {
+      if (done) done();
+      return;
+    }
+    var fromRect = fromEl.getBoundingClientRect();
+    var toRect = toEl.getBoundingClientRect();
+    var startSize = Math.max(fromRect.height * 0.72, 12);
+    var destSize = parseFloat(window.getComputedStyle(toEl).fontSize) || 18;
+    var clone = document.createElement("div");
+    clone.className = "flying-axis-label";
+    clone.textContent = String(text);
+    clone.style.left = fromRect.left + fromRect.width / 2 + "px";
+    clone.style.fontSize = startSize + "px";
+    clone.style.top = fromRect.top + fromRect.height / 2 + "px";
+    document.body.appendChild(clone);
+    cloneElsRef.current.push(clone);
+    gsap.to(clone, {
+      left: toRect.left + toRect.width / 2,
+      top: toRect.top + toRect.height / 2,
+      fontSize: destSize + "px",
+      duration: 0.7,
+      ease: "power2.inOut",
+      onComplete: function () {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        var idx = cloneElsRef.current.indexOf(clone);
+        if (idx !== -1) cloneElsRef.current.splice(idx, 1);
+        if (mountedRef.current && done) done();
+      },
+    });
   }
 
   function clearClones() {
@@ -553,6 +1150,11 @@ const MainCanvas = (props) => {
         setDrawnS2(false);
         setDrawReady(false);
         drawEmergedRef.current = false;
+        rangeEmergedRef.current = false;
+        setRangeReady(false);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
         setShowDrawNudges(false);
         setShowMainNudges(false);
         addTimer(
@@ -589,6 +1191,44 @@ const MainCanvas = (props) => {
         setShowOverlap(true);
         setShowButtonRows(true);
         onSetNextEnabled(false);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setHidePopBars(false);
+        drawEmergedRef.current = false;
+        drawnRef.current = { pop: false, s1: false, s2: false };
+        setDrawnPop(false);
+        setDrawnS1(false);
+        setDrawnS2(false);
+        setDrawReady(false);
+        setShowDrawNudges(false);
+        setRangeAllDone(true);
+        setPopArrow({ left: false, right: false });
+        setPopMaxLine({ left: false, right: false });
+        setPopMinLine({ left: false, right: false });
+        setPopLabel({ left: null, right: null });
+        setS1Arrow(false);
+        setS1MaxLine(false);
+        setS1MinLine(false);
+        setS1Label(null);
+        setS2Arrow(false);
+        setS2MaxLine(false);
+        setS2MinLine(false);
+        setS2Label(null);
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
+        setMeanHighlight(null);
+        setMeanDimBars(false);
+        setMeanGuide(null);
+        setMeanFiLabels({});
+        addTimer(
+          setTimeout(function () {
+            clearAllOutlines();
+            setLeftPathsBlink("normal");
+            setRightPathsBlink("normal");
+          }, 40),
+        );
         if (startAtFinal) {
           drawnRef.current = { pop: true, s1: true, s2: true };
           setDrawnPop(true);
@@ -617,6 +1257,27 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
+        if (!startAtFinal) {
+          setMcqTarget("s1");
+          setS1Selected(null);
+          setS2Selected(null);
+          setS1Retry(false);
+          setS2Retry(false);
+          setS1Locked(false);
+          setS2Locked(false);
+          setFeedbackSide(null);
+          setMcqBusy(false);
+          setShowShapeS1Box(false);
+          setShowShapeS2Box(false);
+        } else {
+          setMcqTarget("done");
+          setS1Selected("fail");
+          setS2Selected("pass");
+          setS1Locked(true);
+          setS2Locked(true);
+          setShowShapeS1Box(true);
+          setShowShapeS2Box(true);
+        }
         addTimer(
           setTimeout(function () {
             revealAllOutlines();
@@ -628,7 +1289,7 @@ const MainCanvas = (props) => {
         );
         if (startAtFinal) {
           onUpdateQuestionText(copy.steps.A2.afterBothQuestion);
-          onUpdateNavText(copy.steps.A2.afterBothNav);
+          onUpdateNavText(completedTests.length >= 2 ? copy.steps[3].allDoneNav : copy.steps.A2.afterBothNav);
           onSetNextEnabled(true);
           onSetNavLocked(false);
           return;
@@ -645,6 +1306,8 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
+        setShowShapeS1Box(true);
+        setShowShapeS2Box(true);
         addTimer(
           setTimeout(function () {
             clearAllOutlines();
@@ -654,9 +1317,432 @@ const MainCanvas = (props) => {
         onSetNavLocked(false);
         onUpdateQuestionText(copy.steps.A3.questionText);
         onUpdateNavText(null);
+        return;
+      }
+
+      if (isC1) {
+        setLeftPopVisible(true);
+        setShowIntro(false);
+        setShowSamplesPanel(false);
+        setShowOverlap(true);
+        setShowButtonRows(true);
+        onSetNextEnabled(false);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setHidePopBars(false);
+        rangeEmergedRef.current = false;
+        setRangeActive(null);
+        setRangePending(null);
+        setRangeStage("idle");
+        setRangeBusy(false);
+        setHighClicked(false);
+        setLowClicked(false);
+        setHighValue(null);
+        setLowValue(null);
+        setShowAnswerSlot(false);
+        setAnswerFlipped(false);
+        setRangeCollapsed(false);
+        setShowHighNudge(false);
+        setShowLowNudge(false);
+        setShowAnswerNudge(false);
+        onUpdateQuestionText(copy.steps.C1.questionText);
+        if (startAtFinal) {
+          rangeEmergedRef.current = true;
+          setRangeReady(true);
+          setRangeGone({ pop: true, s1: true, s2: true });
+          setRangeCompleted({ pop: true, s1: true, s2: true });
+          rangeCompletedRef.current = { pop: true, s1: true, s2: true };
+          setRangeAllDone(true);
+          setPopArrow({ left: true, right: true });
+          setPopMaxLine({ left: true, right: true });
+          setPopMinLine({ left: true, right: true });
+          setPopLabel({
+            left: RANGE_CFG.pop.result,
+            right: RANGE_CFG.pop.result,
+          });
+          setS1Arrow(true);
+          setS1MaxLine(true);
+          setS1MinLine(true);
+          setS1Label(RANGE_CFG.s1.result);
+          setS2Arrow(true);
+          setS2MaxLine(true);
+          setS2MinLine(true);
+          setS2Label(RANGE_CFG.s2.result);
+          onUpdateNavText(copy.steps.C1.afterAllNav);
+          onSetNextEnabled(true);
+          onSetNavLocked(false);
+          return;
+        }
+        setRangeReady(false);
+        setRangeAllDone(false);
+        setRangeGone({ pop: false, s1: false, s2: false });
+        setRangeCompleted({ pop: false, s1: false, s2: false });
+        rangeCompletedRef.current = { pop: false, s1: false, s2: false };
+        setPopArrow({ left: false, right: false });
+        setPopMaxLine({ left: false, right: false });
+        setPopMinLine({ left: false, right: false });
+        setPopLabel({ left: null, right: null });
+        setS1Arrow(false);
+        setS1MaxLine(false);
+        setS1MinLine(false);
+        setS1Label(null);
+        setS2Arrow(false);
+        setS2MaxLine(false);
+        setS2MinLine(false);
+        setS2Label(null);
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
+        addTimer(
+          setTimeout(function () {
+            clearAllOutlines();
+            setLeftPathsBlink("normal");
+            setRightPathsBlink("normal");
+          }, 40),
+        );
+        onSetNavLocked(true);
+        onUpdateNavText("");
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current || startAtFinal) return;
+            if (!rangeEmergedRef.current) {
+              runRangeButtonsEmerge();
+            }
+          }, 60),
+        );
+        return;
+      }
+
+      if (isC2) {
+        setLeftPopVisible(true);
+        setShowSamplesPanel(false);
+        setShowOverlap(true);
+        setShowButtonRows(true);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setRangeAllDone(true);
+        setRangeGone({ pop: true, s1: true, s2: true });
+        setPopArrow({ left: true, right: true });
+        setPopMaxLine({ left: true, right: true });
+        setPopMinLine({ left: true, right: true });
+        setPopLabel({
+          left: RANGE_CFG.pop.result,
+          right: RANGE_CFG.pop.result,
+        });
+        setS1Arrow(true);
+        setS1MaxLine(true);
+        setS1MinLine(true);
+        setS1Label(RANGE_CFG.s1.result);
+        setS2Arrow(true);
+        setS2MaxLine(true);
+        setS2MinLine(true);
+        setS2Label(RANGE_CFG.s2.result);
+        if (!startAtFinal) {
+          setMcqTarget("s1");
+          setS1Selected(null);
+          setS2Selected(null);
+          setS1Retry(false);
+          setS2Retry(false);
+          setS1Locked(false);
+          setS2Locked(false);
+          setFeedbackSide(null);
+          setMcqBusy(false);
+          setShowSpreadS1Box(false);
+          setShowSpreadS2Box(false);
+        } else {
+          setMcqTarget("done");
+          setS1Selected("fail");
+          setS2Selected("pass");
+          setS1Locked(true);
+          setS2Locked(true);
+          setShowSpreadS1Box(true);
+          setShowSpreadS2Box(true);
+        }
+        if (startAtFinal) {
+          onUpdateQuestionText(copy.steps.C2.afterBothQuestion);
+          onUpdateNavText(completedTests.length >= 2 ? copy.steps[3].allDoneNav : copy.steps.C2.afterBothNav);
+          onSetNextEnabled(true);
+          onSetNavLocked(false);
+          return;
+        }
+        onSetNextEnabled(false);
+        onSetNavLocked(false);
+        onUpdateQuestionText(copy.steps.C2.questionText);
+        onUpdateNavText(copy.steps.C2.navText);
+        return;
+      }
+
+      if (isC3) {
+        setLeftPopVisible(true);
+        setShowSamplesPanel(false);
+        setShowOverlap(true);
+        setShowButtonRows(true);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setRangeAllDone(true);
+        setPopArrow({ left: false, right: false });
+        setPopMaxLine({ left: false, right: false });
+        setPopMinLine({ left: false, right: false });
+        setPopLabel({ left: null, right: null });
+        setS1Arrow(false);
+        setS1MaxLine(false);
+        setS1MinLine(false);
+        setS1Label(null);
+        setS2Arrow(false);
+        setS2MaxLine(false);
+        setS2MinLine(false);
+        setS2Label(null);
+        setShowSpreadS1Box(true);
+        setShowSpreadS2Box(true);
+        addTimer(
+          setTimeout(function () {
+            clearAllOutlines();
+            setLeftPathsBlink("normal");
+            setRightPathsBlink("normal");
+          }, 80),
+        );
+        onSetNextEnabled(false);
+        onSetNavLocked(false);
+        onUpdateQuestionText(copy.steps.C3.questionText);
+        onUpdateNavText(null);
+        return;
+      }
+
+      if (isB1) {
+        setLeftPopVisible(true);
+        setShowIntro(false);
+        setShowSamplesPanel(false);
+        setShowOverlap(true);
+        setShowButtonRows(true);
+        onSetNextEnabled(false);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setHidePopBars(false);
+        meanEmergedRef.current = false;
+        setMeanActive(null);
+        setMeanPending(null);
+        setMeanStage("idle");
+        setMeanBusy(false);
+        setMeanNumFlipped(false);
+        setMeanDenFlipped(false);
+        setMeanAnsFlipped(false);
+        setMeanShowAnswer(false);
+        setMeanCollapsed(false);
+        setMeanNumDone(false);
+        setMeanDenDone(false);
+        setShowMeanNumNudge(false);
+        setShowMeanDenNudge(false);
+        setShowMeanAnsNudge(false);
+        setMeanEq(EMPTY_MEAN_EQ);
+        setMeanDenEq(EMPTY_MEAN_EQ);
+        setMeanHighlight(null);
+        setMeanDimBars(false);
+        setMeanGuide(null);
+        setMeanFiLabels({});
+        onUpdateQuestionText(copy.steps.B1.questionText);
+        if (startAtFinal) {
+          meanEmergedRef.current = true;
+          setMeanReady(true);
+          setMeanGone({ pop: true, s1: true, s2: true });
+          meanCompletedRef.current = { pop: true, s1: true, s2: true };
+          setMeanAllDone(true);
+          setPopMeanMark({ left: true, right: true });
+          setS1MeanMark(true);
+          setS2MeanMark(true);
+          onUpdateNavText(copy.steps.B1.afterAllNav);
+          onSetNextEnabled(true);
+          onSetNavLocked(false);
+          return;
+        }
+        setMeanReady(false);
+        setMeanAllDone(false);
+        setMeanGone({ pop: false, s1: false, s2: false });
+        meanCompletedRef.current = { pop: false, s1: false, s2: false };
+        meanEmergedRef.current = false;
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
+        addTimer(
+          setTimeout(function () {
+            clearAllOutlines();
+            setLeftPathsBlink("normal");
+            setRightPathsBlink("normal");
+          }, 40),
+        );
+        onSetNavLocked(true);
+        onUpdateNavText("");
+        return;
+      }
+
+      if (isB2) {
+        setLeftPopVisible(true);
+        setShowSamplesPanel(false);
+        setShowOverlap(true);
+        setShowButtonRows(true);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setHidePopBars(false);
+        setMeanAllDone(true);
+        setMeanGone({ pop: true, s1: true, s2: true });
+        setPopMeanMark({ left: true, right: true });
+        setS1MeanMark(true);
+        setS2MeanMark(true);
+        if (!startAtFinal) {
+          setMcqTarget("s1");
+          setS1Selected(null);
+          setS2Selected(null);
+          setS1Retry(false);
+          setS2Retry(false);
+          setS1Locked(false);
+          setS2Locked(false);
+          setFeedbackSide(null);
+          setMcqBusy(false);
+          setShowCentreS1Box(false);
+          setShowCentreS2Box(false);
+        } else {
+          setMcqTarget("done");
+          setS1Selected("fail");
+          setS2Selected("pass");
+          setS1Locked(true);
+          setS2Locked(true);
+          setShowCentreS1Box(true);
+          setShowCentreS2Box(true);
+        }
+        if (startAtFinal) {
+          onUpdateQuestionText(copy.steps.B2.afterBothQuestion);
+          onUpdateNavText(completedTests.length >= 2 ? copy.steps[3].allDoneNav : copy.steps.B2.afterBothNav);
+          onSetNextEnabled(true);
+          onSetNavLocked(false);
+          return;
+        }
+        onSetNextEnabled(false);
+        onSetNavLocked(false);
+        onUpdateQuestionText(copy.steps.B2.questionText);
+        onUpdateNavText(copy.steps.B2.navText);
+        return;
+      }
+
+      if (isB3) {
+        setLeftPopVisible(true);
+        setShowSamplesPanel(false);
+        setShowOverlap(true);
+        setShowButtonRows(true);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setHidePopBars(false);
+        setMeanAllDone(true);
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
+        setMeanHighlight(null);
+        setMeanDimBars(false);
+        setMeanGuide(null);
+        setMeanFiLabels({});
+        setShowCentreS1Box(true);
+        setShowCentreS2Box(true);
+        addTimer(
+          setTimeout(function () {
+            clearAllOutlines();
+            setLeftPathsBlink("normal");
+            setRightPathsBlink("normal");
+          }, 80),
+        );
+        onSetNextEnabled(false);
+        onSetNavLocked(false);
+        onUpdateQuestionText(copy.steps.B3.questionText);
+        onUpdateNavText(null);
+      }
+
+      if (isStep3) {
+        setLeftPopVisible(true);
+        setShowIntro(false);
+        setShowSamplesPanel(false);
+        setShowOverlap(true);
+        setShowButtonRows(true);
+        setGraphFocus("both");
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setHidePopBars(false);
+        setShowShapeS1Box(true);
+        setShowShapeS2Box(true);
+        setShowCentreS1Box(true);
+        setShowCentreS2Box(true);
+        setShowSpreadS1Box(true);
+        setShowSpreadS2Box(true);
+        setStep3TableVisible(false);
+        setStep3AnimDone(false);
+        setStep3SelectedGraph(null);
+        setStep3Feedback(null);
+        setStep3Correct(false);
+        setStep3HideMainBtns(false);
+        step3AnimTriesRef.current = 0;
+        onSetNextEnabled(false);
+        onSetNavLocked(false);
+        onUpdateQuestionText(copy.steps[3].questionText);
+        onUpdateNavText("");
+        addTimer(
+          setTimeout(function () {
+            clearAllOutlines();
+            setLeftPathsBlink("normal");
+            setRightPathsBlink("normal");
+          }, 80),
+        );
       }
     },
     [step, startAtFinal],
+  );
+
+  useLayoutEffect(
+    function () {
+      var overlay = step3ColOverlayRef.current;
+      if (!overlay) return;
+      if (!step3SelectedGraph || !step3TableRef.current) {
+        overlay.style.display = "none";
+        return;
+      }
+      var colIdx = step3SelectedGraph === "s1" ? 1 : 2;
+      var tableRect = step3TableRef.current.getBoundingClientRect();
+      var rows = step3TableRef.current.querySelectorAll(".step3-header-row, .step3-data-row");
+      if (!rows.length) { overlay.style.display = "none"; return; }
+      var firstCell = rows[0].children[colIdx];
+      var lastCell = rows[rows.length - 1].children[colIdx];
+      if (!firstCell || !lastCell) { overlay.style.display = "none"; return; }
+      var topRect = firstCell.getBoundingClientRect();
+      var botRect = lastCell.getBoundingClientRect();
+      var left = topRect.left - tableRect.left;
+      var top = topRect.top - tableRect.top;
+      var width = topRect.width;
+      var height = botRect.top + botRect.height - topRect.top;
+      overlay.style.display = "block";
+      overlay.style.left = left + "px";
+      overlay.style.top = top + "px";
+      overlay.style.width = width + "px";
+      overlay.style.height = height + "px";
+      overlay.style.borderColor = step3Correct
+        ? "rgba(124, 252, 0, 0.95)"
+        : "rgba(255, 82, 82, 0.95)";
+    },
+    [step3SelectedGraph, step3Correct, step3TableVisible],
+  );
+
+  useEffect(
+    function () {
+      if (!isStep3) return;
+      var startId = setTimeout(function () {
+        runStep3Animation();
+      }, 800);
+      addTimer(startId);
+      return function () {
+        clearTimeout(startId);
+      };
+    },
+    [isStep3],
   );
 
   useLayoutEffect(
@@ -666,6 +1752,124 @@ const MainCanvas = (props) => {
       runDrawButtonsEmerge();
     },
     [isA1, startAtFinal],
+  );
+
+  useLayoutEffect(
+    function () {
+      if (!isC1 || startAtFinal) return;
+      if (rangeEmergedRef.current) return;
+      runRangeButtonsEmerge();
+    },
+    [isC1, startAtFinal],
+  );
+
+  useLayoutEffect(
+    function () {
+      if (!isB1 || startAtFinal) return;
+      if (meanEmergedRef.current) return;
+      runMeanButtonsEmerge();
+    },
+    [isB1, startAtFinal],
+  );
+
+  useLayoutEffect(
+    function () {
+      var info = growArrowRef.current;
+      if (!info) return;
+      growArrowRef.current = null;
+      var svg =
+        info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
+      var g = svg ? svg.querySelector(".range-arrow-grow-" + info.id) : null;
+      if (!svg || !g) {
+        if (info.onDone) info.onDone();
+        return;
+      }
+      var cfg = RANGE_CFG[info.id];
+      var yVal = info.id === "pop" ? ARROW_Y_POP : ARROW_Y_SAMPLE;
+      var x0 = popLayout.xP(cfg.min);
+      var ay = popLayout.yP(yVal);
+      gsap.fromTo(
+        g,
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 0.9,
+          ease: "power2.out",
+          svgOrigin: x0 + " " + ay,
+          onComplete: function () {
+            if (info.onDone) info.onDone();
+          },
+        },
+      );
+    },
+    [popArrow, s1Arrow, s2Arrow],
+  );
+
+  useLayoutEffect(
+    function () {
+      var info = growVlineRef.current;
+      if (!info) return;
+      growVlineRef.current = null;
+      var svg =
+        info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
+      var line = svg
+        ? svg.querySelector(
+            ".range-vline-grow-" + info.kind + "-" + info.id,
+          )
+        : null;
+      if (!svg || !line) {
+        if (info.onDone) info.onDone();
+        return;
+      }
+      var yVal = info.id === "pop" ? ARROW_Y_POP : ARROW_Y_SAMPLE;
+      var ay = popLayout.yP(yVal);
+      var baseY = popLayout.baseY;
+      gsap.fromTo(
+        line,
+        { attr: { y1: baseY, y2: baseY } },
+        {
+          attr: { y1: baseY, y2: ay },
+          duration: 0.55,
+          ease: "power2.out",
+          onComplete: function () {
+            if (info.onDone) info.onDone();
+          },
+        },
+      );
+    },
+    [popMaxLine, popMinLine, s1MaxLine, s1MinLine, s2MaxLine, s2MinLine],
+  );
+
+  useLayoutEffect(
+    function () {
+      var info = growMeanLineRef.current;
+      if (!info) return;
+      growMeanLineRef.current = null;
+      var svg =
+        info.side === "left" ? leftSvgRef.current : rightSvgRef.current;
+      var line = svg
+        ? svg.querySelector(".mean-vline-grow-" + info.id + "-" + info.side)
+        : null;
+      if (!svg || !line) {
+        if (info.onDone) info.onDone();
+        return;
+      }
+      var yTop = popLayout.yP(popLayout.yMax);
+      var baseY = popLayout.baseY;
+      gsap.fromTo(
+        line,
+        { attr: { y1: baseY, y2: baseY } },
+        {
+          attr: { y1: baseY, y2: yTop },
+          duration: 0.7,
+          ease: "power2.out",
+          onComplete: function () {
+            if (info.onDone) info.onDone();
+          },
+        },
+      );
+    },
+    [popMeanMark, s1MeanMark, s2MeanMark],
   );
 
   function runStep2Animation() {
@@ -836,6 +2040,128 @@ const MainCanvas = (props) => {
     });
   }
 
+  function runRangeButtonsEmerge() {
+    var spread = spreadBtnRef.current;
+    var buttons = [
+      rangePopBtnRef.current,
+      rangeS1BtnRef.current,
+      rangeS2BtnRef.current,
+    ];
+    if (!spread || !buttons[0] || !buttons[1] || !buttons[2]) {
+      setRangeReady(true);
+      setShowRangeNudges(true);
+      onUpdateNavText(copy.steps.C1.afterButtonsNav);
+      onSetNavLocked(false);
+      return;
+    }
+
+    rangeEmergedRef.current = true;
+    gsap.killTweensOf(buttons);
+    gsap.set(buttons, { x: 0, y: 0, scale: 1, clearProps: "transform" });
+
+    var sr = spread.getBoundingClientRect();
+    var sx = sr.left + sr.width / 2;
+    var sy = sr.top + sr.height / 2;
+
+    var deltas = buttons.map(function (btn) {
+      var r = btn.getBoundingClientRect();
+      return {
+        x: sx - (r.left + r.width / 2),
+        y: sy - (r.top + r.height / 2),
+      };
+    });
+
+    buttons.forEach(function (btn, i) {
+      gsap.set(btn, {
+        x: deltas[i].x,
+        y: deltas[i].y,
+        scale: 0,
+        opacity: 0,
+        transformOrigin: "50% 50%",
+      });
+    });
+
+    gsap.to(buttons, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      duration: 0.75,
+      ease: "power2.out",
+      stagger: 0.07,
+      overwrite: true,
+      onComplete: function () {
+        if (!mountedRef.current) return;
+        gsap.set(buttons, { clearProps: "transform,opacity" });
+        setRangeReady(true);
+        setShowRangeNudges(true);
+        onUpdateNavText(copy.steps.C1.afterButtonsNav);
+        onSetNavLocked(false);
+      },
+    });
+  }
+
+  function runMeanButtonsEmerge() {
+    var centre = centreBtnRef.current;
+    var buttons = [
+      meanPopBtnRef.current,
+      meanS1BtnRef.current,
+      meanS2BtnRef.current,
+    ];
+    if (!centre || !buttons[0] || !buttons[1] || !buttons[2]) {
+      setMeanReady(true);
+      setShowMeanNudges(true);
+      onUpdateNavText(copy.steps.B1.afterButtonsNav);
+      onSetNavLocked(false);
+      return;
+    }
+
+    meanEmergedRef.current = true;
+    gsap.killTweensOf(buttons);
+    gsap.set(buttons, { x: 0, y: 0, scale: 1, clearProps: "transform" });
+
+    var sr = centre.getBoundingClientRect();
+    var sx = sr.left + sr.width / 2;
+    var sy = sr.top + sr.height / 2;
+
+    var deltas = buttons.map(function (btn) {
+      var r = btn.getBoundingClientRect();
+      return {
+        x: sx - (r.left + r.width / 2),
+        y: sy - (r.top + r.height / 2),
+      };
+    });
+
+    buttons.forEach(function (btn, i) {
+      gsap.set(btn, {
+        x: deltas[i].x,
+        y: deltas[i].y,
+        scale: 0,
+        opacity: 0,
+        transformOrigin: "50% 50%",
+      });
+    });
+
+    gsap.to(buttons, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      duration: 0.75,
+      ease: "power2.out",
+      stagger: 0.07,
+      overwrite: true,
+      onComplete: function () {
+        if (!mountedRef.current) return;
+        gsap.set(buttons, { clearProps: "transform,opacity" });
+        setMeanReady(true);
+        setShowMeanNudges(true);
+        onUpdateNavText(copy.steps.B1.afterButtonsNav);
+        onSetNavLocked(false);
+      },
+    });
+  }
+
   function finishDraw() {
     if (!mountedRef.current) return;
     setIsDrawing(false);
@@ -844,6 +2170,12 @@ const MainCanvas = (props) => {
       onUpdateQuestionText(copy.steps.A1.afterAllDrawnQuestion);
       onUpdateNavText(copy.steps.A1.afterAllDrawnNav);
       onSetNextEnabled(true);
+    } else {
+      // In Step A1, restore the "afterButtonsNav" prompt after each individual draw,
+      // and re-enable nudges so the user knows which remaining draw buttons to tap next.
+      onUpdateNavText(copy.steps.A1.afterButtonsNav);
+      setShowDrawNudges(true);
+      onSetNextEnabled(false);
     }
   }
 
@@ -900,15 +2232,816 @@ const MainCanvas = (props) => {
   }
 
   function handleMainClick(id) {
-    if (isStep2) {
+    if (isStep2 || isA3 || isC3 || isB3) {
+      if (remainingTests.indexOf(id) === -1) return;
       if (typeof playSound === "function") playSound("click");
       setShowMainNudges(false);
       if (onSelectTest) onSelectTest(id);
+    }
+  }
+
+  function rangeBtnRefFor(id) {
+    if (id === "pop") return rangePopBtnRef;
+    if (id === "s1") return rangeS1BtnRef;
+    return rangeS2BtnRef;
+  }
+
+  function patchSide(setter, side, value) {
+    setter(function (prev) {
+      var next = Object.assign({}, prev);
+      next[side] = value;
+      return next;
+    });
+  }
+
+  function handleRangeClick(id) {
+    if (!isC1 || rangeBusy || rangeActive || rangePending || rangeGone[id] || !rangeReady) return;
+    if (typeof playSound === "function") playSound("click");
+    var cfg = RANGE_CFG[id];
+    setShowRangeNudges(false);
+    setRangeBusy(true);
+    setRangePending(id);
+    setHighClicked(false);
+    setLowClicked(false);
+    setHighValue(null);
+    setLowValue(null);
+    setShowAnswerSlot(false);
+    setAnswerFlipped(false);
+    setRangeCollapsed(false);
+    setGraphFocus(cfg.graph);
+    setHideLeftSample(!!cfg.hideSample);
+    setHideRightSample(!!cfg.hideSample);
+    onSetNavLocked(true);
+    onUpdateNavText(" ");
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        function afterArrow() {
+          if (!mountedRef.current) return;
+          setRangeActive(id);
+          setRangePending(null);
+          setRangeStage("high");
+          onUpdateNavText(copy.steps.C1.navHighest);
+          setShowHighNudge(true);
+          setRangeBusy(false);
+          onSetNavLocked(false);
+        }
+        growArrowRef.current = {
+          id: id,
+          side: cfg.graph,
+          onDone: afterArrow,
+        };
+        if (id === "pop") patchSide(setPopArrow, "left", true);
+        else if (id === "s1") setS1Arrow(true);
+        else setS2Arrow(true);
+      }, 700),
+    );
+  }
+
+  function startVlineGrow(cfg, kind, onDone) {
+    growVlineRef.current = {
+      id: cfg.id,
+      kind: kind,
+      side: cfg.graph,
+      onDone: onDone,
+    };
+    if (kind === "max") {
+      if (cfg.id === "pop") patchSide(setPopMaxLine, "left", true);
+      else if (cfg.id === "s1") setS1MaxLine(true);
+      else setS2MaxLine(true);
+    } else if (cfg.id === "pop") patchSide(setPopMinLine, "left", true);
+    else if (cfg.id === "s1") setS1MinLine(true);
+    else setS2MinLine(true);
+  }
+
+  function handleHighestTap() {
+    if (rangeBusy || rangeStage !== "high" || highValue !== null || !rangeActive) return;
+    if (typeof playSound === "function") playSound("click");
+    var cfg = RANGE_CFG[rangeActive];
+    var svg =
+      cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
+    setShowHighNudge(false);
+    setHighClicked(true);
+    setRangeBusy(true);
+    onSetNavLocked(true);
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        startVlineGrow(cfg, "max", function () {
+          if (!mountedRef.current) return;
+          flyAxisLabel(svg, cfg.max, highBtnRef.current, function () {
+            if (!mountedRef.current) return;
+            setHighValue(cfg.max);
+            addTimer(
+              setTimeout(function () {
+                if (!mountedRef.current) return;
+                setRangeStage("low");
+                onUpdateNavText(copy.steps.C1.navLowest);
+                setShowLowNudge(true);
+                setRangeBusy(false);
+                onSetNavLocked(false);
+              }, 600),
+            );
+          });
+        });
+      }, 550),
+    );
+  }
+
+  function handleLowestTap() {
+    if (rangeBusy || rangeStage !== "low" || lowValue !== null || !rangeActive) return;
+    if (typeof playSound === "function") playSound("click");
+    var cfg = RANGE_CFG[rangeActive];
+    var svg =
+      cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
+    setShowLowNudge(false);
+    setLowClicked(true);
+    setRangeBusy(true);
+    onSetNavLocked(true);
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        startVlineGrow(cfg, "min", function () {
+          if (!mountedRef.current) return;
+          flyAxisLabel(svg, cfg.min, lowBtnRef.current, function () {
+            if (!mountedRef.current) return;
+            setLowValue(cfg.min);
+            addTimer(
+              setTimeout(function () {
+                if (!mountedRef.current) return;
+                setShowAnswerSlot(true);
+                setRangeStage("answer");
+                onUpdateNavText(copy.steps.C1.navReveal);
+                setShowAnswerNudge(true);
+                setRangeBusy(false);
+                onSetNavLocked(false);
+              }, 600),
+            );
+          });
+        });
+      }, 550),
+    );
+  }
+
+  function handleAnswerTap() {
+    if (rangeBusy || rangeStage !== "answer" || answerFlipped || !rangeActive) return;
+    if (typeof playSound === "function") playSound("click");
+    setShowAnswerNudge(false);
+    setAnswerFlipped(true);
+    setRangeBusy(true);
+    onSetNavLocked(true);
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        setRangeCollapsed(true);
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current) return;
+            finishRangeFly();
+          }, 1000),
+        );
+      }, 1050),
+    );
+  }
+
+  function finishRangeFly() {
+    var id = rangeActive;
+    if (!id) return;
+    var cfg = RANGE_CFG[id];
+    var svg =
+      cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
+    var dest = svg
+      ? svg.querySelector(".range-label-anchor-" + cfg.id)
+      : null;
+    flyNumberToEl(resultBtnRef.current, dest, cfg.result, function () {
+      if (!mountedRef.current) return;
+      if (id === "pop") {
+        patchSide(setPopLabel, "left", cfg.result);
+        patchSide(setPopArrow, "right", true);
+        patchSide(setPopMaxLine, "right", true);
+        patchSide(setPopMinLine, "right", true);
+        patchSide(setPopLabel, "right", cfg.result);
+      } else if (id === "s1") setS1Label(cfg.result);
+      else setS2Label(cfg.result);
+      addTimer(
+        setTimeout(function () {
+          if (!mountedRef.current) return;
+          setRangeGone(function (prev) {
+            var next = Object.assign({}, prev);
+            next[id] = true;
+            return next;
+          });
+          setRangeCompleted(function (prev) {
+            var next = Object.assign({}, prev);
+            next[id] = true;
+            rangeCompletedRef.current = next;
+            return next;
+          });
+          setGraphFocus("both");
+          setHideLeftSample(false);
+          setHideRightSample(false);
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              setRangeActive(null);
+              setRangePending(null);
+              setRangeStage("idle");
+              setShowAnswerSlot(false);
+              setAnswerFlipped(false);
+              setRangeCollapsed(false);
+              setHighClicked(false);
+              setLowClicked(false);
+              setHighValue(null);
+              setLowValue(null);
+              setRangeBusy(false);
+              onSetNavLocked(false);
+              var completedNow = rangeCompletedRef.current;
+              if (completedNow.pop && completedNow.s1 && completedNow.s2) {
+                setRangeAllDone(true);
+                onUpdateNavText(copy.steps.C1.afterAllNav);
+                onSetNextEnabled(true);
+              } else {
+                onUpdateNavText(copy.steps.C1.navRemaining);
+                setShowRangeNudges(true);
+              }
+            }, 480),
+          );
+        }, 500),
+      );
+    });
+  }
+
+  function meanBtnRefFor(id) {
+    if (id === "pop") return meanPopBtnRef;
+    if (id === "s1") return meanS1BtnRef;
+    return meanS2BtnRef;
+  }
+
+  function meanActiveSvg(cfg) {
+    return cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
+  }
+
+  function dimPrevFiLabels() {
+    setMeanFiLabels(function (prev) {
+      var next = {};
+      Object.keys(prev).forEach(function (k) {
+        next[k] = Object.assign({}, prev[k], { dim: true });
+      });
+      return next;
+    });
+  }
+
+  function highlightMeanBar(bar) {
+    setMeanHighlight(bar.x);
+    setMeanGuide({ x: bar.x, f: bar.f });
+    setMeanFiLabels(function (prev) {
+      var next = Object.assign({}, prev);
+      next[bar.x] = { value: bar.f, dim: false };
+      return next;
+    });
+  }
+
+  function undimAllFiLabels() {
+    setMeanFiLabels(function (prev) {
+      var next = {};
+      Object.keys(prev).forEach(function (k) {
+        next[k] = Object.assign({}, prev[k], { dim: false });
+      });
+      return next;
+    });
+  }
+
+  function handleMeanClick(id) {
+    if (!isB1 || meanBusy || meanActive || meanPending || meanGone[id] || !meanReady)
+      return;
+    if (typeof playSound === "function") playSound("click");
+    var cfg = MEAN_CFG[id];
+    setShowMeanNudges(false);
+    setMeanBusy(true);
+    setMeanPending(id);
+    setMeanNumFlipped(false);
+    setMeanDenFlipped(false);
+    setMeanAnsFlipped(false);
+    setMeanShowAnswer(false);
+    setMeanCollapsed(false);
+    setMeanNumDone(false);
+    setMeanDenDone(false);
+    setMeanEq(EMPTY_MEAN_EQ);
+    setMeanDenEq(EMPTY_MEAN_EQ);
+    setMeanHighlight(null);
+    setMeanDimBars(false);
+    setMeanGuide(null);
+    setMeanFiLabels({});
+    setGraphFocus(cfg.graph);
+    setHideLeftSample(!!cfg.hideSample);
+    setHideRightSample(!!cfg.hideSample);
+    setHidePopBars(!!cfg.hidePop);
+    onSetNavLocked(true);
+    onUpdateNavText(" ");
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        setMeanActive(id);
+        setMeanPending(null);
+        setMeanStage("num");
+        onUpdateNavText(copy.steps.B1.navNumerator);
+        setShowMeanNumNudge(true);
+        setMeanBusy(false);
+        onSetNavLocked(false);
+      }, 700),
+    );
+  }
+
+  function handleMeanNumTap() {
+    if (meanBusy || meanStage !== "num" || meanNumFlipped || !meanActive) return;
+    if (typeof playSound === "function") playSound("click");
+    setShowMeanNumNudge(false);
+    setMeanNumFlipped(true);
+    setMeanBusy(true);
+    onSetNavLocked(true);
+    setMeanDimBars(true);
+    setMeanEq(
+      Object.assign({}, EMPTY_MEAN_EQ, {
+        visA: 1,
+        visTimes: 1,
+        visM: 1,
+        visPlus: 1,
+        visB: 1,
+        visBn: 1,
+        visN: 1,
+        visEq: 1,
+        visT: 1,
+      }),
+    );
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        runNumeratorBar(MEAN_CFG[meanActive], 0, 0, function () {
+          if (!mountedRef.current) return;
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              setMeanNumDone(true);
+              setMeanHighlight(null);
+              setMeanGuide(null);
+              setMeanDimBars(false);
+              undimAllFiLabels();
+              setMeanStage("den");
+              onUpdateNavText(copy.steps.B1.navDenominator);
+              setShowMeanDenNudge(true);
+              setMeanBusy(false);
+              onSetNavLocked(false);
+            }, 600),
+          );
+        });
+      }, 550),
+    );
+  }
+
+  function runNumeratorBar(cfg, index, running, done) {
+    var bars = cfg.bars;
+    var bar = bars[index];
+    dimPrevFiLabels();
+    setMeanGuide(null);
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        highlightMeanBar(bar);
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current) return;
+            var svg = meanActiveSvg(cfg);
+            var xEl = svg ? svg.querySelector(".x-label-" + bar.x) : null;
+            var fiEl = svg ? svg.querySelector(".mean-fi-" + bar.x) : null;
+            var newTotal = running + bar.xf;
+
+            if (index === 0) {
+              var left = 2;
+              function landed() {
+                left -= 1;
+                if (left > 0) return;
+                setMeanEq(
+                  Object.assign({}, EMPTY_MEAN_EQ, {
+                    a: String(bar.x),
+                    m: String(bar.f),
+                    t: String(bar.xf),
+                    visA: 1,
+                    visTimes: 1,
+                    visM: 1,
+                    visPlus: 1,
+                    visB: 1,
+                    visBn: 1,
+                    visN: 1,
+                    visEq: 1,
+                    visT: 1,
+                    leftIsSum: false,
+                  }),
+                );
+                continueNum(cfg, index, newTotal, done);
+              }
+              flyFromEl(xEl, eqARef.current, bar.x, function () {
+                setMeanEq(function (prev) {
+                  return Object.assign({}, prev, { a: String(bar.x), visA: 1 });
+                });
+                landed();
+              });
+              flyFromEl(fiEl, eqMRef.current, bar.f, function () {
+                setMeanEq(function (prev) {
+                  return Object.assign({}, prev, { m: String(bar.f), visM: 1 });
+                });
+                landed();
+              });
+              return;
+            }
+
+            function showPlusSlots(afterSetup) {
+              setMeanEq(function (prev) {
+                var base =
+                  index === 1
+                    ? Object.assign({}, prev, { leftIsSum: false })
+                    : Object.assign({}, EMPTY_MEAN_EQ, {
+                        a: String(running),
+                        t: String(running),
+                        visA: 1,
+                        visEq: 1,
+                        visT: 1,
+                        leftIsSum: true,
+                      });
+                return Object.assign({}, base, {
+                  visPlus: 1,
+                  visB: 1,
+                  visBn: 1,
+                  visN: 1,
+                  b: "",
+                  n: "",
+                  m: index === 1 ? prev.m : "",
+                  visM: index === 1 ? prev.visM : 0,
+                  visTimes: index === 1 ? prev.visTimes : 0,
+                  leftIsSum: index >= 2,
+                });
+              });
+              addTimer(
+                setTimeout(function () {
+                  if (!mountedRef.current) return;
+                  afterSetup();
+                }, index === 1 ? 40 : 280),
+              );
+            }
+
+            function flyBn() {
+              var leftBn = 2;
+              function landedBn() {
+                leftBn -= 1;
+                if (leftBn > 0) return;
+                setMeanEq(function (prev) {
+                  return Object.assign({}, prev, {
+                    b: String(bar.x),
+                    n: String(bar.f),
+                    t: String(newTotal),
+                    visB: 1,
+                    visN: 1,
+                    visBn: 1,
+                    visPlus: 1,
+                    visEq: 1,
+                    visT: 1,
+                    visA: 1,
+                    leftIsSum: index >= 2,
+                    m: index >= 2 ? "" : prev.m,
+                    visM: index >= 2 ? 0 : prev.visM,
+                    visTimes: index >= 2 ? 0 : prev.visTimes,
+                  });
+                });
+                continueNum(cfg, index, newTotal, done);
+              }
+              flyFromEl(xEl, eqBRef.current, bar.x, function () {
+                setMeanEq(function (prev) {
+                  return Object.assign({}, prev, { b: String(bar.x), visB: 1 });
+                });
+                landedBn();
+              });
+              flyFromEl(fiEl, eqNRef.current, bar.f, function () {
+                setMeanEq(function (prev) {
+                  return Object.assign({}, prev, { n: String(bar.f), visN: 1 });
+                });
+                landedBn();
+              });
+            }
+
+            if (index >= 2) {
+              setMeanEq(
+                Object.assign({}, EMPTY_MEAN_EQ, {
+                  a: String(running),
+                  t: String(running),
+                  visA: 1,
+                  visEq: 1,
+                  visT: 1,
+                  leftIsSum: true,
+                }),
+              );
+              addTimer(
+                setTimeout(function () {
+                  if (!mountedRef.current) return;
+                  showPlusSlots(flyBn);
+                }, 400),
+              );
+              return;
+            }
+            showPlusSlots(flyBn);
+          }, 280),
+        );
+      }, index === 0 ? 80 : 220),
+    );
+  }
+
+  function continueNum(cfg, index, newTotal, done) {
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        if (index + 1 >= cfg.bars.length) {
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              setMeanEq(
+                Object.assign({}, EMPTY_MEAN_EQ, {
+                  t: String(cfg.sumXF),
+                  a: String(cfg.sumXF),
+                  visA: 1,
+                  sumOnly: true,
+                }),
+              );
+              setMeanHighlight(null);
+              setMeanGuide(null);
+              if (done) done();
+            }, 600),
+          );
+          return;
+        }
+        runNumeratorBar(cfg, index + 1, newTotal, done);
+      }, 350),
+    );
+  }
+
+  function handleMeanDenTap() {
+    if (meanBusy || meanStage !== "den" || meanDenFlipped || !meanActive) return;
+    if (typeof playSound === "function") playSound("click");
+    setShowMeanDenNudge(false);
+    setMeanDenFlipped(true);
+    setMeanBusy(true);
+    onSetNavLocked(true);
+    setMeanDimBars(true);
+    setMeanHighlight(null);
+    setMeanGuide(null);
+    dimPrevFiLabels();
+    setMeanDenEq(
+      Object.assign({}, EMPTY_MEAN_EQ, {
+        visA: 1,
+        visPlus: 1,
+        visB: 1,
+        visEq: 1,
+        visT: 1,
+      }),
+    );
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        runDenominatorBar(MEAN_CFG[meanActive], 0, 0, function () {
+          if (!mountedRef.current) return;
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              setMeanDenDone(true);
+              setMeanHighlight(null);
+              setMeanGuide(null);
+              setMeanDimBars(false);
+              setMeanFiLabels({});
+              setMeanShowAnswer(true);
+              setMeanStage("answer");
+              onUpdateNavText(copy.steps.B1.navReveal);
+              setShowMeanAnsNudge(true);
+              setMeanBusy(false);
+              onSetNavLocked(false);
+            }, 600),
+          );
+        });
+      }, 550),
+    );
+  }
+
+  function runDenominatorBar(cfg, index, running, done) {
+    var bars = cfg.bars;
+    var bar = bars[index];
+    dimPrevFiLabels();
+    setMeanGuide(null);
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        highlightMeanBar(bar);
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current) return;
+            var svg = meanActiveSvg(cfg);
+            var fiEl = svg ? svg.querySelector(".mean-fi-" + bar.x) : null;
+            var newTotal = running + bar.f;
+
+            function removeFiSource() {
+              setMeanFiLabels(function (prev) {
+                var next = Object.assign({}, prev);
+                delete next[bar.x];
+                return next;
+              });
+            }
+
+            if (index === 0) {
+              flyFromEl(fiEl, eqDenARef.current, bar.f, function () {
+                setMeanDenEq(
+                  Object.assign({}, EMPTY_MEAN_EQ, {
+                    a: String(bar.f),
+                    t: String(bar.f),
+                    visA: 1,
+                    visPlus: 1,
+                    visB: 1,
+                    visEq: 1,
+                    visT: 1,
+                  }),
+                );
+                continueDen(cfg, index, newTotal, done);
+              });
+              removeFiSource();
+              return;
+            }
+
+            setMeanDenEq(
+              Object.assign({}, EMPTY_MEAN_EQ, {
+                a: String(running),
+                t: String(running),
+                visA: 1,
+                visPlus: 1,
+                visB: 1,
+                visEq: 1,
+                visT: 1,
+              }),
+            );
+            addTimer(
+              setTimeout(function () {
+                if (!mountedRef.current) return;
+                flyFromEl(fiEl, eqDenBRef.current, bar.f, function () {
+                  setMeanDenEq(
+                    Object.assign({}, EMPTY_MEAN_EQ, {
+                      a: String(running),
+                      b: String(bar.f),
+                      t: String(newTotal),
+                      visA: 1,
+                      visPlus: 1,
+                      visB: 1,
+                      visEq: 1,
+                      visT: 1,
+                    }),
+                  );
+                  addTimer(
+                    setTimeout(function () {
+                      if (!mountedRef.current) return;
+                      setMeanDenEq(
+                        Object.assign({}, EMPTY_MEAN_EQ, {
+                          a: String(newTotal),
+                          t: String(newTotal),
+                          visA: 1,
+                          visPlus: 1,
+                          visB: 1,
+                          visEq: 1,
+                          visT: 1,
+                        }),
+                      );
+                      continueDen(cfg, index, newTotal, done);
+                    }, 280),
+                  );
+                });
+                removeFiSource();
+              }, 200),
+            );
+          }, 280),
+        );
+      }, index === 0 ? 80 : 220),
+    );
+  }
+
+  function continueDen(cfg, index, newTotal, done) {
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        if (index + 1 >= cfg.bars.length) {
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              setMeanDenEq(
+                Object.assign({}, EMPTY_MEAN_EQ, {
+                  t: String(cfg.sumF),
+                  a: String(cfg.sumF),
+                  visA: 1,
+                  sumOnly: true,
+                }),
+              );
+              setMeanHighlight(null);
+              setMeanGuide(null);
+              if (done) done();
+            }, 600),
+          );
+          return;
+        }
+        runDenominatorBar(cfg, index + 1, newTotal, done);
+      }, 280),
+    );
+  }
+
+  function handleMeanAnsTap() {
+    if (meanBusy || meanStage !== "answer" || meanAnsFlipped || !meanActive) return;
+    if (typeof playSound === "function") playSound("click");
+    setShowMeanAnsNudge(false);
+    setMeanAnsFlipped(true);
+    setMeanBusy(true);
+    onSetNavLocked(true);
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        setMeanCollapsed(true);
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current) return;
+            finishMeanFly();
+          }, 1000),
+        );
+      }, 1050),
+    );
+  }
+
+  function finishMeanFly() {
+    var id = meanActive;
+    if (!id) return;
+    var cfg = MEAN_CFG[id];
+    var svg = meanActiveSvg(cfg);
+    var dest = svg
+      ? svg.querySelector(".mean-label-anchor-" + cfg.id + "-" + cfg.graph)
+      : null;
+    function afterLabel() {
+      if (!mountedRef.current) return;
+      growMeanLineRef.current = {
+        id: cfg.id,
+        side: cfg.graph,
+        onDone: function () {
+          if (!mountedRef.current) return;
+          if (id === "pop") {
+            patchSide(setPopMeanMark, "right", true);
+          }
+          addTimer(
+            setTimeout(function () {
+              if (!mountedRef.current) return;
+              setMeanGone(function (prev) {
+                var next = Object.assign({}, prev);
+                next[id] = true;
+                return next;
+              });
+              meanCompletedRef.current[id] = true;
+              setGraphFocus("both");
+              setHideLeftSample(false);
+              setHideRightSample(false);
+              setHidePopBars(false);
+              addTimer(
+                setTimeout(function () {
+                  if (!mountedRef.current) return;
+                  setMeanActive(null);
+                  setMeanPending(null);
+                  setMeanStage("idle");
+                  setMeanShowAnswer(false);
+                  setMeanAnsFlipped(false);
+                  setMeanCollapsed(false);
+                  setMeanNumFlipped(false);
+                  setMeanDenFlipped(false);
+                  setMeanBusy(false);
+                  onSetNavLocked(false);
+                  var completedNow = meanCompletedRef.current;
+                  if (completedNow.pop && completedNow.s1 && completedNow.s2) {
+                    setMeanAllDone(true);
+                    onUpdateNavText(copy.steps.B1.afterAllNav);
+                    onSetNextEnabled(true);
+                  } else {
+                    onUpdateNavText(copy.steps.B1.navRemaining);
+                    setShowMeanNudges(true);
+                  }
+                }, 480),
+              );
+            }, 500),
+          );
+        },
+      };
+      if (id === "pop") patchSide(setPopMeanMark, "left", true);
+      else if (id === "s1") setS1MeanMark(true);
+      else setS2MeanMark(true);
+    }
+
+    if (!dest) {
+      afterLabel();
       return;
     }
-    if (isA3 && (id === "centre" || id === "spread")) {
-      if (typeof playSound === "function") playSound("click");
-    }
+    flyNumberToEl(meanResultRef.current, dest, cfg.mean, afterLabel);
   }
 
   function setLeftPathsBlink(mode) {
@@ -943,12 +3076,34 @@ const MainCanvas = (props) => {
 
   function handleMcq(side, option) {
     if (mcqBusy) return;
+    var mcqCopy = isC2 ? copy.steps.C2 : isB2 ? copy.steps.B2 : copy.steps.A2;
+    var s1BoxEl = isC2
+      ? spreadS1BoxRef.current
+      : isB2
+        ? centreS1BoxRef.current
+        : shapeS1BoxRef.current;
+    var s2BoxEl = isC2
+      ? spreadS2BoxRef.current
+      : isB2
+        ? centreS2BoxRef.current
+        : shapeS2BoxRef.current;
+    var setS1BoxVisible = isC2
+      ? setShowSpreadS1Box
+      : isB2
+        ? setShowCentreS1Box
+        : setShowShapeS1Box;
+    var setS2BoxVisible = isC2
+      ? setShowSpreadS2Box
+      : isB2
+        ? setShowCentreS2Box
+        : setShowShapeS2Box;
+    var skipBlink = isC2 || isB2;
     if (side === "s1") {
       if (s1Locked || mcqTarget !== "s1") return;
       if (s1Retry && option !== "fail") return;
       if (typeof playSound === "function") playSound("click");
       setS1Selected(option);
-      setLeftPathsBlink("red");
+      if (!skipBlink) setLeftPathsBlink("red");
       if (option !== "fail") {
         if (typeof playSound === "function") playSound("wrong");
         setS1Retry(true);
@@ -959,15 +3114,15 @@ const MainCanvas = (props) => {
       setFeedbackSide(null);
       setS1Locked(true);
       setMcqBusy(true);
-      flyThumbToBox(s1FailBtnRef.current, s1BoxRef.current, "👎", function () {
+      flyThumbToBox(s1FailBtnRef.current, s1BoxEl, "👎", function () {
         if (!mountedRef.current) return;
-        setShowS1Box(true);
+        setS1BoxVisible(true);
         addTimer(
           setTimeout(function () {
             if (!mountedRef.current) return;
-            setLeftPathsBlink("normal");
+            if (!skipBlink) setLeftPathsBlink("normal");
             setMcqTarget("s2");
-            onUpdateQuestionText(copy.steps.A2.questionTextS2);
+            onUpdateQuestionText(mcqCopy.questionTextS2);
             setMcqBusy(false);
           }, 1000),
         );
@@ -979,7 +3134,7 @@ const MainCanvas = (props) => {
     if (s2Retry && option !== "pass") return;
     if (typeof playSound === "function") playSound("click");
     setS2Selected(option);
-    setRightPathsBlink("green");
+    if (!skipBlink) setRightPathsBlink("green");
     if (option !== "pass") {
       if (typeof playSound === "function") playSound("wrong");
       setS2Retry(true);
@@ -990,14 +3145,17 @@ const MainCanvas = (props) => {
     setFeedbackSide(null);
     setS2Locked(true);
     setMcqBusy(true);
-    flyThumbToBox(s2PassBtnRef.current, s2BoxRef.current, "👍", function () {
+    flyThumbToBox(s2PassBtnRef.current, s2BoxEl, "👍", function () {
       if (!mountedRef.current) return;
-      setShowS2Box(true);
+      setS2BoxVisible(true);
       setMcqTarget("done");
-      setLeftPathsBlink("red");
-      setRightPathsBlink("green");
-      onUpdateQuestionText(copy.steps.A2.afterBothQuestion);
-      onUpdateNavText(copy.steps.A2.afterBothNav);
+      if (!skipBlink) {
+        setLeftPathsBlink("red");
+        setRightPathsBlink("green");
+      }
+      onUpdateQuestionText(mcqCopy.afterBothQuestion);
+      var allTestsDone = completedTests.length >= 2;
+      onUpdateNavText(allTestsDone ? copy.steps[3].allDoneNav : mcqCopy.afterBothNav);
       onSetNextEnabled(true);
       setMcqBusy(false);
     });
@@ -1062,6 +3220,7 @@ const MainCanvas = (props) => {
           "text",
           {
             key: "xl" + xv,
+            className: "x-label x-label-" + xv,
             x: layout.xP(xv),
             y: layout.baseY + 30,
             textAnchor: "middle",
@@ -1098,19 +3257,249 @@ const MainCanvas = (props) => {
     return items;
   }
 
-  function renderBars(data, layout, color, keyPrefix) {
+  function renderBars(data, layout, color, keyPrefix, opts) {
     var prefix = keyPrefix || "b";
+    opts = opts || {};
     return data.map(function (d, i) {
       if (!d.y) return null;
+      var isHi = opts.highlightX === d.x;
+      var opacity = opts.dim ? (isHi ? 1 : 0.22) : 1;
       return e("rect", {
         key: prefix + i,
+        className: "mean-bar mean-bar-" + d.x,
         x: layout.xP(d.x) - layout.barW / 2,
         y: layout.yP(d.y),
         width: layout.barW,
         height: d.y * layout.ySc,
-        fill: color,
+        fill: isHi && opts.bright ? opts.bright : color,
+        opacity: opacity,
       });
     });
+  }
+
+  function arrowHead(x, y, dir, color, key) {
+    var s = 12;
+    return e("polygon", {
+      key: key,
+      points: [x, y, x - dir * s, y - 6.5, x - dir * s, y + 6.5].join(" "),
+      fill: color,
+    });
+  }
+
+  function renderRangeOverlay(cfg, yVal, showArrow, showMax, showMin, label) {
+    if (
+      !showArrow &&
+      !showMax &&
+      !showMin &&
+      (label === null || label === undefined)
+    ) {
+      return null;
+    }
+    var x0 = popLayout.xP(cfg.min);
+    var x1 = popLayout.xP(cfg.max);
+    var ay = popLayout.yP(yVal);
+    var kids = [];
+    if (showMax) {
+      kids.push(
+        e("line", {
+          key: "vmax",
+          className: "range-vline-grow-max-" + cfg.id,
+          x1: x1,
+          y1: popLayout.baseY,
+          x2: x1,
+          y2: ay,
+          stroke: RANGE_VLINE_COLOR,
+          strokeWidth: 2,
+          strokeDasharray: "7 5",
+        }),
+      );
+    }
+    if (showMin) {
+      kids.push(
+        e("line", {
+          key: "vmin",
+          className: "range-vline-grow-min-" + cfg.id,
+          x1: x0,
+          y1: popLayout.baseY,
+          x2: x0,
+          y2: ay,
+          stroke: RANGE_VLINE_COLOR,
+          strokeWidth: 2,
+          strokeDasharray: "7 5",
+        }),
+      );
+    }
+    if (showArrow) {
+      kids.push(
+        e(
+          "g",
+          { key: "arrow", className: "range-arrow-grow-" + cfg.id },
+          e("line", {
+            x1: x0 + 12,
+            y1: ay,
+            x2: x1 - 12,
+            y2: ay,
+            stroke: cfg.arrow,
+            strokeWidth: 2.5,
+            strokeDasharray: "8 6",
+          }),
+          arrowHead(x0, ay, -1, cfg.arrow, "hl"),
+          arrowHead(x1, ay, 1, cfg.arrow, "hr"),
+        ),
+      );
+    }
+    var cx = (x0 + x1) / 2;
+    var cy = ay - 18;
+    kids.push(
+      e("circle", {
+        key: "anchor",
+        className: "range-label-anchor-" + cfg.id,
+        cx: cx,
+        cy: cy,
+        r: 2,
+        fill: "none",
+      }),
+    );
+    if (label !== null && label !== undefined) {
+      var w = 48;
+      var h = 28;
+      kids.push(
+        e("rect", {
+          key: "vb",
+          x: cx - w / 2,
+          y: cy - h / 2,
+          width: w,
+          height: h,
+          rx: 7,
+          fill: cfg.valueFill,
+          stroke: "rgba(255,255,255,0.72)",
+          strokeWidth: 1.4,
+        }),
+      );
+      kids.push(
+        e(
+          "text",
+          {
+            key: "vt",
+            x: cx,
+            y: cy + 8,
+            textAnchor: "middle",
+            fill: "#ffffff",
+            fontSize: 20,
+            fontWeight: 700,
+          },
+          String(label),
+        ),
+      );
+    }
+    return e("g", { key: "range-" + cfg.id }, kids);
+  }
+
+  function renderMeanOverlay(cfg, show, side) {
+    var x = popLayout.xP(cfg.mean);
+    var yTop = popLayout.yP(popLayout.yMax);
+    var yBot = popLayout.baseY;
+    var labelY = cfg.id === "pop" ? yTop + 18 : yBot + 38;
+    var dash = cfg.id === "s1" ? "8 4 2 4" : "8 6";
+    var kids = [];
+    kids.push(
+      e("circle", {
+        key: "anchor",
+        className: "mean-label-anchor-" + cfg.id + "-" + side,
+        cx: x,
+        cy: labelY,
+        r: 2,
+        fill: "none",
+      }),
+    );
+    if (!show) {
+      return e("g", { key: "mean-" + cfg.id + "-" + side }, kids);
+    }
+    kids.push(
+      e("line", {
+        key: "mv",
+        className: "mean-vline-grow-" + cfg.id + "-" + side,
+        x1: x,
+        y1: yBot,
+        x2: x,
+        y2: yTop,
+        stroke: cfg.line,
+        strokeWidth: 2.2,
+        strokeDasharray: dash,
+      }),
+    );
+    var w = cfg.id === "pop" ? 52 : 48;
+    var h = 26;
+    kids.push(
+      e("rect", {
+        key: "vb",
+        x: x - w / 2,
+        y: labelY - h / 2,
+        width: w,
+        height: h,
+        rx: 7,
+        fill: cfg.valueFill,
+        stroke: "rgba(255,255,255,0.72)",
+        strokeWidth: 1.4,
+      }),
+    );
+    kids.push(
+      e(
+        "text",
+        {
+          key: "vt",
+          x: x,
+          y: labelY + 7,
+          textAnchor: "middle",
+          fill: "#ffffff",
+          fontSize: 18,
+          fontWeight: 700,
+        },
+        String(cfg.mean),
+      ),
+    );
+    return e("g", { key: "mean-" + cfg.id + "-" + side }, kids);
+  }
+
+  function renderMeanGuides(layout, cfg) {
+    if (!cfg) return null;
+    var kids = [];
+    if (meanGuide && meanGuide.x) {
+      var gy = layout.yP(meanGuide.f);
+      kids.push(
+        e("line", {
+          key: "guide",
+          x1: ML,
+          y1: gy,
+          x2: layout.xP(meanGuide.x) - layout.barW / 2,
+          y2: gy,
+          stroke: "#ffffff",
+          strokeWidth: 1.6,
+        }),
+      );
+    }
+    Object.keys(meanFiLabels).forEach(function (k) {
+      var info = meanFiLabels[k];
+      var x = Number(k);
+      kids.push(
+        e(
+          "text",
+          {
+            key: "fi" + k,
+            className: "mean-fi mean-fi-" + x,
+            x: layout.xP(x),
+            y: layout.yP(info.value) - 8,
+            textAnchor: "middle",
+            fill: info.dim ? "rgba(255,255,255,0.42)" : "#ffffff",
+            fontSize: AXIS_LABEL_SIZE,
+            fontWeight: 700,
+          },
+          String(info.value),
+        ),
+      );
+    });
+    if (!kids.length) return null;
+    return e("g", { key: "mean-guides" }, kids);
   }
 
   function renderSampleGraph(kind) {
@@ -1180,7 +3569,35 @@ const MainCanvas = (props) => {
       ),
     );
     ch.push.apply(ch, renderAxes(popLayout, GRAPH_DATA.popYRange.step));
-    ch.push.apply(ch, renderBars(popData, popLayout, colors.popBar, "pop-b"));
+    var popBarOpts = {};
+    var sampleBarOpts = {};
+    var workingMean = meanActive || meanPending;
+    if (meanDimBars && workingMean === "pop") {
+      popBarOpts.dim = true;
+      popBarOpts.highlightX = meanHighlight;
+      popBarOpts.bright = MEAN_CFG.pop.bright;
+    }
+    if (
+      meanDimBars &&
+      ((workingMean === "s1" && isLeft) || (workingMean === "s2" && !isLeft))
+    ) {
+      sampleBarOpts.dim = true;
+      sampleBarOpts.highlightX = meanHighlight;
+      sampleBarOpts.bright = MEAN_CFG[workingMean].bright;
+    }
+    ch.push(
+      e(
+        "g",
+        {
+          key: "pop-bars",
+          style: {
+            opacity: hidePopBars ? 0 : 1,
+            transition: "opacity 0.4s ease",
+          },
+        },
+        renderBars(popData, popLayout, colors.popBar, "pop-b", popBarOpts),
+      ),
+    );
     ch.push(
       e("path", {
         key: "pf",
@@ -1192,9 +3609,20 @@ const MainCanvas = (props) => {
       }),
     );
     if (showOverlap) {
-      ch.push.apply(
-        ch,
-        renderBars(sampleData, popLayout, sampleColor, "sam-b"),
+      var hideSample =
+        (isLeft && hideLeftSample) || (!isLeft && hideRightSample);
+      ch.push(
+        e(
+          "g",
+          {
+            key: "sam-bars",
+            style: {
+              opacity: hideSample ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderBars(sampleData, popLayout, sampleColor, "sam-b", sampleBarOpts),
+        ),
       );
       ch.push(
         e("path", {
@@ -1233,6 +3661,116 @@ const MainCanvas = (props) => {
         opacity: 0,
       }),
     );
+
+    if (isLeft) {
+      ch.push(
+        renderRangeOverlay(
+          RANGE_CFG.pop,
+          ARROW_Y_POP,
+          popArrow.left,
+          popMaxLine.left,
+          popMinLine.left,
+          popLabel.left,
+        ),
+      );
+      ch.push(
+        renderRangeOverlay(
+          RANGE_CFG.s1,
+          ARROW_Y_SAMPLE,
+          s1Arrow,
+          s1MaxLine,
+          s1MinLine,
+          s1Label,
+        ),
+      );
+      var leftMeanCfg =
+        workingMean === "pop"
+          ? MEAN_CFG.pop
+          : workingMean === "s1"
+            ? MEAN_CFG.s1
+            : null;
+      ch.push(renderMeanGuides(popLayout, leftMeanCfg));
+      ch.push(
+        e(
+          "g",
+          {
+            key: "mean-pop-left",
+            style: {
+              opacity: hidePopBars ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderMeanOverlay(MEAN_CFG.pop, popMeanMark.left, "left"),
+        ),
+      );
+      ch.push(
+        e(
+          "g",
+          {
+            key: "mean-s1-left",
+            style: {
+              opacity: hideLeftSample ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderMeanOverlay(MEAN_CFG.s1, s1MeanMark, "left"),
+        ),
+      );
+    } else {
+      ch.push(
+        renderRangeOverlay(
+          RANGE_CFG.pop,
+          ARROW_Y_POP,
+          popArrow.right,
+          popMaxLine.right,
+          popMinLine.right,
+          popLabel.right,
+        ),
+      );
+      ch.push(
+        renderRangeOverlay(
+          RANGE_CFG.s2,
+          ARROW_Y_SAMPLE,
+          s2Arrow,
+          s2MaxLine,
+          s2MinLine,
+          s2Label,
+        ),
+      );
+      var rightMeanCfg =
+        workingMean === "pop"
+          ? MEAN_CFG.pop
+          : workingMean === "s2"
+            ? MEAN_CFG.s2
+            : null;
+      ch.push(renderMeanGuides(popLayout, rightMeanCfg));
+      ch.push(
+        e(
+          "g",
+          {
+            key: "mean-pop-right",
+            style: {
+              opacity: hidePopBars ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderMeanOverlay(MEAN_CFG.pop, popMeanMark.right, "right"),
+        ),
+      );
+      ch.push(
+        e(
+          "g",
+          {
+            key: "mean-s2-right",
+            style: {
+              opacity: hideRightSample ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderMeanOverlay(MEAN_CFG.s2, s2MeanMark, "right"),
+        ),
+      );
+    }
 
     return e(
       "svg",
@@ -1311,29 +3849,166 @@ const MainCanvas = (props) => {
     );
   }
 
-  var leftDim = isA2 && mcqTarget === "s2";
-  var rightDim = isA2 && mcqTarget === "s1";
+  function runStep3Animation() {
+    if (!mountedRef.current) return;
+    var tableEl = step3TableRef.current;
+    var shapeEl = shapeBtnRef.current;
+    var centreEl = centreBtnRef.current;
+    var spreadEl = spreadBtnRef.current;
+    var rows = tableEl ? tableEl.querySelectorAll(".step3-data-row") : [];
+    if (!tableEl || !shapeEl || !centreEl || !spreadEl || rows.length < 3) {
+      if (step3AnimTriesRef.current < 40) {
+        step3AnimTriesRef.current += 1;
+        addTimer(setTimeout(runStep3Animation, 80));
+      }
+      return;
+    }
+    var srcEls = [shapeEl, centreEl, spreadEl];
+    var clones = [];
+    srcEls.forEach(function (srcEl, i) {
+      var destEl = rows[i];
+      var srcRect = srcEl.getBoundingClientRect();
+      var destRect = destEl.getBoundingClientRect();
+      if (srcRect.width < 2 || destRect.width < 2) return;
+      var clone = srcEl.cloneNode(true);
+      clone.style.position = "fixed";
+      clone.style.left = srcRect.left + "px";
+      clone.style.top = srcRect.top + "px";
+      clone.style.width = srcRect.width + "px";
+      clone.style.height = srcRect.height + "px";
+      clone.style.margin = "0";
+      clone.style.zIndex = "9999";
+      clone.style.pointerEvents = "none";
+      clone.style.transition = "none";
+      clone.style.opacity = "1";
+      clone.style.visibility = "visible";
+      document.body.appendChild(clone);
+      cloneElsRef.current.push(clone);
+      clones.push({ clone: clone, dest: destRect });
+    });
+    if (!clones.length) {
+      setStep3HideMainBtns(true);
+      setStep3TableVisible(true);
+      setStep3AnimDone(true);
+      onUpdateNavText(copy.steps[3].navText);
+      return;
+    }
+    setStep3HideMainBtns(true);
+    clones.forEach(function (item) {
+      gsap.to(item.clone, {
+        left: item.dest.left,
+        top: item.dest.top,
+        width: item.dest.width,
+        height: item.dest.height,
+        duration: 0.75,
+        ease: "power2.inOut",
+      });
+    });
+    addTimer(
+      setTimeout(function () {
+        clones.forEach(function (item) {
+          if (item.clone.parentNode) item.clone.parentNode.removeChild(item.clone);
+          var idx = cloneElsRef.current.indexOf(item.clone);
+          if (idx !== -1) cloneElsRef.current.splice(idx, 1);
+        });
+        if (!mountedRef.current) return;
+        setStep3TableVisible(true);
+        setStep3AnimDone(true);
+        onUpdateNavText(copy.steps[3].navText);
+      }, 780),
+    );
+  }
 
-  var shapeExplored = isA1 || isA2 || isA3;
-  var shapeDehighlighted = isA3;
-  var othersDehighlighted = isA1 || isA2;
+  function handleStep3GraphClick(which) {
+    if (step3Correct) return;
+    if (which === "s1") {
+      if (typeof playSound === "function") playSound("wrong");
+      setStep3SelectedGraph("s1");
+      setStep3Feedback("wrong");
+    } else {
+      if (typeof playSound === "function") playSound("correct");
+      setStep3SelectedGraph("s2");
+      setStep3Feedback("correct");
+      setStep3Correct(true);
+      onSetNextEnabled(true);
+      onUpdateQuestionText(copy.steps[3].afterCorrectQuestion);
+      onUpdateNavText(copy.steps[3].afterCorrectNav);
+    }
+  }
+
+  var leftDim = isMcqStep && mcqTarget === "s2";
+  var rightDim = isMcqStep && mcqTarget === "s1";
+  var mcqCopy = isC2 ? copy.steps.C2 : isB2 ? copy.steps.B2 : copy.steps.A2;
+
+  var shapeDone = completedTests.indexOf("shape") !== -1 || isA3;
+  var spreadDone = completedTests.indexOf("spread") !== -1 || isC3;
+  var centreDone = completedTests.indexOf("centre") !== -1 || isB3;
+  var shapeActive = isA1 || isA2;
+  var spreadActive = isC1 || isC2;
+  var centreActive = isB1 || isB2;
+  var anyTestActive = shapeActive || spreadActive || centreActive;
+  var showShapeResultBoxes = isA2 || isA3 || shapeDone || isStep3;
+  var showSpreadResultBoxes = isC2 || isC3 || spreadDone || isStep3;
+  var showCentreResultBoxes = isB2 || isB3 || centreDone || isStep3;
 
   function mainBtnClass(id) {
     var cls = "main-btn " + id;
-    if (id === "shape" && shapeExplored) cls += " explored";
-    if (id === "shape" && shapeDehighlighted) cls += " dehighlighted";
-    if (id !== "shape" && othersDehighlighted) cls += " dehighlighted";
+    if (isStep3) {
+      cls += " explored";
+      return cls;
+    }
+    var isActive =
+      (id === "shape" && shapeActive) ||
+      (id === "spread" && spreadActive) ||
+      (id === "centre" && centreActive);
+    var isDone =
+      (id === "shape" && shapeDone) ||
+      (id === "spread" && spreadDone) ||
+      (id === "centre" && centreDone);
+    if (isActive) cls += " explored";
+    else if (isDone) cls += " explored dehighlighted";
+    else if (anyTestActive) cls += " dehighlighted";
     return cls;
   }
 
-  var showResultBoxes = isA2 || isA3;
+  function canClickMain(id) {
+    if (isStep2) return true;
+    if (isA3 || isC3 || isB3) return remainingTests.indexOf(id) !== -1;
+    return false;
+  }
+
+  var leftHalfClass = "graph-half";
+  if (graphFocus === "left") leftHalfClass += " is-centered";
+  if (graphFocus === "right") leftHalfClass += " is-hidden-graph";
+  var rightHalfClass = "graph-half";
+  if (graphFocus === "right") rightHalfClass += " is-centered-from-right";
+  if (graphFocus === "left") rightHalfClass += " is-hidden-graph";
+
+  var step3LeftBorder = isStep3 && step3AnimDone
+    ? step3SelectedGraph === "s1"
+      ? "3px solid #ff5252"
+      : "3px solid #F2C94C"
+    : undefined;
+  var step3RightBorder = isStep3 && step3AnimDone
+    ? step3Correct
+      ? "3px solid #7CFC00"
+      : "3px solid #F2C94C"
+    : undefined;
+  var step3SelectedColumn =
+    step3SelectedGraph === "s1" ? "sample1" : step3SelectedGraph === "s2" ? "sample2" : null;
 
   var graphRow = e(
     "div",
-    { className: "graph-row" },
+    { className: "graph-row" + (isStep3 ? " step3-layout" : "") },
     e(
       "div",
-      { className: "graph-half" },
+      {
+        className: leftHalfClass,
+        style: isStep3 && step3AnimDone ? { border: step3LeftBorder, borderRadius: "1vw", cursor: step3Correct ? "default" : "pointer" } : undefined,
+        onClick: isStep3 && step3AnimDone && !step3Correct
+          ? function () { handleStep3GraphClick("s1"); }
+          : undefined,
+      },
       e(
         "div",
         {
@@ -1351,13 +4026,19 @@ const MainCanvas = (props) => {
             dangerouslySetInnerHTML: { __html: copy.introBoxText },
           })
         : null,
-      isA2 && feedbackSide === "left"
-        ? e("div", { className: "feedback-box" }, copy.steps.A2.feedbackS2)
+      isMcqStep && feedbackSide === "left"
+        ? e("div", { className: "feedback-box" }, mcqCopy.feedbackS2)
         : null,
     ),
     e(
       "div",
-      { className: "graph-half" },
+      {
+        className: rightHalfClass,
+        style: isStep3 && step3AnimDone ? { border: step3RightBorder, borderRadius: "1vw", cursor: step3Correct ? "default" : "pointer" } : undefined,
+        onClick: isStep3 && step3AnimDone && !step3Correct
+          ? function () { handleStep3GraphClick("s2"); }
+          : undefined,
+      },
       e(
         "div",
         {
@@ -1366,8 +4047,8 @@ const MainCanvas = (props) => {
         },
         renderPopGraph("right"),
       ),
-      isA2 && feedbackSide === "right"
-        ? e("div", { className: "feedback-box" }, copy.steps.A2.feedbackS1)
+      isMcqStep && feedbackSide === "right"
+        ? e("div", { className: "feedback-box" }, mcqCopy.feedbackS1)
         : null,
     ),
   );
@@ -1428,42 +4109,413 @@ const MainCanvas = (props) => {
     renderMcqHalf("s2"),
   );
 
-  var mainButtons =     e(
+  function renderRangeBtn(id) {
+    var labels = {
+      pop: btns.rangePopulation,
+      s1: btns.rangeSample1,
+      s2: btns.rangeSample2,
+    };
+    var cfg = RANGE_CFG[id];
+    var gone = rangeGone[id];
+    var active = rangeActive === id;
+    var cls = "range-btn range-" + id;
+    if (gone) cls += " is-gone";
+    if (active) cls += " is-expanded";
+    if (active && showAnswerSlot) cls += " has-answer";
+    if (active && rangeCollapsed) cls += " is-collapsed";
+    var workingId = rangeActive || rangePending;
+    if (workingId && workingId !== id && !gone) cls += " is-dim";
+    var title = e("span", {
+      className: "range-btn-title",
+      dangerouslySetInnerHTML: { __html: labels[id] },
+    });
+    var kids = [title];
+    if (active && !gone) {
+      kids.push(e("span", { className: "range-eq", key: "eq1" }, "="));
+      function renderRangeValFlip(key, ref, flipped, frontChild, backText, onClick) {
+        return e(
+          "div",
+          {
+            key: key,
+            ref: ref,
+            className: "range-val-btn",
+            onClick: onClick,
+          },
+          e(
+            "div",
+            {
+              className:
+                "range-flip-inner" + (flipped ? " is-flipped" : ""),
+            },
+            e("div", { className: "range-flip-face range-flip-front" }, frontChild),
+            e("div", { className: "range-flip-face range-flip-back" }, backText),
+          ),
+        );
+      }
+      var midKids = [
+        renderRangeValFlip(
+          "high",
+          highBtnRef,
+          highClicked,
+          e("span", {
+            dangerouslySetInnerHTML: { __html: btns.highestValue },
+          }),
+          highValue !== null ? String(highValue) : "",
+          highValue === null ? handleHighestTap : undefined,
+        ),
+        e("span", { className: "range-minus", key: "minus" }, "−"),
+        renderRangeValFlip(
+          "low",
+          lowBtnRef,
+          lowClicked,
+          e("span", {
+            dangerouslySetInnerHTML: { __html: btns.lowestValue },
+          }),
+          lowValue !== null ? String(lowValue) : "",
+          lowValue === null ? handleLowestTap : undefined,
+        ),
+      ];
+      if (showAnswerSlot) {
+        midKids.push(e("span", { className: "range-eq", key: "eq2" }, "="));
+        midKids.push(
+          renderRangeValFlip(
+            "ans",
+            answerBtnRef,
+            answerFlipped,
+            "?",
+            String(cfg.result),
+            answerFlipped ? undefined : handleAnswerTap,
+          ),
+        );
+      }
+      kids.push(
+        e("div", { key: "mid", className: "range-formula-mid" }, midKids),
+      );
+      kids.push(
+        e(
+          "div",
+          { key: "res-slot", className: "range-result-slot" },
+          e(
+            "div",
+            {
+              ref: resultBtnRef,
+              className: "range-val-btn is-static filled " + cfg.resultClass,
+            },
+            String(cfg.result),
+          ),
+        ),
+      );
+    }
+    return e(
       "div",
-      { className: "main-buttons-row", key: "main-btns" },
+      {
+        key: "range-" + id,
+        ref: rangeBtnRefFor(id),
+        className: cls,
+        onClick:
+          !gone && !rangeActive && !rangePending && rangeReady && !rangeBusy
+            ? function () {
+                handleRangeClick(id);
+              }
+            : undefined,
+      },
+      kids,
+    );
+  }
+
+  var rangeButtons = e(
+    "div",
+    { className: "action-buttons-row", key: "range-btns" },
+    renderRangeBtn("pop"),
+    renderRangeBtn("s1"),
+    renderRangeBtn("s2"),
+  );
+
+  function renderMeanEq(eq, kind) {
+    eq = deriveMeanOps(eq, kind);
+    function fade(vis, val) {
+      var on = !!vis && (val === undefined || val !== "");
+      return { opacity: on ? 1 : 0 };
+    }
+    if (eq.sumOnly) {
+      return e("span", { className: "mean-eq-sum" }, eq.t);
+    }
+    if (kind === "den") {
+      return e(
+        "span",
+        { className: "mean-eq-line" },
+        e(
+          "span",
+          {
+            ref: eqDenARef,
+            className: "mean-eq-slot",
+            style: fade(eq.visA, eq.a),
+          },
+          eq.a || "\u00a0",
+        ),
+        e("span", { className: "mean-eq-op", style: fade(eq.visPlus) }, "+"),
+        e(
+          "span",
+          {
+            ref: eqDenBRef,
+            className: "mean-eq-slot",
+            style: fade(eq.visB, eq.b),
+          },
+          eq.b || "\u00a0",
+        ),
+        e("span", { className: "mean-eq-op", style: fade(eq.visEq) }, "="),
+        e(
+          "span",
+          { className: "mean-eq-slot", style: fade(eq.visT, eq.t) },
+          eq.t || "\u00a0",
+        ),
+      );
+    }
+    var kids = [
+      e(
+        "span",
+        {
+          key: "a",
+          ref: eqARef,
+          className: "mean-eq-slot",
+          style: fade(eq.visA, eq.a),
+        },
+        eq.a || "\u00a0",
+      ),
+    ];
+    if (!eq.leftIsSum) {
+      kids.push(
+        e("span", { key: "times", className: "mean-eq-op", style: fade(eq.visTimes) }, "×"),
+        e(
+          "span",
+          {
+            key: "m",
+            ref: eqMRef,
+            className: "mean-eq-slot",
+            style: fade(eq.visM, eq.m),
+          },
+          eq.m || "\u00a0",
+        ),
+      );
+    }
+    kids.push(
+      e("span", { key: "plus", className: "mean-eq-op", style: fade(eq.visPlus) }, "+"),
+      e(
+        "span",
+        {
+          key: "b",
+          ref: eqBRef,
+          className: "mean-eq-slot",
+          style: fade(eq.visB, eq.b),
+        },
+        eq.b || "\u00a0",
+      ),
+      e("span", { key: "bn", className: "mean-eq-op", style: fade(eq.visBn) }, "×"),
+      e(
+        "span",
+        {
+          key: "n",
+          ref: eqNRef,
+          className: "mean-eq-slot",
+          style: fade(eq.visN, eq.n),
+        },
+        eq.n || "\u00a0",
+      ),
+      e("span", { key: "eq", className: "mean-eq-op", style: fade(eq.visEq) }, "="),
+      e(
+        "span",
+        {
+          key: "t",
+          className: "mean-eq-slot",
+          style: fade(eq.visT, eq.t),
+        },
+        eq.t || "\u00a0",
+      ),
+    );
+    return e("span", { className: "mean-eq-line" }, kids);
+  }
+
+  function renderMeanFlip(key, ref, flipped, frontHtml, backChild, onClick) {
+    return e(
+      "div",
+      {
+        key: key,
+        ref: ref,
+        className: "range-val-btn mean-frac-btn",
+        onClick: onClick,
+      },
+      e(
+        "div",
+        {
+          className: "range-flip-inner" + (flipped ? " is-flipped" : ""),
+        },
+        e("div", {
+          className: "range-flip-face range-flip-front",
+          dangerouslySetInnerHTML: { __html: frontHtml },
+        }),
+        e("div", { className: "range-flip-face range-flip-back" }, backChild),
+      ),
+    );
+  }
+
+  function renderMeanBtn(id) {
+    var labels = {
+      pop: btns.meanPopulation,
+      s1: btns.meanSample1,
+      s2: btns.meanSample2,
+    };
+    var cfg = MEAN_CFG[id];
+    var gone = meanGone[id];
+    var active = meanActive === id;
+    var cls = "mean-btn mean-" + id;
+    if (gone) cls += " is-gone";
+    if (active) cls += " is-expanded";
+    if (active && meanShowAnswer) cls += " has-answer";
+    if (active && meanCollapsed) cls += " is-collapsed";
+    var workingId = meanActive || meanPending;
+    if (workingId && workingId !== id && !gone) cls += " is-dim";
+    var title = e("span", {
+      className: "mean-btn-title",
+      dangerouslySetInnerHTML: { __html: labels[id] },
+    });
+    var kids = [title];
+    if (active && !gone) {
+      kids.push(e("span", { className: "range-eq", key: "eq1" }, "="));
+      kids.push(
+        e(
+          "div",
+          { key: "frac", className: "mean-fraction" },
+          renderMeanFlip(
+            "num",
+            meanNumBtnRef,
+            meanNumFlipped,
+            btns.meanNumerator,
+            renderMeanEq(meanEq, "num"),
+            !meanNumFlipped && meanStage === "num"
+              ? handleMeanNumTap
+              : undefined,
+          ),
+          e("div", { key: "bar", className: "mean-frac-bar" }),
+          renderMeanFlip(
+            "den",
+            meanDenBtnRef,
+            meanDenFlipped,
+            btns.meanDenominator,
+            renderMeanEq(meanDenEq, "den"),
+            !meanDenFlipped && meanStage === "den"
+              ? handleMeanDenTap
+              : undefined,
+          ),
+        ),
+      );
+      var ansKids = [];
+      if (meanShowAnswer) {
+        ansKids.push(e("span", { className: "range-eq", key: "eq2" }, "="));
+        ansKids.push(
+          e(
+            "div",
+            {
+              key: "ans",
+              ref: meanAnsBtnRef,
+              className: "range-val-btn",
+              onClick: meanAnsFlipped ? undefined : handleMeanAnsTap,
+            },
+            e(
+              "div",
+              {
+                className:
+                  "range-flip-inner" + (meanAnsFlipped ? " is-flipped" : ""),
+              },
+              e("div", { className: "range-flip-face range-flip-front" }, "?"),
+              e(
+                "div",
+                { className: "range-flip-face range-flip-back" },
+                String(cfg.mean),
+              ),
+            ),
+          ),
+        );
+      }
+      kids.push(
+        e("div", { key: "mid", className: "mean-formula-mid" }, ansKids),
+      );
+      kids.push(
+        e(
+          "div",
+          { key: "res-slot", className: "range-result-slot" },
+          e(
+            "div",
+            {
+              ref: meanResultRef,
+              className: "range-val-btn is-static filled " + cfg.resultClass,
+            },
+            String(cfg.mean),
+          ),
+        ),
+      );
+    }
+    return e(
+      "div",
+      {
+        key: "mean-" + id,
+        ref: meanBtnRefFor(id),
+        className: cls,
+        onClick:
+          !gone && !meanActive && !meanPending && meanReady && !meanBusy
+            ? function () {
+                handleMeanClick(id);
+              }
+            : undefined,
+      },
+      kids,
+    );
+  }
+
+  var meanButtons = e(
+    "div",
+    { className: "action-buttons-row", key: "mean-btns" },
+    renderMeanBtn("pop"),
+    renderMeanBtn("s1"),
+    renderMeanBtn("s2"),
+  );
+
+  var mainButtons = e(
+    "div",
+    { className: "main-buttons-row", key: "main-btns" },
     e(
       "button",
       {
         ref: shapeBtnRef,
         className: mainBtnClass("shape"),
-        onClick:
-          isStep2 && !shapeExplored
-            ? function () {
-                handleMainClick("shape");
-              }
-            : undefined,
+        onClick: canClickMain("shape")
+          ? function () {
+              handleMainClick("shape");
+            }
+          : undefined,
       },
-      e("span", {
-        className: "main-btn-label",
-      }, shapeExplored ? btns.shapeWithColon : btns.shape),
-      showResultBoxes
+      e(
+        "span",
+        { className: "main-btn-label" },
+        showShapeResultBoxes ? btns.shapeWithColon : btns.shape,
+      ),
+      showShapeResultBoxes
         ? e(
             "span",
             {
-              ref: s1BoxRef,
+              ref: shapeS1BoxRef,
               className: "result-box s1",
-              style: { opacity: showS1Box ? 1 : 0 },
+              style: { opacity: showShapeS1Box || isStep3 ? 1 : 0 },
             },
             btns.s1Fail,
           )
         : null,
-      showResultBoxes
+      showShapeResultBoxes
         ? e(
             "span",
             {
-              ref: s2BoxRef,
+              ref: shapeS2BoxRef,
               className: "result-box s2",
-              style: { opacity: showS2Box ? 1 : 0 },
+              style: { opacity: showShapeS2Box || isStep3 ? 1 : 0 },
             },
             btns.s2Pass,
           )
@@ -1474,38 +4526,226 @@ const MainCanvas = (props) => {
       {
         ref: centreBtnRef,
         className: mainBtnClass("centre"),
-        onClick:
-          isStep2 || isA3
-            ? function () {
-                handleMainClick("centre");
-              }
-            : undefined,
+        onClick: canClickMain("centre")
+          ? function () {
+              handleMainClick("centre");
+            }
+          : undefined,
       },
-      btns.centre,
+      e(
+        "span",
+        { className: "main-btn-label" },
+        showCentreResultBoxes ? btns.centreWithColon : btns.centre,
+      ),
+      showCentreResultBoxes
+        ? e(
+            "span",
+            {
+              ref: centreS1BoxRef,
+              className: "result-box s1",
+              style: { opacity: showCentreS1Box || isStep3 ? 1 : 0 },
+            },
+            btns.s1Fail,
+          )
+        : null,
+      showCentreResultBoxes
+        ? e(
+            "span",
+            {
+              ref: centreS2BoxRef,
+              className: "result-box s2",
+              style: { opacity: showCentreS2Box || isStep3 ? 1 : 0 },
+            },
+            btns.s2Pass,
+          )
+        : null,
     ),
     e(
       "button",
       {
         ref: spreadBtnRef,
         className: mainBtnClass("spread"),
-        onClick:
-          isStep2 || isA3
-            ? function () {
-                handleMainClick("spread");
-              }
-            : undefined,
+        onClick: canClickMain("spread")
+          ? function () {
+              handleMainClick("spread");
+            }
+          : undefined,
       },
-      btns.spread,
+      e(
+        "span",
+        { className: "main-btn-label" },
+        showSpreadResultBoxes ? btns.spreadWithColon : btns.spread,
+      ),
+      showSpreadResultBoxes
+        ? e(
+            "span",
+            {
+              ref: spreadS1BoxRef,
+              className: "result-box s1",
+              style: { opacity: showSpreadS1Box || isStep3 ? 1 : 0 },
+            },
+            btns.s1Fail,
+          )
+        : null,
+      showSpreadResultBoxes
+        ? e(
+            "span",
+            {
+              ref: spreadS2BoxRef,
+              className: "result-box s2",
+              style: { opacity: showSpreadS2Box || isStep3 ? 1 : 0 },
+            },
+            btns.s2Pass,
+          )
+        : null,
     ),
   );
 
+  var step3Table = isStep3
+    ? e(
+        "div",
+        {
+          ref: step3TableRef,
+          className: "step3-table",
+          style: { opacity: step3TableVisible ? 1 : 0, position: "absolute", width: "34vw", left: "50%", top: "50%", transform: "translate(-50%, -50%)" },
+        },
+        e(
+          "div",
+          { className: "step3-header-row" },
+          e("div", { className: "step3-cell step3-cell-label" }),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-sample-col step3-sample1-col",
+            },
+            copy.sample1Label.replace(":", ""),
+          ),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-sample-col step3-sample2-col",
+            },
+            copy.sample2Label.replace(":", ""),
+          ),
+        ),
+        e(
+          "div",
+          { className: "step3-data-row" },
+          e("div", { className: "step3-cell step3-cell-label" }, btns.shape),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-fail step3-sample-col step3-sample1-col" +
+                "",
+            },
+            btns.fail,
+          ),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-pass step3-sample-col step3-sample2-col" +
+                "",
+            },
+            btns.pass,
+          ),
+        ),
+        e(
+          "div",
+          { className: "step3-data-row" },
+          e("div", { className: "step3-cell step3-cell-label" }, btns.centre),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-fail step3-sample-col step3-sample1-col" +
+                "",
+            },
+            btns.fail,
+          ),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-pass step3-sample-col step3-sample2-col" +
+                "",
+            },
+            btns.pass,
+          ),
+        ),
+        e(
+          "div",
+          { className: "step3-data-row" },
+          e("div", { className: "step3-cell step3-cell-label" }, btns.spread),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-fail step3-sample-col step3-sample1-col" +
+                "",
+            },
+            btns.fail,
+          ),
+          e(
+            "div",
+            {
+              className:
+                "step3-cell step3-pass step3-sample-col step3-sample2-col" +
+                "",
+            },
+            btns.pass,
+          ),
+        ),
+        e("div", {
+          ref: step3ColOverlayRef,
+          className: "step3-col-overlay",
+          style: { display: "none" },
+        }),
+      )
+    : null;
+
+  var step3FeedbackBox = isStep3 && step3Feedback
+    ? e(
+        "div",
+        {
+          className: "step3-feedback-box " + (step3Feedback === "correct" ? "correct" : "wrong"),
+          style: { position: "absolute", right: "2vw", top: "50%", transform: "translateY(-50%)", width: "22vw" },
+        },
+        step3Feedback === "correct"
+          ? copy.steps[3].correctS2Feedback
+          : copy.steps[3].wrongS1Feedback,
+      )
+    : null;
+
   var actionInner = null;
-  if (showSamplesPanel) {
+  if (isStep3) {
+    var placeholderTopRow = e("div", {
+      className: "action-buttons-row",
+      key: "action-empty",
+      style: { visibility: "hidden" },
+    });
+    var step3MainBtnsWrapper = e(
+      "div",
+      {
+        key: "main-btns-s3-wrap",
+        style: step3HideMainBtns
+          ? { opacity: 0, pointerEvents: "none", transition: "opacity 0.3s ease" }
+          : { transition: "opacity 0.3s ease" },
+      },
+      mainButtons,
+    );
+    actionInner = [placeholderTopRow, step3MainBtnsWrapper, step3Table, step3FeedbackBox];
+  } else if (showSamplesPanel) {
     actionInner = samplesRow;
   } else if (showButtonRows) {
     var topRow = null;
     if (isA1) topRow = drawButtons;
-    else if (isA2) topRow = mcqRow;
+    else if (isA2 || isC2 || isB2) topRow = mcqRow;
+    else if (isC1 && !rangeAllDone) topRow = rangeButtons;
+    else if (isB1 && !meanAllDone) topRow = meanButtons;
     else topRow = e("div", { className: "action-buttons-row", key: "action-empty" });
     actionInner = [topRow, mainButtons];
   }
@@ -1558,19 +4798,114 @@ const MainCanvas = (props) => {
       }),
     );
   }
-  if (isA3) {
+  if (showRangeNudges && isC1 && !rangeBusy && !rangeActive && !rangePending) {
     nudges.push(
       e(Nudge, {
-        key: "n-a3-centre",
-        targetRef: centreBtnRef,
-        active: true,
+        key: "n-range-pop",
+        targetRef: rangePopBtnRef,
+        active: !rangeGone.pop,
       }),
       e(Nudge, {
-        key: "n-a3-spread",
-        targetRef: spreadBtnRef,
-        active: true,
+        key: "n-range-s1",
+        targetRef: rangeS1BtnRef,
+        active: !rangeGone.s1,
+      }),
+      e(Nudge, {
+        key: "n-range-s2",
+        targetRef: rangeS2BtnRef,
+        active: !rangeGone.s2,
       }),
     );
+  }
+  if (isC1 && showHighNudge) {
+    nudges.push(
+      e(Nudge, { key: "n-high", targetRef: highBtnRef, active: true }),
+    );
+  }
+  if (isC1 && showLowNudge) {
+    nudges.push(
+      e(Nudge, { key: "n-low", targetRef: lowBtnRef, active: true }),
+    );
+  }
+  if (isC1 && showAnswerNudge) {
+    nudges.push(
+      e(Nudge, { key: "n-ans", targetRef: answerBtnRef, active: true }),
+    );
+  }
+  if (showMeanNudges && isB1 && !meanBusy && !meanActive && !meanPending) {
+    nudges.push(
+      e(Nudge, {
+        key: "n-mean-pop",
+        targetRef: meanPopBtnRef,
+        active: !meanGone.pop,
+      }),
+      e(Nudge, {
+        key: "n-mean-s1",
+        targetRef: meanS1BtnRef,
+        active: !meanGone.s1,
+      }),
+      e(Nudge, {
+        key: "n-mean-s2",
+        targetRef: meanS2BtnRef,
+        active: !meanGone.s2,
+      }),
+    );
+  }
+  if (isB1 && showMeanNumNudge) {
+    nudges.push(
+      e(Nudge, { key: "n-mean-num", targetRef: meanNumBtnRef, active: true }),
+    );
+  }
+  if (isB1 && showMeanDenNudge) {
+    nudges.push(
+      e(Nudge, { key: "n-mean-den", targetRef: meanDenBtnRef, active: true }),
+    );
+  }
+  if (isB1 && showMeanAnsNudge) {
+    nudges.push(
+      e(Nudge, {
+        key: "n-mean-ans",
+        targetRef: meanAnsBtnRef,
+        active: true,
+        delay: 550,
+      }),
+    );
+  }
+  if (isA3) {
+    if (remainingTests.indexOf("centre") !== -1) {
+      nudges.push(
+        e(Nudge, { key: "n-a3-centre", targetRef: centreBtnRef, active: true }),
+      );
+    }
+    if (remainingTests.indexOf("spread") !== -1) {
+      nudges.push(
+        e(Nudge, { key: "n-a3-spread", targetRef: spreadBtnRef, active: true }),
+      );
+    }
+  }
+  if (isC3) {
+    if (remainingTests.indexOf("shape") !== -1) {
+      nudges.push(
+        e(Nudge, { key: "n-c3-shape", targetRef: shapeBtnRef, active: true }),
+      );
+    }
+    if (remainingTests.indexOf("centre") !== -1) {
+      nudges.push(
+        e(Nudge, { key: "n-c3-centre", targetRef: centreBtnRef, active: true }),
+      );
+    }
+  }
+  if (isB3) {
+    if (remainingTests.indexOf("shape") !== -1) {
+      nudges.push(
+        e(Nudge, { key: "n-b3-shape", targetRef: shapeBtnRef, active: true }),
+      );
+    }
+    if (remainingTests.indexOf("spread") !== -1) {
+      nudges.push(
+        e(Nudge, { key: "n-b3-spread", targetRef: spreadBtnRef, active: true }),
+      );
+    }
   }
 
   return e(

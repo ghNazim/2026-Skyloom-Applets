@@ -5,6 +5,14 @@ function getProgress(step) {
   if (step === "A1") return 3;
   if (step === "A2") return 4;
   if (step === "A3") return 5;
+  if (step === "C1") return 6;
+  if (step === "C2") return 7;
+  if (step === "C3") return 8;
+  if (step === "B1") return 9;
+  if (step === "B2") return 10;
+  if (step === "B3") return 11;
+  if (step === 3) return 12;
+  if (step === 4) return 13;
   return 0;
 }
 
@@ -12,6 +20,10 @@ function getNextStep(step) {
   if (step === 1) return 2;
   if (step === "A1") return "A2";
   if (step === "A2") return "A3";
+  if (step === "C1") return "C2";
+  if (step === "C2") return "C3";
+  if (step === "B1") return "B2";
+  if (step === "B2") return "B3";
   return step;
 }
 
@@ -20,7 +32,30 @@ function getPrevStep(step) {
   if (step === "A1") return 2;
   if (step === "A2") return "A1";
   if (step === "A3") return "A2";
+  if (step === "C1") return 2;
+  if (step === "C2") return "C1";
+  if (step === "C3") return "C2";
+  if (step === "B1") return 2;
+  if (step === "B2") return "B1";
+  if (step === "B3") return "B2";
   return step;
+}
+
+function remainingNavText(remaining, stepData) {
+  var hasShape = remaining.indexOf("shape") !== -1;
+  var hasCentre = remaining.indexOf("centre") !== -1;
+  var hasSpread = remaining.indexOf("spread") !== -1;
+  var count = (hasShape ? 1 : 0) + (hasCentre ? 1 : 0) + (hasSpread ? 1 : 0);
+  if (count === 0) return "";
+  if (count === 1) {
+    if (hasCentre) return stepData.navCentreOnly;
+    if (hasSpread) return stepData.navSpreadOnly;
+    return stepData.navShapeOnly;
+  }
+  if (hasCentre && hasSpread && !hasShape) return stepData.navCentreOrSpread;
+  if (hasShape && hasCentre && !hasSpread) return stepData.navShapeOrCentre;
+  if (hasShape && hasSpread && !hasCentre) return stepData.navShapeOrSpread;
+  return stepData.navCentreOrSpread;
 }
 
 const App = () => {
@@ -35,7 +70,12 @@ const App = () => {
   const [startAtFinal, setStartAtFinal] = useState(false);
   const [farthestProgress, setFarthestProgress] = useState(0);
   const [nextNudgeDismissed, setNextNudgeDismissed] = useState(false);
-  const [remainingTests, setRemainingTests] = useState(["centre", "spread"]);
+  const [remainingTests, setRemainingTests] = useState([
+    "shape",
+    "centre",
+    "spread",
+  ]);
+  const [completedTests, setCompletedTests] = useState([]);
 
   const fullscreenButtonRef = useRef(null);
   const nextButtonRef = useRef(null);
@@ -44,9 +84,18 @@ const App = () => {
 
   const isCatchingUp = useCallback(
     function () {
+      if (currentStep === "A1" || currentStep === "A2" || currentStep === "A3") {
+        return completedTests.indexOf("shape") !== -1;
+      }
+      if (currentStep === "B1" || currentStep === "B2" || currentStep === "B3") {
+        return completedTests.indexOf("centre") !== -1;
+      }
+      if (currentStep === "C1" || currentStep === "C2" || currentStep === "C3") {
+        return completedTests.indexOf("spread") !== -1;
+      }
       return getProgress(currentStep) < farthestProgress - 1e-6;
     },
-    [currentStep, farthestProgress],
+    [currentStep, farthestProgress, completedTests],
   );
 
   const handleStart = () => {
@@ -54,6 +103,20 @@ const App = () => {
     setFarthestProgress(1);
     setStartAtFinal(false);
     setCurrentStep(1);
+  };
+
+  const handleStartOver = () => {
+    if (typeof playSound === "function") playSound("click");
+    setCurrentStep(0);
+    setFarthestProgress(0);
+    setIsNextDisabled(true);
+    setNavLocked(false);
+    setDynamicNavText(null);
+    setDynamicQuestionText(null);
+    setStartAtFinal(false);
+    setRemainingTests(["shape", "centre", "spread"]);
+    setCompletedTests([]);
+    setResetKey(function (k) { return k + 1; });
   };
 
   const setNextEnabled = useCallback(function (enabled) {
@@ -83,13 +146,66 @@ const App = () => {
         });
       } else if (currentStep === 2) {
         setIsNextDisabled(true);
-      } else if (currentStep === "A1" || currentStep === "A2") {
+      } else if (
+        currentStep === "A1" ||
+        currentStep === "A2" ||
+        currentStep === "C1" ||
+        currentStep === "C2" ||
+        currentStep === "B1" ||
+        currentStep === "B2"
+      ) {
         setIsNextDisabled(true);
       } else if (currentStep === "A3") {
         setIsNextDisabled(true);
         setNavLocked(false);
+        setCompletedTests(function (prev) {
+          return prev.indexOf("shape") === -1 ? prev.concat("shape") : prev;
+        });
+        setRemainingTests(function (prev) {
+          return prev.filter(function (id) {
+            return id !== "shape";
+          });
+        });
         setFarthestProgress(function (prev) {
           return Math.max(prev, 5);
+        });
+      } else if (currentStep === "C3") {
+        setIsNextDisabled(true);
+        setNavLocked(false);
+        setCompletedTests(function (prev) {
+          return prev.indexOf("spread") === -1 ? prev.concat("spread") : prev;
+        });
+        setRemainingTests(function (prev) {
+          return prev.filter(function (id) {
+            return id !== "spread";
+          });
+        });
+        setFarthestProgress(function (prev) {
+          return Math.max(prev, 8);
+        });
+      } else if (currentStep === "B3") {
+        setIsNextDisabled(true);
+        setNavLocked(false);
+        setCompletedTests(function (prev) {
+          return prev.indexOf("centre") === -1 ? prev.concat("centre") : prev;
+        });
+        setRemainingTests(function (prev) {
+          return prev.filter(function (id) {
+            return id !== "centre";
+          });
+        });
+        setFarthestProgress(function (prev) {
+          return Math.max(prev, 11);
+        });
+      } else if (currentStep === 3) {
+        setIsNextDisabled(true);
+        setNavLocked(false);
+        setFarthestProgress(function (prev) {
+          return Math.max(prev, 12);
+        });
+      } else if (currentStep === 4) {
+        setFarthestProgress(function (prev) {
+          return Math.max(prev, 13);
         });
       }
     },
@@ -119,6 +235,26 @@ const App = () => {
 
     var catchingUp = isCatchingUp();
     var nextStep = getNextStep(currentStep);
+
+    if (
+      (currentStep === "A2" || currentStep === "B2" || currentStep === "C2") &&
+      completedTests.length >= 2
+    ) {
+      var lastTest =
+        currentStep === "A2" ? "shape" : currentStep === "B2" ? "centre" : "spread";
+      var allDone =
+        completedTests.indexOf(lastTest) !== -1
+          ? completedTests.length >= 3
+          : completedTests.length >= 2;
+      if (allDone) {
+        nextStep = 3;
+      }
+    }
+
+    if (currentStep === 3) {
+      nextStep = 4;
+    }
+
     if (nextStep === currentStep) return;
 
     setStartAtFinal(catchingUp);
@@ -140,15 +276,15 @@ const App = () => {
 
   const handleSelectTest = useCallback(
     function (testId) {
-      if (testId === "shape") {
-        var catchingUp = getProgress("A1") < farthestProgress - 1e-6;
-        setStartAtFinal(catchingUp);
-        setDynamicNavText(null);
-        setDynamicQuestionText(null);
-        setCurrentStep("A1");
-      }
+      var alreadyDone = completedTests.indexOf(testId) !== -1;
+      setStartAtFinal(alreadyDone);
+      setDynamicNavText(null);
+      setDynamicQuestionText(null);
+      if (testId === "shape") setCurrentStep("A1");
+      else if (testId === "centre") setCurrentStep("B1");
+      else if (testId === "spread") setCurrentStep("C1");
     },
-    [farthestProgress],
+    [completedTests],
   );
 
   const updateNavText = useCallback(function (nav) {
@@ -173,16 +309,24 @@ const App = () => {
     }
     const stepData = APP_DATA.steps[currentStep];
     if (!stepData) return "";
-    if (currentStep === "A3") {
-      if (
-        remainingTests.indexOf("centre") !== -1 &&
-        remainingTests.indexOf("spread") !== -1
-      ) {
-        return stepData.navCentreOrSpread;
+    if (currentStep === "A3" || currentStep === "C3" || currentStep === "B3") {
+      var remaining = remainingTests.slice();
+      if (currentStep === "A3") {
+        remaining = remaining.filter(function (id) {
+          return id !== "shape";
+        });
       }
-      if (remainingTests.indexOf("centre") !== -1) return stepData.navCentreOnly;
-      if (remainingTests.indexOf("spread") !== -1) return stepData.navSpreadOnly;
-      return stepData.navCentreOrSpread;
+      if (currentStep === "C3") {
+        remaining = remaining.filter(function (id) {
+          return id !== "spread";
+        });
+      }
+      if (currentStep === "B3") {
+        remaining = remaining.filter(function (id) {
+          return id !== "centre";
+        });
+      }
+      return remainingNavText(remaining, stepData);
     }
     return stepData.navText || "";
   };
@@ -190,7 +334,26 @@ const App = () => {
   var canvasGroup = currentStep === 1 ? "s1" : "flow";
   var mainCanvasKey = resetKey + "-" + canvasGroup;
 
-  var isPrevDisabled = currentStep === 1 || navLocked;
+  var isPrevDisabled = currentStep === 1 || currentStep === 3 || navLocked;
+
+  if (currentStep === 4) {
+    return React.createElement(
+      "div",
+      { className: "applet-container" },
+      React.createElement(
+        "div",
+        { className: "app-main-content", style: { position: "relative" } },
+        React.createElement(Fullscreen, {
+          heading: APP_DATA.steps[4].heading,
+          text: APP_DATA.steps[4].text,
+          buttonText: APP_DATA.steps[4].buttonText,
+          onButtonClick: handleStartOver,
+          buttonRef: fullscreenButtonRef,
+          left: true,
+        }),
+      ),
+    );
+  }
 
   if (currentStep === 0) {
     return React.createElement(
@@ -232,6 +395,7 @@ const App = () => {
         step: currentStep,
         startAtFinal: startAtFinal,
         remainingTests: remainingTests,
+        completedTests: completedTests,
         onSetNextEnabled: setNextEnabled,
         onSetNavLocked: setNavLock,
         onUpdateNavText: updateNavText,
