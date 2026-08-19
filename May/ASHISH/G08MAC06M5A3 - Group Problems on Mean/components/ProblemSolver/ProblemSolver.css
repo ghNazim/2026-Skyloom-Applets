@@ -79,6 +79,7 @@
   justify-content: center;
   gap: 0.7vw;
   font-size: 2.5vw;
+  padding: 0 0.3vw;
 }
 
 .problem-question__copy {
@@ -522,6 +523,11 @@
   transform-origin: bottom center;
 }
 
+.explain-arrow.problem3{
+  /* transform: scaleY(1.5); */
+  height: 13.3vw;
+  width: auto;
+}
 .explain-card--target-a .explain-arrow {
   left: 20%;
 }
@@ -533,6 +539,8 @@
 .explain-card--target-final .explain-arrow {
   left: 88%;
 }
+
+
 
 @keyframes arrowNudge {
   0% {

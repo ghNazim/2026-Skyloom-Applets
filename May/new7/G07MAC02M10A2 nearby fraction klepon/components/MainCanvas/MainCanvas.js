@@ -84,7 +84,7 @@ function NumberLine({ y, color = LINE_TAN, fullTenths = true, benchmarkValues = 
 
   return React.createElement(
     "g",
-    { className: "number-line" },
+    { className: "number-line", style: { pointerEvents: "none" } },
     React.createElement("line", {
       x1: NL_START - 52,
       y1: y,
@@ -302,6 +302,27 @@ const MainCanvas = ({
     if (onHideNudge) onHideNudge();
   };
 
+  const handleLineClick = (e) => {
+    if (!isLocateStep || isDragging) return;
+    e.preventDefault();
+    const pt = svgPoint(e);
+    const nextMark = snapToMark(pt.x);
+    if (nextMark <= 0 || nextMark >= flow.denominator) return;
+    stopShake();
+    setMark(nextMark);
+    setHasDropped(true);
+    if (onHideNudge) onHideNudge();
+    if (nextMark === flow.numerator) {
+      playSnd("correct");
+      setFeedback({ type: "correct", text: flow.placeCorrect });
+      if (onCompleteTenthsPlacement) onCompleteTenthsPlacement();
+    } else {
+      playSnd("wrong");
+      setFeedback({ type: "wrong", text: flow.placeWrong });
+      startShake();
+    }
+  };
+
   const handleShowBenchmarks = () => {
     playSnd("click");
     setShowBenchmarks(true);
@@ -464,6 +485,15 @@ const MainCanvas = ({
           preserveAspectRatio: "none",
         },
         renderDefs(),
+        React.createElement("rect", {
+          x: NL_START - 20,
+          y: y - 60,
+          width: NL_LEN + 40,
+          height: 120,
+          fill: "transparent",
+          style: { cursor: "pointer" },
+          onPointerDown: handleLineClick,
+        }),
         React.createElement(NumberLine, { y, color: LINE_TAN, fullTenths: true, divisions: flow.denominator }),
         showFraction && hasDropped
           ? React.createElement(

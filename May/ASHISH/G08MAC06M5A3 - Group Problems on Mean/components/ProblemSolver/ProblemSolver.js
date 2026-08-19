@@ -89,7 +89,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
     if (phase === "solve")
       text =
         formulaChosen && currentSolve && solved[currentSolve.field]
-          ? ""
+          ? " "
           : formulaChosen
             ? formatText(T.ui.revealPrompt, {
                 equation: localizeMathText(currentSolve.display),
@@ -107,27 +107,34 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
         .filter((value) => value !== undefined && value !== null)
         .map((value) => String(value)),
     );
-    const sortedHighlights = [...highlights].sort(
+    const localizedHighlights = highlights.map((v) => localizeMathText(v));
+    const allVariants = [...new Set([...highlights, ...localizedHighlights])];
+    const sortedHighlights = [...allVariants].sort(
       (a, b) => b.length - a.length,
     );
     const pattern = new RegExp(
-      `(${sortedHighlights.map((v) => v.replace(".", "\\.")).join("|")})`,
+      `(${sortedHighlights.map((v) => v.replace(/[.,]/g, "\\$&")).join("|")})`,
       "g",
     );
     const parts = question.split(pattern);
+    const originalValueFor = (part) => {
+      const idx = localizedHighlights.indexOf(part);
+      return idx !== -1 ? highlights[idx] : part;
+    };
     return parts.map((part, index) => {
       const isHighlight =
         sortedHighlights.includes(part) || highlights.includes(part);
       if (!isHighlight) return part;
-      const tone = countValues.has(part) ? "count" : "mean";
+      const originalValue = originalValueFor(part);
+      const tone = countValues.has(originalValue) ? "count" : "mean";
       return h(
         "span",
         {
           key: index,
           className: `question-highlight question-highlight--${tone}`,
-          "data-highlight-value": part,
+          "data-highlight-value": originalValue,
         },
-        localizeMathText(part),
+        localizeMathText(originalValue),
       );
     });
   };
@@ -146,6 +153,7 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
 
     const flyDuration = 700;
     const gapBetween = 380;
+    const flownValues = new Set();
 
     const flyOne = (index) => {
       if (index >= sources.length) {
@@ -157,10 +165,11 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
       const target = root.querySelector(
         `.option-button--number[data-option-value="${value}"]`,
       );
-      if (!target) {
+      if (!target || flownValues.has(value)) {
         flyOne(index + 1);
         return;
       }
+      flownValues.add(value);
       playSfx("swoosh");
       triggerGhost({
         sourceEl: source,
@@ -690,6 +699,8 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
       }
       if (formulaChosen) {
         if (solved[currentSolve.field]) {
+          if (solveIndex === problem.solve.length - 1)
+            return { __html: T.ui[`answer_${problem.id}`] };
           return { __html: revealedFormulaHtml(currentSolve) };
         }
         return {
@@ -851,8 +862,8 @@ const ProblemSolver = ({ problem, onComplete, onInstruction, playSfx, initialSta
             className: `explain-card explain-card--field-${toFindField} explain-card--target-${toFindTone}`,
           },
           h("img", {
-            className: "explain-arrow",
-            src: "./assets/arrow.svg",
+            className: `explain-arrow${problem.id === "domi" ? " problem3" : ""}`,
+            src: problem.id === "domi" ? "./assets/arrow2.png" : "./assets/arrow.svg",
             alt: "",
           }),
           h("p", {

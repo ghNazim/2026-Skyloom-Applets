@@ -51,47 +51,41 @@ function meanStats(values) {
   };
 }
 
-function deriveMeanOps(eq, kind) {
-  if (!eq || eq.sumOnly) return eq;
-  var aOn = !!(eq.visA && eq.a !== "");
-  var mOn = !!(eq.visM && eq.m !== "");
-  var bOn = !!(eq.visB && eq.b !== "");
-  var nOn = !!(eq.visN && eq.n !== "");
-  var tOn = !!(eq.visT && eq.t !== "");
-  var visTimes = aOn && mOn ? 1 : 0;
-  var visBn = bOn && nOn ? 1 : 0;
-  var leftPlus = kind === "den" || eq.leftIsSum ? aOn : mOn ? !!visTimes : aOn;
-  var rightPlus = kind === "den" ? bOn : !!visBn;
-  return Object.assign({}, eq, {
-    visTimes: visTimes,
-    visBn: visBn,
-    visPlus: leftPlus && rightPlus ? 1 : 0,
-    visEq: tOn ? 1 : 0,
+function fmtNum(val) {
+  var s = val === null || val === undefined ? "" : String(val);
+  if (typeof current_language !== "undefined" && current_language === "id") {
+    // Indonesian: use comma for decimals
+    if (s.indexOf(".") !== -1) s = s.replace(/\./g, ",");
+  }
+  return s;
+}
+
+function cloneMeanTerms(terms) {
+  return (terms || []).map(function (term) {
+    return Object.assign({}, term);
   });
 }
 
+function emptyNumTerm(open) {
+  return { x: "", f: "", visX: 0, visF: 0, open: !!open };
+}
+
+function emptyDenTerm(open) {
+  return { f: "", visF: 0, open: !!open };
+}
+
 var EMPTY_MEAN_EQ = {
-  a: "",
-  m: "",
-  b: "",
-  n: "",
+  terms: [],
   t: "",
-  visA: 0,
-  visTimes: 0,
-  visM: 0,
-  visPlus: 0,
-  visB: 0,
-  visBn: 0,
-  visN: 0,
-  visEq: 0,
   visT: 0,
+  visInner: 0,
   sumOnly: false,
-  leftIsSum: false,
 };
 
-var ARROW_Y_POP = 11.2;
+var ARROW_Y_POP = 10.25;
 var ARROW_Y_SAMPLE = 4.35;
-var RANGE_VLINE_COLOR = "#7ee7f2";
+var GRAPH_HIDE_MS = 450;
+var GRAPH_SLIDE_MS = 700;
 
 function graphLayout(svgH, yMax) {
   var pW = SVG_W - ML - MR;
@@ -261,10 +255,12 @@ const MainCanvas = (props) => {
       id: "pop",
       graph: "left",
       hideSample: true,
+      hidePop: false,
       min: dataRange(GRAPH_DATA.population).min,
       max: dataRange(GRAPH_DATA.population).max,
       result: dataRange(GRAPH_DATA.population).result,
       arrow: "#8fd4ee",
+      vline: "#7ee7f2",
       valueFill: "#1d4e89",
       resultClass: "result-blue",
     },
@@ -272,10 +268,12 @@ const MainCanvas = (props) => {
       id: "s1",
       graph: "left",
       hideSample: false,
+      hidePop: true,
       min: dataRange(GRAPH_DATA.sample1).min,
       max: dataRange(GRAPH_DATA.sample1).max,
       result: dataRange(GRAPH_DATA.sample1).result,
       arrow: "#f07090",
+      vline: "#ff9ec8",
       valueFill: "#c4455c",
       resultClass: "result-s1",
     },
@@ -283,10 +281,12 @@ const MainCanvas = (props) => {
       id: "s2",
       graph: "right",
       hideSample: false,
+      hidePop: true,
       min: dataRange(GRAPH_DATA.sample2).min,
       max: dataRange(GRAPH_DATA.sample2).max,
       result: dataRange(GRAPH_DATA.sample2).result,
       arrow: "#f0a030",
+      vline: "#ffe066",
       valueFill: "#c4841a",
       resultClass: "result-s2",
     },
@@ -319,7 +319,7 @@ const MainCanvas = (props) => {
       sumXF: s1Mean.sumXF,
       sumF: s1Mean.sumF,
       mean: s1Mean.mean,
-      line: "#f07090",
+      line: "#ff9ec8",
       valueFill: "#c4455c",
       resultClass: "result-s1",
       bright: "#ff8aa0",
@@ -333,7 +333,7 @@ const MainCanvas = (props) => {
       sumXF: s2Mean.sumXF,
       sumF: s2Mean.sumF,
       mean: s2Mean.mean,
-      line: "#f0a030",
+      line: "#ffe066",
       valueFill: "#c4841a",
       resultClass: "result-s2",
       bright: "#ffd166",
@@ -499,9 +499,18 @@ const MainCanvas = (props) => {
   var c1Final = isC1 && startAtFinal;
   var rangeDoneInit = c1Final || isC2 || isC3;
 
-  var _graphFocus = useState("both");
-  var graphFocus = _graphFocus[0];
-  var setGraphFocus = _graphFocus[1];
+  var _centerLeft = useState(false);
+  var centerLeft = _centerLeft[0];
+  var setCenterLeft = _centerLeft[1];
+  var _centerRight = useState(false);
+  var centerRight = _centerRight[0];
+  var setCenterRight = _centerRight[1];
+  var _hideLeftGraph = useState(false);
+  var hideLeftGraph = _hideLeftGraph[0];
+  var setHideLeftGraph = _hideLeftGraph[1];
+  var _hideRightGraph = useState(false);
+  var hideRightGraph = _hideRightGraph[0];
+  var setHideRightGraph = _hideRightGraph[1];
   var _hideLeftSample = useState(false);
   var hideLeftSample = _hideLeftSample[0];
   var setHideLeftSample = _hideLeftSample[1];
@@ -777,6 +786,8 @@ const MainCanvas = (props) => {
   var step3TableRef = useRef(null);
   var step3ColOverlayRef = useRef(null);
   var step3AnimTriesRef = useRef(0);
+  var leftHalfRef = useRef(null);
+  var rightHalfRef = useRef(null);
 
   var introRef = useRef(null);
   var leftSvgRef = useRef(null);
@@ -805,6 +816,13 @@ const MainCanvas = (props) => {
   var drawS2BtnRef = useRef(null);
   var s1FailBtnRef = useRef(null);
   var s2PassBtnRef = useRef(null);
+  var mcqS1HalfRef = useRef(null);
+  var mcqS2HalfRef = useRef(null);
+  var mcqIdleTimerRef = useRef(null);
+  var mcqTargetRef = useRef(mcqTarget);
+  mcqTargetRef.current = mcqTarget;
+  var mcqBusyRef = useRef(mcqBusy);
+  mcqBusyRef.current = mcqBusy;
   var shapeS1BoxRef = useRef(null);
   var shapeS2BoxRef = useRef(null);
   var spreadS1BoxRef = useRef(null);
@@ -815,20 +833,17 @@ const MainCanvas = (props) => {
   var highBtnRef = useRef(null);
   var lowBtnRef = useRef(null);
   var answerBtnRef = useRef(null);
-  var resultBtnRef = useRef(null);
   var meanPopBtnRef = useRef(null);
   var meanS1BtnRef = useRef(null);
   var meanS2BtnRef = useRef(null);
   var meanNumBtnRef = useRef(null);
   var meanDenBtnRef = useRef(null);
   var meanAnsBtnRef = useRef(null);
-  var meanResultRef = useRef(null);
   var eqARef = useRef(null);
   var eqMRef = useRef(null);
-  var eqBRef = useRef(null);
-  var eqNRef = useRef(null);
   var eqDenARef = useRef(null);
-  var eqDenBRef = useRef(null);
+  var meanNumLhsRef = useRef(null);
+  var meanDenLhsRef = useRef(null);
   var centreS1BoxRef = useRef(null);
   var centreS2BoxRef = useRef(null);
 
@@ -860,6 +875,144 @@ const MainCanvas = (props) => {
   function addTimer(id) {
     timersRef.current.push(id);
     return id;
+  }
+
+  function resetGraphLayout() {
+    setCenterLeft(false);
+    setCenterRight(false);
+    setHideLeftGraph(false);
+    setHideRightGraph(false);
+  }
+
+  function waitMs(ms, fn) {
+    addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        fn();
+      }, ms),
+    );
+  }
+
+  function runGraphFocusIn(kind, onDone) {
+    function done() {
+      if (onDone) onDone();
+    }
+    if (kind === "pop") {
+      setHideLeftSample(true);
+      setHideRightSample(true);
+      setHidePopBars(false);
+      setHideLeftGraph(false);
+      setHideRightGraph(false);
+      waitMs(GRAPH_HIDE_MS, function () {
+        setCenterLeft(true);
+        setCenterRight(true);
+        waitMs(GRAPH_SLIDE_MS, function () {
+          setHideRightGraph(true);
+          waitMs(GRAPH_HIDE_MS, done);
+        });
+      });
+      return;
+    }
+    if (kind === "s1") {
+      setHidePopBars(true);
+      setHideLeftSample(false);
+      setHideRightSample(true);
+      setHideRightGraph(true);
+      setHideLeftGraph(false);
+      waitMs(GRAPH_HIDE_MS, function () {
+        setCenterLeft(true);
+        waitMs(GRAPH_SLIDE_MS, done);
+      });
+      return;
+    }
+    setHidePopBars(true);
+    setHideRightSample(false);
+    setHideLeftSample(true);
+    setHideLeftGraph(true);
+    setHideRightGraph(false);
+    waitMs(GRAPH_HIDE_MS, function () {
+      setCenterRight(true);
+      waitMs(GRAPH_SLIDE_MS, done);
+    });
+  }
+
+  function runGraphFocusOut(kind, onDone) {
+    function done() {
+      if (onDone) onDone();
+    }
+    if (kind === "pop") {
+      setHideRightGraph(false);
+      waitMs(GRAPH_HIDE_MS, function () {
+        setCenterLeft(false);
+        setCenterRight(false);
+        waitMs(GRAPH_SLIDE_MS, function () {
+          setHideLeftSample(false);
+          setHideRightSample(false);
+          waitMs(GRAPH_HIDE_MS, done);
+        });
+      });
+      return;
+    }
+    if (kind === "s1") {
+      setCenterLeft(false);
+      waitMs(GRAPH_SLIDE_MS, function () {
+        setHidePopBars(false);
+        setHideRightGraph(false);
+        setHideRightSample(false);
+        waitMs(GRAPH_HIDE_MS, done);
+      });
+      return;
+    }
+    setCenterRight(false);
+    waitMs(GRAPH_SLIDE_MS, function () {
+      setHidePopBars(false);
+      setHideLeftGraph(false);
+      setHideLeftSample(false);
+      waitMs(GRAPH_HIDE_MS, done);
+    });
+  }
+
+  function clearMcqIdleTimer() {
+    if (mcqIdleTimerRef.current) {
+      clearTimeout(mcqIdleTimerRef.current);
+      mcqIdleTimerRef.current = null;
+    }
+  }
+
+  function activeMcqHalfEl() {
+    if (mcqTargetRef.current === "s1") return mcqS1HalfRef.current;
+    if (mcqTargetRef.current === "s2") return mcqS2HalfRef.current;
+    return null;
+  }
+
+  function scheduleMcqIdleTeeter() {
+    clearMcqIdleTimer();
+    mcqIdleTimerRef.current = addTimer(
+      setTimeout(function () {
+        if (!mountedRef.current) return;
+        if (mcqTargetRef.current === "done") return;
+        if (mcqBusyRef.current) {
+          scheduleMcqIdleTeeter();
+          return;
+        }
+        playTeeter(activeMcqHalfEl());
+        scheduleMcqIdleTeeter();
+      }, 5000),
+    );
+  }
+
+  function playTeeter(el, short) {
+    if (!el) return;
+    el.classList.remove("teeter", "teeter-short");
+    void el.offsetWidth;
+    el.classList.add("teeter");
+    if (short) el.classList.add("teeter-short");
+    function onEnd(ev) {
+      if (ev.target !== el) return;
+      el.classList.remove("teeter", "teeter-short");
+      el.removeEventListener("animationend", onEnd);
+    }
+    el.addEventListener("animationend", onEnd);
   }
 
   function flyThumbToBox(fromEl, toEl, emoji, done) {
@@ -916,6 +1069,7 @@ const MainCanvas = (props) => {
     clone.style.fontSize = Math.max(srcRect.height * 0.72, 12) + "px";
     document.body.appendChild(clone);
     cloneElsRef.current.push(clone);
+    if (typeof playSound === "function") playSound("swoosh");
     gsap.to(clone, {
       left: destRect.left + destRect.width / 2,
       top: destRect.top + destRect.height / 2,
@@ -947,6 +1101,7 @@ const MainCanvas = (props) => {
     clone.style.fontSize = startSize + "px";
     document.body.appendChild(clone);
     cloneElsRef.current.push(clone);
+    if (typeof playSound === "function") playSound("swoosh");
     gsap.to(clone, {
       left: toRect.left + toRect.width / 2,
       top: toRect.top + toRect.height / 2,
@@ -979,6 +1134,7 @@ const MainCanvas = (props) => {
     clone.style.top = fromRect.top + fromRect.height / 2 + "px";
     document.body.appendChild(clone);
     cloneElsRef.current.push(clone);
+    if (typeof playSound === "function") playSound("swoosh");
     gsap.to(clone, {
       left: toRect.left + toRect.width / 2,
       top: toRect.top + toRect.height / 2,
@@ -1054,11 +1210,13 @@ const MainCanvas = (props) => {
         attr: { stroke: colors.blinkRed, "stroke-width": PATH_W },
         duration: 0.35,
       });
+      pathEl.classList.add("blink-red");
     } else if (mode === "green") {
       gsap.to(pathEl, {
         attr: { stroke: colors.blinkGreen, "stroke-width": PATH_W },
         duration: 0.35,
       });
+      pathEl.classList.add("blink-green");
     } else {
       gsap.to(pathEl, {
         attr: { stroke: normalStroke, "stroke-width": PATH_W },
@@ -1186,7 +1344,7 @@ const MainCanvas = (props) => {
         drawEmergedRef.current = false;
         rangeEmergedRef.current = false;
         setRangeReady(false);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setShowDrawNudges(false);
@@ -1227,7 +1385,7 @@ const MainCanvas = (props) => {
         onSetNextEnabled(false);
         setPendingExplored(null);
         setDrawFocus(null);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setHidePopBars(false);
@@ -1284,7 +1442,7 @@ const MainCanvas = (props) => {
           return;
         }
         onSetNavLocked(true);
-        onUpdateNavText("");
+        onUpdateNavText(" ");
         return;
       }
 
@@ -1293,6 +1451,25 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
+        resetGraphLayout();
+        setHideLeftSample(false);
+        setHideRightSample(false);
+        setHidePopBars(false);
+        setPopArrow({ left: false, right: false });
+        setPopMaxLine({ left: false, right: false });
+        setPopMinLine({ left: false, right: false });
+        setPopLabel({ left: null, right: null });
+        setS1Arrow(false);
+        setS1MaxLine(false);
+        setS1MinLine(false);
+        setS1Label(null);
+        setS2Arrow(false);
+        setS2MaxLine(false);
+        setS2MinLine(false);
+        setS2Label(null);
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
         if (!startAtFinal) {
           setMcqTarget("s1");
           setS1Selected(null);
@@ -1368,11 +1545,20 @@ const MainCanvas = (props) => {
         setShowButtonRows(true);
         onSetNextEnabled(false);
         setPendingExplored(null);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setHidePopBars(false);
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
+        addTimer(setTimeout(function () {
+          clearAllOutlines();
+          setLeftPathsBlink("normal");
+          setRightPathsBlink("normal");
+        }, 40));
         rangeEmergedRef.current = false;
+        setShowRangeNudges(false);
         setRangeActive(null);
         setRangePending(null);
         setRangeStage("idle");
@@ -1443,7 +1629,7 @@ const MainCanvas = (props) => {
           }, 40),
         );
         onSetNavLocked(true);
-        onUpdateNavText("");
+        onUpdateNavText(" ");
         addTimer(
           setTimeout(function () {
             if (!mountedRef.current || startAtFinal) return;
@@ -1460,9 +1646,14 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
+        setHidePopBars(false);
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
+        addTimer(setTimeout(function () { clearAllOutlines(); }, 40));
         setRangeAllDone(true);
         setRangeGone({ pop: true, s1: true, s2: true });
         setPopArrow({ left: true, right: true });
@@ -1524,7 +1715,7 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setRangeAllDone(true);
@@ -1564,11 +1755,29 @@ const MainCanvas = (props) => {
         setShowButtonRows(true);
         onSetNextEnabled(false);
         setPendingExplored(null);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setHidePopBars(false);
+        setPopArrow({ left: false, right: false });
+        setPopMaxLine({ left: false, right: false });
+        setPopMinLine({ left: false, right: false });
+        setPopLabel({ left: null, right: null });
+        setS1Arrow(false);
+        setS1MaxLine(false);
+        setS1MinLine(false);
+        setS1Label(null);
+        setS2Arrow(false);
+        setS2MaxLine(false);
+        setS2MinLine(false);
+        setS2Label(null);
+        addTimer(setTimeout(function () {
+          clearAllOutlines();
+          setLeftPathsBlink("normal");
+          setRightPathsBlink("normal");
+        }, 40));
         meanEmergedRef.current = false;
+        setShowMeanNudges(false);
         setMeanActive(null);
         setMeanPending(null);
         setMeanStage("idle");
@@ -1620,7 +1829,7 @@ const MainCanvas = (props) => {
           }, 40),
         );
         onSetNavLocked(true);
-        onUpdateNavText("");
+        onUpdateNavText(" ");
         return;
       }
 
@@ -1629,15 +1838,28 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setHidePopBars(false);
+        setPopArrow({ left: false, right: false });
+        setPopMaxLine({ left: false, right: false });
+        setPopMinLine({ left: false, right: false });
+        setPopLabel({ left: null, right: null });
+        setS1Arrow(false);
+        setS1MaxLine(false);
+        setS1MinLine(false);
+        setS1Label(null);
+        setS2Arrow(false);
+        setS2MaxLine(false);
+        setS2MinLine(false);
+        setS2Label(null);
         setMeanAllDone(true);
         setMeanGone({ pop: true, s1: true, s2: true });
         setPopMeanMark({ left: true, right: true });
         setS1MeanMark(true);
         setS2MeanMark(true);
+        addTimer(setTimeout(function () { clearAllOutlines(); }, 40));
         if (!startAtFinal) {
           setMcqTarget("s1");
           setS1Selected(null);
@@ -1682,7 +1904,7 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setHidePopBars(false);
@@ -1715,7 +1937,7 @@ const MainCanvas = (props) => {
         setShowSamplesPanel(false);
         setShowOverlap(true);
         setShowButtonRows(true);
-        setGraphFocus("both");
+        resetGraphLayout();
         setHideLeftSample(false);
         setHideRightSample(false);
         setHidePopBars(false);
@@ -1725,6 +1947,21 @@ const MainCanvas = (props) => {
         setShowCentreS2Box(true);
         setShowSpreadS1Box(true);
         setShowSpreadS2Box(true);
+        setPopArrow({ left: false, right: false });
+        setPopMaxLine({ left: false, right: false });
+        setPopMinLine({ left: false, right: false });
+        setPopLabel({ left: null, right: null });
+        setS1Arrow(false);
+        setS1MaxLine(false);
+        setS1MinLine(false);
+        setS1Label(null);
+        setS2Arrow(false);
+        setS2MaxLine(false);
+        setS2MinLine(false);
+        setS2Label(null);
+        setPopMeanMark({ left: false, right: false });
+        setS1MeanMark(false);
+        setS2MeanMark(false);
         setStep3TableVisible(false);
         setStep3AnimDone(false);
         setStep3SelectedGraph(null);
@@ -1733,9 +1970,9 @@ const MainCanvas = (props) => {
         setStep3HideMainBtns(false);
         step3AnimTriesRef.current = 0;
         onSetNextEnabled(false);
-        onSetNavLocked(false);
+        onSetNavLocked(true);
         onUpdateQuestionText(copy.steps[3].questionText);
-        onUpdateNavText("");
+        onUpdateNavText(" ");
         addTimer(
           setTimeout(function () {
             clearAllOutlines();
@@ -1785,6 +2022,7 @@ const MainCanvas = (props) => {
       overlay.style.borderColor = step3Correct
         ? "rgba(124, 252, 0, 0.95)"
         : "rgba(255, 82, 82, 0.95)";
+      playTeeter(overlay, true);
     },
     [step3SelectedGraph, step3Correct, step3TableVisible],
   );
@@ -1801,6 +2039,35 @@ const MainCanvas = (props) => {
       };
     },
     [isStep3],
+  );
+
+  useLayoutEffect(
+    function () {
+      if (!isStep3 || !step3AnimDone) return;
+      playTeeter(leftHalfRef.current);
+      playTeeter(rightHalfRef.current);
+    },
+    [isStep3, step3AnimDone],
+  );
+
+  useEffect(
+    function () {
+      if (!isMcqStep || startAtFinal || mcqTarget === "done") {
+        clearMcqIdleTimer();
+        return;
+      }
+      var appearId = setTimeout(function () {
+        if (!mountedRef.current) return;
+        playTeeter(activeMcqHalfEl());
+      }, 300);
+      addTimer(appearId);
+      scheduleMcqIdleTeeter();
+      return function () {
+        clearTimeout(appearId);
+        clearMcqIdleTimer();
+      };
+    },
+    [isMcqStep, mcqTarget, startAtFinal],
   );
 
   useLayoutEffect(
@@ -1907,13 +2174,14 @@ const MainCanvas = (props) => {
         if (info.onDone) info.onDone();
         return;
       }
-      var yTop = popLayout.yP(popLayout.yMax);
       var baseY = popLayout.baseY;
+      var yEnd = Number(line.getAttribute("y2"));
+      if (!isFinite(yEnd)) yEnd = popLayout.yP(popLayout.yMax);
       gsap.fromTo(
         line,
         { attr: { y1: baseY, y2: baseY } },
         {
-          attr: { y1: baseY, y2: yTop },
+          attr: { y1: baseY, y2: yEnd },
           duration: 0.7,
           ease: "power2.out",
           onComplete: function () {
@@ -2071,9 +2339,12 @@ const MainCanvas = (props) => {
         y: deltas[i].y,
         scale: 0,
         opacity: 0,
+        visibility: "visible",
         transformOrigin: "50% 50%",
       });
     });
+    var drawRow = buttons[0].parentNode;
+    if (drawRow) drawRow.style.visibility = "visible";
 
     gsap.to(buttons, {
       x: 0,
@@ -2086,9 +2357,14 @@ const MainCanvas = (props) => {
       overwrite: true,
       onComplete: function () {
         if (!mountedRef.current) return;
-        gsap.set(buttons, { clearProps: "transform,opacity" });
+        gsap.set(buttons, { clearProps: "transform,opacity,visibility" });
         setDrawReady(true);
-        setShowDrawNudges(true);
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current) return;
+            setShowDrawNudges(true);
+          }, 500),
+        );
         onUpdateNavText(copy.steps.A1.afterButtonsNav);
         onSetNavLocked(false);
       },
@@ -2132,9 +2408,12 @@ const MainCanvas = (props) => {
         y: deltas[i].y,
         scale: 0,
         opacity: 0,
+        visibility: "visible",
         transformOrigin: "50% 50%",
       });
     });
+    var rangeRow = buttons[0].parentNode;
+    if (rangeRow) rangeRow.style.visibility = "visible";
 
     gsap.to(buttons, {
       x: 0,
@@ -2147,9 +2426,14 @@ const MainCanvas = (props) => {
       overwrite: true,
       onComplete: function () {
         if (!mountedRef.current) return;
-        gsap.set(buttons, { clearProps: "transform,opacity" });
+        gsap.set(buttons, { clearProps: "transform,opacity,visibility" });
         setRangeReady(true);
-        setShowRangeNudges(true);
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current) return;
+            setShowRangeNudges(true);
+          }, 500),
+        );
         onUpdateNavText(copy.steps.C1.afterButtonsNav);
         onSetNavLocked(false);
       },
@@ -2193,9 +2477,12 @@ const MainCanvas = (props) => {
         y: deltas[i].y,
         scale: 0,
         opacity: 0,
+        visibility: "visible",
         transformOrigin: "50% 50%",
       });
     });
+    var meanRow = buttons[0].parentNode;
+    if (meanRow) meanRow.style.visibility = "visible";
 
     gsap.to(buttons, {
       x: 0,
@@ -2208,9 +2495,14 @@ const MainCanvas = (props) => {
       overwrite: true,
       onComplete: function () {
         if (!mountedRef.current) return;
-        gsap.set(buttons, { clearProps: "transform,opacity" });
+        gsap.set(buttons, { clearProps: "transform,opacity,visibility" });
         setMeanReady(true);
-        setShowMeanNudges(true);
+        addTimer(
+          setTimeout(function () {
+            if (!mountedRef.current) return;
+            setShowMeanNudges(true);
+          }, 500),
+        );
         onUpdateNavText(copy.steps.B1.afterButtonsNav);
         onSetNavLocked(false);
       },
@@ -2300,6 +2592,7 @@ const MainCanvas = (props) => {
       setShowMainNudges(false);
       setPendingExplored(id);
       onSetNavLocked(true);
+      onUpdateNavText(" ");
       addTimer(
         setTimeout(function () {
           if (!mountedRef.current) return;
@@ -2337,7 +2630,6 @@ const MainCanvas = (props) => {
     var cfg = RANGE_CFG[id];
     setShowRangeNudges(false);
     setRangeBusy(true);
-    setRangePending(id);
     setHighClicked(false);
     setLowClicked(false);
     setHighValue(null);
@@ -2345,34 +2637,29 @@ const MainCanvas = (props) => {
     setShowAnswerSlot(false);
     setAnswerFlipped(false);
     setRangeCollapsed(false);
-    setGraphFocus(cfg.graph);
-    setHideLeftSample(!!cfg.hideSample);
-    setHideRightSample(!!cfg.hideSample);
     onSetNavLocked(true);
     onUpdateNavText(" ");
-    addTimer(
-      setTimeout(function () {
+    runGraphFocusIn(id, function () {
+      if (!mountedRef.current) return;
+      function afterArrow() {
         if (!mountedRef.current) return;
-        function afterArrow() {
-          if (!mountedRef.current) return;
-          setRangeActive(id);
-          setRangePending(null);
-          setRangeStage("high");
-          onUpdateNavText(copy.steps.C1.navHighest);
-          setShowHighNudge(true);
-          setRangeBusy(false);
-          onSetNavLocked(false);
-        }
-        growArrowRef.current = {
-          id: id,
-          side: cfg.graph,
-          onDone: afterArrow,
-        };
-        if (id === "pop") patchSide(setPopArrow, "left", true);
-        else if (id === "s1") setS1Arrow(true);
-        else setS2Arrow(true);
-      }, 700),
-    );
+        setRangeActive(id);
+        setRangePending(null);
+        setRangeStage("high");
+        onUpdateNavText(copy.steps.C1.navHighest);
+        setShowHighNudge(true);
+        setRangeBusy(false);
+        onSetNavLocked(false);
+      }
+      growArrowRef.current = {
+        id: id,
+        side: cfg.graph,
+        onDone: afterArrow,
+      };
+      if (id === "pop") patchSide(setPopArrow, "left", true);
+      else if (id === "s1") setS1Arrow(true);
+      else setS2Arrow(true);
+    });
   }
 
   function startVlineGrow(cfg, kind, onDone) {
@@ -2406,6 +2693,7 @@ const MainCanvas = (props) => {
     setHighClicked(true);
     setRangeBusy(true);
     onSetNavLocked(true);
+    onUpdateNavText(" ");
     addTimer(
       setTimeout(function () {
         if (!mountedRef.current) return;
@@ -2440,6 +2728,7 @@ const MainCanvas = (props) => {
     setLowClicked(true);
     setRangeBusy(true);
     onSetNavLocked(true);
+    onUpdateNavText(" ");
     addTimer(
       setTimeout(function () {
         if (!mountedRef.current) return;
@@ -2473,6 +2762,7 @@ const MainCanvas = (props) => {
     setAnswerFlipped(true);
     setRangeBusy(true);
     onSetNavLocked(true);
+    onUpdateNavText(" ");
     addTimer(
       setTimeout(function () {
         if (!mountedRef.current) return;
@@ -2493,7 +2783,7 @@ const MainCanvas = (props) => {
     var cfg = RANGE_CFG[id];
     var svg = cfg.graph === "left" ? leftSvgRef.current : rightSvgRef.current;
     var dest = svg ? svg.querySelector(".range-label-anchor-" + cfg.id) : null;
-    flyNumberToEl(resultBtnRef.current, dest, cfg.result, function () {
+    flyNumberToEl(answerBtnRef.current, dest, fmtNum(cfg.result), function () {
       if (!mountedRef.current) return;
       if (id === "pop") {
         patchSide(setPopLabel, "left", cfg.result);
@@ -2517,35 +2807,30 @@ const MainCanvas = (props) => {
             rangeCompletedRef.current = next;
             return next;
           });
-          setGraphFocus("both");
-          setHideLeftSample(false);
-          setHideRightSample(false);
-          addTimer(
-            setTimeout(function () {
-              if (!mountedRef.current) return;
-              setRangeActive(null);
-              setRangePending(null);
-              setRangeStage("idle");
-              setShowAnswerSlot(false);
-              setAnswerFlipped(false);
-              setRangeCollapsed(false);
-              setHighClicked(false);
-              setLowClicked(false);
-              setHighValue(null);
-              setLowValue(null);
-              setRangeBusy(false);
-              onSetNavLocked(false);
-              var completedNow = rangeCompletedRef.current;
-              if (completedNow.pop && completedNow.s1 && completedNow.s2) {
-                setRangeAllDone(true);
-                onUpdateNavText(copy.steps.C1.afterAllNav);
-                onSetNextEnabled(true);
-              } else {
-                onUpdateNavText(copy.steps.C1.navRemaining);
-                setShowRangeNudges(true);
-              }
-            }, 480),
-          );
+          runGraphFocusOut(id, function () {
+            if (!mountedRef.current) return;
+            setRangeActive(null);
+            setRangePending(null);
+            setRangeStage("idle");
+            setShowAnswerSlot(false);
+            setAnswerFlipped(false);
+            setRangeCollapsed(false);
+            setHighClicked(false);
+            setLowClicked(false);
+            setHighValue(null);
+            setLowValue(null);
+            setRangeBusy(false);
+            onSetNavLocked(false);
+            var completedNow = rangeCompletedRef.current;
+            if (completedNow.pop && completedNow.s1 && completedNow.s2) {
+              setRangeAllDone(true);
+              onUpdateNavText(copy.steps.C1.afterAllNav);
+              onSetNextEnabled(true);
+            } else {
+              onUpdateNavText(copy.steps.C1.navRemaining);
+              setShowRangeNudges(true);
+            }
+          });
         }, 500),
       );
     });
@@ -2605,7 +2890,6 @@ const MainCanvas = (props) => {
     var cfg = MEAN_CFG[id];
     setShowMeanNudges(false);
     setMeanBusy(true);
-    setMeanPending(id);
     setMeanNumFlipped(false);
     setMeanDenFlipped(false);
     setMeanAnsFlipped(false);
@@ -2619,24 +2903,18 @@ const MainCanvas = (props) => {
     setMeanDimBars(false);
     setMeanGuide(null);
     setMeanFiLabels({});
-    setGraphFocus(cfg.graph);
-    setHideLeftSample(!!cfg.hideSample);
-    setHideRightSample(!!cfg.hideSample);
-    setHidePopBars(!!cfg.hidePop);
     onSetNavLocked(true);
     onUpdateNavText(" ");
-    addTimer(
-      setTimeout(function () {
-        if (!mountedRef.current) return;
-        setMeanActive(id);
-        setMeanPending(null);
-        setMeanStage("num");
-        onUpdateNavText(copy.steps.B1.navNumerator);
-        setShowMeanNumNudge(true);
-        setMeanBusy(false);
-        onSetNavLocked(false);
-      }, 700),
-    );
+    runGraphFocusIn(id, function () {
+      if (!mountedRef.current) return;
+      setMeanActive(id);
+      setMeanPending(null);
+      setMeanStage("num");
+      onUpdateNavText(copy.steps.B1.navNumerator);
+      setShowMeanNumNudge(true);
+      setMeanBusy(false);
+      onSetNavLocked(false);
+    });
   }
 
   function handleMeanNumTap() {
@@ -2647,20 +2925,9 @@ const MainCanvas = (props) => {
     setMeanNumFlipped(true);
     setMeanBusy(true);
     onSetNavLocked(true);
+    onUpdateNavText(" ");
     setMeanDimBars(true);
-    setMeanEq(
-      Object.assign({}, EMPTY_MEAN_EQ, {
-        visA: 1,
-        visTimes: 1,
-        visM: 1,
-        visPlus: 1,
-        visB: 1,
-        visBn: 1,
-        visN: 1,
-        visEq: 1,
-        visT: 1,
-      }),
-    );
+    setMeanEq(EMPTY_MEAN_EQ);
     addTimer(
       setTimeout(function () {
         if (!mountedRef.current) return;
@@ -2686,6 +2953,14 @@ const MainCanvas = (props) => {
     );
   }
 
+  function patchLastNumTerm(patch, extra) {
+    setMeanEq(function (prev) {
+      var terms = cloneMeanTerms(prev.terms);
+      if (terms.length) Object.assign(terms[terms.length - 1], patch);
+      return Object.assign({}, prev, extra || {}, { terms: terms });
+    });
+  }
+
   function runNumeratorBar(cfg, index, running, done) {
     var bars = cfg.bars;
     var bar = bars[index];
@@ -2704,153 +2979,60 @@ const MainCanvas = (props) => {
               var fiEl = svg ? svg.querySelector(".mean-fi-" + bar.x) : null;
               var newTotal = running + bar.xf;
 
-              if (index === 0) {
+              function startNumFly() {
+                if (!mountedRef.current) return;
                 var left = 2;
                 function landed() {
                   left -= 1;
                   if (left > 0) return;
-                  setMeanEq(
-                    Object.assign({}, EMPTY_MEAN_EQ, {
-                      a: String(bar.x),
-                      m: String(bar.f),
-                      t: String(bar.xf),
-                      visA: 1,
-                      visTimes: 1,
-                      visM: 1,
-                      visPlus: 1,
-                      visB: 1,
-                      visBn: 1,
-                      visN: 1,
-                      visEq: 1,
-                      visT: 1,
-                      leftIsSum: false,
-                    }),
+                  patchLastNumTerm(
+                    {
+                      x: String(bar.x),
+                      f: String(bar.f),
+                      visX: 1,
+                      visF: 1,
+                      open: true,
+                    },
+                    { t: String(newTotal), visT: 1, visInner: 1 },
                   );
                   continueNum(cfg, index, newTotal, done);
                 }
                 flyFromEl(xEl, eqARef.current, bar.x, function () {
-                  setMeanEq(function (prev) {
-                    return Object.assign({}, prev, {
-                      a: String(bar.x),
-                      visA: 1,
-                    });
-                  });
+                  patchLastNumTerm({ x: String(bar.x), visX: 1 });
                   landed();
                 });
                 flyFromEl(fiEl, eqMRef.current, bar.f, function () {
-                  setMeanEq(function (prev) {
-                    return Object.assign({}, prev, {
-                      m: String(bar.f),
-                      visM: 1,
-                    });
-                  });
+                  patchLastNumTerm({ f: String(bar.f), visF: 1 });
                   landed();
                 });
-                return;
               }
 
-              function showPlusSlots(afterSetup) {
+              if (index === 0) {
+                setMeanEq({
+                  terms: [emptyNumTerm(true)],
+                  t: "",
+                  visT: 0,
+                  visInner: 1,
+                  sumOnly: false,
+                });
+                addTimer(setTimeout(startNumFly, 40));
+              } else {
                 setMeanEq(function (prev) {
-                  var base =
-                    index === 1
-                      ? Object.assign({}, prev, { leftIsSum: false })
-                      : Object.assign({}, EMPTY_MEAN_EQ, {
-                          a: String(running),
-                          t: String(running),
-                          visA: 1,
-                          visEq: 1,
-                          visT: 1,
-                          leftIsSum: true,
-                        });
-                  return Object.assign({}, base, {
-                    visPlus: 1,
-                    visB: 1,
-                    visBn: 1,
-                    visN: 1,
-                    b: "",
-                    n: "",
-                    m: index === 1 ? prev.m : "",
-                    visM: index === 1 ? prev.visM : 0,
-                    visTimes: index === 1 ? prev.visTimes : 0,
-                    leftIsSum: index >= 2,
+                  return Object.assign({}, prev, {
+                    terms: cloneMeanTerms(prev.terms).concat([
+                      emptyNumTerm(false),
+                    ]),
+                    visInner: 1,
                   });
                 });
-                addTimer(
-                  setTimeout(
-                    function () {
-                      if (!mountedRef.current) return;
-                      afterSetup();
-                    },
-                    index === 1 ? 40 : 280,
-                  ),
-                );
-              }
-
-              function flyBn() {
-                var leftBn = 2;
-                function landedBn() {
-                  leftBn -= 1;
-                  if (leftBn > 0) return;
-                  setMeanEq(function (prev) {
-                    return Object.assign({}, prev, {
-                      b: String(bar.x),
-                      n: String(bar.f),
-                      t: String(newTotal),
-                      visB: 1,
-                      visN: 1,
-                      visBn: 1,
-                      visPlus: 1,
-                      visEq: 1,
-                      visT: 1,
-                      visA: 1,
-                      leftIsSum: index >= 2,
-                      m: index >= 2 ? "" : prev.m,
-                      visM: index >= 2 ? 0 : prev.visM,
-                      visTimes: index >= 2 ? 0 : prev.visTimes,
-                    });
-                  });
-                  continueNum(cfg, index, newTotal, done);
-                }
-                flyFromEl(xEl, eqBRef.current, bar.x, function () {
-                  setMeanEq(function (prev) {
-                    return Object.assign({}, prev, {
-                      b: String(bar.x),
-                      visB: 1,
-                    });
-                  });
-                  landedBn();
-                });
-                flyFromEl(fiEl, eqNRef.current, bar.f, function () {
-                  setMeanEq(function (prev) {
-                    return Object.assign({}, prev, {
-                      n: String(bar.f),
-                      visN: 1,
-                    });
-                  });
-                  landedBn();
-                });
-              }
-
-              if (index >= 2) {
-                setMeanEq(
-                  Object.assign({}, EMPTY_MEAN_EQ, {
-                    a: String(running),
-                    t: String(running),
-                    visA: 1,
-                    visEq: 1,
-                    visT: 1,
-                    leftIsSum: true,
-                  }),
-                );
                 addTimer(
                   setTimeout(function () {
                     if (!mountedRef.current) return;
-                    showPlusSlots(flyBn);
-                  }, 400),
+                    patchLastNumTerm({ open: true });
+                    addTimer(setTimeout(startNumFly, 420));
+                  }, 30),
                 );
-                return;
               }
-              showPlusSlots(flyBn);
             }, 280),
           );
         },
@@ -2870,11 +3052,12 @@ const MainCanvas = (props) => {
               setMeanEq(
                 Object.assign({}, EMPTY_MEAN_EQ, {
                   t: String(cfg.sumXF),
-                  a: String(cfg.sumXF),
-                  visA: 1,
+                  visT: 1,
+                  visInner: 1,
                   sumOnly: true,
                 }),
               );
+              if (typeof playSound === "function") playSound("correct");
               setMeanHighlight(null);
               setMeanGuide(null);
               if (done) done();
@@ -2895,19 +3078,12 @@ const MainCanvas = (props) => {
     setMeanDenFlipped(true);
     setMeanBusy(true);
     onSetNavLocked(true);
+    onUpdateNavText(" ");
     setMeanDimBars(true);
     setMeanHighlight(null);
     setMeanGuide(null);
     dimPrevFiLabels();
-    setMeanDenEq(
-      Object.assign({}, EMPTY_MEAN_EQ, {
-        visA: 1,
-        visPlus: 1,
-        visB: 1,
-        visEq: 1,
-        visT: 1,
-      }),
-    );
+    setMeanDenEq(EMPTY_MEAN_EQ);
     addTimer(
       setTimeout(function () {
         if (!mountedRef.current) return;
@@ -2932,6 +3108,14 @@ const MainCanvas = (props) => {
         });
       }, 550),
     );
+  }
+
+  function patchLastDenTerm(patch, extra) {
+    setMeanDenEq(function (prev) {
+      var terms = cloneMeanTerms(prev.terms);
+      if (terms.length) Object.assign(terms[terms.length - 1], patch);
+      return Object.assign({}, prev, extra || {}, { terms: terms });
+    });
   }
 
   function runDenominatorBar(cfg, index, running, done) {
@@ -2959,73 +3143,44 @@ const MainCanvas = (props) => {
                 });
               }
 
-              if (index === 0) {
+              function startDenFly() {
+                if (!mountedRef.current) return;
                 flyFromEl(fiEl, eqDenARef.current, bar.f, function () {
-                  setMeanDenEq(
-                    Object.assign({}, EMPTY_MEAN_EQ, {
-                      a: String(bar.f),
-                      t: String(bar.f),
-                      visA: 1,
-                      visPlus: 1,
-                      visB: 1,
-                      visEq: 1,
-                      visT: 1,
-                    }),
+                  patchLastDenTerm(
+                    { f: String(bar.f), visF: 1, open: true },
+                    { t: String(newTotal), visT: 1, visInner: 1 },
                   );
                   continueDen(cfg, index, newTotal, done);
                 });
                 removeFiSource();
-                return;
               }
 
-              setMeanDenEq(
-                Object.assign({}, EMPTY_MEAN_EQ, {
-                  a: String(running),
-                  t: String(running),
-                  visA: 1,
-                  visPlus: 1,
-                  visB: 1,
-                  visEq: 1,
-                  visT: 1,
-                }),
-              );
-              addTimer(
-                setTimeout(function () {
-                  if (!mountedRef.current) return;
-                  flyFromEl(fiEl, eqDenBRef.current, bar.f, function () {
-                    setMeanDenEq(
-                      Object.assign({}, EMPTY_MEAN_EQ, {
-                        a: String(running),
-                        b: String(bar.f),
-                        t: String(newTotal),
-                        visA: 1,
-                        visPlus: 1,
-                        visB: 1,
-                        visEq: 1,
-                        visT: 1,
-                      }),
-                    );
-                    addTimer(
-                      setTimeout(function () {
-                        if (!mountedRef.current) return;
-                        setMeanDenEq(
-                          Object.assign({}, EMPTY_MEAN_EQ, {
-                            a: String(newTotal),
-                            t: String(newTotal),
-                            visA: 1,
-                            visPlus: 1,
-                            visB: 1,
-                            visEq: 1,
-                            visT: 1,
-                          }),
-                        );
-                        continueDen(cfg, index, newTotal, done);
-                      }, 280),
-                    );
+              if (index === 0) {
+                setMeanDenEq({
+                  terms: [emptyDenTerm(true)],
+                  t: "",
+                  visT: 0,
+                  visInner: 1,
+                  sumOnly: false,
+                });
+                addTimer(setTimeout(startDenFly, 40));
+              } else {
+                setMeanDenEq(function (prev) {
+                  return Object.assign({}, prev, {
+                    terms: cloneMeanTerms(prev.terms).concat([
+                      emptyDenTerm(false),
+                    ]),
+                    visInner: 1,
                   });
-                  removeFiSource();
-                }, 200),
-              );
+                });
+                addTimer(
+                  setTimeout(function () {
+                    if (!mountedRef.current) return;
+                    patchLastDenTerm({ open: true });
+                    addTimer(setTimeout(startDenFly, 420));
+                  }, 30),
+                );
+              }
             }, 280),
           );
         },
@@ -3045,11 +3200,12 @@ const MainCanvas = (props) => {
               setMeanDenEq(
                 Object.assign({}, EMPTY_MEAN_EQ, {
                   t: String(cfg.sumF),
-                  a: String(cfg.sumF),
-                  visA: 1,
+                  visT: 1,
+                  visInner: 1,
                   sumOnly: true,
                 }),
               );
+              if (typeof playSound === "function") playSound("correct");
               setMeanHighlight(null);
               setMeanGuide(null);
               if (done) done();
@@ -3070,6 +3226,7 @@ const MainCanvas = (props) => {
     setMeanAnsFlipped(true);
     setMeanBusy(true);
     onSetNavLocked(true);
+    onUpdateNavText(" ");
     addTimer(
       setTimeout(function () {
         if (!mountedRef.current) return;
@@ -3111,34 +3268,28 @@ const MainCanvas = (props) => {
                 return next;
               });
               meanCompletedRef.current[id] = true;
-              setGraphFocus("both");
-              setHideLeftSample(false);
-              setHideRightSample(false);
-              setHidePopBars(false);
-              addTimer(
-                setTimeout(function () {
-                  if (!mountedRef.current) return;
-                  setMeanActive(null);
-                  setMeanPending(null);
-                  setMeanStage("idle");
-                  setMeanShowAnswer(false);
-                  setMeanAnsFlipped(false);
-                  setMeanCollapsed(false);
-                  setMeanNumFlipped(false);
-                  setMeanDenFlipped(false);
-                  setMeanBusy(false);
-                  onSetNavLocked(false);
-                  var completedNow = meanCompletedRef.current;
-                  if (completedNow.pop && completedNow.s1 && completedNow.s2) {
-                    setMeanAllDone(true);
-                    onUpdateNavText(copy.steps.B1.afterAllNav);
-                    onSetNextEnabled(true);
-                  } else {
-                    onUpdateNavText(copy.steps.B1.navRemaining);
-                    setShowMeanNudges(true);
-                  }
-                }, 480),
-              );
+              runGraphFocusOut(id, function () {
+                if (!mountedRef.current) return;
+                setMeanActive(null);
+                setMeanPending(null);
+                setMeanStage("idle");
+                setMeanShowAnswer(false);
+                setMeanAnsFlipped(false);
+                setMeanCollapsed(false);
+                setMeanNumFlipped(false);
+                setMeanDenFlipped(false);
+                setMeanBusy(false);
+                onSetNavLocked(false);
+                var completedNow = meanCompletedRef.current;
+                if (completedNow.pop && completedNow.s1 && completedNow.s2) {
+                  setMeanAllDone(true);
+                  onUpdateNavText(copy.steps.B1.afterAllNav);
+                  onSetNextEnabled(true);
+                } else {
+                  onUpdateNavText(copy.steps.B1.navRemaining);
+                  setShowMeanNudges(true);
+                }
+              });
             }, 500),
           );
         },
@@ -3152,7 +3303,7 @@ const MainCanvas = (props) => {
       afterLabel();
       return;
     }
-    flyNumberToEl(meanResultRef.current, dest, cfg.mean, afterLabel);
+    flyNumberToEl(meanAnsBtnRef.current, dest, fmtNum(cfg.mean), afterLabel);
   }
 
   function setLeftPathsBlink(mode) {
@@ -3208,33 +3359,39 @@ const MainCanvas = (props) => {
       : isB2
         ? setShowCentreS2Box
         : setShowShapeS2Box;
-    var skipBlink = isC2 || isB2;
+    var isShapeMcq = isA2;
     if (side === "s1") {
       if (s1Locked || mcqTarget !== "s1") return;
       if (s1Retry && option !== "fail") return;
       if (typeof playSound === "function") playSound("click");
+      scheduleMcqIdleTeeter();
       setS1Selected(option);
-      if (!skipBlink) setLeftPathsBlink("red");
       if (option !== "fail") {
         if (typeof playSound === "function") playSound("wrong");
+        if (isShapeMcq) setLeftPathsBlink("red");
         setS1Retry(true);
         setFeedbackSide("right");
         return;
       }
       if (typeof playSound === "function") playSound("correct");
+      if (isShapeMcq) setLeftPathsBlink("red");
       setFeedbackSide(null);
       setS1Locked(true);
       setMcqBusy(true);
+      onSetNavLocked(true);
+      onUpdateNavText(" ");
       flyThumbToBox(s1FailBtnRef.current, s1BoxEl, "👎", function () {
         if (!mountedRef.current) return;
         setS1BoxVisible(true);
         addTimer(
           setTimeout(function () {
             if (!mountedRef.current) return;
-            if (!skipBlink) setLeftPathsBlink("normal");
+            if (isShapeMcq) setLeftPathsBlink("normal");
             setMcqTarget("s2");
             onUpdateQuestionText(mcqCopy.questionTextS2);
+            onUpdateNavText(mcqCopy.navText);
             setMcqBusy(false);
+            onSetNavLocked(false);
           }, 1000),
         );
       });
@@ -3244,26 +3401,28 @@ const MainCanvas = (props) => {
     if (s2Locked || mcqTarget !== "s2") return;
     if (s2Retry && option !== "pass") return;
     if (typeof playSound === "function") playSound("click");
+    scheduleMcqIdleTeeter();
     setS2Selected(option);
-    if (!skipBlink) setRightPathsBlink("green");
     if (option !== "pass") {
       if (typeof playSound === "function") playSound("wrong");
+      if (isShapeMcq) setRightPathsBlink("green");
       setS2Retry(true);
       setFeedbackSide("left");
       return;
     }
     if (typeof playSound === "function") playSound("correct");
+    if (isShapeMcq) setRightPathsBlink("green");
     setFeedbackSide(null);
     setS2Locked(true);
     setMcqBusy(true);
+    onSetNavLocked(true);
+    onUpdateNavText(" ");
     flyThumbToBox(s2PassBtnRef.current, s2BoxEl, "👍", function () {
       if (!mountedRef.current) return;
       setS2BoxVisible(true);
       setMcqTarget("done");
-      if (!skipBlink) {
-        setLeftPathsBlink("red");
-        setRightPathsBlink("green");
-      }
+      if (isShapeMcq) setLeftPathsBlink("red");
+      if (isShapeMcq) setRightPathsBlink("green");
       onUpdateQuestionText(mcqCopy.afterBothQuestion);
       var allTestsDone = completedTests.length >= 2;
       onUpdateNavText(
@@ -3271,10 +3430,11 @@ const MainCanvas = (props) => {
       );
       onSetNextEnabled(true);
       setMcqBusy(false);
+      onSetNavLocked(false);
     });
   }
 
-  function renderAxes(layout, yStep) {
+  function renderAxes(layout, yStep, dimXOpts) {
     var items = [];
     items.push(
       e("line", {
@@ -3328,6 +3488,10 @@ const MainCanvas = (props) => {
       );
     }
     for (var xv = 1; xv <= 12; xv++) {
+      var xLabelFill = "#ffffff";
+      if (dimXOpts && dimXOpts.dim) {
+        xLabelFill = xv === dimXOpts.highlightX ? "#ffffff" : "rgba(255,255,255,0.22)";
+      }
       items.push(
         e(
           "text",
@@ -3337,7 +3501,7 @@ const MainCanvas = (props) => {
             x: layout.xP(xv),
             y: layout.baseY + 30,
             textAnchor: "middle",
-            fill: "#ffffff",
+            fill: xLabelFill,
             fontSize: AXIS_LABEL_SIZE,
             fontWeight: 600,
           },
@@ -3391,10 +3555,10 @@ const MainCanvas = (props) => {
   }
 
   function arrowHead(x, y, dir, color, key) {
-    var s = 12;
+    var s = 20;
     return e("polygon", {
       key: key,
-      points: [x, y, x - dir * s, y - 6.5, x - dir * s, y + 6.5].join(" "),
+      points: [x, y, x - dir * s, y - 10, x - dir * s, y + 10].join(" "),
       fill: color,
     });
   }
@@ -3411,6 +3575,7 @@ const MainCanvas = (props) => {
     var x0 = popLayout.xP(cfg.min);
     var x1 = popLayout.xP(cfg.max);
     var ay = popLayout.yP(yVal);
+    var vlineColor = cfg.vline || "#7ee7f2";
     var kids = [];
     if (showMax) {
       kids.push(
@@ -3421,9 +3586,9 @@ const MainCanvas = (props) => {
           y1: popLayout.baseY,
           x2: x1,
           y2: ay,
-          stroke: RANGE_VLINE_COLOR,
-          strokeWidth: 2,
-          strokeDasharray: "7 5",
+          stroke: vlineColor,
+          strokeWidth: 4,
+          strokeDasharray: "10 7",
         }),
       );
     }
@@ -3436,9 +3601,9 @@ const MainCanvas = (props) => {
           y1: popLayout.baseY,
           x2: x0,
           y2: ay,
-          stroke: RANGE_VLINE_COLOR,
-          strokeWidth: 2,
-          strokeDasharray: "7 5",
+          stroke: vlineColor,
+          strokeWidth: 4,
+          strokeDasharray: "10 7",
         }),
       );
     }
@@ -3448,21 +3613,24 @@ const MainCanvas = (props) => {
           "g",
           { key: "arrow", className: "range-arrow-grow-" + cfg.id },
           e("line", {
-            x1: x0 + 12,
+            x1: x0 + 18,
             y1: ay,
-            x2: x1 - 12,
+            x2: x1 - 18,
             y2: ay,
             stroke: cfg.arrow,
-            strokeWidth: 2.5,
-            strokeDasharray: "8 6",
+            strokeWidth: 5,
+            strokeDasharray: "12 9",
           }),
           arrowHead(x0, ay, -1, cfg.arrow, "hl"),
           arrowHead(x1, ay, 1, cfg.arrow, "hr"),
         ),
       );
     }
+    var w = 80;
+    var h = 46;
+    var fontSize = 33;
     var cx = (x0 + x1) / 2;
-    var cy = ay - 18;
+    var cy = ay - h / 2 - 8;
     kids.push(
       e("circle", {
         key: "anchor",
@@ -3474,8 +3642,6 @@ const MainCanvas = (props) => {
       }),
     );
     if (label !== null && label !== undefined) {
-      var w = 48;
-      var h = 28;
       kids.push(
         e("rect", {
           key: "vb",
@@ -3483,10 +3649,10 @@ const MainCanvas = (props) => {
           y: cy - h / 2,
           width: w,
           height: h,
-          rx: 7,
+          rx: 12,
           fill: cfg.valueFill,
           stroke: "rgba(255,255,255,0.72)",
-          strokeWidth: 1.4,
+          strokeWidth: 1.8,
         }),
       );
       kids.push(
@@ -3495,13 +3661,13 @@ const MainCanvas = (props) => {
           {
             key: "vt",
             x: cx,
-            y: cy + 8,
+            y: cy + 12,
             textAnchor: "middle",
             fill: "#ffffff",
-            fontSize: 20,
+            fontSize: fontSize,
             fontWeight: 700,
           },
-          String(label),
+          fmtNum(label),
         ),
       );
     }
@@ -3512,14 +3678,30 @@ const MainCanvas = (props) => {
     var x = popLayout.xP(cfg.mean);
     var yTop = popLayout.yP(popLayout.yMax);
     var yBot = popLayout.baseY;
-    var labelY = cfg.id === "pop" ? yTop + 18 : yBot + 38;
-    var dash = cfg.id === "s1" ? "8 4 2 4" : "8 6";
+    var w = cfg.id === "pop" ? 86 : 80;
+    var h = 43;
+    var fontSize = 30;
+    var labelY =
+      cfg.id === "pop"
+        ? yTop + h / 2 + 4
+        : popLayout.yP(11) + h / 2 + 4;
+    var dash = cfg.id === "s1" ? "12 6 3 6" : "12 9";
     var kids = [];
+
+    var shiftX = w * 0.47;
+    var boxX =
+      cfg.id === "pop"
+        ? x - w / 2 - shiftX
+        : x - w / 2 + shiftX;
+    var textX = boxX + w / 2;
+    var boxTop = labelY - h / 2;
+    var boxBottom = boxTop + h;
+
     kids.push(
       e("circle", {
         key: "anchor",
         className: "mean-label-anchor-" + cfg.id + "-" + side,
-        cx: x,
+        cx: textX,
         cy: labelY,
         r: 2,
         fill: "none",
@@ -3535,25 +3717,23 @@ const MainCanvas = (props) => {
         x1: x,
         y1: yBot,
         x2: x,
-        y2: yTop,
+        y2: boxBottom,
         stroke: cfg.line,
-        strokeWidth: 2.2,
+        strokeWidth: 4.4,
         strokeDasharray: dash,
       }),
     );
-    var w = cfg.id === "pop" ? 52 : 48;
-    var h = 26;
     kids.push(
       e("rect", {
         key: "vb",
-        x: x - w / 2,
-        y: labelY - h / 2,
+        x: boxX,
+        y: boxTop,
         width: w,
         height: h,
-        rx: 7,
+        rx: 12,
         fill: cfg.valueFill,
         stroke: "rgba(255,255,255,0.72)",
-        strokeWidth: 1.4,
+        strokeWidth: 1.8,
       }),
     );
     kids.push(
@@ -3561,14 +3741,14 @@ const MainCanvas = (props) => {
         "text",
         {
           key: "vt",
-          x: x,
-          y: labelY + 7,
+          x: textX,
+          y: labelY + 11,
           textAnchor: "middle",
           fill: "#ffffff",
-          fontSize: 18,
+          fontSize: fontSize,
           fontWeight: 700,
         },
-        String(cfg.mean),
+        fmtNum(cfg.mean),
       ),
     );
     return e("g", { key: "mean-" + cfg.id + "-" + side }, kids);
@@ -3681,14 +3861,16 @@ const MainCanvas = (props) => {
         ),
       ),
     );
-    ch.push.apply(ch, renderAxes(popLayout, GRAPH_DATA.popYRange.step));
     var popBarOpts = {};
     var sampleBarOpts = {};
     var workingMean = meanActive || meanPending;
+    var axisDimOpts = null;
+    var isDenStage = meanStage === "den" || meanStage === "answer";
     if (meanDimBars && workingMean === "pop") {
       popBarOpts.dim = true;
       popBarOpts.highlightX = meanHighlight;
       popBarOpts.bright = MEAN_CFG.pop.bright;
+      axisDimOpts = { dim: true, highlightX: isDenStage ? null : meanHighlight };
     }
     if (
       meanDimBars &&
@@ -3697,7 +3879,9 @@ const MainCanvas = (props) => {
       sampleBarOpts.dim = true;
       sampleBarOpts.highlightX = meanHighlight;
       sampleBarOpts.bright = MEAN_CFG[workingMean].bright;
+      axisDimOpts = { dim: true, highlightX: isDenStage ? null : meanHighlight };
     }
+    ch.push.apply(ch, renderAxes(popLayout, GRAPH_DATA.popYRange.step, axisDimOpts));
     var hideSample =
       (isLeft && hideLeftSample) || (!isLeft && hideRightSample);
     var dimPop =
@@ -3783,23 +3967,43 @@ const MainCanvas = (props) => {
 
     if (isLeft) {
       ch.push(
-        renderRangeOverlay(
-          RANGE_CFG.pop,
-          ARROW_Y_POP,
-          popArrow.left,
-          popMaxLine.left,
-          popMinLine.left,
-          popLabel.left,
+        e(
+          "g",
+          {
+            key: "range-pop-left",
+            style: {
+              opacity: hidePopBars ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderRangeOverlay(
+            RANGE_CFG.pop,
+            ARROW_Y_POP,
+            popArrow.left,
+            popMaxLine.left,
+            popMinLine.left,
+            popLabel.left,
+          ),
         ),
       );
       ch.push(
-        renderRangeOverlay(
-          RANGE_CFG.s1,
-          ARROW_Y_SAMPLE,
-          s1Arrow,
-          s1MaxLine,
-          s1MinLine,
-          s1Label,
+        e(
+          "g",
+          {
+            key: "range-s1-left",
+            style: {
+              opacity: hideLeftSample ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderRangeOverlay(
+            RANGE_CFG.s1,
+            ARROW_Y_SAMPLE,
+            s1Arrow,
+            s1MaxLine,
+            s1MinLine,
+            s1Label,
+          ),
         ),
       );
       var leftMeanCfg =
@@ -3837,23 +4041,43 @@ const MainCanvas = (props) => {
       );
     } else {
       ch.push(
-        renderRangeOverlay(
-          RANGE_CFG.pop,
-          ARROW_Y_POP,
-          popArrow.right,
-          popMaxLine.right,
-          popMinLine.right,
-          popLabel.right,
+        e(
+          "g",
+          {
+            key: "range-pop-right",
+            style: {
+              opacity: hidePopBars ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderRangeOverlay(
+            RANGE_CFG.pop,
+            ARROW_Y_POP,
+            popArrow.right,
+            popMaxLine.right,
+            popMinLine.right,
+            popLabel.right,
+          ),
         ),
       );
       ch.push(
-        renderRangeOverlay(
-          RANGE_CFG.s2,
-          ARROW_Y_SAMPLE,
-          s2Arrow,
-          s2MaxLine,
-          s2MinLine,
-          s2Label,
+        e(
+          "g",
+          {
+            key: "range-s2-right",
+            style: {
+              opacity: hideRightSample ? 0 : 1,
+              transition: "opacity 0.4s ease",
+            },
+          },
+          renderRangeOverlay(
+            RANGE_CFG.s2,
+            ARROW_Y_SAMPLE,
+            s2Arrow,
+            s2MaxLine,
+            s2MinLine,
+            s2Label,
+          ),
         ),
       );
       var rightMeanCfg =
@@ -3895,7 +4119,7 @@ const MainCanvas = (props) => {
       "svg",
       {
         ref: svgRef,
-        viewBox: "0 0 " + SVG_W + " " + POP_SVG_H,
+        viewBox: "0 0 " + SVG_W + " " + (POP_SVG_H+6),
         className: "bar-graph-svg",
         preserveAspectRatio: "none",
       },
@@ -3935,7 +4159,10 @@ const MainCanvas = (props) => {
     if (dim) cls += " is-dim";
     return e(
       "div",
-      { className: cls },
+      {
+        className: cls,
+        ref: side === "s1" ? mcqS1HalfRef : mcqS2HalfRef,
+      },
       e(
         "button",
         {
@@ -4009,6 +4236,7 @@ const MainCanvas = (props) => {
       setStep3TableVisible(true);
       setStep3AnimDone(true);
       onUpdateNavText(copy.steps[3].navText);
+      onSetNavLocked(false);
       return;
     }
     setStep3HideMainBtns(true);
@@ -4034,6 +4262,7 @@ const MainCanvas = (props) => {
         setStep3TableVisible(true);
         setStep3AnimDone(true);
         onUpdateNavText(copy.steps[3].navText);
+        onSetNavLocked(false);
       }, 780),
     );
   }
@@ -4099,23 +4328,23 @@ const MainCanvas = (props) => {
   }
 
   var leftHalfClass = "graph-half";
-  if (graphFocus === "left") leftHalfClass += " is-centered";
-  if (graphFocus === "right") leftHalfClass += " is-hidden-graph";
+  if (centerLeft) leftHalfClass += " is-centered";
+  if (hideLeftGraph) leftHalfClass += " is-hidden-graph";
   var rightHalfClass = "graph-half";
-  if (graphFocus === "right") rightHalfClass += " is-centered-from-right";
-  if (graphFocus === "left") rightHalfClass += " is-hidden-graph";
+  if (centerRight) rightHalfClass += " is-centered-from-right";
+  if (hideRightGraph) rightHalfClass += " is-hidden-graph";
 
   var step3LeftBorder =
     isStep3 && step3AnimDone
       ? step3SelectedGraph === "s1"
-        ? "3px solid #ff5252"
-        : "3px solid #F2C94C"
+        ? "0.25vw solid #ff5252"
+        : "0.25vw solid #F2C94C"
       : undefined;
   var step3RightBorder =
     isStep3 && step3AnimDone
       ? step3Correct
-        ? "3px solid #7CFC00"
-        : "3px solid #F2C94C"
+        ? "0.25vw solid #7CFC00"
+        : "0.25vw solid #F2C94C"
       : undefined;
   var step3SelectedColumn =
     step3SelectedGraph === "s1"
@@ -4130,6 +4359,7 @@ const MainCanvas = (props) => {
     e(
       "div",
       {
+        ref: leftHalfRef,
         className: leftHalfClass,
         style:
           isStep3 && step3AnimDone
@@ -4137,8 +4367,11 @@ const MainCanvas = (props) => {
                 border: step3LeftBorder,
                 borderRadius: "1vw",
                 cursor: step3Correct ? "default" : "pointer",
+                zIndex: centerLeft ? 2 : undefined,
               }
-            : undefined,
+            : centerLeft
+              ? { zIndex: 2 }
+              : undefined,
         onClick:
           isStep3 && step3AnimDone && !step3Correct
             ? function () {
@@ -4174,6 +4407,7 @@ const MainCanvas = (props) => {
     e(
       "div",
       {
+        ref: rightHalfRef,
         className: rightHalfClass,
         style:
           isStep3 && step3AnimDone
@@ -4226,9 +4460,14 @@ const MainCanvas = (props) => {
     ),
   );
 
+  var drawBtnsHidden = isA1 && !drawReady && !drawEmergedRef.current && !startAtFinal;
   var drawButtons = e(
     "div",
-    { className: "action-buttons-row", key: "action-btns" },
+    {
+      className: "action-buttons-row",
+      key: "action-btns",
+      style: drawBtnsHidden ? { visibility: "hidden" } : undefined,
+    },
     e("button", {
       ref: drawPopBtnRef,
       className: "draw-btn draw-pop" + (drawnPop ? " is-hidden" : ""),
@@ -4356,34 +4595,36 @@ const MainCanvas = (props) => {
       ];
       if (showAnswerSlot) {
         midKids.push(e("span", { className: "range-eq", key: "eq2" }, "="));
-        midKids.push(
-          renderRangeValFlip(
-            "ans",
-            answerBtnRef,
-            answerFlipped,
-            "?",
-            String(cfg.result),
-            answerFlipped ? undefined : handleAnswerTap,
-          ),
-        );
       }
       kids.push(
         e("div", { key: "mid", className: "range-formula-mid" }, midKids),
       );
-      kids.push(
-        e(
-          "div",
-          { key: "res-slot", className: "range-result-slot" },
+      if (showAnswerSlot) {
+        kids.push(
           e(
             "div",
             {
-              ref: resultBtnRef,
-              className: "range-val-btn is-static filled " + cfg.resultClass,
+              key: "ans",
+              ref: answerBtnRef,
+              className: "range-val-btn range-ans-keep",
+              onClick: answerFlipped ? undefined : handleAnswerTap,
             },
-            String(cfg.result),
+            e(
+              "div",
+              {
+                className:
+                  "range-flip-inner" + (answerFlipped ? " is-flipped" : ""),
+              },
+              e("div", { className: "range-flip-face range-flip-front" }, "?"),
+              e(
+                "div",
+                { className: "range-flip-face range-flip-back" },
+                fmtNum(cfg.result),
+              ),
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
     return e(
       "div",
@@ -4402,141 +4643,157 @@ const MainCanvas = (props) => {
     );
   }
 
+  var rangeBtnsHidden = isC1 && !rangeReady && !rangeEmergedRef.current && !startAtFinal;
   var rangeButtons = e(
     "div",
-    { className: "action-buttons-row", key: "range-btns" },
+    {
+      className: "action-buttons-row",
+      key: "range-btns",
+      style: rangeBtnsHidden ? { visibility: "hidden" } : undefined,
+    },
     renderRangeBtn("pop"),
     renderRangeBtn("s1"),
     renderRangeBtn("s2"),
   );
 
   function renderMeanEq(eq, kind) {
-    eq = deriveMeanOps(eq, kind);
-    function fade(vis, val) {
-      var on = !!vis && (val === undefined || val !== "");
-      return { opacity: on ? 1 : 0 };
-    }
     if (eq.sumOnly) {
       return e("span", { className: "mean-eq-sum" }, eq.t);
     }
-    if (kind === "den") {
-      return e(
+    var terms = eq.terms || [];
+    var lhsKids = [];
+    var last = terms.length - 1;
+    terms.forEach(function (term, i) {
+      var filled =
+        kind === "den"
+          ? !!(term.visF && term.f !== "")
+          : !!(term.visX && term.x !== "" && term.visF && term.f !== "");
+      var pending = i > 0 && !filled;
+      var isLast = i === last;
+      var termKids;
+      if (kind === "den") {
+        termKids = [
+          e(
+            "span",
+            {
+              key: "f",
+              ref: isLast ? eqDenARef : undefined,
+              className: "mean-eq-slot",
+              style: { opacity: term.visF && term.f !== "" ? 1 : 0 },
+            },
+            term.f || "\u00a0",
+          ),
+        ];
+      } else {
+        termKids = [
+          e(
+            "span",
+            {
+              key: "x",
+              ref: isLast ? eqARef : undefined,
+              className: "mean-eq-slot",
+              style: { opacity: term.visX && term.x !== "" ? 1 : 0 },
+            },
+            term.x || "\u00a0",
+          ),
+          e(
+            "span",
+            {
+              key: "times",
+              className: "mean-eq-op",
+              style: { opacity: filled ? 1 : 0 },
+            },
+            "×",
+          ),
+          e(
+            "span",
+            {
+              key: "f",
+              ref: isLast ? eqMRef : undefined,
+              className: "mean-eq-slot",
+              style: { opacity: term.visF && term.f !== "" ? 1 : 0 },
+            },
+            term.f || "\u00a0",
+          ),
+        ];
+      }
+      var termEl = e(
         "span",
-        { className: "mean-eq-line" },
-        e(
-          "span",
-          {
-            ref: eqDenARef,
-            className: "mean-eq-slot",
-            style: fade(eq.visA, eq.a),
-          },
-          eq.a || "\u00a0",
-        ),
-        e("span", { className: "mean-eq-op", style: fade(eq.visPlus) }, "+"),
-        e(
-          "span",
-          {
-            ref: eqDenBRef,
-            className: "mean-eq-slot",
-            style: fade(eq.visB, eq.b),
-          },
-          eq.b || "\u00a0",
-        ),
-        e("span", { className: "mean-eq-op", style: fade(eq.visEq) }, "="),
-        e(
-          "span",
-          { className: "mean-eq-slot", style: fade(eq.visT, eq.t) },
-          eq.t || "\u00a0",
-        ),
+        {
+          key: "term-" + i,
+          className: "mean-eq-term" + (pending ? " is-pending" : ""),
+        },
+        termKids,
       );
-    }
-    var kids = [
+      if (i === 0) {
+        lhsKids.push(termEl);
+      } else {
+        lhsKids.push(
+          e(
+            "span",
+            {
+              key: "chunk-" + i,
+              className: "mean-eq-chunk" + (term.open ? " is-open" : ""),
+            },
+            e(
+              "span",
+              { className: "mean-eq-chunk-inner" },
+              e("span", { className: "mean-eq-op" }, "+"),
+              termEl,
+            ),
+          ),
+        );
+      }
+    });
+    return e(
+      "span",
+      {
+        className: "mean-eq-line" + (eq.visInner ? " is-on" : ""),
+      },
       e(
         "span",
         {
-          key: "a",
-          ref: eqARef,
-          className: "mean-eq-slot",
-          style: fade(eq.visA, eq.a),
+          className: "mean-eq-lhs",
+          ref: kind === "den" ? meanDenLhsRef : meanNumLhsRef,
         },
-        eq.a || "\u00a0",
-      ),
-    ];
-    if (!eq.leftIsSum) {
-      kids.push(
-        e(
-          "span",
-          { key: "times", className: "mean-eq-op", style: fade(eq.visTimes) },
-          "×",
-        ),
-        e(
-          "span",
-          {
-            key: "m",
-            ref: eqMRef,
-            className: "mean-eq-slot",
-            style: fade(eq.visM, eq.m),
-          },
-          eq.m || "\u00a0",
-        ),
-      );
-    }
-    kids.push(
-      e(
-        "span",
-        { key: "plus", className: "mean-eq-op", style: fade(eq.visPlus) },
-        "+",
+        e("span", { className: "mean-eq-lhs-inner" }, lhsKids),
       ),
       e(
         "span",
         {
-          key: "b",
-          ref: eqBRef,
-          className: "mean-eq-slot",
-          style: fade(eq.visB, eq.b),
+          className: "mean-eq-op mean-eq-eq",
+          style: { opacity: eq.visT && eq.t !== "" ? 1 : 0 },
         },
-        eq.b || "\u00a0",
-      ),
-      e(
-        "span",
-        { key: "bn", className: "mean-eq-op", style: fade(eq.visBn) },
-        "×",
-      ),
-      e(
-        "span",
-        {
-          key: "n",
-          ref: eqNRef,
-          className: "mean-eq-slot",
-          style: fade(eq.visN, eq.n),
-        },
-        eq.n || "\u00a0",
-      ),
-      e(
-        "span",
-        { key: "eq", className: "mean-eq-op", style: fade(eq.visEq) },
         "=",
       ),
       e(
         "span",
         {
-          key: "t",
-          className: "mean-eq-slot",
-          style: fade(eq.visT, eq.t),
+          className: "mean-eq-slot mean-eq-rhs",
+          style: { opacity: eq.visT && eq.t !== "" ? 1 : 0 },
         },
         eq.t || "\u00a0",
       ),
     );
-    return e("span", { className: "mean-eq-line" }, kids);
   }
 
-  function renderMeanFlip(key, ref, flipped, frontHtml, backChild, onClick) {
+  function renderMeanFlip(
+    key,
+    ref,
+    flipped,
+    frontHtml,
+    backChild,
+    onClick,
+    notTappable,
+  ) {
+    var cls = "range-val-btn mean-frac-btn";
+    if (notTappable) cls += " not-tappable";
     return e(
       "div",
       {
         key: key,
         ref: ref,
-        className: "range-val-btn mean-frac-btn",
+        className: cls,
         onClick: onClick,
       },
       e(
@@ -4600,19 +4857,25 @@ const MainCanvas = (props) => {
             !meanDenFlipped && meanStage === "den"
               ? handleMeanDenTap
               : undefined,
+            !meanDenFlipped && meanStage === "num",
           ),
         ),
       );
       var ansKids = [];
       if (meanShowAnswer) {
         ansKids.push(e("span", { className: "range-eq", key: "eq2" }, "="));
-        ansKids.push(
+      }
+      kids.push(
+        e("div", { key: "mid", className: "mean-formula-mid" }, ansKids),
+      );
+      if (meanShowAnswer) {
+        kids.push(
           e(
             "div",
             {
               key: "ans",
               ref: meanAnsBtnRef,
-              className: "range-val-btn",
+              className: "range-val-btn range-ans-keep",
               onClick: meanAnsFlipped ? undefined : handleMeanAnsTap,
             },
             e(
@@ -4625,29 +4888,12 @@ const MainCanvas = (props) => {
               e(
                 "div",
                 { className: "range-flip-face range-flip-back" },
-                String(cfg.mean),
+                fmtNum(cfg.mean),
               ),
             ),
           ),
         );
       }
-      kids.push(
-        e("div", { key: "mid", className: "mean-formula-mid" }, ansKids),
-      );
-      kids.push(
-        e(
-          "div",
-          { key: "res-slot", className: "range-result-slot" },
-          e(
-            "div",
-            {
-              ref: meanResultRef,
-              className: "range-val-btn is-static filled " + cfg.resultClass,
-            },
-            String(cfg.mean),
-          ),
-        ),
-      );
     }
     return e(
       "div",
@@ -4666,9 +4912,14 @@ const MainCanvas = (props) => {
     );
   }
 
+  var meanBtnsHidden = isB1 && !meanReady && !meanEmergedRef.current && !startAtFinal;
   var meanButtons = e(
     "div",
-    { className: "action-buttons-row", key: "mean-btns" },
+    {
+      className: "action-buttons-row",
+      key: "mean-btns",
+      style: meanBtnsHidden ? { visibility: "hidden" } : undefined,
+    },
     renderMeanBtn("pop"),
     renderMeanBtn("s1"),
     renderMeanBtn("s2"),
@@ -4814,7 +5065,9 @@ const MainCanvas = (props) => {
         e(
           "div",
           { className: "step3-header-row" },
-          e("div", { className: "step3-cell step3-cell-label" }),
+          e("div", {
+            className: "step3-cell step3-cell-label step3-cell-empty",
+          }),
           e(
             "div",
             {

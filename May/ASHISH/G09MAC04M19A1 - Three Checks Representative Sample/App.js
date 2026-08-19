@@ -1,20 +1,4 @@
-function getProgress(step) {
-  if (step === 0) return 0;
-  if (step === 1) return 1;
-  if (step === 2) return 2;
-  if (step === "A1") return 3;
-  if (step === "A2") return 4;
-  if (step === "A3") return 5;
-  if (step === "C1") return 6;
-  if (step === "C2") return 7;
-  if (step === "C3") return 8;
-  if (step === "B1") return 9;
-  if (step === "B2") return 10;
-  if (step === "B3") return 11;
-  if (step === 3) return 12;
-  if (step === 4) return 13;
-  return 0;
-}
+var CHECKPOINTS = new Set([1, "A1", "A2", "B1", "B2", "C1", "C2", 3]);
 
 function getNextStep(step) {
   if (step === 1) return 2;
@@ -24,20 +8,6 @@ function getNextStep(step) {
   if (step === "C2") return "C3";
   if (step === "B1") return "B2";
   if (step === "B2") return "B3";
-  return step;
-}
-
-function getPrevStep(step) {
-  if (step === 2) return 1;
-  if (step === "A1") return 2;
-  if (step === "A2") return "A1";
-  if (step === "A3") return "A2";
-  if (step === "C1") return 2;
-  if (step === "C2") return "C1";
-  if (step === "C3") return "C2";
-  if (step === "B1") return 2;
-  if (step === "B2") return "B1";
-  if (step === "B3") return "B2";
   return step;
 }
 
@@ -68,7 +38,6 @@ const App = () => {
   const [dynamicQuestionText, setDynamicQuestionText] = useState(null);
   const [resetKey, setResetKey] = useState(0);
   const [startAtFinal, setStartAtFinal] = useState(false);
-  const [farthestProgress, setFarthestProgress] = useState(0);
   const [nextNudgeDismissed, setNextNudgeDismissed] = useState(false);
   const [remainingTests, setRemainingTests] = useState([
     "shape",
@@ -77,10 +46,38 @@ const App = () => {
   ]);
   const [completedTests, setCompletedTests] = useState([]);
 
+  const trailRef = useRef([1]);
+  const trailPosRef = useRef(-1);
+  const farthestTrailRef = useRef(-1);
+
   const fullscreenButtonRef = useRef(null);
   const nextButtonRef = useRef(null);
-  const progressRef = useRef({ step: 0 });
-  progressRef.current = { step: currentStep };
+  const prevIsNextDisabledRef = useRef(isNextDisabled);
+
+  useEffect(
+    function () {
+      if (prevIsNextDisabledRef.current && !isNextDisabled) {
+        setNextNudgeDismissed(false);
+      }
+      prevIsNextDisabledRef.current = isNextDisabled;
+    },
+    [isNextDisabled],
+  );
+
+  function pushCheckpoint(step) {
+    if (!CHECKPOINTS.has(step)) return;
+    var trail = trailRef.current;
+    var pos = trailPosRef.current;
+    if (pos >= 0 && pos < trail.length && trail[pos] === step) return;
+    var idx = trail.indexOf(step);
+    if (idx === -1) {
+      trail.push(step);
+      trailPosRef.current = trail.length - 1;
+    } else {
+      trailPosRef.current = idx;
+    }
+    farthestTrailRef.current = Math.max(farthestTrailRef.current, trailPosRef.current);
+  }
 
   const isCatchingUp = useCallback(
     function () {
@@ -93,22 +90,26 @@ const App = () => {
       if (currentStep === "C1" || currentStep === "C2" || currentStep === "C3") {
         return completedTests.indexOf("spread") !== -1;
       }
-      return getProgress(currentStep) < farthestProgress - 1e-6;
+      return trailPosRef.current < farthestTrailRef.current;
     },
-    [currentStep, farthestProgress, completedTests],
+    [currentStep, completedTests],
   );
 
   const handleStart = () => {
     if (typeof playSound === "function") playSound("click");
-    setFarthestProgress(1);
+    trailRef.current = [1];
+    trailPosRef.current = 0;
+    farthestTrailRef.current = 0;
     setStartAtFinal(false);
     setCurrentStep(1);
   };
 
   const handleStartOver = () => {
     if (typeof playSound === "function") playSound("click");
+    trailRef.current = [1];
+    trailPosRef.current = -1;
+    farthestTrailRef.current = -1;
     setCurrentStep(0);
-    setFarthestProgress(0);
     setIsNextDisabled(true);
     setNavLocked(false);
     setDynamicNavText(null);
@@ -121,12 +122,6 @@ const App = () => {
 
   const setNextEnabled = useCallback(function (enabled) {
     setIsNextDisabled(!enabled);
-    if (enabled) {
-      var prog = getProgress(progressRef.current.step);
-      setFarthestProgress(function (prev) {
-        return Math.max(prev, prog);
-      });
-    }
   }, []);
 
   const setNavLock = useCallback(function (locked) {
@@ -138,12 +133,13 @@ const App = () => {
       setDynamicNavText(null);
       setDynamicQuestionText(null);
 
+      pushCheckpoint(currentStep);
+
+      var isTrailReplay = startAtFinal && trailPosRef.current >= 0 && farthestTrailRef.current >= 0;
+
       if (currentStep === 1) {
         setIsNextDisabled(false);
         setNavLocked(false);
-        setFarthestProgress(function (prev) {
-          return Math.max(prev, 1);
-        });
       } else if (currentStep === 2) {
         setIsNextDisabled(true);
       } else if (
@@ -154,7 +150,7 @@ const App = () => {
         currentStep === "B1" ||
         currentStep === "B2"
       ) {
-        setIsNextDisabled(true);
+        if (!isTrailReplay) setIsNextDisabled(true);
       } else if (currentStep === "A3") {
         setIsNextDisabled(true);
         setNavLocked(false);
@@ -165,9 +161,6 @@ const App = () => {
           return prev.filter(function (id) {
             return id !== "shape";
           });
-        });
-        setFarthestProgress(function (prev) {
-          return Math.max(prev, 5);
         });
       } else if (currentStep === "C3") {
         setIsNextDisabled(true);
@@ -180,9 +173,6 @@ const App = () => {
             return id !== "spread";
           });
         });
-        setFarthestProgress(function (prev) {
-          return Math.max(prev, 8);
-        });
       } else if (currentStep === "B3") {
         setIsNextDisabled(true);
         setNavLocked(false);
@@ -194,19 +184,11 @@ const App = () => {
             return id !== "centre";
           });
         });
-        setFarthestProgress(function (prev) {
-          return Math.max(prev, 11);
-        });
       } else if (currentStep === 3) {
-        setIsNextDisabled(true);
+        if (!isTrailReplay) setIsNextDisabled(true);
         setNavLocked(false);
-        setFarthestProgress(function (prev) {
-          return Math.max(prev, 12);
-        });
       } else if (currentStep === 4) {
-        setFarthestProgress(function (prev) {
-          return Math.max(prev, 13);
-        });
+        // final step
       }
     },
     [currentStep, startAtFinal],
@@ -219,19 +201,31 @@ const App = () => {
     [currentStep, startAtFinal],
   );
 
-  var currentProgress = getProgress(currentStep);
-  var atFarthestFrontier = Math.abs(currentProgress - farthestProgress) < 1e-6;
   var showNextNudge =
     !isNextDisabled &&
     !navLocked &&
     currentStep !== 0 &&
-    atFarthestFrontier &&
     !nextNudgeDismissed;
-  var showFullscreenNudge = atFarthestFrontier && !nextNudgeDismissed;
+  var showFullscreenNudge = !nextNudgeDismissed;
+
+  var isBehindFarthest = trailPosRef.current < farthestTrailRef.current;
 
   const handleNext = () => {
     if (isNextDisabled || navLocked) return;
     if (typeof playSound === "function") playSound("click");
+
+    if (isBehindFarthest) {
+      var nextPos = trailPosRef.current + 1;
+      if (nextPos <= farthestTrailRef.current && nextPos < trailRef.current.length) {
+        trailPosRef.current = nextPos;
+        var targetStep = trailRef.current[nextPos];
+        setStartAtFinal(true);
+        setDynamicNavText(null);
+        setDynamicQuestionText(null);
+        setCurrentStep(targetStep);
+        return;
+      }
+    }
 
     var catchingUp = isCatchingUp();
     var nextStep = getNextStep(currentStep);
@@ -257,6 +251,9 @@ const App = () => {
 
     if (nextStep === currentStep) return;
 
+    pushCheckpoint(nextStep);
+    farthestTrailRef.current = Math.max(farthestTrailRef.current, trailPosRef.current);
+
     setStartAtFinal(catchingUp);
     setDynamicNavText(null);
     setDynamicQuestionText(null);
@@ -265,24 +262,34 @@ const App = () => {
 
   const handlePrev = () => {
     if (navLocked) return;
-    if (currentStep === 1) return;
     if (typeof playSound === "function") playSound("click");
+
+    var pos = trailPosRef.current;
+    if (pos <= 0) return;
+
+    var prevPos = pos - 1;
+    trailPosRef.current = prevPos;
+    var targetStep = trailRef.current[prevPos];
 
     setStartAtFinal(true);
     setDynamicNavText(null);
     setDynamicQuestionText(null);
-    setCurrentStep(getPrevStep(currentStep));
+    setCurrentStep(targetStep);
   };
 
   const handleSelectTest = useCallback(
     function (testId) {
       var alreadyDone = completedTests.indexOf(testId) !== -1;
+      var step;
+      if (testId === "shape") step = "A1";
+      else if (testId === "centre") step = "B1";
+      else step = "C1";
+      pushCheckpoint(step);
+      farthestTrailRef.current = Math.max(farthestTrailRef.current, trailPosRef.current);
       setStartAtFinal(alreadyDone);
       setDynamicNavText(null);
       setDynamicQuestionText(null);
-      if (testId === "shape") setCurrentStep("A1");
-      else if (testId === "centre") setCurrentStep("B1");
-      else if (testId === "spread") setCurrentStep("C1");
+      setCurrentStep(step);
     },
     [completedTests],
   );
@@ -304,6 +311,7 @@ const App = () => {
   };
 
   const getNavText = () => {
+    if (navLocked) return " ";
     if (dynamicNavText !== null && dynamicNavText !== undefined) {
       return dynamicNavText;
     }
@@ -334,7 +342,7 @@ const App = () => {
   var canvasGroup = currentStep === 1 ? "s1" : "flow";
   var mainCanvasKey = resetKey + "-" + canvasGroup;
 
-  var isPrevDisabled = currentStep === 1 || currentStep === 3 || navLocked;
+  var isPrevDisabled = trailPosRef.current <= 0 || isNextDisabled || navLocked;
 
   if (currentStep === 4) {
     return React.createElement(
@@ -352,6 +360,13 @@ const App = () => {
           left: true,
         }),
       ),
+      React.createElement(Nudge, {
+        targetRef: fullscreenButtonRef,
+        active: showFullscreenNudge,
+        onDismiss: function () {
+          setNextNudgeDismissed(true);
+        },
+      }),
     );
   }
 
