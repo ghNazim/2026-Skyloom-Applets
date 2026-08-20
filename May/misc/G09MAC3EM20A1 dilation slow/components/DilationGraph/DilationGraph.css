@@ -1,0 +1,384 @@
+.dilation-graph-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5vw;
+  overflow: visible;
+}
+
+.dilation-graph-row {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dilation-svg-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background: rgba(12, 35, 55, 0.85); */
+  border-radius: 1.2vw;
+}
+
+.dilation-coordinate-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.dilation-center {
+  pointer-events: none;
+}
+
+.dilation-click-point {
+  cursor: pointer;
+}
+
+.dilation-k-slider-wrap {
+  width: 100%;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1vw;
+  flex-shrink: 0;
+  gap: 0.4vw;
+  min-height: 5vw;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+  overflow: visible;
+}
+
+.dilation-k-slider-wrap.slider-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dilation-zoom-labels {
+  width: 36.4vw;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.2vw;
+}
+
+.dilation-zoom-label {
+  font-size: 2vw;
+  font-style: italic;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.dilation-zoom-label.dimmed {
+  opacity: 0.35;
+}
+
+.dilation-scale-label {
+  font-size: 2vw;
+  font-weight: 700;
+  color: #2ecc71;
+  margin-bottom: 0.3vw;
+}
+
+.dilation-k-track-outer {
+  position: relative;
+  width: 36.4vw;
+  box-sizing: content-box;
+  padding-left: var(--thumb-half, 1.32vw);
+  padding-right: var(--thumb-half, 1.32vw);
+  overflow: visible;
+}
+
+.dilation-k-track-outer.slider-locked {
+  cursor: default;
+}
+
+.dilation-k-track {
+  width: 100%;
+  position: relative;
+  touch-action: none;
+  cursor: pointer;
+  overflow: visible;
+}
+
+.dilation-k-track.slider-locked {
+  cursor: default;
+}
+
+.slider-drag-nudge {
+  position: absolute;
+  top: 50%;
+  width: 5vw;
+  height: auto;
+  z-index: 6;
+  pointer-events: none;
+  user-select: none;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+}
+
+.dilation-center-marker {
+  position: absolute;
+  top: 50%;
+  width: 3.2vw;
+  height: 3.2vw;
+  border-radius: 50%;
+  border: 0.2vw solid rgba(230, 126, 34, 0.55);
+  background: transparent;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Centre marker carrying its k value (k = 1), shown from step 5 on */
+.dilation-center-marker.dilation-center-marker-value {
+  width: 3.6vw;
+  height: 3.6vw;
+  background: #0a1a2e;
+  border-color: rgba(230, 126, 34, 0.9);
+  color: #e67e22;
+  font-size: 1.35vw;
+}
+
+.dilation-thumb-small {
+  width: 2.64vw !important;
+  height: 2.64vw !important;
+  font-size: 0 !important;
+}
+
+.dilation-thumb-small.horizontal {
+  transform: translate(-50%, -50%);
+}
+
+.dilation-thumb-value {
+  width: 4.32vw !important;
+  height: 4.32vw !important;
+  font-size: 1.44vw !important;
+}
+
+/* Slider track (from GraphPanel half-slider) */
+.gp-slider-track-wrap {
+  position: relative;
+  width: 28.6vw;
+  height: 3.8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gp-slider-track-bg {
+  position: absolute;
+  pointer-events: none;
+}
+
+.gp-slider-track-bg.horizontal {
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 0.77vw;
+  border-radius: 0.5vw;
+}
+
+.gp-slider-track-bg.horizontal.gp-track-seg-left {
+  border-radius: 0.5vw 0 0 0.5vw;
+}
+
+.gp-slider-track-bg.horizontal.gp-track-seg-right {
+  border-radius: 0 0.5vw 0.5vw 0;
+}
+
+.gp-slider-track-inactive {
+  background: rgba(60, 80, 100, 0.85);
+}
+
+.gp-slider-track-active {
+  background: #7ec8e3;
+}
+
+.gp-slider-thumb {
+  position: absolute;
+  width: 3.83vw;
+  height: 3.83vw;
+  border-radius: 50%;
+  background: #0a1a2e;
+  border: 0.35vw solid #ffd700;
+  box-shadow: 0 0.15vw 0.5vw rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35vw;
+  font-weight: 700;
+  color: #ffffff;
+  z-index: 10;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  line-height: 1;
+  font-family: system-ui, sans-serif;
+}
+
+.gp-slider-thumb:active {
+  cursor: grabbing;
+}
+
+.gp-slider-thumb.slider-thumb-locked {
+  pointer-events: none;
+  cursor: default;
+}
+
+.gp-slider-thumb.horizontal {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.gp-range-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 4;
+  margin: 0;
+}
+
+.gp-range-input:disabled {
+  cursor: default;
+}
+
+.gp-range-input::-webkit-slider-runnable-track {
+  height: 0.77vw;
+  background: transparent;
+  border-radius: 0.5vw;
+}
+
+.gp-range-input::-moz-range-track {
+  height: 0.77vw;
+  background: transparent;
+  border-radius: 0.5vw;
+}
+
+.gp-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 3.83vw;
+  height: 3.83vw;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-top: -1.53vw;
+  box-shadow: none;
+}
+
+.gp-range-input::-moz-range-thumb {
+  width: 3.83vw;
+  height: 3.83vw;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.gp-range-input:disabled::-webkit-slider-thumb {
+  cursor: default;
+}
+
+.gp-range-input:disabled::-moz-range-thumb {
+  cursor: default;
+}
+
+.dilation-thumb-small + .gp-range-input::-webkit-slider-thumb,
+.dilation-k-track:has(.dilation-thumb-small) .gp-range-input::-webkit-slider-thumb {
+  width: 2.64vw;
+  height: 2.64vw;
+  margin-top: -0.94vw;
+}
+
+.dilation-thumb-small + .gp-range-input::-moz-range-thumb,
+.dilation-k-track:has(.dilation-thumb-small) .gp-range-input::-moz-range-thumb {
+  width: 2.64vw;
+  height: 2.64vw;
+}
+
+.dilation-k-track:has(.dilation-thumb-value) .gp-range-input::-webkit-slider-thumb {
+  width: 4.32vw;
+  height: 4.32vw;
+  margin-top: -1.77vw;
+}
+
+.dilation-k-track:has(.dilation-thumb-value) .gp-range-input::-moz-range-thumb {
+  width: 4.32vw;
+  height: 4.32vw;
+}
+
+.dilation-k-track .dilation-range-hit::-webkit-slider-runnable-track {
+  height: 0.77vw;
+  background: transparent;
+  border: none;
+}
+
+.dilation-k-track .dilation-range-hit::-moz-range-track {
+  height: 0.77vw;
+  background: transparent;
+  border: none;
+}
+
+.dilation-k-track:has(.dilation-thumb-small) .dilation-range-hit::-webkit-slider-thumb {
+  width: 2.64vw;
+  height: 2.64vw;
+  margin-top: -0.94vw;
+}
+
+.dilation-k-track:has(.dilation-thumb-small) .dilation-range-hit::-moz-range-thumb {
+  width: 2.64vw;
+  height: 2.64vw;
+}
+
+.dilation-k-track:has(.dilation-thumb-value) .dilation-range-hit::-webkit-slider-thumb {
+  width: 4.32vw;
+  height: 4.32vw;
+  margin-top: -1.77vw;
+}
+
+.dilation-k-track:has(.dilation-thumb-value) .dilation-range-hit::-moz-range-thumb {
+  width: 4.32vw;
+  height: 4.32vw;
+}
+
+.dilation-k-track .dilation-range-hit::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 3.83vw;
+  height: 3.83vw;
+  margin-top: -1.53vw;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.dilation-k-track .dilation-range-hit::-moz-range-thumb {
+  width: 3.83vw;
+  height: 3.83vw;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+}

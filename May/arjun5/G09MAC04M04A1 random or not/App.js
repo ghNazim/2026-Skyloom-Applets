@@ -19,14 +19,20 @@ const App = () => {
     if (typeof playSound === "function") playSound(name);
   };
 
-  const handleStart = () => {
-    play("click");
+  const resetProgress = () => {
     setDynamicNavText(null);
     setIsNextDisabled(true);
     setCompletedQuestions([]);
     setQuestionIndex(0);
     setFarthestCompletedStep(0);
     setNavInitialStage("start");
+    setNextNudgeDismissed(false);
+    setResetKey((prev) => prev + 1);
+  };
+
+  const handleStart = () => {
+    play("click");
+    resetProgress();
     setCurrentStep(1);
   };
 
@@ -39,13 +45,19 @@ const App = () => {
     setResetKey((prev) => prev + 1);
   };
 
+  const handleStartOver = () => {
+    play("click");
+    resetProgress();
+    setCurrentStep(0);
+  };
+
   useEffect(() => {
     setNextNudgeDismissed(false);
   }, [currentStep, questionIndex]);
 
   const handleNext = () => {
     if (isNextDisabled) return;
-    if (currentStep === 3) return;
+    if (currentStep === 7) return;
     play("click");
     setDynamicNavText(null);
     setIsNextDisabled(true);
@@ -60,6 +72,31 @@ const App = () => {
       }
       setCurrentStep(2);
       return;
+    }
+
+    if (currentStep === 3) {
+      setNavInitialStage(farthestCompletedStep >= 4 ? "final" : "start");
+      setCurrentStep(4);
+      setResetKey((prev) => prev + 1);
+      return;
+    }
+
+    if (currentStep === 4) {
+      setNavInitialStage(farthestCompletedStep >= 5 ? "final" : "start");
+      setCurrentStep(5);
+      setResetKey((prev) => prev + 1);
+      return;
+    }
+
+    if (currentStep === 5) {
+      setNavInitialStage(farthestCompletedStep >= 6 ? "final" : "start");
+      setCurrentStep(6);
+      setResetKey((prev) => prev + 1);
+      return;
+    }
+
+    if (currentStep === 6) {
+      setCurrentStep(7);
     }
   };
 
@@ -84,6 +121,36 @@ const App = () => {
       setCurrentStep(1);
       setQuestionIndex(CHOICE_COUNT - 1);
       setNavInitialStage("final");
+      setResetKey((prev) => prev + 1);
+      return;
+    }
+
+    if (currentStep === 4) {
+      play("click");
+      setDynamicNavText(null);
+      setIsNextDisabled(true);
+      setNavInitialStage("final");
+      setCurrentStep(3);
+      setResetKey((prev) => prev + 1);
+      return;
+    }
+
+    if (currentStep === 5) {
+      play("click");
+      setDynamicNavText(null);
+      setIsNextDisabled(true);
+      setNavInitialStage("final");
+      setCurrentStep(4);
+      setResetKey((prev) => prev + 1);
+      return;
+    }
+
+    if (currentStep === 6) {
+      play("click");
+      setDynamicNavText(null);
+      setIsNextDisabled(true);
+      setNavInitialStage("final");
+      setCurrentStep(5);
       setResetKey((prev) => prev + 1);
     }
   };
@@ -116,7 +183,10 @@ const App = () => {
   };
 
   const showNextNudge = !isNextDisabled && !nextNudgeDismissed;
-  const isPrevDisabled = isNextDisabled || (currentStep === 1 && questionIndex === 0);
+  const isPrevDisabled = isNextDisabled || (
+    (currentStep === 1 && questionIndex === 0) ||
+    (currentStep === 3)
+  );
 
   const renderFullscreen = (config, onButtonClick) =>
     React.createElement(
@@ -146,6 +216,10 @@ const App = () => {
 
   if (currentStep === 2) {
     return renderFullscreen(APP_DATA.summary, handleContinue);
+  }
+
+  if (currentStep === 7) {
+    return renderFullscreen(APP_DATA.final, handleStartOver);
   }
 
   return React.createElement(
