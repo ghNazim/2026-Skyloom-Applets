@@ -71,7 +71,7 @@ const GameRow = (props) => {
   const renderOutcomeLabel = (row, col) =>
     typeof createOutcomeLabel === "function"
       ? createOutcomeLabel(e, row, col)
-      : `${row},${col}`;
+      : `${row}, ${col}`;
 
   const makeBurstParticles = () => {
     const angles = [0, 45, 90, 135, 180, 225, 270, 315];
@@ -412,7 +412,7 @@ const GameRow = (props) => {
           showGameOver
             ? e(
                 "div",
-                { className: "life-status game-over-text" },
+                { className: "life-status game-over-text" + " " + current_language},
                 APP_DATA.steps[5].gameOver,
               )
             : lifeStatusText

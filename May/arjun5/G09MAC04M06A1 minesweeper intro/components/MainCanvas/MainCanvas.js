@@ -34,7 +34,7 @@ const MainCanvas = (props) => {
   const stepData = APP_DATA.steps[step] || {};
 
   const cellKey = (row, col) => `${row}-${col}`;
-  const cellLabel = (row, col) => `${row},${col}`;
+  const cellLabel = (row, col) => `${row}, ${col}`;
 
   const play = (name) => {
     if (typeof playSound === "function") playSound(name);
@@ -453,7 +453,13 @@ const MainCanvas = (props) => {
             dangerouslySetInnerHTML: { __html: html(stepData.boxedText) },
           }),
           e("div", {
-            className: `safe-chip-row${game.safeOutcomes.length > 4 ? " many-chips" : ""}`,
+            className: `safe-chip-row${
+              game.safeOutcomes.length === 6
+                ? " many-chips chips-6"
+                : game.safeOutcomes.length > 4
+                  ? " many-chips"
+                  : ""
+            }`,
           }, game.safeOutcomes.map(renderSafeChip)),
         ),
         showWarning

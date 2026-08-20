@@ -31,7 +31,7 @@ function createOutcomeLabel(createElement, row, col) {
     "span",
     { className: "outcome-label" },
     createElement("span", { className: "outcome-row" }, String(row)),
-    createElement("span", { className: "outcome-comma" }, ","),
+    createElement("span", { className: "outcome-comma" }, ", "),
     createElement("span", { className: "outcome-col" }, String(col)),
   );
 }

@@ -724,11 +724,16 @@
 .game-over-text {
   font-style: normal;
   font-weight: 800;
-  font-size: 2.35vw;
+  font-size: 2.2vw;
   letter-spacing: 0.04em;
   transform: translate(0, 120%);
   animation: game-over-pulse 1.15s ease-in-out infinite;
   transform-origin: center;
+  
+}
+.game-over-text.id{
+  right: 4vw;
+  font-size:2vw;
 }
 
 @keyframes game-over-pulse {
@@ -738,7 +743,7 @@
     opacity: 0.72;
   }
   50% {
-    transform: translate(0, 120%) scale(1.12);
+    transform: translate(0, 120%) scale(1.02);
     opacity: 1;
   }
 }

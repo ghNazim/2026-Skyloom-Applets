@@ -1,34 +1,71 @@
 const MainCanvas = (props) => {
-  const { step, initialStage, onSetNextEnabled, onUpdateNavText } = props;
+  const { step, experiment: expProp, initialStage, onSetNextEnabled, onUpdateNavText } = props;
   const { useState, useEffect, useRef, useCallback } = React;
   const e = React.createElement;
 
-  const ZONE_A = ["a0", "a1", "a2"];
-  const ZONE_B = ["b0", "b1"];
-  const STEP2_VALUES = [1, 2, 3];
-  const STEP3_VALUES = [2, 4, 6, 8];
-  const STEP3_ANSWER = 6;
-  const ALL_SAMPLE_PAIRS = [
-    { a: 1, b: 1 },
-    { a: 1, b: 2 },
-    { a: 2, b: 1 },
-    { a: 2, b: 2 },
-    { a: 3, b: 1 },
-    { a: 3, b: 2 },
-  ];
+  var experiment = expProp || 1;
+  var cfg = EXPERIMENT_CONFIG[experiment] || EXPERIMENT_CONFIG[1];
+  var outcomesA = cfg.outcomesA;
+  var outcomesB = cfg.outcomesB;
+  var ALL_SAMPLE_PAIRS = cfg.samplePairs;
+  var STEP2_VALUES = cfg.step2Draggables;
+  var STEP3_VALUES = cfg.step3Choices;
+  var STEP3_ANSWER = cfg.nSAnswer;
+  var ZONE_A = outcomesA.map(function (_, i) { return "a" + i; });
+  var ZONE_B = outcomesB.map(function (_, i) { return "b" + i; });
+  var sampleCount = ALL_SAMPLE_PAIRS.length;
+  var isWide = sampleCount > 6;
+  var isExtraWide = sampleCount > 8;
+
+  function getStepData(stepNum) {
+    return APP_DATA.experiments[experiment].steps[stepNum];
+  }
+
+  var makeFalseArray = function (n) {
+    var arr = [];
+    for (var i = 0; i < n; i++) arr.push(false);
+    return arr;
+  };
+  var makeTrueArray = function (n) {
+    var arr = [];
+    for (var i = 0; i < n; i++) arr.push(true);
+    return arr;
+  };
+  var makeNullArray = function (n) {
+    var arr = [];
+    for (var i = 0; i < n; i++) arr.push(null);
+    return arr;
+  };
+
+  const emptyZones = function () {
+    var obj = {};
+    for (var i = 0; i < ZONE_A.length; i++) obj[ZONE_A[i]] = null;
+    for (var j = 0; j < ZONE_B.length; j++) obj[ZONE_B[j]] = null;
+    return obj;
+  };
+
+  const filledZones = function () {
+    var obj = {};
+    for (var i = 0; i < outcomesA.length; i++) obj["a" + i] = outcomesA[i];
+    for (var j = 0; j < outcomesB.length; j++) obj["b" + j] = outcomesB[j];
+    return obj;
+  };
+
+  const allCorrectZoneStatus = function () {
+    var obj = {};
+    for (var i = 0; i < ZONE_A.length; i++) obj[ZONE_A[i]] = "correct";
+    for (var j = 0; j < ZONE_B.length; j++) obj[ZONE_B[j]] = "correct";
+    return obj;
+  };
 
   const getEventCorrectSet = function (stepNum) {
-    var stepData = APP_DATA.steps[stepNum];
+    var stepData = getStepData(stepNum);
     var set = {};
     if (!stepData || !stepData.correctAnswers) return set;
     for (var i = 0; i < stepData.correctAnswers.length; i++) {
       set[stepData.correctAnswers[i]] = true;
     }
     return set;
-  };
-
-  const emptyZones = function () {
-    return { a0: null, a1: null, a2: null, b0: null, b1: null };
   };
 
   const [zoneValues, setZoneValues] = useState(emptyZones);
@@ -43,30 +80,9 @@ const MainCanvas = (props) => {
   const [locked, setLocked] = useState(false);
 
   /* step 4 */
-  const [sampleVisible, setSampleVisible] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
-  const [samplePairs, setSamplePairs] = useState([
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-  ]);
-  const [sampleRevealed, setSampleRevealed] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
+  const [sampleVisible, setSampleVisible] = useState(function () { return makeFalseArray(sampleCount); });
+  const [samplePairs, setSamplePairs] = useState(function () { return makeNullArray(sampleCount); });
+  const [sampleRevealed, setSampleRevealed] = useState(function () { return makeFalseArray(sampleCount); });
   const [clickableA, setClickableA] = useState(null);
   const [pairingBusy, setPairingBusy] = useState(false);
   const [step4Complete, setStep4Complete] = useState(false);
@@ -204,9 +220,9 @@ const MainCanvas = (props) => {
         setNSStatus("idle");
         setFeedbackStatus(null);
         setIsShaking(false);
-        setSampleVisible([false, false, false, false, false, false]);
-        setSamplePairs([null, null, null, null, null, null]);
-        setSampleRevealed([false, false, false, false, false, false]);
+        setSampleVisible(makeFalseArray(sampleCount));
+        setSamplePairs(makeNullArray(sampleCount));
+        setSampleRevealed(makeFalseArray(sampleCount));
         setClickableA(null);
         setPairingBusy(false);
         setStep4Complete(false);
@@ -215,27 +231,21 @@ const MainCanvas = (props) => {
       }
 
       if (stepNum === 2) {
-        setZoneValues({ a0: 1, a1: 2, a2: 3, b0: 1, b1: 2 });
-        setZoneStatus({
-          a0: "correct",
-          a1: "correct",
-          a2: "correct",
-          b0: "correct",
-          b1: "correct",
-        });
+        setZoneValues(filledZones());
+        setZoneStatus(allCorrectZoneStatus());
         setNSValue(null);
         setNSStatus("idle");
         setFeedbackStatus(null);
         setIsShaking(false);
         setLocked(true);
         lockedRef.current = true;
-        onUpdateNavText(APP_DATA.steps[2].navDone);
+        onUpdateNavText(getStepData(2).navDone);
         onSetNextEnabled(true);
         return;
       }
 
       if (stepNum === 3) {
-        setZoneValues({ a0: 1, a1: 2, a2: 3, b0: 1, b1: 2 });
+        setZoneValues(filledZones());
         setZoneStatus({});
         setNSValue(STEP3_ANSWER);
         setNSStatus("correct");
@@ -243,19 +253,19 @@ const MainCanvas = (props) => {
         setIsShaking(false);
         setLocked(true);
         lockedRef.current = true;
-        onUpdateNavText(APP_DATA.steps[3].navDone);
+        onUpdateNavText(getStepData(3).navDone);
         onSetNextEnabled(true);
         return;
       }
 
       if (stepNum === 4) {
-        setSampleVisible([true, true, true, true, true, true]);
+        setSampleVisible(makeTrueArray(sampleCount));
         setSamplePairs(ALL_SAMPLE_PAIRS.slice());
-        setSampleRevealed([true, true, true, true, true, true]);
+        setSampleRevealed(makeTrueArray(sampleCount));
         setClickableA(null);
         setPairingBusy(false);
         setStep4Complete(true);
-        onUpdateNavText(APP_DATA.steps[4].navDone);
+        onUpdateNavText(getStepData(4).navDone);
         onSetNextEnabled(true);
         return;
       }
@@ -268,16 +278,16 @@ const MainCanvas = (props) => {
           selected[ci] = true;
           statusMap[ci] = "correct";
         }
-        setSampleVisible([true, true, true, true, true, true]);
+        setSampleVisible(makeTrueArray(sampleCount));
         setSamplePairs(ALL_SAMPLE_PAIRS.slice());
-        setSampleRevealed([true, true, true, true, true, true]);
+        setSampleRevealed(makeTrueArray(sampleCount));
         setSelectedOutcomes(selected);
         setStep5BoxStatus(statusMap);
         setStep5Submitted(true);
         setStep5Result("correct");
         setStep5Transitioning(false);
         setStep5TitleReady(true);
-        onUpdateNavText(APP_DATA.steps[stepNum].navDone);
+        onUpdateNavText(getStepData(stepNum).navDone);
         onSetNextEnabled(true);
       }
     },
@@ -307,9 +317,9 @@ const MainCanvas = (props) => {
       setNSStatus("idle");
       setFeedbackStatus(null);
       setIsShaking(false);
-      setSampleVisible([false, false, false, false, false, false]);
-      setSamplePairs([null, null, null, null, null, null]);
-      setSampleRevealed([false, false, false, false, false, false]);
+      setSampleVisible(makeFalseArray(sampleCount));
+      setSamplePairs(makeNullArray(sampleCount));
+      setSampleRevealed(makeFalseArray(sampleCount));
       setClickableA(null);
       setPairingBusy(false);
       setStep4Complete(false);
@@ -326,25 +336,25 @@ const MainCanvas = (props) => {
         }, 0);
       } else if (step === 2) {
         setTimeout(function () {
-          onUpdateNavText(APP_DATA.steps[2].navText);
+          onUpdateNavText(getStepData(2).navText);
           onSetNextEnabled(false);
         }, 0);
       } else if (step === 3) {
-        setZoneValues({ a0: 1, a1: 2, a2: 3, b0: 1, b1: 2 });
+        setZoneValues(filledZones());
         setTimeout(function () {
-          onUpdateNavText(APP_DATA.steps[3].navText);
+          onUpdateNavText(getStepData(3).navText);
           onSetNextEnabled(false);
         }, 0);
       } else if (step === 4) {
         setPairingBusy(true);
         pairingBusyRef.current = true;
         setTimeout(function () {
-          onUpdateNavText(APP_DATA.steps[4].navText);
+          onUpdateNavText(getStepData(4).navText);
           onSetNextEnabled(false);
         }, 0);
 
         var staggerDelay = 120;
-        for (var i = 0; i < 6; i++) {
+        for (var i = 0; i < sampleCount; i++) {
           (function (idx) {
             addStep4Timer(
               function () {
@@ -353,7 +363,7 @@ const MainCanvas = (props) => {
                   next[idx] = true;
                   return next;
                 });
-                if (idx === 5) {
+                if (idx === sampleCount - 1) {
                   addStep4Timer(function () {
                     setClickableA(0);
                     clickableARef.current = 0;
@@ -367,13 +377,13 @@ const MainCanvas = (props) => {
           })(i);
         }
       } else if (step === 5) {
-        setSampleVisible([true, true, true, true, true, true]);
+        setSampleVisible(makeTrueArray(sampleCount));
         setSamplePairs(ALL_SAMPLE_PAIRS.slice());
-        setSampleRevealed([true, true, true, true, true, true]);
+        setSampleRevealed(makeTrueArray(sampleCount));
         setStep5Transitioning(true);
         setStep5TitleReady(false);
         setTimeout(function () {
-          onUpdateNavText(APP_DATA.steps[5].navText);
+          onUpdateNavText(getStepData(5).navText);
           onSetNextEnabled(false);
         }, 0);
         addStep4Timer(function () {
@@ -383,13 +393,13 @@ const MainCanvas = (props) => {
           setStep5Transitioning(false);
         }, 700);
       } else if (step === 6) {
-        setSampleVisible([true, true, true, true, true, true]);
+        setSampleVisible(makeTrueArray(sampleCount));
         setSamplePairs(ALL_SAMPLE_PAIRS.slice());
-        setSampleRevealed([true, true, true, true, true, true]);
+        setSampleRevealed(makeTrueArray(sampleCount));
         setStep5Transitioning(false);
         setStep5TitleReady(true);
         setTimeout(function () {
-          onUpdateNavText(APP_DATA.steps[6].navText);
+          onUpdateNavText(getStepData(6).navText);
           onSetNextEnabled(false);
         }, 0);
       }
@@ -442,10 +452,10 @@ const MainCanvas = (props) => {
     var val = values[zoneId];
     if (val === null || val === undefined) return false;
     if (ZONE_A.indexOf(zoneId) >= 0) {
-      return STEP2_VALUES.indexOf(val) >= 0;
+      return outcomesA.indexOf(val) >= 0;
     }
     if (ZONE_B.indexOf(zoneId) >= 0) {
-      return val === 1 || val === 2;
+      return outcomesB.indexOf(val) >= 0;
     }
     return false;
   };
@@ -461,17 +471,17 @@ const MainCanvas = (props) => {
     for (var ai = 0; ai < ZONE_A.length; ai++) {
       aSet[values[ZONE_A[ai]]] = true;
     }
-    if (Object.keys(aSet).length !== 3) return false;
+    if (Object.keys(aSet).length !== outcomesA.length) return false;
     var bSet = {};
     for (var bi = 0; bi < ZONE_B.length; bi++) {
       bSet[values[ZONE_B[bi]]] = true;
     }
-    return Object.keys(bSet).length === 2;
+    return Object.keys(bSet).length === outcomesB.length;
   };
 
   const evaluateStep2Drop = function (zoneId, value) {
     if (ZONE_A.indexOf(zoneId) >= 0) {
-      if (STEP2_VALUES.indexOf(value) < 0) return false;
+      if (outcomesA.indexOf(value) < 0) return false;
       var current = zoneValuesRef.current;
       for (var i = 0; i < ZONE_A.length; i++) {
         var id = ZONE_A[i];
@@ -480,7 +490,7 @@ const MainCanvas = (props) => {
       return true;
     }
     if (ZONE_B.indexOf(zoneId) >= 0) {
-      if (value !== 1 && value !== 2) return false;
+      if (outcomesB.indexOf(value) < 0) return false;
       var currentB = zoneValuesRef.current;
       for (var j = 0; j < ZONE_B.length; j++) {
         var bid = ZONE_B[j];
@@ -573,7 +583,7 @@ const MainCanvas = (props) => {
       if (checkStep2Complete(preview)) {
         setLocked(true);
         lockedRef.current = true;
-        onUpdateNavText(APP_DATA.steps[2].navDone);
+        onUpdateNavText(getStepData(2).navDone);
         onSetNextEnabled(true);
       }
       return;
@@ -632,7 +642,7 @@ const MainCanvas = (props) => {
       setHoveredZoneId(null);
       dragRef.current = null;
       restoreDraggableAfterDelay();
-      onUpdateNavText(APP_DATA.steps[3].navDone);
+      onUpdateNavText(getStepData(3).navDone);
       onSetNextEnabled(true);
       return;
     }
@@ -789,7 +799,10 @@ const MainCanvas = (props) => {
     return e(
       "div",
       {
-        className: "lm-sample-row" + (visible ? " is-visible" : ""),
+        className:
+          "lm-sample-row" +
+          (visible ? " is-visible" : "") +
+          (zoneIds.length > 3 ? " is-compact" : ""),
       },
       nodes,
     );
@@ -830,7 +843,9 @@ const MainCanvas = (props) => {
   };
 
   const renderStep1or2 = function () {
-    var stepData = APP_DATA.steps[step === 1 ? 1 : 2];
+    var stepData = getStepData(step === 1 ? 1 : 2);
+    var step1Data = getStepData(1);
+    var step2Data = getStepData(2);
     var showInfo = step === 1;
     var samplesVisible = step === 2;
     var showFooterText = step === 1;
@@ -853,19 +868,19 @@ const MainCanvas = (props) => {
               ? e("div", {
                   className: "lm-info-text lm-info-left",
                   dangerouslySetInnerHTML: {
-                    __html: APP_DATA.steps[1].spinnerAInfo,
+                    __html: step1Data.spinnerAInfo,
                   },
                 })
               : null,
             e("img", {
               className: "lm-spinner-img",
-              src: "assets/spinner1.png",
+              src: cfg.leftImage,
               alt: "Spinner A",
               draggable: false,
             }),
           ),
           renderSampleRow(
-            APP_DATA.steps[2].spinnerALabel,
+            step2Data.spinnerALabel,
             ZONE_A,
             "a",
             samplesVisible,
@@ -879,7 +894,7 @@ const MainCanvas = (props) => {
             { className: "lm-spinner-stage" },
             e("img", {
               className: "lm-spinner-img",
-              src: "assets/spinner2.png",
+              src: cfg.rightImage,
               alt: "Spinner B",
               draggable: false,
             }),
@@ -887,13 +902,13 @@ const MainCanvas = (props) => {
               ? e("div", {
                   className: "lm-info-text lm-info-right",
                   dangerouslySetInnerHTML: {
-                    __html: APP_DATA.steps[1].spinnerBInfo,
+                    __html: step1Data.spinnerBInfo,
                   },
                 })
               : null,
           ),
           renderSampleRow(
-            APP_DATA.steps[2].spinnerBLabel,
+            step2Data.spinnerBLabel,
             ZONE_B,
             "b",
             samplesVisible,
@@ -907,7 +922,7 @@ const MainCanvas = (props) => {
           ? e(
               "div",
               { className: "lm-footer-text" },
-              APP_DATA.steps[1].footerText,
+              step1Data.footerText,
             )
           : null,
         showDraggables
@@ -971,8 +986,8 @@ const MainCanvas = (props) => {
   };
 
   const animateOnePair = function (aIndex, bIndex, sampleIndex, onDone) {
-    var aVal = aIndex + 1;
-    var bVal = bIndex + 1;
+    var aVal = outcomesA[aIndex];
+    var bVal = outcomesB[bIndex];
 
     setSamplePairs(function (prev) {
       var next = prev.slice();
@@ -1005,7 +1020,6 @@ const MainCanvas = (props) => {
       var aStart = getElementCenter(aChip);
       var bCenter = getElementCenter(bChip);
       var vw = window.innerWidth / 100;
-      /* B clone sits exactly on Spinner B text; A sits ~1vw to the left */
       var meetB = { x: bCenter.x, y: bCenter.y };
       var meetA = { x: bCenter.x - 2 * vw, y: bCenter.y };
       var meetComma = { x: (meetA.x + meetB.x) / 2, y: bCenter.y };
@@ -1090,14 +1104,15 @@ const MainCanvas = (props) => {
   };
 
   const finishAChipPairing = function (aIndex) {
-    if (aIndex < 2) {
+    if (aIndex < outcomesA.length - 1) {
       var nextA = aIndex + 1;
       setClickableA(nextA);
       clickableARef.current = nextA;
       setPairingBusy(false);
       pairingBusyRef.current = false;
-      var navKey = nextA === 1 ? "navSecond" : "navThird";
-      onUpdateNavText(APP_DATA.steps[4][navKey]);
+      var step4Data = getStepData(4);
+      var navKey = nextA === 1 ? "navSecond" : (nextA === 2 ? "navThird" : "navSecond");
+      onUpdateNavText(step4Data[navKey] || step4Data.navSecond);
       return;
     }
 
@@ -1106,7 +1121,7 @@ const MainCanvas = (props) => {
     setPairingBusy(false);
     pairingBusyRef.current = false;
     setStep4Complete(true);
-    onUpdateNavText(APP_DATA.steps[4].navDone);
+    onUpdateNavText(getStepData(4).navDone);
     onSetNextEnabled(true);
   };
 
@@ -1121,16 +1136,15 @@ const MainCanvas = (props) => {
     setClickableA(null);
     clickableARef.current = null;
 
-    var firstSample = aIndex * 2;
-    var secondSample = aIndex * 2 + 1;
-
-    animateOnePair(aIndex, 0, firstSample, function () {
-      addStep4Timer(function () {
-        animateOnePair(aIndex, 1, secondSample, function () {
-          finishAChipPairing(aIndex);
-        });
-      }, 1000);
-    });
+    function runPairSequence(ai, bIndex) {
+      if (bIndex >= outcomesB.length) { finishAChipPairing(ai); return; }
+      var sampleIndex = ai * outcomesB.length + bIndex;
+      animateOnePair(ai, bIndex, sampleIndex, function () {
+        if (bIndex + 1 >= outcomesB.length) finishAChipPairing(ai);
+        else addStep4Timer(function () { runPairSequence(ai, bIndex + 1); }, 1000);
+      });
+    }
+    runPairSequence(aIndex, 0);
   };
 
   const renderEquationRow = function (options) {
@@ -1139,12 +1153,29 @@ const MainCanvas = (props) => {
       { className: "lm-eq-row theme-" + options.theme },
       e("div", { className: "lm-eq-lhs" }, options.lhs),
       e("div", { className: "lm-eq-equal" }, "="),
-      e("div", { className: "lm-eq-rhs" }, options.rhs),
+      e(
+        "div",
+        {
+          className:
+            "lm-eq-rhs" + (options.manyChips ? " is-many" : ""),
+        },
+        options.rhs,
+      ),
     );
   };
 
+  const renderChipList = function (outcomes, theme, chipOptions) {
+    var nodes = [];
+    for (var i = 0; i < outcomes.length; i++) {
+      if (i > 0) nodes.push(e("span", { key: "comma-" + theme + "-" + i, className: "lm-comma" }, ","));
+      var opts = chipOptions ? chipOptions(outcomes[i], i) : undefined;
+      nodes.push(e(React.Fragment, { key: "chip-" + theme + "-" + i }, renderFilledChip(outcomes[i], theme, opts)));
+    }
+    return nodes;
+  };
+
   const renderStep3 = function () {
-    var stepData = APP_DATA.steps[3];
+    var stepData = getStepData(3);
     var nsClass = "lm-ns-drop";
     if (nSStatus === "correct") nsClass += " is-correct";
     if (nSStatus === "wrong") nsClass += " is-wrong";
@@ -1155,6 +1186,9 @@ const MainCanvas = (props) => {
     var feedbackClass = "lm-feedback-box";
     if (feedbackStatus === "correct") feedbackClass += " is-correct";
     if (feedbackStatus === "wrong") feedbackClass += " is-wrong";
+
+    var aChipNodes = renderChipList(outcomesA, "a");
+    var bChipNodes = renderChipList(outcomesB, "b");
 
     return e(
       React.Fragment,
@@ -1177,11 +1211,7 @@ const MainCanvas = (props) => {
               React.Fragment,
               null,
               e("span", { className: "lm-brace" }, "{"),
-              renderFilledChip(1, "a"),
-              e("span", { className: "lm-comma" }, ","),
-              renderFilledChip(2, "a"),
-              e("span", { className: "lm-comma" }, ","),
-              renderFilledChip(3, "a"),
+              aChipNodes,
               e("span", { className: "lm-brace" }, "}"),
               e("span", { className: "lm-implies" }, " \u21D2 "),
               e("span", { className: "lm-count theme-a" }, stepData.nAEquals),
@@ -1189,6 +1219,7 @@ const MainCanvas = (props) => {
           }),
           renderEquationRow({
             theme: "b",
+            manyChips: outcomesB.length >= 6,
             lhs: e(
               "span",
               { className: "lm-sample-label theme-b" },
@@ -1198,9 +1229,7 @@ const MainCanvas = (props) => {
               React.Fragment,
               null,
               e("span", { className: "lm-brace" }, "{"),
-              renderFilledChip(1, "b"),
-              e("span", { className: "lm-comma" }, ","),
-              renderFilledChip(2, "b"),
+              bChipNodes,
               e("span", { className: "lm-brace" }, "}"),
               e("span", { className: "lm-implies" }, " \u21D2 "),
               e("span", { className: "lm-count theme-b" }, stepData.nBEquals),
@@ -1252,7 +1281,8 @@ const MainCanvas = (props) => {
   };
 
   const renderStep4 = function () {
-    var stepData = APP_DATA.steps[4];
+    var stepData = getStepData(4);
+    var step3Data = getStepData(3);
 
     var renderSampleBox = function (idx) {
       var pair = samplePairs[idx];
@@ -1319,6 +1349,33 @@ const MainCanvas = (props) => {
       );
     };
 
+    var aChipNodes = renderChipList(outcomesA, "a", function (val, i) {
+      return {
+        clickable: clickableA === i,
+        ref: function (el) {
+          aChipRefs.current[i] = el;
+          if (clickableA === i) clickableChipTargetRef.current = el;
+        },
+        onClick: function () {
+          handleAChipClick(i);
+        },
+      };
+    });
+
+    var bChipNodes = renderChipList(outcomesB, "b", function (val, i) {
+      return {
+        ref: function (el) {
+          bChipRefs.current[i] = el;
+        },
+      };
+    });
+
+    var sampleBoxNodes = [];
+    for (var si = 0; si < sampleCount; si++) {
+      if (si > 0) sampleBoxNodes.push(e("span", { key: "sc-" + si, className: "lm-comma" }, ","));
+      sampleBoxNodes.push(renderSampleBox(si));
+    }
+
     return e(
       React.Fragment,
       null,
@@ -1340,49 +1397,19 @@ const MainCanvas = (props) => {
               React.Fragment,
               null,
               e("span", { className: "lm-brace" }, "{"),
-              renderFilledChip(1, "a", {
-                clickable: clickableA === 0,
-                ref: function (el) {
-                  aChipRefs.current[0] = el;
-                  if (clickableA === 0) clickableChipTargetRef.current = el;
-                },
-                onClick: function () {
-                  handleAChipClick(0);
-                },
-              }),
-              e("span", { className: "lm-comma" }, ","),
-              renderFilledChip(2, "a", {
-                clickable: clickableA === 1,
-                ref: function (el) {
-                  aChipRefs.current[1] = el;
-                  if (clickableA === 1) clickableChipTargetRef.current = el;
-                },
-                onClick: function () {
-                  handleAChipClick(1);
-                },
-              }),
-              e("span", { className: "lm-comma" }, ","),
-              renderFilledChip(3, "a", {
-                clickable: clickableA === 2,
-                ref: function (el) {
-                  aChipRefs.current[2] = el;
-                  if (clickableA === 2) clickableChipTargetRef.current = el;
-                },
-                onClick: function () {
-                  handleAChipClick(2);
-                },
-              }),
+              aChipNodes,
               e("span", { className: "lm-brace" }, "}"),
               e("span", { className: "lm-implies lm-keep-space-hidden" }, " \u21D2 "),
               e(
                 "span",
                 { className: "lm-count theme-a lm-keep-space-hidden" },
-                APP_DATA.steps[3].nAEquals
+                step3Data.nAEquals
               )
             ),
           }),
           renderEquationRow({
             theme: "b",
+            manyChips: outcomesB.length >= 6,
             lhs: e(
               "span",
               { className: "lm-sample-label theme-b" },
@@ -1392,44 +1419,24 @@ const MainCanvas = (props) => {
               React.Fragment,
               null,
               e("span", { className: "lm-brace" }, "{"),
-              renderFilledChip(1, "b", {
-                ref: function (el) {
-                  bChipRefs.current[0] = el;
-                },
-              }),
-              e("span", { className: "lm-comma" }, ","),
-              renderFilledChip(2, "b", {
-                ref: function (el) {
-                  bChipRefs.current[1] = el;
-                },
-              }),
+              bChipNodes,
               e("span", { className: "lm-brace" }, "}"),
               e("span", { className: "lm-implies lm-keep-space-hidden" }, " \u21D2 "),
               e(
                 "span",
                 { className: "lm-count theme-b lm-keep-space-hidden" },
-                APP_DATA.steps[3].nBEquals
+                step3Data.nBEquals
               )
             ),
           }),
         ),
         e(
           "div",
-          { className: "lm-ss-row is-centered" },
+          { className: "lm-ss-row is-centered" + (isWide ? " is-wide" : "") + (isExtraWide ? " is-extra-wide" : "") },
           e("span", { className: "lm-sample-label theme-s-white" }, stepData.sampleSpaceLabel),
           e("span", { className: "lm-eq" }, " = "),
           e("span", { className: "lm-brace" }, "{"),
-          renderSampleBox(0),
-          e("span", { className: "lm-comma" }, ","),
-          renderSampleBox(1),
-          e("span", { className: "lm-comma" }, ","),
-          renderSampleBox(2),
-          e("span", { className: "lm-comma" }, ","),
-          renderSampleBox(3),
-          e("span", { className: "lm-comma" }, ","),
-          renderSampleBox(4),
-          e("span", { className: "lm-comma" }, ","),
-          renderSampleBox(5),
+          sampleBoxNodes,
           e("span", { className: "lm-brace" }, "}")
         )
       ),
@@ -1478,7 +1485,7 @@ const MainCanvas = (props) => {
 
   const handleStep5Submit = function () {
     if (step5Submitted && step5Result === "correct") return;
-    var stepData = APP_DATA.steps[step];
+    var stepData = getStepData(step);
     var correctSet = getEventCorrectSet(step);
 
     var status = {};
@@ -1523,7 +1530,7 @@ const MainCanvas = (props) => {
     setStep5BoxStatus({});
     setStep5Submitted(false);
     setStep5Result(null);
-    onUpdateNavText(APP_DATA.steps[step].navText);
+    onUpdateNavText(getStepData(step).navText);
     onSetNextEnabled(false);
   };
 
@@ -1556,7 +1563,9 @@ const MainCanvas = (props) => {
   };
 
   const renderStep5 = function () {
-    var stepData = APP_DATA.steps[step];
+    var stepData = getStepData(step);
+    var step3Data = getStepData(3);
+    var step4Data = getStepData(4);
     var count = getSelectedCount();
     var neClass = "lm-ne-box";
     if (step5Result === "correct") neClass += " is-correct";
@@ -1568,6 +1577,15 @@ const MainCanvas = (props) => {
 
     var showLegacy = step === 5 && step5Transitioning && initialStage !== "final";
     var titleReady = step5TitleReady || initialStage === "final";
+
+    var legacyAChips = renderChipList(outcomesA, "a");
+    var legacyBChips = renderChipList(outcomesB, "b");
+
+    var sampleBoxNodes = [];
+    for (var si = 0; si < sampleCount; si++) {
+      if (si > 0) sampleBoxNodes.push(e("span", { key: "s5c-" + si, className: "lm-comma" }, ","));
+      sampleBoxNodes.push(renderStep5SampleBox(si));
+    }
 
     return e(
       React.Fragment,
@@ -1589,55 +1607,40 @@ const MainCanvas = (props) => {
               { className: "lm-equation-stack step-4-stack lm-legacy-fade" },
               renderEquationRow({
                 theme: "a",
-                lhs: e("span", { className: "lm-sample-label theme-a" }, APP_DATA.steps[4].spinnerALabel),
+                lhs: e("span", { className: "lm-sample-label theme-a" }, step4Data.spinnerALabel),
                 rhs: e(
                   React.Fragment,
                   null,
                   e("span", { className: "lm-brace" }, "{"),
-                  renderFilledChip(1, "a"),
-                  e("span", { className: "lm-comma" }, ","),
-                  renderFilledChip(2, "a"),
-                  e("span", { className: "lm-comma" }, ","),
-                  renderFilledChip(3, "a"),
+                  legacyAChips,
                   e("span", { className: "lm-brace" }, "}"),
                   e("span", { className: "lm-implies lm-keep-space-hidden" }, " \u21D2 "),
-                  e("span", { className: "lm-count theme-a lm-keep-space-hidden" }, APP_DATA.steps[3].nAEquals)
+                  e("span", { className: "lm-count theme-a lm-keep-space-hidden" }, step3Data.nAEquals)
                 ),
               }),
               renderEquationRow({
                 theme: "b",
-                lhs: e("span", { className: "lm-sample-label theme-b" }, APP_DATA.steps[4].spinnerBLabel),
+                manyChips: outcomesB.length >= 6,
+                lhs: e("span", { className: "lm-sample-label theme-b" }, step4Data.spinnerBLabel),
                 rhs: e(
                   React.Fragment,
                   null,
                   e("span", { className: "lm-brace" }, "{"),
-                  renderFilledChip(1, "b"),
-                  e("span", { className: "lm-comma" }, ","),
-                  renderFilledChip(2, "b"),
+                  legacyBChips,
                   e("span", { className: "lm-brace" }, "}"),
                   e("span", { className: "lm-implies lm-keep-space-hidden" }, " \u21D2 "),
-                  e("span", { className: "lm-count theme-b lm-keep-space-hidden" }, APP_DATA.steps[3].nBEquals)
+                  e("span", { className: "lm-count theme-b lm-keep-space-hidden" }, step3Data.nBEquals)
                 ),
               })
             )
           : null,
         e(
           "div",
-          { className: "lm-ss-row is-centered" },
+          { className: "lm-ss-row is-centered" + (isWide ? " is-wide" : "") + (isExtraWide ? " is-extra-wide" : "") },
           e("span", { className: "lm-sample-label theme-s-white" }, stepData.sampleSpaceLabel),
           e("span", { className: "lm-eq" }, " = "),
           e("span", { className: "lm-brace" }, "{"),
-          renderStep5SampleBox(0),
-          e("span", { className: "lm-comma" }, ","),
-          renderStep5SampleBox(1),
-          e("span", { className: "lm-comma" }, ","),
-          renderStep5SampleBox(2),
-          e("span", { className: "lm-comma" }, ","),
-          renderStep5SampleBox(3),
-          e("span", { className: "lm-comma" }, ","),
-          renderStep5SampleBox(4),
-          e("span", { className: "lm-comma" }, ","),
-          renderStep5SampleBox(5),
+          sampleBoxNodes,
           e("span", { className: "lm-brace" }, "}")
         ),
         e(

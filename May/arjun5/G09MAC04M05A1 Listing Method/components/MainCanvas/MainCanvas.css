@@ -784,3 +784,53 @@ ns {
 .lm-fly-clone.lm-fly-comma {
   color: #ffffff;
 }
+
+.lm-ss-row.is-wide .lm-sample-box {
+  /* width: 4.2vw; */
+  /* min-width: 4.2vw; */
+  /* height: 3.8vw;
+  min-height: 3.8vw; */
+}
+
+.lm-ss-row.is-wide .lm-sample-pair,
+.lm-ss-row.is-wide .lm-sample-placeholder {
+  font-size: 1.9vw;
+}
+
+.lm-ss-row.is-wide .lm-sample-label.theme-s-white,
+.lm-ss-row.is-wide .lm-eq,
+.lm-ss-row.is-wide .lm-brace,
+.lm-ss-row.is-wide .lm-comma {
+  font-size: 2.1vw;
+}
+
+.lm-sample-row.is-compact .lm-drop-zone {
+  width: 3.6vw;
+  min-width: 3.6vw;
+  height: 3.6vw;
+  min-height: 3.6vw;
+  font-size: 2.1vw;
+}
+
+.lm-ss-row.is-extra-wide {
+  flex-wrap: wrap;
+  row-gap: 0.6vw;
+  max-width: 96%;
+}
+
+.lm-ss-row.is-extra-wide .lm-sample-box {
+  /* width: 3.6vw;
+  min-width: 3.6vw;
+  height: 3.4vw;
+  min-height: 3.4vw; */
+}
+
+.lm-ss-row.is-extra-wide .lm-sample-pair,
+.lm-ss-row.is-extra-wide .lm-sample-placeholder {
+  font-size: 1.65vw;
+}
+
+.lm-eq-rhs.is-many .lm-filled-chip {
+  /* width: 5.5vw;
+  min-width: 5.5vw; */
+}

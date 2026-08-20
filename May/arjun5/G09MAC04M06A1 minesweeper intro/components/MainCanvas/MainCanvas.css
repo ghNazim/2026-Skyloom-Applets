@@ -183,7 +183,16 @@
 }
 
 .safe-chip-row.many-chips .safe-chip-label {
-  font-size: 1.35vw;
+  font-size: 2vw;
+}
+
+.safe-chip-row.chips-6 {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: center;
+  justify-items: center;
+  gap: 0.45vw 0.5vw;
+  max-width: 100%;
 }
 
 .rt-subtext {
