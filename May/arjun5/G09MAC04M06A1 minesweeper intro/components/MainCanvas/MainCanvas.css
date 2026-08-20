@@ -1,0 +1,247 @@
+.main-canvas-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  gap: 0.55vw;
+}
+
+.visual-panel,
+.text-panel {
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border: 0.1vw solid rgba(150, 200, 235, 0.42);
+  border-radius: 0.35vw;
+  background: rgba(4, 18, 48, 0.28);
+}
+
+.visual-panel {
+  flex: 0 0 60%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.text-panel {
+  flex: 1 1 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2vw 1.4vw;
+}
+
+.title-row {
+  flex: 0 0 6.5vw;
+  height: 6.5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  color: #fff;
+  font-size: 2vw;
+  font-weight: 700;
+  line-height: 1.25;
+  border-bottom: 0.1vw solid rgba(150, 200, 235, 0.42);
+  padding: 0 1vw;
+}
+
+.title-row vt {
+  color: #ffa01a;
+  font-weight: 700;
+}
+
+.game-row-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+}
+
+.rt-body {
+  margin: 0;
+  color: #fff;
+  font-size: 2.5vw;
+  line-height: 1.35;
+  text-align: center;
+  padding: 0 1vw;
+}
+
+.rt-stack {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.3vw;
+}
+
+.step5-stack {
+  justify-content: flex-start;
+  padding-top: 1.2vw;
+  gap: 1vw;
+}
+
+.rt-orange-box {
+  width: 92%;
+  border: 0.16vw solid #ffa01a;
+  background: rgba(8, 20, 48, 0.55);
+  color: #ffd24d;
+  padding: 1.35vw 1.2vw;
+  text-align: center;
+  font-size: 2.4vw;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.safe-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vw;
+}
+
+.safe-box-title {
+  font-size: 1.85vw;
+  line-height: 1.25;
+}
+
+.safe-chip-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7vw;
+}
+
+.safe-chip {
+  width: 7.2vw;
+  height: 5.6vw;
+  padding: 0.32vw;
+  background-color: #5a9c2e;
+  background-image: url("../../assets/grass.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 0.08vw rgba(0, 0, 0, 0.25);
+}
+
+.safe-chip-label {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #8b5a2b;
+  background-image: url("../../assets/soil.png");
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  font-size: 1.85vw;
+  font-weight: 700;
+  text-shadow: 0.1vw 0.1vw 0 #000;
+}
+
+.safe-chip-label .outcome-row {
+  color: var(--text-peach);
+}
+
+.safe-chip-label .outcome-comma {
+  color: var(--text-light);
+}
+
+.safe-chip-label .outcome-col {
+  color: var(--text-pink);
+}
+
+.safe-chip.found {
+  opacity: 0.42;
+  filter: grayscale(0.35);
+}
+
+.safe-chip.found .safe-chip-label {
+  color: #f3e6c8;
+}
+
+.safe-chip.found .safe-chip-label .outcome-row,
+.safe-chip.found .safe-chip-label .outcome-col {
+  opacity: 0.85;
+}
+
+.safe-chip-row.many-chips {
+  flex-wrap: wrap;
+  gap: 0.5vw;
+  max-width: 100%;
+}
+
+.safe-chip-row.many-chips .safe-chip {
+  width: 5.6vw;
+  height: 4.4vw;
+}
+
+.safe-chip-row.many-chips .safe-chip-label {
+  font-size: 1.35vw;
+}
+
+.rt-subtext {
+  margin: 0;
+  color: #fff;
+  font-size: 2.2vw;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.rt-warning {
+  margin: 0;
+  color: rgba(220, 228, 236, 0.78);
+  font-size: 2vw;
+  font-style: italic;
+  text-align: center;
+}
+
+.rt-feedback {
+  width: 92%;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  font-size: 2.3vw;
+  line-height: 1.25;
+  padding: 0 1vw;
+  pointer-events: none;
+}
+
+.rt-feedback.visible {
+  height: 11vw;
+  opacity: 1;
+  border-radius: 0.35vw;
+  pointer-events: auto;
+}
+
+.rt-feedback.correct {
+  border: 0.16vw dashed #7ed36a;
+  background: rgba(28, 72, 42, 0.55);
+}
+
+.rt-feedback.wrong {
+  border: 0.16vw dashed #ff8d83;
+  background: rgba(91, 55, 79, 0.72);
+}
+
+.flying-safe-clone {
+  box-shadow: 0 0.25vw 0.7vw rgba(0, 0, 0, 0.45);
+}
+
+.fly-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime Dice — Minecraft Event Table</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --grass-top: #5a9c2e;
+    --grass-dark: #3d6b1e;
+    --grass-mid: #4a8524;
+    --grass-light: #6db838;
+    --grass-blade: #2d5016;
+    --dirt-dark: #6b4423;
+    --dirt-mid: #8b5a2b;
+    --dirt-light: #a06832;
+    --gap-green: #4a5c2a;
+    --gap-brown: #5c4a2e;
+    --gap-mix: #526832;
+    --text-pink: #ff6eb4;
+    --text-peach: #ffb347;
+    --text-light: #fff8dc;
+    --cell-gap: 0.45vw;
+    --grass-texture: url("assets/grass.png");
+    --soil-texture: url("assets/soil.png");
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: linear-gradient(180deg, #1a2a4a 0%, #0f1829 100%);
+    color: var(--text-light);
+    font-family: "Press Start 2P", monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  .page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vw;
+    width: 100%;
+    padding: 2vw;
+  }
+
+  .game-title {
+    width: 60vw;
+    margin: 0;
+    text-align: center;
+    font-size: 1.4vw;
+    line-height: 1.8;
+    color: var(--text-pink);
+    text-shadow:
+      0.15vw 0.15vw 0 #000,
+      0 0 1vw rgba(255, 110, 180, 0.4);
+  }
+
+  .game-container {
+    width: 66vw;
+    height: 40vw;
+    padding: 2vw;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  #event-table {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .grid-container {
+    display: grid;
+    width: max-content;
+    max-width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    gap: var(--cell-gap);
+    padding: var(--cell-gap);
+    box-sizing: border-box;
+    background-color: var(--gap-mix);
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        var(--gap-green) 0,
+        var(--gap-green) 0.35vw,
+        var(--gap-brown) 0.35vw,
+        var(--gap-brown) 0.7vw,
+        var(--gap-mix) 0.7vw,
+        var(--gap-mix) 1.05vw
+      );
+    border: 0.3vw solid var(--grass-blade);
+    box-shadow:
+      0 0.4vw 1vw rgba(0, 0, 0, 0.6),
+      inset 0 0 2vw rgba(0, 0, 0, 0.3);
+  }
+
+  .box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.15vw;
+    box-shadow: inset 0 0 0 0.08vw rgba(0, 0, 0, 0.25);
+  }
+
+  /* --- Grass fill (image texture, no stripes) --- */
+  .texture-grass {
+    background-color: var(--grass-top);
+    background-image: var(--grass-texture);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .texture-dirt {
+    background-color: var(--dirt-mid);
+    background-image: var(--soil-texture);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: multiply;
+  }
+
+  /* --- Animated fire fill for exploded cells (muted) --- */
+  .texture-fire {
+    background-color: #1e1410;
+    background-image:
+      radial-gradient(ellipse 90% 55% at 50% 100%, rgba(140, 70, 35, 0.55) 0%, transparent 72%),
+      radial-gradient(ellipse 55% 45% at 28% 88%, rgba(160, 95, 45, 0.4) 0%, transparent 62%),
+      radial-gradient(ellipse 55% 45% at 72% 90%, rgba(110, 50, 30, 0.5) 0%, transparent 65%),
+      radial-gradient(ellipse 70% 50% at 50% 75%, rgba(130, 80, 40, 0.35) 0%, transparent 58%),
+      linear-gradient(180deg, #141010 0%, #2a1a12 30%, #4a2a18 60%, #6b3820 100%);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    animation: fire-flicker 1.1s ease-in-out infinite alternate;
+  }
+
+  @keyframes fire-flicker {
+    0% {
+      filter: brightness(0.92) saturate(0.85);
+      background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    }
+    100% {
+      filter: brightness(1) saturate(0.95);
+      background-position: 1% 2%, -2% 1%, 2% -1%, 0% 2%, 0% 0%;
+    }
+  }
+
+  .cell-fire {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+  }
+
+  .cell-fire.visible {
+    opacity: 1;
+  }
+
+  .mc-framed {
+    padding: 0.55vw;
+  }
+
+  .mc-framed.texture-grass-frame {
+    background-color: var(--grass-top);
+    background-image: var(--grass-texture);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .mc-framed > .mc-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.1vw;
+  }
+
+  /* --- Corner cell: one merged 2×2 area with diagonal grass split --- */
+  .corner-cell {
+    padding: 0;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  .corner-frame {
+    width: 100%;
+    height: 100%;
+    padding: 0.55vw;
+    box-sizing: border-box;
+  }
+
+  .corner-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0.1vw;
+  }
+
+  .corner-half {
+    position: absolute;
+    inset: 0;
+    display: flex;
+  }
+
+  .corner-half-bl {
+    clip-path: polygon(0 0, 0 100%, 100% 100%);
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 0 0 0.6vw 0.6vw;
+  }
+
+  .corner-half-tr {
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 0.6vw 0.6vw 0 0;
+  }
+
+  .corner-icon {
+    font-size: 2.1vw;
+    line-height: 1;
+    filter: drop-shadow(0 0.12vw 0.2vw rgba(0, 0, 0, 0.45));
+    z-index: 1;
+  }
+
+  .corner-diagonal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 155%;
+    height: 0.65vw;
+    transform: translate(-50%, -50%) rotate(45deg);
+    transform-origin: center;
+    z-index: 2;
+    pointer-events: none;
+    box-shadow: 0 0 0.15vw rgba(0, 0, 0, 0.25);
+  }
+
+  /* --- Headers --- */
+  .header-rotor {
+    font-size: 1.6vw;
+    color: var(--text-pink);
+    text-shadow: 0.1vw 0.1vw 0 #000;
+  }
+
+  .header-col {
+    font-size: 1.5vw;
+    color: var(--text-pink);
+    text-shadow: 0.1vw 0.1vw 0 #000;
+  }
+
+  .header-row-title {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 1.5vw;
+    color: var(--text-peach);
+    text-shadow: 0.1vw 0.1vw 0 #000;
+    letter-spacing: 0.3vw;
+  }
+
+  .header-row {
+    font-size: 1.5vw;
+    color: var(--text-peach);
+    text-shadow: 0.1vw 0.1vw 0 #000;
+  }
+
+  /* --- Event cells (game) --- */
+  .event-cell {
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+
+  .event-cell:not(.revealed):not(.exploded):hover {
+    filter: brightness(1.15);
+  }
+
+  .event-cell.revealed,
+  .event-cell.exploded {
+    cursor: default;
+  }
+
+  .event-cell.exploded {
+    background-color: #1a1410;
+  }
+
+  .cell-cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    transition: opacity 0.35s, transform 0.35s;
+  }
+
+  .cell-cover.hidden {
+    opacity: 0;
+    transform: scale(0.6);
+    pointer-events: none;
+  }
+
+  .cell-content {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5vw;
+    color: var(--text-light);
+    text-shadow: 0.12vw 0.12vw 0 #000;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+
+  .cell-content.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .cell-bomb {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.3);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .bomb-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bomb-icon {
+    font-size: 3vw;
+    line-height: 1;
+    filter: drop-shadow(0 0.15vw 0.25vw rgba(0, 0, 0, 0.6));
+    z-index: 1;
+  }
+
+  .bomb-spark {
+    position: absolute;
+    top: -1.1vw;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2.8vw;
+    height: 2.8vw;
+    z-index: 2;
+    background:
+      radial-gradient(circle at center, #e8a855 0%, #c07830 35%, transparent 65%);
+    clip-path: polygon(
+      50% 0%, 61% 38%, 98% 38%, 67% 58%,
+      79% 96%, 50% 72%, 21% 96%, 33% 58%,
+      2% 38%, 39% 38%
+    );
+    filter: drop-shadow(0 0 0.5vw rgba(200, 120, 50, 0.7));
+    animation: spark-pulse 1s ease-in-out forwards;
+  }
+
+  @keyframes spark-pulse {
+    0% {
+      transform: translateX(-50%) scale(0.4);
+      opacity: 0;
+    }
+    25% {
+      transform: translateX(-50%) scale(1.15);
+      opacity: 1;
+    }
+    50% {
+      transform: translateX(-50%) scale(0.95);
+      opacity: 0.95;
+    }
+    75% {
+      transform: translateX(-50%) scale(1.06);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .cell-bomb.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* --- Burst animation --- */
+  .burst {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .burst-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 0.35vw solid #8b4428;
+    background: radial-gradient(circle, rgba(160, 90, 45, 0.5) 0%, rgba(100, 45, 25, 0.3) 40%, transparent 70%);
+    animation: burst-expand 0.7s ease-out forwards;
+  }
+
+  .burst-ring:nth-child(2) {
+    animation-delay: 0.08s;
+    border-color: #6b3520;
+  }
+
+  .burst-ring:nth-child(3) {
+    animation-delay: 0.16s;
+    border-color: #a05830;
+  }
+
+  .burst-particle {
+    position: absolute;
+    width: 0.6vw;
+    height: 0.6vw;
+    background: #8b4428;
+    border-radius: 50%;
+    animation: burst-particle 0.6s ease-out forwards;
+  }
+
+  @keyframes burst-expand {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    100% {
+      width: 140%;
+      height: 140%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes burst-particle {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(var(--tx), var(--ty)) scale(0);
+      opacity: 0;
+    }
+  }
+
+  @keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-0.4vw, 0.2vw); }
+    40% { transform: translate(0.4vw, -0.2vw); }
+    60% { transform: translate(-0.3vw, -0.3vw); }
+    80% { transform: translate(0.3vw, 0.3vw); }
+  }
+
+  .game-container.shake {
+    animation: screen-shake 0.45s ease-out;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1 class="game-title">Select only the cells that have prime numbers as dice result</h1>
+  <div class="game-container" id="game-container">
+    <div id="event-table"></div>
+  </div>
+</div>
+
+<script>
+  const PRIME_DICE = new Set([2, 3, 5]);
+
+  const eventTableData = {
+    rows: {
+      label: "Die",
+      items: [1, 2, 3, 4, 5, 6]
+    },
+    columns: {
+      label: "Coin",
+      items: ["H", "T"]
+    },
+    layout: {
+      fixedColumnWidth: "4.5vw",   // corner + row-number columns
+      eventColumnWidth: "7.5vw",   // each event column (H, T, …)
+      headerRowHeight: 5,
+      dataRowHeight: 6
+    }
+  };
+
+  function isPrime(n) {
+    return PRIME_DICE.has(n);
+  }
+
+  function generateEvents(rowItems, colItems) {
+    return rowItems.map((row) =>
+      colItems.map((col) => ({
+        row,
+        col,
+        label: `${row},${col}`,
+        isCorrect: isPrime(row)
+      }))
+    );
+  }
+
+  function toFr(weights) {
+    return weights.map((w) => `${w}fr`);
+  }
+
+  function buildColumnTracks(layout, colCount) {
+    return [
+      layout.fixedColumnWidth,
+      layout.fixedColumnWidth,
+      ...Array(colCount).fill(layout.eventColumnWidth)
+    ].join(" ");
+  }
+
+  function createFramedCell(className, text) {
+    const frame = document.createElement("div");
+    frame.className = `mc-framed texture-grass-frame box ${className}`;
+
+    const inner = document.createElement("div");
+    inner.className = "mc-inner texture-dirt";
+    inner.textContent = text;
+    frame.appendChild(inner);
+
+    return frame;
+  }
+
+  function createBurstParticles(container) {
+    const burst = document.createElement("div");
+    burst.className = "burst";
+
+    for (let i = 0; i < 3; i++) {
+      const ring = document.createElement("div");
+      ring.className = "burst-ring";
+      burst.appendChild(ring);
+    }
+
+    const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+    angles.forEach((deg) => {
+      const p = document.createElement("div");
+      p.className = "burst-particle";
+      const rad = (deg * Math.PI) / 180;
+      const dist = 4 + Math.random() * 2;
+      p.style.setProperty("--tx", `${Math.cos(rad) * dist}vw`);
+      p.style.setProperty("--ty", `${Math.sin(rad) * dist}vw`);
+      burst.appendChild(p);
+    });
+
+    container.appendChild(burst);
+    setTimeout(() => burst.remove(), 800);
+  }
+
+  function handleCellClick(cell, event) {
+    if (cell.classList.contains("revealed") || cell.classList.contains("exploded")) {
+      return;
+    }
+
+    const cover = cell.querySelector(".cell-cover");
+    const content = cell.querySelector(".cell-content");
+    const bomb = cell.querySelector(".cell-bomb");
+
+    cover.classList.add("hidden");
+
+    if (event.isCorrect) {
+      cell.classList.add("revealed");
+      content.classList.add("visible");
+    } else {
+      cell.classList.remove("texture-grass");
+      cell.classList.add("exploded");
+
+      const fire = cell.querySelector(".cell-fire");
+      if (fire) fire.classList.add("visible");
+
+      bomb.classList.add("visible");
+
+      setTimeout(() => {
+        createBurstParticles(cell);
+        document.getElementById("game-container").classList.add("shake");
+        setTimeout(() => {
+          document.getElementById("game-container").classList.remove("shake");
+        }, 450);
+      }, 200);
+    }
+  }
+
+  function buildEventTable(data, container) {
+    const rowCount = data.rows.items.length;
+    const colCount = data.columns.items.length;
+    const events = generateEvents(data.rows.items, data.columns.items);
+    const { layout } = data;
+
+    const totalRows = 2 + rowCount;
+    const totalCols = 2 + colCount;
+
+    const rowWeights = [
+      layout.headerRowHeight,
+      layout.headerRowHeight,
+      ...Array(rowCount).fill(layout.dataRowHeight)
+    ];
+
+    const grid = document.createElement("div");
+    grid.className = "grid-container";
+    grid.style.gridTemplateColumns = buildColumnTracks(layout, colCount);
+    grid.style.gridTemplateRows = toFr(rowWeights).join(" ");
+
+    // Corner — single merged cell with diagonal grass divider
+    const corner = document.createElement("div");
+    corner.className = "corner-cell box";
+    corner.style.gridRow = "1 / 3";
+    corner.style.gridColumn = "1 / 3";
+    corner.style.minHeight = "0";
+    corner.style.minWidth = "0";
+
+    const cornerFrame = document.createElement("div");
+    cornerFrame.className = "corner-frame texture-grass-frame";
+
+    const cornerInner = document.createElement("div");
+    cornerInner.className = "corner-inner texture-dirt";
+
+    const dieHalf = document.createElement("div");
+    dieHalf.className = "corner-half corner-half-bl texture-dirt";
+    const dieIcon = document.createElement("span");
+    dieIcon.className = "corner-icon";
+    dieIcon.textContent = "🎲";
+    dieHalf.appendChild(dieIcon);
+
+    const coinHalf = document.createElement("div");
+    coinHalf.className = "corner-half corner-half-tr texture-dirt";
+    const coinIcon = document.createElement("span");
+    coinIcon.className = "corner-icon";
+    coinIcon.textContent = "🪙";
+    coinHalf.appendChild(coinIcon);
+
+    const diagonal = document.createElement("div");
+    diagonal.className = "corner-diagonal texture-grass";
+
+    cornerInner.append(dieHalf, coinHalf, diagonal);
+    cornerFrame.appendChild(cornerInner);
+    corner.appendChild(cornerFrame);
+    grid.appendChild(corner);
+
+    // Column title
+    const colTitle = createFramedCell("header-rotor", data.columns.label);
+    colTitle.style.gridRow = "1";
+    colTitle.style.gridColumn = `3 / ${totalCols + 1}`;
+    grid.appendChild(colTitle);
+
+    // Column sub-headers
+    data.columns.items.forEach((col, colIndex) => {
+      const cell = createFramedCell("header-col", col);
+      cell.style.gridRow = "2";
+      cell.style.gridColumn = String(3 + colIndex);
+      grid.appendChild(cell);
+    });
+
+    // Row title
+    const rowTitle = createFramedCell("header-row-title", data.rows.label);
+    rowTitle.style.gridRow = `3 / ${totalRows + 1}`;
+    rowTitle.style.gridColumn = "1";
+    grid.appendChild(rowTitle);
+
+    // Row numbers + event cells
+    data.rows.items.forEach((rowLabel, rowIndex) => {
+      const gridRow = 3 + rowIndex;
+      const isLastRow = rowIndex === rowCount - 1;
+
+      const rowHeader = createFramedCell(
+        "header-row" + (isLastRow ? " last-row" : ""),
+        String(rowLabel)
+      );
+      rowHeader.style.gridRow = String(gridRow);
+      rowHeader.style.gridColumn = "2";
+      grid.appendChild(rowHeader);
+
+      events[rowIndex].forEach((event, colIndex) => {
+        const cell = document.createElement("div");
+        cell.className = "box event-cell texture-grass"
+          + (isLastRow ? " last-row" : "")
+          + (colIndex === colCount - 1 ? " last-col" : "");
+        cell.style.gridRow = String(gridRow);
+        cell.style.gridColumn = String(3 + colIndex);
+
+        const fire = document.createElement("div");
+        fire.className = "cell-fire texture-fire";
+
+        const content = document.createElement("div");
+        content.className = "cell-content texture-dirt";
+        content.textContent = event.label;
+
+        const cover = document.createElement("div");
+        cover.className = "cell-cover texture-grass";
+
+        const bomb = document.createElement("div");
+        bomb.className = "cell-bomb";
+
+        const bombWrap = document.createElement("div");
+        bombWrap.className = "bomb-wrap";
+
+        const bombSpark = document.createElement("div");
+        bombSpark.className = "bomb-spark";
+
+        const bombIcon = document.createElement("span");
+        bombIcon.className = "bomb-icon";
+        bombIcon.textContent = "💣";
+
+        bombWrap.append(bombSpark, bombIcon);
+        bomb.appendChild(bombWrap);
+
+        cell.append(fire, content, cover, bomb);
+        cell.addEventListener("click", () => handleCellClick(cell, event));
+        grid.appendChild(cell);
+      });
+    });
+
+    container.replaceChildren(grid);
+  }
+
+  buildEventTable(eventTableData, document.getElementById("event-table"));
+</script>
+
+</body>
+</html>
