@@ -20,7 +20,7 @@ const DATA = {
           questionText: "Notice the change in position of the cyclist...",
           navText: "Tap the cyclist to move him forward...",
           blueMovement: "As the movement is<br>from LEFT to RIGHT",
-          yellowMovement: "The movement is<br>also DOWN to UP",
+          yellowMovement: "The movement is<br> DOWN to UP",
         },
         4: {
           questionText: "Notice the change in position of the cyclist...",
