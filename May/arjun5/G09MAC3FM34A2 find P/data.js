@@ -68,10 +68,8 @@ const DATA = {
             "Since QR corresponds to BC, let's transform △ABC so that BC overlaps QR.",
         },
         8: {
-          navText:
-            " ",
-          navDone:
-            "Tap » to transform △ABC into △PQR so that BC overlaps QR.",
+          navText: " ",
+          navDone: "Tap » to transform △ABC into △PQR so that BC overlaps QR.",
           belowText:
             "Let's use transformations to determine the coordinates of P.",
         },
@@ -113,6 +111,47 @@ const DATA = {
           navDone: "Tap » to transform △ABC into △PQR.",
           belowText:
             "Let's use these values of PQ and PR to transform the triangle and determine the coordinates of P.",
+        },
+        14: {
+          navIntro: "Tap rotate.",
+          navSlider: "Use slider to rotate the triangle",
+          navDone:
+            "Tap » to align the rotated triangle so that BC coincides with QR.",
+          belowText: "Fix orientation first so that BC coincides with QR.",
+          rotateButton: "Rotate",
+          rotateTitle:
+            "Rotate △ABC about the origin until side BC coincides with side QR.",
+        },
+        15: {
+          navIntro: "Tap ‘Translate’.",
+          navControls: "Tap arrows to move the triangle.",
+          navDone: "Tap » to find another possible position for vertex P.",
+          belowText:
+            "Rotation aligned the orientation.\nNow, translate the triangle.",
+          translateButton: "Translate",
+          translateTitle: "Translate △ABC so that BC ↔ QR",
+        },
+        16: {
+          navIntro: "Tap ‘Reflect’.",
+          navDone: "Tap » to conclude.",
+          belowText:
+            "A triangle can also lie on the opposite side of the same base.\nReflect △PQR across line QR.",
+          reflectButton: "Reflect",
+          resultIntro: "△PQR is reflected across line QR.",
+          resultOr: "or",
+          resultPPrefix: "P(x, y) = ",
+        },
+        17: {
+          navText: "Tap ‘Start Over’ to restart.",
+          startOver: "Start Over",
+          conclusionTitle: "The possible coordinates are:",
+          conclusionOr: "or",
+          conclusionPoints: [
+            "P(x, y) = (-5, -3)",
+            "P(x, y) = (0, 2)",
+            "P(x, y) = (-1, 3)",
+            "P(x, y) = (-6, -2)",
+          ],
         },
       },
       labels: {
@@ -261,8 +300,7 @@ const DATA = {
             "Ketuk » untuk mentransformasikan △ABC menjadi △PQR sehingga BC berimpit dengan QR.",
           navDone:
             "Ketuk » untuk mentransformasikan △ABC menjadi △PQR sehingga BC berimpit dengan QR.",
-          belowText:
-            "Mari gunakan transformasi untuk menentukan koordinat P.",
+          belowText: "Mari gunakan transformasi untuk menentukan koordinat P.",
         },
         9: {
           navIntro: "Ketuk rotate.",
@@ -306,6 +344,49 @@ const DATA = {
           navDone: "Ketuk » untuk mentransformasikan △ABC menjadi △PQR.",
           belowText:
             "Mari gunakan nilai PQ dan PR ini untuk mentransformasikan segitiga dan menentukan koordinat P.",
+        },
+        14: {
+          navIntro: "Ketuk rotate.",
+          navSlider: "Gunakan penggeser untuk memutar segitiga",
+          navDone:
+            "Ketuk » untuk menggeser segitiga yang sudah diputar agar BC berimpit dengan QR.",
+          belowText:
+            "Perbaiki orientasi terlebih dahulu agar BC berimpit dengan QR.",
+          rotateButton: "Rotate",
+          rotateTitle:
+            "Putar △ABC terhadap titik asal hingga sisi BC berimpit dengan sisi QR.",
+        },
+        15: {
+          navIntro: "Ketuk ‘Translate’.",
+          navControls: "Ketuk panah untuk menggerakkan segitiga.",
+          navDone:
+            "Ketuk » untuk mencari kemungkinan posisi lain untuk titik P.",
+          belowText:
+            "Rotasi telah menyelaraskan orientasi.\nSekarang, translasi kan segitiga.",
+          translateButton: "Translate",
+          translateTitle: "Translasi △ABC sehingga BC ↔ QR",
+        },
+        16: {
+          navIntro: "Ketuk ‘Reflect’.",
+          navDone: "Ketuk » untuk menyimpulkan.",
+          belowText:
+            "Sebuah segitiga juga dapat berada di sisi berlawanan dari alas yang sama.\nRefleksikan △PQR terhadap garis QR.",
+          reflectButton: "Reflect",
+          resultIntro: "△PQR direfleksikan terhadap garis QR.",
+          resultOr: "atau",
+          resultPPrefix: "P(x, y) = ",
+        },
+        17: {
+          navText: "Ketuk ‘Start Over’ untuk mengulang.",
+          startOver: "Start Over",
+          conclusionTitle: "Koordinat yang mungkin adalah:",
+          conclusionOr: "atau",
+          conclusionPoints: [
+            "P(x, y) = (-5, -3)",
+            "P(x, y) = (0, 2)",
+            "P(x, y) = (-1, 3)",
+            "P(x, y) = (-6, -2)",
+          ],
         },
       },
       labels: {

@@ -1,7 +1,7 @@
 const App = () => {
   const { useCallback, useEffect, useMemo, useState } = React;
 
-  const [currentStep, setCurrentStep] = useState(9);
+  const [currentStep, setCurrentStep] = useState(1);
   const [step2Phase, setStep2Phase] = useState("initial");
   const [step3Phase, setStep3Phase] = useState("initial");
   const [step4Phase, setStep4Phase] = useState("initial");
@@ -14,6 +14,12 @@ const App = () => {
   const [step11Phase, setStep11Phase] = useState("intro");
   const [step12Phase, setStep12Phase] = useState("initial");
   const [step13Phase, setStep13Phase] = useState("initial");
+  const [step14Phase, setStep14Phase] = useState("intro");
+  const [step15Phase, setStep15Phase] = useState("intro");
+  const [step16Phase, setStep16Phase] = useState("intro");
+  const [firstRotationCase, setFirstRotationCase] = useState(null);
+  const [firstRotationDirection, setFirstRotationDirection] = useState(null);
+  const [firstRotationDegrees, setFirstRotationDegrees] = useState(null);
   const [nudgePositions, setNudgePositions] = useState([]);
   const [canvasEpoch, setCanvasEpoch] = useState(0);
 
@@ -28,11 +34,12 @@ const App = () => {
     return [];
   }, [currentStep]);
 
-  const questionHtml = currentStep >= 5
-    ? APP_DATA.question.solve
-    : currentStep === 1
-      ? APP_DATA.question.plain
-      : APP_DATA.question.full;
+  const questionHtml =
+    currentStep >= 5
+      ? APP_DATA.question.solve
+      : currentStep === 1
+        ? APP_DATA.question.plain
+        : APP_DATA.question.full;
 
   const isAnimating =
     (currentStep === 2 && step2Phase !== "done") ||
@@ -54,7 +61,9 @@ const App = () => {
     (currentStep === 12 &&
       (step12Phase === "flying" || step12Phase === "belowAnimating")) ||
     (currentStep === 13 &&
-      (step13Phase === "swapping" || step13Phase === "belowAnimating"));
+      (step13Phase === "swapping" || step13Phase === "belowAnimating")) ||
+    (currentStep === 16 &&
+      (step16Phase === "flipping" || step16Phase === "flying"));
 
   const isNextDisabled =
     (currentStep === 2 && step2Phase !== "done") ||
@@ -69,9 +78,11 @@ const App = () => {
     (currentStep === 11 && step11Phase !== "done") ||
     (currentStep === 12 && step12Phase !== "done") ||
     (currentStep === 13 && step13Phase !== "done") ||
-    currentStep >= 14;
+    (currentStep === 14 && step14Phase !== "done") ||
+    (currentStep === 15 && step15Phase !== "done") ||
+    (currentStep === 16 && step16Phase !== "done");
 
-  const isPrevDisabled = currentStep <= 1 || isAnimating;
+  const isPrevDisabled = currentStep <= 1 || currentStep >= 17 || isAnimating;
 
   const navText = useMemo(() => {
     if (currentStep === 1) return APP_DATA.steps[1].navText;
@@ -138,6 +149,23 @@ const App = () => {
       if (step13Phase === "done") return APP_DATA.steps[13].navDone;
       return "";
     }
+    if (currentStep === 14) {
+      if (step14Phase === "done") return APP_DATA.steps[14].navDone;
+      if (step14Phase === "ready") return APP_DATA.steps[14].navSlider;
+      return APP_DATA.steps[14].navIntro;
+    }
+    if (currentStep === 15) {
+      if (step15Phase === "done") return APP_DATA.steps[15].navDone;
+      if (step15Phase === "controls") return APP_DATA.steps[15].navControls;
+      return APP_DATA.steps[15].navIntro;
+    }
+    if (currentStep === 16) {
+      if (step16Phase === "done") return APP_DATA.steps[16].navDone;
+      return APP_DATA.steps[16].navIntro;
+    }
+    if (currentStep === 17) {
+      return APP_DATA.steps[17].navText;
+    }
     return "";
   }, [
     currentStep,
@@ -153,6 +181,9 @@ const App = () => {
     step11Phase,
     step12Phase,
     step13Phase,
+    step14Phase,
+    step15Phase,
+    step16Phase,
   ]);
 
   const navTextHidden =
@@ -169,28 +200,88 @@ const App = () => {
     (currentStep === 11 &&
       (step11Phase === "flipping" || step11Phase === "flying")) ||
     (currentStep === 12 && step12Phase !== "done") ||
-    (currentStep === 13 && step13Phase !== "done");
+    (currentStep === 13 && step13Phase !== "done") ||
+    (currentStep === 16 &&
+      (step16Phase === "flipping" || step16Phase === "flying"));
+
+  const nextSymbol =
+    currentStep === 17 ? APP_DATA.steps[17].startOver : "»";
+
+  const clearFirstRotation = useCallback(() => {
+    setFirstRotationCase(null);
+    setFirstRotationDirection(null);
+    setFirstRotationDegrees(null);
+  }, []);
+
+  const handleFirstRotationChange = useCallback((payload) => {
+    if (!payload) {
+      setFirstRotationCase(null);
+      setFirstRotationDirection(null);
+      setFirstRotationDegrees(null);
+      return;
+    }
+    setFirstRotationCase(payload.caseKey || null);
+    setFirstRotationDirection(payload.direction || null);
+    setFirstRotationDegrees(
+      payload.degrees === 90 || payload.degrees === 270 ? payload.degrees : null,
+    );
+  }, []);
 
   const applyCompletedThrough = useCallback((throughStep) => {
-    setStep2Phase("done");
-    setStep3Phase("done");
-    setStep4Phase("done");
-    setStep5Phase("done");
-    setStep6Phase("done");
-    if (throughStep >= 7) setStep7Phase("done");
-    else setStep7Phase("waiting");
-    if (throughStep >= 8) setStep8Phase("done");
-    else setStep8Phase("initial");
-    if (throughStep >= 9) setStep9Phase("done");
-    else setStep9Phase("intro");
-    if (throughStep >= 10) setStep10Phase("done");
-    else setStep10Phase("intro");
-    if (throughStep >= 11) setStep11Phase("done");
-    else setStep11Phase("intro");
-    if (throughStep >= 12) setStep12Phase("done");
-    else setStep12Phase("initial");
-    if (throughStep >= 13) setStep13Phase("done");
-    else setStep13Phase("initial");
+    setStep2Phase(throughStep >= 2 ? "done" : "initial");
+    setStep3Phase(throughStep >= 3 ? "done" : "initial");
+    setStep4Phase(throughStep >= 4 ? "done" : "initial");
+    setStep5Phase(throughStep >= 5 ? "done" : "intro");
+    setStep6Phase(throughStep >= 6 ? "done" : "abWaiting");
+    setStep7Phase(throughStep >= 7 ? "done" : "waiting");
+    setStep8Phase(throughStep >= 8 ? "done" : "initial");
+    setStep9Phase(throughStep >= 9 ? "done" : "intro");
+    setStep10Phase(throughStep >= 10 ? "done" : "intro");
+    setStep11Phase(throughStep >= 11 ? "done" : "intro");
+    setStep12Phase(throughStep >= 12 ? "done" : "initial");
+    setStep13Phase(throughStep >= 13 ? "done" : "initial");
+    setStep14Phase(throughStep >= 14 ? "done" : "intro");
+    setStep15Phase(throughStep >= 15 ? "done" : "intro");
+    setStep16Phase(throughStep >= 16 ? "done" : "intro");
+  }, []);
+
+  const getStepInitialPhase = useCallback((stepNum) => {
+    if (stepNum === 2 || stepNum === 3 || stepNum === 4 || stepNum === 8) {
+      return "initial";
+    }
+    if (stepNum === 5) return "intro";
+    if (stepNum === 6) return "abWaiting";
+    if (stepNum === 7) return "waiting";
+    if (
+      stepNum === 9 ||
+      stepNum === 10 ||
+      stepNum === 11 ||
+      stepNum === 14 ||
+      stepNum === 15 ||
+      stepNum === 16
+    ) {
+      return "intro";
+    }
+    if (stepNum === 12 || stepNum === 13) return "initial";
+    return "intro";
+  }, []);
+
+  const setStepPhase = useCallback((stepNum, phase) => {
+    if (stepNum === 2) setStep2Phase(phase);
+    else if (stepNum === 3) setStep3Phase(phase);
+    else if (stepNum === 4) setStep4Phase(phase);
+    else if (stepNum === 5) setStep5Phase(phase);
+    else if (stepNum === 6) setStep6Phase(phase);
+    else if (stepNum === 7) setStep7Phase(phase);
+    else if (stepNum === 8) setStep8Phase(phase);
+    else if (stepNum === 9) setStep9Phase(phase);
+    else if (stepNum === 10) setStep10Phase(phase);
+    else if (stepNum === 11) setStep11Phase(phase);
+    else if (stepNum === 12) setStep12Phase(phase);
+    else if (stepNum === 13) setStep13Phase(phase);
+    else if (stepNum === 14) setStep14Phase(phase);
+    else if (stepNum === 15) setStep15Phase(phase);
+    else if (stepNum === 16) setStep16Phase(phase);
   }, []);
 
   const restoreStep = useCallback(
@@ -199,122 +290,29 @@ const App = () => {
       setCanvasEpoch((epoch) => epoch + 1);
       setCurrentStep(targetStep);
 
-      if (targetStep === 1) {
-        setStep2Phase("initial");
-        setStep3Phase("initial");
-        setStep4Phase("initial");
-        setStep5Phase("intro");
-        setStep6Phase("abWaiting");
-        setStep7Phase("waiting");
-        setStep8Phase("initial");
-        setStep9Phase("intro");
-        setStep10Phase("intro");
-        setStep11Phase("intro");
-        setStep12Phase("initial");
-        setStep13Phase("initial");
+      if (targetStep <= 1) {
+        applyCompletedThrough(0);
+        clearFirstRotation();
         return;
       }
-      if (targetStep === 2) {
-        setStep2Phase("done");
-        setStep3Phase("initial");
-        setStep4Phase("initial");
-        setStep5Phase("intro");
-        setStep6Phase("abWaiting");
-        setStep7Phase("waiting");
-        setStep8Phase("initial");
-        setStep9Phase("intro");
-        setStep10Phase("intro");
-        setStep11Phase("intro");
-        setStep12Phase("initial");
-        setStep13Phase("initial");
-        return;
+
+      // Keep earlier steps completed; erase this step and everything after.
+      applyCompletedThrough(targetStep - 1);
+      setStepPhase(targetStep, getStepInitialPhase(targetStep));
+      for (let s = targetStep + 1; s <= 16; s++) {
+        setStepPhase(s, getStepInitialPhase(s));
       }
-      if (targetStep === 3) {
-        setStep2Phase("done");
-        setStep3Phase("done");
-        setStep4Phase("initial");
-        setStep5Phase("intro");
-        setStep6Phase("abWaiting");
-        setStep7Phase("waiting");
-        setStep8Phase("initial");
-        setStep9Phase("intro");
-        setStep10Phase("intro");
-        setStep11Phase("intro");
-        setStep12Phase("initial");
-        setStep13Phase("initial");
-        return;
-      }
-      if (targetStep === 4) {
-        setStep2Phase("done");
-        setStep3Phase("done");
-        setStep4Phase("done");
-        setStep5Phase("intro");
-        setStep6Phase("abWaiting");
-        setStep7Phase("waiting");
-        setStep8Phase("initial");
-        setStep9Phase("intro");
-        setStep10Phase("intro");
-        setStep11Phase("intro");
-        setStep12Phase("initial");
-        setStep13Phase("initial");
-        return;
-      }
-      if (targetStep === 5) {
-        applyCompletedThrough(4);
-        setStep5Phase("done");
-        setStep6Phase("abWaiting");
-        return;
-      }
-      if (targetStep === 6) {
-        applyCompletedThrough(5);
-        setStep6Phase("done");
-        return;
-      }
-      if (targetStep === 7) {
-        applyCompletedThrough(6);
-        setStep7Phase("done");
-        return;
-      }
-      if (targetStep === 8) {
-        applyCompletedThrough(7);
-        setStep8Phase("done");
-        return;
-      }
-      if (targetStep === 9) {
-        applyCompletedThrough(8);
-        setStep9Phase("done");
-        setStep10Phase("intro");
-        setStep11Phase("intro");
-        setStep12Phase("initial");
-        setStep13Phase("initial");
-        return;
-      }
-      if (targetStep === 10) {
-        applyCompletedThrough(9);
-        setStep10Phase("done");
-        setStep11Phase("intro");
-        setStep12Phase("initial");
-        setStep13Phase("initial");
-        return;
-      }
-      if (targetStep === 11) {
-        applyCompletedThrough(10);
-        setStep11Phase("done");
-        setStep12Phase("initial");
-        setStep13Phase("initial");
-        return;
-      }
-      if (targetStep === 12) {
-        applyCompletedThrough(11);
-        setStep12Phase("done");
-        setStep13Phase("initial");
-        return;
-      }
-      if (targetStep >= 13) {
-        applyCompletedThrough(13);
+
+      if (targetStep <= 9) {
+        clearFirstRotation();
       }
     },
-    [applyCompletedThrough],
+    [
+      applyCompletedThrough,
+      clearFirstRotation,
+      getStepInitialPhase,
+      setStepPhase,
+    ],
   );
 
   const handleNext = () => {
@@ -359,6 +357,19 @@ const App = () => {
     } else if (currentStep === 12) {
       setStep13Phase("initial");
       setCurrentStep(13);
+    } else if (currentStep === 13) {
+      setStep14Phase("intro");
+      setCurrentStep(14);
+    } else if (currentStep === 14) {
+      setStep15Phase("intro");
+      setCurrentStep(15);
+    } else if (currentStep === 15) {
+      setStep16Phase("intro");
+      setCurrentStep(16);
+    } else if (currentStep === 16) {
+      setCurrentStep(17);
+    } else if (currentStep === 17) {
+      restoreStep(1);
     }
   };
 
@@ -412,6 +423,14 @@ const App = () => {
         addNudgeFor("step10-translate-button");
       } else if (currentStep === 11 && step11Phase === "intro") {
         addNudgeFor("step11-reflect-button");
+      } else if (currentStep === 14 && step14Phase === "intro") {
+        addNudgeFor("step14-rotate-button");
+      } else if (currentStep === 14 && step14Phase === "controls") {
+        addNudgeFor("rotate-cw");
+      } else if (currentStep === 15 && step15Phase === "intro") {
+        addNudgeFor("step15-translate-button");
+      } else if (currentStep === 16 && step16Phase === "intro") {
+        addNudgeFor("step16-reflect-button");
       } else if (!isNextDisabled) {
         addNudgeFor("next-button");
       }
@@ -422,7 +441,8 @@ const App = () => {
     const nudgeDelay =
       currentStep === 5 && step5Phase === "intro"
         ? 800
-        : currentStep === 9 && step9Phase === "controls"
+        : (currentStep === 9 && step9Phase === "controls") ||
+            (currentStep === 14 && step14Phase === "controls")
           ? 200
           : 80;
     const timeoutId = setTimeout(updateNudges, nudgeDelay);
@@ -445,6 +465,9 @@ const App = () => {
     step11Phase,
     step12Phase,
     step13Phase,
+    step14Phase,
+    step15Phase,
+    step16Phase,
     isNextDisabled,
   ]);
 
@@ -495,6 +518,16 @@ const App = () => {
         onStep12PhaseChange: setStep12Phase,
         step13Phase: step13Phase,
         onStep13PhaseChange: setStep13Phase,
+        step14Phase: step14Phase,
+        onStep14PhaseChange: setStep14Phase,
+        step15Phase: step15Phase,
+        onStep15PhaseChange: setStep15Phase,
+        step16Phase: step16Phase,
+        onStep16PhaseChange: setStep16Phase,
+        firstRotationCase: firstRotationCase,
+        firstRotationDirection: firstRotationDirection,
+        firstRotationDegrees: firstRotationDegrees,
+        onFirstRotationChange: handleFirstRotationChange,
       }),
     ),
     React.createElement(
@@ -507,6 +540,7 @@ const App = () => {
         isPrevDisabled: isPrevDisabled,
         navText: navText,
         navTextHidden: navTextHidden,
+        nextSymbol: nextSymbol,
       }),
     ),
     renderNudges(),

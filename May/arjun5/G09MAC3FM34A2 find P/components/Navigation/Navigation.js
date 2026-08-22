@@ -5,6 +5,7 @@ const Navigation = ({
   navText,
   navTextHidden = false,
   nextSymbol = "»",
+  nextClassName = "",
 }) => {
   const { useState, useEffect, useRef } = React;
   const [displayText, setDisplayText] = useState(navText || "");
@@ -68,7 +69,10 @@ const Navigation = ({
     React.createElement(
       "button",
       {
-        className: "nav-chevron",
+        className:
+          "nav-chevron" +
+          (nextClassName ? " " + nextClassName : "") +
+          (String(nextSymbol).length > 1 ? " is-text-label" : ""),
         onClick: () => onNav("next"),
         disabled: isNextDisabled,
         id: "next-button",

@@ -1,0 +1,94 @@
+.fullscreen2-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.5vw 2vw 0.5vw;
+  box-sizing: border-box;
+  gap: 0.8vw;
+}
+
+.fullscreen2-heading {
+  margin: 0;
+  font-size: 3vw;
+  font-weight: 700;
+  color: #fdd835;
+  text-shadow: 0 0.1vw 0.35vw rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+}
+
+.fullscreen2-scale-wrap {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.fullscreen2-scale-wrap .scale-bg {
+  flex: 1;
+  min-height: 0;
+  --scale-bg-col-gap: 0.45vw;
+  --scale-bg-track-h: 1.75vw;
+  padding: 0 1vw;
+  align-content: center;
+}
+
+.fullscreen2-scale-wrap .scale-bg-label-slot {
+  padding: 0.35vw 0.3vw 0.3vw;
+  border-radius: 0.45vw 0.45vw 0 0;
+  font-size: 1.8vw;
+  line-height: 1.18;
+}
+
+.fullscreen2-scale-wrap .scale-bg-track-line {
+  height: 0.32vw;
+}
+
+.fullscreen2-scale-wrap .scale-bg-dot {
+  width: 1.8vw;
+  height: 1.8vw;
+  border-width: 0.08vw;
+}
+
+.fullscreen2-scale-wrap .scale-bg-dot-slot {
+  border-bottom: 1px solid;
+  border-radius: 0 0 0.45vw 0.45vw;
+}
+
+.fullscreen2-scale-text {
+  font-size: 2vw;
+  font-weight: 700;
+  font-style: italic;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.fullscreen2-card {
+  background: rgba(12, 45, 52, 0.88);
+  border: 2px solid #fdd835;
+  border-radius: 0.75vw;
+  padding: 0.5vw 2.5vw;
+  max-width: 92%;
+  font-size: 2vw;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 0.2vw 0.6vw rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+.fullscreen2-instruction {
+  margin: 0;
+  font-size: 1.8vw;
+  color: rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+}
+
+.fullscreen2-button {
+  flex-shrink: 0;
+  position: relative;
+}
