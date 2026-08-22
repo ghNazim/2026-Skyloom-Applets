@@ -231,12 +231,13 @@ const App = () => {
   const handleSelectReflector = useCallback(
     (reflectorId) => {
       if (isAnimating || currentStep !== 1) return;
+      if (activeReflector && navStage !== "folded") return;
       if (!IMPLEMENTED_REFLECTION_IDS.includes(reflectorId)) return;
       if (typeof playSound === "function") playSound("click");
       setPostFoldPromptReady(false);
       runPrefoldAnimation(reflectorId);
     },
-    [currentStep, isAnimating, runPrefoldAnimation],
+    [activeReflector, currentStep, isAnimating, navStage, runPrefoldAnimation],
   );
 
   const handlePrevious = useCallback(() => {

@@ -1373,6 +1373,7 @@ const MainCanvas = React.forwardRef(
       const target = document.querySelector(".intro-rule-answer-target");
       animateTextClone(event.currentTarget, target, () => {
         setRuleStatus("correct");
+        setRightVisible(false);
         const cardDelay = 600;
         const pause = 500;
         const flyDuration = 760;
@@ -2337,8 +2338,11 @@ const MainCanvas = React.forwardRef(
       }
       if (step === 2) {
         return React.createElement(
-          React.Fragment,
-          null,
+          "div",
+          {
+            className:
+              "rule-mcq-panel" + (rightVisible ? " is-visible" : ""),
+          },
           React.createElement("div", {
             className: "right-title",
             dangerouslySetInnerHTML: { __html: activeQuestion.ruleQuestion },

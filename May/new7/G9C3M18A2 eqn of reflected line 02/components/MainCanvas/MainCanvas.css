@@ -351,6 +351,7 @@
    ══════════════════════════════════════════════════ */
 
 .step2-left-column {
+  position: relative;
   flex: 0 0 65%;
   min-width: 0;
   height: 100%;
@@ -733,6 +734,7 @@
    ══════════════════════════════════════════════════ */
 
 .step4-left-column {
+  position: relative;
   flex: 0 0 65%;
   min-width: 0;
   height: 100%;

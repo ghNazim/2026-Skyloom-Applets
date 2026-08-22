@@ -24,6 +24,7 @@
 .title-label {
   color: #f1c40f;
   font-weight: 760;
+  margin-right: 1vw;
 }
 
 .title-value {
@@ -31,13 +32,35 @@
   font-weight: 500;
 }
 
+.right-panel.has-intro {
+  overflow: visible;
+}
+
 .visual-row {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   overflow: hidden;
+  position: relative;
+}
+
+.visual-row.intro-visual {
+  overflow: visible;
+  align-items: flex-start;
+  padding-top: 1.2vw;
+  padding-bottom: 5vw;
+}
+
+.visual-row .intro-event-box {
+  position: absolute;
+  left: 50%;
+  bottom: 1vw;
+  transform: translateX(-50%);
+  width: 72%;
+  z-index: 3;
+  background: rgba(8, 24, 58, 0.92);
 }
 
 .footer-row {
@@ -46,6 +69,12 @@
   align-items: center;
   justify-content: center;
   padding: 0.55vw 0 0.15vw;
+  transition: opacity 0.35s ease;
+}
+
+.footer-row.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .choice-cards {
@@ -74,7 +103,10 @@
   cursor: pointer;
   font-family: inherit;
   color: inherit;
-  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .choice-card:disabled {
@@ -174,6 +206,37 @@
   grid-template-rows: repeat(2, 1fr);
   gap: 0.8vw 1vw;
   padding: 1.1vw 1.4vw;
+  box-sizing: border-box;
+}
+
+.dice-card.small {
+  width: 22vw;
+  height: 22vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2vw;
+  grid-template-columns: none;
+  grid-template-rows: none;
+}
+
+.dice-card.small .intro-die {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dice-card.small .intro-die-face {
+  width: 14vw;
+  height: 14vw;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
 }
 
 .die-item {
@@ -194,6 +257,12 @@
 .die-item:disabled {
   opacity: 1;
   color: inherit;
+}
+
+.die-item.is-hidden,
+.die-item.is-hidden:disabled {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .die-item.locked {
@@ -232,6 +301,29 @@
   font-weight: 620;
 }
 
+@keyframes yellow-glow-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0.12vw rgba(241, 196, 15, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 0.75vw rgba(241, 196, 15, 0.95));
+  }
+}
+
+.die-item.can-glow .die-face {
+  animation: yellow-glow-pulse 1.15s ease-in-out infinite;
+}
+
+.bag-option.can-glow .bag-option-ball,
+.bag-option.can-glow .bag-option-count {
+  animation: yellow-glow-pulse 1.15s ease-in-out infinite;
+}
+
+.spinner-label.can-glow {
+  animation: yellow-glow-pulse 1.15s ease-in-out infinite;
+}
+
 .footer-row .btn:disabled {
   cursor: not-allowed;
   background: rgb(171, 171, 171);
@@ -251,6 +343,19 @@
   justify-content: center;
   gap: 1.2vw;
   padding: 1.1vw 1.4vw;
+  box-sizing: border-box;
+  transition:
+    width 0.55s ease,
+    height 0.55s ease,
+    gap 0.45s ease,
+    padding 0.45s ease;
+}
+
+.bag-card.small {
+  width: 22vw;
+  height: 24vw;
+  gap: 0;
+  padding: 1vw;
 }
 
 .bag-card-image {
@@ -258,6 +363,13 @@
   object-fit: contain;
   user-select: none;
   pointer-events: none;
+  transition: height 0.45s ease;
+}
+
+.bag-card.small .bag-card-image {
+  height: 88%;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .bag-card-options {
@@ -267,6 +379,21 @@
   justify-content: center;
   gap: 1.4vw;
   flex-wrap: wrap;
+  max-height: 12vw;
+  opacity: 1;
+  overflow: hidden;
+  transition:
+    max-height 0.5s ease,
+    opacity 0.4s ease,
+    gap 0.4s ease;
+}
+
+.bag-card.small .bag-card-options {
+  max-height: 0;
+  height: 0;
+  opacity: 0;
+  gap: 0;
+  pointer-events: none;
 }
 
 .bag-option {
@@ -335,6 +462,18 @@
   align-items: center;
   justify-content: center;
   padding: 0.8vw;
+  box-sizing: border-box;
+  transition:
+    width 0.55s ease,
+    height 0.55s ease,
+    padding 0.45s ease;
+}
+
+.spinner-card.small {
+  width: 24vw;
+  height: 24vw;
+  padding: 0.9vw;
+  cursor: pointer;
 }
 
 .spinner-svg {
@@ -342,6 +481,11 @@
   height: auto;
   max-height: 100%;
   overflow: visible;
+  transition: width 0.45s ease;
+}
+
+.spinner-card.small .spinner-svg {
+  width: 100%;
 }
 
 .spinner-rim {
@@ -355,7 +499,14 @@
   stroke: #ffffff;
   stroke-width: 1.2;
   cursor: pointer;
-  transition: fill 0.2s ease, stroke 0.2s ease, filter 0.2s ease;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease,
+    filter 0.2s ease;
+}
+
+.spinner-card.small .spinner-sector {
+  cursor: pointer;
 }
 
 .spinner-sector.locked {
@@ -383,6 +534,12 @@
   font-weight: 760;
   pointer-events: none;
   user-select: none;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.spinner-card.hide-labels .spinner-label {
+  opacity: 0;
 }
 
 .spinner-hub {

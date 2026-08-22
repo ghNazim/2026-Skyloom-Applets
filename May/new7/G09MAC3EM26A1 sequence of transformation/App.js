@@ -972,7 +972,8 @@ const App = () => {
         play("correct");
         setMatchedVertexIndex(matchIndex);
         setDilationCenter(imageVertices[matchIndex]);
-        setStage("translateBSuccess");
+        setActiveTool(null);
+        setStage("dilateBIntro");
         setTranslatePhase("done");
         setHintArrow(null);
       }
@@ -1100,7 +1101,8 @@ const App = () => {
       return;
     }
 
-    setStage("p2RotateBSuccess");
+    setActiveTool(null);
+    setStage("p2DilateBIntro");
   };
 
   const handleReveal = function () {
@@ -1123,16 +1125,6 @@ const App = () => {
 
   const handleNext = function () {
     play("click");
-    if (stage === "translateBSuccess") {
-      setStage("dilateBIntro");
-      setActiveTool(null);
-      return;
-    }
-    if (stage === "p2RotateBSuccess") {
-      setStage("p2DilateBIntro");
-      setActiveTool(null);
-      return;
-    }
     if (stage === "revealPanel") {
       const bothDone =
         completedPaths.dilateFirst && completedPaths.translateFirst;
@@ -1249,16 +1241,14 @@ const App = () => {
   );
 
   const footerAction =
-    stage === "translateBSuccess" || stage === "p2RotateBSuccess"
-      ? "next"
-      : stage === "translateSuccess" ||
-          stage === "translateSuccessB" ||
-          stage === "p2SuccessA" ||
-          stage === "p2SuccessB"
-        ? "reveal"
-        : stage === "revealPanel" || stage === "reveal2Panel"
-          ? "next"
-          : null;
+    stage === "translateSuccess" ||
+    stage === "translateSuccessB" ||
+    stage === "p2SuccessA" ||
+    stage === "p2SuccessB"
+      ? "reveal"
+      : stage === "revealPanel" || stage === "reveal2Panel"
+        ? "next"
+        : null;
 
   const activeNudgeId =
     stage === "step1"

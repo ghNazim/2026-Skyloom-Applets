@@ -134,6 +134,22 @@
   opacity: 1;
 }
 
+.rule-mcq-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1vw;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+.rule-mcq-panel.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .right-title {
   color: #ffffff;
   font-size: 2.25vw;
@@ -448,8 +464,8 @@
 }
 
 .right-feedback-space {
-  min-height: 6.6vw;
-  max-height: 8vw;
+  
+  height: 11vw;
   color: #ffffff;
   text-align: center;
   font-size: 2.1vw;

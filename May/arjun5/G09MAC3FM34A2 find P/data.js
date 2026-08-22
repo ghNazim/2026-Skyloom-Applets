@@ -3,12 +3,10 @@ const DATA = {
     app: {
       title: "Finding Unknown Coordinates",
       question: {
-        full:
-          '<span id="highlight-abc" class="orange-bg">Triangle ABC has vertices <span id="source-a">A(4, 1)</span>, <span id="source-b">B(0, 2)</span>, and <span id="source-c">C(2, 4)</span></span>. <span id="highlight-qr" class="cyan-bg">Triangle PQR has two vertices with coordinates <span id="source-q">Q(-4, 1)</span> and <span id="source-r">R(-2, -1)</span></span>. <span id="highlight-find-p" class="purple-bg">For the two triangles to be congruent, where should the coordinates of the unknown vertex <span id="source-p">P</span> be?</span>',
+        full: '<span id="highlight-abc" class="orange-bg">Triangle ABC has vertices <span id="source-a">A(4, 1)</span>, <span id="source-b">B(0, 2)</span>, and <span id="source-c">C(2, 4)</span></span>. <span id="highlight-qr" class="cyan-bg">Triangle PQR has two vertices with coordinates <span id="source-q">Q(-4, 1)</span> and <span id="source-r">R(-2, -1)</span></span>. <span id="highlight-find-p" class="purple-bg">For the two triangles to be congruent, where should the coordinates of the unknown vertex <span id="source-p">P</span> be?</span>',
         plain:
           "Triangle ABC has vertices A(4, 1), B(0, 2), and C(2, 4). Triangle PQR has two vertices with coordinates Q(-4, 1) and R(-2, -1). For the two triangles to be congruent, where should the coordinates of the unknown vertex P be?",
-        solve:
-          "Let’s find P(x,y) so that △ PQR ≅ △ ABC",
+        solve: "Let’s find P(x,y) so that △ PQR ≅ △ ABC",
       },
       graph: {
         labels: {
@@ -63,20 +61,54 @@ const DATA = {
         },
         7: {
           navPrompt: "Tap the side in △ABC that corresponds to QR.",
-          navDone:
-            "Tap » to transform △ABC into △PQR so that BC overlaps QR.",
+          navDone: "Tap » to visualise.",
           intro: "Now we can clearly see one pair of corresponding sides.",
-          promptBox:
-            "Can you spot the side corresponding to QR in △ABC?",
+          promptBox: "Can you spot the side corresponding to QR in △ABC?",
           belowText:
             "Since QR corresponds to BC, let's transform △ABC so that BC overlaps QR.",
         },
+        8: {
+          navText:
+            " ",
+          navDone:
+            "Tap » to transform △ABC into △PQR so that BC overlaps QR.",
+          belowText:
+            "Let's use transformations to determine the coordinates of P.",
+        },
+        9: {
+          navIntro: "Tap rotate.",
+          navDone:
+            "Tap » to align the rotated triangle so that BC coincides with QR.",
+          belowText: "Fix orientation first so that BC coincides with QR.",
+          rotateButton: "Rotate",
+          rotateTitle:
+            "Rotate △ABC about the origin until side BC coincides with side QR.",
+        },
+        10: {
+          navIntro: "Tap ‘Translate’.",
+          navDone: "Tap » to find another possible position for vertex P.",
+          belowText:
+            "Rotation aligned the orientation.\nNow, translate the triangle.",
+          translateButton: "Translate",
+          translateTitle: "Translate △ABC so that BC ↔ QR",
+        },
+      },
+      labels: {
+        cw: "CW",
+        acw: "ACW",
+        xArrow: "x →",
+        yArrow: "y →",
+        units: "units",
+        translate: "Translate",
+        up: "Up",
+        down: "Down",
+        left: "Left",
+        right: "Right",
       },
       rightPanel: {
         congruentProperty:
           "When two triangles are congruent, their corresponding side lengths are equal.",
-        useProperty:
-          "Let’s use this property to find unknown coordinates",
+        useProperty: "Let’s use this property to find unknown coordinates",
         findButton: "Find side lengths",
         distanceTitle: "Distance formula",
       },
@@ -134,12 +166,10 @@ const DATA = {
     app: {
       title: "Mencari Koordinat yang Belum Diketahui",
       question: {
-        full:
-          '<span id="highlight-abc" class="orange-bg">Segitiga ABC memiliki titik sudut <span id="source-a">A(4, 1)</span>, <span id="source-b">B(0, 2)</span>, dan <span id="source-c">C(2, 4)</span></span>. <span id="highlight-qr" class="cyan-bg">Segitiga PQR memiliki dua titik sudut dengan koordinat <span id="source-q">Q(-4, 1)</span> dan <span id="source-r">R(-2, -1)</span></span>. <span id="highlight-find-p" class="purple-bg">Agar kedua segitiga kongruen, di mana koordinat titik sudut <span id="source-p">P</span> yang belum diketahui?</span>',
+        full: '<span id="highlight-abc" class="orange-bg">Segitiga ABC memiliki titik sudut <span id="source-a">A(4, 1)</span>, <span id="source-b">B(0, 2)</span>, dan <span id="source-c">C(2, 4)</span></span>. <span id="highlight-qr" class="cyan-bg">Segitiga PQR memiliki dua titik sudut dengan koordinat <span id="source-q">Q(-4, 1)</span> dan <span id="source-r">R(-2, -1)</span></span>. <span id="highlight-find-p" class="purple-bg">Agar kedua segitiga kongruen, di mana koordinat titik sudut <span id="source-p">P</span> yang belum diketahui?</span>',
         plain:
           "Segitiga ABC memiliki titik sudut A(4, 1), B(0, 2), dan C(2, 4). Segitiga PQR memiliki dua titik sudut dengan koordinat Q(-4, 1) dan R(-2, -1). Agar kedua segitiga kongruen, di mana koordinat titik sudut P yang belum diketahui?",
-        solve:
-          "Mari cari P(x,y) sehingga △ PQR ≅ △ ABC",
+        solve: "Mari cari P(x,y) sehingga △ PQR ≅ △ ABC",
       },
       graph: {
         labels: {
@@ -175,19 +205,16 @@ const DATA = {
             "Ketuk » untuk mengidentifikasi informasi yang diberikan.",
         },
         3: {
-          navTextDone:
-            "Ketuk » untuk mengidentifikasi apa yang perlu dicari.",
+          navTextDone: "Ketuk » untuk mengidentifikasi apa yang perlu dicari.",
         },
         4: {
-          navTextDone:
-            "Ketuk » untuk menyelesaikan soal langkah demi langkah.",
+          navTextDone: "Ketuk » untuk menyelesaikan soal langkah demi langkah.",
         },
         5: {
           navIntro: "Ketuk ‘Cari panjang sisi’.",
           navQr: "Ketuk sisi QR untuk mencari panjangnya.",
           navSimplify: "Ketuk teks yang disorot untuk menyederhanakan.",
-          navDone:
-            "Ketuk » untuk mencari panjang semua sisi △ ABC.",
+          navDone: "Ketuk » untuk mencari panjang semua sisi △ ABC.",
         },
         6: {
           navAb: "Ketuk sisi AB untuk mencari panjangnya.",
@@ -199,8 +226,7 @@ const DATA = {
         },
         7: {
           navPrompt: "Ketuk sisi pada △ABC yang bersesuaian dengan QR.",
-          navDone:
-            "Ketuk » untuk mentransformasikan △ABC menjadi △PQR sehingga BC berimpit dengan QR.",
+          navDone: "Ketuk » untuk memvisualisasikan.",
           intro:
             "Sekarang kita dapat melihat dengan jelas satu pasangan sisi yang bersesuaian.",
           promptBox:
@@ -208,6 +234,45 @@ const DATA = {
           belowText:
             "Karena QR bersesuaian dengan BC, mari transformasikan △ABC sehingga BC berimpit dengan QR.",
         },
+        8: {
+          navText:
+            "Ketuk » untuk mentransformasikan △ABC menjadi △PQR sehingga BC berimpit dengan QR.",
+          navDone:
+            "Ketuk » untuk mentransformasikan △ABC menjadi △PQR sehingga BC berimpit dengan QR.",
+          belowText:
+            "Mari gunakan transformasi untuk menentukan koordinat P.",
+        },
+        9: {
+          navIntro: "Ketuk rotate.",
+          navDone:
+            "Ketuk » untuk menggeser segitiga yang sudah diputar agar BC berimpit dengan QR.",
+          belowText:
+            "Perbaiki orientasi terlebih dahulu agar BC berimpit dengan QR.",
+          rotateButton: "Rotate",
+          rotateTitle:
+            "Putar △ABC terhadap titik asal hingga sisi BC berimpit dengan sisi QR.",
+        },
+        10: {
+          navIntro: "Ketuk ‘Translate’.",
+          navDone:
+            "Ketuk » untuk mencari kemungkinan posisi lain untuk titik P.",
+          belowText:
+            "Rotasi telah menyelaraskan orientasi.\nSekarang, translasi kan segitiga.",
+          translateButton: "Translate",
+          translateTitle: "Translasi △ABC sehingga BC ↔ QR",
+        },
+      },
+      labels: {
+        cw: "CW",
+        acw: "ACW",
+        xArrow: "x →",
+        yArrow: "y →",
+        units: "satuan",
+        translate: "Translate",
+        up: "Atas",
+        down: "Bawah",
+        left: "Kiri",
+        right: "Kanan",
       },
       rightPanel: {
         congruentProperty:

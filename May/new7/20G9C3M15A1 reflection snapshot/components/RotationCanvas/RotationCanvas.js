@@ -14,6 +14,9 @@ const ReflectionCanvas = (props) => {
 
   const previousDisabled = isAnimating || navStage === "idle";
   const nextDisabled = isAnimating || navStage !== "prefold";
+  const explorationInProgress =
+    Boolean(activeReflector) && navStage !== "folded";
+  const reflectorButtonsDisabled = isAnimating || explorationInProgress;
   const caseConfig = visual.caseId ? REFLECTION_CASES[visual.caseId] : null;
   const resultBoxes =
     caseConfig && visual.showResultBoxes
@@ -32,7 +35,7 @@ const ReflectionCanvas = (props) => {
       React.createElement(PropertyPanel, {
         activeReflector,
         exploredReflectors,
-        disabled: isAnimating,
+        disabled: reflectorButtonsDisabled,
         onSelect: onSelectReflector,
         showSummarize,
         onSummarize,

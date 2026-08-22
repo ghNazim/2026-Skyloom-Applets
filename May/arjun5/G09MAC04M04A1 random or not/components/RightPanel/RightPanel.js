@@ -4,6 +4,8 @@ const RightPanel = ({
   children,
   footer = null,
   className = "",
+  visualClassName = "",
+  footerClassName = "",
 }) => {
   const e = React.createElement;
   const html = (text) => (typeof handleComma === "function" ? handleComma(text) : text);
@@ -25,7 +27,9 @@ const RightPanel = ({
           })
         : null,
     ),
-    e("div", { className: "visual-row" }, children),
-    footer ? e("div", { className: "footer-row" }, footer) : null,
+    e("div", { className: `visual-row ${visualClassName}`.trim() }, children),
+    footer
+      ? e("div", { className: `footer-row ${footerClassName}`.trim() }, footer)
+      : null,
   );
 };

@@ -30,6 +30,7 @@ const TranslationGraphPanel = ({
   segments,
   polygons,
   rootLabels,
+  cloneRootLabels,
   labelRefs,
   coordRefs,
   rotationOverlay,
@@ -498,6 +499,7 @@ const TranslationGraphPanel = ({
   const segmentList = segments || [];
   const polygonList = polygons || [];
   const rootLabelList = rootLabels || [];
+  const cloneRootLabelList = cloneRootLabels || [];
 
   return React.createElement(
     "div",
@@ -606,6 +608,9 @@ const TranslationGraphPanel = ({
             ),
           )
         : null,
+      cloneRootLabelList.map((item, index) =>
+        renderRootLabel(item, "clone-upright-" + index),
+      ),
     ),
   );
 };

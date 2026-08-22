@@ -105,11 +105,12 @@ const App = () => {
     playSfx("click");
     setIsFilling(true);
     setFillTrigger((n) => n + 1);
-    setTimeout(() => {
-      setMachineFilled(true);
-      setIsFilling(false);
-      markComplete("machineFilled");
-    }, 1200);
+  };
+
+  const handleFillDone = () => {
+    setMachineFilled(true);
+    setIsFilling(false);
+    markComplete("machineFilled");
   };
 
   const handleDraw = () => {
@@ -323,6 +324,7 @@ const App = () => {
       spinnerState: { counts: spinnerCounts, spins: spinnerSpins, last: lastSpinner, isSpinning: spinnerRunning, angle: spinnerAngle },
       eventProgress,
       onFill: handleFill,
+      onFillDone: handleFillDone,
       onDraw: handleDraw,
       onMarbleServed: handleMarbleServed,
       onSpin: handleSpin,

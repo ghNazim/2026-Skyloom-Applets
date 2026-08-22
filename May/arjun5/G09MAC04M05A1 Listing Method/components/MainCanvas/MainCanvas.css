@@ -85,6 +85,9 @@
   opacity: 1;
   pointer-events: auto;
 }
+.lm-spinner-col .lm-sample-row{
+  width: 120%;
+}
 
 .lm-sample-label {
   font-size: 2.5vw;
@@ -122,8 +125,13 @@ ns {
 
 .lm-brace {
   color: #ffffff;
-  font-weight: 600;
-  font-size: 2.5vw;
+  font-weight: 300;
+  font-size: 5.2vw;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 4.2vw;
+  margin-bottom: 1.1vw;
 }
 
 .lm-comma {
@@ -332,6 +340,10 @@ ns {
   align-items: stretch;
   position: relative;
   left: 15vw;
+}
+
+.lm-equation-stack.low-shift {
+  left: 0vw;
 }
 
 .lm-eq-row {
@@ -544,7 +556,7 @@ ns {
 .lm-sample-placeholder {
   color: rgba(180, 190, 210, 0.55);
   font-style: italic;
-  font-size: 2.5vw;
+  font-size: 1.65vw;
   font-weight: 600;
 }
 
@@ -794,14 +806,24 @@ ns {
 
 .lm-ss-row.is-wide .lm-sample-pair,
 .lm-ss-row.is-wide .lm-sample-placeholder {
-  font-size: 1.9vw;
+  font-size: 1.65vw;
 }
 
 .lm-ss-row.is-wide .lm-sample-label.theme-s-white,
 .lm-ss-row.is-wide .lm-eq,
-.lm-ss-row.is-wide .lm-brace,
 .lm-ss-row.is-wide .lm-comma {
   font-size: 2.1vw;
+}
+
+.lm-ss-row.is-wide .lm-brace,
+.lm-ss-row.is-extra-wide .lm-brace {
+  font-size: 5.2vw;
+  height: 4.2vw;
+}
+
+.lm-sample-row.is-compact .lm-brace {
+  font-size: 4.5vw;
+  height: 3.6vw;
 }
 
 .lm-sample-row.is-compact .lm-drop-zone {

@@ -8,6 +8,9 @@ const App = () => {
   const [step5Phase, setStep5Phase] = useState("intro");
   const [step6Phase, setStep6Phase] = useState("abWaiting");
   const [step7Phase, setStep7Phase] = useState("waiting");
+  const [step8Phase, setStep8Phase] = useState("initial");
+  const [step9Phase, setStep9Phase] = useState("intro");
+  const [step10Phase, setStep10Phase] = useState("intro");
   const [nudgePositions, setNudgePositions] = useState([]);
   const [canvasEpoch, setCanvasEpoch] = useState(0);
 
@@ -41,7 +44,8 @@ const App = () => {
         step6Phase === "bcRootAnimating" ||
         step6Phase === "acFilling" ||
         step6Phase === "acRootAnimating")) ||
-    (currentStep === 7 && step7Phase === "flying");
+    (currentStep === 7 && step7Phase === "flying") ||
+    (currentStep === 8 && step8Phase === "animating");
 
   const isNextDisabled =
     (currentStep === 2 && step2Phase !== "done") ||
@@ -50,7 +54,10 @@ const App = () => {
     (currentStep === 5 && step5Phase !== "done") ||
     (currentStep === 6 && step6Phase !== "done") ||
     (currentStep === 7 && step7Phase !== "done") ||
-    currentStep >= 8;
+    (currentStep === 8 && step8Phase !== "done") ||
+    (currentStep === 9 && step9Phase !== "done") ||
+    (currentStep === 10 && step10Phase !== "done") ||
+    currentStep >= 11;
 
   const isPrevDisabled = currentStep <= 1 || isAnimating;
 
@@ -93,6 +100,18 @@ const App = () => {
       if (step7Phase === "done") return APP_DATA.steps[7].navDone;
       return APP_DATA.steps[7].navPrompt;
     }
+    if (currentStep === 8) {
+      if (step8Phase === "done") return APP_DATA.steps[8].navDone;
+      return APP_DATA.steps[8].navText;
+    }
+    if (currentStep === 9) {
+      if (step9Phase === "done") return APP_DATA.steps[9].navDone;
+      return APP_DATA.steps[9].navIntro;
+    }
+    if (currentStep === 10) {
+      if (step10Phase === "done") return APP_DATA.steps[10].navDone;
+      return APP_DATA.steps[10].navIntro;
+    }
     return "";
   }, [
     currentStep,
@@ -102,6 +121,9 @@ const App = () => {
     step5Phase,
     step6Phase,
     step7Phase,
+    step8Phase,
+    step9Phase,
+    step10Phase,
   ]);
 
   const navTextHidden =
@@ -116,68 +138,109 @@ const App = () => {
       step6Phase !== "done") ||
     (currentStep === 7 && step7Phase === "flying");
 
-  const restoreStep = useCallback((targetStep) => {
-    setNudgePositions([]);
-    setCanvasEpoch((epoch) => epoch + 1);
-    setCurrentStep(targetStep);
-
-    if (targetStep === 1) {
-      setStep2Phase("initial");
-      setStep3Phase("initial");
-      setStep4Phase("initial");
-      setStep5Phase("intro");
-      setStep6Phase("abWaiting");
-      setStep7Phase("waiting");
-    }
-    if (targetStep === 2) {
-      setStep2Phase("done");
-      setStep3Phase("initial");
-      setStep4Phase("initial");
-      setStep5Phase("intro");
-      setStep6Phase("abWaiting");
-      setStep7Phase("waiting");
-    }
-    if (targetStep === 3) {
-      setStep2Phase("done");
-      setStep3Phase("done");
-      setStep4Phase("initial");
-      setStep5Phase("intro");
-      setStep6Phase("abWaiting");
-      setStep7Phase("waiting");
-    }
-    if (targetStep === 4) {
-      setStep2Phase("done");
-      setStep3Phase("done");
-      setStep4Phase("done");
-      setStep5Phase("intro");
-      setStep6Phase("abWaiting");
-      setStep7Phase("waiting");
-    }
-    if (targetStep === 5) {
-      setStep2Phase("done");
-      setStep3Phase("done");
-      setStep4Phase("done");
-      setStep5Phase("done");
-      setStep6Phase("abWaiting");
-      setStep7Phase("waiting");
-    }
-    if (targetStep === 6) {
-      setStep2Phase("done");
-      setStep3Phase("done");
-      setStep4Phase("done");
-      setStep5Phase("done");
-      setStep6Phase("done");
-      setStep7Phase("waiting");
-    }
-    if (targetStep >= 7) {
-      setStep2Phase("done");
-      setStep3Phase("done");
-      setStep4Phase("done");
-      setStep5Phase("done");
-      setStep6Phase("done");
-      setStep7Phase("done");
-    }
+  const applyCompletedThrough = useCallback((throughStep) => {
+    setStep2Phase("done");
+    setStep3Phase("done");
+    setStep4Phase("done");
+    setStep5Phase("done");
+    setStep6Phase("done");
+    if (throughStep >= 7) setStep7Phase("done");
+    else setStep7Phase("waiting");
+    if (throughStep >= 8) setStep8Phase("done");
+    else setStep8Phase("initial");
+    if (throughStep >= 9) setStep9Phase("done");
+    else setStep9Phase("intro");
+    if (throughStep >= 10) setStep10Phase("done");
+    else setStep10Phase("intro");
   }, []);
+
+  const restoreStep = useCallback(
+    (targetStep) => {
+      setNudgePositions([]);
+      setCanvasEpoch((epoch) => epoch + 1);
+      setCurrentStep(targetStep);
+
+      if (targetStep === 1) {
+        setStep2Phase("initial");
+        setStep3Phase("initial");
+        setStep4Phase("initial");
+        setStep5Phase("intro");
+        setStep6Phase("abWaiting");
+        setStep7Phase("waiting");
+        setStep8Phase("initial");
+        setStep9Phase("intro");
+        setStep10Phase("intro");
+        return;
+      }
+      if (targetStep === 2) {
+        setStep2Phase("done");
+        setStep3Phase("initial");
+        setStep4Phase("initial");
+        setStep5Phase("intro");
+        setStep6Phase("abWaiting");
+        setStep7Phase("waiting");
+        setStep8Phase("initial");
+        setStep9Phase("intro");
+        setStep10Phase("intro");
+        return;
+      }
+      if (targetStep === 3) {
+        setStep2Phase("done");
+        setStep3Phase("done");
+        setStep4Phase("initial");
+        setStep5Phase("intro");
+        setStep6Phase("abWaiting");
+        setStep7Phase("waiting");
+        setStep8Phase("initial");
+        setStep9Phase("intro");
+        setStep10Phase("intro");
+        return;
+      }
+      if (targetStep === 4) {
+        setStep2Phase("done");
+        setStep3Phase("done");
+        setStep4Phase("done");
+        setStep5Phase("intro");
+        setStep6Phase("abWaiting");
+        setStep7Phase("waiting");
+        setStep8Phase("initial");
+        setStep9Phase("intro");
+        setStep10Phase("intro");
+        return;
+      }
+      if (targetStep === 5) {
+        applyCompletedThrough(4);
+        setStep5Phase("done");
+        setStep6Phase("abWaiting");
+        return;
+      }
+      if (targetStep === 6) {
+        applyCompletedThrough(5);
+        setStep6Phase("done");
+        return;
+      }
+      if (targetStep === 7) {
+        applyCompletedThrough(6);
+        setStep7Phase("done");
+        return;
+      }
+      if (targetStep === 8) {
+        applyCompletedThrough(7);
+        setStep8Phase("done");
+        return;
+      }
+      if (targetStep === 9) {
+        applyCompletedThrough(8);
+        setStep9Phase("done");
+        setStep10Phase("intro");
+        return;
+      }
+      if (targetStep >= 10) {
+        applyCompletedThrough(10);
+      }
+    },
+    [applyCompletedThrough],
+  );
 
   const handleNext = () => {
     if (typeof playSound === "function") playSound("click");
@@ -203,6 +266,15 @@ const App = () => {
     } else if (currentStep === 6) {
       setStep7Phase("waiting");
       setCurrentStep(7);
+    } else if (currentStep === 7) {
+      setStep8Phase("initial");
+      setCurrentStep(8);
+    } else if (currentStep === 8) {
+      setStep9Phase("intro");
+      setCurrentStep(9);
+    } else if (currentStep === 9) {
+      setStep10Phase("intro");
+      setCurrentStep(10);
     }
   };
 
@@ -248,6 +320,14 @@ const App = () => {
           step6Phase === "acSimplified")
       ) {
         addNudgeFor("calc-box-simplified");
+      } else if (currentStep === 9 && step9Phase === "intro") {
+        addNudgeFor("step9-rotate-button");
+      } else if (currentStep === 9 && step9Phase === "controls") {
+        addNudgeFor("rotate-cw");
+      } else if (currentStep === 10 && step10Phase === "intro") {
+        addNudgeFor("step10-translate-button");
+      } else if (currentStep === 10 && step10Phase === "controls") {
+        addNudgeFor("arrow-right");
       } else if (!isNextDisabled) {
         addNudgeFor("next-button");
       }
@@ -256,7 +336,13 @@ const App = () => {
     };
 
     const nudgeDelay =
-      currentStep === 5 && step5Phase === "intro" ? 800 : 80;
+      currentStep === 5 && step5Phase === "intro"
+        ? 800
+        : currentStep === 9 && step9Phase === "controls"
+          ? 200
+          : currentStep === 10 && step10Phase === "controls"
+            ? 200
+            : 80;
     const timeoutId = setTimeout(updateNudges, nudgeDelay);
     window.addEventListener("resize", updateNudges);
     return () => {
@@ -271,6 +357,9 @@ const App = () => {
     step5Phase,
     step6Phase,
     step7Phase,
+    step8Phase,
+    step9Phase,
+    step10Phase,
     isNextDisabled,
   ]);
 
@@ -309,6 +398,12 @@ const App = () => {
         onStep6PhaseChange: setStep6Phase,
         step7Phase: step7Phase,
         onStep7PhaseChange: setStep7Phase,
+        step8Phase: step8Phase,
+        onStep8PhaseChange: setStep8Phase,
+        step9Phase: step9Phase,
+        onStep9PhaseChange: setStep9Phase,
+        step10Phase: step10Phase,
+        onStep10PhaseChange: setStep10Phase,
       }),
     ),
     React.createElement(

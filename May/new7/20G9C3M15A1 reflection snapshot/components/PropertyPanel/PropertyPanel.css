@@ -70,10 +70,11 @@
   background: rgba(21, 96, 130, 0.64);
 }
 
-.property-btn:disabled {
+.property-btn:disabled, .property-btn.explored:disabled {
   opacity: 0.42;
   cursor: not-allowed;
   transform: none;
+  background: rgba(21, 96, 130, 0.64) !important;
 }
 
 .property-btn.active:disabled {

@@ -16,6 +16,16 @@ const MainCanvas = (props) => {
   var sampleCount = ALL_SAMPLE_PAIRS.length;
   var isWide = sampleCount > 6;
   var isExtraWide = sampleCount > 8;
+  var equationStackClass =
+    "lm-equation-stack" + (experiment === 3 ? " low-shift" : "");
+
+  function formatOutcomeLabel(value) {
+    if (typeof current_language !== "undefined" && current_language === "id") {
+      if (value === "H") return "A";
+      if (value === "T") return "G";
+    }
+    return String(value);
+  }
 
   function getStepData(stepNum) {
     return APP_DATA.experiments[experiment].steps[stepNum];
@@ -773,7 +783,7 @@ const MainCanvas = (props) => {
         className: className,
         "data-zone-id": zoneId,
       },
-      value !== null && value !== undefined ? String(value) : null,
+      value !== null && value !== undefined ? formatOutcomeLabel(value) : null,
     );
   };
 
@@ -819,7 +829,7 @@ const MainCanvas = (props) => {
           handleDragStart(value, evt, context);
         },
       },
-      String(value),
+      formatOutcomeLabel(value),
     );
   };
 
@@ -838,7 +848,7 @@ const MainCanvas = (props) => {
           zIndex: 9999,
         },
       },
-      String(dragState.value),
+      formatOutcomeLabel(dragState.value),
     );
   };
 
@@ -950,7 +960,7 @@ const MainCanvas = (props) => {
         ref: opts.ref,
         onClick: opts.onClick,
       },
-      String(value),
+      formatOutcomeLabel(value),
     );
   };
 
@@ -1024,14 +1034,14 @@ const MainCanvas = (props) => {
       var meetA = { x: bCenter.x - 2 * vw, y: bCenter.y };
       var meetComma = { x: (meetA.x + meetB.x) / 2, y: bCenter.y };
 
-      var cloneA = createFlyClone(String(aVal), "a", aStart);
+      var cloneA = createFlyClone(formatOutcomeLabel(aVal), "a", aStart);
       var tw1 = gsap.to(cloneA, {
         left: meetA.x,
         top: meetA.y,
         duration: 0.55,
         ease: "power2.inOut",
         onComplete: function () {
-          var cloneB = createFlyClone(String(bVal), "b", meetB);
+          var cloneB = createFlyClone(formatOutcomeLabel(bVal), "b", meetB);
           gsap.set(cloneB, { opacity: 0 });
           var comma = createFlyComma(meetComma);
 
@@ -1199,7 +1209,7 @@ const MainCanvas = (props) => {
         { className: "lm-visual-row step-3" },
         e(
           "div",
-          { className: "lm-equation-stack" },
+          { className: equationStackClass },
           renderEquationRow({
             theme: "a",
             lhs: e(
@@ -1318,7 +1328,7 @@ const MainCanvas = (props) => {
                     samplePartRefs.current[idx].a = el;
                   },
                 },
-                String(pair.a),
+                formatOutcomeLabel(pair.a),
               ),
               e(
                 "span",
@@ -1342,7 +1352,7 @@ const MainCanvas = (props) => {
                     samplePartRefs.current[idx].b = el;
                   },
                 },
-                String(pair.b),
+                formatOutcomeLabel(pair.b),
               ),
             )
           : e("span", { className: "lm-sample-placeholder" }, String(idx + 1)),
@@ -1385,7 +1395,7 @@ const MainCanvas = (props) => {
         { className: "lm-visual-row step-4" },
         e(
           "div",
-          { className: "lm-equation-stack step-4-stack" },
+          { className: equationStackClass + " step-4-stack" },
           renderEquationRow({
             theme: "a",
             lhs: e(
@@ -1555,9 +1565,9 @@ const MainCanvas = (props) => {
       e(
         "span",
         { className: "lm-sample-pair is-revealed" },
-        e("span", { className: "lm-pair-a" }, String(pair.a)),
+        e("span", { className: "lm-pair-a" }, formatOutcomeLabel(pair.a)),
         e("span", { className: "lm-pair-comma" }, ","),
-        e("span", { className: "lm-pair-b" }, String(pair.b))
+        e("span", { className: "lm-pair-b" }, formatOutcomeLabel(pair.b))
       )
     );
   };
@@ -1604,7 +1614,7 @@ const MainCanvas = (props) => {
         showLegacy
           ? e(
               "div",
-              { className: "lm-equation-stack step-4-stack lm-legacy-fade" },
+              { className: equationStackClass + " step-4-stack lm-legacy-fade" },
               renderEquationRow({
                 theme: "a",
                 lhs: e("span", { className: "lm-sample-label theme-a" }, step4Data.spinnerALabel),

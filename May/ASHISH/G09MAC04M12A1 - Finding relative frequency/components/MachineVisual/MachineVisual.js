@@ -3,14 +3,17 @@
  *
  * Props:
  *   tubeColors        : [c1,c2,c3,c4]  colour names (keys of MACHINE_COLOR_MAP)
- *   serveSequence     : [c,c,c, …]     10 colour names for each serve ball
- *   autoFill          : bool            run fill (scene 1) as soon as mounted / colours change
+ *   serveSequence     : [c,c,c, …]     colour names for serve ball(s) this trigger
+ *   drawIndex         : number          0 = first draw (scene 1), >0 = later draws (scene 3)
+ *   prevServeColor    : string          previous marble colour (for "drop old")
+ *   autoFill          : bool            run fill (scene 0) as soon as mounted / colours change
  *   triggerFill       : number          bump this to start the fill scene
- *   triggerServe      : number          bump this to start the 10-serve sequence
+ *   triggerServe      : number          bump this to play one draw scene
  *   onServeStep       : fn(index)       called after each serve completes (0-based)
- *   onServesDone      : fn()            called when all 10 serves finish
- *   onFill            : fn()            called from the SVG fill hit target
- *   onDraw            : fn()            called from the SVG draw hit target
+ *   onServesDone      : fn()            called when the current serve finishes
+ *   onFill            : fn()            called from the fill button
+ *   onFillDone        : fn()            called when fill scene (0) finishes
+ *   onDraw            : fn()            called from the draw button
  *   canFill/canDraw   : bool            enables SVG button hit targets
  *   fillLabel/drawLabel : string        visible button labels
  *   machineRef        : React ref       forwarded to the container div (for cloning / positioning)
@@ -103,12 +106,15 @@ var MachineVisual = function (props) {
 
   var tubeColors = props.tubeColors || ["red", "yellow", "blue", "pink"];
   var serveSequence = props.serveSequence || [];
+  var drawIndex = typeof props.drawIndex === "number" ? props.drawIndex : 0;
+  var prevServeColor = props.prevServeColor || null;
   var autoFill = props.autoFill !== false;
   var triggerFill = props.triggerFill || 0;
   var triggerServe = props.triggerServe || 0;
   var onServeStep = props.onServeStep;
   var onServesDone = props.onServesDone;
   var onFill = props.onFill;
+  var onFillDone = props.onFillDone;
   var onDraw = props.onDraw;
   var canFill = !!props.canFill;
   var canDraw = !!props.canDraw;
@@ -117,6 +123,12 @@ var MachineVisual = function (props) {
   var inactive = !!props.inactive;
   var machineRef = props.machineRef;
   var machineFilled = !!props.machineFilled;
+  var drawIndexRef = useRef(drawIndex);
+  var prevServeColorRef = useRef(prevServeColor);
+  var serveSequenceRef = useRef(serveSequence);
+  drawIndexRef.current = drawIndex;
+  prevServeColorRef.current = prevServeColor;
+  serveSequenceRef.current = serveSequence;
 
   var wrapperRef = useRef(null);
   var containerRef = useRef(null);
@@ -228,93 +240,99 @@ var MachineVisual = function (props) {
     }, 30);
   }
 
-  // Fill: load animation with colours and play scene 1 (index 0)
+  // Initial load only — do not remount when machineFilled flips (that snapped fill to the end).
   useEffect(function () {
     loadAnim(tubeColors, function (inst, data) {
       var scenes = mcGetScenes(data);
-      if (autoFill && scenes[0]) playSceneOnce(inst, scenes[0]);
+      if (autoFill && scenes[0]) playSceneOnce(inst, scenes[0], onFillDone);
       else inst.goToAndStop(machineFilled ? 55 : 0, true);
     });
     return cleanup;
-  }, [colorKey, autoFill, machineFilled]);
+  }, [colorKey, autoFill]);
 
   useEffect(function () {
     if (!triggerFill) return;
     loadAnim(tubeColors, function (inst, data) {
       var scenes = mcGetScenes(data);
-      if (scenes[0]) playSceneOnce(inst, scenes[0]);
+      if (scenes[0]) playSceneOnce(inst, scenes[0], onFillDone);
     });
   }, [triggerFill]);
 
-  // Serve: when triggerServe bumps, run 10-serve sequence
+  // Serve: one draw per triggerServe bump.
+  // First draw (drawIndex 0) → scenes[1] (55→118). Later draws → scenes[3] (120→150).
   useEffect(function () {
     if (!triggerServe) return;
     setIsShaking(true);
     setTimeout(function () { setIsShaking(false); }, 650);
     servingRef.current = true;
-    var count = 0;
-    var maxCount = serveSequence.length || 10;
 
-    function serveNext() {
-      if (count >= maxCount || !servingRef.current) {
+    var index = drawIndexRef.current;
+    var sequence = serveSequenceRef.current || [];
+    var colorName = sequence[0] || "red";
+    var colorHex = MACHINE_COLOR_MAP[colorName] || "#FFFFFF";
+    var prevName = index > 0 ? prevServeColorRef.current : null;
+    var prevHex = prevName
+      ? (MACHINE_COLOR_MAP[prevName] || "#FFFFFF")
+      : colorHex;
+
+    var data = deepClone(animationData);
+    mcApplyColors(data, tubeColors);
+    var ctrls = mcAnalyseEffects(data);
+    ctrls.forEach(function (c) {
+      if (c.name === "drop new") mcSetEffect(data, c.path, mcParseHex(colorHex));
+      if (c.name === "drop old") mcSetEffect(data, c.path, mcParseHex(prevHex));
+    });
+
+    var el = containerRef.current;
+    if (!el) return;
+    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+    if (animRef.current) {
+      if (enterFrameRef.current) {
+        animRef.current.removeEventListener("enterFrame", enterFrameRef.current);
+        enterFrameRef.current = null;
+      }
+      animRef.current.destroy();
+      animRef.current = null;
+    }
+    el.innerHTML = "";
+    el.style.visibility = "hidden";
+
+    var inst = lottie.loadAnimation({
+      container: el,
+      renderer: "svg",
+      loop: false,
+      autoplay: false,
+      animationData: data,
+    });
+    animRef.current = inst;
+    inst.__animData = data;
+
+    function afterLoaded() {
+      cropSvg();
+      var scenes = mcGetScenes(data);
+      // scenes[0]=fill, [1]=first draw, [2]=gap, [3]=later draws
+      var scene = index === 0 ? scenes[1] : scenes[3];
+      if (!scene) {
         servingRef.current = false;
-        if (onServesDone) onServesDone();
+        el.style.visibility = "";
         return;
       }
-      var colorHex = MACHINE_COLOR_MAP[serveSequence[count]] || "#FFFFFF";
-      var prevHex = count > 0
-        ? (MACHINE_COLOR_MAP[serveSequence[count - 1]] || "#FFFFFF")
-        : colorHex;
-
-      var data = deepClone(animationData);
-      mcApplyColors(data, tubeColors);
-      var ctrls = mcAnalyseEffects(data);
-      ctrls.forEach(function (c) {
-        if (c.name === "drop new") mcSetEffect(data, c.path, mcParseHex(colorHex));
-        if (c.name === "drop old") mcSetEffect(data, c.path, mcParseHex(prevHex));
+      // Seek before showing so we never flash the empty/fill start frame.
+      inst.goToAndStop(scene.startFrame, true);
+      el.style.visibility = "";
+      playSceneOnce(inst, scene, function () {
+        if (onServeStep) onServeStep(index);
+        servingRef.current = false;
+        if (onServesDone) onServesDone();
       });
-
-      var el = containerRef.current;
-      if (!el) return;
-      if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
-      if (animRef.current) {
-        if (enterFrameRef.current) {
-          animRef.current.removeEventListener("enterFrame", enterFrameRef.current);
-          enterFrameRef.current = null;
-        }
-        animRef.current.destroy();
-        animRef.current = null;
-      }
-      el.innerHTML = "";
-
-      var inst = lottie.loadAnimation({
-        container: el,
-        renderer: "svg",
-        loop: false,
-        autoplay: false,
-        animationData: data,
-      });
-      animRef.current = inst;
-      inst.__animData = data;
-
-      function afterLoaded() {
-        cropSvg();
-        var scenes = mcGetScenes(data);
-        var scene = count === 0 ? scenes[1] : scenes[3];
-        if (!scene) { servingRef.current = false; return; }
-        playSceneOnce(inst, scene, function () {
-          var idx = count;
-          count++;
-          if (onServeStep) onServeStep(idx);
-          setTimeout(serveNext, 400);
-        });
-      }
-      if (inst.isLoaded) afterLoaded();
-      else inst.addEventListener("DOMLoaded", afterLoaded);
     }
+    if (inst.isLoaded) afterLoaded();
+    else inst.addEventListener("DOMLoaded", afterLoaded);
 
-    serveNext();
-    return function () { servingRef.current = false; };
+    return function () {
+      servingRef.current = false;
+      if (el) el.style.visibility = "";
+    };
   }, [triggerServe]);
 
   return React.createElement(

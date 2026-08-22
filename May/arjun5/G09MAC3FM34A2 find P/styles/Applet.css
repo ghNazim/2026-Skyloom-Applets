@@ -9,6 +9,16 @@
   margin: auto;
   gap: .5vw;
   position: relative;
+  --text-strong: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.58);
+  --button-bg: #284d66;
+  --button-disabled: #1a3445;
+  --button-text-disabled: rgba(255, 255, 255, 0.42);
+  --orange: #f08442;
+  --blue: #63b5ed;
+  --purple: #d778df;
+  --yellow: #ffd23f;
+  --green: #74bd50;
   /* background: #0f3c53c1; */
   /* backdrop-filter: blur(0.5vw); */
 }
@@ -41,4 +51,16 @@
 .bulb-small {
   width: 2vw;
   height: 2vw;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

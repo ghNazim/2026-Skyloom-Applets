@@ -44,6 +44,69 @@ function phaseIndex(name) {
   return SUBST_PHASES.indexOf(name);
 }
 
+var SUBST_ANIM = 800;
+var SUBST_PAUSE = 500;
+var SUBST_FLY = 1300;
+var SUBST_SIMPLIFY_ANIM = 650;
+var SUBST_UNBOX_ANIM = 600;
+var STEP4_PHASE_MS = 750;
+var STEP4_LABEL_TICK_DELAY_MS = 750;
+
+function getSubstPhaseDuration(phaseName) {
+  if (phaseName === "x_box" || phaseName === "y_box") {
+    return SUBST_ANIM + SUBST_PAUSE;
+  }
+  if (phaseName === "x_fly" || phaseName === "y_fly") {
+    return SUBST_FLY + 50;
+  }
+  if (phaseName === "x_sub" || phaseName === "y_sub") {
+    return SUBST_PAUSE;
+  }
+  if (phaseName === "x_dblneg_out" || phaseName === "x_simplify_out" || phaseName === "y_simplify_out") {
+    return SUBST_SIMPLIFY_ANIM;
+  }
+  if (
+    phaseName === "x_dblneg_in" ||
+    phaseName === "x_simplify_in" ||
+    phaseName === "y_simplify_in"
+  ) {
+    return SUBST_SIMPLIFY_ANIM + SUBST_PAUSE;
+  }
+  if (
+    phaseName === "x_unbox" ||
+    phaseName === "x_purpleoff" ||
+    phaseName === "y_unbox" ||
+    phaseName === "y_purpleoff"
+  ) {
+    return SUBST_UNBOX_ANIM;
+  }
+  if (phaseName === "x_purple" || phaseName === "y_purple") {
+    return SUBST_ANIM + SUBST_PAUSE;
+  }
+  if (phaseName === "right_change") {
+    return SUBST_ANIM;
+  }
+  return 0;
+}
+
+function getSubstTotalDurationMs() {
+  var skipDblNeg = !(APP_DATA.subst && APP_DATA.subst.xUseDblNeg);
+  var total = 0;
+  for (var i = 0; i < SUBST_PHASES.length; i++) {
+    var name = SUBST_PHASES[i];
+    if (name === "initial" || name === "done") continue;
+    if (skipDblNeg && (name === "x_dblneg_out" || name === "x_dblneg_in")) {
+      continue;
+    }
+    total += getSubstPhaseDuration(name);
+  }
+  return total;
+}
+
+function playAnimSound(name) {
+  if (typeof playSound === "function") playSound(name);
+}
+
 var MainCanvas = function (props) {
   var useState = React.useState;
   var useEffect = React.useEffect;
@@ -90,6 +153,11 @@ var MainCanvas = function (props) {
   var setSubstPhaseIdx = _sp[1];
   var substPhase = SUBST_PHASES[substPhaseIdx] || "initial";
 
+  var _sap = useState({ show: false, progress: 0 });
+  var substAnimProgress = _sap[0];
+  var setSubstAnimProgress = _sap[1];
+  var substProgressRafRef = useRef(null);
+
   var coordAXRef = useRef(null);
   var coordAYRef = useRef(null);
   var coordBXRef = useRef(null);
@@ -112,11 +180,24 @@ var MainCanvas = function (props) {
   var setStep4Phase = _s4p[1];
   var step4DoneCalledRef = useRef(false);
 
+  var _s4ap = useState({ show: false, progress: 0 });
+  var step4AnimProgress = _s4ap[0];
+  var setStep4AnimProgress = _s4ap[1];
+  var step4ProgressRafRef = useRef(null);
+  var step4SoundTimersRef = useRef([]);
+
   useEffect(
     function () {
       if (currentStep !== 4) {
         setStep4Phase(-1);
         step4DoneCalledRef.current = false;
+        setStep4AnimProgress({ show: false, progress: 0 });
+        if (step4ProgressRafRef.current) {
+          cancelAnimationFrame(step4ProgressRafRef.current);
+          step4ProgressRafRef.current = null;
+        }
+        step4SoundTimersRef.current.forEach(clearTimeout);
+        step4SoundTimersRef.current = [];
         return;
       }
 
@@ -126,6 +207,11 @@ var MainCanvas = function (props) {
       }
 
       if (step4Phase >= 8) {
+        setStep4AnimProgress({ show: false, progress: 1 });
+        if (step4ProgressRafRef.current) {
+          cancelAnimationFrame(step4ProgressRafRef.current);
+          step4ProgressRafRef.current = null;
+        }
         if (!step4DoneCalledRef.current) {
           step4DoneCalledRef.current = true;
           if (props.onStep4AnimDone) props.onStep4AnimDone();
@@ -137,10 +223,103 @@ var MainCanvas = function (props) {
         setStep4Phase(function (phase) {
           return phase + 1;
         });
-      }, 750);
+      }, STEP4_PHASE_MS);
 
       return function () {
         clearTimeout(timer);
+      };
+    },
+    [currentStep, step4Phase],
+  );
+
+  useEffect(
+    function () {
+      if (currentStep !== 4) {
+        setStep4AnimProgress({ show: false, progress: 0 });
+        if (step4ProgressRafRef.current) {
+          cancelAnimationFrame(step4ProgressRafRef.current);
+          step4ProgressRafRef.current = null;
+        }
+        return;
+      }
+
+      var cancelled = false;
+      setStep4AnimProgress({ show: true, progress: 0 });
+      var start = performance.now();
+      var total = 8 * STEP4_PHASE_MS;
+      var tick = function (now) {
+        if (cancelled) return;
+        var p = Math.min(1, (now - start) / total);
+        setStep4AnimProgress({ show: true, progress: p });
+        if (p < 1) {
+          step4ProgressRafRef.current = requestAnimationFrame(tick);
+        } else {
+          step4ProgressRafRef.current = null;
+        }
+      };
+      step4ProgressRafRef.current = requestAnimationFrame(tick);
+
+      return function () {
+        cancelled = true;
+        if (step4ProgressRafRef.current) {
+          cancelAnimationFrame(step4ProgressRafRef.current);
+          step4ProgressRafRef.current = null;
+        }
+      };
+    },
+    [currentStep],
+  );
+
+  useEffect(
+    function () {
+      if (currentStep !== 4 || step4Phase < 1) return;
+
+      step4SoundTimersRef.current.forEach(clearTimeout);
+      step4SoundTimersRef.current = [];
+
+      var hasAxisLabel =
+        APP_DATA.step4 &&
+        APP_DATA.step4.reflectionAxisLine &&
+        APP_DATA.step4.reflectionAxisLine.equationLabel;
+      var hasImageLabel = APP_DATA.step4 && APP_DATA.step4.equationLabel;
+      var hasReflectionAxis =
+        APP_DATA.step4 &&
+        (APP_DATA.step4.reflectionAxisLine || APP_DATA.step4.highlightYAxis);
+
+      // Points: tick
+      if (
+        step4Phase === 1 ||
+        step4Phase === 2 ||
+        step4Phase === 5 ||
+        step4Phase === 6
+      ) {
+        playAnimSound("tick");
+      }
+
+      // Object line / image line: swoosh
+      if (step4Phase === 3 || step4Phase === 7) {
+        playAnimSound("swoosh");
+      }
+
+      // Orange reflection axis (or y-axis mirror): zoom
+      if (step4Phase === 4 && hasReflectionAxis) {
+        playAnimSound("zoom");
+      }
+
+      // Equation labels appear after line grow
+      if (
+        (step4Phase === 4 && hasAxisLabel) ||
+        (step4Phase === 7 && hasImageLabel)
+      ) {
+        var t = setTimeout(function () {
+          playAnimSound("tick");
+        }, STEP4_LABEL_TICK_DELAY_MS);
+        step4SoundTimersRef.current.push(t);
+      }
+
+      return function () {
+        step4SoundTimersRef.current.forEach(clearTimeout);
+        step4SoundTimersRef.current = [];
       };
     },
     [currentStep, step4Phase],
@@ -375,6 +554,11 @@ var MainCanvas = function (props) {
     function () {
       if (currentStep !== 2) {
         setSubstPhaseIdx(0);
+        setSubstAnimProgress({ show: false, progress: 0 });
+        if (substProgressRafRef.current) {
+          cancelAnimationFrame(substProgressRafRef.current);
+          substProgressRafRef.current = null;
+        }
         return;
       }
     },
@@ -391,15 +575,46 @@ var MainCanvas = function (props) {
 
   useEffect(
     function () {
+      if (currentStep !== 2 || !props.substAnimStarted) return;
+
+      var cancelled = false;
+      setSubstAnimProgress({ show: true, progress: 0 });
+      var start = performance.now();
+      var total = Math.max(1, getSubstTotalDurationMs());
+      var tick = function (now) {
+        if (cancelled) return;
+        var p = Math.min(1, (now - start) / total);
+        setSubstAnimProgress({ show: true, progress: p });
+        if (p < 1) {
+          substProgressRafRef.current = requestAnimationFrame(tick);
+        } else {
+          substProgressRafRef.current = null;
+        }
+      };
+      substProgressRafRef.current = requestAnimationFrame(tick);
+
+      return function () {
+        cancelled = true;
+        if (substProgressRafRef.current) {
+          cancelAnimationFrame(substProgressRafRef.current);
+          substProgressRafRef.current = null;
+        }
+      };
+    },
+    [currentStep, props.substAnimStarted],
+  );
+
+  useEffect(
+    function () {
       if (currentStep !== 2) return;
       var phase = SUBST_PHASES[substPhaseIdx];
       if (!phase || phase === "initial" || phase === "done") return;
 
-      var ANIM = 800;
-      var PAUSE = 500;
-      var FLY = 1300;
-      var SIMPLIFY_ANIM = 650;
-      var UNBOX_ANIM = 600;
+      var ANIM = SUBST_ANIM;
+      var PAUSE = SUBST_PAUSE;
+      var FLY = SUBST_FLY;
+      var SIMPLIFY_ANIM = SUBST_SIMPLIFY_ANIM;
+      var UNBOX_ANIM = SUBST_UNBOX_ANIM;
       var timers = [];
 
       function schedule(fn, delay) {
@@ -425,6 +640,7 @@ var MainCanvas = function (props) {
       if (phase === "x_box") {
         schedule(advance, ANIM + PAUSE);
       } else if (phase === "x_fly") {
+        playAnimSound("swoosh");
         doFly("x");
         schedule(advance, FLY + 50);
       } else if (phase === "x_sub") {
@@ -432,6 +648,7 @@ var MainCanvas = function (props) {
       } else if (phase === "x_dblneg_out") {
         schedule(advance, SIMPLIFY_ANIM);
       } else if (phase === "x_dblneg_in") {
+        playAnimSound("tick");
         schedule(advance, SIMPLIFY_ANIM + PAUSE);
       } else if (phase === "x_unbox") {
         schedule(advance, UNBOX_ANIM);
@@ -440,12 +657,14 @@ var MainCanvas = function (props) {
       } else if (phase === "x_simplify_out") {
         schedule(advance, SIMPLIFY_ANIM);
       } else if (phase === "x_simplify_in") {
+        playAnimSound("tick");
         schedule(advance, SIMPLIFY_ANIM + PAUSE);
       } else if (phase === "x_purpleoff") {
         schedule(advance, UNBOX_ANIM);
       } else if (phase === "y_box") {
         schedule(advance, ANIM + PAUSE);
       } else if (phase === "y_fly") {
+        playAnimSound("swoosh");
         doFly("y");
         schedule(advance, FLY + 50);
       } else if (phase === "y_sub") {
@@ -457,6 +676,7 @@ var MainCanvas = function (props) {
       } else if (phase === "y_simplify_out") {
         schedule(advance, SIMPLIFY_ANIM);
       } else if (phase === "y_simplify_in") {
+        playAnimSound("tick");
         schedule(advance, SIMPLIFY_ANIM + PAUSE);
       } else if (phase === "y_purpleoff") {
         schedule(advance, UNBOX_ANIM);
@@ -474,6 +694,11 @@ var MainCanvas = function (props) {
   useEffect(
     function () {
       if (SUBST_PHASES[substPhaseIdx] === "done" && props.onSubstAnimDone) {
+        setSubstAnimProgress({ show: false, progress: 1 });
+        if (substProgressRafRef.current) {
+          cancelAnimationFrame(substProgressRafRef.current);
+          substProgressRafRef.current = null;
+        }
         props.onSubstAnimDone();
       }
     },
@@ -1393,6 +1618,10 @@ var MainCanvas = function (props) {
               formulaEl,
             ),
           ),
+          ce(ProgressBar, {
+            show: substAnimProgress.show,
+            progress: substAnimProgress.progress,
+          }),
         ),
         ce("aside", { className: "step2-right-column" }, rightContent),
       ),
@@ -1685,6 +1914,10 @@ var MainCanvas = function (props) {
             reflectionAxisLine: reflectionAxisLine,
           }),
         ),
+        ce(ProgressBar, {
+          show: step4AnimProgress.show,
+          progress: step4AnimProgress.progress,
+        }),
       ),
       ce(
         "aside",

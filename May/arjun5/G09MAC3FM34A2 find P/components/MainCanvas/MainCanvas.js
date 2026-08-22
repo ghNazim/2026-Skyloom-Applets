@@ -97,6 +97,12 @@ const MainCanvas = ({
   onStep6PhaseChange,
   step7Phase,
   onStep7PhaseChange,
+  step8Phase,
+  onStep8PhaseChange,
+  step9Phase,
+  onStep9PhaseChange,
+  step10Phase,
+  onStep10PhaseChange,
 }) => {
   const { useCallback, useEffect, useMemo, useRef, useState } = React;
 
@@ -108,6 +114,8 @@ const MainCanvas = ({
   const eqRefs = useRef({});
   const cancelledRef = useRef(false);
   const step7BusyRef = useRef(false);
+  const step8AnimRef = useRef(false);
+  const step9WrongTimerRef = useRef(null);
 
   const [flyClones, setFlyClones] = useState([]);
   const [visiblePointKeys, setVisiblePointKeys] = useState([]);
@@ -129,6 +137,16 @@ const MainCanvas = ({
   const [step7ShowResult, setStep7ShowResult] = useState(false);
   const [step7Reveal, setStep7Reveal] = useState(false);
   const [step7PromptVisible, setStep7PromptVisible] = useState(true);
+  const [sideClone, setSideClone] = useState(null);
+  const [rotationDirection, setRotationDirection] = useState(null);
+  const [rotationDegrees, setRotationDegrees] = useState(0);
+  const [showRotationClone, setShowRotationClone] = useState(false);
+  const [sliderWrong, setSliderWrong] = useState(false);
+  const [rotationLocked, setRotationLocked] = useState(false);
+  const [translationVector, setTranslationVector] = useState({ x: 0, y: 0 });
+  const [translateLocked, setTranslateLocked] = useState(false);
+  const [showPqr1, setShowPqr1] = useState(false);
+  const [pqr1Coords, setPqr1Coords] = useState(null);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const isCancelled = () => cancelledRef.current;
@@ -840,23 +858,502 @@ const MainCanvas = ({
     }
   }, [step, step7Phase]);
 
+  const rotatePoint = useCallback((point, mid, angle, tx, ty) => {
+    const dx = point.x - mid.x;
+    const dy = point.y - mid.y;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return {
+      x: mid.x + dx * cos - dy * sin + tx,
+      y: mid.y + dx * sin + dy * cos + ty,
+    };
+  }, []);
+
+  const runStep8BcFly = useCallback(async () => {
+    if (step8AnimRef.current) return;
+    step8AnimRef.current = true;
+    setPhase(onStep8PhaseChange, "animating");
+    await delay(450);
+    if (isCancelled()) return;
+
+    const B = graph.coords.B;
+    const C = graph.coords.C;
+    const Q = graph.coords.Q;
+    const mid = { x: (B.x + C.x) / 2, y: (B.y + C.y) / 2 };
+    // 90° clockwise in graph space maps BC onto QR (B→Q, C→R).
+    const endAngle = -Math.PI / 2;
+    const bRotated = rotatePoint(B, mid, endAngle, 0, 0);
+    const endT = { x: Q.x - bRotated.x, y: Q.y - bRotated.y };
+
+    setSideClone({
+      from: { x: B.x, y: B.y },
+      to: { x: C.x, y: C.y },
+      color: colors.object,
+      strokeWidth: 5,
+      opacity: 1,
+    });
+    await delay(80);
+    if (isCancelled()) return;
+
+    await new Promise((resolve) => {
+      const duration = 1100;
+      const start = performance.now();
+      const tick = (now) => {
+        if (isCancelled()) {
+          resolve();
+          return;
+        }
+        const raw = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - raw, 3);
+        const angle = endAngle * eased;
+        const tx = endT.x * eased;
+        const ty = endT.y * eased;
+        setSideClone({
+          from: rotatePoint(B, mid, angle, tx, ty),
+          to: rotatePoint(C, mid, angle, tx, ty),
+          color: colors.object,
+          strokeWidth: 5,
+          opacity: 1,
+        });
+        if (raw < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          resolve();
+        }
+      };
+      requestAnimationFrame(tick);
+    });
+    if (isCancelled()) return;
+
+    await delay(180);
+    if (isCancelled()) return;
+    setSideClone(null);
+    if (typeof playSound === "function") playSound("placed");
+    await delay(200);
+    if (!isCancelled()) setPhase(onStep8PhaseChange, "done");
+  }, [
+    graph.coords.B,
+    graph.coords.C,
+    graph.coords.Q,
+    colors.object,
+    rotatePoint,
+    setPhase,
+    onStep8PhaseChange,
+  ]);
+
+  useEffect(() => {
+    if (step !== 8) {
+      step8AnimRef.current = false;
+      setSideClone(null);
+      return;
+    }
+    if (step8Phase === "done") {
+      step8AnimRef.current = true;
+      setSideClone(null);
+      return;
+    }
+    if (step8Phase === "initial" && !step8AnimRef.current) {
+      runStep8BcFly();
+    }
+  }, [step, step8Phase, runStep8BcFly]);
+
+  const snapDegreesTo90 = useCallback((value, threshold) => {
+    const targets = [0, 90, 180, 270, 360];
+    let best = value;
+    let bestDist = Infinity;
+    targets.forEach((target) => {
+      const dist = Math.abs(value - target);
+      if (dist <= threshold && dist < bestDist) {
+        bestDist = dist;
+        best = target;
+      }
+    });
+    return best;
+  }, []);
+
+  const resetStep9Local = useCallback(() => {
+    if (step9WrongTimerRef.current) {
+      clearTimeout(step9WrongTimerRef.current);
+      step9WrongTimerRef.current = null;
+    }
+    setRotationDirection(null);
+    setRotationDegrees(0);
+    setShowRotationClone(false);
+    setSliderWrong(false);
+    setRotationLocked(false);
+  }, []);
+
+  const resetStep10Local = useCallback(() => {
+    setTranslationVector({ x: 0, y: 0 });
+    setTranslateLocked(false);
+    setShowPqr1(false);
+    setPqr1Coords(null);
+  }, []);
+
+  const rotatePointAboutOrigin = useCallback((point, degrees, direction) => {
+    const rad = (degrees * Math.PI) / 180;
+    const angle = direction === "acw" ? rad : -rad;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return {
+      x: point.x * cos - point.y * sin,
+      y: point.x * sin + point.y * cos,
+    };
+  }, []);
+
+  const getTransformedAbc = useCallback(
+    (degrees, direction, translation) => {
+      const tx = translation ? translation.x : 0;
+      const ty = translation ? translation.y : 0;
+      const mapPoint = (point) => {
+        const rotated = rotatePointAboutOrigin(point, degrees, direction);
+        return { x: rotated.x + tx, y: rotated.y + ty };
+      };
+      return {
+        A: mapPoint(graph.coords.A),
+        B: mapPoint(graph.coords.B),
+        C: mapPoint(graph.coords.C),
+      };
+    },
+    [graph.coords, rotatePointAboutOrigin],
+  );
+
+  const segmentMatchesQr = useCallback((bPrime, cPrime) => {
+    const Q = graph.coords.Q;
+    const R = graph.coords.R;
+    const near = (p, q) =>
+      Math.abs(p.x - q.x) < 0.05 && Math.abs(p.y - q.y) < 0.05;
+    return (
+      (near(bPrime, Q) && near(cPrime, R)) ||
+      (near(bPrime, R) && near(cPrime, Q))
+    );
+  }, [graph.coords.Q, graph.coords.R]);
+
+  useEffect(() => {
+    if (step < 9) {
+      resetStep9Local();
+      resetStep10Local();
+      return;
+    }
+
+    if (step === 9 && step9Phase === "intro") {
+      resetStep9Local();
+      resetStep10Local();
+      return;
+    }
+
+    if (step === 9 && step9Phase === "done") {
+      setRotationLocked(true);
+      setShowRotationClone(true);
+      setSliderWrong(false);
+      setRotationDirection((prev) => prev || "cw");
+      setRotationDegrees((prev) =>
+        prev === 90 || prev === 270 ? prev : 90,
+      );
+      resetStep10Local();
+      return;
+    }
+
+    if (step === 10) {
+      setRotationLocked(true);
+      setRotationDirection((prev) => prev || "cw");
+      setRotationDegrees((prev) =>
+        prev === 90 || prev === 270 ? prev : 90,
+      );
+      if (step10Phase === "done") {
+        setShowRotationClone(false);
+        setTranslateLocked(true);
+        setShowPqr1(true);
+        setTranslationVector((prev) =>
+          prev.x !== 0 || prev.y !== 0 ? prev : { x: -6, y: 1 },
+        );
+        setPqr1Coords((prev) => {
+          if (prev) return prev;
+          const transformed = getTransformedAbc(90, "cw", { x: -6, y: 1 });
+          return {
+            P: transformed.A,
+            Q: graph.coords.Q,
+            R: graph.coords.R,
+          };
+        });
+        return;
+      }
+      setShowRotationClone(true);
+      setShowPqr1(false);
+      setTranslateLocked(false);
+    }
+  }, [
+    step,
+    step9Phase,
+    step10Phase,
+    resetStep9Local,
+    resetStep10Local,
+    getTransformedAbc,
+    graph.coords.Q,
+    graph.coords.R,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (step9WrongTimerRef.current) {
+        clearTimeout(step9WrongTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleStep9RotateClick = () => {
+    if (step !== 9 || step9Phase !== "intro") return;
+    if (typeof playSound === "function") playSound("click");
+    setPhase(onStep9PhaseChange, "controls");
+  };
+
+  const handleStep9Direction = (direction) => {
+    if (step !== 9 || rotationLocked) return;
+    if (step9Phase !== "controls" && step9Phase !== "ready") return;
+    if (typeof playSound === "function") playSound("click");
+    setRotationDirection(direction);
+    setRotationDegrees(0);
+    setShowRotationClone(false);
+    setSliderWrong(false);
+    if (step9Phase === "controls") {
+      setPhase(onStep9PhaseChange, "ready");
+    }
+  };
+
+  const handleStep9SliderChange = (value) => {
+    if (step !== 9 || rotationLocked || !rotationDirection) return;
+    const snapped = snapDegreesTo90(value, 15);
+    setRotationDegrees(snapped);
+    setShowRotationClone(snapped !== 0);
+    setSliderWrong(false);
+  };
+
+  const handleStep9SliderCommit = () => {
+    if (step !== 9 || rotationLocked || !rotationDirection) return;
+    const snapped = snapDegreesTo90(rotationDegrees, 15);
+    const isCorrect = snapped === 90 || snapped === 270;
+
+    if (isCorrect) {
+      if (typeof playSound === "function") playSound("correct");
+      setRotationDegrees(snapped);
+      setShowRotationClone(true);
+      setRotationLocked(true);
+      setSliderWrong(false);
+      setPhase(onStep9PhaseChange, "done");
+      return;
+    }
+
+    if (typeof playSound === "function") playSound("wrong");
+    setShowRotationClone(false);
+    setSliderWrong(true);
+    if (step9WrongTimerRef.current) {
+      clearTimeout(step9WrongTimerRef.current);
+    }
+    step9WrongTimerRef.current = setTimeout(() => {
+      setSliderWrong(false);
+      setRotationDegrees(0);
+      step9WrongTimerRef.current = null;
+    }, 500);
+  };
+
+  const handleStep10TranslateClick = () => {
+    if (step !== 10 || step10Phase !== "intro") return;
+    if (typeof playSound === "function") playSound("click");
+    setTranslationVector({ x: 0, y: 0 });
+    setPhase(onStep10PhaseChange, "controls");
+  };
+
+  const handleStep10Move = (direction) => {
+    if (step !== 10 || translateLocked || step10Phase !== "controls") return;
+    if (typeof playSound === "function") playSound("click");
+
+    const delta =
+      direction === "left"
+        ? { x: -1, y: 0 }
+        : direction === "right"
+          ? { x: 1, y: 0 }
+          : direction === "up"
+            ? { x: 0, y: 1 }
+            : direction === "down"
+              ? { x: 0, y: -1 }
+              : { x: 0, y: 0 };
+
+    const degrees =
+      rotationDegrees === 90 || rotationDegrees === 270
+        ? rotationDegrees
+        : 90;
+    const directionRot = rotationDirection || "cw";
+    const next = {
+      x: translationVector.x + delta.x,
+      y: translationVector.y + delta.y,
+    };
+    const transformed = getTransformedAbc(degrees, directionRot, next);
+    setTranslationVector(next);
+
+    if (segmentMatchesQr(transformed.B, transformed.C)) {
+      if (typeof playSound === "function") playSound("congrats");
+      setTranslateLocked(true);
+      setShowRotationClone(false);
+      setShowPqr1(true);
+      setPqr1Coords({
+        P: {
+          x: Math.round(transformed.A.x),
+          y: Math.round(transformed.A.y),
+        },
+        Q: graph.coords.Q,
+        R: graph.coords.R,
+      });
+      setPhase(onStep10PhaseChange, "done");
+    }
+  };
+
+  const activeTransform =
+    (step === 9 || step === 10) &&
+    showRotationClone &&
+    rotationDirection &&
+    rotationDegrees
+      ? getTransformedAbc(
+          rotationDegrees,
+          rotationDirection,
+          step === 10 ? translationVector : { x: 0, y: 0 },
+        )
+      : null;
+
+  const rotationOverlay = useMemo(() => {
+    if (!activeTransform) return null;
+    const { A, B, C } = activeTransform;
+    const objectColor = colors.object;
+    return {
+      active: true,
+      angle: 0,
+      opacity: 0.95,
+      points: [
+        {
+          id: "rotA",
+          x: A.x,
+          y: A.y,
+          color: objectColor,
+          showLabel: false,
+          circleOpacity: 1,
+          radius: 8,
+        },
+        {
+          id: "rotB",
+          x: B.x,
+          y: B.y,
+          color: objectColor,
+          showLabel: false,
+          circleOpacity: 1,
+          radius: 8,
+        },
+        {
+          id: "rotC",
+          x: C.x,
+          y: C.y,
+          color: objectColor,
+          showLabel: false,
+          circleOpacity: 1,
+          radius: 8,
+        },
+      ],
+      segments: [
+        { from: A, to: B, color: objectColor, strokeWidth: 3.8, opacity: 0.95 },
+        { from: B, to: C, color: objectColor, strokeWidth: 3.8, opacity: 0.95 },
+        { from: C, to: A, color: objectColor, strokeWidth: 3.8, opacity: 0.95 },
+      ],
+      polygons: [
+        {
+          vertices: [A, B, C],
+          color: objectColor,
+          fillOpacity: 0.28,
+          noStroke: true,
+          opacity: 1,
+        },
+      ],
+    };
+  }, [activeTransform, colors.object]);
+
+  const cloneRootLabels = useMemo(() => {
+    if (!activeTransform || !rotationLocked) return [];
+    const { A, B, C } = activeTransform;
+    const mid = (p, q) => ({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 });
+    const centroid = {
+      x: (A.x + B.x + C.x) / 3,
+      y: (A.y + B.y + C.y) / 3,
+    };
+    const outward = (point, amount) => {
+      const dx = point.x - centroid.x;
+      const dy = point.y - centroid.y;
+      const len = Math.hypot(dx, dy) || 1;
+      return {
+        x: point.x + (dx / len) * amount,
+        y: point.y + (dy / len) * amount,
+      };
+    };
+    const ab = outward(mid(A, B), 0.7);
+    const bc = outward(mid(B, C), 0.7);
+    const ac = outward(mid(A, C), 0.7);
+    return [
+      {
+        x: ab.x,
+        y: ab.y,
+        text: SIDE_LENGTH_CONFIG.AB.rootValue(),
+        color: "#ffffff",
+        visible: true,
+      },
+      {
+        x: bc.x,
+        y: bc.y,
+        text: SIDE_LENGTH_CONFIG.BC.rootValue(),
+        color: "#ffffff",
+        visible: true,
+      },
+      {
+        x: ac.x,
+        y: ac.y,
+        text: SIDE_LENGTH_CONFIG.AC.rootValue(),
+        color: "#ffffff",
+        visible: true,
+      },
+    ];
+  }, [activeTransform, rotationLocked]);
+
+  const dimAbcOriginal =
+    ((step === 9 || step === 10) && showRotationClone) ||
+    (step === 10 && showPqr1);
+  const abcDimColor = "#8b8b8b";
+  const hideOriginalPqr = step === 10 && showPqr1;
+
   const graphPoints = useMemo(() => {
-    const points = visiblePointKeys.map((key) => {
+    const points = visiblePointKeys
+      .filter((key) => {
+        if (hideOriginalPqr && (key === "Q" || key === "R")) return false;
+        return true;
+      })
+      .map((key) => {
       const def = POINT_DEFS[key];
       const reveal = pointRevealState[key] || {};
       const coords = graph.coords[key];
       const coordParts = graph.coordText[key] || null;
+      const isAbc = key === "A" || key === "B" || key === "C";
+      const pointColor =
+        dimAbcOriginal && isAbc ? abcDimColor : colors[def.colorKey];
+      const baseCircle =
+        reveal.circleOpacity != null ? reveal.circleOpacity : 1;
+      const baseLabel =
+        reveal.labelOpacity != null ? reveal.labelOpacity : 1;
 
       return {
         id: key,
         x: coords.x,
         y: coords.y,
-        color: colors[def.colorKey],
+        color: pointColor,
         label: graph.labels[key],
         labelPrefix: key,
         labelPlacement: def.placement,
-        circleOpacity: reveal.circleOpacity != null ? reveal.circleOpacity : 1,
-        labelOpacity: reveal.labelOpacity != null ? reveal.labelOpacity : 1,
+        circleOpacity:
+          dimAbcOriginal && isAbc ? baseCircle * 0.55 : baseCircle,
+        labelOpacity: dimAbcOriginal && isAbc ? baseLabel * 0.55 : baseLabel,
         showLabel: true,
         labelRefKey: key,
         coordParts: coordParts,
@@ -865,7 +1362,7 @@ const MainCanvas = ({
       };
     });
 
-    if (showUnknownPoint) {
+    if (showUnknownPoint && !hideOriginalPqr) {
       const reveal = pointRevealState.P || {};
       points.push({
         id: "P",
@@ -886,6 +1383,58 @@ const MainCanvas = ({
         questionMark: showQuestionMark,
         questionColor: "#00f7ff",
       });
+    }
+
+    if (showPqr1 && pqr1Coords) {
+      const formatCoord = (n) => {
+        const rounded = Math.round(n * 100) / 100;
+        return Number.isInteger(rounded)
+          ? String(rounded)
+          : String(rounded);
+      };
+      const P = pqr1Coords.P;
+      const Q = pqr1Coords.Q;
+      const R = pqr1Coords.R;
+      points.push(
+        {
+          id: "PQR1-P",
+          x: P.x,
+          y: P.y,
+          color: colors.image,
+          label: "P(" + formatCoord(P.x) + ", " + formatCoord(P.y) + ")",
+          labelPrefix: "P",
+          labelPlacement: P.y >= 0 ? "above" : "below",
+          showLabel: true,
+          circleOpacity: 1,
+          labelOpacity: 1,
+        },
+        {
+          id: "PQR1-Q",
+          x: Q.x,
+          y: Q.y,
+          color: colors.image,
+          label: graph.labels.Q,
+          labelPrefix: "Q",
+          labelPlacement: POINT_DEFS.Q.placement,
+          showLabel: true,
+          circleOpacity: 1,
+          labelOpacity: 1,
+          coordParts: graph.coordText.Q,
+        },
+        {
+          id: "PQR1-R",
+          x: R.x,
+          y: R.y,
+          color: colors.image,
+          label: graph.labels.R,
+          labelPrefix: "R",
+          labelPlacement: POINT_DEFS.R.placement,
+          showLabel: true,
+          circleOpacity: 1,
+          labelOpacity: 1,
+          coordParts: graph.coordText.R,
+        },
+      );
     }
 
     if (step5Phase === "formula") {
@@ -973,6 +1522,10 @@ const MainCanvas = ({
     showUnknownLabel,
     showQuestionMark,
     unknownCoord,
+    dimAbcOriginal,
+    hideOriginalPqr,
+    showPqr1,
+    pqr1Coords,
     step,
     step5Phase,
     step6Phase,
@@ -982,31 +1535,48 @@ const MainCanvas = ({
     handleStep7Hotspot,
   ]);
 
+  const graphPolygons = useMemo(() => {
+    if (!showPqr1 || !pqr1Coords) return [];
+    return [
+      {
+        vertices: [pqr1Coords.P, pqr1Coords.Q, pqr1Coords.R],
+        color: colors.image,
+        fillOpacity: 0.28,
+        noStroke: true,
+        opacity: 1,
+      },
+    ];
+  }, [showPqr1, pqr1Coords, colors.image]);
+
   const graphSegments = useMemo(() => {
     const segments = [];
     if (showAbcTriangle) {
+      const abcColor = dimAbcOriginal ? abcDimColor : colors.object;
       segments.push(
         {
           from: graph.coords.A,
           to: graph.coords.B,
-          color: colors.object,
+          color: abcColor,
           strokeWidth: 3.8,
+          opacity: dimAbcOriginal ? 0.55 : 1,
         },
         {
           from: graph.coords.B,
           to: graph.coords.C,
-          color: colors.object,
+          color: abcColor,
           strokeWidth: 3.8,
+          opacity: dimAbcOriginal ? 0.55 : 1,
         },
         {
           from: graph.coords.C,
           to: graph.coords.A,
-          color: colors.object,
+          color: abcColor,
           strokeWidth: 3.8,
+          opacity: dimAbcOriginal ? 0.55 : 1,
         },
       );
     }
-    if (showQrSegment) {
+    if (showQrSegment && !hideOriginalPqr) {
       segments.push({
         from: graph.coords.Q,
         to: graph.coords.R,
@@ -1014,7 +1584,7 @@ const MainCanvas = ({
         strokeWidth: 4,
       });
     }
-    if (showUnknownPoint) {
+    if (showUnknownPoint && !hideOriginalPqr) {
       segments.push(
         {
           from: graph.coords.Q,
@@ -1034,28 +1604,97 @@ const MainCanvas = ({
         },
       );
     }
+    if (showPqr1 && pqr1Coords) {
+      segments.push(
+        {
+          from: pqr1Coords.P,
+          to: pqr1Coords.Q,
+          color: colors.image,
+          strokeWidth: 3.8,
+        },
+        {
+          from: pqr1Coords.Q,
+          to: pqr1Coords.R,
+          color: colors.image,
+          strokeWidth: 3.8,
+        },
+        {
+          from: pqr1Coords.R,
+          to: pqr1Coords.P,
+          color: colors.image,
+          strokeWidth: 3.8,
+        },
+      );
+    }
+    if (sideClone) {
+      segments.push({
+        from: sideClone.from,
+        to: sideClone.to,
+        color: sideClone.color || colors.object,
+        strokeWidth: sideClone.strokeWidth || 5,
+        opacity: sideClone.opacity != null ? sideClone.opacity : 1,
+      });
+    }
     return segments;
   }, [
     showAbcTriangle,
     showQrSegment,
     showUnknownPoint,
+    hideOriginalPqr,
+    showPqr1,
+    pqr1Coords,
     graph.coords,
     colors,
     unknownCoord,
+    sideClone,
+    dimAbcOriginal,
   ]);
 
   const rootLabels = [];
   ["QR", "AB", "BC", "AC"].forEach((sideKey) => {
     const config = SIDE_LENGTH_CONFIG[sideKey];
+    const isAbcSide = sideKey === "AB" || sideKey === "BC" || sideKey === "AC";
+    const hideQrLabel = hideOriginalPqr && sideKey === "QR";
     rootLabels.push({
       x: config.graphLabel.x,
       y: config.graphLabel.y,
       text: config.rootValue(),
-      color: "#ffffff",
-      visible: visibleLengthLabels[sideKey],
+      color: dimAbcOriginal && isAbcSide ? abcDimColor : "#ffffff",
+      visible: hideQrLabel ? false : visibleLengthLabels[sideKey],
+      opacity: dimAbcOriginal && isAbcSide ? 0.5 : 1,
       refKey: config.graphLabel.refKey,
     });
   });
+
+  if (showPqr1 && pqr1Coords) {
+    const mid = (p, q) => ({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 });
+    const pq = mid(pqr1Coords.P, pqr1Coords.Q);
+    const qr = mid(pqr1Coords.Q, pqr1Coords.R);
+    const pr = mid(pqr1Coords.P, pqr1Coords.R);
+    rootLabels.push(
+      {
+        x: pq.x,
+        y: pq.y,
+        text: SIDE_LENGTH_CONFIG.AB.rootValue(),
+        color: "#ffffff",
+        visible: true,
+      },
+      {
+        x: qr.x,
+        y: qr.y,
+        text: SIDE_LENGTH_CONFIG.BC.rootValue(),
+        color: "#ffffff",
+        visible: true,
+      },
+      {
+        x: pr.x,
+        y: pr.y,
+        text: SIDE_LENGTH_CONFIG.AC.rootValue(),
+        color: "#ffffff",
+        visible: true,
+      },
+    );
+  }
 
   const flyCloneEls = flyClones.map((clone) => {
     const endScale = clone.endScale != null ? clone.endScale : 1;
@@ -1268,6 +1907,53 @@ const MainCanvas = ({
       renderMathRootText(rootValue, "rootResult"),
     );
 
+  const renderEqText = () =>
+    React.createElement(
+      "div",
+      { className: "step7-eq-text", "aria-hidden": false },
+      React.createElement(
+        "span",
+        {
+          className: "step7-eq-letter is-cyan",
+          ref: (el) => {
+            eqRefs.current.Q = el;
+          },
+        },
+        "Q",
+      ),
+      React.createElement(
+        "span",
+        {
+          className: "step7-eq-letter is-cyan",
+          ref: (el) => {
+            eqRefs.current.R = el;
+          },
+        },
+        "R",
+      ),
+      React.createElement("span", { className: "step7-eq-arrow" }, " ↔ "),
+      React.createElement(
+        "span",
+        {
+          className: "step7-eq-letter is-orange",
+          ref: (el) => {
+            eqRefs.current.B = el;
+          },
+        },
+        "B",
+      ),
+      React.createElement(
+        "span",
+        {
+          className: "step7-eq-letter is-orange",
+          ref: (el) => {
+            eqRefs.current.C = el;
+          },
+        },
+        "C",
+      ),
+    );
+
   const renderStep7PromptPanel = () =>
     React.createElement(
       "div",
@@ -1296,51 +1982,7 @@ const MainCanvas = ({
           "step7-panel step7-result-panel" +
           (step7Reveal ? " is-revealed" : " is-pending"),
       },
-      React.createElement(
-        "div",
-        { className: "step7-eq-text", "aria-hidden": !step7Reveal },
-        React.createElement(
-          "span",
-          {
-            className: "step7-eq-letter is-cyan",
-            ref: (el) => {
-              eqRefs.current.Q = el;
-            },
-          },
-          "Q",
-        ),
-        React.createElement(
-          "span",
-          {
-            className: "step7-eq-letter is-cyan",
-            ref: (el) => {
-              eqRefs.current.R = el;
-            },
-          },
-          "R",
-        ),
-        React.createElement("span", { className: "step7-eq-arrow" }, " ↔ "),
-        React.createElement(
-          "span",
-          {
-            className: "step7-eq-letter is-orange",
-            ref: (el) => {
-              eqRefs.current.B = el;
-            },
-          },
-          "B",
-        ),
-        React.createElement(
-          "span",
-          {
-            className: "step7-eq-letter is-orange",
-            ref: (el) => {
-              eqRefs.current.C = el;
-            },
-          },
-          "C",
-        ),
-      ),
+      renderEqText(),
       React.createElement(
         "div",
         { className: "step7-below-space" },
@@ -1348,15 +1990,163 @@ const MainCanvas = ({
       ),
     );
 
+  const renderStep8Panel = () =>
+    React.createElement(
+      "div",
+      {
+        className: "step7-panel step7-result-panel is-revealed",
+      },
+      renderEqText(),
+      React.createElement(
+        "div",
+        { className: "step7-below-space is-step8-visible" },
+        APP_DATA.steps[8].belowText,
+      ),
+    );
+
+  const renderStep9Panel = () => {
+    const showControls =
+      step9Phase === "controls" ||
+      step9Phase === "ready" ||
+      step9Phase === "done";
+
+    return React.createElement(
+      "div",
+      { className: "step7-panel step7-result-panel is-revealed step9-panel" },
+      renderEqText(),
+      React.createElement(
+        "div",
+        { className: "step7-below-space is-step8-visible step9-below-space" },
+        showControls
+          ? React.createElement(
+              React.Fragment,
+              null,
+              React.createElement(
+                "div",
+                { className: "step9-rotate-title" },
+                APP_DATA.steps[9].rotateTitle,
+              ),
+              React.createElement(
+                "div",
+                {
+                  className:
+                    "step9-rotate-wrap" + (sliderWrong ? " is-wrong" : ""),
+                },
+                React.createElement(RotateControls, {
+                  direction: rotationDirection,
+                  sliderValue: rotationDegrees,
+                  sliderDisabled: !rotationDirection || rotationLocked,
+                  controlsDisabled: rotationLocked,
+                  showSliderPulse: false,
+                  onDirection: handleStep9Direction,
+                  onSliderChange: handleStep9SliderChange,
+                  onSliderDragStart: function () {},
+                  onSliderCommit: handleStep9SliderCommit,
+                }),
+              ),
+            )
+          : React.createElement(
+              React.Fragment,
+              null,
+              React.createElement(
+                "div",
+                { className: "step9-intro-text" },
+                APP_DATA.steps[9].belowText,
+              ),
+              React.createElement(
+                "button",
+                {
+                  id: "step9-rotate-button",
+                  className: "step9-rotate-button",
+                  onClick: handleStep9RotateClick,
+                },
+                APP_DATA.steps[9].rotateButton,
+              ),
+            ),
+      ),
+    );
+  };
+
+  const renderStep10Panel = () => {
+    const showControls =
+      step10Phase === "controls" || step10Phase === "done";
+
+    return React.createElement(
+      "div",
+      { className: "step7-panel step7-result-panel is-revealed step10-panel" },
+      renderEqText(),
+      React.createElement(
+        "div",
+        { className: "step7-below-space is-step8-visible step10-below-space" },
+        showControls
+          ? React.createElement(
+              React.Fragment,
+              null,
+              React.createElement(
+                "div",
+                { className: "step10-translate-title" },
+                APP_DATA.steps[10].translateTitle,
+              ),
+              React.createElement(
+                "div",
+                {
+                  className:
+                    "step10-translate-wrap" +
+                    (translateLocked ? " is-locked" : ""),
+                },
+                React.createElement(TranslateControls, {
+                  vector: translationVector,
+                  enabledArrow: translateLocked ? null : "all",
+                  hintArrow: null,
+                  onMove: handleStep10Move,
+                }),
+              ),
+            )
+          : React.createElement(
+              React.Fragment,
+              null,
+              React.createElement(
+                "div",
+                { className: "step10-intro-text" },
+                APP_DATA.steps[10].belowText,
+              ),
+              React.createElement(
+                "button",
+                {
+                  id: "step10-translate-button",
+                  className: "step10-translate-button",
+                  onClick: handleStep10TranslateClick,
+                },
+                APP_DATA.steps[10].translateButton,
+              ),
+            ),
+      ),
+    );
+  };
+
   const renderRightPanel = () => {
     if (step < 5) return null;
 
     if (step === 7) {
-      if (step7ShowResult) return renderStep7ResultPanel();
+      if (step7ShowResult || step7Phase === "done" || step7Phase === "flying") {
+        return renderStep7ResultPanel();
+      }
       return renderStep7PromptPanel();
     }
 
-    if (step5Phase === "intro") {
+    if (step === 8) {
+      return renderStep8Panel();
+    }
+
+    if (step === 9) {
+      return renderStep9Panel();
+    }
+
+    if (step === 10) {
+      return renderStep10Panel();
+    }
+
+    if (step === 5 && step5Phase === "intro") {
       return React.createElement(
         "div",
         { className: "solve-intro-panel" },
@@ -1434,6 +2224,9 @@ const MainCanvas = ({
       );
     }
 
+    // Step 5 calculation panel only (never steps 7+)
+    if (step !== 5) return null;
+
     return React.createElement(
       "div",
       { className: "calculation-panel" },
@@ -1486,9 +2279,12 @@ const MainCanvas = ({
         React.createElement(TranslationGraphPanel, {
           points: graphPoints,
           segments: graphSegments,
+          polygons: graphPolygons,
           rootLabels: rootLabels,
+          cloneRootLabels: cloneRootLabels,
           labelRefs: labelRefs,
           coordRefs: coordRefs,
+          rotationOverlay: rotationOverlay,
         }),
       ),
       React.createElement(

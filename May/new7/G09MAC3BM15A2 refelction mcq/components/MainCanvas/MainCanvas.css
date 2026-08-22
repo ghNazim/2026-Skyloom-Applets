@@ -20,7 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: 1vw;
-  padding: 1.45vw 1.25vw;
+  padding: 1vw 1vw;
   border-radius: 1vw;
   background: #1e89ba40;
 }
@@ -210,6 +210,17 @@
   stroke: #c638b9;
 }
 
+.mcq-title {
+  flex: 0 0 auto;
+  width: 100%;
+  color: #ffffff;
+  font-size: 2.15vw;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  margin-bottom: 1vw;
+}
+
 .reflection-feedback,
 .feedback-spacer {
   flex: 0 0 8.6vw;
@@ -236,12 +247,12 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 0.7vw;
+  gap: 0.5vw;
 }
 
 .reflection-option {
   width: 100%;
-  min-height: 4.65vw;
+  min-height: 4.5vw;
   border: none;
   border-radius: 0.68vw;
   background: #1e7191;

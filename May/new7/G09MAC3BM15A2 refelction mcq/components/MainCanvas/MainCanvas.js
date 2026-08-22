@@ -400,6 +400,13 @@ const MainCanvas = ({
       React.createElement(
         "aside",
         { className: "reflection-right-column" },
+        React.createElement(
+          "div",
+          { className: "mcq-title" },
+          coordinatePhaseActive
+            ? APP_DATA.labels.chooseCoordinate
+            : APP_DATA.labels.chooseRule,
+        ),
         coordinatePhaseActive
           ? showCoordinateFeedback
             ? React.createElement("div", {

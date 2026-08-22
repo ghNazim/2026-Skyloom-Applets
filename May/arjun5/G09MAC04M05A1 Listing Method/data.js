@@ -91,10 +91,10 @@ const DATA = {
             1: {
               questionText: "EXPERIMENT 1: Two Different Spinners",
               navText: "Tap &raquo; for step 1",
-              title: "Step 1: Identify the possible results of each object.",
+              title: "You spin two spinners at the same time.",
               footerText: "Use listing method to find all possible outcomes.",
-              spinnerAInfo: "<sa>Spinner A</sa> has the numbers 1, 2, 3.",
-              spinnerBInfo: "<sb>Spinner B</sb> has the numbers 1, 2.",
+              spinnerAInfo: "<sa>Spinner A</sa> has the numbers<br> 1, 2, 3.",
+              spinnerBInfo: "<sb>Spinner B</sb> has the numbers<br> 1, 2.",
               spinnerALabel: "Spinner A",
               spinnerBLabel: "Spinner B",
             },
@@ -122,7 +122,8 @@ const DATA = {
             4: {
               questionText: "EXPERIMENT 1: Two Different Spinners",
               navText: "To start pairing, tap first outcome of Spinner A.",
-              navSecond: "To continue pairing, tap second outcome of Spinner A.",
+              navSecond:
+                "To continue pairing, tap second outcome of Spinner A.",
               navThird: "To continue pairing, tap third outcome of Spinner A.",
               navDone: "Tap &raquo; to see an event for this experiment.",
               title: "Step 2: Make pairs from both objects.",
@@ -172,10 +173,10 @@ const DATA = {
             1: {
               questionText: "EXPERIMENT 2: A Coin and a Spinner",
               navText: "Tap &raquo; for step 1",
-              title: "Step 1: Identify the possible results of each object.",
+              title: "You toss the coin and spin the spinner at the same time.",
               footerText: "Use listing method to find all possible outcomes.",
-              spinnerAInfo: "<sa>Coin</sa> has the outcomes H and T.",
-              spinnerBInfo: "<sb>Spinner A</sb> has the numbers 1, 2, 3, 4.",
+              spinnerAInfo: "<sa>Coin</sa> has the outcomes<br> H and T.",
+              spinnerBInfo: "<sb>Spinner A</sb> has the numbers<br> 1, 2, 3, 4.",
               spinnerALabel: "Coin",
               spinnerBLabel: "Spinner A",
             },
@@ -252,10 +253,10 @@ const DATA = {
             1: {
               questionText: "EXPERIMENT 3: A Coin and a Die",
               navText: "Tap &raquo; for step 1",
-              title: "Step 1: Identify the possible results of each object.",
+              title: "You toss the coin and roll the die at the same time.",
               footerText: "Use listing method to find all possible outcomes.",
-              spinnerAInfo: "<sa>Coin</sa> has the outcomes H and T.",
-              spinnerBInfo: "<sb>Die</sb> has the numbers 1, 2, 3, 4, 5, 6.",
+              spinnerAInfo: "<sa>Coin</sa> has the outcomes<br> H and T.",
+              spinnerBInfo: "<sb>Die</sb> has the numbers<br> 1, 2, 3, 4, 5, 6.",
               spinnerALabel: "Coin",
               spinnerBLabel: "Die",
             },
@@ -360,11 +361,11 @@ const DATA = {
             1: {
               questionText: "EKSPERIMEN 1: Dua Spinner Berbeda",
               navText: "Ketuk &raquo; untuk langkah 1",
-              title: "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
+              title: "Kamu memutar dua spinner secara bersamaan.",
               footerText:
                 "Gunakan metode listing untuk menemukan semua hasil yang mungkin.",
-              spinnerAInfo: "<sa>Spinner A</sa> memiliki angka 1, 2, 3.",
-              spinnerBInfo: "<sb>Spinner B</sb> memiliki angka 1, 2.",
+              spinnerAInfo: "<sa>Spinner A</sa> memiliki angka<br> 1, 2, 3.",
+              spinnerBInfo: "<sb>Spinner B</sb> memiliki angka<br> 1, 2.",
               spinnerALabel: "Spinner A",
               spinnerBLabel: "Spinner B",
             },
@@ -372,7 +373,8 @@ const DATA = {
               questionText: "EKSPERIMEN 1: Dua Spinner Berbeda",
               navText: "Seret tombol ke tempat yang benar.",
               navDone: "Ketuk &raquo; untuk langkah 2",
-              title: "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
+              title:
+                "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
               spinnerALabel: "Spinner A",
               spinnerBLabel: "Spinner B",
             },
@@ -447,11 +449,14 @@ const DATA = {
             1: {
               questionText: "EKSPERIMEN 2: Koin dan Spinner",
               navText: "Ketuk &raquo; untuk langkah 1",
-              title: "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
+              title:
+                "Kamu melempar koin dan memutar spinner secara bersamaan.",
               footerText:
                 "Gunakan metode listing untuk menemukan semua hasil yang mungkin.",
-              spinnerAInfo: "<sa>Koin</sa> memiliki hasil H, T.",
-              spinnerBInfo: "<sb>Spinner A</sb> memiliki angka 1, 2, 3, 4.",
+              spinnerAInfo:
+                "<sa>Koin</sa> memiliki hasil<br> Angka (A) dan Gambar (G).",
+              spinnerBInfo:
+                "<sb>Spinner A</sb> memiliki angka<br> 1, 2, 3, 4.",
               spinnerALabel: "Koin",
               spinnerBLabel: "Spinner A",
             },
@@ -459,7 +464,8 @@ const DATA = {
               questionText: "EKSPERIMEN 2: Koin dan Spinner",
               navText: "Seret tombol ke tempat yang benar.",
               navDone: "Ketuk &raquo; untuk langkah 2",
-              title: "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
+              title:
+                "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
               spinnerALabel: "Koin",
               spinnerBLabel: "Spinner A",
             },
@@ -495,7 +501,7 @@ const DATA = {
               navDone:
                 "Ketuk &raquo; untuk melihat kejadian lain pada eksperimen ini.",
               eventTitleHtml:
-                "<y>Kejadian (E)</y> : Mendapat angka H DAN bilangan lebih dari 2.",
+                "<y>Kejadian (E)</y> : Mendapat Angka (A) DAN bilangan lebih dari 2.",
               sampleSpaceLabel: "Ruang sampel (S)",
               nELabel: "n(E)",
               submitText: "Kirim",
@@ -504,7 +510,7 @@ const DATA = {
               feedbackCorrect:
                 "Benar. Kamu telah menemukan semua hasil yang menguntungkan.",
               feedbackWrong:
-                "Setiap pasangan yang benar harus memiliki H dan bilangan lebih dari 2.",
+                "Setiap pasangan yang benar harus memiliki A dan bilangan lebih dari 2.",
             },
             6: {
               questionText: "EKSPERIMEN 2: Koin dan Spinner",
@@ -512,7 +518,7 @@ const DATA = {
               navReset: "Ketuk &lsquo;Reset&rsquo; untuk mencoba lagi.",
               navDone: "Ketuk &raquo; untuk melihat eksperimen lain",
               eventTitleHtml:
-                "<y>Kejadian (E)</y> : Mendapat angka T DAN bilangan genap.",
+                "<y>Kejadian (E)</y> : Mendapat Gambar (G) DAN bilangan genap.",
               sampleSpaceLabel: "Ruang sampel (S)",
               nELabel: "n(E)",
               submitText: "Kirim",
@@ -521,7 +527,7 @@ const DATA = {
               feedbackCorrect:
                 "Benar. Kamu telah menemukan semua hasil yang menguntungkan.",
               feedbackWrong:
-                "Setiap pasangan yang benar harus memiliki T dan bilangan genap.",
+                "Setiap pasangan yang benar harus memiliki G dan bilangan genap.",
             },
           },
         },
@@ -530,11 +536,13 @@ const DATA = {
             1: {
               questionText: "EKSPERIMEN 3: Koin dan Dadu",
               navText: "Ketuk &raquo; untuk langkah 1",
-              title: "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
+              title: "Kamu melempar koin dan melempar dadu secara bersamaan.",
               footerText:
                 "Gunakan metode listing untuk menemukan semua hasil yang mungkin.",
-              spinnerAInfo: "<sa>Koin</sa> memiliki hasil H, T.",
-              spinnerBInfo: "<sb>Dadu</sb> memiliki angka 1, 2, 3, 4, 5, 6.",
+              spinnerAInfo:
+                "<sa>Koin</sa> memiliki hasil<br> Angka (A) dan Gambar (G).",
+              spinnerBInfo:
+                "<sb>Dadu</sb> memiliki angka<br> 1, 2, 3, 4, 5, 6.",
               spinnerALabel: "Koin",
               spinnerBLabel: "Dadu",
             },
@@ -542,7 +550,8 @@ const DATA = {
               questionText: "EKSPERIMEN 3: Koin dan Dadu",
               navText: "Seret tombol ke tempat yang benar.",
               navDone: "Ketuk &raquo; untuk langkah 2",
-              title: "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
+              title:
+                "Langkah 1: Identifikasi hasil yang mungkin dari setiap objek.",
               spinnerALabel: "Koin",
               spinnerBLabel: "Dadu",
             },
@@ -578,7 +587,7 @@ const DATA = {
               navDone:
                 "Ketuk &raquo; untuk melihat kejadian lain pada eksperimen ini.",
               eventTitleHtml:
-                "<y>Kejadian (E)</y> : Mendapat angka H DAN bilangan ganjil.",
+                "<y>Kejadian (E)</y> : Mendapat Angka (A) DAN bilangan ganjil.",
               sampleSpaceLabel: "Ruang sampel (S)",
               nELabel: "n(E)",
               submitText: "Kirim",
@@ -587,7 +596,7 @@ const DATA = {
               feedbackCorrect:
                 "Benar. Kamu telah menemukan semua hasil yang menguntungkan.",
               feedbackWrong:
-                "Setiap pasangan yang benar harus memiliki H dan bilangan ganjil.",
+                "Setiap pasangan yang benar harus memiliki A dan bilangan ganjil.",
             },
             6: {
               questionText: "EKSPERIMEN 3: Koin dan Dadu",

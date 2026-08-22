@@ -26,6 +26,8 @@ const DATA = {
       labels: {
         rule: "Rule:",
         coordinatesPrompt: "Find the coordinates of the image:",
+        chooseRule: "Choose the correct rule:",
+        chooseCoordinate: "Choose the correct coordinate of the image:",
       },
       feedback: {
         coordinateWrong:
@@ -184,6 +186,8 @@ const DATA = {
       labels: {
         rule: "Aturan:",
         coordinatesPrompt: "Tentukan koordinat bayangan:",
+        chooseRule: "Pilih aturan yang benar:",
+        chooseCoordinate: "Pilih koordinat bayangan yang benar:",
       },
       feedback: {
         coordinateWrong:

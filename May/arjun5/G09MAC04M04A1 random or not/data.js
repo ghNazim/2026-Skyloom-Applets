@@ -8,7 +8,7 @@ const DATA = {
       },
       summary: {
         heading: "",
-        text: "Now you know!<br>If the sample space has<br><y>only one outcome &rarr; not a random experiment,</y><br><y>more than one outcome &rarr; random experiment</y><br>But out of all outcomes in sample space, which ones matter?<br>That depends on the event.<br>Let's practise picking <y>which outcomes belong to an event.</y><br>Tap &lsquo;Continue&rsquo; to identify outcomes for events.",
+        text: "Now you know!<br>If the sample space has<br><y>only one outcome &rarr; not a random experiment,</y><br><y>more than one outcome &rarr; random experiment</y><br><br>But out of all outcomes in sample space, which ones matter?<br>That depends on the event.<br><br>Let's practise picking <y>which outcomes belong to an event.</y><br>Tap &lsquo;Continue&rsquo; to identify outcomes for events.",
         buttonText: "Continue",
       },
       common: {
@@ -27,6 +27,7 @@ const DATA = {
         },
         3: {
           navText: "Tap the outcomes for the given event and submit.",
+          navIntro: "Tap the dice for sample space.",
           navTryAgain: "Tap &lsquo;Try Again&rsquo;.",
           navNext: "Tap &raquo; for the next challenge.",
           titleValue: "Rolling a 6 faced standard die",
@@ -40,6 +41,7 @@ const DATA = {
         },
         4: {
           navText: "Tap the outcomes for the given event and submit.",
+          navIntro: "Tap the bag for sample space.",
           navTryAgain: "Tap &lsquo;Try Again&rsquo;.",
           navNext: "Tap &raquo; for the next challenge.",
           titleValue: "Picking a ball from a sack",
@@ -48,6 +50,7 @@ const DATA = {
           eventSetLabel: "E",
           sampleSpace: ["green", "red", "blue"],
           answer: ["red", "blue"],
+          outcomeLabels: { green: "green", red: "red", blue: "blue" },
           bagImage: "assets/bag2.png",
           bagOptions: [
             { id: "green", count: "5", ball: "assets/greenBall.png" },
@@ -55,10 +58,12 @@ const DATA = {
             { id: "blue", count: "4", ball: "assets/blueBall.png" },
           ],
           wrongFeedback: "Check &ndash; are all selected colours non-green?",
+          wrongFeedbackIncomplete: "Check &ndash; if all non-green balls are selected.",
           correctFeedback: "Correct!<br>Not green means every colour except green.<br>E = {red, blue}",
         },
         5: {
           navText: "Tap the outcomes for the given event and submit.",
+          navIntro: "Tap the spinner for sample space.",
           navTryAgain: "Tap &lsquo;Try Again&rsquo;.",
           navNext: "Tap &raquo; for the next challenge.",
           titleValue: "Spinning a numbered spinner",
@@ -68,10 +73,12 @@ const DATA = {
           sampleSpace: [1, 2, 3, 4, 5, 6, 7, 8],
           answer: [2, 3, 5, 7],
           wrongFeedback: "Check &ndash; are all selected numbers prime?",
+          wrongFeedbackIncomplete: "Check &ndash; if all prime numbers are selected.",
           correctFeedback: "Correct!<br>2, 3, 5, and 7 are prime numbers.<br>Remember, 1 is not prime.<br>E = {2, 3, 5, 7}.",
         },
         6: {
           navText: "Tap the outcomes for the given event and submit.",
+          navIntro: "Tap the dice for sample space.",
           navTryAgain: "Tap &lsquo;Try Again&rsquo;.",
           navNext: "Tap &raquo; to conclude.",
           titleValue: "Rolling a 6 faced standard die",
@@ -175,6 +182,7 @@ const DATA = {
         },
         3: {
           navText: "Ketuk hasil untuk kejadian yang diberikan, lalu kirim.",
+          navIntro: "Ketuk dadu untuk ruang sampel.",
           navTryAgain: "Ketuk &lsquo;Coba Lagi&rsquo;.",
           navNext: "Ketuk &raquo; untuk tantangan berikutnya.",
           titleValue: "Melempar dadu standar 6 sisi",
@@ -188,6 +196,7 @@ const DATA = {
         },
         4: {
           navText: "Ketuk hasil untuk kejadian yang diberikan, lalu kirim.",
+          navIntro: "Ketuk karung untuk ruang sampel.",
           navTryAgain: "Ketuk &lsquo;Coba Lagi&rsquo;.",
           navNext: "Ketuk &raquo; untuk tantangan berikutnya.",
           titleValue: "Mengambil bola dari karung",
@@ -196,6 +205,7 @@ const DATA = {
           eventSetLabel: "E",
           sampleSpace: ["green", "red", "blue"],
           answer: ["red", "blue"],
+          outcomeLabels: { green: "hijau", red: "merah", blue: "biru" },
           bagImage: "assets/bag2.png",
           bagOptions: [
             { id: "green", count: "5", ball: "assets/greenBall.png" },
@@ -203,10 +213,12 @@ const DATA = {
             { id: "blue", count: "4", ball: "assets/blueBall.png" },
           ],
           wrongFeedback: "Periksa &ndash; apakah semua warna yang dipilih bukan hijau?",
-          correctFeedback: "Benar!<br>Bukan hijau berarti setiap warna kecuali hijau.<br>E = {red, blue}",
+          wrongFeedbackIncomplete: "Periksa &ndash; apakah semua bola bukan hijau sudah dipilih?",
+          correctFeedback: "Benar!<br>Bukan hijau berarti setiap warna kecuali hijau.<br>E = {merah, biru}",
         },
         5: {
           navText: "Ketuk hasil untuk kejadian yang diberikan, lalu kirim.",
+          navIntro: "Ketuk spinner untuk ruang sampel.",
           navTryAgain: "Ketuk &lsquo;Coba Lagi&rsquo;.",
           navNext: "Ketuk &raquo; untuk tantangan berikutnya.",
           titleValue: "Memutar spinner bernomor",
@@ -216,10 +228,12 @@ const DATA = {
           sampleSpace: [1, 2, 3, 4, 5, 6, 7, 8],
           answer: [2, 3, 5, 7],
           wrongFeedback: "Periksa &ndash; apakah semua bilangan yang dipilih prima?",
+          wrongFeedbackIncomplete: "Periksa &ndash; apakah semua bilangan prima sudah dipilih?",
           correctFeedback: "Benar!<br>2, 3, 5, dan 7 adalah bilangan prima.<br>Ingat, 1 bukan bilangan prima.<br>E = {2, 3, 5, 7}.",
         },
         6: {
           navText: "Ketuk hasil untuk kejadian yang diberikan, lalu kirim.",
+          navIntro: "Ketuk dadu untuk ruang sampel.",
           navTryAgain: "Ketuk &lsquo;Coba Lagi&rsquo;.",
           navNext: "Ketuk &raquo; untuk menyimpulkan.",
           titleValue: "Melempar dadu standar 6 sisi",
