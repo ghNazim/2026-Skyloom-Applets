@@ -77,6 +77,7 @@ const DATA = {
         },
         9: {
           navIntro: "Tap rotate.",
+          navSlider: "Use slider to rotate the triangle",
           navDone:
             "Tap » to align the rotated triangle so that BC coincides with QR.",
           belowText: "Fix orientation first so that BC coincides with QR.",
@@ -86,11 +87,32 @@ const DATA = {
         },
         10: {
           navIntro: "Tap ‘Translate’.",
+          navControls: "Tap arrows to move the triangle.",
           navDone: "Tap » to find another possible position for vertex P.",
           belowText:
             "Rotation aligned the orientation.\nNow, translate the triangle.",
           translateButton: "Translate",
           translateTitle: "Translate △ABC so that BC ↔ QR",
+        },
+        11: {
+          navIntro: "Tap ‘Reflect’.",
+          navDone: "Tap » to find another possible position for vertex P.",
+          belowText:
+            "A triangle can also lie on the opposite side of the same base.\nReflect △PQR across line QR.",
+          reflectButton: "Reflect",
+          resultIntro: "△PQR is reflected across line QR.",
+          resultOr: "or",
+          resultPPrefix: "P(x, y) = ",
+        },
+        12: {
+          navDone: "Tap » to find another possible position for vertex P.",
+          belowText:
+            "We can swap the matching side lengths: PQ = √13 and PR = √17.\n\nThen P sits in a different place.",
+        },
+        13: {
+          navDone: "Tap » to transform △ABC into △PQR.",
+          belowText:
+            "Let's use these values of PQ and PR to transform the triangle and determine the coordinates of P.",
         },
       },
       labels: {
@@ -244,6 +266,7 @@ const DATA = {
         },
         9: {
           navIntro: "Ketuk rotate.",
+          navSlider: "Gunakan penggeser untuk memutar segitiga",
           navDone:
             "Ketuk » untuk menggeser segitiga yang sudah diputar agar BC berimpit dengan QR.",
           belowText:
@@ -254,12 +277,35 @@ const DATA = {
         },
         10: {
           navIntro: "Ketuk ‘Translate’.",
+          navControls: "Ketuk panah untuk menggerakkan segitiga.",
           navDone:
             "Ketuk » untuk mencari kemungkinan posisi lain untuk titik P.",
           belowText:
             "Rotasi telah menyelaraskan orientasi.\nSekarang, translasi kan segitiga.",
           translateButton: "Translate",
           translateTitle: "Translasi △ABC sehingga BC ↔ QR",
+        },
+        11: {
+          navIntro: "Ketuk ‘Reflect’.",
+          navDone:
+            "Ketuk » untuk mencari kemungkinan posisi lain untuk titik P.",
+          belowText:
+            "Sebuah segitiga juga dapat berada di sisi berlawanan dari alas yang sama.\nRefleksikan △PQR terhadap garis QR.",
+          reflectButton: "Reflect",
+          resultIntro: "△PQR direfleksikan terhadap garis QR.",
+          resultOr: "atau",
+          resultPPrefix: "P(x, y) = ",
+        },
+        12: {
+          navDone:
+            "Ketuk » untuk mencari kemungkinan posisi lain untuk titik P.",
+          belowText:
+            "Kita dapat menukar panjang sisi yang bersesuaian: PQ = √13 dan PR = √17.\n\nMaka P berada di tempat yang berbeda.",
+        },
+        13: {
+          navDone: "Ketuk » untuk mentransformasikan △ABC menjadi △PQR.",
+          belowText:
+            "Mari gunakan nilai PQ dan PR ini untuk mentransformasikan segitiga dan menentukan koordinat P.",
         },
       },
       labels: {

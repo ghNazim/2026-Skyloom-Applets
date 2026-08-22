@@ -36,6 +36,73 @@ const POINT_DEFS = {
   },
 };
 
+function getOutwardSideLabelPositions(A, B, C, amount) {
+  const mid = (p, q) => ({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 });
+  const centroid = {
+    x: (A.x + B.x + C.x) / 3,
+    y: (A.y + B.y + C.y) / 3,
+  };
+  const outward = (point) => {
+    const dx = point.x - centroid.x;
+    const dy = point.y - centroid.y;
+    const len = Math.hypot(dx, dy) || 1;
+    return {
+      x: point.x + (dx / len) * amount,
+      y: point.y + (dy / len) * amount,
+    };
+  };
+  return {
+    ab: outward(mid(A, B)),
+    bc: outward(mid(B, C)),
+    ac: outward(mid(A, C)),
+  };
+}
+
+function formatPointCoord(n) {
+  const rounded = Math.round(n * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+}
+
+function formatPLabel(point) {
+  return (
+    "P(" + formatPointCoord(point.x) + ", " + formatPointCoord(point.y) + ")"
+  );
+}
+
+function reflectPointAcrossLine(point, a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len2 = dx * dx + dy * dy || 1;
+  const t = ((point.x - a.x) * dx + (point.y - a.y) * dy) / len2;
+  const projX = a.x + t * dx;
+  const projY = a.y + t * dy;
+  return {
+    x: 2 * projX - point.x,
+    y: 2 * projY - point.y,
+  };
+}
+
+function projectPointOnLine(point, a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len2 = dx * dx + dy * dy || 1;
+  const t = ((point.x - a.x) * dx + (point.y - a.y) * dy) / len2;
+  return { x: a.x + t * dx, y: a.y + t * dy };
+}
+
+function lerpPoint(a, b, t) {
+  return {
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+  };
+}
+
+function flipPointAcrossLine(from, to, lineA, lineB, t) {
+  const mid = projectPointOnLine(from, lineA, lineB);
+  if (t <= 0.5) return lerpPoint(from, mid, t * 2);
+  return lerpPoint(mid, to, (t - 0.5) * 2);
+}
+
 const SIDE_LENGTH_CONFIG = {
   QR: {
     sideKey: "QR",
@@ -103,6 +170,12 @@ const MainCanvas = ({
   onStep9PhaseChange,
   step10Phase,
   onStep10PhaseChange,
+  step11Phase,
+  onStep11PhaseChange,
+  step12Phase,
+  onStep12PhaseChange,
+  step13Phase,
+  onStep13PhaseChange,
 }) => {
   const { useCallback, useEffect, useMemo, useRef, useState } = React;
 
@@ -112,10 +185,16 @@ const MainCanvas = ({
   const coordRefs = useRef({});
   const formulaRefs = useRef({});
   const eqRefs = useRef({});
+  const step11ResultRefs = useRef({});
+  const yellowValueRefs = useRef({});
   const cancelledRef = useRef(false);
   const step7BusyRef = useRef(false);
   const step8AnimRef = useRef(false);
   const step9WrongTimerRef = useRef(null);
+  const pqrExitTweenRef = useRef(null);
+  const reflectTweenRef = useRef(null);
+  const step12BusyRef = useRef(false);
+  const step13BusyRef = useRef(false);
 
   const [flyClones, setFlyClones] = useState([]);
   const [visiblePointKeys, setVisiblePointKeys] = useState([]);
@@ -147,6 +226,17 @@ const MainCanvas = ({
   const [translateLocked, setTranslateLocked] = useState(false);
   const [showPqr1, setShowPqr1] = useState(false);
   const [pqr1Coords, setPqr1Coords] = useState(null);
+  const [originalPqrFadeOpacity, setOriginalPqrFadeOpacity] = useState(0);
+  const [showPqr2, setShowPqr2] = useState(false);
+  const [pqr2Coords, setPqr2Coords] = useState(null);
+  const [reflectProgress, setReflectProgress] = useState(0);
+  const [step11ResultOpacity, setStep11ResultOpacity] = useState(0);
+  const [step11ShowResult, setStep11ShowResult] = useState(false);
+  const [yellowRootsVisible, setYellowRootsVisible] = useState(false);
+  const [yellowRootsSwapped, setYellowRootsSwapped] = useState(false);
+  const [yellowBelowVisible, setYellowBelowVisible] = useState(false);
+  const [yellowBelowOpacity, setYellowBelowOpacity] = useState(0);
+  const [yellowBoxVisible, setYellowBoxVisible] = useState(false);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const isCancelled = () => cancelledRef.current;
@@ -231,6 +321,7 @@ const MainCanvas = ({
           {
             id: id,
             text: options.text || sourceEl.textContent.trim(),
+            rootValue: options.rootValue || null,
             startX: startX,
             startY: startY,
             dx: dx,
@@ -527,8 +618,8 @@ const MainCanvas = ({
     if (isCancelled()) return;
     if (typeof playSound === "function") playSound("congrats");
     await animateFly(formulaRefs.current.rootResult, labelRefs.current.QRRoot, {
-      text: "√" + SIDE_LENGTH_CONFIG.QR.rootValue(),
-      className: "is-white",
+      rootValue: SIDE_LENGTH_CONFIG.QR.rootValue(),
+      className: "is-white is-math-root",
     });
     if (isCancelled()) return;
     setVisibleLengthLabels((prev) => ({ ...prev, QR: true }));
@@ -603,8 +694,8 @@ const MainCanvas = ({
         formulaRefs.current.rootResult,
         labelRefs.current[sideConfig.graphLabel.refKey],
         {
-          text: "√" + sideConfig.rootValue(),
-          className: "is-white",
+          rootValue: sideConfig.rootValue(),
+          className: "is-white is-math-root",
         },
       );
       if (isCancelled()) return;
@@ -984,10 +1075,80 @@ const MainCanvas = ({
   }, []);
 
   const resetStep10Local = useCallback(() => {
+    if (pqrExitTweenRef.current) {
+      pqrExitTweenRef.current.kill();
+      pqrExitTweenRef.current = null;
+    }
     setTranslationVector({ x: 0, y: 0 });
     setTranslateLocked(false);
     setShowPqr1(false);
     setPqr1Coords(null);
+    setOriginalPqrFadeOpacity(0);
+  }, []);
+
+  const resetStep11Local = useCallback(() => {
+    if (reflectTweenRef.current) {
+      reflectTweenRef.current.kill();
+      reflectTweenRef.current = null;
+    }
+    setShowPqr2(false);
+    setPqr2Coords(null);
+    setReflectProgress(0);
+    setStep11ResultOpacity(0);
+    setStep11ShowResult(false);
+  }, []);
+
+  const resetStep12Local = useCallback(() => {
+    step12BusyRef.current = false;
+    setYellowRootsVisible(false);
+    setYellowRootsSwapped(false);
+    setYellowBelowVisible(false);
+    setYellowBelowOpacity(0);
+    setYellowBoxVisible(false);
+  }, []);
+
+  const resetStep13Local = useCallback(() => {
+    step13BusyRef.current = false;
+  }, []);
+
+  const buildPqr2FromPqr1 = useCallback((pqr1) => {
+    if (!pqr1) return null;
+    const reflected = reflectPointAcrossLine(pqr1.P, pqr1.Q, pqr1.R);
+    const P = {
+      x: Math.round(reflected.x),
+      y: Math.round(reflected.y),
+    };
+    return {
+      P: P,
+      Q: pqr1.Q,
+      R: pqr1.R,
+      labelTriangle: {
+        A: P,
+        B: pqr1.Q,
+        C: pqr1.R,
+      },
+    };
+  }, []);
+
+  const startOriginalPqrExit = useCallback(() => {
+    if (pqrExitTweenRef.current) {
+      pqrExitTweenRef.current.kill();
+      pqrExitTweenRef.current = null;
+    }
+    setOriginalPqrFadeOpacity(1);
+    const state = { opacity: 1 };
+    pqrExitTweenRef.current = gsap.to(state, {
+      opacity: 0,
+      duration: 0.75,
+      ease: "power1.out",
+      onUpdate: function () {
+        setOriginalPqrFadeOpacity(state.opacity);
+      },
+      onComplete: function () {
+        setOriginalPqrFadeOpacity(0);
+        pqrExitTweenRef.current = null;
+      },
+    });
   }, []);
 
   const rotatePointAboutOrigin = useCallback((point, degrees, direction) => {
@@ -1029,16 +1190,39 @@ const MainCanvas = ({
     );
   }, [graph.coords.Q, graph.coords.R]);
 
+  const buildDefaultPqr1 = useCallback(() => {
+    const transformed = getTransformedAbc(90, "cw", { x: -6, y: 1 });
+    return {
+      P: {
+        x: Math.round(transformed.A.x),
+        y: Math.round(transformed.A.y),
+      },
+      Q: graph.coords.Q,
+      R: graph.coords.R,
+      labelTriangle: {
+        A: transformed.A,
+        B: transformed.B,
+        C: transformed.C,
+      },
+    };
+  }, [getTransformedAbc, graph.coords.Q, graph.coords.R]);
+
   useEffect(() => {
     if (step < 9) {
       resetStep9Local();
       resetStep10Local();
+      resetStep11Local();
+      resetStep12Local();
+      resetStep13Local();
       return;
     }
 
     if (step === 9 && step9Phase === "intro") {
       resetStep9Local();
       resetStep10Local();
+      resetStep11Local();
+      resetStep12Local();
+      resetStep13Local();
       return;
     }
 
@@ -1051,10 +1235,16 @@ const MainCanvas = ({
         prev === 90 || prev === 270 ? prev : 90,
       );
       resetStep10Local();
+      resetStep11Local();
+      resetStep12Local();
+      resetStep13Local();
       return;
     }
 
     if (step === 10) {
+      resetStep11Local();
+      resetStep12Local();
+      resetStep13Local();
       setRotationLocked(true);
       setRotationDirection((prev) => prev || "cw");
       setRotationDegrees((prev) =>
@@ -1064,39 +1254,129 @@ const MainCanvas = ({
         setShowRotationClone(false);
         setTranslateLocked(true);
         setShowPqr1(true);
+        setOriginalPqrFadeOpacity(0);
         setTranslationVector((prev) =>
           prev.x !== 0 || prev.y !== 0 ? prev : { x: -6, y: 1 },
         );
-        setPqr1Coords((prev) => {
-          if (prev) return prev;
-          const transformed = getTransformedAbc(90, "cw", { x: -6, y: 1 });
-          return {
-            P: transformed.A,
-            Q: graph.coords.Q,
-            R: graph.coords.R,
-          };
-        });
+        setPqr1Coords((prev) => prev || buildDefaultPqr1());
         return;
       }
       setShowRotationClone(true);
       setShowPqr1(false);
       setTranslateLocked(false);
+      setOriginalPqrFadeOpacity(0);
+      return;
+    }
+
+    if (step === 11) {
+      resetStep12Local();
+      resetStep13Local();
+      setRotationLocked(true);
+      setShowRotationClone(false);
+      setTranslateLocked(true);
+      setShowPqr1(true);
+      setOriginalPqrFadeOpacity(0);
+      setPqr1Coords((prev) => prev || buildDefaultPqr1());
+
+      if (step11Phase === "done") {
+        setShowPqr2(true);
+        setReflectProgress(1);
+        setStep11ShowResult(true);
+        setStep11ResultOpacity(1);
+        setPqr2Coords((prev) => {
+          if (prev) return prev;
+          return buildPqr2FromPqr1(buildDefaultPqr1());
+        });
+        return;
+      }
+
+      if (step11Phase === "intro") {
+        setShowPqr2(false);
+        setPqr2Coords(null);
+        setReflectProgress(0);
+        setStep11ShowResult(false);
+        setStep11ResultOpacity(0);
+      }
+      return;
+    }
+
+    if (step === 12 || step === 13) {
+      setRotationLocked(true);
+      setShowRotationClone(false);
+      setTranslateLocked(true);
+      setShowPqr1(true);
+      setShowPqr2(true);
+      setReflectProgress(1);
+      setOriginalPqrFadeOpacity(0);
+      setStep11ShowResult(true);
+      setStep11ResultOpacity(0);
+      setPqr1Coords((prev) => prev || buildDefaultPqr1());
+      setPqr2Coords((prev) => {
+        if (prev) return prev;
+        return buildPqr2FromPqr1(buildDefaultPqr1());
+      });
+
+      if (step === 12) {
+        resetStep13Local();
+        if (step12Phase === "done") {
+          setYellowBoxVisible(true);
+          setYellowRootsVisible(true);
+          setYellowRootsSwapped(false);
+          setYellowBelowVisible(true);
+          setYellowBelowOpacity(1);
+        } else if (step12Phase === "initial") {
+          setYellowBoxVisible(false);
+          setYellowRootsVisible(false);
+          setYellowRootsSwapped(false);
+          setYellowBelowVisible(false);
+          setYellowBelowOpacity(0);
+        }
+      }
+
+      if (step === 13) {
+        if (step13Phase === "done") {
+          setYellowBoxVisible(true);
+          setYellowRootsVisible(true);
+          setYellowRootsSwapped(true);
+          setYellowBelowVisible(true);
+          setYellowBelowOpacity(1);
+        } else if (step13Phase === "initial") {
+          setYellowBoxVisible(true);
+          setYellowRootsVisible(true);
+          setYellowRootsSwapped(false);
+          setYellowBelowVisible(false);
+          setYellowBelowOpacity(0);
+        }
+      }
     }
   }, [
     step,
     step9Phase,
     step10Phase,
+    step11Phase,
+    step12Phase,
+    step13Phase,
     resetStep9Local,
     resetStep10Local,
-    getTransformedAbc,
-    graph.coords.Q,
-    graph.coords.R,
+    resetStep11Local,
+    resetStep12Local,
+    resetStep13Local,
+    buildDefaultPqr1,
+    buildPqr2FromPqr1,
   ]);
 
   useEffect(() => {
     return () => {
       if (step9WrongTimerRef.current) {
         clearTimeout(step9WrongTimerRef.current);
+      }
+      if (pqrExitTweenRef.current) {
+        pqrExitTweenRef.current.kill();
+        pqrExitTweenRef.current = null;
+      }
+      if (reflectTweenRef.current) {
+        reflectTweenRef.current.kill();
+        reflectTweenRef.current = null;
       }
     };
   }, []);
@@ -1202,10 +1482,222 @@ const MainCanvas = ({
         },
         Q: graph.coords.Q,
         R: graph.coords.R,
+        labelTriangle: {
+          A: transformed.A,
+          B: transformed.B,
+          C: transformed.C,
+        },
       });
+      startOriginalPqrExit();
       setPhase(onStep10PhaseChange, "done");
     }
   };
+
+  const runStep11ResultFly = useCallback(async (order) => {
+    setPhase(onStep11PhaseChange, "flying");
+    setStep11ShowResult(true);
+    setStep11ResultOpacity(0);
+    await delay(40);
+    if (isCancelled()) return;
+
+    const sourceKey1 = order && order.swap ? "PQR2P" : "PQR1P";
+    const sourceKey2 = order && order.swap ? "PQR1P" : "PQR2P";
+    const source1 = labelRefs.current[sourceKey1];
+    const source2 = labelRefs.current[sourceKey2];
+    const target1 = step11ResultRefs.current.p1;
+    const target2 = step11ResultRefs.current.p2;
+
+    await Promise.all([
+      animateFly(source1, target1, {
+        text: source1 ? source1.textContent.trim() : "",
+        className: "is-cyan",
+      }),
+      animateFly(source2, target2, {
+        text: source2 ? source2.textContent.trim() : "",
+        className: "is-cyan",
+      }),
+    ]);
+
+    if (isCancelled()) return;
+    setStep11ResultOpacity(1);
+    if (typeof playSound === "function") playSound("correct");
+    setPhase(onStep11PhaseChange, "done");
+  }, [animateFly, onStep11PhaseChange, setPhase]);
+
+  const handleStep11ReflectClick = () => {
+    if (step !== 11 || step11Phase !== "intro") return;
+    if (typeof playSound === "function") playSound("click");
+
+    const base = pqr1Coords || buildDefaultPqr1();
+    if (!pqr1Coords) setPqr1Coords(base);
+    const reflected = buildPqr2FromPqr1(base);
+    setPqr2Coords(reflected);
+    setShowPqr2(true);
+    setReflectProgress(0);
+    setStep11ShowResult(false);
+    setStep11ResultOpacity(0);
+    setPhase(onStep11PhaseChange, "flipping");
+
+    const near = (p, x, y) =>
+      p && Math.abs(p.x - x) < 0.15 && Math.abs(p.y - y) < 0.15;
+    const swap =
+      near(reflected.P, -5, -3) && !near(base.P, -5, -3);
+
+    if (reflectTweenRef.current) {
+      reflectTweenRef.current.kill();
+      reflectTweenRef.current = null;
+    }
+    const state = { t: 0 };
+    reflectTweenRef.current = gsap.to(state, {
+      t: 1,
+      duration: 1.05,
+      ease: "power2.inOut",
+      onUpdate: function () {
+        setReflectProgress(state.t);
+      },
+      onComplete: function () {
+        setReflectProgress(1);
+        reflectTweenRef.current = null;
+        setTimeout(function () {
+          runStep11ResultFly({ swap: swap });
+        }, 500);
+      },
+    });
+  };
+
+  const runStep12Sequence = useCallback(async () => {
+    if (step12BusyRef.current) return;
+    step12BusyRef.current = true;
+    setPhase(onStep12PhaseChange, "flying");
+    setYellowBoxVisible(false);
+    setYellowRootsVisible(false);
+    setYellowRootsSwapped(false);
+    setYellowBelowVisible(false);
+    setYellowBelowOpacity(0);
+    await delay(80);
+    if (isCancelled()) {
+      step12BusyRef.current = false;
+      return;
+    }
+    await new Promise(function (resolve) {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(resolve);
+      });
+    });
+    if (isCancelled()) {
+      step12BusyRef.current = false;
+      return;
+    }
+    setYellowBoxVisible(true);
+    await delay(480);
+    if (isCancelled()) {
+      step12BusyRef.current = false;
+      return;
+    }
+
+    await Promise.all([
+      animateFly(labelRefs.current.PQR1AB, yellowValueRefs.current.pq, {
+        rootValue: SIDE_LENGTH_CONFIG.AB.rootValue(),
+        className: "is-orange is-math-root",
+      }),
+      animateFly(labelRefs.current.PQR1AC, yellowValueRefs.current.pr, {
+        rootValue: SIDE_LENGTH_CONFIG.AC.rootValue(),
+        className: "is-orange is-math-root",
+      }),
+    ]);
+
+    if (isCancelled()) {
+      step12BusyRef.current = false;
+      return;
+    }
+
+    setYellowRootsVisible(true);
+    setPhase(onStep12PhaseChange, "belowAnimating");
+    setYellowBelowVisible(true);
+    setYellowBelowOpacity(0);
+    await delay(40);
+    setYellowBelowOpacity(1);
+    await delay(450);
+    if (isCancelled()) {
+      step12BusyRef.current = false;
+      return;
+    }
+    setPhase(onStep12PhaseChange, "done");
+    step12BusyRef.current = false;
+  }, [animateFly, onStep12PhaseChange, setPhase]);
+
+  const runStep13Sequence = useCallback(async () => {
+    if (step13BusyRef.current) return;
+    step13BusyRef.current = true;
+    setYellowBoxVisible(true);
+    setYellowRootsVisible(true);
+    setYellowRootsSwapped(false);
+    setYellowBelowVisible(false);
+    setYellowBelowOpacity(0);
+    setPhase(onStep13PhaseChange, "swapping");
+    await delay(120);
+    if (isCancelled()) {
+      step13BusyRef.current = false;
+      return;
+    }
+
+    const pqEl = yellowValueRefs.current.pq;
+    const prEl = yellowValueRefs.current.pr;
+    const flyPromise = Promise.all([
+      animateFly(pqEl, prEl, {
+        rootValue: SIDE_LENGTH_CONFIG.AB.rootValue(),
+        className: "is-orange is-math-root",
+      }),
+      animateFly(prEl, pqEl, {
+        rootValue: SIDE_LENGTH_CONFIG.AC.rootValue(),
+        className: "is-orange is-math-root",
+      }),
+    ]);
+    setYellowRootsVisible(false);
+    await flyPromise;
+
+    if (isCancelled()) {
+      step13BusyRef.current = false;
+      return;
+    }
+
+    setYellowRootsSwapped(true);
+    setYellowRootsVisible(true);
+    setPhase(onStep13PhaseChange, "belowAnimating");
+    setYellowBelowVisible(true);
+    setYellowBelowOpacity(0);
+    await delay(40);
+    setYellowBelowOpacity(1);
+    await delay(450);
+    if (isCancelled()) {
+      step13BusyRef.current = false;
+      return;
+    }
+    setPhase(onStep13PhaseChange, "done");
+    step13BusyRef.current = false;
+  }, [animateFly, onStep13PhaseChange, setPhase]);
+
+  useEffect(() => {
+    if (step === 12 && step12Phase === "initial" && !step12BusyRef.current) {
+      const t = setTimeout(function () {
+        runStep12Sequence();
+      }, 200);
+      return function () {
+        clearTimeout(t);
+      };
+    }
+  }, [step, step12Phase, runStep12Sequence]);
+
+  useEffect(() => {
+    if (step === 13 && step13Phase === "initial" && !step13BusyRef.current) {
+      const t = setTimeout(function () {
+        runStep13Sequence();
+      }, 250);
+      return function () {
+        clearTimeout(t);
+      };
+    }
+  }, [step, step13Phase, runStep13Sequence]);
 
   const activeTransform =
     (step === 9 || step === 10) &&
@@ -1276,41 +1768,25 @@ const MainCanvas = ({
   const cloneRootLabels = useMemo(() => {
     if (!activeTransform || !rotationLocked) return [];
     const { A, B, C } = activeTransform;
-    const mid = (p, q) => ({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 });
-    const centroid = {
-      x: (A.x + B.x + C.x) / 3,
-      y: (A.y + B.y + C.y) / 3,
-    };
-    const outward = (point, amount) => {
-      const dx = point.x - centroid.x;
-      const dy = point.y - centroid.y;
-      const len = Math.hypot(dx, dy) || 1;
-      return {
-        x: point.x + (dx / len) * amount,
-        y: point.y + (dy / len) * amount,
-      };
-    };
-    const ab = outward(mid(A, B), 0.7);
-    const bc = outward(mid(B, C), 0.7);
-    const ac = outward(mid(A, C), 0.7);
+    const positions = getOutwardSideLabelPositions(A, B, C, 0.7);
     return [
       {
-        x: ab.x,
-        y: ab.y,
+        x: positions.ab.x,
+        y: positions.ab.y,
         text: SIDE_LENGTH_CONFIG.AB.rootValue(),
         color: "#ffffff",
         visible: true,
       },
       {
-        x: bc.x,
-        y: bc.y,
+        x: positions.bc.x,
+        y: positions.bc.y,
         text: SIDE_LENGTH_CONFIG.BC.rootValue(),
         color: "#ffffff",
         visible: true,
       },
       {
-        x: ac.x,
-        y: ac.y,
+        x: positions.ac.x,
+        y: positions.ac.y,
         text: SIDE_LENGTH_CONFIG.AC.rootValue(),
         color: "#ffffff",
         visible: true,
@@ -1320,14 +1796,62 @@ const MainCanvas = ({
 
   const dimAbcOriginal =
     ((step === 9 || step === 10) && showRotationClone) ||
-    (step === 10 && showPqr1);
+    ((step === 10 || step === 11 || step === 12 || step === 13) && showPqr1);
   const abcDimColor = "#8b8b8b";
-  const hideOriginalPqr = step === 10 && showPqr1;
+  const isOriginalPqrExiting =
+    step === 10 && showPqr1 && originalPqrFadeOpacity > 0.01;
+  const hideOriginalQ =
+    (step === 10 || step === 11 || step === 12 || step === 13) && showPqr1;
+  const hideOriginalR =
+    (step === 10 || step === 11 || step === 12 || step === 13) && showPqr1;
+
+  const pqr2Display = useMemo(() => {
+    if (!showPqr2 || !pqr1Coords || !pqr2Coords) return null;
+    const liveP =
+      reflectProgress >= 0.999
+        ? pqr2Coords.P
+        : flipPointAcrossLine(
+            pqr1Coords.P,
+            pqr2Coords.P,
+            pqr1Coords.Q,
+            pqr1Coords.R,
+            reflectProgress,
+          );
+    return {
+      P: liveP,
+      Q: pqr1Coords.Q,
+      R: pqr1Coords.R,
+      finalP: pqr2Coords.P,
+    };
+  }, [showPqr2, pqr1Coords, pqr2Coords, reflectProgress]);
+
+  const step11ResultPoints = useMemo(() => {
+    if (!pqr1Coords || !pqr2Coords) return null;
+    const a = pqr1Coords.P;
+    const b = pqr2Coords.P;
+    const near = (p, x, y) =>
+      Math.abs(p.x - x) < 0.15 && Math.abs(p.y - y) < 0.15;
+    if (near(b, -5, -3) && !near(a, -5, -3)) {
+      return {
+        first: b,
+        second: a,
+        firstRef: "PQR2P",
+        secondRef: "PQR1P",
+      };
+    }
+    return {
+      first: a,
+      second: b,
+      firstRef: "PQR1P",
+      secondRef: "PQR2P",
+    };
+  }, [pqr1Coords, pqr2Coords]);
 
   const graphPoints = useMemo(() => {
     const points = visiblePointKeys
       .filter((key) => {
-        if (hideOriginalPqr && (key === "Q" || key === "R")) return false;
+        if (key === "Q" && hideOriginalQ) return false;
+        if (key === "R" && hideOriginalR) return false;
         return true;
       })
       .map((key) => {
@@ -1362,8 +1886,16 @@ const MainCanvas = ({
       };
     });
 
-    if (showUnknownPoint && !hideOriginalPqr) {
+    if (showUnknownPoint && (!showPqr1 || isOriginalPqrExiting)) {
       const reveal = pointRevealState.P || {};
+      const fadeMul = isOriginalPqrExiting ? originalPqrFadeOpacity : 1;
+      const baseCircle =
+        reveal.circleOpacity != null ? reveal.circleOpacity : 1;
+      const baseLabel = showUnknownLabel
+        ? reveal.labelOpacity != null
+          ? reveal.labelOpacity
+          : 1
+        : 0;
       points.push({
         id: "P",
         x: unknownCoord.x,
@@ -1372,12 +1904,8 @@ const MainCanvas = ({
         label: graph.labels.P,
         labelPrefix: "P",
         labelPlacement: "below",
-        circleOpacity: reveal.circleOpacity != null ? reveal.circleOpacity : 1,
-        labelOpacity: showUnknownLabel
-          ? reveal.labelOpacity != null
-            ? reveal.labelOpacity
-            : 1
-          : 0,
+        circleOpacity: baseCircle * fadeMul,
+        labelOpacity: baseLabel * fadeMul,
         showLabel: true,
         labelRefKey: "P",
         questionMark: showQuestionMark,
@@ -1386,12 +1914,6 @@ const MainCanvas = ({
     }
 
     if (showPqr1 && pqr1Coords) {
-      const formatCoord = (n) => {
-        const rounded = Math.round(n * 100) / 100;
-        return Number.isInteger(rounded)
-          ? String(rounded)
-          : String(rounded);
-      };
       const P = pqr1Coords.P;
       const Q = pqr1Coords.Q;
       const R = pqr1Coords.R;
@@ -1401,12 +1923,13 @@ const MainCanvas = ({
           x: P.x,
           y: P.y,
           color: colors.image,
-          label: "P(" + formatCoord(P.x) + ", " + formatCoord(P.y) + ")",
+          label: formatPLabel(P),
           labelPrefix: "P",
           labelPlacement: P.y >= 0 ? "above" : "below",
           showLabel: true,
           circleOpacity: 1,
           labelOpacity: 1,
+          labelRefKey: "PQR1P",
         },
         {
           id: "PQR1-Q",
@@ -1435,6 +1958,24 @@ const MainCanvas = ({
           coordParts: graph.coordText.R,
         },
       );
+    }
+
+    if (pqr2Display) {
+      const P = pqr2Display.P;
+      const showPLabel = reflectProgress > 0.55;
+      points.push({
+        id: "PQR2-P",
+        x: P.x,
+        y: P.y,
+        color: colors.image,
+        label: formatPLabel(pqr2Display.finalP || P),
+        labelPrefix: "P",
+        labelPlacement: (pqr2Display.finalP || P).y >= 0 ? "above" : "below",
+        showLabel: showPLabel,
+        circleOpacity: 1,
+        labelOpacity: showPLabel ? 1 : 0,
+        labelRefKey: "PQR2P",
+      });
     }
 
     if (step5Phase === "formula") {
@@ -1523,9 +2064,14 @@ const MainCanvas = ({
     showQuestionMark,
     unknownCoord,
     dimAbcOriginal,
-    hideOriginalPqr,
+    hideOriginalQ,
+    hideOriginalR,
+    isOriginalPqrExiting,
+    originalPqrFadeOpacity,
     showPqr1,
     pqr1Coords,
+    pqr2Display,
+    reflectProgress,
     step,
     step5Phase,
     step6Phase,
@@ -1536,17 +2082,27 @@ const MainCanvas = ({
   ]);
 
   const graphPolygons = useMemo(() => {
-    if (!showPqr1 || !pqr1Coords) return [];
-    return [
-      {
+    const polys = [];
+    if (showPqr1 && pqr1Coords) {
+      polys.push({
         vertices: [pqr1Coords.P, pqr1Coords.Q, pqr1Coords.R],
         color: colors.image,
         fillOpacity: 0.28,
         noStroke: true,
         opacity: 1,
-      },
-    ];
-  }, [showPqr1, pqr1Coords, colors.image]);
+      });
+    }
+    if (pqr2Display) {
+      polys.push({
+        vertices: [pqr2Display.P, pqr2Display.Q, pqr2Display.R],
+        color: colors.image,
+        fillOpacity: 0.28,
+        noStroke: true,
+        opacity: 1,
+      });
+    }
+    return polys;
+  }, [showPqr1, pqr1Coords, pqr2Display, colors.image]);
 
   const graphSegments = useMemo(() => {
     const segments = [];
@@ -1576,7 +2132,7 @@ const MainCanvas = ({
         },
       );
     }
-    if (showQrSegment && !hideOriginalPqr) {
+    if (showQrSegment && !showPqr1) {
       segments.push({
         from: graph.coords.Q,
         to: graph.coords.R,
@@ -1584,7 +2140,10 @@ const MainCanvas = ({
         strokeWidth: 4,
       });
     }
-    if (showUnknownPoint && !hideOriginalPqr) {
+    if (showUnknownPoint && (!showPqr1 || isOriginalPqrExiting)) {
+      const dashOpacity = isOriginalPqrExiting
+        ? 0.68 * originalPqrFadeOpacity
+        : 0.68;
       segments.push(
         {
           from: graph.coords.Q,
@@ -1592,7 +2151,7 @@ const MainCanvas = ({
           color: colors.image,
           strokeWidth: 3,
           dashed: true,
-          opacity: 0.68,
+          opacity: dashOpacity,
         },
         {
           from: graph.coords.R,
@@ -1600,7 +2159,7 @@ const MainCanvas = ({
           color: colors.image,
           strokeWidth: 3,
           dashed: true,
-          opacity: 0.68,
+          opacity: dashOpacity,
         },
       );
     }
@@ -1626,6 +2185,28 @@ const MainCanvas = ({
         },
       );
     }
+    if (pqr2Display) {
+      segments.push(
+        {
+          from: pqr2Display.P,
+          to: pqr2Display.Q,
+          color: colors.image,
+          strokeWidth: 3.8,
+        },
+        {
+          from: pqr2Display.Q,
+          to: pqr2Display.R,
+          color: colors.image,
+          strokeWidth: 3.8,
+        },
+        {
+          from: pqr2Display.R,
+          to: pqr2Display.P,
+          color: colors.image,
+          strokeWidth: 3.8,
+        },
+      );
+    }
     if (sideClone) {
       segments.push({
         from: sideClone.from,
@@ -1640,9 +2221,11 @@ const MainCanvas = ({
     showAbcTriangle,
     showQrSegment,
     showUnknownPoint,
-    hideOriginalPqr,
+    isOriginalPqrExiting,
+    originalPqrFadeOpacity,
     showPqr1,
     pqr1Coords,
+    pqr2Display,
     graph.coords,
     colors,
     unknownCoord,
@@ -1654,7 +2237,8 @@ const MainCanvas = ({
   ["QR", "AB", "BC", "AC"].forEach((sideKey) => {
     const config = SIDE_LENGTH_CONFIG[sideKey];
     const isAbcSide = sideKey === "AB" || sideKey === "BC" || sideKey === "AC";
-    const hideQrLabel = hideOriginalPqr && sideKey === "QR";
+    const isQr = sideKey === "QR";
+    const hideQrLabel = showPqr1 && isQr;
     rootLabels.push({
       x: config.graphLabel.x,
       y: config.graphLabel.y,
@@ -1667,28 +2251,58 @@ const MainCanvas = ({
   });
 
   if (showPqr1 && pqr1Coords) {
-    const mid = (p, q) => ({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 });
-    const pq = mid(pqr1Coords.P, pqr1Coords.Q);
-    const qr = mid(pqr1Coords.Q, pqr1Coords.R);
-    const pr = mid(pqr1Coords.P, pqr1Coords.R);
+    const tri = pqr1Coords.labelTriangle || {
+      A: pqr1Coords.P,
+      B: pqr1Coords.Q,
+      C: pqr1Coords.R,
+    };
+    const positions = getOutwardSideLabelPositions(tri.A, tri.B, tri.C, 0.7);
     rootLabels.push(
       {
-        x: pq.x,
-        y: pq.y,
+        x: positions.ab.x,
+        y: positions.ab.y,
+        text: SIDE_LENGTH_CONFIG.AB.rootValue(),
+        color: "#ffffff",
+        visible: true,
+        refKey: "PQR1AB",
+      },
+      {
+        x: positions.bc.x,
+        y: positions.bc.y,
+        text: SIDE_LENGTH_CONFIG.BC.rootValue(),
+        color: "#ffffff",
+        visible: true,
+        refKey: "PQR1BC",
+      },
+      {
+        x: positions.ac.x,
+        y: positions.ac.y,
+        text: SIDE_LENGTH_CONFIG.AC.rootValue(),
+        color: "#ffffff",
+        visible: true,
+        refKey: "PQR1AC",
+      },
+    );
+  }
+
+  if (pqr2Display && reflectProgress > 0.82) {
+    const tri = {
+      A: pqr2Display.finalP || pqr2Display.P,
+      B: pqr2Display.Q,
+      C: pqr2Display.R,
+    };
+    const positions = getOutwardSideLabelPositions(tri.A, tri.B, tri.C, 0.7);
+    rootLabels.push(
+      {
+        x: positions.ab.x,
+        y: positions.ab.y,
         text: SIDE_LENGTH_CONFIG.AB.rootValue(),
         color: "#ffffff",
         visible: true,
       },
       {
-        x: qr.x,
-        y: qr.y,
-        text: SIDE_LENGTH_CONFIG.BC.rootValue(),
-        color: "#ffffff",
-        visible: true,
-      },
-      {
-        x: pr.x,
-        y: pr.y,
+        x: positions.ac.x,
+        y: positions.ac.y,
         text: SIDE_LENGTH_CONFIG.AC.rootValue(),
         color: "#ffffff",
         visible: true,
@@ -1698,6 +2312,32 @@ const MainCanvas = ({
 
   const flyCloneEls = flyClones.map((clone) => {
     const endScale = clone.endScale != null ? clone.endScale : 1;
+    const content = clone.rootValue
+      ? React.createElement(
+          "math",
+          {
+            className: "math-root-inline",
+            display: "inline",
+            role: "img",
+            "aria-label":
+              APP_DATA.aria.squareRootOf + " " + clone.rootValue,
+          },
+          React.createElement(
+            "mrow",
+            null,
+            React.createElement(
+              "msqrt",
+              null,
+              React.createElement(
+                "mtext",
+                { className: "math-root-text" },
+                clone.rootValue,
+              ),
+            ),
+          ),
+        )
+      : clone.text;
+
     return React.createElement(
       "div",
       {
@@ -1718,7 +2358,7 @@ const MainCanvas = ({
             : "translate(-50%, -50%) scale(1)",
         },
       },
-      clone.text,
+      content,
     );
   });
 
@@ -1824,6 +2464,65 @@ const MainCanvas = ({
         ),
       ),
     );
+
+  const renderYellowValueBox = () => {
+    const pqRoot = yellowRootsSwapped
+      ? SIDE_LENGTH_CONFIG.AC.rootValue()
+      : SIDE_LENGTH_CONFIG.AB.rootValue();
+    const prRoot = yellowRootsSwapped
+      ? SIDE_LENGTH_CONFIG.AB.rootValue()
+      : SIDE_LENGTH_CONFIG.AC.rootValue();
+
+    return React.createElement(
+      "div",
+      {
+        className:
+          "yellow-value-box" + (yellowBoxVisible ? " is-visible" : ""),
+      },
+      React.createElement(
+        "div",
+        { className: "yellow-value-row" },
+        React.createElement(
+          "span",
+          { className: "yellow-value-side is-cyan" },
+          "PQ",
+        ),
+        React.createElement("span", { className: "yellow-value-eq" }, " = "),
+        React.createElement(
+          "span",
+          {
+            className: "yellow-value-root is-orange",
+            style: { opacity: yellowRootsVisible ? 1 : 0 },
+            ref: (el) => {
+              yellowValueRefs.current.pq = el;
+            },
+          },
+          renderMathRootText(pqRoot),
+        ),
+      ),
+      React.createElement(
+        "div",
+        { className: "yellow-value-row" },
+        React.createElement(
+          "span",
+          { className: "yellow-value-side is-cyan" },
+          "PR",
+        ),
+        React.createElement("span", { className: "yellow-value-eq" }, " = "),
+        React.createElement(
+          "span",
+          {
+            className: "yellow-value-root is-orange",
+            style: { opacity: yellowRootsVisible ? 1 : 0 },
+            ref: (el) => {
+              yellowValueRefs.current.pr = el;
+            },
+          },
+          renderMathRootText(prRoot),
+        ),
+      ),
+    );
+  };
 
   const renderDistanceFormula = () =>
     React.createElement(
@@ -2124,6 +2823,125 @@ const MainCanvas = ({
     );
   };
 
+  const renderStep11Panel = () => {
+    const showResult =
+      step11ShowResult ||
+      step11Phase === "flying" ||
+      step11Phase === "done";
+    const resultPts = step11ResultPoints;
+
+    return React.createElement(
+      "div",
+      { className: "step7-panel step7-result-panel is-revealed step11-panel" },
+      renderEqText(),
+      React.createElement(
+        "div",
+        { className: "step7-below-space is-step8-visible step11-below-space" },
+        showResult
+          ? React.createElement(
+              "div",
+              {
+                className: "step11-result-text",
+                style: { opacity: step11ResultOpacity },
+              },
+              React.createElement(
+                "div",
+                { className: "step11-result-intro" },
+                APP_DATA.steps[11].resultIntro,
+              ),
+              React.createElement(
+                "div",
+                { className: "step11-result-line" },
+                React.createElement(
+                  "span",
+                  null,
+                  APP_DATA.steps[11].resultPPrefix,
+                ),
+                React.createElement(
+                  "span",
+                  {
+                    className: "step11-result-p",
+                    ref: (el) => {
+                      step11ResultRefs.current.p1 = el;
+                    },
+                  },
+                  resultPts ? formatPLabel(resultPts.first) : "P(-5, -3)",
+                ),
+              ),
+              React.createElement(
+                "div",
+                { className: "step11-result-or" },
+                APP_DATA.steps[11].resultOr,
+              ),
+              React.createElement(
+                "div",
+                { className: "step11-result-line" },
+                React.createElement(
+                  "span",
+                  null,
+                  APP_DATA.steps[11].resultPPrefix,
+                ),
+                React.createElement(
+                  "span",
+                  {
+                    className: "step11-result-p",
+                    ref: (el) => {
+                      step11ResultRefs.current.p2 = el;
+                    },
+                  },
+                  resultPts ? formatPLabel(resultPts.second) : "P(0, 2)",
+                ),
+              ),
+            )
+          : React.createElement(
+              React.Fragment,
+              null,
+              React.createElement(
+                "div",
+                { className: "step11-intro-text" },
+                APP_DATA.steps[11].belowText,
+              ),
+              React.createElement(
+                "button",
+                {
+                  id: "step11-reflect-button",
+                  className: "step11-reflect-button",
+                  onClick: handleStep11ReflectClick,
+                },
+                APP_DATA.steps[11].reflectButton,
+              ),
+            ),
+      ),
+    );
+  };
+
+  const renderStep12Or13Panel = () => {
+    const belowText =
+      step === 13
+        ? APP_DATA.steps[13].belowText
+        : APP_DATA.steps[12].belowText;
+
+    return React.createElement(
+      "div",
+      {
+        className:
+          "step7-panel step7-result-panel is-revealed step12-panel",
+      },
+      renderEqText(),
+      renderYellowValueBox(),
+      yellowBelowVisible
+        ? React.createElement(
+            "div",
+            {
+              className: "step7-below-space is-step8-visible step12-below-space",
+              style: { opacity: yellowBelowOpacity },
+            },
+            belowText,
+          )
+        : null,
+    );
+  };
+
   const renderRightPanel = () => {
     if (step < 5) return null;
 
@@ -2144,6 +2962,14 @@ const MainCanvas = ({
 
     if (step === 10) {
       return renderStep10Panel();
+    }
+
+    if (step === 11) {
+      return renderStep11Panel();
+    }
+
+    if (step === 12 || step === 13) {
+      return renderStep12Or13Panel();
     }
 
     if (step === 5 && step5Phase === "intro") {
