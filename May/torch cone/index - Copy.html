@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Torch Cone Shadow</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #10131a;
+      color: #f5f1df;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .panel {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      width: min(360px, calc(100vw - 48px));
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      background: rgba(14, 17, 24, 0.82);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
+    }
+
+    .panel label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .panel input {
+      width: 100%;
+      accent-color: #ffbf4f;
+    }
+
+    .hint {
+      margin-top: 10px;
+      color: rgba(245, 241, 223, 0.72);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <label for="objectPosition">
+      <span>Move irregular object</span>
+      <strong id="positionLabel">middle</strong>
+    </label>
+    <input id="objectPosition" type="range" min="0" max="100" value="48" />
+    <div class="hint">Left moves it toward the torch. Right moves it toward the wall.</div>
+  </div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x10131a);
+
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(3.4, 3.2, 8.2);
+    camera.lookAt(0.6, 1.2, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0.8, 1.05, 0);
+    controls.enableDamping = true;
+    controls.minDistance = 5;
+    controls.maxDistance = 16;
+    controls.enablePan = false;
+
+    scene.add(new THREE.HemisphereLight(0xb8c5ff, 0x16100a, 0.22));
+
+    const torchPosition = new THREE.Vector3(-4, 1.25, 0);
+    const wallX = 4;
+
+    const spotlight = new THREE.SpotLight(0xffcf75, 260, 11, Math.PI / 7, 0.62, 1.05);
+    spotlight.position.copy(torchPosition);
+    spotlight.castShadow = true;
+    spotlight.shadow.mapSize.set(2048, 2048);
+    spotlight.shadow.camera.near = 0.2;
+    spotlight.shadow.camera.far = 12;
+    spotlight.shadow.camera.fov = 34;
+    scene.add(spotlight);
+
+    const lightTarget = new THREE.Object3D();
+    lightTarget.position.set(wallX, 1.2, 0);
+    scene.add(lightTarget);
+    spotlight.target = lightTarget;
+
+    const torchGroup = new THREE.Group();
+    torchGroup.position.copy(torchPosition);
+    scene.add(torchGroup);
+
+    const handle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.24, 1.35, 32),
+      new THREE.MeshStandardMaterial({ color: 0x5a3422, roughness: 0.8 })
+    );
+    handle.rotation.z = Math.PI / 2;
+    handle.position.x = -0.62;
+    torchGroup.add(handle);
+
+    const metalCollar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.25, 0.25, 0.32, 32),
+      new THREE.MeshStandardMaterial({ color: 0x6f7683, metalness: 0.75, roughness: 0.28 })
+    );
+    metalCollar.rotation.z = Math.PI / 2;
+    metalCollar.position.x = -0.02;
+    torchGroup.add(metalCollar);
+
+    const flame = new THREE.Mesh(
+      new THREE.ConeGeometry(0.28, 0.7, 48),
+      new THREE.MeshBasicMaterial({ color: 0xffa83d })
+    );
+    flame.rotation.z = -Math.PI / 2;
+    flame.position.x = 0.22;
+    torchGroup.add(flame);
+
+    const glow = new THREE.PointLight(0xffb347, 1.5, 1.8);
+    glow.position.copy(torchPosition);
+    scene.add(glow);
+
+    const coneLength = wallX - torchPosition.x;
+    const beam = new THREE.Mesh(
+      new THREE.ConeGeometry(1.8, coneLength, 64, 1, true),
+      new THREE.MeshBasicMaterial({
+        color: 0xffca72,
+        transparent: true,
+        opacity: 0.13,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      })
+    );
+    beam.rotation.z = Math.PI / 2;
+    beam.position.set((torchPosition.x + wallX) / 2, torchPosition.y, 0);
+    scene.add(beam);
+
+    const wall = new THREE.Mesh(
+      new THREE.PlaneGeometry(4.6, 3.9),
+      new THREE.MeshStandardMaterial({ color: 0xe7dfc7, roughness: 0.72 })
+    );
+    wall.position.set(wallX, 1.35, 0);
+    wall.rotation.y = -Math.PI / 2;
+    wall.receiveShadow = true;
+    scene.add(wall);
+
+    const wallFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 4.08, 4.78),
+      new THREE.MeshStandardMaterial({ color: 0x2b313d, roughness: 0.7 })
+    );
+    wallFrame.position.set(wallX + 0.055, 1.35, 0);
+    scene.add(wallFrame);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(10, 6),
+      new THREE.MeshStandardMaterial({ color: 0x282b2d, roughness: 0.9 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.58;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const irregularGeometry = new THREE.IcosahedronGeometry(0.75, 2);
+    const position = irregularGeometry.attributes.position;
+    for (let i = 0; i < position.count; i += 1) {
+      const vertex = new THREE.Vector3().fromBufferAttribute(position, i);
+      const warp =
+        1 +
+        0.22 * Math.sin(vertex.x * 5.3) +
+        0.16 * Math.cos(vertex.y * 7.7) +
+        0.12 * Math.sin(vertex.z * 9.1);
+      vertex.multiplyScalar(warp);
+      position.setXYZ(i, vertex.x, vertex.y, vertex.z);
+    }
+    irregularGeometry.computeVertexNormals();
+
+    const object = new THREE.Mesh(
+      irregularGeometry,
+      new THREE.MeshStandardMaterial({
+        color: 0x2f7d7a,
+        roughness: 0.58,
+        metalness: 0.04
+      })
+    );
+    object.position.set(-0.2, 1.15, 0);
+    object.rotation.set(0.45, 0.25, -0.18);
+    object.castShadow = true;
+    object.receiveShadow = true;
+    scene.add(object);
+
+    const slider = document.querySelector("#objectPosition");
+    const positionLabel = document.querySelector("#positionLabel");
+
+    function setObjectPosition(value) {
+      const t = Number(value) / 100;
+      const minX = -2.75;
+      const maxX = 2.55;
+      object.position.x = THREE.MathUtils.lerp(minX, maxX, t);
+
+      if (t < 0.28) {
+        positionLabel.textContent = "near torch";
+      } else if (t > 0.72) {
+        positionLabel.textContent = "near wall";
+      } else {
+        positionLabel.textContent = "middle";
+      }
+    }
+
+    slider.addEventListener("input", (event) => setObjectPosition(event.target.value));
+    setObjectPosition(slider.value);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      object.rotation.y += 0.004;
+      object.rotation.z += 0.0018;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+  </script>
+</body>
+</html>

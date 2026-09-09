@@ -1,0 +1,90 @@
+.applet-container {
+  aspect-ratio: 16 / 9;
+  width: 100vw;
+  height: calc(100vw * 9 / 16);
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: auto;
+  position: relative;
+}
+
+.transformation-applet {
+  --surface-dark: #07151c;
+  --panel-dark: #102636;
+  --panel-darker: #0b202d;
+  --grid-line: rgba(62, 112, 145, 0.68);
+  --axis-line: rgba(235, 244, 248, 0.32);
+  --text-strong: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.58);
+  --button-bg: #284d66;
+  --button-disabled: #1a3445;
+  --button-text-disabled: rgba(255, 255, 255, 0.42);
+  --orange: #f08442;
+  --blue: #63b5ed;
+  --purple: #d778df;
+  --yellow: #ffd23f;
+  --green: #74bd50;
+  --object-fill: #7d4b2e;
+  --image-fill: #416f96;
+  --clone-fill: rgba(53, 83, 103, 0.68);
+  color: var(--text-strong);
+  /* background: var(--surface-dark); */
+  overflow: hidden;
+}
+
+.transformation-applet.fullscreen-stage {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  /* background: var(--surface-dark); */
+}
+
+.transformation-applet.fullscreen-stage .fullscreen-panel {
+  width: 100%;
+  height: 100%;
+}
+
+.transformation-canvas {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 62% 38%;
+  gap: 1.4vw;
+  padding: 1.05vw;
+  min-height: 0;
+}
+
+.left-workspace {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 80%) minmax(0, 20%);
+  gap: 0;
+  background: #0a2b3f;
+}
+
+.graph-row {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+button {
+  font-family: var(--font-family);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

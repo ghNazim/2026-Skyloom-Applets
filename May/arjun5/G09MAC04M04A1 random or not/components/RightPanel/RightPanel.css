@@ -140,6 +140,14 @@
   pointer-events: none;
 }
 
+.has-label {
+  color: #fff;
+  font-weight: 620;
+  text-align: center;
+  line-height: 1.1;
+  flex: 0 0 auto;
+}
+
 .choice-card-items {
   display: flex;
   align-items: center;
@@ -341,8 +349,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.2vw;
-  padding: 1.1vw 1.4vw;
+  gap: 0.5vw;
+  padding: 0.8vw 1.4vw;
   box-sizing: border-box;
   transition:
     width 0.55s ease,
@@ -359,7 +367,7 @@
 }
 
 .bag-card-image {
-  height: 76%;
+  height: 70%;
   object-fit: contain;
   user-select: none;
   pointer-events: none;

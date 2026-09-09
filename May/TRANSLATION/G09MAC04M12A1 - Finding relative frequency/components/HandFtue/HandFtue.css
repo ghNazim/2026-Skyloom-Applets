@@ -1,0 +1,36 @@
+#hand-ftue {
+    position: fixed;
+    width: 4.5vw;
+    height: auto;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    display: none;
+    transform: translate(-10%, -15%);
+    transition: top 0.6s ease, left 0.6s ease, opacity 0.3s;
+}
+#hand-ftue img {
+    width: 100%;
+    opacity: 0.62;
+    filter: drop-shadow(0 0 0.2vw rgba(10, 10, 10, 0.5));
+}
+#hand-ftue.hand-ftue--edge {
+    transform: translate(-92%, -15%);
+}
+#hand-ftue.ftue-on-nav {
+    /* Finger point: 20% from the right of the nav button, 10% from the top */
+    transform: translate(
+        calc(var(--ftue-btn-w) * 0.8 - 45%),
+        calc(var(--ftue-btn-h) * 0.1 - 15%)
+    );
+    /* opacity: 0.6; */
+}
+.hand-animating {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+.hand-dragging {
+    transition: top 1.2s ease, left 1.2s ease;
+}
+

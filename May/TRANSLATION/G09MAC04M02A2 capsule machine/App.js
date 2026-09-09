@@ -229,7 +229,8 @@ var App = function () {
         else if (nextStep === 3) setNavText(APP_DATA.introStep3.navText);
         else if (nextStep === 4) setNavText(APP_DATA.introStep4.navText);
       } else if (currentStep === 4) {
-        var machine0Done = !!filledPositions[APP_DATA.machines[0].correctPosition];
+        var machine0Done =
+          !!filledPositions[APP_DATA.machines[0].correctPosition];
         if (machine0Done) {
           applyCompletedStage(getCompletedStage(5));
         } else {
@@ -241,7 +242,8 @@ var App = function () {
       } else if (currentStep >= 5 && currentStep <= 8 && isStepComplete) {
         var destStep = currentStep + 1;
         var destMachine = APP_DATA.machines[destStep - 5];
-        var destDone = destMachine && filledPositions[destMachine.correctPosition];
+        var destDone =
+          destMachine && filledPositions[destMachine.correctPosition];
         if (destDone) {
           applyCompletedStage(getCompletedStage(destStep));
         } else {
@@ -320,12 +322,12 @@ var App = function () {
           buttonText: APP_DATA.intro.buttonText,
           onButtonClick: handleStart,
           buttonRef: fullscreenButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: true,
         targetRef: fullscreenButtonRef,
-      })
+      }),
     );
   }
 
@@ -342,7 +344,7 @@ var App = function () {
           currentStep: currentStep,
           revealedPositions: revealedPositions,
           onBusyChange: setIsCanvasBusy,
-        })
+        }),
       ),
       React.createElement(
         "div",
@@ -353,12 +355,12 @@ var App = function () {
           isPrevDisabled: getIsPrevDisabled(),
           navText: navText,
           nextButtonRef: nextButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: !getIsNextDisabled(),
         targetRef: nextButtonRef,
-      })
+      }),
     );
   }
 
@@ -384,7 +386,7 @@ var App = function () {
           onPositionRevealed: handlePositionRevealed,
           startAtCompleted: restoreCanvas,
           onBusyChange: setIsCanvasBusy,
-        })
+        }),
       ),
       React.createElement(
         "div",
@@ -395,12 +397,12 @@ var App = function () {
           isPrevDisabled: getIsPrevDisabled(),
           navText: navText,
           nextButtonRef: nextButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: !getIsNextDisabled(),
         targetRef: nextButtonRef,
-      })
+      }),
     );
   }
 
@@ -414,7 +416,7 @@ var App = function () {
         { className: "app-main-content" },
         React.createElement(Splash2, {
           imageSrcs: buildSplash2ImageSrcs(filledPositions),
-        })
+        }),
       ),
       React.createElement(
         "div",
@@ -425,12 +427,12 @@ var App = function () {
           isPrevDisabled: getIsPrevDisabled(),
           navText: navText,
           nextButtonRef: nextButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: true,
         targetRef: nextButtonRef,
-      })
+      }),
     );
   }
 
@@ -446,12 +448,12 @@ var App = function () {
           data: APP_DATA.fullscreen2,
           onButtonClick: handleContinue,
           buttonRef: fullscreenButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: true,
         targetRef: fullscreenButtonRef,
-      })
+      }),
     );
   }
 
@@ -478,7 +480,7 @@ var App = function () {
           onNavTextChange: handleNavTextChange,
           startAtCompleted: restoreCanvas,
           onBusyChange: setIsCanvasBusy,
-        })
+        }),
       ),
       React.createElement(
         "div",
@@ -489,12 +491,12 @@ var App = function () {
           isPrevDisabled: getIsPrevDisabled(),
           navText: navText,
           nextButtonRef: nextButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: !getIsNextDisabled(),
         targetRef: nextButtonRef,
-      })
+      }),
     );
   }
 
@@ -510,12 +512,12 @@ var App = function () {
           data: APP_DATA.finalScreen,
           onButtonClick: handleStartOver,
           buttonRef: fullscreenButtonRef,
-        })
+        }),
       ),
       React.createElement(Nudge, {
         show: true,
         targetRef: fullscreenButtonRef,
-      })
+      }),
     );
   }
 

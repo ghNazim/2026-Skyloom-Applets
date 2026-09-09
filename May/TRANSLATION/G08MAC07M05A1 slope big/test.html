@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slope card screenshots</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: #0b2c3c;
+      }
+
+      .card-grid {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 1.2vw;
+        padding: 1.2vw;
+      }
+
+      .card-cell {
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+        border-radius: 1.2vw;
+        background: #07698d;
+      }
+
+      .card-cell svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        background: #0d7ba3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card-grid">
+      <!-- 1. Positive / inclined up -->
+      <div class="card-cell">
+        <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern
+              id="grass-up"
+              width="56"
+              height="56"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect width="56" height="56" fill="#9dc85d"></rect>
+              <path
+                d="M0 20 C12 14 21 17 33 12 C43 8 49 9 56 5 L56 21 C44 26 33 22 21 28 C12 33 6 31 0 36 Z"
+                fill="#d7df67"
+                opacity="0.85"
+              ></path>
+              <path
+                d="M0 45 C14 39 23 42 36 35 C44 31 50 31 56 29 L56 56 L0 56 Z"
+                fill="#699f4b"
+                opacity="0.72"
+              ></path>
+              <circle cx="9" cy="8" r="1.2" fill="#476f34" opacity="0.5"></circle>
+              <circle cx="26" cy="31" r="1" fill="#476f34" opacity="0.45"></circle>
+              <circle cx="44" cy="17" r="1.1" fill="#476f34" opacity="0.42"></circle>
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="500" height="500" fill="#0d7ba3"></rect>
+          <path d="M -40 500 L 0 430 L 500 175 L 500 500 Z" fill="url(#grass-up)"></path>
+          <image
+            href="assets/cycle/00.png"
+            x="161"
+            y="168"
+            width="168"
+            height="134"
+            transform="rotate(-27 250 302)"
+          ></image>
+        </svg>
+      </div>
+
+      <!-- 2. Negative / declined -->
+      <div class="card-cell">
+        <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern
+              id="grass-down"
+              width="56"
+              height="56"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect width="56" height="56" fill="#9dc85d"></rect>
+              <path
+                d="M0 20 C12 14 21 17 33 12 C43 8 49 9 56 5 L56 21 C44 26 33 22 21 28 C12 33 6 31 0 36 Z"
+                fill="#d7df67"
+                opacity="0.85"
+              ></path>
+              <path
+                d="M0 45 C14 39 23 42 36 35 C44 31 50 31 56 29 L56 56 L0 56 Z"
+                fill="#699f4b"
+                opacity="0.72"
+              ></path>
+              <circle cx="9" cy="8" r="1.2" fill="#476f34" opacity="0.5"></circle>
+              <circle cx="26" cy="31" r="1" fill="#476f34" opacity="0.45"></circle>
+              <circle cx="44" cy="17" r="1.1" fill="#476f34" opacity="0.42"></circle>
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="500" height="500" fill="#0d7ba3"></rect>
+          <path d="M -20 120 L 500 430 L 500 500 L -20 500 Z" fill="url(#grass-down)"></path>
+          <image
+            href="assets/cycle/00.png"
+            x="161"
+            y="141"
+            width="168"
+            height="134"
+            transform="rotate(32 250 275)"
+          ></image>
+        </svg>
+      </div>
+
+      <!-- 3. Zero / flat -->
+      <div class="card-cell">
+        <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern
+              id="grass-flat"
+              width="56"
+              height="56"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect width="56" height="56" fill="#9dc85d"></rect>
+              <path
+                d="M0 20 C12 14 21 17 33 12 C43 8 49 9 56 5 L56 21 C44 26 33 22 21 28 C12 33 6 31 0 36 Z"
+                fill="#d7df67"
+                opacity="0.85"
+              ></path>
+              <path
+                d="M0 45 C14 39 23 42 36 35 C44 31 50 31 56 29 L56 56 L0 56 Z"
+                fill="#699f4b"
+                opacity="0.72"
+              ></path>
+              <circle cx="9" cy="8" r="1.2" fill="#476f34" opacity="0.5"></circle>
+              <circle cx="26" cy="31" r="1" fill="#476f34" opacity="0.45"></circle>
+              <circle cx="44" cy="17" r="1.1" fill="#476f34" opacity="0.42"></circle>
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="500" height="500" fill="#0d7ba3"></rect>
+          <rect x="-20" y="318" width="540" height="200" fill="url(#grass-flat)"></rect>
+          <image
+            href="assets/cycle/00.png"
+            x="166"
+            y="184"
+            width="168"
+            height="134"
+          ></image>
+        </svg>
+      </div>
+
+      <!-- 4. Undefined / vertical climb -->
+      <div class="card-cell">
+        <svg viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern
+              id="grass-climb"
+              width="56"
+              height="56"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect width="56" height="56" fill="#9dc85d"></rect>
+              <path
+                d="M0 20 C12 14 21 17 33 12 C43 8 49 9 56 5 L56 21 C44 26 33 22 21 28 C12 33 6 31 0 36 Z"
+                fill="#d7df67"
+                opacity="0.85"
+              ></path>
+              <path
+                d="M0 45 C14 39 23 42 36 35 C44 31 50 31 56 29 L56 56 L0 56 Z"
+                fill="#699f4b"
+                opacity="0.72"
+              ></path>
+              <circle cx="9" cy="8" r="1.2" fill="#476f34" opacity="0.5"></circle>
+              <circle cx="26" cy="31" r="1" fill="#476f34" opacity="0.45"></circle>
+              <circle cx="44" cy="17" r="1.1" fill="#476f34" opacity="0.42"></circle>
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="500" height="500" fill="#0d7ba3"></rect>
+          <rect x="-20" y="430" width="360" height="90" fill="url(#grass-climb)"></rect>
+          <image
+            href="assets/mountain.png"
+            x="0"
+            y="0"
+            width="500"
+            height="500"
+            preserveAspectRatio="xMaxYMid meet"
+          ></image>
+          <image
+            href="assets/climb/00.png"
+            x="312"
+            y="166"
+            width="120"
+            height="168"
+          ></image>
+        </svg>
+      </div>
+    </div>
+  </body>
+</html>

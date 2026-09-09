@@ -637,6 +637,12 @@ const MainCanvas = ({
             draggable: false,
           })
         : null,
+      card.image && card.items
+        ? e("div", {
+            className: "has-label",
+            dangerouslySetInnerHTML: { __html: html(common.hasLabel) },
+          })
+        : null,
       card.items
         ? e(
             "div",
@@ -811,6 +817,12 @@ const MainCanvas = ({
         onClick:
           isIntro && eventPhase === "intro" ? startIntroAnimation : undefined,
       }),
+      !isIntro
+        ? e("div", {
+            className: "has-label",
+            dangerouslySetInnerHTML: { __html: html(common.hasLabel) },
+          })
+        : null,
       e(
         "div",
         { className: "bag-card-options" },

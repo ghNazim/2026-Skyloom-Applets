@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflector Fold Graph</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f5ef;
+      --panel: #fffdf8;
+      --ink: #1d2433;
+      --muted: #667085;
+      --grid: #d9d5ca;
+      --axis: #667085;
+      --line: #f97316;
+      --line-dark: #c2410c;
+      --point: #2563eb;
+      --projection: #0891b2;
+      --ghost: #7c3aed;
+      --button: #ffffff;
+      --button-border: #c9c3b8;
+      --button-active: #243b53;
+      --button-active-text: #ffffff;
+      --disabled: #aaa39a;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 34%),
+        linear-gradient(315deg, rgba(16, 185, 129, 0.08), transparent 36%),
+        var(--bg);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(100%, 880px);
+    }
+
+    .surface {
+      background: var(--panel);
+      border: 1px solid rgba(102, 112, 133, 0.24);
+      border-radius: 8px;
+      box-shadow: 0 22px 60px rgba(29, 36, 51, 0.12);
+      padding: clamp(14px, 3vw, 24px);
+    }
+
+    .graph-wrap {
+      width: min(100%, 720px);
+      margin: 0 auto;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      background: #fbfaf6;
+      border: 1px solid rgba(102, 112, 133, 0.28);
+      border-radius: 8px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .line-buttons,
+    .fold-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--button-border);
+      background: var(--button);
+      color: var(--ink);
+      border-radius: 7px;
+      padding: 10px 14px;
+      min-width: 70px;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease, opacity 140ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: var(--axis);
+    }
+
+    button[aria-pressed="true"] {
+      background: var(--button-active);
+      color: var(--button-active-text);
+      border-color: var(--button-active);
+    }
+
+    button:disabled {
+      color: var(--disabled);
+      cursor: not-allowed;
+      opacity: 0.62;
+    }
+
+    #foldBtn {
+      min-width: 138px;
+      border-color: var(--line);
+      color: var(--line-dark);
+    }
+
+    #foldBtn:not(:disabled) {
+      background: #fff7ed;
+    }
+
+    .status {
+      min-height: 1.5em;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .axis-line {
+      stroke: var(--axis);
+      stroke-width: 1.7;
+      marker-start: url(#axisArrow);
+      marker-end: url(#axisArrow);
+    }
+
+    .axis-label {
+      fill: var(--axis);
+      font-size: 22px;
+      font-style: italic;
+      user-select: none;
+    }
+
+    .reflector {
+      stroke: var(--line);
+      stroke-width: 5;
+      stroke-dasharray: 14 10;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    .projection {
+      stroke: var(--projection);
+      stroke-width: 3;
+      stroke-dasharray: 8 7;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    .point {
+      fill: var(--point);
+      stroke: #ffffff;
+      stroke-width: 3;
+    }
+
+    .ghost-point {
+      fill: var(--ghost);
+      fill-opacity: 0.24;
+      stroke: var(--ghost);
+      stroke-width: 3;
+      stroke-dasharray: 5 5;
+    }
+
+    .ghost-line {
+      stroke: var(--ghost);
+      stroke-width: 3;
+      stroke-dasharray: 7 7;
+      stroke-linecap: round;
+      opacity: 0.78;
+    }
+
+    .fold-panel {
+      fill: rgba(249, 115, 22, 0.16);
+      stroke: rgba(194, 65, 12, 0.5);
+      stroke-width: 2;
+    }
+
+    .fold-grid {
+      stroke: rgba(102, 112, 133, 0.38);
+      stroke-width: 1.2;
+      stroke-linecap: round;
+    }
+
+    .fold-axis {
+      stroke: rgba(29, 36, 51, 0.48);
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .fold-point {
+      fill: var(--point);
+      stroke: #ffffff;
+      stroke-width: 3;
+    }
+
+    .fold-projection {
+      stroke: var(--projection);
+      stroke-width: 3;
+      stroke-dasharray: 8 7;
+      stroke-linecap: round;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 12px;
+      }
+
+      button {
+        min-width: 62px;
+        padding: 9px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="surface" aria-label="Coordinate graph folding tool">
+      <div class="graph-wrap">
+        <svg id="graph" viewBox="0 0 720 720" role="img" aria-labelledby="graphTitle graphDesc">
+          <title id="graphTitle">Coordinate graph with selectable reflection lines and a fold animation</title>
+          <desc id="graphDesc">Click anywhere inside the graph to place a point. Select a reflector line, then use Fold to animate the point side folding onto the opposite side.</desc>
+          <defs>
+            <marker id="axisArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"></path>
+            </marker>
+          </defs>
+          <g id="gridLayer"></g>
+          <g id="ghostLayer"></g>
+          <g id="projectionLayer"></g>
+          <g id="reflectorLayer"></g>
+          <g id="pointLayer"></g>
+          <g id="animationLayer"></g>
+        </svg>
+      </div>
+
+      <div class="controls">
+        <div class="line-buttons" role="group" aria-label="Reflector lines">
+          <button type="button" data-line="x0" aria-pressed="false">x=0</button>
+          <button type="button" data-line="y0" aria-pressed="false">y=0</button>
+          <button type="button" data-line="x1" aria-pressed="false">x=1</button>
+          <button type="button" data-line="y1" aria-pressed="false">y=1</button>
+          <button type="button" data-line="xy" aria-pressed="false">x=y</button>
+          <button type="button" data-line="xny" aria-pressed="false">x=-y</button>
+        </div>
+        <div class="fold-row">
+          <button type="button" id="foldBtn" disabled>Fold</button>
+        </div>
+        <div id="status" class="status" aria-live="polite">Click the graph to place a point.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const svg = document.getElementById("graph");
+      const gridLayer = document.getElementById("gridLayer");
+      const reflectorLayer = document.getElementById("reflectorLayer");
+      const pointLayer = document.getElementById("pointLayer");
+      const projectionLayer = document.getElementById("projectionLayer");
+      const ghostLayer = document.getElementById("ghostLayer");
+      const animationLayer = document.getElementById("animationLayer");
+      const status = document.getElementById("status");
+      const foldBtn = document.getElementById("foldBtn");
+      const lineButtons = Array.from(document.querySelectorAll("[data-line]"));
+
+      const W = 720;
+      const H = 720;
+      const margin = 48;
+      const range = 4;
+      const scale = (W - margin * 2) / (range * 2);
+      const center = { x: W / 2, y: H / 2 };
+      const ns = "http://www.w3.org/2000/svg";
+      const eps = 0.035;
+
+      const rawLines = {
+        x0: { label: "x=0", a: 1, b: 0, c: 0, segment: [{ x: 0, y: -range }, { x: 0, y: range }] },
+        y0: { label: "y=0", a: 0, b: 1, c: 0, segment: [{ x: -range, y: 0 }, { x: range, y: 0 }] },
+        x1: { label: "x=1", a: 1, b: 0, c: -1, segment: [{ x: 1, y: -range }, { x: 1, y: range }] },
+        y1: { label: "y=1", a: 0, b: 1, c: -1, segment: [{ x: -range, y: 1 }, { x: range, y: 1 }] },
+        xy: { label: "x=y", a: 1, b: -1, c: 0, segment: [{ x: -range, y: -range }, { x: range, y: range }] },
+        xny: { label: "x=-y", a: 1, b: 1, c: 0, segment: [{ x: -range, y: range }, { x: range, y: -range }] }
+      };
+
+      const lines = Object.fromEntries(Object.entries(rawLines).map(([key, line]) => {
+        const norm = Math.hypot(line.a, line.b);
+        return [key, { ...line, a: line.a / norm, b: line.b / norm, c: line.c / norm }];
+      }));
+
+      let selectedKey = null;
+      let point = null;
+      let lineAnimating = false;
+      let foldAnimating = false;
+      let reflectorDrawn = false;
+
+      function el(name, attrs = {}) {
+        const node = document.createElementNS(ns, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+        return node;
+      }
+
+      function toSvgPoint(p) {
+        return {
+          x: center.x + p.x * scale,
+          y: center.y - p.y * scale
+        };
+      }
+
+      function fromSvgPoint(p) {
+        return {
+          x: (p.x - center.x) / scale,
+          y: (center.y - p.y) / scale
+        };
+      }
+
+      function clampPoint(p) {
+        return {
+          x: Math.max(-range, Math.min(range, p.x)),
+          y: Math.max(-range, Math.min(range, p.y))
+        };
+      }
+
+      function clear(node) {
+        while (node.firstChild) node.removeChild(node.firstChild);
+      }
+
+      function signedDistance(line, p) {
+        return line.a * p.x + line.b * p.y + line.c;
+      }
+
+      function projectPoint(line, p) {
+        const d = signedDistance(line, p);
+        return {
+          x: p.x - d * line.a,
+          y: p.y - d * line.b
+        };
+      }
+
+      function reflectPoint(line, p) {
+        const d = signedDistance(line, p);
+        return {
+          x: p.x - 2 * d * line.a,
+          y: p.y - 2 * d * line.b
+        };
+      }
+
+      function drawLineSegment(parent, p1, p2, className, extra = {}) {
+        const s1 = toSvgPoint(p1);
+        const s2 = toSvgPoint(p2);
+        const line = el("line", {
+          x1: s1.x,
+          y1: s1.y,
+          x2: s2.x,
+          y2: s2.y,
+          class: className,
+          ...extra
+        });
+        parent.appendChild(line);
+        return line;
+      }
+
+      function drawGrid() {
+        clear(gridLayer);
+
+        drawLineSegment(gridLayer, { x: -range, y: 0 }, { x: range, y: 0 }, "axis-line");
+        drawLineSegment(gridLayer, { x: 0, y: -range }, { x: 0, y: range }, "axis-line");
+
+        const xLabel = el("text", {
+          x: W - margin - 10,
+          y: center.y - 16,
+          class: "axis-label",
+          "text-anchor": "end"
+        });
+        xLabel.textContent = "x";
+        gridLayer.appendChild(xLabel);
+
+        const yLabel = el("text", {
+          x: center.x + 14,
+          y: margin + 20,
+          class: "axis-label",
+          "text-anchor": "start"
+        });
+        yLabel.textContent = "y";
+        gridLayer.appendChild(yLabel);
+      }
+
+      function updateReflector() {
+        clear(reflectorLayer);
+        if (!selectedKey || !reflectorDrawn) return;
+        const line = lines[selectedKey];
+        drawLineSegment(reflectorLayer, line.segment[0], line.segment[1], "reflector");
+      }
+
+      function updatePoint() {
+        clear(pointLayer);
+        if (!point) return;
+        const p = toSvgPoint(point);
+        const circle = el("circle", {
+          cx: p.x,
+          cy: p.y,
+          r: 8,
+          class: "point"
+        });
+        pointLayer.appendChild(circle);
+      }
+
+      function updateFoldButton() {
+        const busy = lineAnimating || foldAnimating;
+        const canFold = Boolean(point && selectedKey && reflectorDrawn && Math.abs(signedDistance(lines[selectedKey], point)) > eps && !busy);
+        foldBtn.disabled = !canFold;
+        if (lineAnimating) {
+          status.textContent = `Drawing ${lines[selectedKey].label}...`;
+        } else if (foldAnimating) {
+          status.textContent = "Folding...";
+        } else if (!point) {
+          status.textContent = "Click the graph to place a point.";
+        } else if (!selectedKey) {
+          status.textContent = `Point (${point.x.toFixed(2)}, ${point.y.toFixed(2)}) placed. Select a line.`;
+        } else if (Math.abs(signedDistance(lines[selectedKey], point)) <= eps) {
+          status.textContent = `Point is on ${lines[selectedKey].label}; choose another point or line.`;
+        } else {
+          status.textContent = `Ready to fold across ${lines[selectedKey].label}.`;
+        }
+      }
+
+      function redraw() {
+        updateReflector();
+        updatePoint();
+        updateFoldButton();
+      }
+
+      function svgPointer(evt) {
+        const pt = svg.createSVGPoint();
+        pt.x = evt.clientX;
+        pt.y = evt.clientY;
+        const transformed = pt.matrixTransform(svg.getScreenCTM().inverse());
+        return transformed;
+      }
+
+      function clipSegmentToHalf(p1, p2, line, side) {
+        const d1 = side * signedDistance(line, p1);
+        const d2 = side * signedDistance(line, p2);
+        const keep1 = d1 >= -0.0001;
+        const keep2 = d2 >= -0.0001;
+        if (keep1 && keep2) return [p1, p2];
+        if (!keep1 && !keep2) return null;
+        const t = d1 / (d1 - d2);
+        const hit = {
+          x: p1.x + (p2.x - p1.x) * t,
+          y: p1.y + (p2.y - p1.y) * t
+        };
+        return keep1 ? [p1, hit] : [hit, p2];
+      }
+
+      function clipPolygonToHalf(poly, line, side) {
+        const result = [];
+        for (let i = 0; i < poly.length; i++) {
+          const current = poly[i];
+          const previous = poly[(i + poly.length - 1) % poly.length];
+          const currentInside = side * signedDistance(line, current) >= -0.0001;
+          const previousInside = side * signedDistance(line, previous) >= -0.0001;
+
+          if (currentInside !== previousInside) {
+            const dPrev = side * signedDistance(line, previous);
+            const dCurr = side * signedDistance(line, current);
+            const t = dPrev / (dPrev - dCurr);
+            result.push({
+              x: previous.x + (current.x - previous.x) * t,
+              y: previous.y + (current.y - previous.y) * t
+            });
+          }
+
+          if (currentInside) result.push(current);
+        }
+        return result;
+      }
+
+      function foldTransform(line, p, theta) {
+        const d = signedDistance(line, p);
+        const foot = {
+          x: p.x - d * line.a,
+          y: p.y - d * line.b
+        };
+        const flattened = d * Math.cos(theta);
+        return {
+          x: foot.x + flattened * line.a,
+          y: foot.y + flattened * line.b
+        };
+      }
+
+      function easeInOut(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+
+      function sleep(ms) {
+        return new Promise(resolve => window.setTimeout(resolve, ms));
+      }
+
+      function animate(duration, draw) {
+        return new Promise(resolve => {
+          const start = performance.now();
+          const frame = now => {
+            const raw = Math.min(1, (now - start) / duration);
+            draw(easeInOut(raw), raw);
+            if (raw < 1) {
+              requestAnimationFrame(frame);
+            } else {
+              resolve();
+            }
+          };
+          requestAnimationFrame(frame);
+        });
+      }
+
+      async function animateLineGrow(parent, p1, p2, className, extra = {}, duration = 520) {
+        clear(parent);
+        const lineEl = drawLineSegment(parent, p1, p1, className, extra);
+        await animate(duration, t => {
+          const next = {
+            x: p1.x + (p2.x - p1.x) * t,
+            y: p1.y + (p2.y - p1.y) * t
+          };
+          const s2 = toSvgPoint(next);
+          lineEl.setAttribute("x2", s2.x);
+          lineEl.setAttribute("y2", s2.y);
+        });
+        return lineEl;
+      }
+
+      async function animateReflectorIn(line) {
+        await animateLineGrow(reflectorLayer, line.segment[0], line.segment[1], "reflector", {}, 480);
+      }
+
+      function buildFoldModel(line, side, foot) {
+        const square = [
+          { x: -range, y: -range },
+          { x: range, y: -range },
+          { x: range, y: range },
+          { x: -range, y: range }
+        ];
+        const polygon = clipPolygonToHalf(square, line, side);
+        const segments = [];
+
+        for (let i = -range; i <= range; i++) {
+          const vertical = clipSegmentToHalf({ x: i, y: -range }, { x: i, y: range }, line, side);
+          const horizontal = clipSegmentToHalf({ x: -range, y: i }, { x: range, y: i }, line, side);
+          if (vertical) segments.push({ points: vertical, axis: i === 0 });
+          if (horizontal) segments.push({ points: horizontal, axis: i === 0 });
+        }
+
+        segments.push({ points: [point, foot], projection: true });
+        return { polygon, segments };
+      }
+
+      function drawFoldOverlay(model, line, theta) {
+        clear(animationLayer);
+        const panelPoints = model.polygon.map(p => {
+          const next = toSvgPoint(foldTransform(line, p, theta));
+          return `${next.x.toFixed(2)},${next.y.toFixed(2)}`;
+        }).join(" ");
+
+        const panel = el("polygon", {
+          points: panelPoints,
+          class: "fold-panel",
+          opacity: (0.36 + Math.abs(Math.cos(theta)) * 0.42).toFixed(3)
+        });
+        animationLayer.appendChild(panel);
+
+        model.segments.forEach(segment => {
+          const p1 = toSvgPoint(foldTransform(line, segment.points[0], theta));
+          const p2 = toSvgPoint(foldTransform(line, segment.points[1], theta));
+          const className = segment.projection ? "fold-projection" : segment.axis ? "fold-axis" : "fold-grid";
+          const lineEl = el("line", {
+            x1: p1.x,
+            y1: p1.y,
+            x2: p2.x,
+            y2: p2.y,
+            class: className,
+            opacity: segment.projection ? 0.95 : 0.76
+          });
+          animationLayer.appendChild(lineEl);
+        });
+
+        const foldedPoint = toSvgPoint(foldTransform(line, point, theta));
+        const circle = el("circle", {
+          cx: foldedPoint.x,
+          cy: foldedPoint.y,
+          r: 8,
+          class: "fold-point"
+        });
+        animationLayer.appendChild(circle);
+      }
+
+      async function drawProjectionStep(line, foot) {
+        await animateLineGrow(projectionLayer, point, foot, "projection", {}, 560);
+      }
+
+      function addGhost(line, foot) {
+        const reflected = reflectPoint(line, point);
+        drawLineSegment(ghostLayer, reflected, foot, "ghost-line");
+        const p = toSvgPoint(reflected);
+        ghostLayer.appendChild(el("circle", {
+          cx: p.x,
+          cy: p.y,
+          r: 9,
+          class: "ghost-point"
+        }));
+      }
+
+      async function runFold() {
+        if (lineAnimating || foldAnimating || !point || !selectedKey || !reflectorDrawn) return;
+        const line = lines[selectedKey];
+        const distance = Math.abs(signedDistance(line, point));
+        if (distance <= eps) return;
+
+        foldAnimating = true;
+        redraw();
+        const foot = projectPoint(line, point);
+        const side = signedDistance(line, point) >= 0 ? 1 : -1;
+        await drawProjectionStep(line, foot);
+
+        const model = buildFoldModel(line, side, foot);
+        pointLayer.style.opacity = "0.28";
+        projectionLayer.style.opacity = "0.35";
+        await animate(1350, t => drawFoldOverlay(model, line, Math.PI * t));
+        addGhost(line, foot);
+        clear(animationLayer);
+        pointLayer.style.opacity = "1";
+        projectionLayer.style.opacity = "1";
+        foldAnimating = false;
+        redraw();
+      }
+
+      lineButtons.forEach(button => {
+        button.addEventListener("click", async () => {
+          if (lineAnimating || foldAnimating) return;
+          selectedKey = button.dataset.line;
+          reflectorDrawn = false;
+          lineAnimating = true;
+          lineButtons.forEach(btn => btn.setAttribute("aria-pressed", String(btn === button)));
+          clear(ghostLayer);
+          clear(reflectorLayer);
+          clear(projectionLayer);
+          redraw();
+          await animateReflectorIn(lines[selectedKey]);
+          reflectorDrawn = true;
+          lineAnimating = false;
+          redraw();
+        });
+      });
+
+      svg.addEventListener("pointerdown", evt => {
+        if (lineAnimating || foldAnimating) return;
+        const p = svgPointer(evt);
+        if (p.x < margin || p.x > W - margin || p.y < margin || p.y > H - margin) return;
+        point = clampPoint(fromSvgPoint(p));
+        clear(ghostLayer);
+        clear(projectionLayer);
+        redraw();
+      });
+
+      foldBtn.addEventListener("click", runFold);
+
+      drawGrid();
+      redraw();
+    })();
+  </script>
+</body>
+</html>

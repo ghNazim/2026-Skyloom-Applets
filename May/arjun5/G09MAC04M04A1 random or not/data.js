@@ -16,6 +16,7 @@ const DATA = {
         eventLabel: "Event:",
         submit: "Submit",
         tryAgain: "Try Again",
+        hasLabel: "has",
       },
       steps: {
         1: {
@@ -171,6 +172,7 @@ const DATA = {
         eventLabel: "Kejadian:",
         submit: "Kirim",
         tryAgain: "Coba Lagi",
+        hasLabel: "memiliki",
       },
       steps: {
         1: {

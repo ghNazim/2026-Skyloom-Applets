@@ -7,11 +7,11 @@ var scaleColumnsForBg = [
 ];
 
 var scaleColumnsForBgId = [
-  { dotColor: "#e53935", labelHtml: "<span style=\"color:#e53935;font-weight:700\">Tiada<br>peluang</span>" },
-  { dotColor: "#fb8c00", labelHtml: "<span style=\"color:#fb8c00;font-weight:700\">Peluang<br>rendah</span>" },
-  { dotColor: "#fdd835", labelHtml: "<span style=\"color:#fdd835;font-weight:700\">Peluang<br>sama</span>" },
-  { dotColor: "#29b6f6", labelHtml: "<span style=\"color:#29b6f6;font-weight:700\">Peluang<br>tinggi</span>" },
-  { dotColor: "#66bb6a", labelHtml: "<span style=\"color:#66bb6a;font-weight:700\">Peluang<br>pasti</span>" },
+  { dotColor: "#e53935", labelHtml: "<span style=\"color:#e53935;font-weight:700\">Peluang<br>Tidak Mungkin</span>" },
+  { dotColor: "#fb8c00", labelHtml: "<span style=\"color:#fb8c00;font-weight:700\">Peluang<br>Kurang Mungkin</span>" },
+  { dotColor: "#fdd835", labelHtml: "<span style=\"color:#fdd835;font-weight:700\">Peluang<br>Mungkin</span>" },
+  { dotColor: "#29b6f6", labelHtml: "<span style=\"color:#29b6f6;font-weight:700\">Peluang<br>Sangat Mungkin</span>" },
+  { dotColor: "#66bb6a", labelHtml: "<span style=\"color:#66bb6a;font-weight:700\">Peluang<br>Pasti</span>" },
 ];
 
 const DATA = {
